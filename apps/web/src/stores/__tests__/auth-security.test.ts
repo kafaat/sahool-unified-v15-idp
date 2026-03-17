@@ -285,12 +285,10 @@ describe("Auth Store Security", () => {
 
       const { authState, act } = await setupAuthProvider();
 
-      // Should not throw when BroadcastChannel is unavailable
-      await expect(
-        act(async () => {
-          await authState.logout();
-        }),
-      ).resolves.not.toThrow();
+      // Should not reject when BroadcastChannel is unavailable
+      await act(async () => {
+        await authState.logout();
+      });
     });
   });
 

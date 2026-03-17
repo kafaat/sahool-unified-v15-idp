@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true, // Prevents JavaScript access (XSS protection)
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
       sameSite: "strict", // CSRF protection
-      maxAge: ACCESS_TOKEN_MAX_AGE, // 7 days
+      maxAge: ACCESS_TOKEN_MAX_AGE, // 30 minutes default
       path: "/", // Available across entire app
     });
 
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
         httpOnly: true, // Prevents JavaScript access (XSS protection)
         secure: process.env.NODE_ENV === "production", // HTTPS only in production
         sameSite: "strict", // CSRF protection
-        maxAge: REFRESH_TOKEN_MAX_AGE, // 30 days
+        maxAge: REFRESH_TOKEN_MAX_AGE, // 7 days default
         path: "/", // Available across entire app
       });
     }

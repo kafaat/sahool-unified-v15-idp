@@ -154,7 +154,7 @@ export async function OPTIONS(request: NextRequest) {
     allowedOrigins.push("http://localhost:3000", "http://localhost:3001");
   }
 
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : "https://sahool.com";
 
   return new NextResponse(null, {
     status: 204,

@@ -9,7 +9,6 @@ import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Shield, Clock, RefreshCw, Leaf, ArrowRight, CheckCircle } from "lucide-react";
-import { API_BASE_URL } from "@/config/api-base";
 
 // OTP expiration time in seconds
 const OTP_EXPIRATION_TIME = 300; // 5 minutes
@@ -229,7 +228,7 @@ function VerifyOTPForm() {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+      const response = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -280,7 +279,7 @@ function VerifyOTPForm() {
     setSuccess("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/resend-otp`, {
+      const response = await fetch("/api/auth/resend-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

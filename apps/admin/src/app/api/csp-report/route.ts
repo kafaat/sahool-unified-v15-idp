@@ -235,11 +235,11 @@ export async function OPTIONS(request: NextRequest) {
 
   return new NextResponse(null, {
     status: 204,
-    headers: {
+    headers: new Headers({
       "Access-Control-Allow-Origin": matchedOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",
-    },
+    }),
   });
 }

@@ -172,7 +172,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             )}
 
-            {this.state.error?.stack && (
+            {process.env.NODE_ENV === "development" && this.state.error?.stack && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-800 font-medium">
                   Stack Trace (للمطورين)
@@ -183,7 +183,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            {this.state.errorInfo?.componentStack && (
+            {process.env.NODE_ENV === "development" && this.state.errorInfo?.componentStack && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-800 font-medium">
                   Component Stack

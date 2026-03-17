@@ -147,10 +147,9 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   },
   auth: {
     name: "auth",
-    // Auth gateway port (8080) - not in SERVICE_PORTS (separate from USER_SERVICE:3025)
-    baseUrl: `${API_BASE}:8080`,
-    port: 8080,
-    healthEndpoint: "/health",
+    baseUrl: `${API_BASE}:${SERVICE_PORTS.USER_SERVICE}`,
+    port: SERVICE_PORTS.USER_SERVICE,
+    healthEndpoint: "/api/v1/health",
     timeout: 5000,
     retries: 2,
   },

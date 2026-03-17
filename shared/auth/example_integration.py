@@ -136,18 +136,22 @@ async def startup_event():
 
     # Create a test admin user for development
     if app.debug:
-        try:
-            test_user = user_service.create_user(
-                tenant_id="sahool-001",
-                email="admin@sahool.io",
-                name="Test Admin",
-                name_ar="مسؤول تجريبي",
-                password=os.getenv("TEST_ADMIN_PASSWORD", ""),  # nosemgrep: hardcoded-password-default-argument  # noqa: S105
-                roles=["admin"],
-            )
-            print(f"✅ Test admin user created: {test_user.email}")
-        except ValueError:
-            print("ℹ️  Test admin user already exists")
+        test_password = os.getenv("TEST_ADMIN_PASSWORD")
+        if not test_password:
+            print("ℹ️  TEST_ADMIN_PASSWORD not set, skipping test admin user creation")
+        else:
+            try:
+                test_user = user_service.create_user(
+                    tenant_id="sahool-001",
+                    email="admin@sahool.io",
+                    name="Test Admin",
+                    name_ar="مسؤول تجريبي",
+                    password=test_password,
+                    roles=["admin"],
+                )
+                print(f"✅ Test admin user created: {test_user.email}")
+            except ValueError:
+                print("ℹ️  Test admin user already exists")
 
 
 @app.on_event("shutdown")

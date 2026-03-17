@@ -150,20 +150,36 @@ export default function CommunityPage() {
       header: "",
       render: (post: Post) => (
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
+          <button
+            disabled
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="عرض (قريبًا)"
+          >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
           {(post.status === "flagged" || post.status === "pending") && (
-            <button className="p-2 hover:bg-green-50 rounded-lg transition-colors" title="قبول">
+            <button
+              disabled
+              className="p-2 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title="قبول (قريبًا)"
+            >
               <CheckCircle className="w-4 h-4 text-green-500" />
             </button>
           )}
           {post.status !== "hidden" && (
-            <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="إخفاء">
+            <button
+              disabled
+              className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title="إخفاء (قريبًا)"
+            >
               <XCircle className="w-4 h-4 text-red-500" />
             </button>
           )}
-          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="حذف">
+          <button
+            disabled
+            className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="حذف (قريبًا)"
+          >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
         </div>

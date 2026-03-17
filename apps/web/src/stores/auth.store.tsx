@@ -219,6 +219,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Auto-check authentication on mount so isLoading transitions to false
+  React.useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   const value = React.useMemo(
     () => ({
       user,

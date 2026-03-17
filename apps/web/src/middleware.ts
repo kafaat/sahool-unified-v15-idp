@@ -138,10 +138,18 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
-    pathname.startsWith("/api") ||
     pathname.includes(".") // files with extensions (images, etc.)
   ) {
     return NextResponse.next();
+  }
+
+  // Allow API routes through with basic security headers but skip
+  // locale detection, CSRF, and JWT checks (API routes handle auth themselves)
+  if (pathname.startsWith("/api")) {
+    const response = NextResponse.next();
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("X-Frame-Options", "DENY");
+    return response;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -153,9 +153,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.error("Failed to clear session cookies:", error);
     }
 
-    // Clear CSRF tokens (both server-side and client-readable cookies)
-    // path must match the path used when setting the cookie
-    Cookies.remove("csrf_token", { path: "/" });
+    // Clear client-readable CSRF cookie (the only one js-cookie can access).
+    // The httpOnly csrf_token cookie is cleared server-side by DELETE /api/auth/session.
     Cookies.remove("_csrf", { path: "/" });
 
     // Clear client-side state

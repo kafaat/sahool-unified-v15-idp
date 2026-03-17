@@ -176,9 +176,11 @@ export async function DELETE(request: NextRequest) {
     // Get cookie store
     const cookieStore = await cookies();
 
-    // Remove both cookies
+    // Remove session and CSRF cookies
     cookieStore.delete(ACCESS_TOKEN_COOKIE);
     cookieStore.delete(REFRESH_TOKEN_COOKIE);
+    cookieStore.delete("csrf_token");
+    cookieStore.delete("_csrf");
 
     return NextResponse.json({
       success: true,

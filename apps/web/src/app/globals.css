@@ -1,3 +1,29 @@
+/* Self-hosted Tajawal font with Google Fonts CDN fallback */
+@font-face {
+  font-family: 'Tajawal';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Tajawal-Regular.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/tajawal/v9/mI8cfspOoMOjmlQBVwz1.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tajawal';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Tajawal-Medium.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/tajawal/v9/mI8YfspOoMOjmlQBRwxi1A.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Tajawal';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Tajawal-Bold.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/tajawal/v9/mI8anspOoMOjmlQBcj3XaQ.woff2') format('woff2');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

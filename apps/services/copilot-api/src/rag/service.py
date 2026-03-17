@@ -11,13 +11,14 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import structlog
 
@@ -460,13 +461,69 @@ class CopilotRAGService:
         """
         List documents in the knowledge base.
         عرض قائمة الوثائق في قاعدة المعرفة
+
+        Uses Qdrant scroll() when available, falls back to in-memory store.
         """
+        if self._qdrant_available and self._qdrant_client:
+            try:
+                return await self._list_documents_qdrant(tenant_id, limit, offset)
+            except Exception as e:
+                logger.warning("Qdrant list_documents failed, falling back to memory", error=str(e))
+
+        # Fallback to in-memory store
         documents = list(self._documents.values())
 
         if tenant_id:
             documents = [d for d in documents if d.metadata.get("tenant_id") == tenant_id]
 
         return documents[offset : offset + limit]
+
+    async def _list_documents_qdrant(
+        self,
+        tenant_id: str | None,
+        limit: int,
+        offset: int,
+    ) -> list[RAGDocument]:
+        """List documents from Qdrant using scroll API"""
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+        scroll_filter = None
+        if tenant_id:
+            scroll_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="metadata.tenant_id",
+                        match=MatchValue(value=tenant_id),
+                    )
+                ]
+            )
+
+        # Qdrant scroll doesn't support offset natively, so we fetch offset+limit
+        # and slice. For large offsets, consider cursor-based pagination.
+        # Run sync Qdrant client in threadpool to avoid blocking the event loop.
+        fetch_limit = offset + limit
+        results, _next_page = await asyncio.to_thread(
+            self._qdrant_client.scroll,
+            collection_name=self.config.qdrant_collection,
+            scroll_filter=scroll_filter,
+            limit=fetch_limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+
+        documents = []
+        for point in results[offset:]:
+            payload = point.payload or {}
+            documents.append(
+                RAGDocument(
+                    id=str(point.id),
+                    text=payload.get("text", ""),
+                    text_ar=payload.get("text_ar"),
+                    metadata=payload.get("metadata", {}),
+                )
+            )
+
+        return documents
 
     async def get_stats(self) -> dict[str, Any]:
         """Get RAG service statistics"""
@@ -491,10 +548,16 @@ class CopilotRAGService:
         self,
         results: list[SearchResult],
         max_chars: int = 4000,
+        language: str = "en",
     ) -> str:
         """
         Format search results for inclusion in LLM prompt.
         تنسيق نتائج البحث لتضمينها في prompt
+
+        Args:
+            results: Search results to format
+            max_chars: Maximum total characters
+            language: Preferred language ("ar" for Arabic, "en" for English)
         """
         if not results:
             return ""
@@ -504,11 +567,16 @@ class CopilotRAGService:
 
         for i, result in enumerate(results):
             doc = result.document
-            # Use Arabic text if available, else English
-            text = doc.text_ar if doc.text_ar else doc.text
+            # Select text based on requested language
+            if language == "ar":
+                text = doc.text_ar if doc.text_ar else doc.text
+            else:
+                text = doc.text if doc.text else (doc.text_ar or "")
 
             # Truncate if needed
             available_chars = max_chars - total_chars - 50
+            if available_chars <= 0:
+                break
             if len(text) > available_chars:
                 text = text[:available_chars] + "..."
 

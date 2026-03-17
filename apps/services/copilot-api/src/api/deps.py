@@ -15,12 +15,22 @@ logger = structlog.get_logger()
 security = HTTPBearer(auto_error=False)
 
 # Security: JWT_SECRET_KEY must be set via environment variable
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-if not JWT_SECRET_KEY:
-    logger.warning("jwt_secret_missing", msg="JWT_SECRET_KEY not set - authentication will fail")
-    JWT_SECRET_KEY = ""  # Will cause decode to fail, preventing auth bypass
+# أمان: يجب تعيين JWT_SECRET_KEY عبر متغيرات البيئة
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
+
+_environment = os.getenv("ENVIRONMENT", "development").lower()
+if _environment == "production" and len(JWT_SECRET_KEY) < 32:
+    raise RuntimeError(
+        "JWT_SECRET_KEY must be at least 32 characters in production. "
+        "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج."
+    )
+elif not JWT_SECRET_KEY:
+    logger.warning(
+        "jwt_secret_missing",
+        msg="JWT_SECRET_KEY not set - authentication will reject all tokens",
+    )
 
 
 async def get_current_user(

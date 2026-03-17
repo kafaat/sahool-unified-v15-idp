@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum, StrEnum
-from typing import Any, Optional
+from enum import StrEnum
+from typing import Any
 
 import structlog
 
@@ -132,10 +132,10 @@ class AgentRouter:
                 keywords_ar=["ري", "ماء", "سقي", "رطوبة", "جفاف"],
                 priority=7,
             ),
-            # General (fallback)
+            # General (fallback — no patterns; selected when no other agent matches)
             AgentRoute(
                 agent_type=AgentType.GENERAL,
-                patterns=[r".*"],
+                patterns=[],
                 keywords_en=[],
                 keywords_ar=[],
                 priority=0,

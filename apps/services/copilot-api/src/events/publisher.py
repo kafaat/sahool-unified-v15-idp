@@ -3,7 +3,7 @@ NATS event publisher for copilot-api - ناشر أحداث NATS للمستشار
 """
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -36,7 +36,7 @@ async def publish_copilot_event(nc, event_type: str, data: dict) -> bool:
     try:
         payload = json.dumps(
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "service": "copilot-api",
                 "event_type": event_type,
                 **data,

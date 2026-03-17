@@ -13,8 +13,9 @@ from __future__ import annotations
 import time
 from typing import Any
 
+import httpx
 import structlog
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..deps import get_current_user
 from ...models.schemas import (
@@ -36,8 +37,22 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/tools", tags=["Tools"])
 
 
+def _get_http_client(req: Request) -> httpx.AsyncClient:
+    """Get shared HTTP client from app state.
+
+    Raises RuntimeError if not initialized (lifespan must run first).
+    """
+    client = getattr(req.app.state, "http_client", None)
+    if client is None:
+        raise RuntimeError(
+            "http_client not initialized in app.state. "
+            "Ensure the lifespan context manager ran correctly."
+        )
+    return client
+
+
 @router.post("/run", response_model=ToolCallResponse)
-async def run_tool(request: ToolCallRequest, user: dict = Depends(get_current_user)) -> ToolCallResponse:
+async def run_tool(request: ToolCallRequest, req: Request, user: dict = Depends(get_current_user)) -> ToolCallResponse:
     """
     Execute a tool with guardrails.
     تنفيذ أداة مع حواجز الحماية
@@ -74,7 +89,8 @@ async def run_tool(request: ToolCallRequest, user: dict = Depends(get_current_us
 
     # Execute tool
     try:
-        result = await _execute_tool(request.tool, request.args)
+        http_client = _get_http_client(req)
+        result = await _execute_tool(request.tool, request.args, http_client=http_client)
         execution_time = (time.time() - start_time) * 1000
 
         logger.info(
@@ -167,7 +183,7 @@ async def check_domain(domain: str):
     }
 
 
-async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
+async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
     """
     Execute a tool by name.
     تنفيذ أداة بالاسم
@@ -175,7 +191,6 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
     # RAG tools
     if tool == "rag.search":
         rag_service = get_rag_service()
-        await rag_service.initialize()
         results = await rag_service.search(
             query=args.get("query", ""),
             top_k=args.get("k", 5),
@@ -191,7 +206,6 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
 
     elif tool == "rag.add":
         rag_service = get_rag_service()
-        await rag_service.initialize()
         doc = await rag_service.add_document(
             text=args.get("text", ""),
             text_ar=args.get("text_ar"),
@@ -202,7 +216,6 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
 
     elif tool == "rag.list":
         rag_service = get_rag_service()
-        await rag_service.initialize()
         docs = await rag_service.list_documents(
             limit=args.get("limit", 100),
             offset=args.get("offset", 0),
@@ -211,21 +224,20 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
 
     elif tool == "rag.delete":
         rag_service = get_rag_service()
-        await rag_service.initialize()
         success = await rag_service.delete_document(args.get("id", ""))
         return {"deleted": success}
 
     # Code analysis tools (proxy to code-fix-agent)
     elif tool.startswith("code."):
-        return await _proxy_to_code_agent(tool, args)
+        return await _proxy_to_code_agent(tool, args, http_client)
 
     # Field tools (proxy to field service)
     elif tool.startswith("field."):
-        return await _proxy_to_field_service(tool, args)
+        return await _proxy_to_field_service(tool, args, http_client)
 
     # Weather tools (proxy to weather service)
     elif tool.startswith("weather."):
-        return await _proxy_to_weather_service(tool, args)
+        return await _proxy_to_weather_service(tool, args, http_client)
 
     # Deploy tools (planning only)
     elif tool.startswith("deploy."):
@@ -238,28 +250,25 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
 _CODE_AGENT_ACTIONS = {"analyze", "fix", "review", "diagnose", "test"}
 
 
-async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
+async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to code-fix-agent"""
-    import httpx
-
     from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
 
     if action not in _CODE_AGENT_ACTIONS:
-        return {"error": "Unknown code agent action"}
+        return {"error": f"Unknown code agent action: {action}"}
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{settings.code_fix_agent_url}/api/v1/{action}",
-                json=args,
-            )
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return {"error": f"Code agent returned {response.status_code}"}
+        response = await http_client.post(
+            f"{settings.code_fix_agent_url}/api/v1/{action}",
+            json=args,
+        )
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Code agent returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Code agent unavailable: {e}"}
 
@@ -267,10 +276,8 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
 _FIELD_SERVICE_ACTIONS = {"list", "get", "create", "update", "delete", "boundaries", "statistics"}
 
 
-async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
+async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to field management service"""
-    import httpx
-
     from ...core.config import get_settings
 
     settings = get_settings()
@@ -280,27 +287,26 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
         return {"error": f"Unknown field service action: {action}"}
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            if action == "list":
-                response = await client.get(
-                    f"{settings.field_management_url}/api/v1/fields",
-                    params=args,
-                )
-            elif action == "get":
-                field_id = args.get("id", "")
-                response = await client.get(
-                    f"{settings.field_management_url}/api/v1/fields/{field_id}",
-                )
-            else:
-                response = await client.post(
-                    f"{settings.field_management_url}/api/v1/fields/{action}",
-                    json=args,
-                )
+        if action == "list":
+            response = await http_client.get(
+                f"{settings.field_management_url}/api/v1/fields",
+                params=args,
+            )
+        elif action == "get":
+            field_id = args.get("id", "")
+            response = await http_client.get(
+                f"{settings.field_management_url}/api/v1/fields/{field_id}",
+            )
+        else:
+            response = await http_client.post(
+                f"{settings.field_management_url}/api/v1/fields/{action}",
+                json=args,
+            )
 
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return {"error": f"Field service returned {response.status_code}"}
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Field service returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Field service unavailable: {e}"}
 
@@ -308,10 +314,8 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
 _WEATHER_SERVICE_ACTIONS = {"forecast", "current", "historical", "alerts", "stations"}
 
 
-async def _proxy_to_weather_service(tool: str, args: dict[str, Any]) -> Any:
+async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to weather service"""
-    import httpx
-
     from ...core.config import get_settings
 
     settings = get_settings()
@@ -321,27 +325,26 @@ async def _proxy_to_weather_service(tool: str, args: dict[str, Any]) -> Any:
         return {"error": f"Unknown weather service action: {action}"}
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            if action == "forecast":
-                response = await client.get(
-                    f"{settings.weather_service_url}/api/v1/forecast",
-                    params=args,
-                )
-            elif action == "current":
-                response = await client.get(
-                    f"{settings.weather_service_url}/api/v1/current",
-                    params=args,
-                )
-            else:
-                response = await client.get(
-                    f"{settings.weather_service_url}/api/v1/{action}",
-                    params=args,
-                )
+        if action == "forecast":
+            response = await http_client.get(
+                f"{settings.weather_service_url}/api/v1/forecast",
+                params=args,
+            )
+        elif action == "current":
+            response = await http_client.get(
+                f"{settings.weather_service_url}/api/v1/current",
+                params=args,
+            )
+        else:
+            response = await http_client.get(
+                f"{settings.weather_service_url}/api/v1/{action}",
+                params=args,
+            )
 
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return {"error": f"Weather service returned {response.status_code}"}
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Weather service returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Weather service unavailable: {e}"}
 

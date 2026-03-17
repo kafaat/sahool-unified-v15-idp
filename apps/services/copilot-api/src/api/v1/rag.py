@@ -5,15 +5,17 @@ RAG Management Endpoints
 Document management and search for knowledge base.
 
 Author: SAHOOL Platform Team
-Updated: January 2026
+Updated: March 2026
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+import time
+from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from ...models.schemas import RAGDocument, RAGSearchResult
 from ...rag import get_rag_service
@@ -21,6 +23,41 @@ from ..deps import get_current_user
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/rag", tags=["RAG"])
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Request Models | نماذج الطلبات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class AddDocumentRequest(BaseModel):
+    """Request body for adding a document | طلب إضافة وثيقة"""
+
+    text: str = Field(..., min_length=1, max_length=50000, description="Document text (English)")
+    text_ar: str | None = Field(default=None, max_length=50000, description="Document text (Arabic)")
+    category: str | None = Field(default=None, description="Document category")
+    tenant_id: str | None = Field(default=None, description="Tenant ID")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
+
+
+class BatchDocumentItem(BaseModel):
+    """Single document in a batch request | وثيقة واحدة في طلب دفعة"""
+
+    text: str = Field(..., min_length=1)
+    text_ar: str | None = None
+    metadata: dict[str, Any] | None = None
+    id: str | None = None
+
+
+class BatchDocumentsRequest(BaseModel):
+    """Request body for batch document addition | طلب إضافة وثائق دفعة"""
+
+    documents: list[BatchDocumentItem] = Field(..., min_length=1, max_length=100)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Endpoints | نقاط النهاية
+# ═══════════════════════════════════════════════════════════════════════════════
 
 
 @router.get("/search", response_model=RAGSearchResult)
@@ -35,12 +72,9 @@ async def search(
     Search the knowledge base.
     البحث في قاعدة المعرفة
     """
-    import time
-
     start_time = time.time()
 
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
     metadata_filter = {"category": category} if category else None
 
@@ -73,11 +107,7 @@ async def search(
 
 @router.post("/documents", response_model=RAGDocument)
 async def add_document(
-    text: str,
-    text_ar: str | None = None,
-    category: str | None = None,
-    tenant_id: str | None = None,
-    metadata: dict[str, Any] | None = None,
+    request: AddDocumentRequest = Body(...),
     user: dict = Depends(get_current_user),
 ):
     """
@@ -85,17 +115,16 @@ async def add_document(
     إضافة وثيقة إلى قاعدة المعرفة
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
-    doc_metadata = metadata or {}
-    if category:
-        doc_metadata["category"] = category
-    if tenant_id:
-        doc_metadata["tenant_id"] = tenant_id
+    doc_metadata = request.metadata or {}
+    if request.category:
+        doc_metadata["category"] = request.category
+    if request.tenant_id:
+        doc_metadata["tenant_id"] = request.tenant_id
 
     doc = await rag_service.add_document(
-        text=text,
-        text_ar=text_ar,
+        text=request.text,
+        text_ar=request.text_ar,
         metadata=doc_metadata,
     )
 
@@ -109,7 +138,7 @@ async def add_document(
 
 @router.post("/documents/batch")
 async def add_documents_batch(
-    documents: list[dict[str, Any]],
+    request: BatchDocumentsRequest = Body(...),
     user: dict = Depends(get_current_user),
 ):
     """
@@ -117,9 +146,9 @@ async def add_documents_batch(
     إضافة وثائق متعددة دفعة واحدة
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
-    results = await rag_service.add_documents_batch(documents)
+    docs = [d.model_dump(exclude_none=True) for d in request.documents]
+    results = await rag_service.add_documents_batch(docs)
 
     return {
         "added": len(results),
@@ -139,7 +168,6 @@ async def list_documents(
     عرض قائمة الوثائق في قاعدة المعرفة
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
     docs = await rag_service.list_documents(
         tenant_id=tenant_id,
@@ -162,7 +190,6 @@ async def delete_document(doc_id: str, user: dict = Depends(get_current_user)):
     حذف وثيقة من قاعدة المعرفة
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
     success = await rag_service.delete_document(doc_id)
 
@@ -179,8 +206,6 @@ async def get_stats(user: dict = Depends(get_current_user)):
     الحصول على إحصائيات خدمة RAG
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
-
     stats = await rag_service.get_stats()
     return stats
 
@@ -192,7 +217,6 @@ async def index_sahool_docs(user: dict = Depends(get_current_user)):
     فهرسة وثائق SAHOOL للـ RAG
     """
     rag_service = get_rag_service()
-    await rag_service.initialize()
 
     # Add core SAHOOL knowledge
     docs = [

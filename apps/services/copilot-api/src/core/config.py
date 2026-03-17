@@ -10,12 +10,14 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import os
 from functools import lru_cache
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Single source of truth for service version
+# مصدر واحد لإصدار الخدمة
+SERVICE_VERSION = "16.0.0"
 
 
 class Settings(BaseSettings):
@@ -29,7 +31,7 @@ class Settings(BaseSettings):
     # ═══════════════════════════════════════════════════════════════════════════
 
     service_name: str = Field(default="copilot-api", description="Service name")
-    service_version: str = Field(default="1.0.0", description="Service version")
+    service_version: str = Field(default=SERVICE_VERSION, description="Service version")
     environment: str = Field(default="development", description="Environment")
     debug: bool = Field(default=False, description="Debug mode")
     log_level: str = Field(default="INFO", description="Log level")
@@ -132,7 +134,7 @@ class Settings(BaseSettings):
     field_management_url: str = Field(default="http://localhost:3000", description="Field Management Service URL")
 
     # Weather Service
-    weather_service_url: str = Field(default="http://localhost:8108", description="Weather Service URL")
+    weather_service_url: str = Field(default="http://localhost:8092", description="Weather Service URL")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # COMPUTED PROPERTIES

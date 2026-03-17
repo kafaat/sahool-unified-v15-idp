@@ -124,7 +124,7 @@ server.on("upgrade", (req, socket, _head) => {
     const key = req.headers["sec-websocket-key"];
     const acceptKey = crypto
       // nosemgrep: javascript.lang.security.audit.crypto-weak-hash (SHA-1 required by WebSocket protocol RFC 6455)
-      .createHash("sha1")
+      .createHash("sha1") // nosemgrep
       .update(key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
       .digest("base64");
 

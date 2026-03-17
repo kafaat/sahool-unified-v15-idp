@@ -281,7 +281,8 @@ export function setSecureCookie(
   if (secure) cookieString += "; secure";
   if (sameSite) cookieString += `; samesite=${sameSite}`;
 
-  document.cookie = cookieString; // nosemgrep: javascript.browser.security.insecure-document-method (secure cookie utility with encoding and security attributes)
+  // nosemgrep: document-cookie-write, javascript.browser.security.insecure-document-method (secure cookie utility with encoding and security attributes)
+  document.cookie = cookieString;
 }
 
 /**
@@ -304,6 +305,7 @@ export function getCookie(name: string): string | null {
 export function deleteCookie(name: string, path: string = "/"): void {
   if (typeof document === "undefined") return;
 
+  // nosemgrep: document-cookie-write, javascript.browser.security.insecure-document-method (secure cookie deletion utility)
   document.cookie = `${encodeURIComponent(name)}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 

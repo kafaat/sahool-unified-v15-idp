@@ -21,6 +21,7 @@ import { locales, getLocaleDisplayName } from "@sahool/i18n";
  */
 function setLocaleCookie(locale: string): void {
   // Set NEXT_LOCALE cookie - this is what next-intl reads
+  // nosemgrep: document-cookie-write, javascript.browser.security.insecure-document-method
   document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
 }
 

@@ -161,6 +161,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.remove("access_token", { path: "/" });
     Cookies.remove("refresh_token", { path: "/" });
 
+    // Also remove legacy path-scoped cookies (set without explicit path by
+    // older builds, which default to the current route). Without this, a
+    // stale cookie scoped to e.g. /dashboard could shadow the root removal.
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+
     // Clear E2E mock session cookie so logout is fully effective in test mode
     if (isE2ETestModeEnabled()) {
       Cookies.remove("user_session", { path: "/" });

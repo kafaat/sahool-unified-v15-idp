@@ -116,6 +116,10 @@ class SahoolApiClient {
         if (response.success && response.data?.access_token) {
           const newAccessToken = response.data.access_token;
 
+          // Clear any legacy path-scoped cookie before setting the root one,
+          // so an old cookie on the current route cannot shadow the new value.
+          Cookies.remove("access_token");
+
           // Update the stored token
           Cookies.set("access_token", newAccessToken, {
             expires: 7,
@@ -130,9 +134,11 @@ class SahoolApiClient {
         } else {
           logger.warn("Failed to refresh token:", response.error);
 
-          // Clear invalid tokens
+          // Clear invalid tokens (root-scoped + legacy path-scoped)
           Cookies.remove("access_token", { path: "/" });
           Cookies.remove("refresh_token", { path: "/" });
+          Cookies.remove("access_token");
+          Cookies.remove("refresh_token");
           this.clearToken();
 
           return false;

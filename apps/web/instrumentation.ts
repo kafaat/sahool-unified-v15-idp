@@ -15,10 +15,10 @@
  * This mirrors the stricter check used in next.config.js.
  */
 function isSentryMissing(err: unknown): boolean {
+  if (!(err instanceof Error) || !("code" in err)) return false;
+  const code = (err as NodeJS.ErrnoException).code;
   return (
-    err instanceof Error &&
-    "code" in err &&
-    (err as NodeJS.ErrnoException).code === "MODULE_NOT_FOUND" &&
+    (code === "MODULE_NOT_FOUND" || code === "ERR_MODULE_NOT_FOUND") &&
     /['"]@sentry\/nextjs['"]/.test(err.message)
   );
 }

@@ -76,10 +76,18 @@ spec:
             app: sahool
             component: db-health-check
         spec:
+          automountServiceAccountToken: false
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            fsGroup: 10000
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: db-health-check
               image: postgres:16-alpine  # Minimal image with psql
+              imagePullPolicy: Always
               command:
                 - /bin/sh
                 - -c
@@ -97,6 +105,13 @@ spec:
                 - name: scripts
                   mountPath: /scripts
                   readOnly: true
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
               resources:
                 requests:
                   cpu: "50m"
@@ -148,9 +163,17 @@ spec:
         app: sahool
         service: user-service
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: user-service
           image: sahool/user-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8002
               protocol: TCP
@@ -225,6 +248,14 @@ spec:
               mountPath: /scripts
               readOnly: true
 
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+
           resources:
             requests:
               cpu: "100m"
@@ -273,10 +304,25 @@ metadata:
     app: sahool
     component: testing
 spec:
+  automountServiceAccountToken: false
   restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10000
+    fsGroup: 10000
+    seccompProfile:
+      type: RuntimeDefault
   containers:
     - name: health-check
       image: postgres:16-alpine
+      imagePullPolicy: Always
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
       command:
         - /bin/sh
         - -c
@@ -331,11 +377,26 @@ spec:
       labels:
         app: migration
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
       # Wait for database to be healthy before running migrations
       # انتظر حتى تكون قاعدة البيانات صحية قبل تشغيل الترحيلات
       initContainers:
         - name: wait-for-db
           image: postgres:16-alpine
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           command:
             - /bin/sh
             - -c
@@ -362,6 +423,14 @@ spec:
       containers:
         - name: migration
           image: sahool/migrations:latest
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           command: ["npm", "run", "migrate"]
           envFrom:
             - configMapRef:

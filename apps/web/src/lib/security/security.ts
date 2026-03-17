@@ -70,6 +70,7 @@ export function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
 
   const cookieName = config.csrfCookieName || "_csrf";
+  // nosemgrep: javascript.browser.security.insecure-document-method (read-only cookie access for CSRF token retrieval)
   const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
   return match ? (match[2] ?? null) : null;
 }
@@ -292,6 +293,7 @@ export function setSecureCookie(
 export function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
 
+  // nosemgrep: javascript.browser.security.insecure-document-method (read-only cookie access in cookie utility)
   const match = document.cookie.match(
     new RegExp(`(^| )${encodeURIComponent(name)}=([^;]+)`),
   );

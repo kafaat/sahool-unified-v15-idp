@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Mail, Leaf, ArrowRight, CheckCircle, MessageSquare, MessageCircle, Send, Phone } from "lucide-react";
-import { API_BASE_URL } from "@/config/api-base";
 
 type RecoveryChannel = "email" | "sms" | "whatsapp" | "telegram";
 
@@ -48,7 +47,7 @@ export default function ForgotPasswordPage() {
     try {
       if (isEmailChannel) {
         // Email channel - use existing forgot-password endpoint
-        const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+        const response = await fetch("/api/auth/forgot-password", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -65,7 +64,7 @@ export default function ForgotPasswordPage() {
         setIsSuccess(true);
       } else {
         // SMS/WhatsApp/Telegram - use send-otp endpoint
-        const response = await fetch(`${API_BASE_URL}/api/v1/auth/send-otp`, {
+        const response = await fetch("/api/auth/send-otp", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
+import { API_URL, TIMEOUT_TIERS } from "@/config/api";
 
 export async function POST(_request: Request) {
   try {
@@ -16,15 +17,17 @@ export async function POST(_request: Request) {
 
     // Call backend to revoke the token if it exists
     if (accessToken) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_TIERS.default);
+
       try {
-        const backendUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const response = await fetch(`${backendUrl}/api/v1/auth/logout`, {
+        const response = await fetch(`${API_URL}/api/v1/auth/logout`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -37,6 +40,8 @@ export async function POST(_request: Request) {
         // Log error but continue with cookie deletion
         logger.error("Failed to revoke token on backend:", backendError);
         // Don't fail the entire logout if backend is unreachable
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 

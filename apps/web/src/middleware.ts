@@ -138,18 +138,26 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".") // files with extensions (images, etc.)
+    pathname.startsWith("/static")
   ) {
     return NextResponse.next();
   }
 
-  // Allow API routes through with basic security headers but skip
+  // Allow API routes through with security headers but skip
   // locale detection, CSRF, and JWT checks (API routes handle auth themselves)
   if (pathname.startsWith("/api")) {
     const response = NextResponse.next();
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    response.headers.set("X-XSS-Protection", "1; mode=block");
+    response.headers.set("Cache-Control", "no-store");
+    if (process.env.NODE_ENV === "production") {
+      response.headers.set(
+        "Strict-Transport-Security",
+        "max-age=31536000; includeSubDomains; preload",
+      );
+    }
     return response;
   }
 

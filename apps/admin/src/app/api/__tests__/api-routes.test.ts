@@ -381,7 +381,7 @@ describe("POST /api/auth/refresh", () => {
           access_token: "new-access-token",
           refresh_token: "new-refresh-token",
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -414,7 +414,7 @@ describe("POST /api/auth/refresh", () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(
         JSON.stringify({ message: "Token expired" }),
-        { status: 401 },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -469,7 +469,7 @@ describe("GET /api/auth/me", () => {
           name: "Admin",
           role: "admin",
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -490,7 +490,7 @@ describe("GET /api/auth/me", () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(
         JSON.stringify({ message: "Unauthorized" }),
-        { status: 401 },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       ),
     );
 

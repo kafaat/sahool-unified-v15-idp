@@ -38,6 +38,14 @@ export async function POST(_request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Invalid response from backend" },
+        { status: 502 },
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -52,11 +60,11 @@ export async function POST(_request: NextRequest) {
       );
     }
 
-    // Use env vars for cookie maxAge, aligned with login route
+    // Use env vars for cookie maxAge, aligned with login route (30 min default)
     const accessTokenMaxAge = parseInt(
-      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "86400",
+      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
       10,
-    ); // 1 day default
+    ); // 30 minutes default - must match login route
     const refreshTokenMaxAge = parseInt(
       process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
       10,

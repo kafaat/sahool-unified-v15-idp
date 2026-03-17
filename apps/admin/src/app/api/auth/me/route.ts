@@ -35,6 +35,14 @@ export async function GET(_request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Invalid response from backend" },
+        { status: 502 },
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {

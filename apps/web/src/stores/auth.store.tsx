@@ -91,6 +91,18 @@ interface User {
   tenant_id?: string;
 }
 
+/** Validate UUID v4 format for tenant IDs to prevent injection */
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function sanitizeUser(data: User): User {
+  const user = { ...data };
+  if (user.tenant_id && !UUID_REGEX.test(user.tenant_id)) {
+    logger.error("Invalid tenant_id format, clearing value");
+    user.tenant_id = undefined;
+  }
+  return user;
+}
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -133,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       authApiClient.setToken(access_token);
 
       // User type from API matches our User interface
-      setUser(user);
+      setUser(sanitizeUser(user));
 
       // Fetch CSRF token for subsequent requests
       await fetchCsrfToken();
@@ -143,11 +155,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = React.useCallback(async () => {
-    // Remove cookies via secure server-side API route
+    // Remove cookies via secure server-side API route with timeout
     try {
-      await fetch("/api/auth/session", {
-        method: "DELETE",
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      try {
+        await fetch("/api/auth/session", {
+          method: "DELETE",
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
     } catch (error) {
       // Continue with logout even if API call fails
       logger.error("Failed to clear session cookies:", error);
@@ -170,6 +189,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Clear E2E mock session cookie so logout is fully effective in test mode
     if (isE2ETestModeEnabled()) {
       Cookies.remove("user_session", { path: "/" });
+    }
+
+    // Notify other tabs about logout
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        const channel = new BroadcastChannel("sahool_auth");
+        channel.postMessage({ type: "logout" });
+        channel.close();
+      }
+    } catch {
+      // BroadcastChannel not supported
     }
 
     // Clear client-side state
@@ -198,7 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await authApiClient.getCurrentUser();
       if (response.success && response.data) {
         // User type from API matches our User interface
-        setUser(response.data);
+        setUser(sanitizeUser(response.data));
       } else {
         // SECURITY: Try E2E mock session only in explicit test mode
         const mockUser = tryLoadMockSession();
@@ -210,7 +240,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         authApiClient.clearToken();
         // Clear session via API
-        await fetch("/api/auth/session", { method: "DELETE" });
+        try {
+          const ctrl = new AbortController();
+          setTimeout(() => ctrl.abort(), 5000);
+          await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+        } catch { /* best-effort cleanup */ }
       }
     } catch (error) {
       logger.error("Auth check failed:", error);
@@ -226,7 +260,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       authApiClient.clearToken();
       // Clear session via API
       try {
-        await fetch("/api/auth/session", { method: "DELETE" });
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 5000);
+        await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
       } catch {
         // Ignore cleanup errors
       }
@@ -250,6 +286,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("auth:session-expired", handleSessionExpired);
     };
   }, [logout]);
+
+  // Broadcast logout across browser tabs via BroadcastChannel
+  React.useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+
+    const channel = new BroadcastChannel("sahool_auth");
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "logout") {
+        authApiClient.clearToken();
+        setUser(null);
+      }
+    };
+
+    channel.addEventListener("message", handleMessage);
+    return () => {
+      channel.removeEventListener("message", handleMessage);
+      channel.close();
+    };
+  }, []);
 
   const value = React.useMemo(
     () => ({

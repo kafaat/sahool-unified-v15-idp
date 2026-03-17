@@ -12,19 +12,61 @@ spec:
     metadata:
       labels: { app: backstage }
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: backstage
-          image: ghcr.io/backstage/backstage:latest
+          image: ghcr.io/backstage/backstage:1.35.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 7007
           env:
             - name: APP_CONFIG
               value: /app/app-config.yaml
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 7007
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 7007
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: cfg
               mountPath: /app/app-config.yaml
               subPath: app-config.yaml
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: cfg
           configMap:
             name: backstage-config
+        - name: tmp
+          emptyDir: {}

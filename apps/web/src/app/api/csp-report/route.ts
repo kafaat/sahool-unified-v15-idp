@@ -140,11 +140,26 @@ export async function POST(request: NextRequest) {
  * OPTIONS /api/csp-report
  * Handle preflight requests
  */
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin") || "";
+  const allowedOrigins = [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "https://admin.sahool.com",
+    "https://staging.sahool.com",
+  ];
+
+  // In development, allow localhost origins
+  if (process.env.NODE_ENV === "development") {
+    allowedOrigins.push("http://localhost:3000", "http://localhost:3001");
+  }
+
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : "https://sahool.com";
+
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": corsOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     },

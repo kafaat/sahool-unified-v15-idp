@@ -123,10 +123,11 @@ spec:
       protocol: TCP
   # Uncomment for specific load balancer IP
   # loadBalancerIP: 10.0.0.100
-  # Uncomment to restrict source IPs
-  # loadBalancerSourceRanges:
-  #   - 10.0.0.0/8
-  #   - 172.16.0.0/12
+  # Restrict source IPs to internal ranges only
+  loadBalancerSourceRanges:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
 
 ---
 # ─────────────────────────────────────────────────────────────────────────────

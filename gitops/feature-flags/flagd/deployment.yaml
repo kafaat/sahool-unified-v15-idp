@@ -22,6 +22,22 @@ spec:
           args: ["start", "--uri", "file:/etc/flagd/flags.json"]
           ports:
             - containerPort: 8013
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8013
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8013
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
           resources:
             requests:
               cpu: 50m

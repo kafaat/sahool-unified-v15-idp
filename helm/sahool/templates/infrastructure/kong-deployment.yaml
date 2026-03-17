@@ -44,10 +44,24 @@ spec:
         app.kubernetes.io/name: {{ include "sahool.name" . }}
         app.kubernetes.io/component: kong
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kong
           image: "{{ .Values.infrastructure.kong.image.repository }}:{{ .Values.infrastructure.kong.image.tag }}"
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: KONG_DATABASE
               value: {{ .Values.infrastructure.kong.database }}

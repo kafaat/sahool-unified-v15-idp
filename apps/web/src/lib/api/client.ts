@@ -121,6 +121,7 @@ class SahoolApiClient {
             expires: 7,
             secure: true,
             sameSite: "strict",
+            path: "/",
           });
           this.setToken(newAccessToken);
 

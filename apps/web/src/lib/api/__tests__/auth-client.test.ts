@@ -389,6 +389,7 @@ describe("AuthApiClient", () => {
         expires: 7,
         secure: true,
         sameSite: "strict",
+        path: "/",
       });
     });
 

@@ -190,6 +190,7 @@ class AuthApiClient {
           expires: 7,
           secure: true,
           sameSite: "strict",
+          path: "/",
         });
         this.setToken(response.data.access_token);
         return true;

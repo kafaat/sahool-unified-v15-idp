@@ -314,7 +314,11 @@ export default function PivotIrrigationPage() {
 
       {/* Refresh Button */}
       <div className="mt-4 flex justify-between items-center">
-        <button className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors">
+        <button
+          disabled
+          className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="قريبًا"
+        >
           <PlusCircle className="w-4 h-4" />
           إضافة محوري جديد
         </button>
@@ -411,12 +415,14 @@ export default function PivotIrrigationPage() {
 
                 <div className="flex flex-wrap gap-3 mb-6">
                   <button
+                    disabled
                     className={cn(
-                      "flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors",
+                      "flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
                       selectedPivot.status === "running"
                         ? "bg-red-100 text-red-700 hover:bg-red-200"
                         : "bg-green-100 text-green-700 hover:bg-green-200"
                     )}
+                    title="قريبًا"
                   >
                     {selectedPivot.status === "running" ? (
                       <>
@@ -431,12 +437,20 @@ export default function PivotIrrigationPage() {
                     )}
                   </button>
 
-                  <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors">
+                  <button
+                    disabled
+                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="قريبًا"
+                  >
                     <RotateCw className="w-4 h-4" />
                     عكس الاتجاه
                   </button>
 
-                  <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                  <button
+                    disabled
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="قريبًا"
+                  >
                     <Settings className="w-4 h-4" />
                     الإعدادات
                   </button>

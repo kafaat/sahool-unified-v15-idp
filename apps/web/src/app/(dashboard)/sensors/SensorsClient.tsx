@@ -330,7 +330,11 @@ export default function SensorsClient() {
               <span className="text-xs text-gray-400">
                 آخر تحديث: {new Date(sensor.lastUpdate).toLocaleTimeString("ar-SA")}
               </span>
-              <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+              <button
+                disabled
+                title="قريباً - Coming soon"
+                className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 التفاصيل
               </button>
             </div>

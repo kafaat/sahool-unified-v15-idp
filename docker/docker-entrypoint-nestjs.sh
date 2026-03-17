@@ -15,7 +15,7 @@ else
         [ -d "$dir" ] || continue
         migration_name=$(basename "$dir")
         echo "Resolving migration: $migration_name"
-        npx prisma migrate resolve --applied "$migration_name" 2>/dev/null || true
+        npx prisma migrate resolve --applied "$migration_name" 2>&1 || true
       done
       echo 'Baseline complete. Re-running migrate deploy...'
       npx prisma migrate deploy
@@ -24,6 +24,8 @@ else
       cat /tmp/prisma_err.log
       exit 1
     fi
+  else
+    cat /tmp/prisma_err.log
   fi
 fi
 

@@ -105,7 +105,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
   <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-    <Title>${titleAr || title || filename}</Title>
+    <Title>${escapeXml(titleAr || title || filename)}</Title>
     <Created>${new Date().toISOString()}</Created>
   </DocumentProperties>
   <Styles>
@@ -129,7 +129,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
       <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
     </Style>
   </Styles>
-  <Worksheet ss:Name="${titleAr || title || "Data"}">
+  <Worksheet ss:Name="${escapeXml(titleAr || title || "Data")}">
     <Table>`;
 
   // Add column widths
@@ -141,7 +141,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
   if (title || titleAr) {
     excelContent += `\n      <Row ss:Height="30">
         <Cell ss:StyleID="Title" ss:MergeAcross="${columns.length - 1}">
-          <Data ss:Type="String">${titleAr || title}</Data>
+          <Data ss:Type="String">${escapeXml(titleAr || title || "")}</Data>
         </Cell>
       </Row>`;
   }
@@ -210,7 +210,7 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>${titleAr || title || "Export"}</title>
+  <title>${escapeXml(titleAr || title || "Export")}</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     @page {
@@ -323,7 +323,7 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
       <div class="logo-icon">س</div>
       <span style="font-size: 24px; font-weight: bold; color: #10b981;">سهول</span>
     </div>
-    <h1>${titleAr || title || "تقرير البيانات"}</h1>
+    <h1>${escapeXml(titleAr || title || "تقرير البيانات")}</h1>
     <div class="date">تاريخ التصدير: ${new Date().toLocaleDateString("ar-YE", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
   </div>
 

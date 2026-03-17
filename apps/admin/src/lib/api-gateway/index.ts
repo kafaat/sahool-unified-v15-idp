@@ -620,7 +620,12 @@ function getServiceClient(service: ServiceName): AxiosInstance {
         if (error.response?.status === 401) {
           handleAuthError();
         }
-        recordFailure(service);
+        // Only record server errors (5xx) as circuit breaker failures
+        // Client errors (4xx) indicate the service is reachable
+        const status = error.response?.status;
+        if (!status || status >= 500) {
+          recordFailure(service);
+        }
         throw error;
       },
     );

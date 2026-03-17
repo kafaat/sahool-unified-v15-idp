@@ -152,7 +152,7 @@ export async function fetchDiagnoses(params?: {
     return (response.data || []).map((d: Record<string, unknown>, _index: number) => ({
       id: d.id as string,
       farmId:
-        (d.field_id as string) || `farm-${crypto.randomUUID().slice(0, 8)}`,
+        (d.field_id as string) || `farm-${(d.id as string) || "unknown"}`,
       farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
       imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
       thumbnailUrl:
@@ -279,13 +279,13 @@ export async function getWeatherCurrent(
 export async function getWeatherForecast(
   lat: number,
   lng: number,
-  _days: number = 7,
+  days: number = 7,
   fieldId: string = "default"
 ) {
   try {
     const response = await apiClient.post(
       `${API_URLS.weather}/weather/forecast`,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+      { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
     );
     return response.data;
   } catch (error) {

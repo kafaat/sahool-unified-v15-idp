@@ -13,11 +13,29 @@ import crypto from "crypto";
 /**
  * Generate ETag from entity ID and version
  * Format: "field:{id}:v{version}"
+ *
+ * Uses SHA-256 for security (migrated from MD5).
+ * During transition, validateIfMatch also accepts legacy MD5 ETags.
  */
 export function generateETag(id: string, version: number): string {
   const data = `field:${id}:v${version}`;
   const hash = crypto
     .createHash("sha256")
+    .update(data)
+    .digest("hex")
+    .substring(0, 16);
+  return `"${hash}"`;
+}
+
+/**
+ * Generate legacy MD5 ETag for backward compatibility during migration.
+ * Remove after all clients have been updated (target: v17.0.0).
+ */
+function generateLegacyETag(id: string, version: number): string {
+  const data = `field:${id}:v${version}`;
+  const hash = crypto
+    // nosemgrep: javascript.lang.security.audit.crypto-weak-hash (legacy backward compat, removal target v17.0.0)
+    .createHash("md5") // nosemgrep
     .update(data)
     .digest("hex")
     .substring(0, 16);
@@ -35,8 +53,10 @@ export function parseETag(etag: string | undefined): string | null {
 }
 
 /**
- * Validate If-Match header against current entity version
- * Returns true if ETags match, false otherwise
+ * Validate If-Match header against current entity version.
+ * Accepts both SHA-256 (current) and MD5 (legacy) ETags for backward
+ * compatibility with offline-sync clients during migration period.
+ * Returns true if ETags match, false otherwise.
  */
 export function validateIfMatch(
   ifMatchHeader: string | undefined,
@@ -51,7 +71,13 @@ export function validateIfMatch(
   const clientETag = parseETag(ifMatchHeader);
   const serverETag = parseETag(generateETag(currentId, currentVersion));
 
-  return clientETag === serverETag;
+  if (clientETag === serverETag) {
+    return true;
+  }
+
+  // Accept legacy MD5 ETags during migration (remove after v17.0.0)
+  const legacyETag = parseETag(generateLegacyETag(currentId, currentVersion));
+  return clientETag === legacyETag;
 }
 
 /**

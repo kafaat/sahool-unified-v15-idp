@@ -110,10 +110,10 @@ export async function POST(_request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
-    headers: {
+    headers: new Headers({
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
       "Access-Control-Max-Age": "86400",
-    },
+    }),
   });
 }

@@ -20,7 +20,7 @@ import { PestTreatment } from "./entity/PestTreatment";
  * - DB_HOST: PostgreSQL host (default: localhost)
  * - DB_PORT: PostgreSQL port (default: 5432)
  * - DB_USER: Database user (default: sahool)
- * - DB_PASSWORD: Database password (default: sahool)
+ * - DB_PASSWORD: Database password (required, no default)
  * - DB_NAME: Database name (default: sahool)
  */
 

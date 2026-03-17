@@ -100,7 +100,8 @@ function JsonLdScript({ data }: { data: Record<string, unknown> }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }}
+      // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml (JSON.stringify output with script escape)
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }} // nosemgrep
     />
   );
 }

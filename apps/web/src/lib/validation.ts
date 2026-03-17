@@ -155,7 +155,7 @@ export const sanitizers = {
     // Client-side using DOM
     const div = document.createElement("div");
     div.textContent = input;
-    return div.innerHTML;
+    return div.innerHTML; // nosemgrep: javascript.browser.security.insecure-document-method (safe: textContent assignment escapes HTML, innerHTML reads it back)
   },
 
   /**

@@ -387,7 +387,7 @@ describe("AuthApiClient", () => {
       expect(result).toBe(true);
       expect(Cookies.set).toHaveBeenCalledWith("access_token", "new-access-token", {
         expires: 7,
-        secure: true,
+        secure: false, // jsdom runs on http:
         sameSite: "strict",
         path: "/",
       });

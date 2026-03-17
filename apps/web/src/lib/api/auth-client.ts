@@ -188,7 +188,7 @@ class AuthApiClient {
       if (response.success && response.data?.access_token) {
         Cookies.set("access_token", response.data.access_token, {
           expires: 7,
-          secure: true,
+          secure: window.location.protocol === "https:",
           sameSite: "strict",
           path: "/",
         });

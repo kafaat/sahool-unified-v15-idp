@@ -119,7 +119,7 @@ class SahoolApiClient {
           // Update the stored token
           Cookies.set("access_token", newAccessToken, {
             expires: 7,
-            secure: true,
+            secure: window.location.protocol === "https:",
             sameSite: "strict",
             path: "/",
           });

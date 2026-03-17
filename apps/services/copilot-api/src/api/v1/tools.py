@@ -187,7 +187,19 @@ async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.Asyn
     """
     Execute a tool by name.
     تنفيذ أداة بالاسم
+
+    Args:
+        http_client: Required for proxy tools (code.*, field.*, weather.*).
+                     Provided from app.state via _get_http_client in the endpoint.
     """
+    # Validate http_client for proxy tools that require it
+    _PROXY_PREFIXES = ("code.", "field.", "weather.")
+    if any(tool.startswith(p) for p in _PROXY_PREFIXES) and http_client is None:
+        raise ValueError(
+            f"http_client is required for proxy tool '{tool}'. "
+            "Ensure app.state.http_client is initialized via lifespan."
+        )
+
     # RAG tools
     if tool == "rag.search":
         rag_service = get_rag_service()

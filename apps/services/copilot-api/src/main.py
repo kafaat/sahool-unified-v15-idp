@@ -81,6 +81,11 @@ async def lifespan(app: FastAPI):
     """
     settings = get_settings()
 
+    # Validate JWT configuration at startup (not at import time)
+    from .api.deps import validate_jwt_config
+
+    validate_jwt_config(settings.environment)
+
     logger.info(
         "Starting Copilot API",
         version="16.0.0",

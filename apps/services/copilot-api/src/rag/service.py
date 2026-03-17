@@ -478,6 +478,10 @@ class CopilotRAGService:
 
         return documents[offset : offset + limit]
 
+    # Maximum offset allowed for scroll-based pagination to prevent expensive queries.
+    # For larger datasets, implement cursor-based pagination using Qdrant's next_page token.
+    _MAX_SCROLL_OFFSET = 10000
+
     async def _list_documents_qdrant(
         self,
         tenant_id: str | None,
@@ -486,6 +490,15 @@ class CopilotRAGService:
     ) -> list[RAGDocument]:
         """List documents from Qdrant using scroll API"""
         from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+        # Cap offset to prevent pathological queries
+        if offset > self._MAX_SCROLL_OFFSET:
+            logger.warning(
+                "Offset exceeds maximum for scroll pagination, capping",
+                requested_offset=offset,
+                max_offset=self._MAX_SCROLL_OFFSET,
+            )
+            offset = self._MAX_SCROLL_OFFSET
 
         scroll_filter = None
         if tenant_id:
@@ -499,7 +512,7 @@ class CopilotRAGService:
             )
 
         # Qdrant scroll doesn't support offset natively, so we fetch offset+limit
-        # and slice. For large offsets, consider cursor-based pagination.
+        # and slice. Offset is capped above to bound the cost.
         # Run sync Qdrant client in threadpool to avoid blocking the event loop.
         fetch_limit = offset + limit
         results, _next_page = await asyncio.to_thread(

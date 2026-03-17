@@ -327,14 +327,7 @@ function LoginForm() {
             </p>
           </div>
 
-          {/* Demo Credentials (Development Only) */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-              <p className="font-medium mb-2">بيانات الدخول للتجربة:</p>
-              <p>البريد: admin@sahool.io</p>
-              <p>كلمة المرور: admin123</p>
-            </div>
-          )}
+          {/* Demo credentials removed for security - use .env or seed scripts */}
         </div>
 
         {/* Footer */}

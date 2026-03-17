@@ -255,25 +255,39 @@ export default function RegisterClient() {
         normalizedPhone = `${YEMEN_COUNTRY_CODE}${normalizedPhone}`;
       }
 
-      // Call registration API
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email ? formData.email.toLowerCase().trim() : undefined,
-            password: formData.password,
-            firstName: formData.firstName.trim(),
-            lastName: formData.lastName.trim(),
-            phone: normalizedPhone || undefined,
-            registerMethod,
-          }),
-          credentials: "include",
-        }
-      );
+      // Call registration API with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      let response: Response;
+      try {
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: formData.email ? formData.email.toLowerCase().trim() : undefined,
+              password: formData.password,
+              firstName: formData.firstName.trim(),
+              lastName: formData.lastName.trim(),
+              phone: normalizedPhone || undefined,
+              registerMethod,
+            }),
+            credentials: "include",
+            signal: controller.signal,
+          }
+        );
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        throw new Error("Invalid response from server");
+      }
 
       const data: { message?: string; detail?: string; access_token?: string; refresh_token?: string } = await response.json();
 

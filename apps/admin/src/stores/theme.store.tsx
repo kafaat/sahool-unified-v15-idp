@@ -71,7 +71,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Initialize theme from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+    let stored: Theme | null = null;
+    try {
+      stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+    } catch {
+      // localStorage not available (e.g. private browsing)
+    }
     const initialTheme = stored || "system";
     setThemeState(initialTheme);
     const resolved = resolveTheme(initialTheme);
@@ -101,7 +106,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setTheme = useCallback(
     (newTheme: Theme) => {
       setThemeState(newTheme);
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+      } catch {
+        // localStorage not available
+      }
       const resolved = resolveTheme(newTheme);
       setResolvedTheme(resolved);
       applyTheme(resolved);

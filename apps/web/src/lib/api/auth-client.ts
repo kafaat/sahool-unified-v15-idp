@@ -92,14 +92,17 @@ class AuthApiClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-      const response = await fetch(url, {
-        ...fetchOptions,
-        headers,
-        signal: controller.signal,
-        credentials: "include",
-      });
-
-      clearTimeout(timeoutId);
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          ...fetchOptions,
+          headers,
+          signal: controller.signal,
+          credentials: "include",
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       let data: any;
       const contentType = response.headers.get("content-type");

@@ -86,7 +86,7 @@ function mapApiFieldToField(apiField: ApiFieldResponse): Field {
       apiField.cropType ||
       apiField.crop ||
       "",
-    farmId: apiField.tenantId || apiField.farmId || "",
+    farmId: apiField.farmId || "",
     polygon: apiField.boundary || apiField.polygon,
     description: apiField.metadata?.description || apiField.description,
     descriptionAr: apiField.metadata?.descriptionAr || apiField.descriptionAr,
@@ -123,7 +123,7 @@ function mapFieldToApiField(
   return {
     name: field.name,
     nameAr: field.nameAr,
-    tenantId: field.farmId || tenantId || "default-tenant",
+    tenantId: tenantId || "default-tenant",
     cropType: field.crop || "unknown",
     cropTypeAr: field.cropAr,
     coordinates: field.polygon?.coordinates?.[0],

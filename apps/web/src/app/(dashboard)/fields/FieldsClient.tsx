@@ -11,10 +11,10 @@ import { useTranslations } from "next-intl";
 import { FieldsList } from "@/features/fields";
 import { FieldForm } from "@/features/fields/components/FieldForm";
 import type { FieldFormData } from "@/features/fields/types";
+import { useCreateField } from "@/features/fields/hooks/useFieldMutations";
 import { Modal } from "@/components/ui/modal";
 import { Plus } from "lucide-react";
 import { ErrorTracking } from "@/lib/monitoring/error-tracking";
-import { logger } from "@/lib/logger";
 import { useToast } from "@/components/ui/toast";
 
 export default function FieldsClient() {
@@ -22,6 +22,7 @@ export default function FieldsClient() {
   const t = useTranslations("fields");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { showToast } = useToast();
+  const createField = useCreateField();
 
   const handleFieldClick = (fieldId: string) => {
     ErrorTracking.addBreadcrumb({
@@ -52,17 +53,8 @@ export default function FieldsClient() {
         data: { fieldName: data?.name },
       });
 
-      // When backend is ready, implement:
-      // const response = await fetch('/api/fields', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // });
-      // if (!response.ok) throw new Error('Failed to create field');
-      // const newField = await response.json();
+      await createField.mutateAsync({ data });
 
-      // For now, simulate successful creation
-      logger.log("Field creation data:", data);
       showToast({
         type: "success",
         message: t("createSuccess"),
@@ -74,9 +66,21 @@ export default function FieldsClient() {
         undefined,
         { data },
       );
+
+      // Parse bilingual error message if available
+      let errorMessage = t("createFailed");
+      if (error instanceof Error) {
+        try {
+          const errorData = JSON.parse(error.message);
+          errorMessage = errorData.messageAr || errorData.message || errorMessage;
+        } catch {
+          // Use default error message
+        }
+      }
+
       showToast({
         type: "error",
-        message: t("createFailed"),
+        message: errorMessage,
       });
     }
   };
@@ -94,7 +98,8 @@ export default function FieldsClient() {
           </div>
           <button
             onClick={handleCreateClick}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            disabled={createField.isPending}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
           >
             <Plus className="w-5 h-5" />
             <span className="font-medium">{t("addNewField")}</span>
@@ -115,7 +120,11 @@ export default function FieldsClient() {
         titleAr={t("addNewField")}
         title={t("createNewField")}
       >
-        <FieldForm onSubmit={handleSubmit} onCancel={handleCloseModal} />
+        <FieldForm
+          onSubmit={handleSubmit}
+          onCancel={handleCloseModal}
+          isSubmitting={createField.isPending}
+        />
       </Modal>
     </div>
   );

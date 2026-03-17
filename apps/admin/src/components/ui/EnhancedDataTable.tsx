@@ -5,7 +5,7 @@
  * جدول البيانات المحسن مع الفرز والتصفية والتحديد المتعدد
  */
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
   ChevronUp,
@@ -105,6 +105,11 @@ function EnhancedDataTableInner<T>({
     useState<SortDirection>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
+
+  // Reset pagination when data changes to avoid showing empty pages
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
 
   // Determine if controlled or uncontrolled
   const selectedKeys = controlledSelectedKeys ?? internalSelectedKeys;

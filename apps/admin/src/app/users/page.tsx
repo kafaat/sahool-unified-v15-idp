@@ -48,6 +48,13 @@ export default function UsersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+
+  // Debounce search input to avoid API call on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
@@ -55,7 +62,7 @@ export default function UsersPage() {
       const response = await userService.getAll({
         page,
         limit: 20,
-        search: searchQuery || undefined,
+        search: debouncedSearch || undefined,
         role: roleFilter || undefined,
         status: statusFilter || undefined,
       });
@@ -76,7 +83,7 @@ export default function UsersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, roleFilter, statusFilter, searchQuery]);
+  }, [page, roleFilter, statusFilter, debouncedSearch]);
 
   useEffect(() => {
     loadUsers();

@@ -79,8 +79,8 @@ export default function EpidemicCenterPage() {
     setIsLoading(true);
     try {
       const [diagnosesData, statsData] = await Promise.all([
-        fetchDiagnoses({ limit: 100 }),
-        fetchDiagnosisStats(),
+        fetchDiagnoses({ limit: 100, timeRange }),
+        fetchDiagnosisStats({ timeRange }),
       ]);
       setDiagnoses(diagnosesData);
       setStats(statsData);

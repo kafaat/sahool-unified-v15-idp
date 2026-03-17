@@ -131,6 +131,7 @@ export async function fetchDiagnoses(params?: {
   governorate?: string;
   limit?: number;
   offset?: number;
+  timeRange?: "day" | "week" | "month";
 }): Promise<DiagnosisRecord[]> {
   try {
     const response = await apiClient.get(
@@ -142,6 +143,7 @@ export async function fetchDiagnoses(params?: {
           governorate: params?.governorate,
           limit: params?.limit || 50,
           offset: params?.offset || 0,
+          time_range: params?.timeRange,
         },
       },
     );
@@ -186,7 +188,9 @@ export async function fetchDiagnoses(params?: {
 }
 
 // Diagnosis Statistics for Dashboard
-export async function fetchDiagnosisStats(): Promise<{
+export async function fetchDiagnosisStats(params?: {
+  timeRange?: "day" | "week" | "month";
+}): Promise<{
   total: number;
   pending: number;
   confirmed: number;
@@ -199,6 +203,7 @@ export async function fetchDiagnosisStats(): Promise<{
   try {
     const response = await apiClient.get(
       `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
+      { params: { time_range: params?.timeRange } },
     );
     const data = response.data || {};
     return {

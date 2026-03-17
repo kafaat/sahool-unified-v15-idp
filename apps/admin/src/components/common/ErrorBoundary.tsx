@@ -59,9 +59,9 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     // Report to Sentry with full context (lazy-loaded), then log to server.
-    // logErrorToServer is called after Sentry reporting so that eventId is available.
-    this.reportToSentry(error, errorInfo).then(() => {
-      this.logErrorToServer(error, errorInfo);
+    // eventId is returned directly to avoid setState race condition.
+    this.reportToSentry(error, errorInfo).then((eventId) => {
+      this.logErrorToServer(error, errorInfo, eventId ?? null);
     });
   }
 
@@ -69,7 +69,7 @@ export class ErrorBoundary extends Component<Props, State> {
    * Report error to Sentry with React component context.
    * Uses dynamic import to avoid bundling @sentry/nextjs into this chunk.
    */
-  private reportToSentry = (error: Error, errorInfo: ErrorInfo): Promise<void> => {
+  private reportToSentry = (error: Error, errorInfo: ErrorInfo): Promise<string | undefined> => {
     return import("@sentry/nextjs")
       .then((Sentry) => {
         const eventId = Sentry.captureException(error, {
@@ -89,15 +89,18 @@ export class ErrorBoundary extends Component<Props, State> {
         });
 
         this.setState({ eventId });
+        return eventId;
       })
       .catch((sentryError) => {
         logger.critical("Failed to report error to Sentry:", sentryError);
+        return undefined;
       });
   };
 
   private logErrorToServer = async (
     error: Error,
     errorInfo: ErrorInfo,
+    eventId?: string | null,
   ): Promise<void> => {
     try {
       await fetch("/api/log-error", {
@@ -110,7 +113,7 @@ export class ErrorBoundary extends Component<Props, State> {
           url: window.location.href,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
-          eventId: this.state.eventId,
+          eventId: eventId ?? this.state.eventId,
         }),
       });
     } catch (e) {

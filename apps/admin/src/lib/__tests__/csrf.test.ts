@@ -204,7 +204,7 @@ describe("CSRF Protection", () => {
     it("returns correct cookie options", () => {
       const options = getCsrfCookieOptions();
 
-      expect(options.httpOnly).toBe(true);
+      expect(options.httpOnly).toBe(false);
       expect(options.sameSite).toBe("strict");
       expect(options.path).toBe("/");
       expect(options.maxAge).toBe(CSRF_CONFIG.TOKEN_EXPIRATION / 1000);

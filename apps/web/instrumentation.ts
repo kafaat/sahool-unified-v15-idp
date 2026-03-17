@@ -83,6 +83,21 @@ export async function register() {
  * Capture errors from nested React Server Components.
  * Required by @sentry/nextjs v9+ for proper error reporting.
  *
+ * Uses a dynamic wrapper because @sentry/nextjs is an optional dependency.
+ * A static re-export would fail the build/runtime if the package is absent.
+ *
  * @see https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#errors-from-nested-react-server-components
  */
-export { captureRequestError as onRequestError } from "@sentry/nextjs";
+export async function onRequestError(
+  ...args: unknown[]
+): Promise<void> {
+  try {
+    const Sentry = await import("@sentry/nextjs");
+    if (typeof Sentry.captureRequestError === "function") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (Sentry.captureRequestError as (...a: any[]) => any)(...args);
+    }
+  } catch {
+    // @sentry/nextjs not installed — silently skip
+  }
+}

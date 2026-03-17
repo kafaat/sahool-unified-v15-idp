@@ -347,9 +347,18 @@ export function RealTimeActivityFeed({
 
     return () => {
       if (mockFallbackTimeout) clearTimeout(mockFallbackTimeout);
-      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-      if (mockIntervalRef.current) clearInterval(mockIntervalRef.current);
-      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (mockIntervalRef.current) {
+        clearInterval(mockIntervalRef.current);
+        mockIntervalRef.current = null;
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [wsUrl, maxItems]);
 

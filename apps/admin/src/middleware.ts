@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
-    pathname.includes(".") // files with extensions
+    /\.\w{2,5}$/.test(pathname) // files with extensions (e.g. .js, .css, .png)
   ) {
     return NextResponse.next();
   }
@@ -277,9 +277,10 @@ export async function middleware(request: NextRequest) {
   // Generate nonce for CSP
   const nonce = generateNonce();
 
-  // Create new request headers with nonce for layout.tsx to access
+  // Create new request headers with nonce and role for server-side code
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("X-Nonce", nonce);
+  requestHeaders.set("X-User-Role", userRole);
 
   const response = NextResponse.next({
     request: {
@@ -304,9 +305,6 @@ export async function middleware(request: NextRequest) {
 
   // Store nonce in response headers for use in HTML
   response.headers.set("X-Nonce", nonce);
-
-  // Store user role in header for API routes to use
-  response.headers.set("X-User-Role", userRole);
 
   // Add security headers
   response.headers.set("X-Frame-Options", "DENY");

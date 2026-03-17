@@ -131,6 +131,7 @@ export async function fetchDiagnoses(params?: {
   governorate?: string;
   limit?: number;
   offset?: number;
+  timeRange?: "day" | "week" | "month";
 }): Promise<DiagnosisRecord[]> {
   try {
     const response = await apiClient.get(
@@ -142,6 +143,7 @@ export async function fetchDiagnoses(params?: {
           governorate: params?.governorate,
           limit: params?.limit || 50,
           offset: params?.offset || 0,
+          time_range: params?.timeRange,
         },
       },
     );
@@ -150,7 +152,7 @@ export async function fetchDiagnoses(params?: {
     return (response.data || []).map((d: Record<string, unknown>, _index: number) => ({
       id: d.id as string,
       farmId:
-        (d.field_id as string) || `farm-${crypto.randomUUID().slice(0, 8)}`,
+        (d.field_id as string) || `farm-${(d.id as string) || "unknown"}`,
       farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
       imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
       thumbnailUrl:
@@ -186,7 +188,9 @@ export async function fetchDiagnoses(params?: {
 }
 
 // Diagnosis Statistics for Dashboard
-export async function fetchDiagnosisStats(): Promise<{
+export async function fetchDiagnosisStats(params?: {
+  timeRange?: "day" | "week" | "month";
+}): Promise<{
   total: number;
   pending: number;
   confirmed: number;
@@ -199,6 +203,7 @@ export async function fetchDiagnosisStats(): Promise<{
   try {
     const response = await apiClient.get(
       `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
+      { params: { time_range: params?.timeRange } },
     );
     const data = response.data || {};
     return {
@@ -274,13 +279,13 @@ export async function getWeatherCurrent(
 export async function getWeatherForecast(
   lat: number,
   lng: number,
-  _days: number = 7,
+  days: number = 7,
   fieldId: string = "default"
 ) {
   try {
     const response = await apiClient.post(
       `${API_URLS.weather}/weather/forecast`,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+      { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
     );
     return response.data;
   } catch (error) {

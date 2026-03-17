@@ -68,7 +68,7 @@ export const PUBLIC_ROUTES = [
  */
 export function getRequiredRoles(pathname: string): UserRole[] | null {
   // Check if route is public
-  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
     return null;
   }
 

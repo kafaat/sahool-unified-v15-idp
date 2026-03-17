@@ -240,7 +240,7 @@ export function TaskMarkers({
         taskPriority: priority, // Store for cluster color calculation
       }).bindPopup(
         `
-          <div style="direction: rtl; text-align: right; min-width: 250px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+          <div style="direction: rtl; text-align: right; min-width: 250px; font-family: 'Tajawal', system-ui, sans-serif;">
             <div style="border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 8px;">
               <h3 style="font-weight: bold; margin: 0 0 4px 0; font-size: 16px; color: #111;">
                 ${task.title_ar || task.title}

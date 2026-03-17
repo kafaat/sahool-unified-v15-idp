@@ -139,8 +139,9 @@ function generateMockStatistics(pivots: PivotSystem[]): PivotStatistics {
   const activePivots = pivots.filter((p) => p.status === "running").length;
   const totalArea = pivots.reduce((sum, p) => sum + p.area_hectares, 0);
   const waterUsage = pivots.reduce((sum, p) => sum + p.water_usage_m3, 0);
-  const avgEfficiency =
-    pivots.reduce((sum, p) => sum + p.efficiency_percent, 0) / pivots.length;
+  const avgEfficiency = pivots.length > 0
+    ? pivots.reduce((sum, p) => sum + p.efficiency_percent, 0) / pivots.length
+    : 0;
 
   return {
     total_pivots: pivots.length,

@@ -39,6 +39,11 @@ export default function NotificationsDropdown({
         )}
       </div>
       <div className="max-h-80 overflow-y-auto">
+        {notifications.length === 0 && (
+          <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+            لا توجد تنبيهات جديدة
+          </div>
+        )}
         {notifications.map((notification) => (
           <div
             key={notification.id}

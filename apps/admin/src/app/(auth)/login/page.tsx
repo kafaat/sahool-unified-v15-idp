@@ -339,7 +339,7 @@ function LoginForm() {
 
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-6">
-          © 2025 سهول - جميع الحقوق محفوظة
+          © {new Date().getFullYear()} سهول - جميع الحقوق محفوظة
         </p>
       </div>
     </div>

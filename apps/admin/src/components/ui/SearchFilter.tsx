@@ -89,6 +89,15 @@ export default function SearchFilter({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Clear debounce timer on unmount to prevent state updates after unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
   // Debounced search
   const handleSearchChange = useCallback(
     (value: string) => {

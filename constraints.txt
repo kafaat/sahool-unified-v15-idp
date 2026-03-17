@@ -32,7 +32,7 @@ pydantic-core>=2.27.0
 httpx==0.28.1
 aiohttp>=3.13.3,<4.0.0  # Security fixes for CVE-2025-53643 and CVE-2025-69223
 
-# Transitive dependencies - pinned for OWASP/CVE compliance
+# Transitive dependencies - minimum secure versions for OWASP/CVE compliance
 requests>=2.32.0  # CVE-2024-35195: session credential leak
 urllib3>=2.2.2  # CVE-2024-37891: proxy auth header leak
 certifi>=2024.7.4  # CVE-2024-39689: revoked root certificate removal

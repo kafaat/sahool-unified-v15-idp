@@ -385,10 +385,13 @@ describe("AuthApiClient", () => {
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(true);
+      // Legacy path-scoped cookie is removed before setting the new root cookie
+      expect(Cookies.remove).toHaveBeenCalledWith("access_token");
       expect(Cookies.set).toHaveBeenCalledWith("access_token", "new-access-token", {
         expires: 7,
-        secure: true,
+        secure: false, // jsdom runs on http:
         sameSite: "strict",
+        path: "/",
       });
     });
 
@@ -407,6 +410,10 @@ describe("AuthApiClient", () => {
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(false);
+      // Root-scoped removal
+      expect(Cookies.remove).toHaveBeenCalledWith("access_token", { path: "/" });
+      expect(Cookies.remove).toHaveBeenCalledWith("refresh_token", { path: "/" });
+      // Legacy path-scoped removal
       expect(Cookies.remove).toHaveBeenCalledWith("access_token");
       expect(Cookies.remove).toHaveBeenCalledWith("refresh_token");
     });

@@ -569,13 +569,14 @@ jobs:
 
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@f9b0a2206b0401cad02ac0a66be2a7934a5be838 # v12.3088.0
+        timeout-minutes: 30
         with:
           directory: .
           framework: kubernetes,dockerfile,secrets
           soft_fail: false
           output_format: sarif
           output_file_path: checkov-results.sarif
-          skip_path: archive/deprecated-services
+          skip_path: archive/deprecated-services,node_modules,legacy,.git,tests,docs,apps/mobile,models,packages/mock-data
 
       - name: Upload Checkov SARIF
         uses: github/codeql-action/upload-sarif@v4

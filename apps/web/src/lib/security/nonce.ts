@@ -328,6 +328,7 @@ export function createInlineScript(
 
   return {
     ...getNonceProps(nonce),
+    // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml (validated & sanitized inline script with CSP nonce)
     dangerouslySetInnerHTML: { __html: codeToValidate },
   };
 }
@@ -357,6 +358,7 @@ export function createInlineStyle(css: string, nonce: string | null) {
 
   return {
     ...getStyleNonceProps(nonce),
+    // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml (sanitized CSS with CSP nonce)
     dangerouslySetInnerHTML: { __html: sanitizedCss },
   };
 }

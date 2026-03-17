@@ -34,6 +34,7 @@ export function generateETag(id: string, version: number): string {
 function generateLegacyETag(id: string, version: number): string {
   const data = `field:${id}:v${version}`;
   const hash = crypto
+    // nosemgrep: javascript.lang.security.audit.crypto-weak-hash (legacy backward compat, removal target v17.0.0)
     .createHash("md5")
     .update(data)
     .digest("hex")

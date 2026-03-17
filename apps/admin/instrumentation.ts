@@ -64,7 +64,7 @@ export async function register() {
       }
     } catch (err: unknown) {
       if (!isSentryMissing(err)) {
-        console.warn("[sentry] init failed:", err);
+        console.warn("[sentry:nodejs] init failed:", err);
       }
     }
   }
@@ -98,7 +98,7 @@ export async function register() {
       }
     } catch (err: unknown) {
       if (!isSentryMissing(err)) {
-        console.warn("[sentry] init failed:", err);
+        console.warn("[sentry:edge] init failed:", err);
       }
     }
   }
@@ -107,9 +107,6 @@ export async function register() {
 /**
  * Capture errors from nested React Server Components.
  * Required by @sentry/nextjs v9+ for proper error reporting.
- *
- * Uses a dynamic wrapper because @sentry/nextjs is an optional dependency.
- * A static re-export would fail the build/runtime if the package is absent.
  *
  * @see https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#errors-from-nested-react-server-components
  */

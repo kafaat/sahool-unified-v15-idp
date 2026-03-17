@@ -307,8 +307,11 @@ const sentryOptions = {
     disable: !process.env.SENTRY_AUTH_TOKEN,
   },
 
-  // Tree-shake Sentry debug logger statements from the client bundle (~10KB savings)
-  disableLogger: true,
+  // Note: disableLogger was REMOVED — it uses an unscoped NormalModuleReplacementPlugin
+  // regex (/logger/) that replaces ANY file named "logger" (including our src/lib/logger.ts)
+  // with an empty module, causing "Cannot read properties of undefined (reading 'call')".
+  // The same optimisation is already covered by bundleSizeOptimizations.excludeDebugStatements
+  // below, which is properly scoped to @sentry/ internals only.
 
   // Automatically tree-shake unused Sentry client code
   // Removes code for features not used (e.g., Profiling, Feedback widget)

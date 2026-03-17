@@ -58,7 +58,7 @@ export interface RouteGuardOptions {
  */
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("sahool_token")?.value;
+  const token = cookieStore.get("access_token")?.value;
 
   if (!token) {
     return null;

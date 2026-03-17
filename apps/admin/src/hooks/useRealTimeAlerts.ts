@@ -147,16 +147,18 @@ export function useRealTimeAlerts(
         }
 
         // Add new alert and limit array size
-        const updated = [alert, ...prev].slice(0, maxAlerts);
+        // If notifications are enabled, mark as notified in the same update
+        // to avoid a race condition with sequential setAlerts calls
+        const newAlert = enableNotifications
+          ? { ...alert, notified: true }
+          : alert;
+        const updated = [newAlert, ...prev].slice(0, maxAlerts);
         return updated;
       });
 
-      // Show browser notification
-      if (enableNotifications && !alert.notified) {
+      // Show browser notification (after state update)
+      if (enableNotifications) {
         showBrowserNotification(alert);
-        setAlerts((prev) =>
-          prev.map((a) => (a.id === alert.id ? { ...a, notified: true } : a))
-        );
       }
 
       // Call custom handler

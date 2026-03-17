@@ -86,30 +86,48 @@ export default function SatelliteMap({
     }).addTo(mapRef.current);
   }, [activeLayer]);
 
+  // Initialize map once
   useEffect(() => {
     if (!isClient) return;
 
-    // Dynamic import of Leaflet
     const initMap = async () => {
+      if (mapRef.current) return; // Already initialized
+
       const L = (await import("leaflet")).default;
+      const map = L.map("satellite-map", {
+        center: [15.5527, 48.5164], // Yemen center
+        zoom: 7,
+        zoomControl: true,
+      });
 
-      if (!mapRef.current) {
-        // Initialize map
-        const map = L.map("satellite-map", {
-          center: [15.5527, 48.5164], // Yemen center
-          zoom: 7,
-          zoomControl: true,
-        });
+      const layerConfig = TILE_LAYERS[activeLayer];
+      tileLayerRef.current = L.tileLayer(layerConfig.url, {
+        attribution: layerConfig.attribution,
+        maxZoom: 18,
+      }).addTo(map);
 
-        // Start with satellite tile layer
-        const layerConfig = TILE_LAYERS[activeLayer];
-        tileLayerRef.current = L.tileLayer(layerConfig.url, {
-          attribution: layerConfig.attribution,
-          maxZoom: 18,
-        }).addTo(map);
+      mapRef.current = map;
+    };
 
-        mapRef.current = map;
+    initMap();
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
       }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient]);
+
+  // Update markers when fields/selection change (without recreating the map)
+  useEffect(() => {
+    if (!isClient || !mapRef.current) return;
+
+    const updateMarkers = async () => {
+      const L = (await import("leaflet")).default;
+      const map = mapRef.current;
+      if (!map) return;
 
       // Clear existing markers
       markersRef.current.forEach((marker) => marker.remove());
@@ -219,7 +237,7 @@ export default function SatelliteMap({
           }
         });
 
-        marker.addTo(mapRef.current!);
+        marker.addTo(map);
         markersRef.current.set(field.id, marker);
       });
 
@@ -230,20 +248,12 @@ export default function SatelliteMap({
             (f) => [f.location.lat, f.location.lng] as [number, number],
           ),
         );
-        mapRef.current?.fitBounds(bounds, { padding: [50, 50] });
+        map.fitBounds(bounds, { padding: [50, 50] });
       }
     };
 
-    initMap();
-
-    return () => {
-      // Cleanup on unmount
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [isClient, fields, selectedFieldId, onFieldClick, activeLayer]);
+    updateMarkers();
+  }, [isClient, fields, selectedFieldId, onFieldClick]);
 
   if (!isClient) {
     return (

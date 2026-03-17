@@ -168,15 +168,25 @@ export function useWebSocket(
   }, [autoConnect, autoDisconnect, connect, disconnect]);
 
   // Subscribe to events
+  // Store events in a ref to avoid infinite re-render loop when callers
+  // pass a new array literal on every render (e.g. events={[...]}).
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally using ref
+  const eventsKey = events.map((e) => e.type).join(",");
+
   useEffect(() => {
-    const unsubscribers = events.map(({ type, handler }) =>
+    const unsubscribers = eventsRef.current.map(({ type, handler }) =>
       subscribe(type, handler),
     );
 
     return () => {
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-  }, [events, subscribe]);
+    // Re-subscribe only when the set of event types changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventsKey, subscribe]);
 
   return {
     status,

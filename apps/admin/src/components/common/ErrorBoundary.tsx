@@ -58,19 +58,19 @@ export class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    // Report to Sentry with full context (lazy-loaded)
-    this.reportToSentry(error, errorInfo);
-
-    // Also log to server for additional tracking
-    this.logErrorToServer(error, errorInfo);
+    // Report to Sentry with full context (lazy-loaded), then log to server.
+    // logErrorToServer is called after Sentry reporting so that eventId is available.
+    this.reportToSentry(error, errorInfo).then(() => {
+      this.logErrorToServer(error, errorInfo);
+    });
   }
 
   /**
    * Report error to Sentry with React component context.
    * Uses dynamic import to avoid bundling @sentry/nextjs into this chunk.
    */
-  private reportToSentry = (error: Error, errorInfo: ErrorInfo): void => {
-    import("@sentry/nextjs")
+  private reportToSentry = (error: Error, errorInfo: ErrorInfo): Promise<void> => {
+    return import("@sentry/nextjs")
       .then((Sentry) => {
         const eventId = Sentry.captureException(error, {
           contexts: {

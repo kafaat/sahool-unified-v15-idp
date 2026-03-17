@@ -68,7 +68,7 @@ export default function CropHealthPage() {
     excellent: records.filter((r) => r.healthStatus === "excellent").length,
     issues: records.filter((r) => r.issues.length > 0).length,
     critical: records.filter((r) => r.healthStatus === "critical" || r.healthStatus === "poor").length,
-    avgNdvi: (records.reduce((acc, r) => acc + r.ndvi, 0) / records.length).toFixed(2),
+    avgNdvi: records.length > 0 ? (records.reduce((acc, r) => acc + r.ndvi, 0) / records.length).toFixed(2) : "0.00",
   }), [records]);
 
   const getStatusLabel = (status: CropHealthRecord["healthStatus"]) => {

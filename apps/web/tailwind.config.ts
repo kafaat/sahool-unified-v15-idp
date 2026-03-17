@@ -22,7 +22,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         tajawal: ["var(--font-tajawal)", "sans-serif"],
-        cairo: ["Cairo", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

@@ -6,7 +6,7 @@
  * بث النشاطات المباشرة من خدمات المنصة
  */
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -253,122 +253,105 @@ export function RealTimeActivityFeed({
   const [filter, setFilter] = useState<ActivityType | "all">("all");
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  /**
-   * Add new activity event
-   */
-  const addActivity = useCallback(
-    (event: ActivityEvent) => {
-      if (isPaused) return;
-
-      setActivities((prev) => {
-        const newActivities = [event, ...prev];
-        return newActivities.slice(0, maxItems);
-      });
-    },
-    [isPaused, maxItems]
-  );
-
-  /**
-   * Start mock data generation for demo
-   */
-  const startMockGeneration = useCallback(() => {
-    // Generate initial events
-    const initialEvents = Array.from({ length: 5 }, () => generateMockEvent());
-    setActivities(initialEvents);
-
-    // Generate new events periodically
-    const interval = setInterval(() => {
-      if (!isPaused) {
-        addActivity(generateMockEvent());
-      }
-    }, 3000 + Math.random() * 5000);
-
-    return () => clearInterval(interval);
-  }, [isPaused, addActivity]);
-
-  /**
-   * Connect to WebSocket
-   */
-  const connectWebSocket = useCallback(() => {
-    const url = wsUrl || process.env.NEXT_PUBLIC_WS_URL || `${typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"}//${typeof window !== "undefined" ? window.location.host : "localhost:8081"}/ws`;
-
-    try {
-      const ws = new WebSocket(url);
-
-      ws.onopen = () => {
-        setIsConnected(true);
-        // Subscribe to activity events
-        ws.send(
-          JSON.stringify({
-            type: "subscribe",
-            channels: ["activities", "alerts", "tasks", "weather"],
-          })
-        );
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "activity") {
-            addActivity({
-              id: data.id || `evt-${Date.now()}`,
-              type: data.activityType || "system_event",
-              title: data.title || "",
-              titleAr: data.titleAr || data.title || "",
-              description: data.description || "",
-              descriptionAr: data.descriptionAr || data.description || "",
-              severity: data.severity || "info",
-              service: data.service || "system",
-              timestamp: new Date(data.timestamp || Date.now()),
-              metadata: data.metadata,
-            });
-          }
-        } catch {
-          // Failed to parse WebSocket message - non-critical, continue
-        }
-      };
-
-      ws.onclose = () => {
-        setIsConnected(false);
-        // Reconnect after 5 seconds
-        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
-      };
-
-      ws.onerror = () => {
-        setIsConnected(false);
-      };
-
-      wsRef.current = ws;
-    } catch {
-      // WebSocket connection failed - fallback to mock data
-      startMockGeneration();
-    }
-  }, [wsUrl, addActivity, startMockGeneration]);
+  const mockIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
 
   /**
    * Initialize WebSocket or mock data
+   * Uses refs to avoid re-render loops from callback dependencies
    */
   useEffect(() => {
+    let mockFallbackTimeout: NodeJS.Timeout | null = null;
+
+    const addEvent = (event: ActivityEvent) => {
+      if (isPausedRef.current) return;
+      setActivities((prev) => [event, ...prev].slice(0, maxItems));
+    };
+
+    const startMockGeneration = () => {
+      // Prevent double mock generation
+      if (mockIntervalRef.current) return;
+
+      const initialEvents = Array.from({ length: 5 }, () => generateMockEvent());
+      setActivities(initialEvents);
+
+      mockIntervalRef.current = setInterval(() => {
+        if (!isPausedRef.current) {
+          addEvent(generateMockEvent());
+        }
+      }, 5000);
+    };
+
+    const connectWebSocket = () => {
+      const url = wsUrl || process.env.NEXT_PUBLIC_WS_URL || `${typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"}//${typeof window !== "undefined" ? window.location.host : "localhost:8081"}/ws`;
+
+      try {
+        const ws = new WebSocket(url);
+
+        ws.onopen = () => {
+          setIsConnected(true);
+          ws.send(
+            JSON.stringify({
+              type: "subscribe",
+              channels: ["activities", "alerts", "tasks", "weather"],
+            })
+          );
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "activity") {
+              addEvent({
+                id: data.id || `evt-${Date.now()}`,
+                type: data.activityType || "system_event",
+                title: data.title || "",
+                titleAr: data.titleAr || data.title || "",
+                description: data.description || "",
+                descriptionAr: data.descriptionAr || data.description || "",
+                severity: data.severity || "info",
+                service: data.service || "system",
+                timestamp: new Date(data.timestamp || Date.now()),
+                metadata: data.metadata,
+              });
+            }
+          } catch {
+            // Failed to parse WebSocket message - non-critical, continue
+          }
+        };
+
+        ws.onclose = () => {
+          setIsConnected(false);
+          reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
+        };
+
+        ws.onerror = () => {
+          setIsConnected(false);
+        };
+
+        wsRef.current = ws;
+      } catch {
+        startMockGeneration();
+      }
+    };
+
     connectWebSocket();
 
-    // Fallback to mock data if no WS after 3 seconds
-    const mockFallbackTimeout = setTimeout(() => {
-      if (!isConnected) {
+    // Fallback to mock data if no WS connection after 3 seconds
+    mockFallbackTimeout = setTimeout(() => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         startMockGeneration();
       }
     }, 3000);
 
     return () => {
-      clearTimeout(mockFallbackTimeout);
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      if (mockFallbackTimeout) clearTimeout(mockFallbackTimeout);
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+      if (mockIntervalRef.current) clearInterval(mockIntervalRef.current);
+      if (wsRef.current) wsRef.current.close();
     };
-  }, [connectWebSocket, startMockGeneration, isConnected]);
+  }, [wsUrl, maxItems]);
 
   /**
    * Get severity badge color

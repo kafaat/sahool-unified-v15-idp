@@ -48,21 +48,10 @@ export default async function RootLayout({
     <html lang={locale} dir={direction} className={tajawal.variable} suppressHydrationWarning>
       <head>
         {/*
-          Tajawal Arabic font loaded asynchronously — not render-blocking.
-          Uses preconnect + media="print" with onLoad swap trick so the font
-          download does not delay first paint. Fallback fonts apply immediately.
+          Tajawal Arabic font is self-hosted via @font-face in globals.css
+          with Google Fonts CDN as fallback source. No external stylesheet
+          needed — this ensures offline-first font loading.
         */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <AsyncStylesheet
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-        />
-        <noscript>
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-          />
-        </noscript>
         {/*
           Leaflet CSS loaded asynchronously - not render-blocking.
           Uses media="print" with onLoad swap trick for non-blocking CSS.

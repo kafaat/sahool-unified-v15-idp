@@ -171,7 +171,9 @@ class SahoolApiClient {
       let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
       const pad = b64.length % 4;
       if (pad) b64 += "=".repeat(4 - pad);
-      return JSON.parse(atob(b64));
+      const binary = atob(b64);
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
     } catch {
       return null;
     }
@@ -345,6 +347,7 @@ class SahoolApiClient {
               const retryResponse = await fetch(url, {
                 ...fetchOptions,
                 headers,
+                credentials: "include",
                 signal: retryController.signal,
               });
 
@@ -1150,8 +1153,12 @@ class SahoolApiClient {
     options?: { from?: string; to?: string },
   ) {
     // Maps to vegetation-analysis-service /v1/timeseries/{field_id}
+    // Filter out undefined values to prevent "undefined" string in query params
+    const params = options
+      ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
+      : undefined;
     return this.request<any[]>(`/api/v1/satellite/v1/timeseries/${fieldId}`, {
-      params: options as Record<string, string>,
+      params: params as Record<string, string>,
     });
   }
 
@@ -1184,8 +1191,11 @@ class SahoolApiClient {
     category?: string;
     region?: string;
   }) {
+    const params = options
+      ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
+      : undefined;
     return this.request<MarketplaceListing[]>("/api/v1/marketplace/listings", {
-      params: options as Record<string, string>,
+      params: params as Record<string, string>,
     });
   }
 

@@ -18,6 +18,11 @@ import {
   buildUrl,
 } from "@sahool/shared-types/contracts";
 
+// Default fetch options to ensure httpOnly cookies are sent with requests
+const fetchDefaults: RequestInit = {
+  credentials: "same-origin",
+};
+
 // =============================================================================
 // Common Types | الأنواع الشائعة
 // =============================================================================
@@ -95,6 +100,7 @@ export const userService = {
       const response = await fetch(
         `${USER_ENDPOINTS.LIST}?${queryParams.toString()}`,
         {
+          ...fetchDefaults,
           headers: {
             "Content-Type": "application/json",
           },
@@ -118,7 +124,7 @@ export const userService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(USER_ENDPOINTS.GET, { userId: id }));
+      const response = await fetch(buildUrl(USER_ENDPOINTS.GET, { userId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as User;
     } catch (error) {
@@ -134,6 +140,7 @@ export const userService = {
   async create(data: CreateUserData) {
     try {
       const response = await fetch(USER_ENDPOINTS.CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -153,6 +160,7 @@ export const userService = {
   async update(id: string, data: UpdateUserData) {
     try {
       const response = await fetch(buildUrl(USER_ENDPOINTS.UPDATE, { userId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -172,6 +180,7 @@ export const userService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(USER_ENDPOINTS.DELETE, { userId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -251,7 +260,7 @@ export const iotService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }));
+      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as IoTDevice;
     } catch (error) {
@@ -289,6 +298,7 @@ export const iotService = {
   async create(data: CreateDeviceData) {
     try {
       const response = await fetch(IOT_ENDPOINTS.DEVICE_CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -308,6 +318,7 @@ export const iotService = {
   async update(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice["status"] }) {
     try {
       const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_UPDATE, { deviceId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -327,6 +338,7 @@ export const iotService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_DELETE, { deviceId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -404,7 +416,7 @@ export const irrigationService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }));
+      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as IrrigationSchedule;
     } catch (error) {
@@ -420,6 +432,7 @@ export const irrigationService = {
   async create(data: CreateIrrigationData) {
     try {
       const response = await fetch(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -439,6 +452,7 @@ export const irrigationService = {
   async update(id: string, data: Partial<CreateIrrigationData> & { status?: IrrigationSchedule["status"] }) {
     try {
       const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -458,6 +472,7 @@ export const irrigationService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -536,7 +551,7 @@ export const alertService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Alert;
     } catch (error) {
@@ -552,6 +567,7 @@ export const alertService = {
   async create(data: CreateAlertData) {
     try {
       const response = await fetch(ALERT_ENDPOINTS.CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -571,6 +587,7 @@ export const alertService = {
   async acknowledge(id: string) {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }), {
+        ...fetchDefaults,
         method: "POST",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -588,6 +605,7 @@ export const alertService = {
   async resolve(id: string, resolution?: string) {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resolution }),
@@ -607,6 +625,7 @@ export const alertService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.DELETE, { alertId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -687,7 +706,7 @@ export const equipmentService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
+      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Equipment;
     } catch (error) {
@@ -703,6 +722,7 @@ export const equipmentService = {
   async create(data: CreateEquipmentData) {
     try {
       const response = await fetch(EQUIPMENT_ENDPOINTS.CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -722,6 +742,7 @@ export const equipmentService = {
   async update(id: string, data: Partial<CreateEquipmentData> & { status?: Equipment["status"] }) {
     try {
       const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.UPDATE, { equipmentId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -741,6 +762,7 @@ export const equipmentService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.DELETE, { equipmentId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

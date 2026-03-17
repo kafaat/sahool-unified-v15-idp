@@ -61,7 +61,7 @@ export function createApiClient(options?: {
     async (error: AxiosError) => {
       if (error.response?.status === 401 && typeof window !== "undefined") {
         // Dispatch session expired event for auth provider to handle
-        window.dispatchEvent(new CustomEvent("session-expired"));
+        window.dispatchEvent(new CustomEvent("auth:session-expired"));
       }
       return Promise.reject(error);
     }

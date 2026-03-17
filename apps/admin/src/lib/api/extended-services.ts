@@ -17,6 +17,11 @@ import {
   buildUrl,
 } from "@sahool/shared-types/contracts";
 
+// Default fetch options to ensure httpOnly cookies are sent with requests
+const fetchDefaults: RequestInit = {
+  credentials: "same-origin",
+};
+
 // =============================================================================
 // Task Management Service | خدمة إدارة المهام
 // =============================================================================
@@ -98,7 +103,7 @@ export const taskService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
+      const response = await fetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Task;
     } catch (error) {
@@ -114,6 +119,7 @@ export const taskService = {
   async create(data: CreateTaskData) {
     try {
       const response = await fetch(TASK_ENDPOINTS.CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -133,6 +139,7 @@ export const taskService = {
   async update(id: string, data: Partial<CreateTaskData> & { status?: Task["status"] }) {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -152,6 +159,7 @@ export const taskService = {
   async complete(id: string, notes?: string, actualDuration?: number) {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notes, actualDuration }),
@@ -171,6 +179,7 @@ export const taskService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -269,7 +278,7 @@ export const inventoryService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }));
+      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as InventoryItem;
     } catch (error) {
@@ -304,6 +313,7 @@ export const inventoryService = {
   async create(data: CreateInventoryData) {
     try {
       const response = await fetch(INVENTORY_ENDPOINTS.CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -323,6 +333,7 @@ export const inventoryService = {
   async update(id: string, data: Partial<CreateInventoryData>) {
     try {
       const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }), {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -361,6 +372,7 @@ export const inventoryService = {
   async delete(id: string) {
     try {
       const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: id }), {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -658,6 +670,7 @@ export const marketplaceService = {
   async create(data: CreateListingData) {
     try {
       const response = await fetch(MARKETPLACE_ENDPOINTS.LISTING_CREATE, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

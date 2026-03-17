@@ -153,8 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.error("Failed to clear session cookies:", error);
     }
 
-    // Clear CSRF token
+    // Clear CSRF tokens (both server-side and client-readable cookies)
     Cookies.remove("csrf_token");
+    Cookies.remove("_csrf");
 
     // Clear client-side state
     authApiClient.clearToken();
@@ -218,6 +219,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   }, []);
+
+  // Auto-check authentication on mount so isLoading transitions to false
+  React.useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const value = React.useMemo(
     () => ({

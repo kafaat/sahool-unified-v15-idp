@@ -34,7 +34,7 @@ import {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const COPILOT_API = "http://localhost:8088";
+const COPILOT_API = process.env.NEXT_PUBLIC_COPILOT_API_URL || "/api/copilot";
 
 type TabId = "dashboard" | "rag" | "guards" | "tools";
 

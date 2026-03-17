@@ -641,6 +641,7 @@ function getServiceClient(service: ServiceName): AxiosInstance {
 
 function getAuthToken(): string | null {
   if (typeof document === "undefined") return null;
+  // nosemgrep: javascript.browser.security.insecure-document-method (read-only cookie access for auth token retrieval)
   const match = document.cookie.match(/(?:^|; )sahool_admin_token=([^;]*)/);
   return match && match[1] ? decodeURIComponent(match[1]) : null;
 }

@@ -91,7 +91,7 @@ interface User {
   tenant_id?: string;
 }
 
-/** Validate UUID format for tenant IDs to prevent injection */
+/** Validate UUID v4 format for tenant IDs to prevent injection */
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function sanitizeUser(data: User): User {

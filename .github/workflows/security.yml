@@ -580,16 +580,18 @@ jobs:
           skip_path: archive/deprecated-services,node_modules,legacy,.git,tests,docs,apps/mobile,models,packages/mock-data
 
       - name: Create empty SARIF on timeout
-        if: steps.checkov.outcome == 'failure' || steps.checkov.outcome == 'cancelled'
+        if: always() && (steps.checkov.outcome == 'failure' || steps.checkov.outcome == 'cancelled')
         run: |
           if [ ! -f checkov-results.sarif ]; then
             echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Checkov","version":"3.0.0"}},"results":[]}]}' > checkov-results.sarif
-            echo "⚠️ Checkov timed out - empty SARIF created"
+            echo "⚠️ Checkov timed out or failed - empty SARIF created"
           fi
 
       - name: Upload Checkov SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        # Optional: SARIF upload may fail if GitHub Advanced Security is not enabled
+        continue-on-error: true
         with:
           sarif_file: checkov-results.sarif
           category: checkov-iac

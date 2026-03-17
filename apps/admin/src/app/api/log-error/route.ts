@@ -26,7 +26,21 @@ interface ErrorLogPayload {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MAX_ERRORS_PER_MINUTE = 20;
+const MAX_TRACKED_IPS = 1000;
 const errorCounts = new Map<string, { count: number; resetTime: number }>();
+
+/**
+ * Evict expired entries to prevent unbounded memory growth
+ * حذف المدخلات منتهية الصلاحية لمنع نمو الذاكرة بلا حدود
+ */
+function evictExpiredEntries(): void {
+  const now = Date.now();
+  for (const [ip, entry] of errorCounts) {
+    if (now > entry.resetTime) {
+      errorCounts.delete(ip);
+    }
+  }
+}
 
 /**
  * Check if client is rate limited
@@ -34,6 +48,12 @@ const errorCounts = new Map<string, { count: number; resetTime: number }>();
  */
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+
+  // Evict stale entries when the map grows too large
+  if (errorCounts.size >= MAX_TRACKED_IPS) {
+    evictExpiredEntries();
+  }
+
   const entry = errorCounts.get(ip);
 
   if (!entry || now > entry.resetTime) {

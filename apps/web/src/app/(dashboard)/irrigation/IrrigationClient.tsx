@@ -1,5 +1,8 @@
 "use client";
 
+// TODO: All CRUD operations (handleSave, handleDelete, handleStart, handleStop) only
+// modify local state with mock data. Wire up to irrigation API when backend is ready.
+
 import React, { useState, useMemo, useCallback } from "react";
 import {
   Droplets,

@@ -242,8 +242,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Clear session via API
         try {
           const ctrl = new AbortController();
-          setTimeout(() => ctrl.abort(), 5000);
-          await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+          const tid = setTimeout(() => ctrl.abort(), 5000);
+          try {
+            await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+          } finally {
+            clearTimeout(tid);
+          }
         } catch { /* best-effort cleanup */ }
       }
     } catch (error) {
@@ -261,8 +265,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear session via API
       try {
         const ctrl = new AbortController();
-        setTimeout(() => ctrl.abort(), 5000);
-        await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+        const tid = setTimeout(() => ctrl.abort(), 5000);
+        try {
+          await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+        } finally {
+          clearTimeout(tid);
+        }
       } catch {
         // Ignore cleanup errors
       }

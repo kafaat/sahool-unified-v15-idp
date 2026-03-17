@@ -32,14 +32,15 @@ pytestmark = [pytest.mark.unit, pytest.mark.copilot]
 class TestHealthEndpoints:
     """Test health check endpoints."""
 
-    def test_healthz_returns_ok(self):
-        """Test /healthz returns 200 OK."""
-        from src.api.v1.health import healthz
+    @pytest.mark.asyncio
+    async def test_liveness_returns_ok(self):
+        """Test /healthz liveness probe returns ok."""
+        from src.api.v1.health import liveness
 
-        result = healthz()
-        assert result["status"] == "healthy"
-        assert result["service"] == "copilot-api"
-        assert "version" in result
+        result = await liveness()
+        assert result.status == "ok"
+        assert result.service == "copilot-api"
+        assert result.version is not None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

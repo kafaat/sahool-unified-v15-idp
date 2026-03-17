@@ -38,11 +38,17 @@ router = APIRouter(prefix="/tools", tags=["Tools"])
 
 
 def _get_http_client(req: Request) -> httpx.AsyncClient:
-    """Get shared HTTP client from app state, or create a fallback."""
+    """Get shared HTTP client from app state.
+
+    Raises RuntimeError if not initialized (lifespan must run first).
+    """
     client = getattr(req.app.state, "http_client", None)
-    if client is not None:
-        return client
-    return httpx.AsyncClient(timeout=30.0)
+    if client is None:
+        raise RuntimeError(
+            "http_client not initialized in app.state. "
+            "Ensure the lifespan context manager ran correctly."
+        )
+    return client
 
 
 @router.post("/run", response_model=ToolCallResponse)
@@ -244,20 +250,18 @@ async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.Asyn
 _CODE_AGENT_ACTIONS = {"analyze", "fix", "review", "diagnose", "test"}
 
 
-async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
+async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to code-fix-agent"""
     from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
-    client = http_client or httpx.AsyncClient(timeout=30.0)
-    _should_close = http_client is None
 
     if action not in _CODE_AGENT_ACTIONS:
         return {"error": f"Unknown code agent action: {action}"}
 
     try:
-        response = await client.post(
+        response = await http_client.post(
             f"{settings.code_fix_agent_url}/api/v1/{action}",
             json=args,
         )
@@ -267,39 +271,34 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: htt
             return {"error": f"Code agent returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Code agent unavailable: {e}"}
-    finally:
-        if _should_close:
-            await client.aclose()
 
 
 _FIELD_SERVICE_ACTIONS = {"list", "get", "create", "update", "delete", "boundaries", "statistics"}
 
 
-async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
+async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to field management service"""
     from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
-    client = http_client or httpx.AsyncClient(timeout=30.0)
-    _should_close = http_client is None
 
     if action not in _FIELD_SERVICE_ACTIONS:
         return {"error": f"Unknown field service action: {action}"}
 
     try:
         if action == "list":
-            response = await client.get(
+            response = await http_client.get(
                 f"{settings.field_management_url}/api/v1/fields",
                 params=args,
             )
         elif action == "get":
             field_id = args.get("id", "")
-            response = await client.get(
+            response = await http_client.get(
                 f"{settings.field_management_url}/api/v1/fields/{field_id}",
             )
         else:
-            response = await client.post(
+            response = await http_client.post(
                 f"{settings.field_management_url}/api/v1/fields/{action}",
                 json=args,
             )
@@ -310,39 +309,34 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: 
             return {"error": f"Field service returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Field service unavailable: {e}"}
-    finally:
-        if _should_close:
-            await client.aclose()
 
 
 _WEATHER_SERVICE_ACTIONS = {"forecast", "current", "historical", "alerts", "stations"}
 
 
-async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
+async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient) -> Any:
     """Proxy request to weather service"""
     from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
-    client = http_client or httpx.AsyncClient(timeout=30.0)
-    _should_close = http_client is None
 
     if action not in _WEATHER_SERVICE_ACTIONS:
         return {"error": f"Unknown weather service action: {action}"}
 
     try:
         if action == "forecast":
-            response = await client.get(
+            response = await http_client.get(
                 f"{settings.weather_service_url}/api/v1/forecast",
                 params=args,
             )
         elif action == "current":
-            response = await client.get(
+            response = await http_client.get(
                 f"{settings.weather_service_url}/api/v1/current",
                 params=args,
             )
         else:
-            response = await client.get(
+            response = await http_client.get(
                 f"{settings.weather_service_url}/api/v1/{action}",
                 params=args,
             )
@@ -353,9 +347,6 @@ async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client
             return {"error": f"Weather service returned {response.status_code}"}
     except Exception as e:
         return {"error": f"Weather service unavailable: {e}"}
-    finally:
-        if _should_close:
-            await client.aclose()
 
 
 async def _handle_deploy_tool(tool: str, args: dict[str, Any]) -> Any:

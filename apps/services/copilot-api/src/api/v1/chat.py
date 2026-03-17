@@ -10,7 +10,6 @@ Updated: March 2026
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
 from datetime import UTC, datetime
@@ -42,12 +41,17 @@ router = APIRouter(tags=["Chat"])
 
 
 def _get_http_client(req: Request) -> httpx.AsyncClient:
-    """Get shared HTTP client from app state, or create a fallback."""
+    """Get shared HTTP client from app state.
+
+    Raises RuntimeError if not initialized (lifespan must run first).
+    """
     client = getattr(req.app.state, "http_client", None)
-    if client is not None:
-        return client
-    # Fallback: should not happen if lifespan ran correctly
-    return httpx.AsyncClient(timeout=30.0)
+    if client is None:
+        raise RuntimeError(
+            "http_client not initialized in app.state. "
+            "Ensure the lifespan context manager ran correctly."
+        )
+    return client
 
 
 @router.post("/chat", response_model=ChatResponse)

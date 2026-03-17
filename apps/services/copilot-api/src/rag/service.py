@@ -11,6 +11,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import time
@@ -499,8 +500,10 @@ class CopilotRAGService:
 
         # Qdrant scroll doesn't support offset natively, so we fetch offset+limit
         # and slice. For large offsets, consider cursor-based pagination.
+        # Run sync Qdrant client in threadpool to avoid blocking the event loop.
         fetch_limit = offset + limit
-        results, _next_page = self._qdrant_client.scroll(
+        results, _next_page = await asyncio.to_thread(
+            self._qdrant_client.scroll,
             collection_name=self.config.qdrant_collection,
             scroll_filter=scroll_filter,
             limit=fetch_limit,

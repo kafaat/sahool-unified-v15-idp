@@ -1,0 +1,1639 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Copilot API Code Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#copilot-api-code-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Copilot API Code Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="copilot-api-code-review-report">Copilot API Code Review Report<a class="headerlink" href="#copilot-api-code-review-report" title="Permanent link">&para;</a></h1>
+<h1 id="copilot-api">تقرير مراجعة كود Copilot API<a class="headerlink" href="#copilot-api" title="Permanent link">&para;</a></h1>
+<p><strong>Service</strong>: <code>apps/services/copilot-api/</code>
+<strong>Port</strong>: 8088
+<strong>Date</strong>: 2026-03-16
+<strong>Reviewer</strong>: Claude Code Review Agent
+<strong>Branch</strong>: <code>main</code> (commit <code>961bda2</code>)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary | ملخص تنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>The Copilot API is a <strong>well-architected</strong> FastAPI service serving as SAHOOL's unified AI assistant. It implements multi-LLM support (Ollama, Claude, OpenAI, Gemini, DeepSeek), RAG with Qdrant vector search, tool execution with 6-layer guardrails, bilingual Arabic/English support, and agent routing. The codebase is clean and modular, but has <strong>several issues</strong> ranging from critical security concerns to maintainability improvements.</p>
+<p><strong>Overall Assessment</strong>: 7/10 - Solid foundation with notable gaps to address.</p>
+<hr />
+<h2 id="architecture-overview">Architecture Overview | نظرة عامة على البنية<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">src</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="w">              </span><span class="c1"># FastAPI app, lifespan, provider detection</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">deps</span><span class="o">.</span><span class="n">py</span><span class="w">          </span><span class="c1"># JWT auth dependencies</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">v1</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">chat</span><span class="o">.</span><span class="n">py</span><span class="w">      </span><span class="c1"># Main chat endpoint + streaming</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">tools</span><span class="o">.</span><span class="n">py</span><span class="w">     </span><span class="c1"># Tool execution with guardrails</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">rag</span><span class="o">.</span><span class="n">py</span><span class="w">       </span><span class="c1"># RAG document management</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="n">health</span><span class="o">.</span><span class="n">py</span><span class="w">    </span><span class="c1"># Liveness/readiness probes + metrics</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">core</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">py</span><span class="w">        </span><span class="c1"># Pydantic Settings (env-based)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">agents</span><span class="o">.</span><span class="n">py</span><span class="w">        </span><span class="c1"># Intent-based agent router</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">models</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">schemas</span><span class="o">.</span><span class="n">py</span><span class="w">       </span><span class="c1"># Pydantic request/response models</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">security</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">allowlists</span><span class="o">.</span><span class="n">py</span><span class="w">    </span><span class="c1"># Tool/domain/pattern allowlists</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">guardrails</span><span class="o">.</span><span class="n">py</span><span class="w">    </span><span class="c1"># 6-layer ToolGuard system</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">prompt_guard</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="c1"># Prompt injection detection</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">rag</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">service</span><span class="o">.</span><span class="n">py</span><span class="w">       </span><span class="c1"># CopilotRAGService (Qdrant + keyword fallback)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">embeddings</span><span class="o">.</span><span class="n">py</span><span class="w">    </span><span class="c1"># Multi-provider embedding service</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">ultrarag_integration</span><span class="o">.</span><span class="n">py</span><span class="w">  </span><span class="c1"># Tri-RAG with Agri/Code/GEE providers</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">db</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">chat_store</span><span class="o">.</span><span class="n">py</span><span class="w">    </span><span class="c1"># PostgreSQL chat history persistence</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">events</span><span class="o">/</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">publisher</span><span class="o">.</span><span class="n">py</span><span class="w">     </span><span class="c1"># NATS event publishing</span>
+</code></pre></div>
+
+<hr />
+<h2 id="critical-issues-p0">Critical Issues (P0) | مشاكل حرجة<a class="headerlink" href="#critical-issues-p0" title="Permanent link">&para;</a></h2>
+<h3 id="1-jwt-auth-empty-secret-key-allows-service-to-start">1. JWT Auth: Empty Secret Key Allows Service to Start<a class="headerlink" href="#1-jwt-auth-empty-secret-key-allows-service-to-start" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/api/deps.py:19-21</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;JWT_SECRET_KEY&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">JWT_SECRET_KEY</span><span class="p">:</span>
+    <span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># Will cause decode to fail</span>
+</code></pre></div>
+
+<p><strong>Problem</strong>: Setting the secret to empty string means <code>jwt.decode()</code> will fail for all tokens, but the service still starts and accepts requests. In production, if <code>JWT_SECRET_KEY</code> is accidentally unset, all authenticated endpoints return 401 — a silent denial-of-service.</p>
+<p><strong>Recommendation</strong>: Fail fast on startup in production. Add a check in <code>lifespan()</code> or <code>Settings</code> validator:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">is_production</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;JWT_SECRET_KEY must be set in production&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-pyjwt-vs-python-jose-dependency-conflict">2. PyJWT vs python-jose Dependency Conflict<a class="headerlink" href="#2-pyjwt-vs-python-jose-dependency-conflict" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>requirements.txt:30</code> + <code>src/api/deps.py:8</code></p>
+<p><code>requirements.txt</code> lists <code>python-jose[cryptography]&gt;=3.5.0</code> but <code>deps.py</code> imports <code>import jwt</code> (PyJWT). These are <strong>different packages</strong> with incompatible APIs. If both are installed, import resolution depends on installation order. <code>python-jose</code> has known CVEs (CVE-2024-33663, CVE-2024-33664) listed in the requirements comment itself.</p>
+<p><strong>Recommendation</strong>: Pick one. For new code, use <code>PyJWT&gt;=2.8.0</code> (actively maintained) and remove <code>python-jose</code>. Update <code>requirements.txt</code> accordingly.</p>
+<h3 id="3-nats-connection-never-established-in-lifespan">3. NATS Connection Never Established in Lifespan<a class="headerlink" href="#3-nats-connection-never-established-in-lifespan" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/main.py:76-143</code></p>
+<p>The lifespan initializes RAG, Audit, FixOps, and DB, but <strong>never connects to NATS</strong>. Yet <code>chat.py:96</code> does <code>nc = getattr(req.app.state, "nc", None)</code> which will always be <code>None</code>. Events are silently never published.</p>
+<p><strong>Recommendation</strong>: Add NATS connection initialization in lifespan:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">nats_url</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">nats</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">nats_url</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="4-readiness-probe-creates-new-connections-every-call">4. Readiness Probe Creates New Connections Every Call<a class="headerlink" href="#4-readiness-probe-creates-new-connections-every-call" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/api/v1/health.py:60-79</code></p>
+<p>The <code>/readyz</code> endpoint creates a <strong>new Redis client</strong> and a <strong>new NATS connection</strong> on every health check call, then immediately closes them. Under Kubernetes with frequent probes (every 10-30s), this creates connection churn.</p>
+<p><strong>Recommendation</strong>: Use the app-level connections from <code>app.state</code> instead of creating new ones. Or cache the health check result with a short TTL (e.g., 5 seconds).</p>
+<hr />
+<h2 id="high-issues-p1">High Issues (P1) | مشاكل عالية<a class="headerlink" href="#high-issues-p1" title="Permanent link">&para;</a></h2>
+<h3 id="5-streaming-endpoint-is-fake-streaming">5. Streaming Endpoint is Fake Streaming<a class="headerlink" href="#5-streaming-endpoint-is-fake-streaming" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/api/v1/chat.py:223-252</code></p>
+<p>The <code>/chat/stream</code> endpoint calls the synchronous <code>chat()</code> function, waits for the <strong>full response</strong>, then simulates streaming by chunking the complete text into 50-char pieces. This gives no latency benefit — it's worse than regular chat because of SSE overhead.</p>
+<p><strong>Recommendation</strong>: Implement actual LLM streaming using Ollama's <code>"stream": True</code> and yield chunks as they arrive. Or remove the endpoint and document it as not-yet-implemented.</p>
+<h3 id="6-datetimeutcnow-deprecation">6. <code>datetime.utcnow()</code> Deprecation<a class="headerlink" href="#6-datetimeutcnow-deprecation" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>src/models/schemas.py:85,204</code>, <code>src/events/publisher.py:39</code></p>
+<p><code>datetime.utcnow()</code> is deprecated since Python 3.12. The codebase inconsistently uses both <code>datetime.now(UTC)</code> (correct, used in <code>chat.py</code>, <code>health.py</code>) and <code>datetime.utcnow()</code> (deprecated, used in schemas and events).</p>
+<p><strong>Recommendation</strong>: Replace all <code>datetime.utcnow()</code> with <code>datetime.now(UTC)</code>.</p>
+<h3 id="7-version-inconsistency">7. Version Inconsistency<a class="headerlink" href="#7-version-inconsistency" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>src/main.py:85</code> vs <code>src/core/config.py:33</code> vs <code>src/api/v1/health.py:33</code></p>
+<ul>
+<li><code>main.py</code> and app description: <code>"16.0.0"</code></li>
+<li><code>config.py</code> Settings default: <code>"1.0.0"</code></li>
+<li><code>health.py</code> HealthResponse default: <code>"1.0.0"</code></li>
+<li><code>schemas.py</code> HealthResponse default: <code>"1.0.0"</code></li>
+</ul>
+<p><strong>Recommendation</strong>: Use a single <code>SERVICE_VERSION</code> constant. The correct version per <code>pyproject.toml</code> / CLAUDE.md is <code>16.0.0</code>.</p>
+<h3 id="8-rag-add_document-endpoint-uses-query-params-for-body-data">8. RAG <code>add_document</code> Endpoint Uses Query Params for Body Data<a class="headerlink" href="#8-rag-add_document-endpoint-uses-query-params-for-body-data" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/api/v1/rag.py:74-107</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/documents&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">RAGDocument</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">add_document</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">text_ar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<p>POST endpoint parameters without <code>Body()</code> annotation are interpreted as <strong>query parameters</strong> by FastAPI, not request body. This means document text is sent in the URL, which has length limits and is logged by proxies.</p>
+<p><strong>Recommendation</strong>: Use a Pydantic model for the request body:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AddDocumentRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">text_ar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<h3 id="9-in-memory-document-store-not-synced-with-qdrant">9. In-Memory Document Store Not Synced with Qdrant<a class="headerlink" href="#9-in-memory-document-store-not-synced-with-qdrant" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/rag/service.py:112,464</code></p>
+<p><code>CopilotRAGService</code> maintains <code>_documents: dict[str, RAGDocument]</code> as an in-memory fallback. But <code>list_documents()</code> only returns from this dict, not from Qdrant. After a service restart, all documents added via Qdrant are "lost" from listing even though they're searchable.</p>
+<p><strong>Recommendation</strong>: Implement <code>list_documents()</code> to query Qdrant using <code>scroll()</code> API when Qdrant is available.</p>
+<h3 id="10-embedding-cache-has-no-size-limit">10. Embedding Cache Has No Size Limit<a class="headerlink" href="#10-embedding-cache-has-no-size-limit" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/rag/embeddings.py:92</code></p>
+<div class="codehilite"><pre><span></span><code><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+</code></pre></div>
+
+<p>The embedding cache grows unbounded. Each entry is ~1.5KB (384-dim float vector), so 100K unique queries = ~150MB. No eviction policy.</p>
+<p><strong>Recommendation</strong>: Use <code>functools.lru_cache</code> or implement a max-size eviction policy (e.g., LRU with max 10K entries).</p>
+<hr />
+<h2 id="medium-issues-p2">Medium Issues (P2) | مشاكل متوسطة<a class="headerlink" href="#medium-issues-p2" title="Permanent link">&para;</a></h2>
+<h3 id="11-duplicate-request-id-middleware">11. Duplicate Request ID Middleware<a class="headerlink" href="#11-duplicate-request-id-middleware" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/main.py:176-204</code></p>
+<p>The code calls <code>_add_req_id(app)</code> from <code>shared.errors_py</code> (line 180) AND defines its own <code>add_request_id</code> middleware (line 196-204). This means request IDs are processed twice.</p>
+<p><strong>Recommendation</strong>: Remove the custom middleware and rely on <code>shared.errors_py</code>.</p>
+<h3 id="12-global-mutable-singletons-with-global-keyword">12. Global Mutable Singletons with <code>global</code> Keyword<a class="headerlink" href="#12-global-mutable-singletons-with-global-keyword" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>src/rag/service.py:529-537</code>, <code>src/rag/embeddings.py:344-352</code>, <code>src/core/agents.py:249-257</code>, <code>src/security/guardrails.py:406-414</code></p>
+<p>Four modules use <code>global _instance</code> pattern. This is not thread-safe in multi-worker deployments and makes testing harder.</p>
+<p><strong>Recommendation</strong>: Use FastAPI's dependency injection with <code>app.state</code> or <code>Depends()</code> with cache.</p>
+<h3 id="13-chatpy-calls-rag_serviceinitialize-on-every-request">13. <code>chat.py</code> Calls <code>rag_service.initialize()</code> on Every Request<a class="headerlink" href="#13-chatpy-calls-rag_serviceinitialize-on-every-request" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/api/v1/chat.py:112</code></p>
+<p>Despite RAG being initialized in lifespan, every chat request calls <code>await rag_service.initialize()</code> again. The method has an <code>_initialized</code> guard, but it still acquires the service singleton and checks state on every request.</p>
+<p><strong>Recommendation</strong>: Trust the lifespan initialization and remove the redundant <code>initialize()</code> call in the hot path.</p>
+<h3 id="14-proxy-functions-create-new-httpxasyncclient-per-request">14. Proxy Functions Create New <code>httpx.AsyncClient</code> Per Request<a class="headerlink" href="#14-proxy-functions-create-new-httpxasyncclient-per-request" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>src/api/v1/tools.py:248,271,306</code>, <code>src/api/v1/chat.py:368,389</code></p>
+<p>Every tool proxy call and LLM call creates a new <code>httpx.AsyncClient</code>. This means new TCP connections each time, no connection pooling.</p>
+<p><strong>Recommendation</strong>: Create a shared <code>httpx.AsyncClient</code> in <code>app.state</code> during lifespan and reuse it.</p>
+<h3 id="15-agent-router-always-matches-general-score-0">15. Agent Router Always Matches General (Score &gt; 0)<a class="headerlink" href="#15-agent-router-always-matches-general-score-0" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/core/agents.py:136-143</code></p>
+<p>The <code>GENERAL</code> route has pattern <code>r".*"</code> which matches everything with score 0.5. Combined with <code>priority=0</code> giving a 0.0 boost, any message without specific keywords still gets a base score. But the routing loop sorts by <code>-priority</code> and iterates all routes, meaning <code>GENERAL</code> is checked last. If a specialized agent scores only 0.2 (e.g., one keyword match), it still beats <code>GENERAL</code>'s <code>0.0 + 0.5</code> pattern match... Actually, <code>GENERAL</code> gets <code>0.5</code> from pattern + <code>0.0</code> from priority = <code>0.5</code>. A specialized agent with one keyword gets <code>0.2 + 0.1 = 0.3</code>, so <strong>GENERAL wins</strong>. This means agent routing underperforms for weak intent signals.</p>
+<p><strong>Recommendation</strong>: Remove the <code>r".*"</code> pattern from GENERAL or give it score 0. Use GENERAL only as the fallback when no other route scores above a threshold.</p>
+<h3 id="16-tests-are-outdated-dont-match-current-code">16. Tests Are Outdated / Don't Match Current Code<a class="headerlink" href="#16-tests-are-outdated-dont-match-current-code" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>tests/test_copilot_api.py</code></p>
+<p>Multiple test assertions reference non-existent APIs:
+- <code>healthz()</code> is tested as a function call, but it's an async FastAPI endpoint
+- <code>ChatRequest</code> is tested with <code>message=</code> field but actual schema uses <code>messages=</code> (list)
+- <code>ChatContext</code> is imported but doesn't exist in <code>schemas.py</code>
+- <code>TOOL_ALLOWLIST</code> is checked for <code>"read_file"</code> which isn't in the actual allowlist
+- <code>ToolCallRequest</code> is tested with <code>tool_name=</code> but actual schema uses <code>tool=</code>
+- <code>BLOCKED_PATTERNS</code> is tested against regex patterns but it's actually file glob patterns
+- <code>Settings.enable_guardrails</code> doesn't exist
+- <code>Settings.get_available_providers()</code> doesn't exist</p>
+<p><strong>Recommendation</strong>: Rewrite tests to match the current API. Use <code>TestClient</code> from FastAPI for endpoint testing.</p>
+<hr />
+<h2 id="low-issues-p3">Low Issues (P3) | مشاكل منخفضة<a class="headerlink" href="#low-issues-p3" title="Permanent link">&para;</a></h2>
+<h3 id="17-weather-service-port-mismatch">17. Weather Service Port Mismatch<a class="headerlink" href="#17-weather-service-port-mismatch" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/core/config.py:135</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">weather_service_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;http://localhost:8108&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Per <code>CLAUDE.md</code> / governance, weather-service runs on port <strong>8092</strong>, not 8108.</p>
+<h3 id="18-unused-imports">18. Unused Imports<a class="headerlink" href="#18-unused-imports" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>src/main.py:23</code>: <code>timezone</code> imported but only <code>UTC</code> is used</li>
+<li><code>src/core/agents.py:5,16</code>: <code>Enum</code>, <code>Optional</code> imported but unused</li>
+<li><code>src/models/schemas.py:11</code>: <code>Enum</code> imported but unused (uses <code>StrEnum</code>)</li>
+</ul>
+<h3 id="19-get_guard-export-missing-from-security__init__py">19. <code>get_guard()</code> Export Missing from <code>security/__init__.py</code><a class="headerlink" href="#19-get_guard-export-missing-from-security__init__py" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/security/__init__.py</code></p>
+<p><code>health.py:110</code> imports <code>get_guard</code> from <code>...security</code>, but <code>__init__.py</code> doesn't re-export it. This import works via Python module resolution but is inconsistent with the <code>__all__</code> list.</p>
+<h3 id="20-format_context_for_prompt-prefers-arabic-over-english">20. <code>format_context_for_prompt</code> Prefers Arabic Over English<a class="headerlink" href="#20-format_context_for_prompt-prefers-arabic-over-english" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/rag/service.py:508</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">text</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">text_ar</span> <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">text_ar</span> <span class="k">else</span> <span class="n">doc</span><span class="o">.</span><span class="n">text</span>
+</code></pre></div>
+
+<p>This unconditionally prefers Arabic text even for English queries. Should be language-aware based on the query language.</p>
+<h3 id="21-batch-document-addition-is-sequential">21. Batch Document Addition is Sequential<a class="headerlink" href="#21-batch-document-addition-is-sequential" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/rag/service.py:244-261</code></p>
+<p><code>add_documents_batch()</code> calls <code>add_document()</code> in a serial loop. For Qdrant, this could be a single <code>upsert()</code> call with all points.</p>
+<hr />
+<h2 id="security-assessment">Security Assessment | تقييم أمني<a class="headerlink" href="#security-assessment" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Rating</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Good</td>
+<td>JWT with algorithm whitelist, required <code>exp</code> and <code>sub</code> claims</td>
+</tr>
+<tr>
+<td><strong>Prompt Injection</strong></td>
+<td>Good</td>
+<td>16 patterns (EN/AR), compiled regex, LLM token detection</td>
+</tr>
+<tr>
+<td><strong>Tool Guardrails</strong></td>
+<td>Excellent</td>
+<td>6-layer system with allowlists, size limits, pattern blocking, dangerous command detection</td>
+</tr>
+<tr>
+<td><strong>Secrets Handling</strong></td>
+<td>Good</td>
+<td>Env vars, no hardcoded secrets, blocked patterns for sensitive files</td>
+</tr>
+<tr>
+<td><strong>CORS</strong></td>
+<td>Good</td>
+<td>Configurable origins, explicit headers</td>
+</tr>
+<tr>
+<td><strong>Error Handling</strong></td>
+<td>Moderate</td>
+<td>Debug info leaks in non-production (<code>str(exc)</code> in global handler)</td>
+</tr>
+<tr>
+<td><strong>Input Validation</strong></td>
+<td>Good</td>
+<td>Pydantic models, field validators, size limits</td>
+</tr>
+<tr>
+<td><strong>Dependency Security</strong></td>
+<td>Needs Work</td>
+<td>python-jose CVEs acknowledged but still used; PyJWT/jose conflict</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="positive-highlights">Positive Highlights | نقاط إيجابية<a class="headerlink" href="#positive-highlights" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Excellent guardrails architecture</strong>: The 6-layer <code>ToolGuard</code> system is well-designed with audit callbacks and statistics tracking</li>
+<li><strong>Bilingual throughout</strong>: Arabic/English error messages, agent routing, and advisory content</li>
+<li><strong>Offline-first design</strong>: Graceful degradation from Qdrant to keyword search, from LLM to fallback response</li>
+<li><strong>Clean separation of concerns</strong>: Security, RAG, agents, DB are all well-isolated modules</li>
+<li><strong>UltraRAG integration</strong>: Tri-RAG with agricultural, code, and satellite providers is architecturally sound</li>
+<li><strong>Chat persistence</strong>: Well-implemented PostgreSQL chat history with graceful no-op when DB unavailable</li>
+<li><strong>NATS event publishing</strong>: Copilot events are well-defined with clear subject naming</li>
+<li><strong>Structured logging</strong>: Consistent use of structlog throughout</li>
+<li><strong>Docker best practices</strong>: Multi-stage build, non-root user, health check, multi-mirror fallback</li>
+<li><strong>Prompt injection detection</strong>: Covers both English and Arabic patterns plus LLM special tokens</li>
+</ol>
+<hr />
+<h2 id="recommended-priority-order">Recommended Priority Order | ترتيب الأولوية الموصى به<a class="headerlink" href="#recommended-priority-order" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Issue</th>
+<th>Effort</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0-1</td>
+<td>JWT empty secret / fail-fast</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>P0-2</td>
+<td>PyJWT vs python-jose conflict</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>P0-3</td>
+<td>NATS connection never established</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>P0-4</td>
+<td>Health probe connection churn</td>
+<td>Medium</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P1-5</td>
+<td>Fake streaming endpoint</td>
+<td>Medium</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P1-6</td>
+<td><code>datetime.utcnow()</code> deprecation</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>P1-7</td>
+<td>Version inconsistency</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>P1-8</td>
+<td>RAG POST uses query params</td>
+<td>Low</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P1-9</td>
+<td>In-memory doc store not synced</td>
+<td>Medium</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P1-10</td>
+<td>Embedding cache unbounded</td>
+<td>Low</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P2-16</td>
+<td>Tests outdated</td>
+<td>High</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="file-by-file-summary">File-by-File Summary | ملخص ملف بملف<a class="headerlink" href="#file-by-file-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>LOC</th>
+<th>Issues</th>
+<th>Quality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main.py</code></td>
+<td>356</td>
+<td>Duplicate middleware, no NATS init</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>171</td>
+<td>Version mismatch, weather port wrong</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>agents.py</code></td>
+<td>258</td>
+<td>GENERAL always wins weak matches</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>schemas.py</code></td>
+<td>217</td>
+<td><code>utcnow()</code> deprecated, version mismatch</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>chat.py</code></td>
+<td>436</td>
+<td>Fake streaming, redundant init, no connection pooling</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><code>tools.py</code></td>
+<td>366</td>
+<td>New httpx client per request</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>rag.py</code></td>
+<td>247</td>
+<td>POST params as query, no body model</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><code>health.py</code></td>
+<td>129</td>
+<td>Connection churn in readiness</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><code>guardrails.py</code></td>
+<td>450</td>
+<td>Global singleton pattern</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>prompt_guard.py</code></td>
+<td>71</td>
+<td>Well-implemented</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>allowlists.py</code></td>
+<td>198</td>
+<td>Comprehensive</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>deps.py</code></td>
+<td>97</td>
+<td>Empty JWT secret, jose/pyjwt conflict</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><code>service.py</code></td>
+<td>538</td>
+<td>Doc store not synced, list from memory only</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>embeddings.py</code></td>
+<td>353</td>
+<td>Unbounded cache</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>ultrarag_integration.py</code></td>
+<td>849</td>
+<td>Clean, well-structured</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>chat_store.py</code></td>
+<td>479</td>
+<td>Graceful degradation, well-implemented</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>publisher.py</code></td>
+<td>51</td>
+<td><code>utcnow()</code>, never connected</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>Dockerfile</code></td>
+<td>117</td>
+<td>Multi-stage, secure, mirrors</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><code>requirements.txt</code></td>
+<td>42</td>
+<td>jose/pyjwt conflict</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td><code>test_copilot_api.py</code></td>
+<td>313</td>
+<td>Completely outdated, doesn't match code</td>
+<td>Poor</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>End of Review</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

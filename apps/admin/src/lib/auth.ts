@@ -161,11 +161,14 @@ export function setUser(user: User): void {
 }
 
 /**
- * Check if user is authenticated
+ * Check if user is authenticated (client-side)
  * التحقق من حالة التوثيق
+ *
+ * @deprecated Tokens are in httpOnly cookies; use server-side /api/auth/me instead.
+ * This now checks for cached user data as an approximation.
  */
 export function isAuthenticated(): boolean {
-  return !!getToken();
+  return !!getUser();
 }
 
 /**
@@ -200,12 +203,11 @@ export function hasRole(requiredRole: User["role"]): boolean {
 /**
  * Get authorization headers
  * الحصول على رؤوس التوثيق
+ *
+ * @deprecated Tokens are in httpOnly cookies and sent automatically.
+ * Use fetch with `credentials: "same-origin"` instead.
  */
 export function getAuthHeaders(): Record<string, string> {
-  const token = getToken();
-  if (!token) return {};
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
+  // Tokens are now in httpOnly cookies - headers are not needed for same-origin requests
+  return {};
 }

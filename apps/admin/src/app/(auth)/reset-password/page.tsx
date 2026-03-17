@@ -9,7 +9,6 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Lock, Leaf, ArrowRight, CheckCircle, Eye, EyeOff, AlertTriangle } from "lucide-react";
-import { API_BASE_URL } from "@/config/api-base";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -52,7 +51,7 @@ function ResetPasswordForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
+      const response = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

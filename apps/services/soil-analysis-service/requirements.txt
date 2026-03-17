@@ -12,5 +12,5 @@ asyncpg==0.31.0
 nats-py==2.14.0
 
 # Observability
-structlog==24.4.0
+structlog==25.5.0
 prometheus-client==0.24.1

@@ -19,5 +19,5 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007
 httpx==0.28.1
 
 # Observability
-structlog==24.4.0
+structlog==25.5.0
 prometheus-client==0.24.1

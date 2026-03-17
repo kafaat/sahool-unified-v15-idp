@@ -18,7 +18,7 @@ redis>=7.1.0,<8.0.0
 # NATS for Events
 nats-py==2.14.0
 # Logging
-structlog>=24.0.0,<25.0.0
+structlog>=24.0.0,<26.0.0
 # Testing
 pytest>=8.0.0,<9.0.0
 pytest-asyncio==0.26.0

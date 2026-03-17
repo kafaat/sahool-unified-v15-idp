@@ -186,14 +186,21 @@ class AuthApiClient {
       const response = await this.refreshToken(refreshTokenValue);
 
       if (response.success && response.data?.access_token) {
+        // Clear any legacy path-scoped cookie before setting the root one
+        Cookies.remove("access_token");
+
         Cookies.set("access_token", response.data.access_token, {
           expires: 7,
-          secure: true,
+          secure: window.location.protocol === "https:",
           sameSite: "strict",
+          path: "/",
         });
         this.setToken(response.data.access_token);
         return true;
       } else {
+        // Clear root-scoped + legacy path-scoped cookies
+        Cookies.remove("access_token", { path: "/" });
+        Cookies.remove("refresh_token", { path: "/" });
         Cookies.remove("access_token");
         Cookies.remove("refresh_token");
         this.clearToken();

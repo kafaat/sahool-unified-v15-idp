@@ -10,71 +10,77 @@
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    // Server-side Sentry initialization (replaces sentry.server.config.ts)
-    const Sentry = await import("@sentry/nextjs");
+    try {
+      const Sentry = await import("@sentry/nextjs");
 
-    const SENTRY_DSN =
-      process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+      const SENTRY_DSN =
+        process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-    if (SENTRY_DSN && SENTRY_DSN.length > 0) {
-      Sentry.init({
-        dsn: SENTRY_DSN,
-        environment: process.env.NODE_ENV,
-        release: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
-        tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
-        debug: false,
+      if (SENTRY_DSN && SENTRY_DSN.length > 0) {
+        Sentry.init({
+          dsn: SENTRY_DSN,
+          environment: process.env.NODE_ENV,
+          release: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
+          tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+          debug: false,
 
-        integrations: [Sentry.httpIntegration()],
+          integrations: [Sentry.httpIntegration()],
 
-        beforeSend(event) {
-          if (event.request?.headers) {
-            const headers = event.request.headers as Record<string, string>;
-            delete headers["cookie"];
-            delete headers["authorization"];
-            delete headers["x-csrf-token"];
-            delete headers["x-api-key"];
-          }
+          beforeSend(event) {
+            if (event.request?.headers) {
+              const headers = event.request.headers as Record<string, string>;
+              delete headers["cookie"];
+              delete headers["authorization"];
+              delete headers["x-csrf-token"];
+              delete headers["x-api-key"];
+            }
 
-          if (event.request?.query_string) {
-            const params = new URLSearchParams(event.request.query_string);
-            params.delete("token");
-            params.delete("access_token");
-            params.delete("refresh_token");
-            event.request.query_string = params.toString();
-          }
+            if (event.request?.query_string) {
+              const params = new URLSearchParams(event.request.query_string);
+              params.delete("token");
+              params.delete("access_token");
+              params.delete("refresh_token");
+              event.request.query_string = params.toString();
+            }
 
-          return event;
-        },
-      });
+            return event;
+          },
+        });
+      }
+    } catch {
+      // @sentry/nextjs not installed — boot continues without error tracking
     }
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {
-    // Edge runtime Sentry initialization (replaces sentry.edge.config.ts)
-    const Sentry = await import("@sentry/nextjs");
+    try {
+      const Sentry = await import("@sentry/nextjs");
 
-    const SENTRY_DSN =
-      process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+      const SENTRY_DSN =
+        process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-    if (SENTRY_DSN && SENTRY_DSN.length > 0) {
-      Sentry.init({
-        dsn: SENTRY_DSN,
-        environment: process.env.NODE_ENV,
-        release: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
-        tracesSampleRate: process.env.NODE_ENV === "production" ? 0.05 : 0.5,
-        debug: false,
+      if (SENTRY_DSN && SENTRY_DSN.length > 0) {
+        Sentry.init({
+          dsn: SENTRY_DSN,
+          environment: process.env.NODE_ENV,
+          release: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
+          tracesSampleRate: process.env.NODE_ENV === "production" ? 0.05 : 0.5,
+          debug: false,
 
-        beforeSend(event) {
-          if (event.request?.headers) {
-            const headers = event.request.headers as Record<string, string>;
-            delete headers["cookie"];
-            delete headers["authorization"];
-            delete headers["x-csrf-token"];
-          }
+          beforeSend(event) {
+            if (event.request?.headers) {
+              const headers = event.request.headers as Record<string, string>;
+              delete headers["cookie"];
+              delete headers["authorization"];
+              delete headers["x-csrf-token"];
+            }
 
-          return event;
-        },
-      });
+            return event;
+          },
+        });
+      }
+    } catch {
+      // @sentry/nextjs not installed — boot continues without error tracking
     }
   }
 }

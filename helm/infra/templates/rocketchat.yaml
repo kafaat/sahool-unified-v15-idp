@@ -60,6 +60,13 @@ spec:
               mountPath: /data/db
           securityContext:
             runAsUser: 0
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+                - FOWNER
         - name: init-replset
           image: "{{ .Values.rocketchat.mongodb.image.repository }}:{{ .Values.rocketchat.mongodb.image.tag }}"
           command:

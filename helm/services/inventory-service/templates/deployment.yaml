@@ -16,6 +16,7 @@ spec:
         environment: {{ .Values.environment }}
         deploymentSlot: {{ .Values.deploymentSlot }}
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

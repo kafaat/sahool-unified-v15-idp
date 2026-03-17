@@ -1556,7 +1556,8 @@ plugins:
       policy: local
       fault_tolerant: true
       hide_client_headers: false
-      redis_ssl: false
+      redis_ssl: true
+      redis_ssl_verify: true
 
   # CORS (Secured - Whitelist Only)
   - name: cors

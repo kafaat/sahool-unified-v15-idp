@@ -43,7 +43,7 @@ function getConnectionConfig(): DbConfig {
         host: url.hostname,
         port: parseInt(url.port || "5432"),
         username: url.username || "sahool",
-        password: url.password || "sahool",
+        password: url.password || "",
         database: url.pathname.slice(1) || "sahool", // Remove leading '/'
       };
     } catch {
@@ -52,11 +52,16 @@ function getConnectionConfig(): DbConfig {
   }
 
   // Fallback to individual environment variables
+  if (!process.env.DB_PASSWORD) {
+    console.warn(
+      "WARNING: DB_PASSWORD environment variable is not set. Database connection may fail.",
+    );
+  }
   return {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
     username: process.env.DB_USER || "sahool",
-    password: process.env.DB_PASSWORD || "sahool",
+    password: process.env.DB_PASSWORD || "",
     database: process.env.DB_NAME || "sahool",
   };
 }

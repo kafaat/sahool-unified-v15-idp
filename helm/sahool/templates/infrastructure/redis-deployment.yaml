@@ -35,10 +35,24 @@ spec:
         app.kubernetes.io/name: {{ include "sahool.name" . }}
         app.kubernetes.io/component: redis
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: redis
           image: "{{ .Values.infrastructure.redis.image.repository }}:{{ .Values.infrastructure.redis.image.tag }}"
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           {{- if .Values.infrastructure.redis.auth.enabled }}
           command:
             - redis-server

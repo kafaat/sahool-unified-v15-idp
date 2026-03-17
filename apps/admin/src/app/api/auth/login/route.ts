@@ -100,10 +100,14 @@ export async function POST(request: NextRequest) {
 
     // Access token - aligned with JWT expiry (default 30 min)
     // SECURITY FIX: Cookie maxAge must match JWT expiry to prevent stale tokens
-    const accessTokenMaxAge = parseInt(
+    const parsedAccess = parseInt(
       process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
       10,
-    ); // 30 minutes default
+    );
+    const accessTokenMaxAge =
+      Number.isFinite(parsedAccess) && parsedAccess > 0
+        ? parsedAccess
+        : 1800; // 30 minutes default
     cookieStore.set("sahool_admin_token", data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -114,10 +118,14 @@ export async function POST(request: NextRequest) {
 
     // Refresh token if provided - aligned with refresh token expiry (default 7 days)
     if (data.refresh_token) {
-      const refreshTokenMaxAge = parseInt(
+      const parsedRefresh = parseInt(
         process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
         10,
-      ); // 7 days default
+      );
+      const refreshTokenMaxAge =
+        Number.isFinite(parsedRefresh) && parsedRefresh > 0
+          ? parsedRefresh
+          : 604800; // 7 days default
       cookieStore.set("sahool_admin_refresh_token", data.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

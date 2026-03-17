@@ -24,14 +24,21 @@ interface SetSessionRequest {
 
 const ACCESS_TOKEN_COOKIE = "access_token";
 const REFRESH_TOKEN_COOKIE = "refresh_token";
+
+/** Parse env var as positive integer, returning fallback on NaN/zero/negative */
+function parseMaxAge(envValue: string | undefined, fallback: number): number {
+  const parsed = parseInt(envValue || String(fallback), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 // Cookie maxAge should match actual JWT expiry to avoid stale cookies
-const ACCESS_TOKEN_MAX_AGE = parseInt(
-  process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
-  10,
+const ACCESS_TOKEN_MAX_AGE = parseMaxAge(
+  process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS,
+  1800,
 ); // 30 minutes default - aligned with admin app
-const REFRESH_TOKEN_MAX_AGE = parseInt(
-  process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
-  10,
+const REFRESH_TOKEN_MAX_AGE = parseMaxAge(
+  process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS,
+  604800,
 ); // 7 days default
 
 const RATE_LIMIT_CONFIG = {

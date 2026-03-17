@@ -78,6 +78,21 @@ export class FieldsService {
    * Create a new field
    */
   async create(dto: CreateFieldDto): Promise<FieldResponseDto & { etag: string }> {
+    // Validate farmId belongs to the same tenant (prevent cross-tenant reference)
+    if (dto.farmId) {
+      const farm = await this.prisma.farm.findUnique({
+        where: { id: dto.farmId },
+        select: { tenantId: true },
+      });
+      if (!farm) {
+        throw new BadRequestException({
+          message: "Farm not found",
+          messageAr: "المزرعة غير موجودة",
+        });
+      }
+      assertTenantOwnership(farm.tenantId, dto.tenantId, "farm");
+    }
+
     // Prepare boundary if coordinates provided
     let boundary: any = dto.boundary;
     let centroid: any = null;

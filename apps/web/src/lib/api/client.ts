@@ -296,14 +296,17 @@ class SahoolApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-        const response = await fetch(url, {
-          ...fetchOptions,
-          headers,
-          signal: controller.signal,
-          credentials: "include", // Ensure httpOnly cookies are sent with requests
-        });
-
-        clearTimeout(timeoutId);
+        let response: Response;
+        try {
+          response = await fetch(url, {
+            ...fetchOptions,
+            headers,
+            signal: controller.signal,
+            credentials: "include", // Ensure httpOnly cookies are sent with requests
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         // Parse response
         let data: any;
@@ -351,14 +354,17 @@ class SahoolApiClient {
                 timeout,
               );
 
-              const retryResponse = await fetch(url, {
-                ...fetchOptions,
-                headers,
-                credentials: "include",
-                signal: retryController.signal,
-              });
-
-              clearTimeout(retryTimeoutId);
+              let retryResponse: Response;
+              try {
+                retryResponse = await fetch(url, {
+                  ...fetchOptions,
+                  headers,
+                  credentials: "include",
+                  signal: retryController.signal,
+                });
+              } finally {
+                clearTimeout(retryTimeoutId);
+              }
 
               // Parse retry response
               let retryData: any;
@@ -668,18 +674,21 @@ class SahoolApiClient {
       const csrfHeaders = getCsrfHeaders();
       Object.assign(uploadHeaders, csrfHeaders);
 
-      const response = await fetch(
-        `${this.baseUrl}/api/v1/crop-health/analyze`,
-        {
-          method: "POST",
-          headers: uploadHeaders,
-          body: formData,
-          signal: controller.signal,
-          credentials: "include", // Ensure httpOnly cookies are sent with requests
-        },
-      );
-
-      clearTimeout(timeoutId);
+      let response: Response;
+      try {
+        response = await fetch(
+          `${this.baseUrl}/api/v1/crop-health/analyze`,
+          {
+            method: "POST",
+            headers: uploadHeaders,
+            body: formData,
+            signal: controller.signal,
+            credentials: "include", // Ensure httpOnly cookies are sent with requests
+          },
+        );
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       // Dynamic API response
       let data: any;

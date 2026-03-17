@@ -16,6 +16,11 @@ interface FieldFormProps {
   isSubmitting?: boolean;
 }
 
+const MAX_NAME_LENGTH = 255;
+const MIN_NAME_LENGTH = 2;
+const MAX_AREA_HECTARES = 10000;
+const MIN_AREA_HECTARES = 0.01;
+
 export const FieldForm: React.FC<FieldFormProps> = ({
   field,
   onSubmit,
@@ -32,10 +37,54 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     descriptionAr: field?.descriptionAr || "",
     farmId: field?.farmId || "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Field name (Arabic) validation
+    const trimmedNameAr = formData.nameAr.trim();
+    if (!trimmedNameAr) {
+      newErrors.nameAr = "اسم الحقل بالعربية مطلوب";
+    } else if (trimmedNameAr.length < MIN_NAME_LENGTH) {
+      newErrors.nameAr = `الاسم قصير جداً (الحد الأدنى ${MIN_NAME_LENGTH} أحرف)`;
+    } else if (trimmedNameAr.length > MAX_NAME_LENGTH) {
+      newErrors.nameAr = `الاسم طويل جداً (الحد الأقصى ${MAX_NAME_LENGTH} حرف)`;
+    }
+
+    // Field name (English) validation
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
+      newErrors.name = "Field name in English is required";
+    } else if (trimmedName.length < MIN_NAME_LENGTH) {
+      newErrors.name = `Name too short (minimum ${MIN_NAME_LENGTH} characters)`;
+    } else if (trimmedName.length > MAX_NAME_LENGTH) {
+      newErrors.name = `Name too long (maximum ${MAX_NAME_LENGTH} characters)`;
+    }
+
+    // Area validation
+    if (!formData.area || formData.area <= 0) {
+      newErrors.area = "المساحة مطلوبة وأكبر من صفر";
+    } else if (formData.area < MIN_AREA_HECTARES) {
+      newErrors.area = `الحد الأدنى للمساحة ${MIN_AREA_HECTARES} هكتار`;
+    } else if (formData.area > MAX_AREA_HECTARES) {
+      newErrors.area = `الحد الأقصى للمساحة ${MAX_AREA_HECTARES} هكتار`;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+    if (!validate()) return;
+
+    // Trim whitespace before submitting
+    await onSubmit({
+      ...formData,
+      name: formData.name.trim(),
+      nameAr: formData.nameAr.trim(),
+    });
   };
 
   const handleChange = <K extends keyof FieldFormData>(
@@ -63,11 +112,13 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="text"
             required
+            maxLength={MAX_NAME_LENGTH}
             value={formData.nameAr}
             onChange={(e) => handleChange("nameAr", e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.nameAr ? "border-red-400" : "border-gray-200"}`}
             placeholder="أدخل اسم الحقل"
           />
+          {errors.nameAr && <p className="mt-1 text-sm text-red-600">{errors.nameAr}</p>}
         </div>
 
         {/* Name (English) */}
@@ -78,12 +129,14 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="text"
             required
+            maxLength={MAX_NAME_LENGTH}
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.name ? "border-red-400" : "border-gray-200"}`}
             placeholder="Enter field name"
             dir="ltr"
           />
+          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
         </div>
 
         {/* Area */}
@@ -94,13 +147,15 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="number"
             required
-            min="0"
-            step="0.1"
+            min={MIN_AREA_HECTARES}
+            max={MAX_AREA_HECTARES}
+            step="0.01"
             value={formData.area}
-            onChange={(e) => handleChange("area", parseFloat(e.target.value))}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+            onChange={(e) => handleChange("area", parseFloat(e.target.value) || 0)}
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.area ? "border-red-400" : "border-gray-200"}`}
             placeholder="0.0"
           />
+          {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area}</p>}
         </div>
 
         {/* Crop (Arabic) */}

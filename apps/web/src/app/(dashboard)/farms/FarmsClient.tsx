@@ -55,7 +55,11 @@ export default function FarmsClient() {
           <h1 className="text-2xl font-bold text-gray-900">إدارة المزارع</h1>
           <p className="text-gray-500 mt-1">Farm Management</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors">
+        <button
+          disabled
+          title="قريباً - Coming soon"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <Plus className="w-4 h-4" />
           <span>إضافة مزرعة</span>
         </button>

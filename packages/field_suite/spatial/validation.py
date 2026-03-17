@@ -248,12 +248,13 @@ def sync_wkt_to_geom(db: Session) -> dict[str, int]:
     """
     results = {}
 
-    for table in ["fields", "zones", "sub_zones"]:
-        # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from hardcoded allowlist)
+    for table in _ALLOWED_TABLES:
+        quoted_table = f'"{table}"'
+        # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
         result = db.execute(
-            text(  # nosemgrep
+            text(  # nosemgrep: sqlalchemy-text-fstring
                 f"""
-                UPDATE {table}
+                UPDATE {quoted_table}
                 SET geom = ST_GeomFromText(geometry_wkt, 4326)
                 WHERE geom IS NULL AND geometry_wkt IS NOT NULL
                 RETURNING id;
@@ -284,9 +285,14 @@ def check_geometry_validity(
     Returns:
         Dictionary with validity info and reason if invalid
     """
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table validated by caller)
+    if table not in _ALLOWED_TABLES:
+        raise ValueError(f"Invalid table name: {table}. Allowed: {_ALLOWED_TABLES}")
+
+    quoted_table = f'"{table}"'
+
+    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     result = db.execute(
-        text(  # nosemgrep
+        text(  # nosemgrep: sqlalchemy-text-fstring
             f"""
             SELECT
                 id,
@@ -295,7 +301,7 @@ def check_geometry_validity(
                 ST_GeometryType(geom) AS geometry_type,
                 ST_NPoints(geom) AS num_points,
                 ST_Area(geom::geography) / 10000 AS area_hectares
-            FROM {table}
+            FROM {quoted_table}
             WHERE id = :id AND geom IS NOT NULL;
         """
         ),
@@ -326,16 +332,21 @@ def get_invalid_geometries(
     Returns:
         List of invalid geometry records with reasons
     """
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table validated by caller)
+    if table not in _ALLOWED_TABLES:
+        raise ValueError(f"Invalid table name: {table}. Allowed: {_ALLOWED_TABLES}")
+
+    quoted_table = f'"{table}"'
+
+    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     result = db.execute(
-        text(  # nosemgrep
+        text(  # nosemgrep: sqlalchemy-text-fstring
             f"""
             SELECT
                 id,
                 name,
                 ST_IsValidReason(geom) AS reason,
                 ST_GeometryType(geom) AS geometry_type
-            FROM {table}
+            FROM {quoted_table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
             LIMIT :limit;
         """

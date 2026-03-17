@@ -219,18 +219,20 @@ const nextConfig = {
       tls: false,
     };
 
-    // When @sentry/nextjs is not installed, alias it to false so dynamic
-    // imports resolve to an empty module instead of breaking the build
+    // When @sentry/nextjs is not installed, alias it to a real (empty) shim.
+    // Using `false` causes webpack to generate a module reference without a
+    // factory function, which crashes at runtime with
+    // "Cannot read properties of undefined (reading 'call')".
+    const path = require("path");
     if (!sentryInstalled) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        "@sentry/nextjs": false,
+        "@sentry/nextjs": path.resolve(__dirname, "src/lib/sentry-shim.ts"),
       };
     }
 
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces
-    const path = require("path");
     const parentNodeModules = path.resolve(__dirname, "../../node_modules");
     config.resolve.modules = [
       ...(config.resolve.modules || ["node_modules"]),

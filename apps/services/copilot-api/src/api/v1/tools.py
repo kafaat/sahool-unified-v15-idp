@@ -258,7 +258,7 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: htt
     action = tool.split(".")[-1]
 
     if action not in _CODE_AGENT_ACTIONS:
-        return {"error": f"Unknown code agent action: {action}"}
+        return {"error": "Unknown code agent action"}
 
     try:
         response = await http_client.post(

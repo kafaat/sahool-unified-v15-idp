@@ -69,7 +69,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload: ErrorLogPayload = await request.json();
+    // Validate content-type before parsing JSON
+    const contentType = request.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Content-Type must be application/json" },
+        { status: 400 },
+      );
+    }
+
+    let payload: ErrorLogPayload;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 },
+      );
+    }
 
     // Validate required fields
     if (!payload.message || !payload.type) {
@@ -79,21 +96,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Truncate oversized fields to prevent log flooding
+    const MAX_MESSAGE_LEN = 2000;
+    const MAX_STACK_LEN = 5000;
+    const safeMessage = String(payload.message).slice(0, MAX_MESSAGE_LEN);
+    const safeStack = payload.stack ? String(payload.stack).slice(0, MAX_STACK_LEN) : undefined;
+
     // Log to console in development
     if (process.env.NODE_ENV === "development") {
       logger.error("[Error Log]", JSON.stringify(payload, null, 2));
     }
 
-    // In production, you would:
-    // 1. Send to external logging service (e.g., LogRocket, Datadog, Sentry)
-    // 2. Store in database for analysis
-    // 3. Send alerts for critical errors
-
-    // Example: Store error in structured log format
+    // Build log entry with explicit fields (avoid spread to prevent log injection)
     const logEntry = {
       level: "error",
       service: "sahool-web",
-      ...payload,
+      type: String(payload.type),
+      message: safeMessage,
+      stack: safeStack,
+      url: payload.url ? String(payload.url).slice(0, 500) : undefined,
+      timestamp: payload.timestamp,
       receivedAt: new Date().toISOString(),
       requestHeaders: {
         userAgent: request.headers.get("user-agent"),

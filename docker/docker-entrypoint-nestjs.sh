@@ -8,7 +8,7 @@ if [ "$SKIP_DB_INIT" = "true" ]; then
   echo 'Skipping database migrations (SKIP_DB_INIT=true)'
 else
   echo 'Running Prisma migrations...'
-  if ! npx prisma migrate deploy 2>/tmp/prisma_err.log; then
+  if ! npx prisma migrate deploy >/tmp/prisma_err.log 2>&1; then
     if grep -q 'P3005' /tmp/prisma_err.log; then
       echo 'Database not empty (P3005). Baselining existing migrations...'
       for dir in prisma/migrations/*/; do

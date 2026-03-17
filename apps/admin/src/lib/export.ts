@@ -211,8 +211,26 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
 <head>
   <meta charset="UTF-8">
   <title>${escapeXml(titleAr || title || "Export")}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    /* Tajawal font - self-hosted, no CDN dependency */
+    @font-face {
+      font-family: 'Tajawal';
+      font-style: normal;
+      font-weight: 400;
+      src: url('/fonts/Tajawal-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Tajawal';
+      font-style: normal;
+      font-weight: 500;
+      src: url('/fonts/Tajawal-Medium.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Tajawal';
+      font-style: normal;
+      font-weight: 700;
+      src: url('/fonts/Tajawal-Bold.woff2') format('woff2');
+    }
     @page {
       size: A4 ${orientation};
       margin: 2cm;

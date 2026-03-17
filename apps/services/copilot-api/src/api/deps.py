@@ -20,17 +20,23 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
 
-_environment = os.getenv("ENVIRONMENT", "development").lower()
-if _environment == "production" and len(JWT_SECRET_KEY) < 32:
-    raise RuntimeError(
-        "JWT_SECRET_KEY must be at least 32 characters in production. "
-        "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج."
-    )
-elif not JWT_SECRET_KEY:
-    logger.warning(
-        "jwt_secret_missing",
-        msg="JWT_SECRET_KEY not set - authentication will reject all tokens",
-    )
+def validate_jwt_config(environment: str | None = None) -> None:
+    """
+    Validate JWT configuration for the given environment.
+    Called during application startup (lifespan) rather than at import time.
+    التحقق من تكوين JWT للبيئة المحددة. يُستدعى أثناء بدء التطبيق.
+    """
+    env = (environment or os.getenv("ENVIRONMENT", "development")).lower()
+    if env == "production" and len(JWT_SECRET_KEY) < 32:
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be at least 32 characters in production. "
+            "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج."
+        )
+    elif not JWT_SECRET_KEY:
+        logger.warning(
+            "jwt_secret_missing",
+            msg="JWT_SECRET_KEY not set - authentication will reject all tokens",
+        )
 
 
 async def get_current_user(

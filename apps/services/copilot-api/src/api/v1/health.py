@@ -56,16 +56,17 @@ async def readiness(request: Request):
         components["rag"] = False
         components["qdrant"] = False
 
-    # Check NATS using app-level connection (no new connection per probe)
-    # فحص NATS باستخدام اتصال مستوى التطبيق (بدون اتصال جديد لكل فحص)
+    # Check NATS using app-level connection (only when explicitly configured)
+    # فحص NATS باستخدام اتصال مستوى التطبيق (فقط عندما يكون مكوناً صراحة)
     nc = getattr(request.app.state, "nc", None)
     if nc is not None:
+        # NATS was configured and initialized — include in readiness
         components["nats"] = nc.is_connected
-    else:
-        components["nats"] = False
+    # else: NATS not configured — omit from readiness (non-blocking)
 
-    # Check chat DB readiness from app state
-    components["chat_db"] = getattr(request.app.state, "chat_db_ready", False)
+    # Check chat DB readiness (only when database_url is configured)
+    if settings.database_url:
+        components["chat_db"] = getattr(request.app.state, "chat_db_ready", False)
 
     # Determine overall status
     all_healthy = all(components.values()) if components else True

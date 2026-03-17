@@ -221,7 +221,16 @@ class EmbeddingService:
         if self.config.cache_enabled:
             self._cache[cache_key] = (embedding, time.time())
             self._cache.move_to_end(cache_key)
-            # Evict oldest entries if cache exceeds max size
+            # Purge expired entries before size-based eviction so that stale
+            # items don't count toward cache_max_size and cause unnecessary churn.
+            now = time.time()
+            expired_keys = [
+                k for k, (_, ts) in self._cache.items()
+                if now - ts >= self.config.cache_ttl_seconds
+            ]
+            for k in expired_keys:
+                del self._cache[k]
+            # Evict oldest live entries if cache still exceeds max size
             while len(self._cache) > self.config.cache_max_size:
                 self._cache.popitem(last=False)
 

@@ -29,7 +29,7 @@ upstreams:
         # Active health checks - فحوصات صحة نشطة
         type: http
         http_path: /healthz
-        https_verify_certificate: false
+        https_verify_certificate: true
         timeout: 5
         concurrency: 10
         healthy:

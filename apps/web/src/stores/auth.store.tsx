@@ -161,6 +161,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.remove("access_token", { path: "/" });
     Cookies.remove("refresh_token", { path: "/" });
 
+    // Clear E2E mock session cookie so logout is fully effective in test mode
+    if (isE2ETestModeEnabled()) {
+      Cookies.remove("user_session", { path: "/" });
+    }
+
     // Clear client-side state
     authApiClient.clearToken();
     setUser(null);

@@ -195,8 +195,8 @@ class AuthApiClient {
         this.setToken(response.data.access_token);
         return true;
       } else {
-        Cookies.remove("access_token");
-        Cookies.remove("refresh_token");
+        Cookies.remove("access_token", { path: "/" });
+        Cookies.remove("refresh_token", { path: "/" });
         this.clearToken();
         return false;
       }

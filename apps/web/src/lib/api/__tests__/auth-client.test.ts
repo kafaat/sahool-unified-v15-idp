@@ -408,8 +408,8 @@ describe("AuthApiClient", () => {
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(false);
-      expect(Cookies.remove).toHaveBeenCalledWith("access_token");
-      expect(Cookies.remove).toHaveBeenCalledWith("refresh_token");
+      expect(Cookies.remove).toHaveBeenCalledWith("access_token", { path: "/" });
+      expect(Cookies.remove).toHaveBeenCalledWith("refresh_token", { path: "/" });
     });
 
     it("should handle errors during refresh gracefully", async () => {

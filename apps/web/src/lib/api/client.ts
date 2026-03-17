@@ -131,8 +131,8 @@ class SahoolApiClient {
           logger.warn("Failed to refresh token:", response.error);
 
           // Clear invalid tokens
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
+          Cookies.remove("access_token", { path: "/" });
+          Cookies.remove("refresh_token", { path: "/" });
           this.clearToken();
 
           return false;

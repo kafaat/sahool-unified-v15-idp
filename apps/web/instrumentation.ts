@@ -8,12 +8,18 @@
  * @see https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
  */
 
-/** True when the error is a missing-module resolution failure. */
-function isModuleNotFound(err: unknown): boolean {
+/**
+ * True only when @sentry/nextjs itself is the missing module.
+ * Transitive dependency failures (e.g. a Sentry sub-package missing) are
+ * NOT swallowed — they are logged so monitoring doesn't silently disappear.
+ * This mirrors the stricter check used in next.config.js.
+ */
+function isSentryMissing(err: unknown): boolean {
   return (
     err instanceof Error &&
     "code" in err &&
-    (err as NodeJS.ErrnoException).code === "MODULE_NOT_FOUND"
+    (err as NodeJS.ErrnoException).code === "MODULE_NOT_FOUND" &&
+    /['"]@sentry\/nextjs['"]/.test(err.message)
   );
 }
 
@@ -57,7 +63,7 @@ export async function register() {
         });
       }
     } catch (err: unknown) {
-      if (!isModuleNotFound(err)) {
+      if (!isSentryMissing(err)) {
         console.warn("[sentry] init failed:", err);
       }
     }
@@ -91,7 +97,7 @@ export async function register() {
         });
       }
     } catch (err: unknown) {
-      if (!isModuleNotFound(err)) {
+      if (!isSentryMissing(err)) {
         console.warn("[sentry] init failed:", err);
       }
     }
@@ -117,7 +123,7 @@ export async function onRequestError(
       await (Sentry.captureRequestError as (...a: any[]) => any)(...args);
     }
   } catch (err: unknown) {
-    if (!isModuleNotFound(err)) {
+    if (!isSentryMissing(err)) {
       console.warn("[sentry] captureRequestError failed:", err);
     }
   }

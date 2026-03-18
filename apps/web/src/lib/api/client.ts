@@ -43,7 +43,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 // Only warn during development, don't throw during build
 if (typeof window !== "undefined") {
   if (!API_BASE_URL) {
-    console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
+    logger.warn("NEXT_PUBLIC_API_URL environment variable is not set");
   } else if (
     process.env.NODE_ENV === "production" &&
     !API_BASE_URL.startsWith("https://") &&
@@ -231,7 +231,7 @@ class SahoolApiClient {
     const payload = this.decodeJwtPayload(token);
     const tid = payload?.tid || payload?.tenant_id || null;
     if (tid && !isValidTenantId(tid)) {
-      console.warn("[API Client] Invalid tenant_id format in JWT, ignoring");
+      logger.warn("[API Client] Invalid tenant_id format in JWT, ignoring");
       return null;
     }
     return tid;

@@ -6,6 +6,7 @@
  * For actual PDF rendering, consider adding @react-pdf/renderer or jspdf to package.json
  */
 
+import { logger } from "@/lib/logger";
 import type {
   PDFGenerationOptions,
   PDFChartConfig,
@@ -96,7 +97,7 @@ export async function chartToBase64(
 
     throw new Error("Chart conversion not supported for this element type");
   } catch (error) {
-    console.error("Failed to convert chart to base64:", error);
+    logger.error("Failed to convert chart to base64:", error);
     return "";
   }
 }

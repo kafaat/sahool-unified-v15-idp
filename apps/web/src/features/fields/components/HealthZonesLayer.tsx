@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { logger } from "@/lib/logger";
 import dynamic from "next/dynamic";
 import { AlertCircle } from "lucide-react";
 import type { LeafletMouseEvent } from "leaflet";
@@ -209,7 +210,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
     // طباعة الأخطاء في وضع التطوير
     // Log errors in development mode
     if (validationErrors.length > 0 && process.env.NODE_ENV === "development") {
-      console.error("HealthZonesLayer validation errors:", validationErrors);
+      logger.error("HealthZonesLayer validation errors:", validationErrors);
     }
   }, [zones]);
 
@@ -247,7 +248,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
         onZoneClick(zone);
       }
     } catch (error) {
-      console.error("Error handling zone click:", error);
+      logger.error("Error handling zone click:", error);
     }
   };
 

@@ -546,15 +546,17 @@ export class AuditAlertService {
 /**
  * Console alert handler (for debugging)
  */
+const consoleHandlerLogger = new Logger("ConsoleAlertHandler");
+
 export const consoleAlertHandler: AlertHandler = {
   name: "console",
   async handle(alert: AuditAlert): Promise<void> {
-    console.error("=".repeat(80));
-    console.error(`🚨 SECURITY ALERT: ${alert.message}`);
-    console.error(`Severity: ${alert.severity}`);
-    console.error(`Events: ${alert.events.length}`);
-    console.error(`Timestamp: ${alert.timestamp.toISOString()}`);
-    console.error("=".repeat(80));
+    consoleHandlerLogger.error("=".repeat(80));
+    consoleHandlerLogger.error(`SECURITY ALERT: ${alert.message}`);
+    consoleHandlerLogger.error(`Severity: ${alert.severity}`);
+    consoleHandlerLogger.error(`Events: ${alert.events.length}`);
+    consoleHandlerLogger.error(`Timestamp: ${alert.timestamp.toISOString()}`);
+    consoleHandlerLogger.error("=".repeat(80));
   },
 };
 
@@ -931,7 +933,10 @@ export function createWebhookAlertHandler(url: string): AlertHandler {
           throw new Error(`Webhook failed: ${response.statusText}`);
         }
       } catch (error) {
-        console.error("Failed to send webhook alert:", error);
+        const webhookLogger = new Logger("WebhookAlertHandler");
+        webhookLogger.error(
+          `Failed to send webhook alert: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     },
   };

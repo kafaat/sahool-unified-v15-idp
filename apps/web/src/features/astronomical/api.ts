@@ -21,12 +21,13 @@ import type {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { ASTRONOMICAL_ENDPOINTS } from "@sahool/shared-types/contracts";
+import { logger } from "@/lib/logger";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // تحذير في التطوير فقط - Only warn during development
 if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
+  logger.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const ASTRONOMICAL_API_BASE = `${API_BASE_URL}${ASTRONOMICAL_ENDPOINTS.CALENDAR.replace("/calendar", "")}`;
@@ -55,7 +56,7 @@ async function fetchFromAPI<T>(endpoint: string): Promise<T> {
 
     return await response.json();
   } catch (error) {
-    console.error("خطأ في الاتصال بخدمة التقويم الفلكي:", error);
+    logger.error("خطأ في الاتصال بخدمة التقويم الفلكي:", error);
     throw error;
   }
 }

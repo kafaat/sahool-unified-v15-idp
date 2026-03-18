@@ -4,9 +4,12 @@
  */
 
 import { Router, Request, Response } from "express";
+import { Logger } from "../middleware/logger";
 import { AppDataSource } from "../data-source";
 import { PestIncident, PestType, IncidentStatus } from "../entity/PestIncident";
 import { PestTreatment } from "../entity/PestTreatment";
+
+const logger = new Logger("field-shared", "16.0.0");
 
 export const pestRoutes = Router();
 
@@ -67,7 +70,7 @@ pestRoutes.get("/incidents", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching pest incidents:", error);
+    logger.error("Error fetching pest incidents:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch pest incidents",
@@ -102,7 +105,7 @@ pestRoutes.get("/incidents/:id", async (req: Request, res: Response) => {
       data: incident,
     });
   } catch (error) {
-    console.error("Error fetching pest incident:", error);
+    logger.error("Error fetching pest incident:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch pest incident",
@@ -206,7 +209,7 @@ pestRoutes.post("/incidents", async (req: Request, res: Response) => {
       message_ar: "تم الإبلاغ عن حادثة الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error creating pest incident:", error);
+    logger.error("Error creating pest incident:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create pest incident",
@@ -295,7 +298,7 @@ pestRoutes.put("/incidents/:id", async (req: Request, res: Response) => {
       message_ar: "تم تحديث حادثة الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error updating pest incident:", error);
+    logger.error("Error updating pest incident:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update pest incident",
@@ -348,7 +351,7 @@ pestRoutes.patch(
         message_ar: "تم تحديث حالة حادثة الآفة بنجاح",
       });
     } catch (error) {
-      console.error("Error updating pest incident status:", error);
+      logger.error("Error updating pest incident status:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update pest incident status",
@@ -386,7 +389,7 @@ pestRoutes.delete("/incidents/:id", async (req: Request, res: Response) => {
       message_ar: "تم حذف حادثة الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error deleting pest incident:", error);
+    logger.error("Error deleting pest incident:", error);
     res.status(500).json({
       success: false,
       error: "Failed to delete pest incident",
@@ -436,7 +439,7 @@ pestRoutes.get("/treatments", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching pest treatments:", error);
+    logger.error("Error fetching pest treatments:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch pest treatments",
@@ -471,7 +474,7 @@ pestRoutes.get("/treatments/:id", async (req: Request, res: Response) => {
       data: treatment,
     });
   } catch (error) {
-    console.error("Error fetching pest treatment:", error);
+    logger.error("Error fetching pest treatment:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch pest treatment",
@@ -578,7 +581,7 @@ pestRoutes.post("/treatments", async (req: Request, res: Response) => {
       message_ar: "تم تسجيل علاج الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error creating pest treatment:", error);
+    logger.error("Error creating pest treatment:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create pest treatment",
@@ -654,7 +657,7 @@ pestRoutes.put("/treatments/:id", async (req: Request, res: Response) => {
       message_ar: "تم تحديث علاج الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error updating pest treatment:", error);
+    logger.error("Error updating pest treatment:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update pest treatment",
@@ -691,7 +694,7 @@ pestRoutes.delete("/treatments/:id", async (req: Request, res: Response) => {
       message_ar: "تم حذف علاج الآفة بنجاح",
     });
   } catch (error) {
-    console.error("Error deleting pest treatment:", error);
+    logger.error("Error deleting pest treatment:", error);
     res.status(500).json({
       success: false,
       error: "Failed to delete pest treatment",
@@ -724,7 +727,7 @@ pestRoutes.get(
         count: treatments.length,
       });
     } catch (error) {
-      console.error("Error fetching incident treatments:", error);
+      logger.error("Error fetching incident treatments:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch incident treatments",

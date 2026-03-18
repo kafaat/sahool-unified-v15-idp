@@ -8,6 +8,7 @@
  */
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import {
   Sprout,
   Droplet,
@@ -134,7 +135,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
         await onCreateTask(recommendation);
         setTaskCreated(true);
       } catch (error) {
-        console.error("Failed to create task:", error);
+        logger.error("Failed to create task:", error);
       } finally {
         setIsCreatingTask(false);
       }

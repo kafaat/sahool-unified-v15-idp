@@ -9,6 +9,19 @@ import { SahoolEvent, EventSubject } from "./events";
 
 const codec = StringCodec();
 
+const logger = {
+  log: (message: string, ...args: unknown[]) => {
+    if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console
+      console.log(message, ...args);
+    }
+  },
+  error: (message: string, ...args: unknown[]) => {
+    // eslint-disable-next-line no-console
+    console.error(message, ...args);
+  },
+};
+
 export type EventHandler<T extends SahoolEvent = SahoolEvent> = (
   event: T,
   subject: string,
@@ -53,7 +66,7 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
     : connection.subscribe(subject);
 
   if (options.debug !== false && process.env.NODE_ENV !== "production") {
-    console.log(
+    logger.log(
       `[EventSubscriber] Subscribed to: ${subject}${options.queue ? ` (queue: ${options.queue})` : ""}`,
     );
   }
@@ -66,12 +79,12 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
         const event = JSON.parse(data) as T;
 
         if (options.debug !== false && process.env.NODE_ENV !== "production") {
-          console.log(`[EventSubscriber] Received event on ${subject}:`, event);
+          logger.log(`[EventSubscriber] Received event on ${subject}:`, event);
         }
 
         await handler(event, subject);
       } catch (error) {
-        console.error(
+        logger.error(
           `[EventSubscriber] Error processing message on ${subject}:`,
           error,
         );
@@ -81,7 +94,7 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
       }
     }
   })().catch((err) => {
-    console.error(`[EventSubscriber] Subscription error on ${subject}:`, err);
+    logger.error(`[EventSubscriber] Subscription error on ${subject}:`, err);
     if (options.onError) {
       options.onError(err);
     }
@@ -206,7 +219,7 @@ export async function unsubscribe(subscription: Subscription): Promise<void> {
  */
 export function createLoggingHandler(prefix: string = "[Event]"): EventHandler {
   return (event: SahoolEvent, subject: string) => {
-    console.log(`${prefix} [${subject}]`, {
+    logger.log(`${prefix} [${subject}]`, {
       eventId: event.eventId,
       eventType: event.eventType,
       timestamp: event.timestamp,

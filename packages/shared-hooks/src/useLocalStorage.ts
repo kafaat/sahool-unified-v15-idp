@@ -19,7 +19,10 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.warn(`Error reading localStorage key "${key}":`, error);
+      }
       return initialValue;
     }
   }, [key, initialValue]);
@@ -37,7 +40,10 @@ export function useLocalStorage<T>(
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       if (typeof window === "undefined") {
-        console.warn(`Cannot set localStorage key "${key}" in SSR`);
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.warn(`Cannot set localStorage key "${key}" in SSR`);
+        }
         return;
       }
 
@@ -57,7 +63,10 @@ export function useLocalStorage<T>(
           }),
         );
       } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.warn(`Error setting localStorage key "${key}":`, error);
+        }
       }
     },
     [key],
@@ -71,7 +80,10 @@ export function useLocalStorage<T>(
       window.localStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.warn(`Error removing localStorage key "${key}":`, error);
+      }
     }
   }, [key, initialValue]);
 

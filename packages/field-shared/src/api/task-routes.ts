@@ -6,7 +6,10 @@
  */
 
 import { Router, Request, Response } from "express";
+import { Logger } from "../middleware/logger";
 import { v4 as uuidv4 } from "uuid";
+
+const logger = new Logger("field-shared", "16.0.0");
 
 const router = Router();
 
@@ -87,7 +90,7 @@ router.post("/operations", async (req: Request, res: Response) => {
       data: opData,
     });
   } catch (error) {
-    console.error("Error creating operation:", error);
+    logger.error("Error creating operation:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create operation",
@@ -116,7 +119,7 @@ router.get("/operations/:id", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error fetching operation:", error);
+    logger.error("Error fetching operation:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch operation",
@@ -171,7 +174,7 @@ router.get("/operations", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error listing operations:", error);
+    logger.error("Error listing operations:", error);
     res.status(500).json({
       success: false,
       error: "Failed to list operations",
@@ -206,7 +209,7 @@ router.post("/operations/:id/complete", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error completing operation:", error);
+    logger.error("Error completing operation:", error);
     res.status(500).json({
       success: false,
       error: "Failed to complete operation",
@@ -249,7 +252,7 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error updating operation:", error);
+    logger.error("Error updating operation:", error);
     res.status(500).json({
       success: false,
       error: "Failed to update operation",
@@ -279,7 +282,7 @@ router.delete("/operations/:id", async (req: Request, res: Response) => {
       message: "Operation deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting operation:", error);
+    logger.error("Error deleting operation:", error);
     res.status(500).json({
       success: false,
       error: "Failed to delete operation",
@@ -323,7 +326,7 @@ router.get("/stats/tenant/:tenant_id", async (req: Request, res: Response) => {
       data: stats,
     });
   } catch (error) {
-    console.error("Error fetching tenant stats:", error);
+    logger.error("Error fetching tenant stats:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch tenant statistics",

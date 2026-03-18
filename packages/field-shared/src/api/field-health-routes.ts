@@ -7,6 +7,9 @@
  */
 
 import { Router, Request, Response } from "express";
+import { Logger } from "../middleware/logger";
+
+const logger = new Logger("field-shared", "16.0.0");
 
 const router = Router();
 
@@ -530,7 +533,7 @@ router.post("/field-health", async (req: Request, res: Response) => {
       data: response,
     });
   } catch (error) {
-    console.error("Error in field health analysis:", error);
+    logger.error("Error in field health analysis:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error during health analysis",

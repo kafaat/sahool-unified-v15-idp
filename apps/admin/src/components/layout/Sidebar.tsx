@@ -51,6 +51,7 @@ import {
   Radio,
   Search,
   Bot,
+  CalendarDays,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -78,6 +79,7 @@ const mainNavigation = [
 // Operations section
 const operationsNav = [
   { name: "المزارع", href: "/farms", icon: MapPin },
+  { name: "المواسم الزراعية", href: "/seasons", icon: CalendarDays },
   { name: "إدارة الأمراض", href: "/diseases", icon: Bug },
   { name: "الري الذكي", href: "/irrigation", icon: Droplets },
   { name: "المهام", href: "/tasks", icon: CheckSquare },

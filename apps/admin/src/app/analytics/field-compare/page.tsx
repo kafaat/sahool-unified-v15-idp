@@ -5,8 +5,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
-import axios from "axios";
-import { API_URLS, API_PATHS } from "@/config/api";
+import { apiClient } from "@/lib/api-client";
+import { API_PATHS } from "@/config/api";
 import {
   ArrowLeftRight,
   Leaf,
@@ -251,14 +251,12 @@ export default function FieldComparePage() {
   const loadFields = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${API_URLS.fieldManagement}${API_PATHS.fields.list}`
-      );
-      const data = response.data?.data ?? response.data ?? [];
-      if (Array.isArray(data) && data.length > 0) {
-        setFields(data);
+      const result = await apiClient.get<FieldMetrics[]>(API_PATHS.fields.list);
+      if (result.success && result.data) {
+        const data = Array.isArray(result.data) ? result.data : [];
+        setFields(data.length > 0 ? data : MOCK_FIELDS);
       } else {
-        setFields(MOCK_FIELDS);
+        throw new Error(result.error || "Failed to fetch fields");
       }
     } catch {
       logger.info("Using mock field data for comparison");

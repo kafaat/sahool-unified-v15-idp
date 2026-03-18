@@ -7,8 +7,8 @@ import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
-import axios from "axios";
-import { API_URLS, API_PATHS } from "@/config/api";
+import { apiClient } from "@/lib/api-client";
+import { API_PATHS } from "@/config/api";
 import {
   FlaskConical,
   MapPin,
@@ -267,10 +267,12 @@ export default function FertilizerPrescriptionPage() {
   const loadPrescriptions = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${API_URLS.advisory}${API_PATHS.advisory.fertilizer}`
-      );
-      setPrescriptions(response.data?.data ?? response.data ?? []);
+      const result = await apiClient.get<FertilizerPrescription[]>(API_PATHS.advisory.fertilizer);
+      if (result.success && result.data) {
+        setPrescriptions(Array.isArray(result.data) ? result.data : []);
+      } else {
+        throw new Error(result.error || "Failed to fetch fertilizer prescriptions");
+      }
     } catch {
       logger.info("Using mock fertilizer prescriptions");
       setPrescriptions(MOCK_PRESCRIPTIONS);

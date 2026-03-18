@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { Satellite, MapPin, Layers, TrendingUp, Download, AlertTriangle, Droplets } from "lucide-react";
 import { useSatelliteFields, useSatelliteStats } from "@/features/satellite";
 import type { SatelliteField, IndexType } from "@/features/satellite";
@@ -101,6 +101,7 @@ const indexTypes = Object.entries(INDEX_CONFIG).map(([value, config]) => ({
 export default function SatelliteClient() {
   const [selectedIndex, setSelectedIndex] = useState<IndexType>("ndvi");
   const [selectedField, setSelectedField] = useState<string | null>(null);
+  const warnedIndicesRef = useRef(new Set<string>());
 
   // Fetch data using React Query hooks
   const { data: fields = [], isLoading, error } = useSatelliteFields();
@@ -133,9 +134,13 @@ export default function SatelliteClient() {
     if (selectedIndex === "ndvi") return field.indices.ndvi;
     const value = field.indices[selectedIndex];
     if (value == null) {
-      console.warn(
-        `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`,
-      );
+      const key = `${selectedIndex}:${field.id}`;
+      if (process.env.NODE_ENV !== "production" && !warnedIndicesRef.current.has(key)) {
+        warnedIndicesRef.current.add(key);
+        console.warn(
+          `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`,
+        );
+      }
       return field.indices.ndvi;
     }
     return value;

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getUserFromToken } from "@/lib/auth/jwt-verify";
+import { logger } from "@/lib/logger";
 
 // Weather service URL from environment, fallback to docker service name
 const WEATHER_SERVICE_URL =
@@ -23,21 +24,22 @@ function isValidUUID(str: string): boolean {
 }
 
 /**
- * Extract tenant_id from httpOnly cookie server-side
+ * Extract tenant_id from httpOnly cookie server-side.
+ * Returns the tenant_id string on success, or null if auth is missing/invalid.
  */
-async function getTenantId(): Promise<string> {
+async function getTenantId(): Promise<string | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("sahool_admin_token")?.value;
-    if (!token) return "default";
+    if (!token) return null;
 
     const user = await getUserFromToken(token);
     if (user?.tenant_id && isValidUUID(user.tenant_id)) {
       return user.tenant_id;
     }
-    return "default";
+    return null;
   } catch {
-    return "default";
+    return null;
   }
 }
 
@@ -68,6 +70,12 @@ export async function POST(request: NextRequest) {
     }
 
     const tenantId = await getTenantId();
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
 
     // Build path based on action
     const pathMap: Record<string, string> = {
@@ -83,7 +91,7 @@ export async function POST(request: NextRequest) {
       lon,
     };
 
-    if (action === "forecast" && days) {
+    if (action === "forecast" && typeof days === "number" && Number.isFinite(days)) {
       payload.days = days;
     }
 
@@ -94,10 +102,30 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal.timeout(15000),
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text();
+      logger.error("Weather service returned non-JSON response:", { status: response.status, contentType, body: text.slice(0, 200) });
+      return NextResponse.json(
+        { error: "Weather service returned an unexpected response" },
+        { status: 502 },
+      );
+    }
+
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch {
+      logger.error("Failed to parse weather service JSON response");
+      return NextResponse.json(
+        { error: "Weather service returned invalid JSON" },
+        { status: 502 },
+      );
+    }
+
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error("Weather API proxy error:", error);
+    logger.error("Weather API proxy error:", error);
     return NextResponse.json(
       { error: "Failed to fetch weather data" },
       { status: 502 },

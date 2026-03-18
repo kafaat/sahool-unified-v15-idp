@@ -33,6 +33,11 @@ vi.mock("@/lib/auth/jwt-verify", () => ({
   getUserFromToken: (...args: unknown[]) => mockGetUserFromToken(...args),
 }));
 
+// Mock logger
+vi.mock("@/lib/logger", () => ({
+  logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn(), critical: vi.fn() },
+}));
+
 // Helper to create NextRequest
 function createRequest(
   url: string,
@@ -202,13 +207,45 @@ describe("POST /api/weather", () => {
     expect(data.error).toBe("Failed to fetch weather data");
   });
 
-  it("falls back to 'default' tenant_id when no token cookie exists", async () => {
+  it("returns 401 when no token cookie exists", async () => {
     mockCookieStore.get.mockReturnValue(undefined);
 
+    const { POST } = await import("@/app/api/weather/route");
+    const request = createRequest("http://localhost:3002/api/weather", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "current", lat: 24.7, lon: 46.7 }),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe("Authentication required");
+    // Should NOT call the upstream weather service
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 401 when token is invalid (no tenant_id)", async () => {
+    mockCookieStore.get.mockReturnValue({ value: "bad-token" });
+    mockGetUserFromToken.mockResolvedValue(null);
+
+    const { POST } = await import("@/app/api/weather/route");
+    const request = createRequest("http://localhost:3002/api/weather", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "current", lat: 24.7, lon: 46.7 }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(401);
+  });
+
+  it("returns 502 when weather service returns non-JSON response", async () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(
-        JSON.stringify({ temperature: 25 }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
+        "<html>502 Bad Gateway</html>",
+        { status: 502, headers: { "Content-Type": "text/html" } },
       ),
     );
 
@@ -219,13 +256,10 @@ describe("POST /api/weather", () => {
       body: JSON.stringify({ action: "current", lat: 24.7, lon: 46.7 }),
     });
 
-    await POST(request);
+    const response = await POST(request);
+    const data = await response.json();
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "http://weather-service:8092/weather/current",
-      expect.objectContaining({
-        body: expect.stringContaining('"tenant_id":"default"'),
-      }),
-    );
+    expect(response.status).toBe(502);
+    expect(data.error).toContain("unexpected response");
   });
 });

@@ -375,6 +375,27 @@ export async function updateDiagnosisStatus(
  * واجهة الطقس — تمر عبر وكيل Next.js لاستخراج معرف المستأجر من الكوكي
  */
 
+/**
+ * Helper to handle weather proxy responses consistently.
+ * Redirects to login on 401 (matching apiClient interceptor behavior).
+ */
+async function handleWeatherResponse(response: Response): Promise<unknown | null> {
+  if (response.status === 401) {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch (logoutError) {
+      logger.error("Logout error during weather auth redirect:", logoutError);
+    }
+    authApiClient.clearToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    return null;
+  }
+  if (!response.ok) return null;
+  return await response.json();
+}
+
 export async function getWeatherCurrent(
   lat: number,
   lng: number,
@@ -387,8 +408,7 @@ export async function getWeatherCurrent(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "current", lat, lon: lng, field_id: fieldId }),
     });
-    if (!response.ok) return null;
-    return await response.json();
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch current weather:", error);
     return null;
@@ -408,8 +428,7 @@ export async function getWeatherForecast(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "forecast", lat, lon: lng, field_id: fieldId, days }),
     });
-    if (!response.ok) return null;
-    return await response.json();
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch weather forecast:", error);
     return null;
@@ -428,8 +447,7 @@ export async function getAgriculturalReport(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "agricultural", lat, lon: lng, field_id: fieldId }),
     });
-    if (!response.ok) return null;
-    return await response.json();
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch agricultural report:", error);
     return null;

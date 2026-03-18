@@ -1,7 +1,7 @@
 # SAHOOL Platform - Bugs, Fixes, and Recommendations
 # الأخطاء والإصلاحات والتوصيات
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-18
 **Platform Version:** 16.0.0
 
 ---
@@ -14,7 +14,8 @@
 4. [Configuration Issues](#configuration-issues)
 5. [Missing Features](#missing-features)
 6. [Deprecated Services](#deprecated-services)
-7. [Recommended Actions](#recommended-actions)
+7. [Recently Fixed - Web & Admin Review (March 2026)](#recently-fixed---web--admin-review-march-2026)
+8. [Recommended Actions](#recommended-actions)
 
 ---
 
@@ -564,6 +565,168 @@ The following services should NOT be used:
 
 ---
 
+## Recently Fixed - Web & Admin Review (March 2026)
+
+The following bugs were identified and fixed during a comprehensive code review
+of the Web and Admin frontend applications on 2026-03-18.
+
+### BUG-004: Missing Auth Credentials in Admin API Service Calls
+
+**Severity:** HIGH
+**Affected Files:** `apps/admin/src/lib/api/services.ts`, `apps/admin/src/lib/api/extended-services.ts`
+
+**Issue:**
+20 `fetch()` calls across IoT, Irrigation, Alert, Equipment, Task, Inventory,
+Research, and Marketplace services were missing `credentials: "same-origin"`.
+This prevented httpOnly authentication cookies from being sent with requests.
+
+**Affected Services:**
+| Service | Missing Calls |
+|---------|--------------|
+| iotService | `getAll()`, `getReadings()` |
+| irrigationService | `getAll()` |
+| alertService | `getAll()` |
+| equipmentService | `getAll()` |
+| taskService | `getAll()` |
+| inventoryService | `getAll()`, `getTransactions()`, `adjustQuantity()` |
+| researchService | `getAllProjects()`, `getProjectById()`, `createProject()`, `updateProject()`, `deleteProject()`, `getAllExperiments()`, `createExperiment()` |
+| marketplaceService | `getAll()`, `getById()`, `update()`, `delete()` |
+
+**Impact:**
+API calls fail authentication in production when using cookie-based auth.
+Users would see unauthorized errors on list/read operations.
+
+**Fix Applied:**
+Added `fetchDefaults` (with `credentials: "same-origin"`) to all 20 fetch calls.
+
+**Status:** FIXED
+
+---
+
+### BUG-005: Hardcoded tenant_id in Web Weather API
+
+**Severity:** HIGH
+**Affected Files:** `apps/web/src/lib/api/client.ts`
+
+**Issue:**
+Three weather API methods (`getWeather`, `getWeatherForecast`, `getAgriculturalRisks`)
+hardcoded `tenant_id: "default"` instead of extracting it from the JWT token.
+
+```typescript
+// Before (broken):
+body: JSON.stringify({
+  tenant_id: "default",  // Always sends "default"
+  ...
+});
+
+// After (fixed):
+const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
+body: JSON.stringify({
+  tenant_id: tenantId || "default",  // Uses actual tenant from JWT
+  ...
+});
+```
+
+**Impact:**
+Multi-tenant isolation was bypassed for weather data. All tenants received
+the same weather data regardless of their tenant context.
+
+**Status:** FIXED
+
+---
+
+### BUG-006: useContextCompression Decompression Bug
+
+**Severity:** HIGH
+**Affected Files:** `apps/web/src/hooks/ai/useContextCompression.ts`
+
+**Issue:**
+The `decompress()` function always applied RLE (Run-Length Encoding) decompression,
+but `compress()` only applies RLE at `CompressionLevel.HIGH`. Data compressed at
+LOW or MEDIUM levels would fail to decompress or produce corrupted output.
+
+**Fix Applied:**
+Decompress now tries plain JSON parse first (works for LOW/MEDIUM), and falls
+back to RLE decompression only if plain parse fails (for HIGH level).
+
+**Status:** FIXED
+
+---
+
+### BUG-007: useApiQuery State Updates After Unmount
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/hooks/api/use-api-query.ts`
+
+**Issue:**
+The `fetchData` callback in `useApiQuery` had no mechanism to cancel in-flight
+requests. If a component unmounts while a fetch is in progress, `setState` calls
+would execute after unmount, causing React warnings and potential memory leaks.
+
+**Fix Applied:**
+Added `AbortController` support. The effect cleanup aborts pending requests,
+and all setState calls check `signal.aborted` before executing.
+
+**Status:** FIXED
+
+---
+
+### BUG-008: useRealtimeSync Events Array Re-subscription
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/hooks/api/use-realtime.ts`
+
+**Issue:**
+The `events` array parameter was included directly in the useEffect dependency
+array. Since arrays are recreated on every render, this caused unnecessary
+WebSocket re-subscriptions on every render cycle.
+
+**Fix Applied:**
+Used a `useRef` to store the events array and a stable string key (`events.join(",")`)
+for the dependency array. Re-subscriptions now only happen when the actual event
+types change.
+
+**Status:** FIXED
+
+---
+
+### BUG-009: Middleware JWT Validation Missing Error Handling
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/web/src/middleware.ts`
+
+**Issue:**
+The `validateJwtToken()` call in the Edge middleware was not wrapped in try-catch.
+If the function threw an unhandled exception (e.g., malformed token causing a
+crypto error), the entire middleware would crash, returning a 500 error instead
+of redirecting to login.
+
+**Fix Applied:**
+Wrapped `validateJwtToken()` in try-catch. On exception, logs the error and
+treats it as an invalid token, redirecting to login gracefully.
+
+**Status:** FIXED
+
+---
+
+### BUG-010: ErrorBoundary Unsafe Window/Navigator Access
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/components/common/ErrorBoundary.tsx`
+
+**Issue:**
+The `logErrorToServer()` method accessed `window.location.href` and
+`navigator.userAgent` without SSR-safety guards. In server-side rendering
+contexts, these globals are undefined and would throw.
+
+**Fix Applied:**
+Added `typeof window !== "undefined"` and `typeof navigator !== "undefined"`
+guards with `"unknown"` fallback values.
+
+**Status:** FIXED
+
+---
+
 ## Recommended Actions
 
 ### Immediate (This Week)
@@ -587,6 +750,16 @@ The following services should NOT be used:
 11. **Document all required environment variables** (CONFIG-001)
 12. **Implement missing admin features** (MISSING-001 to MISSING-004)
 
+### Completed (March 2026 - Web & Admin Review)
+
+13. ~~**Fix missing auth credentials in admin API** (BUG-004)~~ ✅ DONE
+14. ~~**Fix hardcoded tenant_id in weather API** (BUG-005)~~ ✅ DONE
+15. ~~**Fix decompression bug in context compression** (BUG-006)~~ ✅ DONE
+16. ~~**Fix useApiQuery state updates after unmount** (BUG-007)~~ ✅ DONE
+17. ~~**Fix useRealtimeSync re-subscription** (BUG-008)~~ ✅ DONE
+18. ~~**Fix middleware JWT error handling** (BUG-009)~~ ✅ DONE
+19. ~~**Fix ErrorBoundary SSR-safety** (BUG-010)~~ ✅ DONE
+
 ---
 
 ## Checklist for Coding Agent
@@ -596,11 +769,15 @@ The following services should NOT be used:
 - [ ] Check environment variables are set
 - [ ] Verify Kong routes exist for target services
 - [ ] Use correct (non-deprecated) service names
-- [ ] Implement proper error handling
+- [ ] Implement proper error handling (see BUG-004 pattern: always include `credentials: "same-origin"`)
 - [ ] Add loading states to UI
 - [ ] Test with services down to verify error handling
+- [ ] Ensure `fetchDefaults` is spread in all fetch calls (admin app)
+- [ ] Extract tenant_id from JWT, never hardcode (web app)
+- [ ] Use AbortController in useEffect async operations
+- [ ] Guard `window`/`navigator` access for SSR safety
 
 ---
 
 **Document Maintainer:** SAHOOL Platform Team
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-18

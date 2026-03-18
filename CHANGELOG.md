@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Web & Admin Frontend Bug Fixes** (March 2026)
+  - Added missing `credentials: "same-origin"` to 20 fetch calls in admin API services
+    (iotService, irrigationService, alertService, equipmentService, taskService,
+    inventoryService, researchService, marketplaceService) — auth cookies were not sent
+  - Fixed hardcoded `tenant_id: "default"` in web weather API methods (`getWeather`,
+    `getWeatherForecast`, `getAgriculturalRisks`) — now extracts tenant from JWT token
+  - Fixed `useContextCompression` decompression always applying RLE even for LOW/MEDIUM
+    compression levels — decompress now tries plain JSON first, falls back to RLE
+  - Added `AbortController` to `useApiQuery` to prevent state updates after component unmount
+  - Fixed `useRealtimeSync` events array causing WebSocket re-subscriptions every render
+    by using a stable string key instead of array reference
+  - Wrapped `validateJwtToken()` in middleware with try-catch to prevent edge runtime crashes
+  - Added SSR-safety guards for `window.location.href` and `navigator.userAgent` in
+    `ErrorBoundary.logErrorToServer()`
+
 ### Security
 
 - **NATS StatefulSet Hardening** (March 2026)

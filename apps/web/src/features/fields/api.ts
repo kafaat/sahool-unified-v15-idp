@@ -86,7 +86,7 @@ function mapApiFieldToField(apiField: ApiFieldResponse): Field {
       apiField.cropType ||
       apiField.crop ||
       "",
-    farmId: apiField.farmId || "",
+    farmId: apiField.farmId || apiField.tenantId || "",
     polygon: apiField.boundary || apiField.polygon,
     description: apiField.metadata?.description || apiField.description,
     descriptionAr: apiField.metadata?.descriptionAr || apiField.descriptionAr,

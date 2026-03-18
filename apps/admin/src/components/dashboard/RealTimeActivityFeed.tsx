@@ -117,6 +117,8 @@ const ACTIVITY_CONFIG: Record<
 // Mock Data Generator (for demo when WS not connected)
 // ═══════════════════════════════════════════════════════════════════════════
 
+let mockEventCounter = 0;
+
 const generateMockEvent = (): ActivityEvent => {
   const types: ActivityType[] = [
     "field_created",
@@ -220,12 +222,13 @@ const generateMockEvent = (): ActivityEvent => {
     },
   };
 
-  const typeIndex = Math.floor(Math.random() * types.length);
+  const currentCount = mockEventCounter++;
+  const typeIndex = currentCount % types.length;
   const type = types[typeIndex] ?? "system_event";
   const mockData = mockEvents[type] ?? mockEvents.system_event;
 
   return {
-    id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    id: `evt-${Date.now()}-${currentCount.toString(36)}`,
     type: type as ActivityType,
     title: mockData.title || "",
     titleAr: mockData.titleAr || "",

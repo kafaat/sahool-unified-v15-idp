@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import { Satellite, MapPin, Layers, TrendingUp, Download, AlertTriangle, Droplets } from "lucide-react";
+import { logger } from "@/lib/logger";
 import { useSatelliteFields, useSatelliteStats } from "@/features/satellite";
 import type { SatelliteField, IndexType } from "@/features/satellite";
 
@@ -137,7 +138,7 @@ export default function SatelliteClient() {
       const key = `${selectedIndex}:${field.id}`;
       if (process.env.NODE_ENV !== "production" && !warnedIndicesRef.current.has(key)) {
         warnedIndicesRef.current.add(key);
-        console.warn(
+        logger.warn(
           `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`,
         );
       }

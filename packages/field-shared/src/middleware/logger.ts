@@ -45,7 +45,7 @@ interface LogEntry {
   [key: string]: any;
 }
 
-class Logger {
+export class Logger {
   private service: string;
   private version: string;
   private defaultContext: LogContext;

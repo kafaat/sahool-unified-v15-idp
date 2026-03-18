@@ -3,15 +3,14 @@
  * عميل API الموحد للويب
  *
  * Wraps @sahool/api-client with web-specific configuration:
- * - httpOnly cookie-based token management
+ * - httpOnly cookie-based auth (cookies sent automatically via withCredentials)
  * - CSRF double-submit cookie protection
- * - Token refresh via /api/auth/session
- * - Cross-tab logout via BroadcastChannel
+ * - Token refresh via Next.js server-side proxy (/api/auth/refresh)
  *
- * Usage:
- *   import { sahoolClient, unifiedApiClient } from "./unified-client";
- *   // sahoolClient — full SahoolApiClient instance (domain methods)
- *   // unifiedApiClient — raw AxiosInstance (for factory.ts / feature modules)
+ * Note: access_token and refresh_token are httpOnly cookies — they cannot
+ * be read by client-side JS. Auth works because withCredentials: true
+ * sends cookies automatically, and the backend reads them directly.
+ * Token refresh uses a same-origin proxy that can read the httpOnly cookie.
  */
 
 import { SahoolApiClient } from "@sahool/api-client";
@@ -31,8 +30,10 @@ export const sahoolClient = new SahoolApiClient({
   errorHandling: "throw",
   logLevel: IS_PRODUCTION ? "error" : "info",
 
-  // Read JWT from httpOnly-adjacent cookie (set by /api/auth/session)
-  getToken: () => Cookies.get("access_token") ?? null,
+  // getToken returns null for httpOnly cookies — auth is handled by the
+  // browser automatically sending cookies with withCredentials: true.
+  // The backend reads the token from the cookie, not from Authorization header.
+  getToken: () => null,
 
   onUnauthorized: async () => {
     if (typeof window !== "undefined") {
@@ -41,36 +42,22 @@ export const sahoolClient = new SahoolApiClient({
   },
 
   tokenRefresh: {
+    // Uses a same-origin Next.js API route that can read the httpOnly
+    // refresh_token cookie server-side and forward it to the backend.
     refreshToken: async () => {
       try {
         if (typeof window === "undefined") return null;
-        const refreshTokenValue = Cookies.get("refresh_token");
-        if (!refreshTokenValue) return null;
 
-        const res = await fetch(
-          `${API_BASE_URL}/api/v1/auth/refresh`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token: refreshTokenValue }),
-            credentials: "include",
-          },
-        );
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: "same-origin",
+        });
         if (!res.ok) return null;
 
         const data = await res.json();
-        const newToken = data?.access_token ?? data?.data?.access_token ?? null;
-        if (newToken) {
-          // Clear legacy path-scoped cookie, then set root-scoped one
-          Cookies.remove("access_token");
-          Cookies.set("access_token", newToken, {
-            expires: 7,
-            secure: window.location.protocol === "https:",
-            sameSite: "strict",
-            path: "/",
-          });
-        }
-        return newToken;
+        // The proxy route already set the new httpOnly cookie.
+        // Return the token so the shared client can retry the failed request.
+        return data?.access_token ?? null;
       } catch {
         return null;
       }

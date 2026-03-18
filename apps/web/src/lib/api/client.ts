@@ -8,7 +8,6 @@
  */
 
 import axios from "axios";
-import Cookies from "js-cookie";
 import { sanitizers, validators, validationErrors } from "../validation";
 import { unifiedApiClient } from "./unified-client";
 import type {
@@ -37,27 +36,10 @@ import type {
   User,
 } from "./types";
 
-/** Decode JWT payload to extract tenant_id for weather API body params */
-function decodeTenantFromToken(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const token = Cookies.get("access_token");
-    if (!token) return null;
-    const parts = token.split(".");
-    if (parts.length !== 3 || !parts[1]) return null;
-    let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const pad = b64.length % 4;
-    if (pad) b64 += "=".repeat(4 - pad);
-    const payload = JSON.parse(atob(b64));
-    const tid = payload?.tid || payload?.tenant_id || null;
-    if (tid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tid)) {
-      return null;
-    }
-    return tid;
-  } catch {
-    return null;
-  }
-}
+// Note: tenant_id is extracted server-side from the JWT in the httpOnly cookie.
+// The access_token cookie cannot be read by client-side JS (httpOnly).
+// Weather API endpoints receive the JWT via withCredentials: true and the
+// backend extracts tenant_id from the token's `tid` claim automatically.
 
 class SahoolApiClient {
   /**
@@ -225,11 +207,9 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number, fieldId: string = "default") {
-    const tenantId = decodeTenantFromToken();
     return this.request<WeatherData>("/api/v1/weather/weather/current", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -238,11 +218,9 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
-    const tenantId = decodeTenantFromToken();
     return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -252,11 +230,9 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    const tenantId = decodeTenantFromToken();
     return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,

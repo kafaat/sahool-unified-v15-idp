@@ -82,7 +82,7 @@ export function checkRateLimit(
   // Check limit
   if (entry.timestamps.length >= limit) {
     const retryAfter = Math.ceil(
-      (entry.timestamps[0] + windowMs - now) / 1000,
+      (entry.timestamps[0]! + windowMs - now) / 1000,
     );
 
     return NextResponse.json(
@@ -98,7 +98,7 @@ export function checkRateLimit(
           "X-RateLimit-Limit": String(limit),
           "X-RateLimit-Remaining": "0",
           "X-RateLimit-Reset": String(
-            Math.ceil((entry.timestamps[0] + windowMs) / 1000),
+            Math.ceil((entry.timestamps[0]! + windowMs) / 1000),
           ),
         },
       },

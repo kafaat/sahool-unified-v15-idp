@@ -255,8 +255,8 @@ export async function updateDiagnosisStatus(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Weather API (weather-core service - POST-based with lat/lon)
-// Uses weather-core service (port 8108) for coordinate-based weather data
+// Weather API (POST-based with lat/lon coordinates)
+// Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function getWeatherCurrent(

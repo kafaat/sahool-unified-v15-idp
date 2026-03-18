@@ -34,7 +34,17 @@ vi.mock("../unified-client", () => ({
 // Mock validation module
 vi.mock("../../validation", () => ({
   sanitizers: {
-    sanitizeText: (text: string) => text.replace(/<[^>]*>/g, ""),
+    sanitizeText: (text: string) => {
+      // Iteratively strip HTML tags to prevent multi-character bypass
+      // e.g. "<scr<script>ipt>" → "<script>" → ""
+      let result = text;
+      let prev = "";
+      while (result !== prev) {
+        prev = result;
+        result = result.replace(/<[^>]*>/g, "");
+      }
+      return result;
+    },
   },
   validators: {
     isValidMessage: (text: string) => text.length > 0 && !/<script/i.test(text),

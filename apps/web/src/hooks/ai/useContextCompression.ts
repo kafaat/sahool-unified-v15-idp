@@ -143,23 +143,22 @@ export function useContextCompression() {
    * Decompress context data
    * فك ضغط بيانات السياق
    *
-   * Attempts plain JSON parse first (for LOW/MEDIUM levels), falls back to RLE
-   * decompression for HIGH level that uses RLE encoding.
+   * Checks for RLE_PREFIX to route HIGH-level data through decompressRLE(),
+   * otherwise parses as plain JSON (LOW/MEDIUM levels).
    */
   const decompress = useCallback((compressed: string): unknown => {
     try {
-      // Try plain JSON parse first (works for LOW and MEDIUM compression levels)
-      return JSON.parse(compressed);
-    } catch {
-      // If plain parse fails, try RLE decompression (HIGH level)
-      try {
+      if (compressed.startsWith(RLE_PREFIX)) {
+        // HIGH level: strip prefix, reverse RLE, then parse JSON
         return JSON.parse(decompressRLE(compressed));
-      } catch (error) {
-        logger.error("[useContextCompression] Decompression failed:", error);
-        throw new Error(
-          `Decompression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-        );
       }
+      // LOW/MEDIUM level: plain JSON
+      return JSON.parse(compressed);
+    } catch (error) {
+      logger.error("[useContextCompression] Decompression failed:", error);
+      throw new Error(
+        `Decompression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }, []);
 
@@ -247,20 +246,26 @@ function stripWhitespace(obj: unknown): unknown {
   return obj;
 }
 
+/** Prefix marker for RLE-encoded strings to distinguish from plain JSON */
+const RLE_PREFIX = "\x02RLE:";
+
 /**
- * Apply simple Run-Length Encoding for compression
+ * Apply simple Run-Length Encoding for compression.
+ * Prepends RLE_PREFIX so decompress() can detect RLE-encoded data.
  */
 function applySimpleRLE(str: string): string {
-  return str.replace(/(.)\1{2,}/g, (matchStr) => {
+  const encoded = str.replace(/(.)\1{2,}/g, (matchStr) => {
     return `_${matchStr.length}${matchStr[0]}`;
   });
+  return RLE_PREFIX + encoded;
 }
 
 /**
- * Decompress simple RLE
+ * Decompress simple RLE (strips RLE_PREFIX before decoding)
  */
 function decompressRLE(str: string): string {
-  return str.replace(/_(\d+)(.)/g, (_match, count, char) => {
+  const body = str.startsWith(RLE_PREFIX) ? str.slice(RLE_PREFIX.length) : str;
+  return body.replace(/_(\d+)(.)/g, (_match, count, char) => {
     return char.repeat(parseInt(count, 10));
   });
 }

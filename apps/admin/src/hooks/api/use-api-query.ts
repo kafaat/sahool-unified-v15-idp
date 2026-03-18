@@ -91,6 +91,13 @@ export function useApiQuery<T>(
   onSuccessRef.current = onSuccess;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const isMountedRef = useRef(true);
+
+  // Track mount state to avoid state updates after unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   const fetchData = useCallback(async (signal?: AbortSignal) => {
     // Check cache first
@@ -104,12 +111,14 @@ export function useApiQuery<T>(
     setIsLoading(true);
     try {
       const result = await queryFnRef.current();
+      if (!isMountedRef.current) return;
       if (signal?.aborted) return;
       setData(result);
       setError(null);
       queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
       onSuccessRef.current?.(result);
     } catch (err) {
+      if (!isMountedRef.current) return;
       if (signal?.aborted) return;
       const apiError: ApiError = {
         message:
@@ -119,7 +128,9 @@ export function useApiQuery<T>(
       setError(apiError);
       onErrorRef.current?.(apiError);
     } finally {
-      if (!signal?.aborted) {
+      // Always clear isLoading if component is still mounted,
+      // even when the signal was aborted due to dep changes (not unmount).
+      if (isMountedRef.current) {
         setIsLoading(false);
       }
     }

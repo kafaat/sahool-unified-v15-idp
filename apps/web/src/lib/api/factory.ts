@@ -19,24 +19,34 @@ import {
   ERROR_CODES,
   getErrorMessage,
 } from "@sahool/shared-types/contracts";
+import { unifiedApiClient } from "./unified-client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const DEFAULT_TIMEOUT = 15000;
 
 /**
  * Creates a configured Axios instance with auth interceptors.
  * Each feature module should use this instead of creating its own.
+ *
+ * When no custom baseURL is provided, returns the unified client's axios
+ * instance — giving all features token refresh, retry, CSRF, and HTTPS
+ * enforcement from @sahool/api-client for free.
  */
 export function createApiClient(options?: {
   baseURL?: string;
   timeout?: number;
 }): AxiosInstance {
+  // Default case: return the shared unified client (covers 40/42 features)
+  if (!options?.baseURL) {
+    return unifiedApiClient;
+  }
+
+  // Custom baseURL (e.g. copilot-api): create a standalone instance
   const client = axios.create({
-    baseURL: options?.baseURL ?? API_BASE_URL,
+    baseURL: options.baseURL,
     headers: {
       "Content-Type": "application/json",
     },
-    timeout: options?.timeout ?? DEFAULT_TIMEOUT,
+    timeout: options.timeout ?? DEFAULT_TIMEOUT,
   });
 
   // Request interceptor: attach JWT token

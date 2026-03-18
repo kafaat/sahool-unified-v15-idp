@@ -1,12 +1,16 @@
 /**
  * SAHOOL API Client
- * Unified API client for connecting frontend to backend services
+ * Domain-specific API methods for the web frontend.
+ *
+ * Transport layer is delegated to the unified client (@sahool/api-client),
+ * which provides: JWT auth, token refresh, CSRF, retry, HTTPS enforcement.
+ * This file only contains domain method wrappers.
  */
 
+import axios from "axios";
 import Cookies from "js-cookie";
 import { sanitizers, validators, validationErrors } from "../validation";
-import { logger } from "../logger";
-import { getCsrfHeaders } from "../security/security";
+import { unifiedApiClient } from "./unified-client";
 import type {
   AgriculturalRisk,
   ApiResponse,
@@ -33,449 +37,78 @@ import type {
   User,
 } from "./types";
 
-/** Validate UUID format for tenant_id injection prevention */
-function isValidTenantId(str: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-}
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (typeof window !== "undefined") {
-  if (!API_BASE_URL) {
-    logger.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-  } else if (
-    process.env.NODE_ENV === "production" &&
-    !API_BASE_URL.startsWith("https://") &&
-    !API_BASE_URL.includes("localhost")
-  ) {
-    logger.warn(
-      "Warning: API_BASE_URL should use HTTPS in production environment",
-    );
-  }
-}
-
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string>;
-  skipRetry?: boolean;
-  timeout?: number;
-}
-
-// Configuration
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
-const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000; // 1 second
-
-// Helper function to delay for retry logic
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-class SahoolApiClient {
-  private baseUrl: string;
-  private token: string | null = null;
-  private refreshPromise: Promise<boolean> | null = null;
-
-  constructor(baseUrl: string = API_BASE_URL) {
-    this.baseUrl = baseUrl;
-  }
-
-  setToken(token: string) {
-    this.token = token;
-  }
-
-  clearToken() {
-    this.token = null;
-  }
-
-  /**
-   * Attempt to refresh the access token using the refresh token from cookies
-   * Returns true if successful, false otherwise
-   */
-  private async attemptTokenRefresh(): Promise<boolean> {
-    // If there's already a refresh in progress, wait for it
-    if (this.refreshPromise) {
-      return this.refreshPromise;
-    }
-
-    // Start a new refresh
-    this.refreshPromise = (async () => {
-      try {
-        // Only attempt in browser environment
-        if (typeof window === "undefined") {
-          return false;
-        }
-
-        const refreshToken = Cookies.get("refresh_token");
-
-        if (!refreshToken) {
-          logger.warn("No refresh token available");
-          return false;
-        }
-
-        logger.info("Attempting to refresh access token");
-
-        // Call the refresh endpoint
-        const response = await this.refreshToken(refreshToken);
-
-        if (response.success && response.data?.access_token) {
-          const newAccessToken = response.data.access_token;
-
-          // Clear any legacy path-scoped cookie before setting the root one,
-          // so an old cookie on the current route cannot shadow the new value.
-          Cookies.remove("access_token");
-
-          // Update the stored token
-          Cookies.set("access_token", newAccessToken, {
-            expires: 7,
-            secure: window.location.protocol === "https:",
-            sameSite: "strict",
-            path: "/",
-          });
-          this.setToken(newAccessToken);
-
-          logger.info("Successfully refreshed access token");
-          return true;
-        } else {
-          logger.warn("Failed to refresh token:", response.error);
-
-          // Clear invalid tokens (root-scoped + legacy path-scoped)
-          Cookies.remove("access_token", { path: "/" });
-          Cookies.remove("refresh_token", { path: "/" });
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          this.clearToken();
-
-          return false;
-        }
-      } catch (error) {
-        logger.error("Error refreshing token:", error);
-        return false;
-      } finally {
-        // Clear the refresh promise after completion
-        this.refreshPromise = null;
-      }
-    })();
-
-    return this.refreshPromise;
-  }
-
-  /**
-   * Redirect to login page
-   */
-  private redirectToLogin() {
-    if (typeof window !== "undefined") {
-      logger.info("Redirecting to login page");
-      window.location.href = "/login";
-    }
-  }
-
-  /**
-   * Decode JWT payload from a token string.
-   * Handles base64url encoding with proper padding.
-   *
-   * @returns Parsed payload object, or null if decoding fails
-   */
-  private decodeJwtPayload(token: string): Record<string, any> | null {
-    try {
-      const parts = token.split(".");
-      if (parts.length !== 3 || !parts[1]) return null;
-      let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      const pad = b64.length % 4;
-      if (pad) b64 += "=".repeat(4 - pad);
-      const binary = atob(b64);
-      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-      return JSON.parse(new TextDecoder().decode(bytes));
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Check if JWT token is expired
-   * Returns true if token is expired or will expire within 60 seconds
-   */
-  private isTokenExpired(token: string): boolean {
-    const payload = this.decodeJwtPayload(token);
-    if (!payload?.exp) return true;
-
-    const expirationTime = payload.exp * 1000;
-    const bufferTime = 60 * 1000;
-    return Date.now() >= expirationTime - bufferTime;
-  }
-
-  /**
-   * Check token and refresh if necessary before making a request
-   * Returns true if token is valid or was successfully refreshed
-   */
-  private async ensureValidToken(): Promise<boolean> {
-    // No token check needed if no token is set
-    if (!this.token) {
-      return true;
-    }
-
-    // Check if token is expired
-    if (this.isTokenExpired(this.token)) {
-      logger.info("Token is expired or expiring soon, attempting refresh");
-      return await this.attemptTokenRefresh();
-    }
-
-    return true;
-  }
-
-  /**
-   * Extract tenant_id (tid) from JWT token payload.
-   * Used to automatically set X-Tenant-ID header for server-side RLS.
-   */
-  private extractTenantFromToken(token: string): string | null {
-    const payload = this.decodeJwtPayload(token);
+/** Decode JWT payload to extract tenant_id for weather API body params */
+function decodeTenantFromToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const token = Cookies.get("access_token");
+    if (!token) return null;
+    const parts = token.split(".");
+    if (parts.length !== 3 || !parts[1]) return null;
+    let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const pad = b64.length % 4;
+    if (pad) b64 += "=".repeat(4 - pad);
+    const payload = JSON.parse(atob(b64));
     const tid = payload?.tid || payload?.tenant_id || null;
-    if (tid && !isValidTenantId(tid)) {
-      logger.warn("[API Client] Invalid tenant_id format in JWT, ignoring");
+    if (tid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tid)) {
       return null;
     }
     return tid;
+  } catch {
+    return null;
   }
+}
 
+class SahoolApiClient {
+  /**
+   * Core request method — delegates to the unified axios instance.
+   * Token management, retry, CSRF, and 401 handling are all provided
+   * by the shared @sahool/api-client interceptors.
+   */
   private async request<T>(
     endpoint: string,
-    options: RequestOptions = {},
+    options: {
+      method?: string;
+      body?: string;
+      params?: Record<string, string>;
+      headers?: Record<string, string>;
+      timeout?: number;
+    } = {},
   ): Promise<ApiResponse<T>> {
-    const {
-      params,
-      skipRetry = false,
-      timeout = DEFAULT_TIMEOUT,
-      ...fetchOptions
-    } = options;
+    try {
+      const response = await unifiedApiClient.request({
+        url: endpoint,
+        method: (options.method as any) || "GET",
+        data: options.body ? JSON.parse(options.body) : undefined,
+        params: options.params,
+        headers: options.headers,
+        timeout: options.timeout,
+      });
 
-    // Check and refresh token if needed (skip for auth endpoints)
-    if (
-      endpoint !== "/api/v1/auth/refresh" &&
-      endpoint !== "/api/v1/auth/login"
-    ) {
-      const tokenValid = await this.ensureValidToken();
-      if (!tokenValid) {
-        logger.warn("Unable to ensure valid token, redirecting to login");
-        this.redirectToLogin();
+      const data = response.data;
+      return typeof data === "object" && data !== null
+        ? data
+        : { success: true, data: data as T };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
         return {
           success: false,
-          error: "Session expired. Please login again.",
+          error:
+            data?.error ||
+            data?.message ||
+            error.message ||
+            "Request failed",
         };
       }
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Network error - please check your connection",
+      };
     }
-
-    // Build URL with query params
-    let url = `${this.baseUrl}${endpoint}`;
-    if (params) {
-      const searchParams = new URLSearchParams(params);
-      url += `?${searchParams.toString()}`;
-    }
-
-    // Set headers
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    if (this.token) {
-      (headers as Record<string, string>)["Authorization"] =
-        `Bearer ${this.token}`;
-
-      // Extract tenant_id (tid) from JWT and set X-Tenant-ID header
-      // This enables server-side tenant isolation (RLS + middleware filtering)
-      const tenantId = this.extractTenantFromToken(this.token);
-      if (tenantId) {
-        (headers as Record<string, string>)["X-Tenant-ID"] = tenantId;
-      }
-    }
-
-    // Add CSRF headers for state-changing requests
-    const method = (fetchOptions.method || "GET").toUpperCase();
-    if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
-      const csrfHeaders = getCsrfHeaders();
-      Object.assign(headers, csrfHeaders);
-    }
-
-    // Retry logic
-    let lastError: Error | null = null;
-    const maxAttempts = skipRetry ? 1 : MAX_RETRY_ATTEMPTS;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-        let response: Response;
-        try {
-          response = await fetch(url, {
-            ...fetchOptions,
-            headers,
-            signal: controller.signal,
-            credentials: "include", // Ensure httpOnly cookies are sent with requests
-          });
-        } finally {
-          clearTimeout(timeoutId);
-        }
-
-        // Parse response
-        let data: any;
-        const contentType = response.headers.get("content-type");
-
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            data = await response.json();
-          } catch {
-            return {
-              success: false,
-              error: "Invalid JSON response from server",
-            };
-          }
-        } else {
-          data = await response.text();
-        }
-
-        // Handle HTTP errors
-        if (!response.ok) {
-          // Handle 401 Unauthorized - try to refresh token
-          if (
-            response.status === 401 &&
-            endpoint !== "/api/v1/auth/refresh" &&
-            endpoint !== "/api/v1/auth/login"
-          ) {
-            logger.info("Received 401 response, attempting token refresh");
-
-            const refreshSuccess = await this.attemptTokenRefresh();
-
-            if (refreshSuccess) {
-              // Token refreshed successfully, retry the original request
-              logger.info("Token refreshed, retrying original request");
-
-              // Update authorization header with new token
-              if (this.token) {
-                (headers as Record<string, string>)["Authorization"] =
-                  `Bearer ${this.token}`;
-              }
-
-              // Retry the request with the new token
-              const retryController = new AbortController();
-              const retryTimeoutId = setTimeout(
-                () => retryController.abort(),
-                timeout,
-              );
-
-              let retryResponse: Response;
-              try {
-                retryResponse = await fetch(url, {
-                  ...fetchOptions,
-                  headers,
-                  credentials: "include",
-                  signal: retryController.signal,
-                });
-              } finally {
-                clearTimeout(retryTimeoutId);
-              }
-
-              // Parse retry response
-              let retryData: any;
-              const retryContentType =
-                retryResponse.headers.get("content-type");
-
-              if (
-                retryContentType &&
-                retryContentType.includes("application/json")
-              ) {
-                try {
-                  retryData = await retryResponse.json();
-                } catch {
-                  return {
-                    success: false,
-                    error: "Invalid JSON response from server",
-                  };
-                }
-              } else {
-                retryData = await retryResponse.text();
-              }
-
-              if (!retryResponse.ok) {
-                return {
-                  success: false,
-                  error:
-                    retryData.error ||
-                    retryData.message ||
-                    `Request failed with status ${retryResponse.status}`,
-                };
-              }
-
-              // Successful retry response
-              return typeof retryData === "object" && retryData !== null
-                ? retryData
-                : { success: true, data: retryData as T };
-            } else {
-              // Token refresh failed, redirect to login
-              logger.warn("Token refresh failed, redirecting to login");
-              this.redirectToLogin();
-
-              return {
-                success: false,
-                error: "Session expired. Please login again.",
-              };
-            }
-          }
-
-          // Don't retry other client errors (4xx), only server errors (5xx) and network issues
-          if (response.status >= 400 && response.status < 500) {
-            return {
-              success: false,
-              error:
-                data.error ||
-                data.message ||
-                `Request failed with status ${response.status}`,
-            };
-          }
-
-          // For server errors, retry if we have attempts left
-          if (attempt < maxAttempts - 1) {
-            await delay(RETRY_DELAY * (attempt + 1)); // Exponential backoff
-            continue;
-          }
-
-          return {
-            success: false,
-            error:
-              data.error || data.message || `Server error: ${response.status}`,
-          };
-        }
-
-        // Successful response
-        return typeof data === "object" && data !== null
-          ? data
-          : { success: true, data: data as T };
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error("Unknown error");
-
-        // Handle abort/timeout
-        if (error instanceof Error && error.name === "AbortError") {
-          return {
-            success: false,
-            error: "Request timeout - please try again",
-          };
-        }
-
-        // Retry on network errors if we have attempts left
-        if (attempt < maxAttempts - 1) {
-          await delay(RETRY_DELAY * (attempt + 1));
-          continue;
-        }
-      }
-    }
-
-    // All retries failed
-    return {
-      success: false,
-      error:
-        lastError?.message || "Network error - please check your connection",
-    };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -501,7 +134,7 @@ class SahoolApiClient {
     }>("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify({ email: sanitizedEmail, password }),
-      skipRetry: true, // Don't retry auth requests
+      // Auth requests don't need retry (handled by unified client's interceptors)
     });
   }
 
@@ -545,7 +178,7 @@ class SahoolApiClient {
   }
 
   async updateField(fieldId: string, data: FieldUpdateRequest, etag?: string) {
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (etag) {
       headers["If-Match"] = etag;
     }
@@ -592,7 +225,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number, fieldId: string = "default") {
-    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
+    const tenantId = decodeTenantFromToken();
     return this.request<WeatherData>("/api/v1/weather/weather/current", {
       method: "POST",
       body: JSON.stringify({
@@ -605,7 +238,7 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
-    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
+    const tenantId = decodeTenantFromToken();
     return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
       method: "POST",
       body: JSON.stringify({
@@ -619,7 +252,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
+    const tenantId = decodeTenantFromToken();
     return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
@@ -674,62 +307,30 @@ class SahoolApiClient {
     formData.append("image", imageFile);
 
     try {
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for image upload
+      const response = await unifiedApiClient.post(
+        "/api/v1/crop-health/analyze",
+        formData,
+        {
+          timeout: 60000, // 60 second timeout for image upload
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
 
-      // Build headers with auth and CSRF tokens
-      const uploadHeaders: Record<string, string> = this.token
-        ? { Authorization: `Bearer ${this.token}` }
-        : {};
-
-      // Add CSRF protection for file upload (POST request)
-      const csrfHeaders = getCsrfHeaders();
-      Object.assign(uploadHeaders, csrfHeaders);
-
-      let response: Response;
-      try {
-        response = await fetch(
-          `${this.baseUrl}/api/v1/crop-health/analyze`,
-          {
-            method: "POST",
-            headers: uploadHeaders,
-            body: formData,
-            signal: controller.signal,
-            credentials: "include", // Ensure httpOnly cookies are sent with requests
-          },
-        );
-      } finally {
-        clearTimeout(timeoutId);
-      }
-
-      // Dynamic API response
-      let data: any;
-      try {
-        data = await response.json();
-      } catch {
-        return {
-          success: false,
-          error: "Invalid response from server",
-        };
-      }
-
-      if (!response.ok) {
+      return response.data as ApiResponse<CropHealthAnalysis>;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
+        if (error.code === "ECONNABORTED") {
+          return {
+            success: false,
+            error: "Upload timeout - please try again with a smaller image",
+          };
+        }
         return {
           success: false,
           error: data?.error || data?.message || "Failed to analyze image",
         };
       }
-
-      return data as ApiResponse<CropHealthAnalysis>;
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        return {
-          success: false,
-          error: "Upload timeout - please try again with a smaller image",
-        };
-      }
-
       return {
         success: false,
         error: error instanceof Error ? error.message : "Network error",
@@ -959,7 +560,7 @@ class SahoolApiClient {
   }
 
   async updateFieldBoundary(fieldId: string, boundary: any, etag?: string) {
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (etag) headers["If-Match"] = etag;
 
     return this.request<any>(`/api/v1/fields/${fieldId}/boundary`, {
@@ -1123,8 +724,9 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getWebSocketUrl(): string {
-    const wsProtocol = this.baseUrl.startsWith("https") ? "wss" : "ws";
-    const wsHost = this.baseUrl.replace(/^https?:\/\//, "");
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const wsProtocol = baseUrl.startsWith("https") ? "wss" : "ws";
+    const wsHost = baseUrl.replace(/^https?:\/\//, "");
     return `${wsProtocol}://${wsHost}/ws`;
   }
 

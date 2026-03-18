@@ -99,6 +99,16 @@ const URGENCY_ICONS = {
   critical: AlertTriangle,
 };
 
+// Deterministic helpers for mock data (no Math.random() — avoids security warnings)
+function deterministicValue(index: number, min: number, max: number): number {
+  const normalized = ((index * 7 + 13) % 100) / 100;
+  return min + normalized * (max - min);
+}
+
+function selectByIndex<T>(arr: readonly T[], index: number): T {
+  return arr[index % arr.length]!;
+}
+
 // Mock data generators
 function generateMockPlan(): IrrigationPlan {
   const crops = [
@@ -107,13 +117,13 @@ function generateMockPlan(): IrrigationPlan {
     { id: "coffee", ar: "بن" },
     { id: "banana", ar: "موز" },
     { id: "date_palm", ar: "نخيل" },
-  ];
+  ] as const;
   const stages = [
     { id: "seedling", ar: "شتلة" },
     { id: "vegetative", ar: "نمو خضري" },
     { id: "flowering", ar: "إزهار" },
     { id: "fruiting", ar: "إثمار" },
-  ];
+  ] as const;
   const urgencies: Array<"low" | "medium" | "high" | "critical"> = [
     "low",
     "medium",
@@ -124,12 +134,12 @@ function generateMockPlan(): IrrigationPlan {
     { id: "drip", ar: "ري بالتنقيط" },
     { id: "sprinkler", ar: "ري رشاش" },
     { id: "flood", ar: "ري غمر" },
-  ];
+  ] as const;
 
-  const selectedCrop = crops[Math.floor(Math.random() * crops.length)]!;
-  const selectedStage = stages[Math.floor(Math.random() * stages.length)]!;
-  const selectedMethod = methods[Math.floor(Math.random() * methods.length)]!;
-  const urgency = urgencies[Math.floor(Math.random() * urgencies.length)]!;
+  const selectedCrop = selectByIndex(crops, 1);
+  const selectedStage = selectByIndex(stages, 2);
+  const selectedMethod = selectByIndex(methods, 0);
+  const urgency = selectByIndex(urgencies, 2);
 
   const schedules: IrrigationSchedule[] = Array.from({ length: 3 }, (_, i) => {
     const date = new Date();
@@ -141,9 +151,9 @@ function generateMockPlan(): IrrigationPlan {
       crop_name_ar: selectedCrop.ar,
       irrigation_date: date.toISOString().split("T")[0] ?? "",
       start_time: "06:00",
-      duration_minutes: 45 + Math.floor(Math.random() * 30),
-      water_amount_liters: 5000 + Math.floor(Math.random() * 3000),
-      water_amount_m3: 5 + Math.random() * 3,
+      duration_minutes: 45 + Math.floor(deterministicValue(i, 0, 30)),
+      water_amount_liters: 5000 + Math.floor(deterministicValue(i + 3, 0, 3000)),
+      water_amount_m3: 5 + deterministicValue(i + 5, 0, 3),
       urgency,
       urgency_ar:
         urgency === "critical"
@@ -156,8 +166,8 @@ function generateMockPlan(): IrrigationPlan {
       method: selectedMethod.id,
       method_ar: selectedMethod.ar,
       reasoning_ar: `${selectedCrop.ar} في مرحلة ${selectedStage.ar} يحتاج ري منتظم`,
-      weather_adjusted: Math.random() > 0.5,
-      savings_percent: Math.random() * 30,
+      weather_adjusted: i % 2 === 0,
+      savings_percent: deterministicValue(i + 7, 0, 30),
     };
   });
 
@@ -169,12 +179,12 @@ function generateMockPlan(): IrrigationPlan {
     growth_stage: selectedStage.id,
     growth_stage_ar: selectedStage.ar,
     area_hectares: 2.5,
-    current_water_need_mm: 15 + Math.random() * 10,
-    daily_et_mm: 5 + Math.random() * 3,
+    current_water_need_mm: 15 + deterministicValue(0, 0, 10),
+    daily_et_mm: 5 + deterministicValue(1, 0, 3),
     schedules,
-    total_water_m3: 15 + Math.random() * 10,
-    estimated_cost_yer: 2500 + Math.floor(Math.random() * 1500),
-    water_savings_m3: Math.random() * 5,
+    total_water_m3: 15 + deterministicValue(2, 0, 10),
+    estimated_cost_yer: 2500 + Math.floor(deterministicValue(3, 0, 1500)),
+    water_savings_m3: deterministicValue(4, 0, 5),
     recommendations_ar: [
       "💧 كفاءة الري الحالية: 85%",
       "🌡️ ري في الصباح الباكر فقط لتقليل التبخر",
@@ -194,11 +204,11 @@ function generateMockWaterBalance(): {
     return {
       field_id: "field-1",
       date: date.toISOString().split("T")[0] ?? "",
-      et_mm: 4 + Math.random() * 4,
-      rainfall_mm: Math.random() > 0.85 ? Math.random() * 15 : 0,
-      irrigation_mm: Math.random() > 0.7 ? Math.random() * 30 : 0,
-      water_deficit_mm: Math.random() * 3,
-      cumulative_deficit_mm: Math.random() * 20,
+      et_mm: 4 + deterministicValue(i, 0, 4),
+      rainfall_mm: i % 7 === 0 ? deterministicValue(i, 0, 15) : 0,
+      irrigation_mm: i % 3 === 0 ? deterministicValue(i + 2, 0, 30) : 0,
+      water_deficit_mm: deterministicValue(i + 4, 0, 3),
+      cumulative_deficit_mm: deterministicValue(i + 6, 0, 20),
     };
   });
 

@@ -823,14 +823,16 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {};
 
   await Promise.all(
-    services.map(async ([name, url]) => {
-      try {
-        await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
-        results[name] = true;
-      } catch {
-        results[name] = false;
-      }
-    }),
+    services
+      .filter(([, url]) => typeof url === "string")
+      .map(async ([name, url]) => {
+        try {
+          await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
+          results[name] = true;
+        } catch {
+          results[name] = false;
+        }
+      }),
   );
 
   return results;

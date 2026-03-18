@@ -442,7 +442,7 @@ export default function EpidemicCenterPage() {
               header: "دقة التشخيص",
               render: (d: DiagnosisRecord) => (
                 <div className="flex items-center gap-2">
-                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-green-500 rounded-full"
                       style={{ width: `${d.confidence}%` }}
@@ -458,7 +458,7 @@ export default function EpidemicCenterPage() {
               key: "diagnosedAt",
               header: "التاريخ",
               render: (d: DiagnosisRecord) => (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(d.diagnosedAt).toLocaleDateString("ar-YE")}
                 </span>
               ),

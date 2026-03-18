@@ -183,7 +183,11 @@ export default function SoilMonitoringPage() {
             <option value="deficient">ناقص</option>
             <option value="critical">حرج</option>
           </select>
-          <button className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+          <button
+            disabled
+            className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
             <Download className="w-4 h-4" />
             تصدير
           </button>

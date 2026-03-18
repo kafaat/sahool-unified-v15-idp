@@ -178,10 +178,10 @@ export default function CompliancePage() {
       header: "",
       render: (_record: ComplianceRecord) => (
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض التقرير">
+          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض التقرير (قريبًا)">
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="تحميل">
+          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تحميل (قريبًا)">
             <Download className="w-4 h-4 text-gray-500" />
           </button>
         </div>
@@ -298,7 +298,11 @@ export default function CompliancePage() {
           >
             <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
           </button>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            disabled
+            className="p-2 border border-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
             <Download className="w-5 h-5 text-gray-600" />
           </button>
         </div>

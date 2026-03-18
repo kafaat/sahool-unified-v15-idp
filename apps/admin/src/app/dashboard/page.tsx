@@ -207,7 +207,7 @@ export default function DashboardPage() {
   // Real-time sensor updates via WebSocket
   useWebSocketEvent<SensorMessage>("sensor", (sensor) => {
     // Log sensor readings - can be extended to show live sensor data
-    logger.log("New sensor reading:", sensor);
+    logger.debug("New sensor reading:", sensor);
   });
 
   // Update critical alerts count from real-time data

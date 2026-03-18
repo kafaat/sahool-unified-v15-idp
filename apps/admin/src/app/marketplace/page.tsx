@@ -156,15 +156,15 @@ export default function MarketplacePage() {
       header: "",
       render: (product: Product) => (
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
+          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
           {product.status === "pending" && (
             <>
-              <button className="p-2 hover:bg-green-50 rounded-lg transition-colors" title="قبول">
+              <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="قبول (قريبًا)">
                 <CheckCircle className="w-4 h-4 text-green-500" />
               </button>
-              <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="رفض">
+              <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="رفض (قريبًا)">
                 <XCircle className="w-4 h-4 text-red-500" />
               </button>
             </>
@@ -271,7 +271,11 @@ export default function MarketplacePage() {
           >
             <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
           </button>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            disabled
+            className="p-2 border border-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
             <Download className="w-5 h-5 text-gray-600" />
           </button>
         </div>

@@ -211,10 +211,10 @@ export default function SettingsPage() {
       header: "الإجراءات",
       render: (_admin: (typeof mockAdmins)[0]) => (
         <div className="flex items-center gap-2">
-          <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+          <button disabled className="p-1 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تعديل (قريبًا)">
             <Edit className="w-4 h-4 text-blue-600" />
           </button>
-          <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+          <button disabled className="p-1 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="حذف (قريبًا)">
             <Trash2 className="w-4 h-4 text-red-600" />
           </button>
         </div>
@@ -1188,7 +1188,11 @@ export default function SettingsPage() {
                   المستخدمين الإداريين
                 </h2>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors">
+              <button
+                disabled
+                className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="إضافة مستخدم (قريبًا)"
+              >
                 <Plus className="w-4 h-4" />
                 إضافة مستخدم
               </button>

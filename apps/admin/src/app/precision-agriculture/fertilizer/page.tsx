@@ -372,7 +372,11 @@ export default function FertilizerPrescriptionPage() {
                   <RefreshCw className="w-4 h-4" />
                 </button>
               </div>
-              <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              <button
+                disabled
+                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="وصفة جديدة (قريبًا)"
+              >
                 <Plus className="w-4 h-4" />
                 وصفة جديدة
               </button>
@@ -467,11 +471,19 @@ export default function FertilizerPrescriptionPage() {
                 العودة للقائمة
               </button>
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <button
+                  disabled
+                  className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="تصدير (قريبًا)"
+                >
                   <Download className="w-4 h-4" />
                   تصدير
                 </button>
-                <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                <button
+                  disabled
+                  className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="حفظ التعديلات (قريبًا)"
+                >
                   <Save className="w-4 h-4" />
                   حفظ التعديلات
                 </button>
@@ -655,7 +667,11 @@ export default function FertilizerPrescriptionPage() {
                         />
                       </label>
                     </div>
-                    <button className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <button
+                      disabled
+                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title="تحديث الوصفة (قريبًا)"
+                    >
                       <CheckCircle className="w-4 h-4" />
                       تحديث الوصفة
                     </button>

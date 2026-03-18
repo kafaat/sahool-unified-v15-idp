@@ -170,7 +170,11 @@ export default function VRAPage() {
             <option value="irrigation">ري</option>
           </select>
 
-          <button className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium hover:bg-sahool-700 transition-colors flex items-center gap-2">
+          <button
+            disabled
+            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير التقرير (قريبًا)"
+          >
             <Download className="w-4 h-4" />
             تصدير التقرير
           </button>

@@ -1044,7 +1044,7 @@ export default function SeasonsPage() {
                       <div className="text-center py-8">
                         <Sprout className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                         <p className="text-gray-500 dark:text-gray-400">لم تتم إضافة محاصيل لهذا الموسم بعد</p>
-                        <button className="mt-3 text-sm text-sahool-600 hover:text-sahool-700 font-medium">
+                        <button disabled className="mt-3 text-sm text-sahool-600 font-medium disabled:opacity-40 disabled:cursor-not-allowed" title="إضافة محصول (قريبًا)">
                           + إضافة محصول
                         </button>
                       </div>

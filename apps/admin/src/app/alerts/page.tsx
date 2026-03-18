@@ -34,7 +34,7 @@ import {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_searchQuery] = useState("");
+  const [_searchQuery] = useState(""); // Reserved for future search feature
   const [typeFilter, setTypeFilter] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");

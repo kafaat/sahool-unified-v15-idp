@@ -513,12 +513,12 @@ export default function SupportPage() {
 
             <div className="p-6 border-t border-gray-100 flex gap-3">
               {selectedRequest.status === "pending" && (
-                <button className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                <button disabled className="flex-1 bg-green-600 text-white py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed" title="تعيين خبير (قريبًا)">
                   تعيين خبير
                 </button>
               )}
               {selectedRequest.status === "active" && (
-                <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                <button disabled className="flex-1 bg-blue-600 text-white py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed" title="إغلاق كمحلول (قريبًا)">
                   إغلاق كمحلول
                 </button>
               )}

@@ -440,8 +440,9 @@ export default function SatellitePage() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      className="p-1 text-sahool-600 hover:bg-sahool-50 rounded transition-colors"
-                      title="عرض التفاصيل"
+                      disabled
+                      className="p-1 text-sahool-600 hover:bg-sahool-50 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title="عرض التفاصيل (قريبًا)"
                     >
                       <Eye className="w-5 h-5" />
                     </button>

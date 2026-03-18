@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiClient, API_URLS } from "@/lib/api";
 import { logger } from "@/lib/logger";
 import {
@@ -227,11 +227,7 @@ export default function SeasonalReportPage() {
     { id: "2024-winter", label: "الموسم الشتوي 2024/2025" },
   ];
 
-  useEffect(() => {
-    loadReport();
-  }, [selectedSeason]);
-
-  const loadReport = async () => {
+  const loadReport = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await apiClient.get(
@@ -245,7 +241,11 @@ export default function SeasonalReportPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedSeason]);
+
+  useEffect(() => {
+    loadReport();
+  }, [loadReport]);
 
   const handleExport = async (format: "pdf" | "csv") => {
     setIsExporting(true);

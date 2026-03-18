@@ -3,7 +3,7 @@
 // Epidemic Monitoring Center - مركز رصد الأوبئة
 // Advanced disease outbreak monitoring with heatmap visualization
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import DataTable from "@/components/ui/DataTable";
@@ -71,11 +71,7 @@ export default function EpidemicCenterPage() {
   );
   const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("week");
 
-  useEffect(() => {
-    loadData();
-  }, [timeRange]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [diagnosesData, statsData] = await Promise.all([
@@ -89,7 +85,11 @@ export default function EpidemicCenterPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [timeRange]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Calculate governorate statistics
   const governorateStats = useMemo(() => {

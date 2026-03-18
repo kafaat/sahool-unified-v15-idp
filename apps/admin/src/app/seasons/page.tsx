@@ -18,10 +18,8 @@ import { cn, formatDate, formatNumber } from "@/lib/utils";
 import {
   Search,
   Plus,
-  RefreshCw,
   Calendar,
   Sprout,
-  Droplets,
   Bug,
   FlaskConical,
   ChevronDown,
@@ -32,7 +30,6 @@ import {
   Leaf,
   Sun,
   Snowflake,
-  Cloud,
   TreeDeciduous,
 } from "lucide-react";
 
@@ -343,7 +340,7 @@ const MOCK_SEASONS: Season[] = [
 
 function GrowthStageTimeline({ stages }: { stages: GrowthStage[] }) {
   const totalDays = stages.reduce((sum, s) => sum + s.durationDays, 0);
-  let cumulativeDays = 0;
+  let _cumulativeDays = 0;
 
   return (
     <div className="space-y-3">
@@ -373,7 +370,7 @@ function GrowthStageTimeline({ stages }: { stages: GrowthStage[] }) {
         {/* Stage labels */}
         <div className="mt-2 grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(stages.length, 4)}, 1fr)` }}>
           {stages.map((stage) => {
-            cumulativeDays += stage.durationDays;
+            _cumulativeDays += stage.durationDays;
             return (
               <div key={stage.id} className="text-center">
                 <p className="text-xs font-medium text-gray-800 dark:text-gray-200">{stage.nameAr}</p>
@@ -444,7 +441,7 @@ function PesticidePlanTable({ plan }: { plan: PesticideRecommendation[] }) {
       </h4>
       <div className="space-y-3">
         {plan.map((rec) => {
-          const typeConfig = typeLabels[rec.type] || typeLabels.insecticide;
+          const typeConfig = typeLabels[rec.type] ?? typeLabels.insecticide ?? { label: rec.type, color: "bg-gray-100 text-gray-700" };
           return (
             <div key={rec.id} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
               <div className="flex items-start justify-between gap-3">
@@ -879,7 +876,7 @@ export default function SeasonsPage() {
     totalCrops: seasons.reduce((sum, s) => sum + s.crops.length, 0),
   }), [seasons]);
 
-  const handleCreateSeason = useCallback((data: Partial<Season>) => {
+  const handleCreateSeason = useCallback((_data: Partial<Season>) => {
     // In production, this would call the API
     // For now, just close the modal
   }, []);

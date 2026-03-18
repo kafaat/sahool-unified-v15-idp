@@ -33,6 +33,11 @@ import type {
   User,
 } from "./types";
 
+/** Validate UUID format for tenant_id injection prevention */
+function isValidTenantId(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Only warn during development, don't throw during build
@@ -224,7 +229,12 @@ class SahoolApiClient {
    */
   private extractTenantFromToken(token: string): string | null {
     const payload = this.decodeJwtPayload(token);
-    return payload?.tid || null;
+    const tid = payload?.tid || payload?.tenant_id || null;
+    if (tid && !isValidTenantId(tid)) {
+      console.warn("[API Client] Invalid tenant_id format in JWT, ignoring");
+      return null;
+    }
+    return tid;
   }
 
   private async request<T>(

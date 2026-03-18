@@ -562,8 +562,8 @@ export default function FieldComparePage() {
                     />
                     <ComparisonRow
                       label="نسبة التحقيق"
-                      valueA={Number(((fieldA.yieldEstimate / fieldA.yieldTarget) * 100).toFixed(1))}
-                      valueB={Number(((fieldB.yieldEstimate / fieldB.yieldTarget) * 100).toFixed(1))}
+                      valueA={Number(((fieldA.yieldEstimate / (fieldA.yieldTarget || 1)) * 100).toFixed(1))}
+                      valueB={Number(((fieldB.yieldEstimate / (fieldB.yieldTarget || 1)) * 100).toFixed(1))}
                       unit="%"
                     />
                     <ComparisonRow
@@ -645,8 +645,8 @@ export default function FieldComparePage() {
 
                 {/* Yield Gap */}
                 {(() => {
-                  const achieveA = (fieldA.yieldEstimate / fieldA.yieldTarget) * 100;
-                  const achieveB = (fieldB.yieldEstimate / fieldB.yieldTarget) * 100;
+                  const achieveA = (fieldA.yieldEstimate / (fieldA.yieldTarget || 1)) * 100;
+                  const achieveB = (fieldB.yieldEstimate / (fieldB.yieldTarget || 1)) * 100;
                   return Math.abs(achieveA - achieveB) > 5 ? (
                     <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <BarChart3 className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />

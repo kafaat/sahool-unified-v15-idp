@@ -760,7 +760,7 @@ export default function SeedsPage() {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         if (
-          !v.nameAr.includes(searchQuery) &&
+          !v.nameAr.toLowerCase().includes(q) &&
           !v.nameEn.toLowerCase().includes(q) &&
           !v.code.toLowerCase().includes(q)
         )

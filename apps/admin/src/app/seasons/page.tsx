@@ -352,7 +352,7 @@ function GrowthStageTimeline({ stages }: { stages: GrowthStage[] }) {
         {/* Progress bar background */}
         <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex">
           {stages.map((stage, i) => {
-            const width = (stage.durationDays / totalDays) * 100;
+            const width = totalDays > 0 ? (stage.durationDays / totalDays) * 100 : 0;
             const colors = [
               "bg-emerald-300", "bg-green-400", "bg-lime-400", "bg-yellow-400",
               "bg-amber-400", "bg-orange-400", "bg-red-300", "bg-rose-300",
@@ -859,7 +859,7 @@ export default function SeasonsPage() {
     return seasons.filter((s) => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        if (!s.nameAr.includes(q) && !s.name.toLowerCase().includes(q) && !s.farmNameAr.includes(q)) return false;
+        if (!s.nameAr.toLowerCase().includes(q) && !s.name.toLowerCase().includes(q) && !s.farmNameAr.toLowerCase().includes(q)) return false;
       }
       if (statusFilter && s.status !== statusFilter) return false;
       if (typeFilter && s.type !== typeFilter) return false;

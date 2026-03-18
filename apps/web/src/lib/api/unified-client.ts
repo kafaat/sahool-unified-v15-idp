@@ -79,10 +79,11 @@ export const sahoolClient = new SahoolApiClient({
 // Web app uses double-submit cookie: httpOnly `csrf_token` + readable `_csrf`.
 
 sahoolClient.axiosInstance.interceptors.request.use((config) => {
-  if (typeof window !== "undefined" && config.method !== "get") {
+  const method = config.method?.toLowerCase();
+  if (typeof window !== "undefined" && method && method !== "get") {
     const csrfToken = Cookies.get("_csrf");
     if (csrfToken) {
-      config.headers["X-CSRF-Token"] = csrfToken;
+      config.headers.set("X-CSRF-Token", csrfToken);
     }
   }
   return config;

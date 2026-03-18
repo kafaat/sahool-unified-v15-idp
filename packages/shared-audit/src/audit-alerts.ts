@@ -922,6 +922,8 @@ export const slackAlertHandler: AlertHandler = {
 /**
  * Webhook alert handler
  */
+const webhookLogger = new Logger("WebhookAlertHandler");
+
 export function createWebhookAlertHandler(url: string): AlertHandler {
   return {
     name: "webhook",
@@ -936,7 +938,6 @@ export function createWebhookAlertHandler(url: string): AlertHandler {
           throw new Error(`Webhook failed: ${response.statusText}`);
         }
       } catch (error) {
-        const webhookLogger = new Logger("WebhookAlertHandler");
         webhookLogger.error(
           `Failed to send webhook alert: ${error instanceof Error ? error.message : String(error)}`,
         );

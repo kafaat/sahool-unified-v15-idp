@@ -113,16 +113,21 @@ export class Logger {
 
   error(
     message: string,
-    error?: Error,
+    error?: unknown,
     context?: LogContext,
     extra?: Record<string, any>,
   ): void {
     const entry = this.formatEntry(LogLevel.ERROR, message, context, extra);
-    if (error) {
+    if (error instanceof Error) {
       entry.error = {
         name: error.name,
         message: error.message,
         stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+      };
+    } else if (error) {
+      entry.error = {
+        name: "UnknownError",
+        message: String(error),
       };
     }
     this.output(entry);
@@ -130,16 +135,21 @@ export class Logger {
 
   fatal(
     message: string,
-    error?: Error,
+    error?: unknown,
     context?: LogContext,
     extra?: Record<string, any>,
   ): void {
     const entry = this.formatEntry(LogLevel.FATAL, message, context, extra);
-    if (error) {
+    if (error instanceof Error) {
       entry.error = {
         name: error.name,
         message: error.message,
         stack: error.stack,
+      };
+    } else if (error) {
+      entry.error = {
+        name: "UnknownError",
+        message: String(error),
       };
     }
     this.output(entry);

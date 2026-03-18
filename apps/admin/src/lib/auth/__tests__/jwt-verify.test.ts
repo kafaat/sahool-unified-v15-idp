@@ -295,7 +295,7 @@ describe("getUserFromToken", () => {
       email: "farmer@sahool.app",
       name: "Ahmed",
       role: "admin",
-      tenant_id: "tenant-1",
+      tenant_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     });
 
     const user = await getUserFromToken(token);
@@ -304,7 +304,7 @@ describe("getUserFromToken", () => {
     expect(user!.email).toBe("farmer@sahool.app");
     expect(user!.name).toBe("Ahmed");
     expect(user!.role).toBe("admin");
-    expect(user!.tenant_id).toBe("tenant-1");
+    expect(user!.tenant_id).toBe("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
   });
 
   it("uses email as name fallback", async () => {
@@ -322,11 +322,11 @@ describe("getUserFromToken", () => {
     const token = await createTestToken({
       sub: "user-1",
       email: "test@test.com",
-      tid: "alt-tenant",
+      tid: "b2c3d4e5-f6a7-8901-bcde-f12345678901",
     });
 
     const user = await getUserFromToken(token);
-    expect(user!.tenant_id).toBe("alt-tenant");
+    expect(user!.tenant_id).toBe("b2c3d4e5-f6a7-8901-bcde-f12345678901");
   });
 
   it("extracts role from roles array in user", async () => {

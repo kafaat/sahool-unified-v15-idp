@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { logger } from "@/lib/logger";
 import {
   AlertTriangle,
   Cloud,
@@ -392,7 +393,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
           ),
         );
       } catch (error) {
-        console.error("Failed to dismiss alert:", error);
+        logger.error("Failed to dismiss alert:", error);
       } finally {
         setDismissingAlertId(null);
       }
@@ -417,7 +418,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
           await handleDismiss(selectedAlertForTask.id);
         }
       } catch (error) {
-        console.error("Failed to create task:", error);
+        logger.error("Failed to create task:", error);
       } finally {
         setIsSubmittingTask(false);
       }

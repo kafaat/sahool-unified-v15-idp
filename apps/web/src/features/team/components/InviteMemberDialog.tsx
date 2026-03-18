@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import { Send, X } from "lucide-react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
       });
       onClose();
     } catch (error) {
-      console.error("Failed to invite member:", error);
+      logger.error("Failed to invite member:", error);
       setErrors({ submit: "فشل في إرسال الدعوة. الرجاء المحاولة مرة أخرى." });
     }
   };

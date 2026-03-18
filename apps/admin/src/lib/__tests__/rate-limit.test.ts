@@ -3,7 +3,7 @@
  * اختبارات وسيط تحديد معدل الطلبات
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { NextRequest } from "next/server";
 import { checkRateLimit, rateLimitHeaders } from "../rate-limit";
 

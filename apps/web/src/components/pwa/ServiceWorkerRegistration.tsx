@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { logger } from "@/lib/logger";
 
 interface ServiceWorkerStatus {
   isSupported: boolean;
@@ -79,9 +80,9 @@ export function useServiceWorker() {
           setStatus((prev) => ({ ...prev, hasUpdate: true }));
         }
 
-        console.log("[PWA] Service worker registered successfully");
+        logger.log("[PWA] Service worker registered successfully");
       } catch (error) {
-        console.error("[PWA] Service worker registration failed:", error);
+        logger.error("[PWA] Service worker registration failed:", error);
       }
     };
 
@@ -272,7 +273,7 @@ export function InstallPrompt() {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === "accepted") {
-      console.log("[PWA] App installed");
+      logger.log("[PWA] App installed");
     }
 
     setDeferredPrompt(null);

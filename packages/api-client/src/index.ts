@@ -118,6 +118,7 @@ export class SahoolApiClient {
     // Create axios instance
     this.client = axios.create({
       timeout: this.config.timeout,
+      withCredentials: this.config.withCredentials ?? false,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -412,8 +413,10 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private getServiceUrl(port: number): string {
+    // In production: Kong gateway at baseUrl (domain methods append /api/v1/...)
+    // In development: direct service access at baseUrl:port (same /api/v1/ paths)
     return this.isProduction
-      ? `${this.config.baseUrl}/api`
+      ? this.config.baseUrl
       : `${this.config.baseUrl}:${port}`;
   }
 
@@ -441,6 +444,16 @@ export class SahoolApiClient {
       drone: this.getServiceUrl(this.ports.drone),
       cooperative: this.getServiceUrl(this.ports.cooperative),
       traceability: this.getServiceUrl(this.ports.traceability),
+      // Extended service URLs
+      advisory: this.getServiceUrl(this.ports.advisory),
+      yieldPrediction: this.getServiceUrl(this.ports.yieldPrediction),
+      fieldIntelligence: this.getServiceUrl(this.ports.fieldIntelligence),
+      billing: this.getServiceUrl(this.ports.billing),
+      astronomicalCalendar: this.getServiceUrl(this.ports.astronomicalCalendar),
+      alerts: this.getServiceUrl(this.ports.alerts),
+      cropIntelligence: this.getServiceUrl(this.ports.cropIntelligence),
+      yoloVision: this.getServiceUrl(this.ports.yoloVision),
+      audit: this.getServiceUrl(this.ports.audit),
     };
   }
 
@@ -747,7 +760,7 @@ export class SahoolApiClient {
   }
 
   async getWeatherAlerts(): Promise<WeatherAlert[]> {
-    const endpoint = `${this.urls.weather}/v1/alerts`;
+    const endpoint = `${this.urls.weather}/api/v1/alerts`;
     return this.safeExecute(() => this.request<WeatherAlert[]>(endpoint), [], {
       endpoint,
       method: "GET",
@@ -766,7 +779,7 @@ export class SahoolApiClient {
     limit?: number;
     offset?: number;
   }): Promise<DiagnosisRecord[]> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Record<string, unknown>[]>(
@@ -822,7 +835,7 @@ export class SahoolApiClient {
   }
 
   async getDiagnosisStats(): Promise<DiagnosisStats> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/stats`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/stats`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Record<string, unknown>>(endpoint);
@@ -856,7 +869,7 @@ export class SahoolApiClient {
     status: DiagnosisStatus,
     notes?: string,
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/${id}`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
@@ -873,7 +886,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getDashboardStats(): Promise<DashboardStats> {
-    const endpoint = `${this.urls.indicators}/v1/dashboard`;
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
     const mockData = {
       totalFarms: 156,
       activeFarms: 142,
@@ -924,7 +937,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getSensorReadings(farmId: string): Promise<SensorReading[]> {
-    const endpoint = `${this.urls.virtualSensors}/v1/readings/${farmId}`;
+    const endpoint = `${this.urls.virtualSensors}/api/v1/readings/${farmId}`;
     return this.safeExecute(() => this.request<SensorReading[]>(endpoint), [], {
       endpoint,
       method: "GET",
@@ -952,7 +965,7 @@ export class SahoolApiClient {
     priority?: string;
     limit?: number;
   }): Promise<Notification[]> {
-    const endpoint = `${this.urls.notifications}/v1/notifications`;
+    const endpoint = `${this.urls.notifications}/api/v1/notifications`;
     return this.safeExecute(
       () => this.request<Notification[]>(endpoint, { params }),
       [],
@@ -961,7 +974,7 @@ export class SahoolApiClient {
   }
 
   async markNotificationRead(id: string): Promise<boolean> {
-    const endpoint = `${this.urls.notifications}/v1/notifications/${id}/read`;
+    const endpoint = `${this.urls.notifications}/api/v1/notifications/${id}/read`;
     return this.safeExecute(
       async () => {
         await this.request(endpoint, { method: "PATCH" });
@@ -986,6 +999,356 @@ export class SahoolApiClient {
       [],
       { endpoint, method: "GET" },
     );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Satellite / Vegetation Analysis API
+  // تحليل الأقمار الصناعية
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getSatelliteTimeseries(
+    fieldId: string,
+    options?: { from?: string; to?: string },
+  ): Promise<unknown[]> {
+    const endpoint = `${this.urls.satellite}/api/v1/timeseries/${fieldId}`;
+    return this.safeExecute(
+      () => this.request<unknown[]>(endpoint, { params: options }),
+      [],
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async requestSatelliteAnalysis(
+    fieldId: string,
+    analysisType: "ndvi" | "moisture" | "thermal",
+  ): Promise<unknown | null> {
+    const endpoint = `${this.urls.satellite}/api/v1/analyze`;
+    return this.safeExecute(
+      () =>
+        this.request(endpoint, {
+          method: "POST",
+          data: { field_id: fieldId, analysis_type: analysisType },
+        }),
+      null,
+      { endpoint, method: "POST" },
+    );
+  }
+
+  async getSatelliteIndices(fieldId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.satellite}/api/v1/indices/${fieldId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
+  }
+
+  async getAvailableSatellites(): Promise<{ satellites: unknown[] }> {
+    const endpoint = `${this.urls.satellite}/api/v1/satellites`;
+    return this.safeExecute(
+      () => this.request(endpoint),
+      { satellites: [] },
+      { endpoint, method: "GET" },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Dashboard Analytics API
+  // بيانات تحليلية للرسوم البيانية
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getYieldTrends(
+    period: "7d" | "30d" | "90d" = "30d",
+  ): Promise<Array<{ month: string; yield: number; forecast: number }>> {
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ data?: unknown[] }>(endpoint, {
+          params: { metric: "yield", period },
+        });
+        return (response?.data || []) as Array<{
+          month: string;
+          yield: number;
+          forecast: number;
+        }>;
+      },
+      [],
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async getCropDistribution(): Promise<
+    Array<{ name: string; value: number }>
+  > {
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{
+          crop_distribution?: Array<{ crop: string; area: number }>;
+        }>(endpoint);
+        return (
+          response?.crop_distribution?.map(
+            (c: { crop: string; area: number }) => ({
+              name: c.crop,
+              value: c.area,
+            }),
+          ) || []
+        );
+      },
+      [],
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async getWeeklyActivity(): Promise<
+    Array<{
+      day: string;
+      diagnoses: number;
+      irrigations: number;
+      alerts: number;
+    }>
+  > {
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ data?: unknown[] }>(endpoint, {
+          params: { metric: "weekly_activity", period: "7d" },
+        });
+        return (response?.data || []) as Array<{
+          day: string;
+          diagnoses: number;
+          irrigations: number;
+          alerts: number;
+        }>;
+      },
+      [],
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async getPlatformMetrics(): Promise<{
+    activeFarmers: number;
+    dailySales: number;
+    irrigationOps: number;
+    avgTemperature: number;
+    monthlyGrowthRate: number;
+  }> {
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
+    const fallback = {
+      activeFarmers: 0,
+      dailySales: 0,
+      irrigationOps: 0,
+      avgTemperature: 0,
+      monthlyGrowthRate: 0,
+    };
+    return this.safeExecute(
+      async () => {
+        const data = await this.request<Record<string, unknown>>(endpoint);
+        return {
+          activeFarmers: (data?.active_users as number) || 0,
+          dailySales: (data?.daily_sales as number) || 0,
+          irrigationOps: (data?.pending_tasks as number) || 0,
+          avgTemperature: (data?.avg_temperature as number) || 0,
+          monthlyGrowthRate: (data?.monthly_growth_rate as number) || 0,
+        };
+      },
+      fallback,
+      { endpoint, method: "GET" },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Advisory & Intelligence API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAdvisoryRecommendations(
+    fieldId: string,
+    cropType?: string,
+  ): Promise<{ recommendations: unknown[]; sources: unknown[] }> {
+    const endpoint = `${this.urls.advisory}/api/v1/advisory/recommendations`;
+    return this.safeExecute(
+      () =>
+        this.request(endpoint, {
+          method: "POST",
+          data: { field_id: fieldId, crop_type: cropType },
+        }),
+      { recommendations: [], sources: [] },
+      { endpoint, method: "POST" },
+    );
+  }
+
+  async getYieldPrediction(
+    fieldId: string,
+    cropType: string,
+  ): Promise<unknown | null> {
+    const endpoint = `${this.urls.yieldPrediction}/api/v1/yield/predict`;
+    return this.safeExecute(
+      () =>
+        this.request(endpoint, {
+          method: "POST",
+          data: { field_id: fieldId, crop_type: cropType },
+        }),
+      null,
+      { endpoint, method: "POST" },
+    );
+  }
+
+  async getFieldIntelligence(fieldId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.fieldIntelligence}/api/v1/field-intelligence/${fieldId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Alerts API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAlerts(params?: {
+    severity?: string;
+    type?: string;
+    acknowledged?: boolean;
+    limit?: number;
+  }): Promise<{ data: unknown[]; meta: { total: number; page: number; limit: number } }> {
+    const endpoint = `${this.urls.alerts}/api/v1/alerts`;
+    return this.safeExecute(
+      () => this.request(endpoint, { params }),
+      { data: [], meta: { total: 0, page: 1, limit: 20 } },
+      { endpoint, method: "GET" },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Billing API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getBillingSubscription(): Promise<unknown | null> {
+    const endpoint = `${this.urls.billing}/api/v1/billing/subscription`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Astronomical Calendar API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAstronomicalToday(
+    lat?: number,
+    lon?: number,
+  ): Promise<unknown | null> {
+    const endpoint = `${this.urls.astronomicalCalendar}/api/v1/astronomical/today`;
+    return this.safeExecute(
+      () => this.request(endpoint, { params: { lat, lon } }),
+      null,
+      { endpoint, method: "GET" },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Image Upload API (FormData)
+  // رفع الصور عبر FormData
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async uploadImage(
+    url: string,
+    formData: FormData,
+    timeout?: number,
+  ): Promise<unknown> {
+    return this.client.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: timeout || 120000,
+    }).then((r) => r.data);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Vision Detection API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async detectVision(
+    task: "pest" | "disease" | "weed",
+    formData: FormData,
+    timeout?: number,
+  ): Promise<{
+    detections: Array<{
+      class: string;
+      confidence: number;
+      bbox: [number, number, number, number];
+    }>;
+    imageUrl?: string;
+    processingTime?: number;
+  }> {
+    const endpoint = `${this.urls.yoloVision}/api/v1/detect/${task}`;
+    return this.client
+      .post(endpoint, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: timeout || 180000,
+      })
+      .then((r) => r.data);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Weather by Location API (direct service access)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getWeatherByLocation(locationId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.weather}/api/v1/current/${locationId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
+  }
+
+  async getWeatherForecastByLocation(
+    locationId: string,
+    days = 7,
+  ): Promise<unknown | null> {
+    const endpoint = `${this.urls.weather}/api/v1/forecast/${locationId}`;
+    return this.safeExecute(
+      () => this.request(endpoint, { params: { days } }),
+      null,
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async getWeatherLocations(): Promise<{ locations: unknown[] }> {
+    const endpoint = `${this.urls.weather}/api/v1/locations`;
+    return this.safeExecute(
+      () => this.request(endpoint),
+      { locations: [] },
+      { endpoint, method: "GET" },
+    );
+  }
+
+  async getWeatherAlertsByLocation(
+    locationId: string = "sanaa",
+  ): Promise<WeatherAlert[]> {
+    const endpoint = `${this.urls.weather}/api/v1/alerts/${locationId}`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ alerts?: WeatherAlert[] }>(
+          endpoint,
+        );
+        return response?.alerts || [];
+      },
+      [],
+      { endpoint, method: "GET" },
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Generic Request Access (for custom endpoints)
+  // وصول عام للطلبات المخصصة
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Expose the underlying axios instance for advanced use cases
+   * (e.g., custom endpoints, FormData uploads).
+   * يتيح الوصول لمثيل axios للحالات المتقدمة
+   */
+  get axiosInstance(): AxiosInstance {
+    return this.client;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

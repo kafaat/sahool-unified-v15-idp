@@ -8,6 +8,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import {
   History,
   Eye,
@@ -79,7 +80,7 @@ export const VRAHistory: React.FC<VRAHistoryProps> = ({
         setSelectedPrescriptionId(null);
       }
     } catch (error) {
-      console.error("Failed to delete prescription:", error);
+      logger.error("Failed to delete prescription:", error);
     }
   };
 

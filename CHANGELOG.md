@@ -24,8 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added SSR-safety guards for `window.location.href` and `navigator.userAgent` in
     `ErrorBoundary.logErrorToServer()`
   - Fixed hardcoded `tenant_id: "default"` in admin weather API (`getWeatherCurrent`,
-    `getWeatherForecast`, `getAgriculturalReport`) — now extracts tenant from JWT token
-  - Fixed TypeScript error in admin `getTenantFromToken` — added non-null assertion for JWT part
+    `getWeatherForecast`, `getAgriculturalReport`) — now proxied through server-side
+    Next.js API route (`/api/weather`) which extracts tenant from the httpOnly JWT cookie
+  - Added `SatelliteClient` warning log when selected index is unavailable and falls back to NDVI
+  - Disabled non-NDVI index tabs in admin satellite page (data source is NDVI-only until
+    backend multi-index endpoints are available)
 
 ### Added
 
@@ -36,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     and dynamic layer/source IDs for concurrent map layers
   - Web: Added NDWI-based water stress alert section showing fields with NDWI < 0
   - Admin: Added index selector tabs (NDVI/SAVI/NDWI/NDRE/EVI) to satellite analytics page
-    with dynamic stat cards and table headers
+    (non-NDVI indices disabled until backend multi-index support is available)
   - Backend: Added Yemen-specific SAVI L parameters for 7 agro-ecological zones
     (Tihama=0.75, Highlands=0.40, etc.) in sahool-eo indices module
   - Backend: SahoolSAVITask now accepts `region` parameter for automatic L value selection

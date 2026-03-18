@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import { logger } from "@/lib/logger";
 import {
   Layers,
   ChevronDown,
@@ -374,7 +375,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({
         try {
           return { ...DEFAULT_LAYERS, ...JSON.parse(saved), ...initialLayers };
         } catch (e) {
-          console.warn("Failed to parse saved layer settings:", e);
+          logger.warn("Failed to parse saved layer settings:", e);
         }
       }
     }
@@ -396,7 +397,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({
             ...initialNDVI,
           };
         } catch (e) {
-          console.warn("Failed to parse saved NDVI settings:", e);
+          logger.warn("Failed to parse saved NDVI settings:", e);
         }
       }
     }

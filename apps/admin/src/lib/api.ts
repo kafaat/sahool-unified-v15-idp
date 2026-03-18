@@ -1,11 +1,9 @@
-// Sahool Admin Dashboard - API Configuration
-// إعدادات الاتصال بالخادم
+// Sahool Admin Dashboard - API Layer
+// طبقة API للوحة الإدارة
+//
+// This module delegates to the unified @sahool/api-client via unified-client.ts.
+// All exports are preserved for backward compatibility.
 
-import axios, {
-  type AxiosResponse,
-  type AxiosError,
-  type InternalAxiosRequestConfig,
-} from "axios";
 import type {
   Farm,
   DiagnosisRecord,
@@ -14,102 +12,18 @@ import type {
   SensorReading,
 } from "@/types";
 import { apiClient as authApiClient } from "./api-client";
-import Cookies from "js-cookie";
 import { logger } from "./logger";
 
 // Import API configuration from centralized config
-import { API_URLS, API_CONFIG, TIMEOUT_TIERS } from "@/config/api";
+import { API_URLS, TIMEOUT_TIERS } from "@/config/api";
 
 // Re-export API_URLS for consumers of this module
 export { API_URLS };
 
-// Helper function to get token from cookies
-// NOTE: This will return undefined since tokens are now stored in httpOnly cookies
-// and are not accessible from client-side JavaScript for security reasons.
-//
-// Authentication flow uses Next.js API routes as server-side proxies which can
-// access httpOnly cookies. See implementations in:
-//   - /app/api/auth/me/route.ts - Current user endpoint
-//   - /app/api/auth/login/route.ts - Login with cookie setting
-//   - /app/api/auth/logout/route.ts - Logout with cookie clearing
-//   - /app/api/auth/refresh/route.ts - Token refresh
-//
-// For other API calls that require authentication, the backend services should
-// be configured to accept cookie-based authentication via Kong gateway, or
-// additional Next.js API routes should be created following the same pattern.
-function getToken(): string | undefined {
-  return Cookies.get("sahool_admin_token");
-}
-
-/**
- * Extract tenant_id from JWT token payload (claim "tid" or "tenant_id").
- * Returns null if token is unavailable or not decodable.
- *
- * NOTE: With httpOnly cookies, getToken() returns undefined so this always
- * returns null on the client side. Callers must use a fallback (e.g. "default").
- * For server-side tenant extraction, use Next.js API routes instead.
- */
-function getTenantFromToken(): string | null {
-  const token = getToken();
-  if (!token) return null;
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]!));
-    return payload.tid || payload.tenant_id || null;
-  } catch {
-    return null;
-  }
-}
-
-// Axios instance with defaults
-// NOTE: withCredentials is set to true to send httpOnly cookies with requests
-export const apiClient = axios.create({
-  timeout: API_CONFIG.timeout,
-  withCredentials: true, // Send cookies with cross-origin requests
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Language": "ar,en",
-  },
-});
-
-// Add auth token interceptor - uses centralized token management
-// NOTE: With httpOnly cookies, this interceptor may not be able to add the
-// Authorization header. Backend services should be configured to accept
-// cookie-based authentication, OR these API calls should be proxied through
-// Next.js API routes where tokens can be injected server-side.
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor for auth errors - consistent with auth store
-apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear session via logout endpoint
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
-      } catch (logoutError) {
-        logger.error("Logout error:", logoutError);
-      }
-
-      authApiClient.clearToken();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+// Unified API client — replaces raw axios.create() with @sahool/api-client instance.
+// Provides: token refresh with queuing, retry with exponential backoff, HTTPS enforcement.
+import { apiClient } from "./unified-client";
+export { apiClient };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Image Upload API (FormData support)
@@ -388,18 +302,47 @@ export async function updateDiagnosisStatus(
 // Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Weather API functions — proxied through Next.js API route (/api/weather)
+ * to extract tenant_id from the httpOnly JWT cookie server-side.
+ *
+ * واجهة الطقس — تمر عبر وكيل Next.js لاستخراج معرف المستأجر من الكوكي
+ */
+
+/**
+ * Helper to handle weather proxy responses consistently.
+ * Redirects to login on 401 (matching apiClient interceptor behavior).
+ */
+async function handleWeatherResponse(response: Response): Promise<unknown | null> {
+  if (response.status === 401) {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch (logoutError) {
+      logger.error("Logout error during weather auth redirect:", logoutError);
+    }
+    authApiClient.clearToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    return null;
+  }
+  if (!response.ok) return null;
+  return await response.json();
+}
+
 export async function getWeatherCurrent(
   lat: number,
   lng: number,
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.current,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "current", lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch current weather:", error);
     return null;
@@ -413,12 +356,13 @@ export async function getWeatherForecast(
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.forecast,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng, days }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "forecast", lat, lon: lng, field_id: fieldId, days }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch weather forecast:", error);
     return null;
@@ -431,12 +375,13 @@ export async function getAgriculturalReport(
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.agricultural,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "agricultural", lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch agricultural report:", error);
     return null;
@@ -878,14 +823,16 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {};
 
   await Promise.all(
-    services.map(async ([name, url]) => {
-      try {
-        await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
-        results[name] = true;
-      } catch {
-        results[name] = false;
-      }
-    }),
+    services
+      .filter(([, url]) => typeof url === "string")
+      .map(async ([name, url]) => {
+        try {
+          await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
+          results[name] = true;
+        } catch {
+          results[name] = false;
+        }
+      }),
   );
 
   return results;

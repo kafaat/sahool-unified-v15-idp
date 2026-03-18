@@ -13,6 +13,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { logger } from "@/lib/logger";
 import { useRouter } from "next/navigation";
 import type { Task } from "@/features/tasks/types";
 import type { Field } from "../types";
@@ -91,7 +92,7 @@ export function TaskMarkers({
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) {
-      console.warn(
+      logger.warn(
         "Leaflet is not loaded. Make sure it is loaded via CDN in layout.",
       );
       return;

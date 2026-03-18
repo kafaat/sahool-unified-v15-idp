@@ -110,7 +110,7 @@ export const SERVICE_PORTS = {
   advisory: UNIFIED_PORTS.ADVISORY,
   yieldPrediction: UNIFIED_PORTS.YIELD_PREDICTION,
   fieldIntelligence: UNIFIED_PORTS.FIELD_INTELLIGENCE,
-  analytics: 8100,
+  // analytics: removed — port 8100 was deprecated crop-health service, no active service
   copilot: UNIFIED_PORTS.COPILOT_API,
   aiAdvisor: UNIFIED_PORTS.AI_ADVISOR,
   aiAgents: UNIFIED_PORTS.AI_AGENTS_CORE,
@@ -138,7 +138,7 @@ export const SERVICE_PORTS = {
   // Configuration & Misc
   providerConfig: UNIFIED_PORTS.PROVIDER_CONFIG,
   alerts: UNIFIED_PORTS.ALERT_SERVICE,
-  reports: 8084,
+  // reports: removed — port 8084 has no registered service in governance/services.yaml
   astronomicalCalendar: UNIFIED_PORTS.ASTRONOMICAL_CALENDAR,
   lowcode: UNIFIED_PORTS.LOWCODE_ENGINE,
 
@@ -216,7 +216,7 @@ export const SERVICE_URLS = {
   advisory: getServiceUrl(SERVICE_PORTS.advisory),
   yieldPrediction: getServiceUrl(SERVICE_PORTS.yieldPrediction),
   fieldIntelligence: getServiceUrl(SERVICE_PORTS.fieldIntelligence),
-  analytics: getServiceUrl(SERVICE_PORTS.analytics),
+  // analytics: removed — no active service on port 8100
   copilot: getServiceUrl(SERVICE_PORTS.copilot),
   aiAdvisor: getServiceUrl(SERVICE_PORTS.aiAdvisor),
   aiAgents: getServiceUrl(SERVICE_PORTS.aiAgents),
@@ -244,7 +244,7 @@ export const SERVICE_URLS = {
   // Configuration & Misc
   providerConfig: getServiceUrl(SERVICE_PORTS.providerConfig),
   alerts: getServiceUrl(SERVICE_PORTS.alerts),
-  reports: getServiceUrl(SERVICE_PORTS.reports),
+  // reports: removed — no registered service on port 8084
   astronomicalCalendar: getServiceUrl(SERVICE_PORTS.astronomicalCalendar),
   lowcode: getServiceUrl(SERVICE_PORTS.lowcode),
 

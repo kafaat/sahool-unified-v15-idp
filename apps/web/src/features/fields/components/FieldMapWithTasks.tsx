@@ -8,6 +8,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import { logger } from "@/lib/logger";
 import { MapPin, Loader2, Filter } from "lucide-react";
 import { TaskMarkers } from "./TaskMarkers";
 import { useTasks } from "@/features/tasks/hooks/useTasks";
@@ -66,7 +67,7 @@ export function FieldMapWithTasks({
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) {
-      console.warn("Leaflet is not loaded. Include it in your layout.");
+      logger.warn("Leaflet is not loaded. Include it in your layout.");
       return;
     }
 

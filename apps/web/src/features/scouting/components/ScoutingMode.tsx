@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useCallback } from "react";
+import { logger } from "@/lib/logger";
 import { useLocale } from "next-intl";
 import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import {
@@ -126,7 +127,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       await startSession();
       setIsScoutingMode(true);
     } catch (error) {
-      console.error("Failed to start session:", error);
+      logger.error("Failed to start session:", error);
     }
   };
 
@@ -135,7 +136,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       await endSession();
       setIsScoutingMode(false);
     } catch (error) {
-      console.error("Failed to end session:", error);
+      logger.error("Failed to end session:", error);
     }
   };
 
@@ -161,7 +162,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       setSelectedLocation(null);
       setEditingObservation(null);
     } catch (error) {
-      console.error("Failed to save observation:", error);
+      logger.error("Failed to save observation:", error);
     }
   };
 
@@ -174,7 +175,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       try {
         await deleteObservation(observationId);
       } catch (error) {
-        console.error("Failed to delete observation:", error);
+        logger.error("Failed to delete observation:", error);
       }
     }
   };

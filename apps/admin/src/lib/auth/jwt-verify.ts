@@ -5,6 +5,11 @@
 
 import { jwtVerify, decodeJwt, JWTPayload } from "jose";
 
+/** Validate UUID format for tenant_id injection prevention */
+function isValidUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 // ---------------------------------------------------------------------------
 // Inline User type to avoid importing the @/lib/auth barrel which pulls in
 // api-middleware -> @/lib/logger -> @sentry/nextjs (~300KB in edge bundle).
@@ -167,7 +172,10 @@ export async function getUserFromToken(token: string): Promise<User | null> {
       email: payload.email,
       name: payload.name || payload.email,
       role: userRole,
-      tenant_id: payload.tenant_id || payload.tid,
+      tenant_id: (() => {
+        const tid = payload.tenant_id || payload.tid;
+        return typeof tid === "string" && isValidUUID(tid) ? tid : undefined;
+      })(),
     };
   } catch {
     return null;

@@ -13,6 +13,19 @@
 import { Prisma } from "@prisma/client";
 import { encrypt, decrypt, encryptSearchable } from "./field-encryption";
 
+const logger = {
+  log: (message: string) => {
+    if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console
+      console.log(message);
+    }
+  },
+  error: (message: string, error?: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error(message, error);
+  },
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Types and Interfaces
 // ═══════════════════════════════════════════════════════════════════════════
@@ -83,7 +96,7 @@ function encryptField(
         : encrypt(value);
 
     if (options?.debug) {
-      console.log(
+      logger.log(
         `[Prisma Encryption] Encrypted ${modelName}.${fieldName} (${config.type})`,
       );
     }
@@ -100,7 +113,7 @@ function encryptField(
         operation: "encrypt",
       });
     } else {
-      console.error(
+      logger.error(
         `[Prisma Encryption] Failed to encrypt ${modelName}.${fieldName}:`,
         err,
       );
@@ -139,7 +152,7 @@ function decryptField(
     const decrypted = decrypt(value);
 
     if (options?.debug) {
-      console.log(`[Prisma Encryption] Decrypted ${modelName}.${fieldName}`);
+      logger.log(`[Prisma Encryption] Decrypted ${modelName}.${fieldName}`);
     }
 
     return decrypted;
@@ -154,7 +167,7 @@ function decryptField(
         operation: "decrypt",
       });
     } else {
-      console.error(
+      logger.error(
         `[Prisma Encryption] Failed to decrypt ${modelName}.${fieldName}:`,
         err,
       );
@@ -276,7 +289,7 @@ function transformWhereClause(
       if (typeof value === "string") {
         result[key] = encryptSearchable(value);
         if (options?.debug) {
-          console.log(
+          logger.log(
             `[Prisma Encryption] Encrypted where clause for ${modelName}.${key}`,
           );
         }

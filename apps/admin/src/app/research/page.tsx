@@ -51,8 +51,8 @@ export default function ResearchPage() {
         const query = searchQuery.toLowerCase();
         if (
           !t.name.toLowerCase().includes(query) &&
-          !t.nameAr.includes(query) &&
-          !t.cropAr.includes(query)
+          !t.nameAr.toLowerCase().includes(query) &&
+          !t.cropAr.toLowerCase().includes(query)
         ) {
           return false;
         }

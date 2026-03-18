@@ -51,8 +51,8 @@ export default function LogisticsPage() {
         const query = searchQuery.toLowerCase();
         if (
           !s.trackingNumber.toLowerCase().includes(query) &&
-          !s.destinationAr.includes(query) &&
-          !s.receiverAr.includes(query)
+          !s.destinationAr.toLowerCase().includes(query) &&
+          !s.receiverAr.toLowerCase().includes(query)
         ) {
           return false;
         }

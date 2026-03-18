@@ -100,8 +100,8 @@ export default function InventoryPage() {
         const query = searchQuery.toLowerCase();
         if (
           !item.name.toLowerCase().includes(query) &&
-          !item.nameAr.includes(query) &&
-          !item.farmNameAr.includes(query)
+          !item.nameAr.toLowerCase().includes(query) &&
+          !item.farmNameAr.toLowerCase().includes(query)
         ) {
           return false;
         }

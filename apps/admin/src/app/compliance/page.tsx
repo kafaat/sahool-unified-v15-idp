@@ -51,7 +51,7 @@ export default function CompliancePage() {
         const query = searchQuery.toLowerCase();
         if (
           !r.farmName.toLowerCase().includes(query) &&
-          !r.farmNameAr.includes(query)
+          !r.farmNameAr.toLowerCase().includes(query)
         ) {
           return false;
         }

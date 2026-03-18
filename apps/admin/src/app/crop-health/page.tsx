@@ -51,9 +51,9 @@ export default function CropHealthPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !r.farmNameAr.includes(query) &&
-          !r.cropAr.includes(query) &&
-          !r.fieldNameAr.includes(query)
+          !r.farmNameAr.toLowerCase().includes(query) &&
+          !r.cropAr.toLowerCase().includes(query) &&
+          !r.fieldNameAr.toLowerCase().includes(query)
         ) {
           return false;
         }

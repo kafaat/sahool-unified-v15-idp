@@ -55,8 +55,8 @@ export default function DisastersPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !r.locationAr.includes(query) &&
-          !r.descriptionAr.includes(query)
+          !r.locationAr.toLowerCase().includes(query) &&
+          !r.descriptionAr.toLowerCase().includes(query)
         ) {
           return false;
         }

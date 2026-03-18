@@ -430,39 +430,23 @@ function DiseasesContent() {
               </div>
 
               {/* Treatment Recommendation */}
-              {(
-                selectedDiagnosis as DiagnosisRecord & {
-                  treatment?: {
-                    recommendation?: string;
-                    recommendationAr?: string;
-                  };
-                }
-              ).treatment && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                  <h3 className="font-bold text-green-800 mb-2 flex items-center gap-2">
-                    <Pill className="w-5 h-5" />
-                    توصية العلاج
-                  </h3>
-                  <p className="text-green-700">
-                    {(
-                      selectedDiagnosis as DiagnosisRecord & {
-                        treatment?: {
-                          recommendation?: string;
-                          recommendationAr?: string;
-                        };
-                      }
-                    ).treatment?.recommendationAr ||
-                      (
-                        selectedDiagnosis as DiagnosisRecord & {
-                          treatment?: {
-                            recommendation?: string;
-                            recommendationAr?: string;
-                          };
-                        }
-                      ).treatment?.recommendation}
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const treatment = (selectedDiagnosis as DiagnosisRecord & {
+                  treatment?: { recommendation?: string; recommendationAr?: string };
+                }).treatment;
+                if (!treatment) return null;
+                return (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h3 className="font-bold text-green-800 mb-2 flex items-center gap-2">
+                      <Pill className="w-5 h-5" />
+                      توصية العلاج
+                    </h3>
+                    <p className="text-green-700">
+                      {treatment.recommendationAr || treatment.recommendation}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Expert Review */}
               {selectedDiagnosis.expertReview && (

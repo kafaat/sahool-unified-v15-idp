@@ -9,6 +9,7 @@ import StatCard from "@/components/ui/StatCard";
 import DataTable from "@/components/ui/DataTable";
 import { API_URLS, apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { logger } from "../../lib/logger";
 import {
   Droplets,
   Calendar,
@@ -307,12 +308,14 @@ export default function IrrigationPage() {
             soil_type: "loamy",
             irrigation_method: "drip",
           })
-          .catch(() => null),
+          .catch((err) => { logger.error("Failed to fetch irrigation plan:", err); return null; }),
         apiClient
           .get(`${API_URLS.irrigation}/v1/water-balance/field-1`)
-          .catch(() => null),
-        apiClient.get(`${API_URLS.irrigation}/v1/methods`).catch(() => null),
-        apiClient.get(`${API_URLS.irrigation}/v1/crops`).catch(() => null),
+          .catch((err) => { logger.error("Failed to fetch water balance:", err); return null; }),
+        apiClient.get(`${API_URLS.irrigation}/v1/methods`)
+          .catch((err) => { logger.error("Failed to fetch irrigation methods:", err); return null; }),
+        apiClient.get(`${API_URLS.irrigation}/v1/crops`)
+          .catch((err) => { logger.error("Failed to fetch crops:", err); return null; }),
       ]);
 
       setPlan(planRes?.data || generateMockPlan());

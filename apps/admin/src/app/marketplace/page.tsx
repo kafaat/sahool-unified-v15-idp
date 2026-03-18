@@ -51,8 +51,8 @@ export default function MarketplacePage() {
         const query = searchQuery.toLowerCase();
         if (
           !p.name.toLowerCase().includes(query) &&
-          !p.nameAr.includes(query) &&
-          !p.sellerAr.includes(query)
+          !p.nameAr.toLowerCase().includes(query) &&
+          !p.sellerAr.toLowerCase().includes(query)
         ) {
           return false;
         }

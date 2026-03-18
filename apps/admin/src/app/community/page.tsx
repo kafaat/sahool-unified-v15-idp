@@ -51,8 +51,8 @@ export default function CommunityPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !p.contentAr.includes(query) &&
-          !p.authorAr.includes(query)
+          !p.contentAr.toLowerCase().includes(query) &&
+          !p.authorAr.toLowerCase().includes(query)
         ) {
           return false;
         }

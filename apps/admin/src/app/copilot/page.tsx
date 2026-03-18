@@ -478,7 +478,7 @@ export default function CopilotPage() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-gray-700">copilot-api (:{8088})</span>
+            <span className="text-sm text-gray-700">copilot-api</span>
           </div>
           <a
             href={`${COPILOT_API}/healthz`}

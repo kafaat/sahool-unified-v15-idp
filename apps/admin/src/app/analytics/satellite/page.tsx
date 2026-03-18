@@ -135,9 +135,9 @@ export default function SatellitePage() {
     0,
   );
 
-  const avgNDVI =
-    data.fields.reduce((sum, field) => sum + field.ndvi.current, 0) /
-    data.fields.length;
+  const avgNDVI = data.fields.length > 0
+    ? data.fields.reduce((sum, field) => sum + field.ndvi.current, 0) / data.fields.length
+    : 0;
 
   const selectedFieldData = data.fields.find((f) => f.id === selectedField);
   const selectedFieldTrends = data.ndviTrends.filter(

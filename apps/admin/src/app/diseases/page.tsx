@@ -233,8 +233,9 @@ function DiseasesContent() {
             />
           </button>
           <button
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            title="تصدير"
+            disabled
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
           >
             <Download className="w-5 h-5 text-gray-600" />
           </button>

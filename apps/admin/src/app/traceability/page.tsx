@@ -164,7 +164,8 @@ export default function TraceabilityPage() {
 
   const filteredBatches = useMemo(() => {
     return batches.filter((b) => {
-      const matchSearch = !searchQuery || b.product_name_ar.includes(searchQuery) || b.batch_code.includes(searchQuery) || b.farm_name_ar.includes(searchQuery);
+      const query = searchQuery.toLowerCase();
+      const matchSearch = !searchQuery || b.product_name_ar.toLowerCase().includes(query) || b.batch_code.toLowerCase().includes(query) || b.farm_name_ar.toLowerCase().includes(query);
       const matchStatus = statusFilter === "all" || b.status === statusFilter;
       return matchSearch && matchStatus;
     });

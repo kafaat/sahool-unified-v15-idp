@@ -311,7 +311,7 @@ function PredictionCard({ prediction: p, isSelected, onClick }: PredictionCardPr
   const status = STATUS_CONFIG[p.status];
   const days = daysUntilHarvest(p.harvestDate);
   const yieldDiff = p.predictedYield_kg_ha - p.benchmarkYield_kg_ha;
-  const yieldDiffPct = ((yieldDiff / p.benchmarkYield_kg_ha) * 100).toFixed(1);
+  const yieldDiffPct = ((yieldDiff / (p.benchmarkYield_kg_ha || 1)) * 100).toFixed(1);
   const pest = PEST_RISK_CONFIG[p.pestRisk];
 
   return (
@@ -461,7 +461,7 @@ function DetailPanel({ prediction: p, onClose }: DetailPanelProps) {
   const totalYield_kg = p.predictedYield_kg_ha * p.area_ha;
   const totalYield_tons = totalYield_kg / 1000;
   const yieldDiff = p.predictedYield_kg_ha - p.benchmarkYield_kg_ha;
-  const yieldDiffPct = ((yieldDiff / p.benchmarkYield_kg_ha) * 100).toFixed(1);
+  const yieldDiffPct = ((yieldDiff / (p.benchmarkYield_kg_ha || 1)) * 100).toFixed(1);
   const pest = PEST_RISK_CONFIG[p.pestRisk];
 
   const overallScore = Math.round(

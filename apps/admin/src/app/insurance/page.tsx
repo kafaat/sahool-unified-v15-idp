@@ -575,13 +575,13 @@ function PolicyDetailPanel({ policy }: PolicyDetailPanelProps) {
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">نسبة القسط</span>
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {((policy.premium_SAR / policy.coverageAmount_SAR) * 100).toFixed(2)}%
+              {((policy.premium_SAR / (policy.coverageAmount_SAR || 1)) * 100).toFixed(2)}%
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">قسط الهكتار الواحد</span>
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {Math.round(policy.premium_SAR / policy.fieldArea_ha).toLocaleString()} ريال/هـ
+              {Math.round(policy.premium_SAR / (policy.fieldArea_ha || 1)).toLocaleString()} ريال/هـ
             </span>
           </div>
         </div>

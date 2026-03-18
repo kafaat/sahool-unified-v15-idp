@@ -528,7 +528,7 @@ function DetailPanel({ crop, onClose }: { crop: MarketPrice; onClose: () => void
         </p>
         <div className="space-y-2">
           {crop.marketComparison.map((m, i) => {
-            const barPercent = (m.price / maxMarketPrice) * 100;
+            const barPercent = maxMarketPrice > 0 ? (m.price / maxMarketPrice) * 100 : 0;
             const isBest = m.price === maxMarketPrice;
             return (
               <div key={i} className="flex items-center gap-2">

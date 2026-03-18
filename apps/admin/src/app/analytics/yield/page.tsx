@@ -338,7 +338,7 @@ export default function YieldAnalysisPage() {
             const maxYield = Math.max(...trends.map((x) => x.avg_yield), 1);
             const height = (t.avg_yield / maxYield) * 100;
             const prevYield = i > 0 ? trends[i - 1]!.avg_yield : t.avg_yield;
-            const change = ((t.avg_yield - prevYield) / prevYield) * 100;
+            const change = prevYield !== 0 ? ((t.avg_yield - prevYield) / prevYield) * 100 : 0;
             return (
               <div key={t.season} className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-sm font-bold text-sahool-600 dark:text-sahool-400">{t.avg_yield.toFixed(1)}</span>

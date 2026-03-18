@@ -212,7 +212,7 @@ export default function GDDPage() {
                   <div
                     className="h-full bg-sahool-600 rounded-full transition-all"
                     style={{
-                      width: `${Math.min((field.currentGDD / field.targetGDD) * 100, 100)}%`,
+                      width: `${Math.min((field.currentGDD / (field.targetGDD || 1)) * 100, 100)}%`,
                     }}
                   ></div>
                 </div>

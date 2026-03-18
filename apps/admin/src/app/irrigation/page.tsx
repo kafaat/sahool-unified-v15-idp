@@ -9,7 +9,7 @@ import StatCard from "@/components/ui/StatCard";
 import DataTable from "@/components/ui/DataTable";
 import { API_URLS, apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { logger } from "../../lib/logger";
+import { logger } from "@/lib/logger";
 import {
   Droplets,
   Calendar,

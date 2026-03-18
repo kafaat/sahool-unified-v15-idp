@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/stores/auth.store";
 import { apiClient } from "@/lib/api-client";
 import { validators, validationErrors } from "@/lib/validation";
-import { logger } from "../../../lib/logger";
+import { logger } from "@/lib/logger";
 import {
   Shield,
   Smartphone,
@@ -324,7 +324,6 @@ export default function SecuritySettingsPage() {
                   استخدم تطبيقات مثل Google Authenticator أو Authy
                 </p>
                 <div className="flex justify-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                  { }
                   <img
                     src={setupData.qr_code}
                     alt="QR Code"

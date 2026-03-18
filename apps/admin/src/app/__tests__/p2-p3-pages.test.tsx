@@ -102,96 +102,45 @@ vi.mock("@/components/ui/StatCard", () => ({
     ),
 }));
 
-// Explicit lucide-react mock — Proxy-based mocks hang on dynamic import
+// Lucide-react mock — explicit exports with fallback for unknown icons
 vi.mock("lucide-react", () => {
+  const cache = new Map<string, React.FC<Record<string, unknown>>>();
   const createIcon = (name: string) => {
+    if (cache.has(name)) return cache.get(name)!;
     const Icon = (props: Record<string, unknown>) =>
       React.createElement("svg", { "data-testid": `icon-${name}`, ...props });
     Icon.displayName = name;
+    cache.set(name, Icon);
     return Icon;
   };
+
+  // Pre-built icons used across tested pages
+  const icons: Record<string, React.FC<Record<string, unknown>>> = {};
+  const names = [
+    "TrendingUp", "BarChart3", "Leaf", "Calendar", "CheckCircle2", "ChevronDown",
+    "Droplets", "Sun", "FlaskConical", "AlertTriangle", "Target", "Clock", "MapPin",
+    "Activity", "Tractor", "Plane", "SprayCan", "Truck", "Wrench", "Gauge", "Fuel",
+    "ChevronRight", "X", "RefreshCw", "Filter", "PauseCircle", "WifiOff", "Navigation",
+    "Thermometer", "Battery", "Shield", "Users", "Layers", "Package", "DollarSign",
+    "XCircle", "Wheat", "ShoppingCart", "Factory", "User", "BookOpen", "Box",
+    "TrendingDown", "Minus", "BarChart2", "Bell", "ShoppingBasket", "Store", "Download",
+    "Star", "ArrowUpRight", "ArrowDownRight", "Award", "FileText", "AlertCircle",
+    "CloudRain", "Bug", "CloudSnow", "Waves", "CheckCircle", "Info", "Map", "TreePine",
+    "Mountain", "Wind", "ChevronUp", "ArrowRight", "Search", "Coffee", "Cherry", "Apple",
+    "ChevronLeft", "Globe", "Sprout",
+  ];
+  for (const name of names) {
+    icons[name] = createIcon(name);
+  }
+
+  // Return object with __esModule and a getter fallback for any new icons
   return {
-    // Yield Forecasting
-    TrendingUp: createIcon("TrendingUp"),
-    BarChart3: createIcon("BarChart3"),
-    Leaf: createIcon("Leaf"),
-    Calendar: createIcon("Calendar"),
-    CheckCircle2: createIcon("CheckCircle2"),
-    ChevronDown: createIcon("ChevronDown"),
-    Droplets: createIcon("Droplets"),
-    Sun: createIcon("Sun"),
-    FlaskConical: createIcon("FlaskConical"),
-    AlertTriangle: createIcon("AlertTriangle"),
-    Target: createIcon("Target"),
-    Clock: createIcon("Clock"),
-    MapPin: createIcon("MapPin"),
-    Activity: createIcon("Activity"),
-    // Fleet Tracking
-    Tractor: createIcon("Tractor"),
-    Plane: createIcon("Plane"),
-    SprayCan: createIcon("SprayCan"),
-    Truck: createIcon("Truck"),
-    Wrench: createIcon("Wrench"),
-    Gauge: createIcon("Gauge"),
-    Fuel: createIcon("Fuel"),
-    ChevronRight: createIcon("ChevronRight"),
-    X: createIcon("X"),
-    RefreshCw: createIcon("RefreshCw"),
-    Filter: createIcon("Filter"),
-    PauseCircle: createIcon("PauseCircle"),
-    WifiOff: createIcon("WifiOff"),
-    Navigation: createIcon("Navigation"),
-    Thermometer: createIcon("Thermometer"),
-    Battery: createIcon("Battery"),
-    Shield: createIcon("Shield"),
-    // Cooperatives
-    Users: createIcon("Users"),
-    Layers: createIcon("Layers"),
-    Package: createIcon("Package"),
-    DollarSign: createIcon("DollarSign"),
-    XCircle: createIcon("XCircle"),
-    Wheat: createIcon("Wheat"),
-    ShoppingCart: createIcon("ShoppingCart"),
-    Factory: createIcon("Factory"),
-    User: createIcon("User"),
-    BookOpen: createIcon("BookOpen"),
-    Box: createIcon("Box"),
-    // Market Prices
-    TrendingDown: createIcon("TrendingDown"),
-    Minus: createIcon("Minus"),
-    BarChart2: createIcon("BarChart2"),
-    Bell: createIcon("Bell"),
-    ShoppingBasket: createIcon("ShoppingBasket"),
-    Store: createIcon("Store"),
-    Download: createIcon("Download"),
-    Star: createIcon("Star"),
-    ArrowUpRight: createIcon("ArrowUpRight"),
-    ArrowDownRight: createIcon("ArrowDownRight"),
-    Award: createIcon("Award"),
-    // Insurance
-    FileText: createIcon("FileText"),
-    AlertCircle: createIcon("AlertCircle"),
-    CloudRain: createIcon("CloudRain"),
-    Bug: createIcon("Bug"),
-    CloudSnow: createIcon("CloudSnow"),
-    Waves: createIcon("Waves"),
-    CheckCircle: createIcon("CheckCircle"),
-    Info: createIcon("Info"),
-    // Soil Map
-    Map: createIcon("Map"),
-    TreePine: createIcon("TreePine"),
-    Mountain: createIcon("Mountain"),
-    Wind: createIcon("Wind"),
-    ChevronUp: createIcon("ChevronUp"),
-    ArrowRight: createIcon("ArrowRight"),
-    // Seeds
-    Search: createIcon("Search"),
-    Coffee: createIcon("Coffee"),
-    Cherry: createIcon("Cherry"),
-    Apple: createIcon("Apple"),
-    ChevronLeft: createIcon("ChevronLeft"),
-    Globe: createIcon("Globe"),
-    Sprout: createIcon("Sprout"),
+    __esModule: true,
+    ...icons,
+    // Fallback: if a page imports an icon not listed above, create it on demand
+    get [Symbol.for("vitest:mock-fallback")]() {
+      return createIcon;
+    },
   };
 });
 

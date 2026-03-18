@@ -55,6 +55,9 @@ import {
   CloudSun,
   FileBarChart,
   BarChart3,
+  ScanLine,
+  TestTubes,
+  ArrowLeftRight,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -105,6 +108,7 @@ const managementNav = [
   { name: "السوق", href: "/marketplace", icon: ShoppingCart },
   { name: "البحوث", href: "/research", icon: FlaskConical },
   { name: "الامتثال", href: "/compliance", icon: Shield },
+  { name: "التتبع والتوثيق", href: "/traceability", icon: ScanLine },
 ];
 
 // AI & Technology section (admin-only features)
@@ -142,6 +146,7 @@ const precisionAgricultureNav = [
   },
   { name: "إدارة الرش", href: "/precision-agriculture/spray", icon: Droplets },
   { name: "الري المحوري", href: "/precision-agriculture/pivot", icon: CircleDot },
+  { name: "وصفات التسميد", href: "/precision-agriculture/fertilizer", icon: FlaskConical },
 ];
 
 const analyticsNav = [
@@ -149,6 +154,8 @@ const analyticsNav = [
   { name: "تحليل الغلة العميق", href: "/analytics/yield", icon: BarChart3 },
   { name: "تحليلات الأقمار", href: "/analytics/satellite", icon: Satellite },
   { name: "التقرير الموسمي", href: "/reports/seasonal", icon: FileBarChart },
+  { name: "تحليل التربة", href: "/analytics/soil", icon: TestTubes },
+  { name: "مقارنة الحقول", href: "/analytics/field-compare", icon: ArrowLeftRight },
 ];
 
 export default React.memo(function Sidebar() {
@@ -158,7 +165,7 @@ export default React.memo(function Sidebar() {
     pathname?.startsWith("/precision-agriculture"),
   );
   const [analyticsExpanded, setAnalyticsExpanded] = useState(
-    pathname?.startsWith("/analytics"),
+    pathname?.startsWith("/analytics") || pathname?.startsWith("/reports"),
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

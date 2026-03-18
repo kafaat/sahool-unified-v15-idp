@@ -376,7 +376,7 @@ export default function IrrigationPage() {
       </div>
 
       {/* Tabs */}
-      <div className="mt-6 flex gap-2 bg-gray-100 rounded-lg p-1 w-fit">
+      <div className="mt-6 flex gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 w-fit">
         {[
           { id: "schedule", label: "جدول الري", icon: Calendar },
           { id: "balance", label: "الميزان المائي", icon: CloudRain },
@@ -389,7 +389,7 @@ export default function IrrigationPage() {
               "flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-colors",
               selectedTab === tab.id
                 ? "bg-white shadow-sm text-sahool-600"
-                : "text-gray-600 hover:text-gray-900",
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100",
             )}
           >
             <tab.icon className="w-4 h-4" />
@@ -402,7 +402,7 @@ export default function IrrigationPage() {
       <div className="mt-4 flex justify-end">
         <button
           onClick={loadData}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
           تحديث
@@ -416,7 +416,7 @@ export default function IrrigationPage() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-100 animate-pulse rounded-xl h-32"
+                className="bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl h-32"
               />
             ))}
           </div>
@@ -430,14 +430,14 @@ export default function IrrigationPage() {
                   <div
                     key={schedule.schedule_id}
                     className={cn(
-                      "bg-white rounded-xl border-2 p-5 transition-all",
+                      "bg-white dark:bg-gray-800 rounded-xl border-2 p-5 transition-all",
                       schedule.urgency === "critical" &&
                         "border-red-200 bg-red-50/50",
                       schedule.urgency === "high" &&
                         "border-orange-200 bg-orange-50/50",
                       schedule.urgency !== "critical" &&
                         schedule.urgency !== "high" &&
-                        "border-gray-100",
+                        "border-gray-100 dark:border-gray-700",
                     )}
                   >
                     <div className="flex items-start justify-between">
@@ -464,10 +464,10 @@ export default function IrrigationPage() {
                           />
                         </div>
                         <div>
-                          <h3 className="font-bold text-gray-900">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100">
                             {schedule.crop_name_ar} - اليوم {index + 1}
                           </h3>
-                          <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-1">
                             <Calendar className="w-3 h-3" />
                             {new Date(
                               schedule.irrigation_date,
@@ -489,27 +489,27 @@ export default function IrrigationPage() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-lg font-bold text-gray-900">
+                      <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                        <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {schedule.duration_minutes} دقيقة
                         </p>
-                        <p className="text-xs text-gray-500">المدة</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">المدة</p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
                         <p className="text-lg font-bold text-blue-600">
                           {schedule.water_amount_m3.toFixed(1)} م³
                         </p>
-                        <p className="text-xs text-gray-500">كمية المياه</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">كمية المياه</p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-lg font-bold text-gray-900">
+                      <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                        <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {schedule.method_ar}
                         </p>
-                        <p className="text-xs text-gray-500">الطريقة</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">الطريقة</p>
                       </div>
                     </div>
 
-                    <p className="mt-3 text-sm text-gray-600">
+                    <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
                       {schedule.reasoning_ar}
                     </p>
 
@@ -544,8 +544,8 @@ export default function IrrigationPage() {
               )}
 
               {/* Recommendations */}
-              <div className="bg-white rounded-xl border border-gray-100 p-4">
-                <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                   <Leaf className="w-4 h-4 text-sahool-600" />
                   التوصيات
                 </h4>
@@ -553,7 +553,7 @@ export default function IrrigationPage() {
                   {plan?.recommendations_ar.map((rec, i) => (
                     <li
                       key={i}
-                      className="text-sm text-gray-600 p-2 bg-gray-50 rounded"
+                      className="text-sm text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-950 rounded"
                     >
                       {rec}
                     </li>
@@ -562,27 +562,27 @@ export default function IrrigationPage() {
               </div>
 
               {/* Crop Info */}
-              <div className="bg-white rounded-xl border border-gray-100 p-4">
-                <h4 className="font-bold text-gray-900 mb-3">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">
                   معلومات المحصول
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">المحصول:</span>
+                    <span className="text-gray-500 dark:text-gray-400">المحصول:</span>
                     <span className="font-medium">{plan?.crop_name_ar}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">مرحلة النمو:</span>
+                    <span className="text-gray-500 dark:text-gray-400">مرحلة النمو:</span>
                     <span className="font-medium">{plan?.growth_stage_ar}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">المساحة:</span>
+                    <span className="text-gray-500 dark:text-gray-400">المساحة:</span>
                     <span className="font-medium">
                       {plan?.area_hectares} هكتار
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">الاحتياج المائي:</span>
+                    <span className="text-gray-500 dark:text-gray-400">الاحتياج المائي:</span>
                     <span className="font-medium">
                       {plan?.current_water_need_mm.toFixed(1)} ملم
                     </span>
@@ -595,7 +595,7 @@ export default function IrrigationPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Water Balance Chart */}
             <div className="lg:col-span-2">
-              <h3 className="font-bold text-gray-900 mb-4">
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">
                 الميزان المائي - آخر 14 يوم
               </h3>
               <DataTable
@@ -647,7 +647,7 @@ export default function IrrigationPage() {
                         className={cn(
                           day.water_deficit_mm > 2
                             ? "text-red-600 font-medium"
-                            : "text-gray-600",
+                            : "text-gray-600 dark:text-gray-400",
                         )}
                       >
                         {day.water_deficit_mm.toFixed(1)} ملم
@@ -663,8 +663,8 @@ export default function IrrigationPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">ملخص الفترة</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">ملخص الفترة</h3>
               <div className="space-y-4">
                 <div className="p-3 bg-red-50 rounded-lg">
                   <div className="flex items-center gap-2 text-red-600 mb-1">
@@ -701,10 +701,10 @@ export default function IrrigationPage() {
                     "p-3 rounded-lg",
                     (waterBalance?.summary.cumulative_deficit_mm || 0) > 20
                       ? "bg-red-50"
-                      : "bg-gray-50",
+                      : "bg-gray-50 dark:bg-gray-950",
                   )}
                 >
-                  <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-1">
                     <TrendingDown className="w-4 h-4" />
                     <span className="text-sm font-medium">العجز التراكمي</span>
                   </div>
@@ -713,7 +713,7 @@ export default function IrrigationPage() {
                       "text-2xl font-bold",
                       (waterBalance?.summary.cumulative_deficit_mm || 0) > 20
                         ? "text-red-700"
-                        : "text-gray-700",
+                        : "text-gray-700 dark:text-gray-300",
                     )}
                   >
                     {(waterBalance?.summary.cumulative_deficit_mm ?? 0).toFixed(1)} ملم
@@ -725,19 +725,19 @@ export default function IrrigationPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Irrigation Methods */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">كفاءة طرق الري</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">كفاءة طرق الري</h3>
               <div className="space-y-3">
                 {methods.map((method) => (
                   <div key={method.id} className="flex items-center gap-4">
                     <div className="flex-1">
                       <div className="flex justify-between mb-1">
                         <span className="font-medium">{method.name_ar}</span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {method.efficiency_percent}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className={cn(
                             "h-2 rounded-full",
@@ -764,18 +764,18 @@ export default function IrrigationPage() {
             </div>
 
             {/* Supported Crops */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">
                 المحاصيل المدعومة
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {crops.map((crop) => (
-                  <div key={crop.id} className="p-3 bg-gray-50 rounded-lg">
+                  <div key={crop.id} className="p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Leaf className="w-4 h-4 text-green-600" />
                       <span className="font-medium">{crop.name_ar}</span>
                     </div>
-                    <div className="text-xs text-gray-500 space-y-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                       {Object.entries(crop.water_requirements_mm_day)
                         .slice(0, 2)
                         .map(([stage, value]) => (

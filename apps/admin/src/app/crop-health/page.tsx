@@ -107,8 +107,8 @@ export default function CropHealthPage() {
       header: "الموقع",
       render: (record: CropHealthRecord) => (
         <div>
-          <p className="font-medium text-gray-900">{record.farmNameAr}</p>
-          <p className="text-xs text-gray-500 flex items-center gap-1">
+          <p className="font-medium text-gray-900 dark:text-gray-100">{record.farmNameAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {record.fieldNameAr}
           </p>
@@ -123,7 +123,7 @@ export default function CropHealthPage() {
           <div className="w-8 h-8 bg-sahool-100 rounded-lg flex items-center justify-center">
             <Leaf className="w-4 h-4 text-sahool-600" />
           </div>
-          <span className="text-gray-700">{record.cropAr}</span>
+          <span className="text-gray-700 dark:text-gray-300">{record.cropAr}</span>
         </div>
       ),
     },
@@ -162,7 +162,7 @@ export default function CropHealthPage() {
                 </span>
               ))}
               {record.issuesAr.length > 2 && (
-                <span className="text-xs text-gray-500">+{record.issuesAr.length - 2}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">+{record.issuesAr.length - 2}</span>
               )}
             </div>
           ) : (
@@ -188,7 +188,7 @@ export default function CropHealthPage() {
       header: "الفحص",
       render: (record: CropHealthRecord) => (
         <div className="text-sm">
-          <p className="text-gray-500">آخر: {formatDate(record.lastInspection)}</p>
+          <p className="text-gray-500 dark:text-gray-400">آخر: {formatDate(record.lastInspection)}</p>
           <p className="text-sahool-600">التالي: {formatDate(record.nextInspection)}</p>
         </div>
       ),
@@ -199,10 +199,10 @@ export default function CropHealthPage() {
       render: (_record: CropHealthRecord) => (
         <button
           disabled
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           title="عرض (قريبًا)"
         >
-          <Eye className="w-4 h-4 text-gray-500" />
+          <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </button>
       ),
       className: "w-16",
@@ -215,65 +215,65 @@ export default function CropHealthPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Leaf className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي الحقول</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الحقول</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.excellent}</p>
-              <p className="text-sm text-gray-500">ممتاز</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.excellent}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">ممتاز</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.issues}</p>
-              <p className="text-sm text-gray-500">بها مشاكل</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.issues}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">بها مشاكل</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.critical}</p>
-              <p className="text-sm text-gray-500">حرج/ضعيف</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.critical}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">حرج/ضعيف</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.avgNdvi}</p>
-              <p className="text-sm text-gray-500">متوسط NDVI</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.avgNdvi}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">متوسط NDVI</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -281,7 +281,7 @@ export default function CropHealthPage() {
               placeholder="بحث بالمزرعة أو المحصول..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -289,7 +289,7 @@ export default function CropHealthPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="excellent">ممتاز</option>
@@ -301,16 +301,16 @@ export default function CropHealthPage() {
 
           <button
             onClick={loadRecords}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
           </button>
           <button
             disabled
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             title="تصدير (قريبًا)"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
       </div>
@@ -318,7 +318,7 @@ export default function CropHealthPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-16 bg-gray-200 rounded"></div>

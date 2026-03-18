@@ -135,17 +135,17 @@ export default function GDDPage() {
 
       {/* Stage Distribution Chart */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-gray-900 mb-4">توزيع مراحل النمو</h3>
+        <div className="lg:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">توزيع مراحل النمو</h3>
           <div className="h-64">
             <DynamicGDDStageDistributionChart data={stageData} />
           </div>
         </div>
 
         {/* GDD History Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">تاريخ GDD</h3>
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">تاريخ GDD</h3>
             {selectedField && (
               <select
                 value={selectedField.id}
@@ -153,7 +153,7 @@ export default function GDDPage() {
                   const field = fields.find((f) => f.id === e.target.value);
                   if (field) setSelectedField(field);
                 }}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
                 {fields.map((field) => (
                   <option key={field.id} value={field.id}>
@@ -174,26 +174,26 @@ export default function GDDPage() {
       {/* Fields List */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {isLoading ? (
-          <div className="col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+          <div className="col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
             <div className="flex items-center justify-center">
               <div className="w-8 h-8 border-4 border-sahool-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
           </div>
         ) : fields.length === 0 ? (
-          <div className="col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
+          <div className="col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center text-gray-500 dark:text-gray-400">
             لا توجد حقول قيد المراقبة
           </div>
         ) : (
           fields.map((field) => (
             <div
               key={field.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
             >
               {/* Field Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-bold text-gray-900">{field.farmName}</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">{field.farmName}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {field.fieldName} - {field.cropType}
                   </p>
                 </div>
@@ -203,12 +203,12 @@ export default function GDDPage() {
               {/* GDD Progress */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">تقدم GDD</span>
-                  <span className="text-sm font-bold text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">تقدم GDD</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                     {field.currentGDD.toFixed(0)} / {field.targetGDD.toFixed(0)}
                   </span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-sahool-600 rounded-full transition-all"
                     style={{
@@ -219,16 +219,16 @@ export default function GDDPage() {
               </div>
 
               {/* Current Stage */}
-              <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">المرحلة الحالية</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المرحلة الحالية</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {field.currentStageAr}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">المرحلة القادمة</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المرحلة القادمة</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {field.nextStageAr}
                   </p>
                 </div>
@@ -236,11 +236,11 @@ export default function GDDPage() {
 
               {/* Next Stage Info */}
               <div className="flex items-center gap-4 text-sm mb-4">
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                   <Calendar className="w-4 h-4" />
                   <span>{field.daysToNextStage} يوم متبقي</span>
                 </div>
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                   <TrendingUp className="w-4 h-4" />
                   <span>{field.gddToNextStage.toFixed(0)} GDD متبقي</span>
                 </div>

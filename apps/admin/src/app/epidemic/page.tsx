@@ -207,8 +207,8 @@ export default function EpidemicCenterPage() {
       <div className="mt-6 flex items-center justify-between">
         <div className="flex items-center gap-2" suppressHydrationWarning>
           <Filter className="w-5 h-5 text-gray-400" />
-          <span className="text-sm text-gray-600">الفترة الزمنية:</span>
-          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+          <span className="text-sm text-gray-600 dark:text-gray-400">الفترة الزمنية:</span>
+          <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             {[
               { key: "day" as const, label: "اليوم" },
               { key: "week" as const, label: "الأسبوع" },
@@ -220,8 +220,8 @@ export default function EpidemicCenterPage() {
                 className={cn(
                   "px-3 py-1 text-sm rounded-md transition-colors",
                   timeRange === key
-                    ? "bg-white text-sahool-700 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900",
+                    ? "bg-white dark:bg-gray-800 text-sahool-700 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100",
                 )}
               >
                 {label}
@@ -232,7 +232,7 @@ export default function EpidemicCenterPage() {
 
         <button
           onClick={loadData}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           suppressHydrationWarning
         >
           <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
@@ -242,8 +242,8 @@ export default function EpidemicCenterPage() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Governorates Map (Simplified) */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <MapPin className="w-5 h-5 text-sahool-600" />
             خريطة انتشار الأمراض
           </h3>
@@ -265,7 +265,7 @@ export default function EpidemicCenterPage() {
                     "relative p-4 rounded-xl border-2 transition-all text-right",
                     isSelected
                       ? "border-sahool-500 bg-sahool-50"
-                      : "border-gray-100 hover:border-gray-200 bg-white",
+                      : "border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 bg-white dark:bg-gray-700",
                   )}
                 >
                   {/* Alert Indicator */}
@@ -276,14 +276,14 @@ export default function EpidemicCenterPage() {
                     )}
                   />
 
-                  <p className="font-bold text-gray-900">{gov.name}</p>
+                  <p className="font-bold text-gray-900 dark:text-gray-100">{gov.name}</p>
                   <p
                     className="text-2xl font-bold mt-1"
                     style={{ color: gov.color }}
                   >
                     {govStats?.total || 0}
                   </p>
-                  <p className="text-xs text-gray-500">حالة</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">حالة</p>
 
                   {(govStats?.critical ?? 0) > 0 && (
                     <div className="mt-2 flex items-center gap-1 text-xs text-red-600" suppressHydrationWarning>
@@ -297,7 +297,7 @@ export default function EpidemicCenterPage() {
           </div>
 
           {/* Legend */}
-          <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
+          <div className="mt-4 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-red-500" />
               <span>حرج</span>

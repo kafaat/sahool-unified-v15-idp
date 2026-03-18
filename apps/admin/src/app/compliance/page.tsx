@@ -115,8 +115,8 @@ export default function CompliancePage() {
       header: "المزرعة",
       render: (record: ComplianceRecord) => (
         <div>
-          <p className="font-medium text-gray-900">{record.farmNameAr}</p>
-          <p className="text-xs text-gray-500">{record.farmId}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{record.farmNameAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{record.farmId}</p>
         </div>
       ),
     },
@@ -143,7 +143,7 @@ export default function CompliancePage() {
       header: "الملاحظات",
       render: (record: ComplianceRecord) => (
         <div className="text-sm">
-          <span className="text-gray-600">{record.findings} ملاحظة</span>
+          <span className="text-gray-600 dark:text-gray-400">{record.findings} ملاحظة</span>
           {record.criticalFindings > 0 && (
             <span className="text-red-600 font-medium mr-2">
               ({record.criticalFindings} حرجة)
@@ -158,7 +158,7 @@ export default function CompliancePage() {
       render: (record: ComplianceRecord) => (
         <div className="text-sm">
           {record.lastAudit && (
-            <p className="text-gray-500">آخر: {formatDate(record.lastAudit)}</p>
+            <p className="text-gray-500 dark:text-gray-400">آخر: {formatDate(record.lastAudit)}</p>
           )}
           <p className="text-sahool-600">التالي: {formatDate(record.nextAudit)}</p>
         </div>
@@ -196,65 +196,65 @@ export default function CompliancePage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <FileText className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي السجلات</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي السجلات</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.compliant}</p>
-              <p className="text-sm text-gray-500">متوافق</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.compliant}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">متوافق</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.partial}</p>
-              <p className="text-sm text-gray-500">جزئي</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.partial}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">جزئي</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.expired}</p>
-              <p className="text-sm text-gray-500">منتهي</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.expired}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">منتهي</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
               <Award className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.avgScore}%</p>
-              <p className="text-sm text-gray-500">متوسط النتيجة</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.avgScore}%</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">متوسط النتيجة</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -262,7 +262,7 @@ export default function CompliancePage() {
               placeholder="بحث بالمزرعة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -270,7 +270,7 @@ export default function CompliancePage() {
           <select
             value={standardFilter}
             onChange={(e) => setStandardFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل المعايير</option>
             <option value="globalgap">GlobalGAP</option>
@@ -282,7 +282,7 @@ export default function CompliancePage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="compliant">متوافق</option>
@@ -294,16 +294,16 @@ export default function CompliancePage() {
 
           <button
             onClick={loadRecords}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
           </button>
           <button
             disabled
-            className="p-2 border border-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             title="تصدير (قريبًا)"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
       </div>
@@ -311,10 +311,10 @@ export default function CompliancePage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>

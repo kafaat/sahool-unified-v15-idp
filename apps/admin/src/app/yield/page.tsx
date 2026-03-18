@@ -120,24 +120,24 @@ export default function YieldPage() {
     <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <TrendingUp className="text-green-600" />
           حاسبة التنبؤ بالإنتاجية
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
           توقع كمية المحصول والعائد المالي باستخدام الذكاء الاصطناعي
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold mb-6">بيانات الحقل</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Crop Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 نوع المحصول
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -151,7 +151,7 @@ export default function YieldPage() {
                     className={`p-3 rounded-xl text-center transition-all ${
                       formData.crop_type === crop.value
                         ? "bg-green-100 border-2 border-green-500"
-                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                        : "bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                   >
                     <div className="text-2xl mb-1">{crop.icon}</div>
@@ -163,7 +163,7 @@ export default function YieldPage() {
 
             {/* Area */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Scale className="inline w-4 h-4 ml-1" />
                 المساحة (هكتار)
               </label>
@@ -176,7 +176,7 @@ export default function YieldPage() {
                     area_hectares: parseFloat(e.target.value) || 0,
                   })
                 }
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 min="0.1"
                 step="0.1"
               />
@@ -185,7 +185,7 @@ export default function YieldPage() {
             {/* Weather */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Droplets className="inline w-4 h-4 ml-1" />
                   متوسط الأمطار (مم)
                 </label>
@@ -198,11 +198,11 @@ export default function YieldPage() {
                       avg_rainfall: parseFloat(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Thermometer className="inline w-4 h-4 ml-1" />
                   متوسط الحرارة (°C)
                 </label>
@@ -215,7 +215,7 @@ export default function YieldPage() {
                       avg_temperature: parseFloat(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function YieldPage() {
             {/* Soil & Irrigation */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   جودة التربة
                 </label>
                 <select
@@ -231,7 +231,7 @@ export default function YieldPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, soil_quality: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   {SOIL_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -241,7 +241,7 @@ export default function YieldPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   نوع الري
                 </label>
                 <select
@@ -252,7 +252,7 @@ export default function YieldPage() {
                       irrigation_type: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   {IRRIGATION_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -350,7 +350,7 @@ export default function YieldPage() {
               </div>
 
               {/* Factors */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h3 className="font-semibold mb-4">العوامل المؤثرة</h3>
                 <div className="space-y-2">
                   {prediction.factors_applied.map((factor, idx) => (
@@ -387,9 +387,9 @@ export default function YieldPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600 p-12 text-center">
               <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-500 mb-2">
+              <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
                 أدخل بيانات الحقل
               </h3>
               <p className="text-gray-400">

@@ -55,8 +55,8 @@ const FarmsMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
-        <p className="text-gray-500">جاري تحميل الخريطة...</p>
+      <div className="h-[400px] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">جاري تحميل الخريطة...</p>
       </div>
     ),
   },
@@ -267,11 +267,11 @@ export default function DashboardPage() {
         <Header title="لوحة التحكم" subtitle="نظرة عامة على المنصة" />
 
         {/* WebSocket Connection Status */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
           {isConnected ? (
             <>
               <Wifi className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-gray-700">متصل</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">متصل</span>
               {unreadCount > 0 && (
                 <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded-full">
                   {unreadCount}
@@ -280,8 +280,8 @@ export default function DashboardPage() {
             </>
           ) : (
             <>
-              <WifiOff className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-500">غير متصل</span>
+              <WifiOff className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">غير متصل</span>
             </>
           )}
         </div>
@@ -341,10 +341,10 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Yield Trend Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">توقعات الإنتاجية (طن)</h3>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">توقعات الإنتاجية (طن)</h3>
+            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
               آخر 6 أشهر
             </span>
           </div>
@@ -354,9 +354,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Weekly Activity Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">نشاط الأسبوع</h3>
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">نشاط الأسبوع</h3>
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1">
                 <span className="w-3 h-3 rounded-full bg-sahool-600"></span>
@@ -381,8 +381,8 @@ export default function DashboardPage() {
       {/* Third Row - Crop Distribution and Quick Stats */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Crop Distribution Pie Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-gray-900 mb-4">توزيع المحاصيل</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">توزيع المحاصيل</h3>
           <div className="h-48">
             <CropDistributionChart data={cropDistributionData} />
           </div>
@@ -428,9 +428,9 @@ export default function DashboardPage() {
       {/* Map and Recent Activity */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Farms Map */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="font-bold text-gray-900">خريطة المزارع</h2>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100">خريطة المزارع</h2>
             <Link
               href="/farms"
               className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
@@ -450,9 +450,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Diagnoses */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="font-bold text-gray-900">أحدث التشخيصات</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100">أحدث التشخيصات</h2>
             <Link
               href="/diseases"
               className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
@@ -460,40 +460,40 @@ export default function DashboardPage() {
               عرض الكل ←
             </Link>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {recentDiagnoses.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
+              <div className="p-6 text-center text-gray-500 dark:text-gray-400">
                 لا توجد تشخيصات حديثة
               </div>
             ) : (
               recentDiagnoses.map((diagnosis) => (
                 <div
                   key={diagnosis.id}
-                  className="p-4 hover:bg-gray-50 transition-colors"
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                      <Bug className="w-6 h-6 text-gray-400" />
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                      <Bug className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                      <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                         {diagnosis.diseaseNameAr}
                       </p>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {diagnosis.farmName}
                       </p>
                       <div className="mt-1 flex items-center gap-2">
                         <AlertBadge severity={diagnosis.severity} />
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
                           {formatDate(diagnosis.diagnosedAt)}
                         </span>
                       </div>
                     </div>
                     <div className="text-left">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {diagnosis.confidence.toFixed(0)}%
                       </span>
-                      <p className="text-xs text-gray-500">دقة</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">دقة</p>
                     </div>
                   </div>
                 </div>
@@ -505,35 +505,35 @@ export default function DashboardPage() {
 
       {/* Selected Farm Detail (if any) */}
       {selectedFarm && (
-        <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-lg text-gray-900">
+            <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100">
               {selectedFarm.nameAr}
             </h2>
             <button
               onClick={() => setSelectedFarm(null)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             >
               ✕
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-gray-500">المحافظة</p>
-              <p className="font-medium">{selectedFarm.governorate}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">المحافظة</p>
+              <p className="font-medium dark:text-gray-200">{selectedFarm.governorate}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">المساحة</p>
-              <p className="font-medium">
+              <p className="text-sm text-gray-500 dark:text-gray-400">المساحة</p>
+              <p className="font-medium dark:text-gray-200">
                 {selectedFarm.area.toFixed(1)} هكتار
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">المحاصيل</p>
-              <p className="font-medium">{selectedFarm.crops.join(", ")}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">المحاصيل</p>
+              <p className="font-medium dark:text-gray-200">{selectedFarm.crops.join(", ")}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">مستوى الصحة</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مستوى الصحة</p>
               <p className="font-bold text-sahool-600">
                 {selectedFarm.healthScore}%
               </p>
@@ -548,7 +548,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href={`/diseases?farmId=${selectedFarm.id}`}
-              className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               عرض التشخيصات
             </Link>

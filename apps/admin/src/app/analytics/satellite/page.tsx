@@ -26,8 +26,8 @@ import { NDVITrendChart } from "./SatelliteCharts.dynamic";
 const SatelliteMap = dynamic(() => import("@/components/maps/SatelliteMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-[500px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
-      <p className="text-gray-500">جاري تحميل الخريطة...</p>
+    <div className="h-[500px] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl flex items-center justify-center">
+      <p className="text-gray-500 dark:text-gray-400">جاري تحميل الخريطة...</p>
     </div>
   ),
 });
@@ -157,7 +157,7 @@ export default function SatellitePage() {
             onChange={(e) =>
               setDateRange(e.target.value as "week" | "month" | "season")
             }
-            className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="week">أسبوع</option>
             <option value="month">شهر</option>
@@ -203,10 +203,10 @@ export default function SatellitePage() {
       </div>
 
       {/* Satellite Map */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-bold text-gray-900">خريطة التغطية الفضائية</h2>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100">خريطة التغطية الفضائية</h2>
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="w-4 h-4" />
             <span>آخر تحديث: {formatDate(data.summary.lastUpdate)}</span>
           </div>
@@ -223,14 +223,14 @@ export default function SatellitePage() {
       {/* NDVI Trends and Field Details */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* NDVI Trend Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">اتجاه NDVI</h3>
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">اتجاه NDVI</h3>
             {selectedFieldData && (
               <select
                 value={selectedField || ""}
                 onChange={(e) => setSelectedField(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
                 {data.fields.map((field) => (
                   <option key={field.id} value={field.id}>
@@ -247,21 +247,21 @@ export default function SatellitePage() {
 
         {/* Selected Field Details */}
         {selectedFieldData && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4">تفاصيل الحقل</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">تفاصيل الحقل</h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-500 mb-1">المزرعة / الحقل</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">المزرعة / الحقل</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
                   {selectedFieldData.farmName}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {selectedFieldData.fieldName}
                 </p>
               </div>
 
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm text-gray-500 mb-2">NDVI الحالي</p>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">NDVI الحالي</p>
                 <div className="flex items-end gap-2 mb-1">
                   <span
                     className={`text-3xl font-bold ${getNDVIColor(selectedFieldData.ndvi.current)}`}
@@ -292,23 +292,23 @@ export default function SatellitePage() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm text-gray-500 mb-1">المساحة</p>
-                <p className="font-medium text-gray-900">
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">المساحة</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
                   {selectedFieldData.area.toFixed(1)} هكتار
                 </p>
               </div>
 
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm text-gray-500 mb-1">آخر صورة</p>
-                <p className="font-medium text-gray-900">
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">آخر صورة</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
                   {formatDate(selectedFieldData.lastImageDate)}
                 </p>
               </div>
 
               {selectedFieldData.alerts.length > 0 && (
-                <div className="border-t border-gray-100 pt-4">
-                  <p className="text-sm font-medium text-gray-900 mb-2">
+                <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                     التنبيهات
                   </p>
                   <div className="space-y-2">
@@ -345,56 +345,56 @@ export default function SatellitePage() {
       </div>
 
       {/* Fields List with NDVI */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100">
-          <h3 className="font-bold text-gray-900">جميع الحقول</h3>
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100">جميع الحقول</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-700">
               <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المزرعة / الحقل
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المساحة
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   NDVI الحالي
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المتوسط
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   الاتجاه
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   التنبيهات
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   آخر صورة
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   إجراءات
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.fields.map((field) => (
                 <tr
                   key={field.id}
-                  className={`hover:bg-gray-50 transition-colors ${selectedField === field.id ? "bg-sahool-50" : ""}`}
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedField === field.id ? "bg-sahool-50" : ""}`}
                   onClick={() => setSelectedField(field.id)}
                 >
                   <td className="px-6 py-4 cursor-pointer">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
                         {field.farmName}
                       </p>
-                      <p className="text-sm text-gray-500">{field.fieldName}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{field.fieldName}</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                     {field.area.toFixed(1)} هكتار
                   </td>
                   <td className="px-6 py-4">
@@ -404,7 +404,7 @@ export default function SatellitePage() {
                       {field.ndvi.current.toFixed(2)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                     {field.ndvi.average.toFixed(2)}
                   </td>
                   <td className="px-6 py-4">
@@ -435,7 +435,7 @@ export default function SatellitePage() {
                       <span className="text-sm text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {formatDate(field.lastImageDate)}
                   </td>
                   <td className="px-6 py-4">

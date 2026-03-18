@@ -199,8 +199,8 @@ export default function SensorsPage() {
               <Icon className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">{device.name}</p>
-              <p className="text-xs text-gray-500">{getDeviceTypeLabel(device.type)}</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">{device.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{getDeviceTypeLabel(device.type)}</p>
             </div>
           </div>
         );
@@ -210,7 +210,7 @@ export default function SensorsPage() {
       key: "serialNumber",
       header: "الرقم التسلسلي",
       render: (device: IoTDevice) => (
-        <span className="text-gray-700 text-sm font-mono" dir="ltr">
+        <span className="text-gray-700 dark:text-gray-300 text-sm font-mono" dir="ltr">
           {device.serialNumber}
         </span>
       ),
@@ -219,7 +219,7 @@ export default function SensorsPage() {
       key: "fieldName",
       header: "الحقل",
       render: (device: IoTDevice) => (
-        <span className="text-gray-700">{device.fieldName || "غير محدد"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{device.fieldName || "غير محدد"}</span>
       ),
     },
     {
@@ -238,10 +238,10 @@ export default function SensorsPage() {
         <div>
           {device.lastReading ? (
             <>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {device.lastReadingValue} {device.unit}
               </p>
-              <p className="text-xs text-gray-500">{formatDate(device.lastReading)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(device.lastReading)}</p>
             </>
           ) : (
             <span className="text-gray-400 text-sm">لا توجد قراءات</span>
@@ -262,7 +262,7 @@ export default function SensorsPage() {
               )} />
               <span className={cn(
                 "text-sm",
-                device.batteryLevel > 20 ? "text-gray-700" : "text-red-600"
+                device.batteryLevel > 20 ? "text-gray-700 dark:text-gray-300" : "text-red-600"
               )}>
                 {device.batteryLevel}%
               </span>
@@ -278,25 +278,25 @@ export default function SensorsPage() {
       header: "",
       render: (device: IoTDevice) => (
         <div className="flex items-center gap-1">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedDevice(device);
               loadDeviceReadings(device.id);
               setShowReadingsModal(true);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="عرض القراءات"
           >
-            <Activity className="w-4 h-4 text-gray-500" />
+            <Activity className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedDevice(device);
               setShowEditModal(true);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="تعديل"
           >
             <Edit className="w-4 h-4 text-blue-500" />
@@ -324,54 +324,54 @@ export default function SensorsPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Cpu className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي الأجهزة</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الأجهزة</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.online}</p>
-              <p className="text-sm text-gray-500">متصل</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.online}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">متصل</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-gray-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.offline}</p>
-              <p className="text-sm text-gray-500">غير متصل</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.offline}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">غير متصل</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.error}</p>
-              <p className="text-sm text-gray-500">خطأ</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.error}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">خطأ</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -379,7 +379,7 @@ export default function SensorsPage() {
               placeholder="بحث بالاسم أو الرقم التسلسلي..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -387,7 +387,7 @@ export default function SensorsPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الأنواع</option>
             <option value="soil_moisture">رطوبة التربة</option>
@@ -400,7 +400,7 @@ export default function SensorsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="online">متصل</option>
@@ -411,10 +411,10 @@ export default function SensorsPage() {
 
           <button
             onClick={loadDevices}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
           </button>
           <button 
             onClick={() => setShowCreateModal(true)}
@@ -429,10 +429,10 @@ export default function SensorsPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>
@@ -473,9 +473,9 @@ export default function SensorsPage() {
       {/* Device Readings Modal */}
       {showReadingsModal && selectedDevice && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 قراءات الجهاز: {selectedDevice.name}
               </h3>
               <button
@@ -483,7 +483,7 @@ export default function SensorsPage() {
                   setShowReadingsModal(false);
                   setSelectedDevice(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -497,16 +497,16 @@ export default function SensorsPage() {
             ) : readings.length > 0 ? (
               <div className="space-y-3">
                 {readings.map((reading) => (
-                  <div key={reading.id} className="p-4 border border-gray-200 rounded-lg">
+                  <div key={reading.id} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-gray-900">{reading.metric}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{reading.metric}</p>
                         <p className="text-2xl font-bold text-sahool-600">
                           {reading.value} {reading.unit}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {formatDate(reading.timestamp)}
                         </p>
                       </div>
@@ -526,9 +526,9 @@ export default function SensorsPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedDevice && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">تأكيد الحذف</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف الجهاز <strong>{selectedDevice.name}</strong>؟
               هذا الإجراء لا يمكن التراجع عنه.
             </p>
@@ -539,7 +539,7 @@ export default function SensorsPage() {
                   setSelectedDevice(null);
                 }}
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
                 إلغاء
               </button>
@@ -561,17 +561,17 @@ export default function SensorsPage() {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             السابق
           </button>
-          <span className="px-4 py-2 text-gray-600">
+          <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
             صفحة {page} من {totalPages}
           </span>
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             التالي
           </button>
@@ -633,12 +633,12 @@ function DeviceFormModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -646,7 +646,7 @@ function DeviceFormModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               اسم الجهاز
             </label>
             <input
@@ -654,18 +654,18 @@ function DeviceFormModal({
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               نوع الجهاز
             </label>
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as IoTDevice["type"] })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             >
               <option value="soil_moisture">رطوبة التربة</option>
               <option value="weather_station">محطة طقس</option>
@@ -676,7 +676,7 @@ function DeviceFormModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               الرقم التسلسلي
             </label>
             <input
@@ -684,12 +684,12 @@ function DeviceFormModal({
               required
               value={formData.serialNumber}
               onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               معرف الحقل
             </label>
             <input
@@ -697,20 +697,20 @@ function DeviceFormModal({
               required
               value={formData.fieldId}
               onChange={(e) => setFormData({ ...formData, fieldId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               placeholder="field-123"
             />
           </div>
 
           {device && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 الحالة
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as IoTDevice["status"] })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="online">متصل</option>
                 <option value="offline">غير متصل</option>
@@ -725,7 +725,7 @@ function DeviceFormModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
               إلغاء
             </button>

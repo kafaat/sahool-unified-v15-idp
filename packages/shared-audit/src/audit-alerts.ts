@@ -362,9 +362,12 @@ export class AuditAlertService {
 
       case "matches":
         if (typeof value === "string" && typeof condition.value === "string") {
+          // Limit pattern length to prevent ReDoS from overly complex regexes
+          if (condition.value.length > 200) return false;
           try {
             const regex = new RegExp(condition.value);
-            return regex.test(value);
+            // Test against a length-limited substring to bound execution time
+            return regex.test(value.slice(0, 1000));
           } catch {
             return false;
           }

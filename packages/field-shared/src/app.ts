@@ -63,7 +63,8 @@ export function createFieldApp(
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        logger.warn(`⚠️ CORS blocked request from: ${origin}`);
+        const sanitizedOrigin = origin.replace(/[\n\r\t\x1b]/g, "");
+        logger.warn(`⚠️ CORS blocked request from: ${sanitizedOrigin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },

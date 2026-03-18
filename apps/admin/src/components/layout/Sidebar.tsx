@@ -52,6 +52,9 @@ import {
   Search,
   Bot,
   CalendarDays,
+  CloudSun,
+  FileBarChart,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -89,6 +92,7 @@ const operationsNav = [
 const monitoringNav = [
   { name: "المستشعرات", href: "/sensors", icon: Cpu },
   { name: "التنبيهات", href: "/alerts", icon: Bell },
+  { name: "الطقس والمناخ", href: "/weather", icon: CloudSun },
   { name: "مركز رصد الأوبئة", href: "/epidemic", icon: Activity },
   { name: "حاسبة الإنتاجية", href: "/yield", icon: TrendingUp },
 ];
@@ -142,7 +146,9 @@ const precisionAgricultureNav = [
 
 const analyticsNav = [
   { name: "تحليل الربحية", href: "/analytics/profitability", icon: DollarSign },
+  { name: "تحليل الغلة العميق", href: "/analytics/yield", icon: BarChart3 },
   { name: "تحليلات الأقمار", href: "/analytics/satellite", icon: Satellite },
+  { name: "التقرير الموسمي", href: "/reports/seasonal", icon: FileBarChart },
 ];
 
 export default React.memo(function Sidebar() {

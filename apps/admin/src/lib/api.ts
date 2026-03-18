@@ -202,9 +202,7 @@ export async function uploadVisionImage(
 // Dashboard Stats
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`,
-    );
+    const response = await apiClient.get(API_URLS.dashboard.stats);
     return response.data;
   } catch (error) {
     logger.error("fetchDashboardStats failed", { error });
@@ -245,7 +243,7 @@ export async function fetchDiagnoses(params?: {
 }): Promise<DiagnosisRecord[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses`,
+      API_URLS.diagnoses.list,
       {
         params: {
           status: params?.status,
@@ -312,7 +310,7 @@ export async function fetchDiagnosisStats(params?: {
 }> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
+      API_URLS.diagnoses.stats,
       { params: { time_range: params?.timeRange } },
     );
     const data = response.data || {};
@@ -348,7 +346,7 @@ export async function updateDiagnosisStatus(
 ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
   try {
     const response = await apiClient.patch(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/${id}`,
+      API_URLS.diagnoses.byId(id),
       null,
       {
         params: {
@@ -376,7 +374,7 @@ export async function getWeatherCurrent(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weather}/weather/current`,
+      API_URLS.weatherEndpoints.current,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
@@ -394,7 +392,7 @@ export async function getWeatherForecast(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weather}/weather/forecast`,
+      API_URLS.weatherEndpoints.forecast,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
     );
     return response.data;
@@ -411,7 +409,7 @@ export async function getAgriculturalReport(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weather}/weather/agricultural-report`,
+      API_URLS.weatherEndpoints.agricultural,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
@@ -427,7 +425,7 @@ export async function getAgriculturalReport(
 export async function getWeatherByLocation(locationId: string) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/current/${locationId}`
+      API_URLS.weatherEndpoints.byLocation(locationId)
     );
     return response.data;
   } catch (error) {
@@ -451,7 +449,7 @@ export async function getWeatherForecastByLocation(locationId: string, days: num
 export async function getWeatherLocations() {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/locations`
+      API_URLS.weatherEndpoints.locations
     );
     return response.data;
   } catch (error) {
@@ -464,7 +462,7 @@ export async function getWeatherLocations() {
 export async function fetchWeatherAlerts(locationId: string = "sanaa"): Promise<WeatherAlert[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/alerts/${locationId}`
+      API_URLS.weatherEndpoints.alerts(locationId)
     );
     return response.data?.alerts || [];
   } catch (error) {
@@ -479,7 +477,7 @@ export async function fetchSensorReadings(
 ): Promise<SensorReading[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`,
+      API_URLS.sensors.readings(farmId),
     );
     return response.data;
   } catch (error) {
@@ -506,7 +504,7 @@ export async function fetchNotifications(params?: {
 > {
   try {
     const response = await apiClient.get(
-      `${API_URLS.notifications}/api/v1/notifications`,
+      API_URLS.notificationEndpoints.list,
       { params },
     );
     return response.data;
@@ -519,7 +517,7 @@ export async function fetchNotifications(params?: {
 export async function markNotificationRead(id: string): Promise<boolean> {
   try {
     await apiClient.patch(
-      `${API_URLS.notifications}/api/v1/notifications/${id}/read`,
+      API_URLS.notificationEndpoints.markRead(id),
     );
     return true;
   } catch (error) {
@@ -548,7 +546,7 @@ export async function fetchTasks(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(`${API_URLS.task}/api/v1/tasks`, {
+    const response = await apiClient.get(API_URLS.taskEndpoints.list, {
       params,
     });
     return response.data;
@@ -563,7 +561,7 @@ export async function updateTaskStatus(
   status: string,
 ): Promise<boolean> {
   try {
-    await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
+    await apiClient.patch(API_URLS.taskEndpoints.byId(id), { status });
     return true;
   } catch (error) {
     logger.error("Failed to update task status:", error);
@@ -589,7 +587,7 @@ export async function fetchCommunityPosts(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(`${API_URLS.fieldManagement}/api/v1/posts`, {
+    const response = await apiClient.get(`${API_URLS.chatService}/api/v1/posts`, {
       params,
     });
     return response.data;
@@ -617,7 +615,7 @@ export async function fetchEquipment(params?: {
 > {
   try {
     const response = await apiClient.get(
-      `${API_URLS.equipment}/api/v1/equipment`,
+      API_URLS.equipmentEndpoints.list,
       { params },
     );
     return response.data;
@@ -638,7 +636,7 @@ export async function getSatelliteTimeseries(
 ) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/timeseries/${fieldId}`,
+      API_URLS.satelliteEndpoints.timeseries(fieldId),
       { params: options }
     );
     return response.data;
@@ -654,7 +652,7 @@ export async function requestSatelliteAnalysis(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.satellite}/v1/analyze`,
+      API_URLS.satelliteEndpoints.analyze,
       { field_id: fieldId, analysis_type: analysisType }
     );
     return response.data;
@@ -667,7 +665,7 @@ export async function requestSatelliteAnalysis(
 export async function getSatelliteIndices(fieldId: string) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/indices/${fieldId}`
+      API_URLS.satelliteEndpoints.indices(fieldId)
     );
     return response.data;
   } catch (error) {
@@ -679,7 +677,7 @@ export async function getSatelliteIndices(fieldId: string) {
 export async function getAvailableSatellites() {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/satellites`
+      API_URLS.satelliteEndpoints.satellites
     );
     return response.data;
   } catch (error) {
@@ -697,7 +695,7 @@ export async function getAvailableSatellites() {
 export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Promise<Array<{ month: string; yield: number; forecast: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/trends`,
+      API_URLS.dashboard.trends,
       { params: { metric: "yield", period } }
     );
     return response.data?.data || [];
@@ -711,7 +709,7 @@ export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Pr
 export async function fetchCropDistribution(): Promise<Array<{ name: string; value: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`
+      API_URLS.dashboard.stats
     );
     return response.data?.crop_distribution?.map((c: { crop: string; area: number }) => ({
       name: c.crop,
@@ -727,7 +725,7 @@ export async function fetchCropDistribution(): Promise<Array<{ name: string; val
 export async function fetchWeeklyActivity(): Promise<Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/trends`,
+      API_URLS.dashboard.trends,
       { params: { metric: "weekly_activity", period: "7d" } }
     );
     return response.data?.data || [];
@@ -747,7 +745,7 @@ export async function fetchPlatformMetrics(): Promise<{
 }> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`
+      API_URLS.dashboard.stats
     );
     const data = response.data;
     return {

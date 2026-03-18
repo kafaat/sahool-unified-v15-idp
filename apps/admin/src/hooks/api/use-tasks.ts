@@ -52,7 +52,7 @@ export function useCreateTask() {
       dueDate?: string;
     }) => {
       const response = await apiClient.post(
-        `${API_URLS.task}/api/v1/tasks`,
+        API_URLS.taskEndpoints.create,
         data,
       );
       return response.data;

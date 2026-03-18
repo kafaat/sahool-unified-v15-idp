@@ -361,7 +361,7 @@ export default function YieldPage() {
                           ? "bg-green-50 text-green-700"
                           : factor.includes("-")
                             ? "bg-red-50 text-red-700"
-                            : "bg-gray-50 text-gray-700"
+                            : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                       }`}
                     >
                       {factor}

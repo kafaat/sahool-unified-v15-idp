@@ -90,6 +90,113 @@ apiClient.interceptors.response.use(
   },
 );
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Image Upload API (FormData support)
+// دعم رفع الصور عبر FormData
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MAX_IMAGE_SIZE_MB = 50;
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/tiff",
+];
+
+/**
+ * Upload an image for crop disease diagnosis
+ * رفع صورة لتشخيص أمراض المحاصيل
+ */
+export async function uploadDiagnosisImage(
+  file: File,
+  metadata: {
+    fieldId: string;
+    cropType?: string;
+    notes?: string;
+  },
+): Promise<{
+  diagnosisId: string;
+  imageUrl: string;
+  disease?: string;
+  confidence?: number;
+}> {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+    );
+  }
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+    throw new Error(
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+    );
+  }
+
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("field_id", metadata.fieldId);
+  if (metadata.cropType) formData.append("crop_type", metadata.cropType);
+  if (metadata.notes) formData.append("notes", metadata.notes);
+
+  const response = await apiClient.post(
+    API_URLS.diagnoses.analyze,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: TIMEOUT_TIERS.upload,
+    },
+  );
+  return response.data;
+}
+
+/**
+ * Upload an image for vision detection (pest/disease/weed)
+ * رفع صورة لكشف الآفات/الأمراض/الأعشاب عبر خدمة الرؤية
+ */
+export async function uploadVisionImage(
+  file: File,
+  task: "pest" | "disease" | "weed",
+  options?: {
+    confidence?: number;
+    modelVariant?: "n" | "s" | "m" | "l" | "x";
+  },
+): Promise<{
+  detections: Array<{
+    class: string;
+    confidence: number;
+    bbox: [number, number, number, number];
+  }>;
+  imageUrl?: string;
+  processingTime?: number;
+}> {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+    );
+  }
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+    throw new Error(
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+    );
+  }
+
+  const formData = new FormData();
+  formData.append("image", file);
+  if (options?.confidence) formData.append("confidence", String(options.confidence));
+  if (options?.modelVariant) formData.append("model_variant", options.modelVariant);
+
+  const endpoint = {
+    pest: API_URLS.visionEndpoints.detectPest,
+    disease: API_URLS.visionEndpoints.detectDisease,
+    weed: API_URLS.visionEndpoints.detectWeed,
+  }[task];
+
+  const response = await apiClient.post(endpoint, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: TIMEOUT_TIERS.analysis,
+  });
+  return response.data;
+}
+
 // API Functions
 
 // Dashboard Stats
@@ -105,10 +212,10 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
   }
 }
 
-// Farms
+// Farms / Fields
 export async function fetchFarms(): Promise<Farm[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.fieldCore}/api/v1/fields`);
+    const response = await apiClient.get(API_URLS.fields.list);
     return response.data;
   } catch (error) {
     logger.error("Failed to fetch farms:", error);
@@ -117,10 +224,13 @@ export async function fetchFarms(): Promise<Farm[]> {
 }
 
 export async function fetchFarmById(id: string): Promise<Farm> {
-  const response = await apiClient.get(
-    `${API_URLS.fieldCore}/api/v1/fields/${id}`,
-  );
-  return response.data;
+  try {
+    const response = await apiClient.get(API_URLS.fields.byId(id));
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch farm by ID:", error);
+    throw error;
+  }
 }
 
 // Diagnoses - connects to crop-intelligence-service (formerly crop-health-ai)
@@ -154,11 +264,11 @@ export async function fetchDiagnoses(params?: {
       farmId:
         (d.field_id as string) || `farm-${(d.id as string) || "unknown"}`,
       farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
-      imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
+      imageUrl: (d.image_url as string) || "",
       thumbnailUrl:
         (d.thumbnail_url as string) ||
         (d.image_url as string) ||
-        "/api/placeholder/100/100",
+        "",
       cropType: (d.crop_type as string) || "unknown",
       diseaseId: d.disease_id as string,
       diseaseName: d.disease_name as string,

@@ -82,7 +82,7 @@ export function useCreateField() {
   return useApiMutation(
     async (data: Partial<Farm>) => {
       const response = await apiClient.post(
-        `${API_URLS.fieldCore}/api/v1/fields`,
+        API_URLS.fields.create,
         data,
       );
       return response.data;
@@ -103,7 +103,7 @@ export function useUpdateField() {
   return useApiMutation(
     async ({ id, data }: { id: string; data: Partial<Farm> }) => {
       const response = await apiClient.put(
-        `${API_URLS.fieldCore}/api/v1/fields/${id}`,
+        API_URLS.fields.update(id),
         data,
       );
       return response.data;
@@ -118,7 +118,7 @@ export function useUpdateField() {
 export function useDeleteField() {
   return useApiMutation(
     async (id: string) => {
-      await apiClient.delete(`${API_URLS.fieldCore}/api/v1/fields/${id}`);
+      await apiClient.delete(API_URLS.fields.delete(id));
       return { success: true };
     },
     {

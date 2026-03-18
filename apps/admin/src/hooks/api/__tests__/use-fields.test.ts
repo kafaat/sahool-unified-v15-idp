@@ -26,11 +26,29 @@ vi.mock("@/lib/api", () => ({
     put: vi.fn().mockResolvedValue({ data: { id: "f1", name: "Updated" } }),
     delete: vi.fn().mockResolvedValue({ data: { success: true } }),
   },
-  API_URLS: { fieldCore: "http://localhost:3000" },
+  API_URLS: {
+    fieldCore: "http://localhost:3000",
+    fields: {
+      list: "http://localhost:3000/api/v1/fields",
+      byId: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+      create: "http://localhost:3000/api/v1/fields",
+      update: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+      delete: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+    },
+  },
 }));
 
 vi.mock("@/config/api", () => ({
-  API_URLS: { fieldCore: "http://localhost:3000" },
+  API_URLS: {
+    fieldCore: "http://localhost:3000",
+    fields: {
+      list: "http://localhost:3000/api/v1/fields",
+      byId: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+      create: "http://localhost:3000/api/v1/fields",
+      update: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+      delete: (id: string) => `http://localhost:3000/api/v1/fields/${id}`,
+    },
+  },
 }));
 
 import {

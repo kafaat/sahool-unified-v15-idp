@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from defusedxml.minidom import parseString as safe_parseString
-from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.etree.ElementTree import Element, SubElement, tostring  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml  # safe: only building XML, never parsing untrusted input
 
 
 class ExportFormat(Enum):

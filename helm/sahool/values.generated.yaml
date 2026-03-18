@@ -2664,8 +2664,6 @@ infrastructure:
   postgresql:
     enabled: true
     auth:
-      # SECURITY: Must be overridden via Kubernetes Secret or Vault in production.
-      # Use: --set infrastructure.postgresql.auth.existingSecret=<secret-name>
       postgresPassword: ''
       database: sahool
     primary:
@@ -2674,8 +2672,6 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      # SECURITY: Must be overridden via Kubernetes Secret or Vault in production.
-      # Use: --set infrastructure.redis.auth.existingSecret=<secret-name>
       password: ''
     master:
       persistence:

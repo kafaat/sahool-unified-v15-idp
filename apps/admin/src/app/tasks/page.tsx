@@ -179,7 +179,7 @@ export default function TasksPage() {
   async function loadTasks() {
     setIsLoading(true);
     try {
-      const response = await apiClient.get(`${API_URLS.task}/api/v1/tasks`);
+      const response = await apiClient.get(API_URLS.taskEndpoints.list);
       setTasks(response.data);
     } catch {
       logger.log("Falling back to static mock tasks data");
@@ -205,7 +205,7 @@ export default function TasksPage() {
         status: formData.status,
         due_date: formData.due_date ? new Date(formData.due_date).toISOString() : undefined,
       };
-      const response = await apiClient.post(`${API_URLS.task}/api/v1/tasks`, payload);
+      const response = await apiClient.post(API_URLS.taskEndpoints.create, payload);
       setTasks((prev) => [response.data, ...prev]);
     } catch {
       // Fallback: create task locally with generated ID
@@ -248,7 +248,7 @@ export default function TasksPage() {
         due_date: formData.due_date ? new Date(formData.due_date).toISOString() : undefined,
       };
       const response = await apiClient.put(
-        `${API_URLS.task}/api/v1/tasks/${editingTask.id}`,
+        API_URLS.taskEndpoints.byId(editingTask.id),
         payload,
       );
       setTasks((prev) =>
@@ -286,7 +286,7 @@ export default function TasksPage() {
 
   async function handleDeleteTask(id: string) {
     try {
-      await apiClient.delete(`${API_URLS.task}/api/v1/tasks/${id}`);
+      await apiClient.delete(API_URLS.taskEndpoints.byId(id));
     } catch {
       logger.log("API unavailable, deleting task locally");
     }

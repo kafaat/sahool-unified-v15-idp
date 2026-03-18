@@ -171,7 +171,7 @@ function isMaintenanceDueSoon(nextMaintenanceDate: string | undefined): boolean 
 async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.equipment}/api/v1/equipment`
+      API_URLS.equipmentEndpoints.list
     );
     return response.data;
   } catch {
@@ -183,7 +183,7 @@ async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
 async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<EquipmentItem | null> {
   try {
     const response = await apiClient.post(
-      `${API_URLS.equipment}/api/v1/equipment`,
+      API_URLS.equipmentEndpoints.list,
       payload
     );
     return response.data;
@@ -211,7 +211,7 @@ async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<Equi
 async function updateEquipmentAPI(id: string, payload: Partial<EquipmentItem>): Promise<EquipmentItem | null> {
   try {
     const response = await apiClient.put(
-      `${API_URLS.equipment}/api/v1/equipment/${id}`,
+      API_URLS.equipmentEndpoints.byId(id),
       payload
     );
     return response.data;

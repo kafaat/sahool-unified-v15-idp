@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { logger } from "../../lib/logger";
+import { API_URLS } from "@/config/api";
 import axios from "axios";
 import {
   Bot,
@@ -89,8 +90,8 @@ interface DashboardStats {
 async function fetchDashboardStats(): Promise<DashboardStats> {
   // Aggregate stats from multiple endpoints
   const [docsRes, toolsRes] = await Promise.allSettled([
-    axios.get(`${COPILOT_API}/api/v1/rag/documents`),
-    axios.get(`${COPILOT_API}/api/v1/tools/list`),
+    axios.get(API_URLS.copilotEndpoints.ragDocuments),
+    axios.get(API_URLS.copilotEndpoints.tools),
   ]);
 
   const docs =
@@ -111,7 +112,7 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
 }
 
 async function fetchRAGDocuments(): Promise<RAGDocument[]> {
-  const res = await axios.get(`${COPILOT_API}/api/v1/rag/documents`);
+  const res = await axios.get(API_URLS.copilotEndpoints.ragDocuments);
   return res.data?.documents || res.data || [];
 }
 
@@ -121,12 +122,12 @@ async function addRAGDocument(payload: {
   content: string;
   source?: string;
 }): Promise<RAGDocument> {
-  const res = await axios.post(`${COPILOT_API}/api/v1/rag/documents`, payload);
+  const res = await axios.post(API_URLS.copilotEndpoints.ragDocuments, payload);
   return res.data;
 }
 
 async function deleteRAGDocument(id: string): Promise<void> {
-  await axios.delete(`${COPILOT_API}/api/v1/rag/documents/${id}`);
+  await axios.delete(`${API_URLS.copilotEndpoints.ragDocuments}/${encodeURIComponent(id)}`);
 }
 
 async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
@@ -134,7 +135,7 @@ async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
   // In a real scenario, there would be a dedicated logs endpoint.
   // We simulate with a POST to guard with a probe payload.
   try {
-    const res = await axios.post(`${COPILOT_API}/api/v1/tools/guard`, {
+    const res = await axios.post(API_URLS.copilotEndpoints.guardLogs, {
       tool_name: "__list_logs__",
       dry_run: true,
     });
@@ -146,7 +147,7 @@ async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
 }
 
 async function fetchTools(): Promise<ToolInfo[]> {
-  const res = await axios.get(`${COPILOT_API}/api/v1/tools/list`);
+  const res = await axios.get(API_URLS.copilotEndpoints.tools);
   return res.data?.tools || res.data || [];
 }
 

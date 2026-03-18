@@ -55,6 +55,15 @@ vi.mock("@/config/api", () => ({
       refresh: "/api/v1/auth/refresh",
     },
   },
+  API_PATHS: {
+    auth: {
+      login: "/api/v1/auth/login",
+      logout: "/api/v1/auth/logout",
+      refresh: "/api/v1/auth/refresh",
+      me: "/api/v1/auth/me",
+      activity: "/api/v1/auth/activity",
+    },
+  },
   TIMEOUT_TIERS: {
     default: 10000,
     upload: 30000,

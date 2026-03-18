@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
 
     let response: Response;
     try {
+      // Note: AUTH_ENDPOINTS doesn't include RESEND_OTP — hardcoded path matches backend route
       response = await fetch(`${API_URL}/api/v1/auth/resend-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

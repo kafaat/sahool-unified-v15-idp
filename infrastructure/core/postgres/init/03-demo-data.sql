@@ -19,8 +19,12 @@
 -- service's own seed mechanism (prisma db seed) after the services start.
 --
 -- This file only seeds tables managed by the init script (00-init-sahool.sql):
---   tenants, crops, alerts, anwa_events, weather_records, weather_forecasts,
+--   tenants, crops, alerts, anwa_events,
 --   audit_logs, ai_consultations, equipment, equipment_maintenance
+--
+-- Weather tables (weather_observations, weather_forecasts, weather_alerts,
+-- location_configs) are now managed by Prisma ORM (weather-service).
+-- Seed demo weather data via: cd apps/services/weather-service && npx prisma db seed
 --
 -- Usage:
 --   Development: Keep this file as-is (03-demo-data.sql)
@@ -149,14 +153,10 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO WEATHER RECORDS
+-- DEMO WEATHER RECORDS - REMOVED
+-- Tables now managed by Prisma ORM (weather-service)
+-- Seed demo weather data via: cd apps/services/weather-service && npx prisma db seed
 -- ═══════════════════════════════════════════════════════════════════════════════
-
-INSERT INTO weather_records (id, tenant_id, location_id, location_name, recorded_at, temperature_celsius, humidity_percent, wind_speed_ms, conditions, conditions_ar, source)
-VALUES
-    ('00000000-0000-0000-0009-000000000001', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW(), 32.5, 35.0, 4.2, 'Clear', 'صافي', 'openweather'),
-    ('00000000-0000-0000-0009-000000000002', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW() - INTERVAL '1 day', 30.2, 40.0, 3.8, 'Partly Cloudy', 'غائم جزئياً', 'openweather')
-ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DEMO DATA SUMMARY

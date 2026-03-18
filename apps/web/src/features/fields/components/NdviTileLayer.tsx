@@ -8,7 +8,7 @@
  * Renders NDVI data as a colored tile overlay on the map
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type { Map as MaplibreMap } from "maplibre-gl";
 import { useNDVIMap } from "@/features/ndvi";
 import { logger } from "@/lib/logger";
@@ -92,6 +92,12 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);
   const prevDataRef = useRef<typeof ndviMapData>(null);
 
+  // Use refs for callback props to avoid re-triggering the effect
+  const onLoadRef = useRef(onLoad);
+  onLoadRef.current = onLoad;
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
   /**
    * إضافة أو تحديث طبقة NDVI على الخريطة
    * Add or update NDVI layer on the map
@@ -120,7 +126,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       // Check for raster data URL
       if (!rasterUrl) {
         logger.warn("No raster URL provided for NDVI layer");
-        onError?.(new Error("No NDVI data available"));
+        onErrorRef.current?.(new Error("No NDVI data available"));
         return;
       }
 
@@ -194,7 +200,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       }
 
       setIsLayerLoaded(true);
-      onLoad?.();
+      onLoadRef.current?.();
 
       logger.info("NDVI tile layer added successfully", {
         fieldId,
@@ -204,7 +210,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       const error =
         err instanceof Error ? err : new Error("Failed to add NDVI layer");
       logger.error("Error adding NDVI tile layer:", error);
-      onError?.(error);
+      onErrorRef.current?.(error);
       setIsLayerLoaded(false);
     }
 
@@ -224,17 +230,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
         }
       }
     };
-  }, [
-    map,
-    ndviMapData,
-    visible,
-    opacity,
-    fieldId,
-    dateString,
-    onLoad,
-    onError,
-    isLayerLoaded,
-  ]);
+  }, [map, ndviMapData, visible, opacity, fieldId, dateString]);
 
   /**
    * تحديث الشفافية عند تغييرها
@@ -283,9 +279,9 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       const errorObj =
         error instanceof Error ? error : new Error("Failed to load NDVI data");
       logger.error("NDVI data fetch error:", errorObj);
-      onError?.(errorObj);
+      onErrorRef.current?.(errorObj);
     }
-  }, [error, onError]);
+  }, [error]);
 
   // هذا المكون لا يعرض UI مباشرة
   // This component doesn't render UI directly

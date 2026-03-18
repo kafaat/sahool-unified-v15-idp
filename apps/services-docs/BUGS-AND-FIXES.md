@@ -725,6 +725,57 @@ guards with `"unknown"` fallback values.
 
 **Status:** FIXED
 
+### BUG-011: Admin Weather API Hardcoded tenant_id
+
+**Severity:** HIGH
+**Affected Files:** `apps/admin/src/lib/api.ts`
+
+**Issue:**
+Three weather API functions (`getWeatherCurrent`, `getWeatherForecast`,
+`getAgriculturalReport`) hardcoded `tenant_id: "default"` in POST bodies
+instead of extracting from the JWT token. Same class of bug as BUG-005
+(web app), causing incorrect tenant context for multi-tenant deployments.
+
+**Fix Applied:**
+Added `getTenantFromToken()` helper that decodes the JWT payload and
+reads the `tid` or `tenant_id` claim. All 3 weather calls now use
+`tenant_id: getTenantFromToken() || "default"`.
+
+**Status:** FIXED
+
+### BUG-012: NdviTileLayer Callback Props in useEffect Dependencies
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/web/src/features/fields/components/NdviTileLayer.tsx`
+
+**Issue:**
+The main `useEffect` that manages the NDVI raster layer included `onLoad`,
+`onError`, and `isLayerLoaded` in its dependency array. Since `onLoad`/`onError`
+are callback props, parent re-renders create new function references, causing
+the effect to re-run and unnecessarily remove/re-add the NDVI tile layer.
+
+**Fix Applied:**
+Used `useRef` for `onLoad` and `onError` callbacks (same pattern as BUG-008).
+Removed `onLoad`, `onError`, and `isLayerLoaded` from deps array.
+
+**Status:** FIXED
+
+### BUG-013: SatelliteMap onFieldClick Causes Full Marker Rebuild
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/components/maps/SatelliteMap.tsx`
+
+**Issue:**
+The `updateMarkers` `useEffect` included `onFieldClick` in its dependency
+array. Since this callback is a prop, every parent re-render caused all
+map markers to be destroyed and rebuilt (clear → recreate → fitBounds),
+resulting in visible flickering and wasted computation.
+
+**Fix Applied:**
+Used `useRef` for `onFieldClick` callback and removed it from deps array.
+
+**Status:** FIXED
+
 ---
 
 ## Recommended Actions
@@ -759,6 +810,12 @@ guards with `"unknown"` fallback values.
 17. ~~**Fix useRealtimeSync re-subscription** (BUG-008)~~ ✅ DONE
 18. ~~**Fix middleware JWT error handling** (BUG-009)~~ ✅ DONE
 19. ~~**Fix ErrorBoundary SSR-safety** (BUG-010)~~ ✅ DONE
+
+### Completed (March 2026 - Map & Field Tools Review)
+
+20. ~~**Fix admin weather API hardcoded tenant_id** (BUG-011)~~ ✅ DONE
+21. ~~**Fix NdviTileLayer callback deps causing layer rebuild** (BUG-012)~~ ✅ DONE
+22. ~~**Fix SatelliteMap onFieldClick causing marker rebuild** (BUG-013)~~ ✅ DONE
 
 ---
 

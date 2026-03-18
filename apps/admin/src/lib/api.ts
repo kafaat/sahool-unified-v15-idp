@@ -41,6 +41,23 @@ function getToken(): string | undefined {
   return Cookies.get("sahool_admin_token");
 }
 
+/**
+ * Extract tenant_id from JWT token payload (claim "tid" or "tenant_id").
+ * Returns null if token is unavailable or not decodable.
+ */
+function getTenantFromToken(): string | null {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.tid || payload.tenant_id || null;
+  } catch {
+    return null;
+  }
+}
+
 // Axios instance with defaults
 // NOTE: withCredentials is set to true to send httpOnly cookies with requests
 export const apiClient = axios.create({
@@ -373,9 +390,10 @@ export async function getWeatherCurrent(
   fieldId: string = "default"
 ) {
   try {
+    const tenantId = getTenantFromToken();
     const response = await apiClient.post(
       API_URLS.weatherEndpoints.current,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
   } catch (error) {
@@ -391,9 +409,10 @@ export async function getWeatherForecast(
   fieldId: string = "default"
 ) {
   try {
+    const tenantId = getTenantFromToken();
     const response = await apiClient.post(
       API_URLS.weatherEndpoints.forecast,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
+      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng, days }
     );
     return response.data;
   } catch (error) {
@@ -408,9 +427,10 @@ export async function getAgriculturalReport(
   fieldId: string = "default"
 ) {
   try {
+    const tenantId = getTenantFromToken();
     const response = await apiClient.post(
       API_URLS.weatherEndpoints.agricultural,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
   } catch (error) {

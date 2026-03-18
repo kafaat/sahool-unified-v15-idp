@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wrapped `validateJwtToken()` in middleware with try-catch to prevent edge runtime crashes
   - Added SSR-safety guards for `window.location.href` and `navigator.userAgent` in
     `ErrorBoundary.logErrorToServer()`
+  - Fixed hardcoded `tenant_id: "default"` in admin weather API (`getWeatherCurrent`,
+    `getWeatherForecast`, `getAgriculturalReport`) — now extracts tenant from JWT token
+  - Fixed `NdviTileLayer` callback props (`onLoad`/`onError`) in useEffect deps causing
+    unnecessary NDVI layer removal/re-addition on parent re-renders
+  - Fixed `SatelliteMap` `onFieldClick` in useEffect deps causing all markers to be
+    destroyed and rebuilt on every parent re-render
 
 ### Security
 

@@ -179,7 +179,7 @@ export default function TasksPage() {
   async function loadTasks() {
     setIsLoading(true);
     try {
-      const response = await apiClient.get(`${API_URLS.task}/api/v1/tasks`);
+      const response = await apiClient.get(API_URLS.taskEndpoints.list);
       setTasks(response.data);
     } catch {
       logger.log("Falling back to static mock tasks data");
@@ -205,7 +205,7 @@ export default function TasksPage() {
         status: formData.status,
         due_date: formData.due_date ? new Date(formData.due_date).toISOString() : undefined,
       };
-      const response = await apiClient.post(`${API_URLS.task}/api/v1/tasks`, payload);
+      const response = await apiClient.post(API_URLS.taskEndpoints.create, payload);
       setTasks((prev) => [response.data, ...prev]);
     } catch {
       // Fallback: create task locally with generated ID
@@ -248,7 +248,7 @@ export default function TasksPage() {
         due_date: formData.due_date ? new Date(formData.due_date).toISOString() : undefined,
       };
       const response = await apiClient.put(
-        `${API_URLS.task}/api/v1/tasks/${editingTask.id}`,
+        API_URLS.taskEndpoints.byId(editingTask.id),
         payload,
       );
       setTasks((prev) =>
@@ -286,7 +286,7 @@ export default function TasksPage() {
 
   async function handleDeleteTask(id: string) {
     try {
-      await apiClient.delete(`${API_URLS.task}/api/v1/tasks/${id}`);
+      await apiClient.delete(API_URLS.taskEndpoints.byId(id));
     } catch {
       logger.log("API unavailable, deleting task locally");
     }
@@ -368,9 +368,9 @@ export default function TasksPage() {
       header: "عنوان المهمة",
       render: (task: Task) => (
         <div>
-          <p className="font-medium text-gray-900">{task.title_ar || task.title}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{task.title_ar || task.title}</p>
           {task.title_ar && (
-            <p className="text-xs text-gray-500">{task.title}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{task.title}</p>
           )}
         </div>
       ),
@@ -379,7 +379,7 @@ export default function TasksPage() {
       key: "assigned_to",
       header: "المسؤول",
       render: (task: Task) => (
-        <span className="text-gray-700">{task.assigned_to || "غير معيّن"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{task.assigned_to || "غير معيّن"}</span>
       ),
     },
     {
@@ -419,7 +419,7 @@ export default function TasksPage() {
       render: (task: Task) => (
         <div className="flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-gray-400" />
-          <span className="text-gray-700 text-sm">
+          <span className="text-gray-700 dark:text-gray-300 text-sm">
             {task.due_date ? formatDate(task.due_date) : "غير محدد"}
           </span>
         </div>
@@ -435,10 +435,10 @@ export default function TasksPage() {
               e.stopPropagation();
               openEditModal(task);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="تعديل"
           >
-            <Pencil className="w-4 h-4 text-gray-500" />
+            <Pencil className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
           <button
             onClick={(e) => {
@@ -469,7 +469,7 @@ export default function TasksPage() {
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "" && "ring-2 ring-sahool-500 border-sahool-500",
           )}
           onClick={() => setStatusFilter("")}
@@ -479,15 +479,15 @@ export default function TasksPage() {
               <CheckSquare className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي المهام</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي المهام</p>
             </div>
           </div>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "pending" && "ring-2 ring-yellow-500 border-yellow-500",
           )}
           onClick={() => setStatusFilter(statusFilter === "pending" ? "" : "pending")}
@@ -497,15 +497,15 @@ export default function TasksPage() {
               <Clock className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              <p className="text-sm text-gray-500">قيد الانتظار</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.pending}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">قيد الانتظار</p>
             </div>
           </div>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "in_progress" && "ring-2 ring-blue-500 border-blue-500",
           )}
           onClick={() => setStatusFilter(statusFilter === "in_progress" ? "" : "in_progress")}
@@ -515,15 +515,15 @@ export default function TasksPage() {
               <Loader2 className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
-              <p className="text-sm text-gray-500">قيد التنفيذ</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.inProgress}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">قيد التنفيذ</p>
             </div>
           </div>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "completed" && "ring-2 ring-green-500 border-green-500",
           )}
           onClick={() => setStatusFilter(statusFilter === "completed" ? "" : "completed")}
@@ -533,15 +533,15 @@ export default function TasksPage() {
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-              <p className="text-sm text-gray-500">مكتملة</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.completed}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مكتملة</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters and Actions - شريط البحث والفلاتر */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
@@ -550,7 +550,7 @@ export default function TasksPage() {
               placeholder="بحث بالعنوان أو المسؤول..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -559,7 +559,7 @@ export default function TasksPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="pending">قيد الانتظار</option>
@@ -572,7 +572,7 @@ export default function TasksPage() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الأولويات</option>
             <option value="urgent">عاجل</option>
@@ -585,7 +585,7 @@ export default function TasksPage() {
           <select
             value={assigneeFilter}
             onChange={(e) => setAssigneeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل المسؤولين</option>
             {assignees.map((a) => (
@@ -598,21 +598,22 @@ export default function TasksPage() {
           {/* Actions */}
           <button
             onClick={loadTasks}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600",
+                "w-5 h-5 text-gray-600 dark:text-gray-400",
                 isLoading && "animate-spin",
               )}
             />
           </button>
           <button
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            title="تصدير"
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => {
@@ -642,10 +643,10 @@ export default function TasksPage() {
       {/* Create / Edit Modal - نافذة الإنشاء / التعديل */}
       {(showCreateModal || editingTask) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {editingTask ? "تعديل المهمة" : "إضافة مهمة جديدة"}
               </h2>
               <button
@@ -654,9 +655,9 @@ export default function TasksPage() {
                   setEditingTask(null);
                   setFormData(INITIAL_FORM_DATA);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -664,7 +665,7 @@ export default function TasksPage() {
             <div className="px-6 py-4 space-y-4">
               {/* Title AR */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   العنوان (عربي) <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -672,13 +673,13 @@ export default function TasksPage() {
                   value={formData.title_ar}
                   onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
                   placeholder="عنوان المهمة بالعربية"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 />
               </div>
 
               {/* Title EN */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   العنوان (إنجليزي)
                 </label>
                 <input
@@ -686,14 +687,14 @@ export default function TasksPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Task title in English"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                   dir="ltr"
                 />
               </div>
 
               {/* Description AR */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   الوصف (عربي)
                 </label>
                 <textarea
@@ -701,13 +702,13 @@ export default function TasksPage() {
                   onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
                   placeholder="وصف المهمة بالعربية"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none"
                 />
               </div>
 
               {/* Description EN */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   الوصف (إنجليزي)
                 </label>
                 <textarea
@@ -715,7 +716,7 @@ export default function TasksPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Task description in English"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none"
                   dir="ltr"
                 />
               </div>
@@ -723,7 +724,7 @@ export default function TasksPage() {
               {/* Row: Assigned To + Field ID */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     المسؤول
                   </label>
                   <input
@@ -731,11 +732,11 @@ export default function TasksPage() {
                     value={formData.assigned_to}
                     onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
                     placeholder="اسم المسؤول"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     معرف الحقل
                   </label>
                   <input
@@ -743,7 +744,7 @@ export default function TasksPage() {
                     value={formData.field_id}
                     onChange={(e) => setFormData({ ...formData, field_id: e.target.value })}
                     placeholder="field-1"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                     dir="ltr"
                   />
                 </div>
@@ -752,13 +753,13 @@ export default function TasksPage() {
               {/* Row: Priority + Status + Due Date */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     الأولوية
                   </label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                   >
                     <option value="urgent">عاجل</option>
                     <option value="high">مرتفع</option>
@@ -767,13 +768,13 @@ export default function TasksPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     الحالة
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as TaskStatus })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                   >
                     <option value="pending">قيد الانتظار</option>
                     <option value="in_progress">قيد التنفيذ</option>
@@ -782,14 +783,14 @@ export default function TasksPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     تاريخ الاستحقاق
                   </label>
                   <input
                     type="date"
                     value={formData.due_date}
                     onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                     dir="ltr"
                   />
                 </div>
@@ -797,14 +798,14 @@ export default function TasksPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => {
                   setShowCreateModal(false);
                   setEditingTask(null);
                   setFormData(INITIAL_FORM_DATA);
                 }}
-                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 إلغاء
               </button>
@@ -829,20 +830,20 @@ export default function TasksPage() {
       {/* Delete Confirmation Modal - نافذة تأكيد الحذف */}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">تأكيد الحذف</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">تأكيد الحذف</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 إلغاء
               </button>

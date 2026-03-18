@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 interface Notification {
-  id: number;
+  id: string | number;
   type: string;
   title: string;
   message: string;

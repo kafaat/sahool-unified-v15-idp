@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS } from "@/config/api";
+import { API_URL, TIMEOUT_TIERS, API_PATHS } from "@/config/api";
 
 export async function POST(_request: Request) {
   try {
@@ -21,7 +21,7 @@ export async function POST(_request: Request) {
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_TIERS.default);
 
       try {
-        const response = await fetch(`${API_URL}/api/v1/auth/logout`, {
+        const response = await fetch(`${API_URL}${API_PATHS.auth.logout}`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,

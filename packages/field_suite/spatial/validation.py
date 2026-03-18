@@ -188,13 +188,13 @@ def _validate_table(
 
     # Count total with geometry
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))  # nosemgrep: sqlalchemy-text-fstring
+    count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
     setattr(report, checked_attr, count_result.scalar() or 0)
 
     # Count invalid
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     invalid_result = db.execute(
-        text(  # nosemgrep
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
             SELECT COUNT(*) FROM {quoted_table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false;
@@ -218,7 +218,7 @@ def _validate_table(
     # ST_Force2D ensures 2D geometry (removes Z/M)
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     fix_result = db.execute(
-        text(  # nosemgrep
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
             WITH invalid AS (
                 SELECT id FROM {quoted_table}
@@ -252,7 +252,7 @@ def sync_wkt_to_geom(db: Session) -> dict[str, int]:
         quoted_table = f'"{table}"'
         # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
         result = db.execute(
-            text(  # nosemgrep: sqlalchemy-text-fstring
+            text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
                 f"""
                 UPDATE {quoted_table}
                 SET geom = ST_GeomFromText(geometry_wkt, 4326)
@@ -292,7 +292,7 @@ def check_geometry_validity(
 
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     result = db.execute(
-        text(  # nosemgrep: sqlalchemy-text-fstring
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
             SELECT
                 id,
@@ -339,7 +339,7 @@ def get_invalid_geometries(
 
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     result = db.execute(
-        text(  # nosemgrep: sqlalchemy-text-fstring
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
             SELECT
                 id,

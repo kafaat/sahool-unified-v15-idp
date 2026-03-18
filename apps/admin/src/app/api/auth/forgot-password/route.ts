@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { API_URL, TIMEOUT_TIERS } from "@/config/api";
+import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
 import { checkRateLimit } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     let response: Response;
     try {
-      response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+      response = await fetch(`${API_URL}${AUTH_ENDPOINTS.FORGOT_PASSWORD}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

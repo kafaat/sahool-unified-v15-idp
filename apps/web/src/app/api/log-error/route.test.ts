@@ -153,7 +153,8 @@ describe("POST /api/log-error", () => {
       });
 
       const response = await POST(request);
-      expect(response.status).toBe(500);
+      // Route catches invalid JSON explicitly and returns 400 "Invalid JSON body"
+      expect(response.status).toBe(400);
     });
   });
 

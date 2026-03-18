@@ -29,8 +29,8 @@ import { logger } from "../../lib/logger";
 const FarmsMap = dynamic(() => import("@/components/maps/FarmsMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-[600px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
-      <p className="text-gray-500">جاري تحميل الخريطة...</p>
+    <div className="h-[600px] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl flex items-center justify-center">
+      <p className="text-gray-500 dark:text-gray-400">جاري تحميل الخريطة...</p>
     </div>
   ),
 });
@@ -121,8 +121,8 @@ export default function FarmsPage() {
       header: "اسم المزرعة",
       render: (farm: Farm) => (
         <div>
-          <p className="font-medium text-gray-900">{farm.nameAr}</p>
-          <p className="text-xs text-gray-500">{farm.name}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{farm.nameAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{farm.name}</p>
         </div>
       ),
     },
@@ -130,21 +130,21 @@ export default function FarmsPage() {
       key: "governorate",
       header: "المحافظة",
       render: (farm: Farm) => (
-        <span className="text-gray-700">{farm.governorate}</span>
+        <span className="text-gray-700 dark:text-gray-300">{farm.governorate}</span>
       ),
     },
     {
       key: "area",
       header: "المساحة",
       render: (farm: Farm) => (
-        <span className="text-gray-700">{formatArea(farm.area)}</span>
+        <span className="text-gray-700 dark:text-gray-300">{formatArea(farm.area)}</span>
       ),
     },
     {
       key: "crops",
       header: "المحاصيل",
       render: (farm: Farm) => (
-        <span className="text-gray-700">{farm.crops.join(", ")}</span>
+        <span className="text-gray-700 dark:text-gray-300">{farm.crops.join(", ")}</span>
       ),
     },
     {
@@ -172,7 +172,7 @@ export default function FarmsPage() {
       render: (farm: Farm) => (
         <Link
           href={`/farms/${farm.id}`}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors inline-flex"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-flex"
         >
           <Eye className="w-4 h-4 text-gray-500" />
         </Link>
@@ -193,7 +193,7 @@ export default function FarmsPage() {
             <div
               key={gov}
               className={cn(
-                "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+                "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
                 governorateFilter === gov &&
                   "ring-2 ring-sahool-500 border-sahool-500",
               )}
@@ -201,8 +201,8 @@ export default function FarmsPage() {
                 setGovernorateFilter(governorateFilter === gov ? "" : gov)
               }
             >
-              <p className="text-xl font-bold text-gray-900">{stats.count}</p>
-              <p className="text-sm text-gray-500 truncate">{gov}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.count}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{gov}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {stats.area.toFixed(0)} هكتار
               </p>
@@ -211,7 +211,7 @@ export default function FarmsPage() {
       </div>
 
       {/* Filters and View Toggle */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
@@ -220,7 +220,7 @@ export default function FarmsPage() {
               placeholder="بحث بالاسم أو المحافظة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -229,7 +229,7 @@ export default function FarmsPage() {
           <select
             value={governorateFilter}
             onChange={(e) => setGovernorateFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل المحافظات</option>
             {YEMEN_GOVERNORATES.map((gov) => (
@@ -243,7 +243,7 @@ export default function FarmsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="active">نشط</option>
@@ -252,14 +252,14 @@ export default function FarmsPage() {
           </select>
 
           {/* View Toggle */}
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+          <div className="flex border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode("map")}
               className={cn(
                 "p-2 transition-colors",
                 viewMode === "map"
                   ? "bg-sahool-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50",
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700",
               )}
             >
               <MapIcon className="w-5 h-5" />
@@ -270,7 +270,7 @@ export default function FarmsPage() {
                 "p-2 transition-colors",
                 viewMode === "table"
                   ? "bg-sahool-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50",
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700",
               )}
             >
               <List className="w-5 h-5" />
@@ -280,19 +280,27 @@ export default function FarmsPage() {
           {/* Actions */}
           <button
             onClick={loadFarms}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600",
+                "w-5 h-5 text-gray-600 dark:text-gray-400",
                 isLoading && "animate-spin",
               )}
             />
           </button>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="w-5 h-5 text-gray-600" />
+          <button
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors">
+          <button
+            disabled
+            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="إضافة مزرعة (قريبًا)"
+          >
             <Plus className="w-5 h-5" />
             إضافة مزرعة
           </button>
@@ -302,9 +310,9 @@ export default function FarmsPage() {
       {/* Content */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="h-[600px] bg-gray-200 animate-pulse rounded-xl"></div>
+          <div className="h-[600px] bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"></div>
         ) : viewMode === "map" ? (
-          <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <FarmsMap
               farms={filteredFarms}
               onFarmClick={handleFarmClick}
@@ -326,34 +334,34 @@ export default function FarmsPage() {
 
       {/* Selected Farm Panel */}
       {selectedFarm && viewMode === "map" && (
-        <div className="fixed bottom-6 left-6 right-6 mr-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-6 animate-slide-up z-40">
+        <div className="fixed bottom-6 left-6 right-6 mr-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 animate-slide-up z-40">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {selectedFarm.nameAr}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-gray-400">
                 {selectedFarm.governorate} • {selectedFarm.district}
               </p>
             </div>
             <button
               onClick={() => setSelectedFarm(null)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             >
               ✕
             </button>
           </div>
           <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-gray-500">المساحة</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">المساحة</p>
               <p className="font-bold">{formatArea(selectedFarm.area)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">المحاصيل</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">المحاصيل</p>
               <p className="font-medium">{selectedFarm.crops.join(", ")}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">مستوى الصحة</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مستوى الصحة</p>
               <span
                 className={cn(
                   "px-2 py-1 rounded font-bold",
@@ -364,7 +372,7 @@ export default function FarmsPage() {
               </span>
             </div>
             <div>
-              <p className="text-sm text-gray-500">آخر تحديث</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">آخر تحديث</p>
               <p className="font-medium">
                 {formatDate(selectedFarm.lastUpdated)}
               </p>
@@ -379,13 +387,13 @@ export default function FarmsPage() {
             </Link>
             <Link
               href={`/diseases?farmId=${selectedFarm.id}`}
-              className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               التشخيصات
             </Link>
             <Link
               href={`/sensors?farmId=${selectedFarm.id}`}
-              className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               المستشعرات
             </Link>

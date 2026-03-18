@@ -270,8 +270,7 @@ describe("Auth Store Security", () => {
 
     it("should handle gracefully when BroadcastChannel is undefined", async () => {
       // Remove BroadcastChannel from global scope
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (globalThis as any).BroadcastChannel;
+      delete (globalThis as Record<string, unknown>).BroadcastChannel;
 
       global.fetch = vi.fn().mockImplementation((url: string) => {
         if (typeof url === "string" && url.includes("/api/auth/session")) {
@@ -312,8 +311,7 @@ describe("Auth Store Security", () => {
       global.fetch = fetchSpy;
 
       // Remove BroadcastChannel to simplify
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (globalThis as any).BroadcastChannel;
+      delete (globalThis as Record<string, unknown>).BroadcastChannel;
 
       const { authState, act } = await setupAuthProvider();
 
@@ -356,8 +354,7 @@ describe("Auth Store Security", () => {
       global.fetch = fetchSpy;
 
       // Remove BroadcastChannel to simplify
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (globalThis as any).BroadcastChannel;
+      delete (globalThis as Record<string, unknown>).BroadcastChannel;
 
       const { authApiClient } = await import("@/lib/api/auth-client");
       const { authState, act, waitFor } = await setupAuthProvider();

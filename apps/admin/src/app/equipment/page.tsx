@@ -171,7 +171,7 @@ function isMaintenanceDueSoon(nextMaintenanceDate: string | undefined): boolean 
 async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.equipment}/api/v1/equipment`
+      API_URLS.equipmentEndpoints.list
     );
     return response.data;
   } catch {
@@ -183,7 +183,7 @@ async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
 async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<EquipmentItem | null> {
   try {
     const response = await apiClient.post(
-      `${API_URLS.equipment}/api/v1/equipment`,
+      API_URLS.equipmentEndpoints.list,
       payload
     );
     return response.data;
@@ -211,7 +211,7 @@ async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<Equi
 async function updateEquipmentAPI(id: string, payload: Partial<EquipmentItem>): Promise<EquipmentItem | null> {
   try {
     const response = await apiClient.put(
-      `${API_URLS.equipment}/api/v1/equipment/${id}`,
+      API_URLS.equipmentEndpoints.byId(id),
       payload
     );
     return response.data;
@@ -390,8 +390,8 @@ export default function EquipmentPage() {
             {getEquipmentTypeIcon(item.type)}
           </div>
           <div>
-            <p className="font-medium text-gray-900">{item.nameAr || item.name}</p>
-            <p className="text-xs text-gray-500">{item.name}</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">{item.nameAr || item.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{item.name}</p>
           </div>
         </div>
       ),
@@ -400,7 +400,7 @@ export default function EquipmentPage() {
       key: "type",
       header: "النوع",
       render: (item: EquipmentItem) => (
-        <span className="text-gray-700">{getEquipmentTypeLabel(item.type)}</span>
+        <span className="text-gray-700 dark:text-gray-300">{getEquipmentTypeLabel(item.type)}</span>
       ),
     },
     {
@@ -425,14 +425,14 @@ export default function EquipmentPage() {
       key: "farm_name",
       header: "المزرعة",
       render: (item: EquipmentItem) => (
-        <span className="text-gray-700">{item.farm_name || "-"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{item.farm_name || "-"}</span>
       ),
     },
     {
       key: "lastMaintenance",
       header: "آخر صيانة",
       render: (item: EquipmentItem) => (
-        <span className="text-gray-600 text-sm">
+        <span className="text-gray-600 dark:text-gray-400 text-sm">
           {formatDate(item.last_maintenance_date || item.lastMaintenance)}
         </span>
       ),
@@ -447,7 +447,7 @@ export default function EquipmentPage() {
           <span
             className={cn(
               "text-sm",
-              dueSoon ? "text-yellow-600 font-medium" : "text-gray-600"
+              dueSoon ? "text-yellow-600 font-medium" : "text-gray-600 dark:text-gray-400"
             )}
           >
             {formatDate(nextDate)}
@@ -470,20 +470,20 @@ export default function EquipmentPage() {
               e.stopPropagation();
               handleViewDetail(item);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="عرض التفاصيل"
           >
-            <Eye className="w-4 h-4 text-gray-500" />
+            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleEdit(item);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="تعديل الحالة"
           >
-            <Wrench className="w-4 h-4 text-gray-500" />
+            <Wrench className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
       ),
@@ -502,23 +502,23 @@ export default function EquipmentPage() {
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "" && "ring-2 ring-sahool-500 border-sahool-500"
           )}
           onClick={() => setStatusFilter("")}
         >
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
             <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
               <Wrench className="w-5 h-5 text-sahool-600" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">إجمالي المعدات</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">إجمالي المعدات</p>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "operational" && "ring-2 ring-green-500 border-green-500"
           )}
           onClick={() =>
@@ -531,12 +531,12 @@ export default function EquipmentPage() {
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">تعمل</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">تعمل</p>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "maintenance" && "ring-2 ring-yellow-500 border-yellow-500"
           )}
           onClick={() =>
@@ -549,12 +549,12 @@ export default function EquipmentPage() {
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">تحتاج صيانة</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">تحتاج صيانة</p>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "idle" && "ring-2 ring-gray-400 border-gray-400"
           )}
           onClick={() =>
@@ -562,17 +562,17 @@ export default function EquipmentPage() {
           }
         >
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gray-600">{stats.idle}</p>
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <PauseCircle className="w-5 h-5 text-gray-500" />
+            <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.idle}</p>
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <PauseCircle className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">متوقفة</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">متوقفة</p>
         </div>
 
         <div
           className={cn(
-            "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
             statusFilter === "broken" && "ring-2 ring-red-500 border-red-500"
           )}
           onClick={() =>
@@ -585,12 +585,12 @@ export default function EquipmentPage() {
               <XCircle className="w-5 h-5 text-red-600" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-1">معطلة</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">معطلة</p>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
@@ -599,7 +599,7 @@ export default function EquipmentPage() {
               placeholder="بحث بالاسم أو المزرعة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -608,7 +608,7 @@ export default function EquipmentPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الأنواع</option>
             {EQUIPMENT_TYPES.map((t) => (
@@ -622,7 +622,7 @@ export default function EquipmentPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             {EQUIPMENT_STATUSES.map((s) => (
@@ -636,7 +636,7 @@ export default function EquipmentPage() {
           <select
             value={farmFilter}
             onChange={(e) => setFarmFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل المزارع</option>
             {farmsList.map((f) => (
@@ -649,21 +649,22 @@ export default function EquipmentPage() {
           {/* Actions */}
           <button
             onClick={loadEquipment}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600",
+                "w-5 h-5 text-gray-600 dark:text-gray-400",
                 isLoading && "animate-spin"
               )}
             />
           </button>
           <button
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            title="تصدير"
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => {
@@ -693,21 +694,21 @@ export default function EquipmentPage() {
       {/* Add Equipment Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">إضافة معدة جديدة</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">إضافة معدة جديدة</h2>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               {/* Name (English) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   الاسم (إنجليزي)
                 </label>
                 <input
@@ -715,13 +716,13 @@ export default function EquipmentPage() {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="مثال: John Deere 5075E"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 />
               </div>
 
               {/* Name (Arabic) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   الاسم (عربي)
                 </label>
                 <input
@@ -729,19 +730,19 @@ export default function EquipmentPage() {
                   value={formNameAr}
                   onChange={(e) => setFormNameAr(e.target.value)}
                   placeholder="مثال: جرار جون ديري 5075E"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 />
               </div>
 
               {/* Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   نوع المعدة
                 </label>
                 <select
                   value={formType}
                   onChange={(e) => setFormType(e.target.value as EquipmentType)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 >
                   {EQUIPMENT_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
@@ -753,13 +754,13 @@ export default function EquipmentPage() {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   الحالة
                 </label>
                 <select
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as EquipmentStatus)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 >
                   {EQUIPMENT_STATUSES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -771,13 +772,13 @@ export default function EquipmentPage() {
 
               {/* Farm */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   المزرعة
                 </label>
                 <select
                   value={formFarm}
                   onChange={(e) => setFormFarm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 >
                   {MOCK_FARMS_LIST.map((f) => (
                     <option key={f.id} value={f.id}>
@@ -788,10 +789,10 @@ export default function EquipmentPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 إلغاء
               </button>
@@ -816,17 +817,17 @@ export default function EquipmentPage() {
       {/* Detail Modal */}
       {showDetailModal && selectedEquipment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">تفاصيل المعدة</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">تفاصيل المعدة</h2>
               <button
                 onClick={() => {
                   setShowDetailModal(false);
                   setSelectedEquipment(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -844,23 +845,23 @@ export default function EquipmentPage() {
                   {getEquipmentTypeIcon(selectedEquipment.type)}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {selectedEquipment.nameAr || selectedEquipment.name}
                   </h3>
-                  <p className="text-sm text-gray-500">{selectedEquipment.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedEquipment.name}</p>
                 </div>
               </div>
 
               {/* Details Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">النوع</p>
-                  <p className="font-medium text-gray-900">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">النوع</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {getEquipmentTypeLabel(selectedEquipment.type)}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">الحالة</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">الحالة</p>
                   {(() => {
                     const badge = getStatusBadge(selectedEquipment.status);
                     return (
@@ -876,36 +877,36 @@ export default function EquipmentPage() {
                     );
                   })()}
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">المزرعة</p>
-                  <p className="font-medium text-gray-900">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المزرعة</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {selectedEquipment.farm_name || "-"}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">ساعات التشغيل</p>
-                  <p className="font-medium text-gray-900">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ساعات التشغيل</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {selectedEquipment.hoursUsed != null
                       ? `${selectedEquipment.hoursUsed.toLocaleString("ar-YE")} ساعة`
                       : "-"}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
                   <div className="flex items-center gap-1 mb-1">
                     <Calendar className="w-3 h-3 text-gray-400" />
-                    <p className="text-xs text-gray-500">آخر صيانة</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">آخر صيانة</p>
                   </div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {formatDate(
                       selectedEquipment.last_maintenance_date ||
                         selectedEquipment.lastMaintenance
                     )}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
                   <div className="flex items-center gap-1 mb-1">
                     <Calendar className="w-3 h-3 text-gray-400" />
-                    <p className="text-xs text-gray-500">الصيانة القادمة</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">الصيانة القادمة</p>
                   </div>
                   <p
                     className={cn(
@@ -915,7 +916,7 @@ export default function EquipmentPage() {
                           selectedEquipment.nextMaintenance
                       )
                         ? "text-yellow-600"
-                        : "text-gray-900"
+                        : "text-gray-900 dark:text-gray-100"
                     )}
                   >
                     {formatDate(
@@ -925,8 +926,8 @@ export default function EquipmentPage() {
                   </p>
                 </div>
                 {selectedEquipment.fuelLevel != null && (
-                  <div className="bg-gray-50 rounded-lg p-3 col-span-2">
-                    <p className="text-xs text-gray-500 mb-2">مستوى الوقود</p>
+                  <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3 col-span-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">مستوى الوقود</p>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div
@@ -941,7 +942,7 @@ export default function EquipmentPage() {
                           style={{ width: `${selectedEquipment.fuelLevel}%` }}
                         />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {selectedEquipment.fuelLevel}%
                       </span>
                     </div>
@@ -950,13 +951,13 @@ export default function EquipmentPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => {
                   setShowDetailModal(false);
                   handleEdit(selectedEquipment);
                 }}
-                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 تعديل الحالة
               </button>
@@ -977,17 +978,17 @@ export default function EquipmentPage() {
       {/* Edit Status Modal */}
       {showEditModal && selectedEquipment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">تعديل حالة المعدة</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">تعديل حالة المعدة</h2>
               <button
                 onClick={() => {
                   setShowEditModal(false);
                   setSelectedEquipment(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -1004,16 +1005,16 @@ export default function EquipmentPage() {
                   {getEquipmentTypeIcon(selectedEquipment.type)}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     {selectedEquipment.nameAr || selectedEquipment.name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     الحالة الحالية: {getStatusBadge(selectedEquipment.status).label}
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-600 mb-4">اختر الحالة الجديدة:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">اختر الحالة الجديدة:</p>
 
               <div className="grid grid-cols-2 gap-3">
                 {EQUIPMENT_STATUSES.map((s) => {
@@ -1029,8 +1030,8 @@ export default function EquipmentPage() {
                       className={cn(
                         "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-sm font-medium",
                         isCurrentStatus
-                          ? "border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed"
-                          : "border-gray-200 hover:border-sahool-500 hover:bg-sahool-50 text-gray-700"
+                          ? "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed"
+                          : "border-gray-200 dark:border-gray-600 hover:border-sahool-500 hover:bg-sahool-50 text-gray-700 dark:text-gray-300"
                       )}
                     >
                       {badge.icon}
@@ -1041,13 +1042,13 @@ export default function EquipmentPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => {
                   setShowEditModal(false);
                   setSelectedEquipment(null);
                 }}
-                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 إلغاء
               </button>

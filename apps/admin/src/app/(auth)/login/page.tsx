@@ -113,20 +113,20 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-sahool-600 rounded-full mb-4">
             <Leaf className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">سهول</h1>
-          <p className="text-gray-600 mt-2">لوحة إدارة المنصة الزراعية</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">لوحة إدارة المنصة الزراعية</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
             {requires2FA ? "التحقق الثنائي" : "تسجيل الدخول"}
           </h2>
 
@@ -152,7 +152,7 @@ function LoginForm() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
                     البريد الإلكتروني
                   </label>
@@ -170,8 +170,8 @@ function LoginForm() {
                       className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 outline-none transition ${
                         touched.email && emailError
                           ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-sahool-500 focus:border-sahool-500"
-                      }`}
+                          : "border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500"
+                      } dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500`}
                       placeholder="admin@sahool.io"
                       required
                       dir="ltr"
@@ -191,7 +191,7 @@ function LoginForm() {
                   <div className="flex justify-between items-center mb-2">
                     <label
                       htmlFor="password"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       كلمة المرور
                     </label>
@@ -216,8 +216,8 @@ function LoginForm() {
                       className={`w-full pr-10 pl-12 py-3 border rounded-lg focus:ring-2 outline-none transition ${
                         touched.password && passwordError
                           ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-sahool-500 focus:border-sahool-500"
-                      }`}
+                          : "border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500"
+                      } dark:bg-gray-700 dark:text-gray-100`}
                       placeholder="••••••••"
                       required
                       dir="ltr"
@@ -251,7 +251,7 @@ function LoginForm() {
               <div>
                 <label
                   htmlFor="twoFACode"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
                   رمز التحقق
                 </label>
@@ -266,7 +266,7 @@ function LoginForm() {
                         e.target.value.replace(/\D/g, "").slice(0, 6),
                       )
                     }
-                    className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-sahool-500 outline-none transition text-center text-2xl tracking-widest"
+                    className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-sahool-500 outline-none transition text-center text-2xl tracking-widest"
                     placeholder="000000"
                     required
                     maxLength={6}
@@ -274,7 +274,7 @@ function LoginForm() {
                     autoFocus
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
                   أدخل الرمز المكون من 6 أرقام من تطبيق المصادقة
                 </p>
               </div>
@@ -316,7 +316,7 @@ function LoginForm() {
 
           {/* Registration Link */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               ليس لديك حساب؟{" "}
               <Link
                 href="/register"
@@ -331,7 +331,7 @@ function LoginForm() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
           © {new Date().getFullYear()} سهول - جميع الحقوق محفوظة
         </p>
       </div>
@@ -343,7 +343,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-sahool-600" />
         </div>
       }

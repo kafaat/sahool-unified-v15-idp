@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/stores/auth.store";
 import { apiClient } from "@/lib/api-client";
 import { validators, validationErrors } from "@/lib/validation";
-import { logger } from "../../../lib/logger";
+import { logger } from "@/lib/logger";
 import {
   Shield,
   Smartphone,
@@ -209,15 +209,15 @@ export default function SecuritySettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
             <Shield className="w-8 h-8 text-green-600" />
             إعدادات الأمان
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             إدارة المصادقة الثنائية وحماية حسابك
           </p>
         </div>
@@ -239,13 +239,13 @@ export default function SecuritySettingsPage() {
 
         {/* 2FA Status Card */}
         {!showSetup && !showBackupCodes && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   المصادقة الثنائية (2FA)
                 </h2>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
                   أضف طبقة إضافية من الأمان لحسابك باستخدام تطبيق المصادقة
                 </p>
 
@@ -262,7 +262,7 @@ export default function SecuritySettingsPage() {
                 )}
 
                 {twoFAEnabled && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     رموز النسخ الاحتياطي المتبقية: {backupCodesRemaining}
                   </p>
                 )}
@@ -296,7 +296,7 @@ export default function SecuritySettingsPage() {
                   <button
                     onClick={handleRegenerateBackupCodes}
                     disabled={isLoading}
-                    className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                    className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2"
                   >
                     <RefreshCw className="w-5 h-5" />
                     إنشاء رموز جديدة
@@ -309,22 +309,21 @@ export default function SecuritySettingsPage() {
 
         {/* Setup Flow */}
         {showSetup && setupData && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
               إعداد المصادقة الثنائية
             </h2>
 
             <div className="space-y-6">
               {/* Step 1: Scan QR Code */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
                   1. امسح رمز QR باستخدام تطبيق المصادقة
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   استخدم تطبيقات مثل Google Authenticator أو Authy
                 </p>
-                <div className="flex justify-center bg-gray-50 p-4 rounded-lg">
-                  { }
+                <div className="flex justify-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                   <img
                     src={setupData.qr_code}
                     alt="QR Code"
@@ -335,11 +334,11 @@ export default function SecuritySettingsPage() {
 
               {/* Step 2: Manual Entry */}
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
                   أو أدخل المفتاح يدوياً:
                 </h3>
                 <div className="flex items-center gap-3">
-                  <code className="flex-1 bg-white px-4 py-2 rounded border border-gray-300 font-mono text-sm">
+                  <code className="flex-1 bg-white dark:bg-gray-700 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 font-mono text-sm dark:text-gray-200">
                     {setupData.manual_entry_key}
                   </code>
                   <button
@@ -347,7 +346,7 @@ export default function SecuritySettingsPage() {
                       navigator.clipboard.writeText(setupData.manual_entry_key);
                       setSuccess("تم النسخ إلى الحافظة");
                     }}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+                    className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600 dark:text-gray-200"
                   >
                     نسخ
                   </button>
@@ -356,7 +355,7 @@ export default function SecuritySettingsPage() {
 
               {/* Step 3: Verify Code */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
                   2. أدخل رمز التحقق من التطبيق
                 </h3>
                 <input
@@ -371,7 +370,7 @@ export default function SecuritySettingsPage() {
                       .slice(0, 6);
                     setVerificationCode(sanitized);
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-2xl tracking-widest dark:bg-gray-700 dark:text-gray-100"
                   placeholder="000000"
                   maxLength={6}
                   autoFocus
@@ -393,7 +392,7 @@ export default function SecuritySettingsPage() {
                     setSetupData(null);
                     setVerificationCode("");
                   }}
-                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
                 >
                   إلغاء
                 </button>
@@ -404,26 +403,26 @@ export default function SecuritySettingsPage() {
 
         {/* Backup Codes Display */}
         {showBackupCodes && backupCodes.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-start gap-3 mb-4">
               <Key className="w-6 h-6 text-yellow-600 flex-shrink-0" />
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   رموز النسخ الاحتياطي
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   احفظ هذه الرموز في مكان آمن. يمكنك استخدام كل رمز مرة واحدة
                   فقط للدخول إذا فقدت الوصول لتطبيق المصادقة.
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-4">
               <div className="grid grid-cols-2 gap-3">
                 {backupCodes.map((code, index) => (
                   <code
                     key={index}
-                    className="bg-white px-4 py-2 rounded border border-gray-300 font-mono text-center"
+                    className="bg-white dark:bg-gray-800 px-4 py-2 rounded border border-gray-300 dark:border-gray-600 font-mono text-center dark:text-gray-200"
                   >
                     {code}
                   </code>
@@ -441,7 +440,7 @@ export default function SecuritySettingsPage() {
               </button>
               <button
                 onClick={() => setShowBackupCodes(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
               >
                 تم الحفظ
               </button>
@@ -451,8 +450,8 @@ export default function SecuritySettingsPage() {
 
         {/* Disable Confirmation */}
         {showDisable && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
               تعطيل المصادقة الثنائية
             </h2>
 
@@ -464,14 +463,14 @@ export default function SecuritySettingsPage() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 أدخل رمز التحقق أو رمز النسخ الاحتياطي
               </label>
               <input
                 type="text"
                 value={disableCode}
                 onChange={(e) => setDisableCode(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-100"
                 placeholder="000000 أو XXXX-XXXX"
                 autoFocus
               />
@@ -490,7 +489,7 @@ export default function SecuritySettingsPage() {
                   setShowDisable(false);
                   setDisableCode("");
                 }}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300"
               >
                 إلغاء
               </button>

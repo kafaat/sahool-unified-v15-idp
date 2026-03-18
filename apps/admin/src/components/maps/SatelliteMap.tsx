@@ -305,7 +305,7 @@ export default function SatelliteMap({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: "#1B5E20" }}
             ></span>
-            <span>ممتاز (NDVI &gt; 0.7)</span>
+            <span>{"ممتاز (NDVI > 0.7)"}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span
@@ -333,7 +333,7 @@ export default function SatelliteMap({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: "#F44336" }}
             ></span>
-            <span>حرج (&lt; 0.15)</span>
+            <span>{"حرج (< 0.15)"}</span>
           </div>
         </div>
       </div>

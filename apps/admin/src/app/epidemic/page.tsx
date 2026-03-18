@@ -3,7 +3,7 @@
 // Epidemic Monitoring Center - مركز رصد الأوبئة
 // Advanced disease outbreak monitoring with heatmap visualization
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import DataTable from "@/components/ui/DataTable";
@@ -71,11 +71,7 @@ export default function EpidemicCenterPage() {
   );
   const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("week");
 
-  useEffect(() => {
-    loadData();
-  }, [timeRange]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [diagnosesData, statsData] = await Promise.all([
@@ -89,7 +85,11 @@ export default function EpidemicCenterPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [timeRange]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Calculate governorate statistics
   const governorateStats = useMemo(() => {
@@ -207,8 +207,8 @@ export default function EpidemicCenterPage() {
       <div className="mt-6 flex items-center justify-between">
         <div className="flex items-center gap-2" suppressHydrationWarning>
           <Filter className="w-5 h-5 text-gray-400" />
-          <span className="text-sm text-gray-600">الفترة الزمنية:</span>
-          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+          <span className="text-sm text-gray-600 dark:text-gray-400">الفترة الزمنية:</span>
+          <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             {[
               { key: "day" as const, label: "اليوم" },
               { key: "week" as const, label: "الأسبوع" },
@@ -220,8 +220,8 @@ export default function EpidemicCenterPage() {
                 className={cn(
                   "px-3 py-1 text-sm rounded-md transition-colors",
                   timeRange === key
-                    ? "bg-white text-sahool-700 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900",
+                    ? "bg-white dark:bg-gray-800 text-sahool-700 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100",
                 )}
               >
                 {label}
@@ -232,7 +232,7 @@ export default function EpidemicCenterPage() {
 
         <button
           onClick={loadData}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           suppressHydrationWarning
         >
           <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
@@ -242,8 +242,8 @@ export default function EpidemicCenterPage() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Governorates Map (Simplified) */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <MapPin className="w-5 h-5 text-sahool-600" />
             خريطة انتشار الأمراض
           </h3>
@@ -265,7 +265,7 @@ export default function EpidemicCenterPage() {
                     "relative p-4 rounded-xl border-2 transition-all text-right",
                     isSelected
                       ? "border-sahool-500 bg-sahool-50"
-                      : "border-gray-100 hover:border-gray-200 bg-white",
+                      : "border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 bg-white dark:bg-gray-700",
                   )}
                 >
                   {/* Alert Indicator */}
@@ -276,14 +276,14 @@ export default function EpidemicCenterPage() {
                     )}
                   />
 
-                  <p className="font-bold text-gray-900">{gov.name}</p>
+                  <p className="font-bold text-gray-900 dark:text-gray-100">{gov.name}</p>
                   <p
                     className="text-2xl font-bold mt-1"
                     style={{ color: gov.color }}
                   >
                     {govStats?.total || 0}
                   </p>
-                  <p className="text-xs text-gray-500">حالة</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">حالة</p>
 
                   {(govStats?.critical ?? 0) > 0 && (
                     <div className="mt-2 flex items-center gap-1 text-xs text-red-600" suppressHydrationWarning>
@@ -297,7 +297,7 @@ export default function EpidemicCenterPage() {
           </div>
 
           {/* Legend */}
-          <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
+          <div className="mt-4 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-red-500" />
               <span>حرج</span>
@@ -318,8 +318,8 @@ export default function EpidemicCenterPage() {
         </div>
 
         {/* Top Diseases Sidebar */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <BarChart3 className="w-5 h-5 text-sahool-600" />
             أكثر الأمراض انتشاراً
           </h3>
@@ -333,12 +333,12 @@ export default function EpidemicCenterPage() {
                 return (
                   <div key={disease}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {disease}
                       </span>
-                      <span className="text-sm text-gray-500">{count}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{count}</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
@@ -366,25 +366,25 @@ export default function EpidemicCenterPage() {
 
           {/* Selected Governorate Details */}
           {selectedGovernorate && (
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <h4 className="font-bold text-gray-900 mb-3">
+            <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">
                 {GOVERNORATES.find((g) => g.id === selectedGovernorate)?.name}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">إجمالي الحالات:</span>
+                  <span className="text-gray-500 dark:text-gray-400">إجمالي الحالات:</span>
                   <span className="font-medium">
                     {governorateStats[selectedGovernorate]?.total || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">حالات حرجة:</span>
+                  <span className="text-gray-500 dark:text-gray-400">حالات حرجة:</span>
                   <span className="font-medium text-red-600">
                     {governorateStats[selectedGovernorate]?.critical || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">خطورة عالية:</span>
+                  <span className="text-gray-500 dark:text-gray-400">خطورة عالية:</span>
                   <span className="font-medium text-orange-600">
                     {governorateStats[selectedGovernorate]?.high || 0}
                   </span>
@@ -397,7 +397,7 @@ export default function EpidemicCenterPage() {
 
       {/* Recent Critical Cases */}
       <div className="mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
           <AlertTriangle className="w-5 h-5 text-red-600" />
           الحالات الحرجة الأخيرة
         </h3>
@@ -428,8 +428,8 @@ export default function EpidemicCenterPage() {
               header: "المرض",
               render: (d: DiagnosisRecord) => (
                 <div>
-                  <p className="font-medium text-gray-900">{d.diseaseNameAr}</p>
-                  <p className="text-xs text-gray-500">{d.diseaseName}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{d.diseaseNameAr}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{d.diseaseName}</p>
                 </div>
               ),
             },
@@ -442,7 +442,7 @@ export default function EpidemicCenterPage() {
               header: "دقة التشخيص",
               render: (d: DiagnosisRecord) => (
                 <div className="flex items-center gap-2">
-                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-green-500 rounded-full"
                       style={{ width: `${d.confidence}%` }}
@@ -458,7 +458,7 @@ export default function EpidemicCenterPage() {
               key: "diagnosedAt",
               header: "التاريخ",
               render: (d: DiagnosisRecord) => (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(d.diagnosedAt).toLocaleDateString("ar-YE")}
                 </span>
               ),

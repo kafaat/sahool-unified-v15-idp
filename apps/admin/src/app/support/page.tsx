@@ -176,8 +176,8 @@ export default function SupportPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">مركز الدعم الفني</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">مركز الدعم الفني</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             إدارة محادثات المزارعين مع الخبراء
           </p>
         </div>
@@ -186,52 +186,52 @@ export default function SupportPage() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
           </span>
-          <span className="text-sm text-gray-600">Socket.io متصل</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Socket.io متصل</span>
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.totalConnections}
           </div>
-          <div className="text-sm text-gray-500">اتصال نشط</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">اتصال نشط</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
           <div className="text-2xl font-bold text-green-600">
             {stats.onlineExperts}
           </div>
-          <div className="text-sm text-gray-500">خبير متاح</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">خبير متاح</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
           <div className="text-2xl font-bold text-blue-600">
             {stats.activeSessions}
           </div>
-          <div className="text-sm text-gray-500">جلسة نشطة</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">جلسة نشطة</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
           <div className="text-2xl font-bold text-yellow-600">
             {stats.pendingRequests}
           </div>
-          <div className="text-sm text-gray-500">طلب معلق</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">طلب معلق</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
           <div className="text-2xl font-bold text-purple-600">
             {stats.resolvedToday}
           </div>
-          <div className="text-sm text-gray-500">محلول اليوم</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">محلول اليوم</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.avgResponseTime}د
           </div>
-          <div className="text-sm text-gray-500">متوسط الرد</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">متوسط الرد</div>
         </div>
       </div>
 
       {/* Online Experts */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 border border-gray-100 dark:border-gray-700">
         <h2 className="text-lg font-semibold mb-3">الخبراء المتصلون</h2>
         <div className="flex flex-wrap gap-3">
           {[
@@ -249,7 +249,7 @@ export default function SupportPage() {
           ].map((expert, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 min-w-[200px]"
+              className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 min-w-[200px]"
             >
               <div className="relative">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -287,7 +287,7 @@ export default function SupportPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === tab.key
                 ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
             }`}
           >
             {tab.label}
@@ -301,53 +301,53 @@ export default function SupportPage() {
       </div>
 
       {/* Requests Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 المزارع
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 المحافظة
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 الموضوع
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 الخبير
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 الرسائل
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 الحالة
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
                 الوقت
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600 dark:text-gray-400">
                 إجراء
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {filteredRequests.map((request) => (
-              <tr key={request.id} className="hover:bg-gray-50">
+              <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {request.farmerName}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {request.farmerId}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600">
+                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
                   {request.governorate}
                 </td>
                 <td className="px-4 py-3">
                   <div
-                    className="text-sm text-gray-700 max-w-xs truncate"
+                    className="text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate"
                     title={request.topic}
                   >
                     {request.topic}
@@ -361,12 +361,12 @@ export default function SupportPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className="bg-gray-100 px-2 py-1 rounded text-sm">
+                  <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm">
                     {request.messagesCount}
                   </span>
                 </td>
                 <td className="px-4 py-3">{getStatusBadge(request.status)}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">
+                <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                   {formatTime(request.createdAt)}
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -392,8 +392,8 @@ export default function SupportPage() {
       {/* Request Detail Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-xl font-bold">تفاصيل طلب الدعم</h3>
@@ -425,38 +425,38 @@ export default function SupportPage() {
             <div className="p-6">
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <div className="text-sm text-gray-500">المزارع</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">المزارع</div>
                   <div className="font-medium">
                     {selectedRequest.farmerName}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">المحافظة</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">المحافظة</div>
                   <div className="font-medium">
                     {selectedRequest.governorate}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">الخبير</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">الخبير</div>
                   <div className="font-medium">
                     {selectedRequest.expertName || "لم يتم التعيين"}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">الحالة</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">الحالة</div>
                   <div>{getStatusBadge(selectedRequest.status)}</div>
                 </div>
               </div>
 
               <div className="mb-6">
-                <div className="text-sm text-gray-500 mb-1">الموضوع</div>
-                <div className="bg-gray-50 rounded-lg p-3">
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">الموضوع</div>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                   {selectedRequest.topic}
                 </div>
               </div>
 
               <div className="mb-6">
-                <div className="text-sm text-gray-500 mb-1">الجدول الزمني</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">الجدول الزمني</div>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>تم الإنشاء</span>
@@ -490,11 +490,11 @@ export default function SupportPage() {
               </div>
 
               {/* Mock Chat Preview */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-500 mb-3">آخر الرسائل</div>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-3">آخر الرسائل</div>
                 <div className="space-y-2 text-sm">
-                  <div className="bg-white rounded-lg p-2 max-w-[80%]">
-                    <div className="text-xs text-gray-500">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-2 max-w-[80%]">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {selectedRequest.farmerName}
                     </div>
                     <div>السلام عليكم، عندي مشكلة في المحصول...</div>
@@ -511,20 +511,20 @@ export default function SupportPage() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-100 flex gap-3">
+            <div className="p-6 border-t border-gray-100 dark:border-gray-700 flex gap-3">
               {selectedRequest.status === "pending" && (
-                <button className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                <button disabled className="flex-1 bg-green-600 text-white py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed" title="تعيين خبير (قريبًا)">
                   تعيين خبير
                 </button>
               )}
               {selectedRequest.status === "active" && (
-                <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                <button disabled className="flex-1 bg-blue-600 text-white py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed" title="إغلاق كمحلول (قريبًا)">
                   إغلاق كمحلول
                 </button>
               )}
               <button
                 onClick={() => setSelectedRequest(null)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 إغلاق
               </button>

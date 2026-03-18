@@ -155,8 +155,8 @@ export default function SettingsPage() {
       header: "الاسم",
       render: (admin: (typeof mockAdmins)[0]) => (
         <div>
-          <p className="font-medium text-gray-900">{admin.name}</p>
-          <p className="text-xs text-gray-500">{admin.nameEn}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{admin.name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{admin.nameEn}</p>
         </div>
       ),
     },
@@ -164,7 +164,7 @@ export default function SettingsPage() {
       key: "email",
       header: "البريد الإلكتروني",
       render: (admin: (typeof mockAdmins)[0]) => (
-        <span className="text-gray-700">{admin.email}</span>
+        <span className="text-gray-700 dark:text-gray-300">{admin.email}</span>
       ),
     },
     {
@@ -172,8 +172,8 @@ export default function SettingsPage() {
       header: "الدور",
       render: (admin: (typeof mockAdmins)[0]) => (
         <div>
-          <p className="font-medium text-gray-900">{admin.role}</p>
-          <p className="text-xs text-gray-500">{admin.roleEn}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{admin.role}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{admin.roleEn}</p>
         </div>
       ),
     },
@@ -197,7 +197,7 @@ export default function SettingsPage() {
       key: "lastLogin",
       header: "آخر تسجيل دخول",
       render: (admin: (typeof mockAdmins)[0]) => (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-gray-600 dark:text-gray-400">
           {new Date(admin.lastLogin).toLocaleDateString("ar-EG", {
             year: "numeric",
             month: "short",
@@ -211,10 +211,10 @@ export default function SettingsPage() {
       header: "الإجراءات",
       render: (_admin: (typeof mockAdmins)[0]) => (
         <div className="flex items-center gap-2">
-          <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+          <button disabled className="p-1 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تعديل (قريبًا)">
             <Edit className="w-4 h-4 text-blue-600" />
           </button>
-          <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+          <button disabled className="p-1 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="حذف (قريبًا)">
             <Trash2 className="w-4 h-4 text-red-600" />
           </button>
         </div>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
       <Header title="الإعدادات" subtitle="إدارة إعدادات النظام والحساب" />
 
       {/* Tabs Navigation */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-1">
         <div className="flex gap-1">
           <button
             onClick={() => setSelectedTab("profile")}
@@ -236,7 +236,7 @@ export default function SettingsPage() {
               "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all",
               selectedTab === "profile"
                 ? "bg-sahool-600 text-white"
-                : "text-gray-600 hover:bg-gray-50",
+                : "text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700",
             )}
           >
             <User className="w-5 h-5" />
@@ -248,7 +248,7 @@ export default function SettingsPage() {
               "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all",
               selectedTab === "preferences"
                 ? "bg-sahool-600 text-white"
-                : "text-gray-600 hover:bg-gray-50",
+                : "text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700",
             )}
           >
             <SettingsIcon className="w-5 h-5" />
@@ -260,7 +260,7 @@ export default function SettingsPage() {
               "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all",
               selectedTab === "system"
                 ? "bg-sahool-600 text-white"
-                : "text-gray-600 hover:bg-gray-50",
+                : "text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700",
             )}
           >
             <Database className="w-5 h-5" />
@@ -272,7 +272,7 @@ export default function SettingsPage() {
               "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all",
               selectedTab === "users"
                 ? "bg-sahool-600 text-white"
-                : "text-gray-600 hover:bg-gray-50",
+                : "text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700",
             )}
           >
             <Users className="w-5 h-5" />
@@ -285,19 +285,19 @@ export default function SettingsPage() {
       {selectedTab === "profile" && (
         <div className="mt-6 space-y-6">
           {/* Profile Information Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-sahool-100 rounded-lg">
                 <User className="w-5 h-5 text-sahool-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 المعلومات الشخصية
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   الاسم بالعربية
                 </label>
                 <div className="relative">
@@ -314,7 +314,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Name in English
                 </label>
                 <div className="relative">
@@ -331,7 +331,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   البريد الإلكتروني
                 </label>
                 <div className="relative">
@@ -348,7 +348,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   رقم الهاتف
                 </label>
                 <div className="relative">
@@ -365,7 +365,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   الموقع
                 </label>
                 <div className="relative">
@@ -397,19 +397,19 @@ export default function SettingsPage() {
           </div>
 
           {/* Change Password Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-red-100 rounded-lg">
                 <Lock className="w-5 h-5 text-red-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 تغيير كلمة المرور
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   كلمة المرور القديمة
                 </label>
                 <div className="relative">
@@ -440,7 +440,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   كلمة المرور الجديدة
                 </label>
                 <div className="relative">
@@ -471,7 +471,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   تأكيد كلمة المرور
                 </label>
                 <div className="relative">
@@ -519,17 +519,17 @@ export default function SettingsPage() {
       {selectedTab === "preferences" && (
         <div className="mt-6 space-y-6">
           {/* Language & Display Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-blue-100 rounded-lg">
                 <Globe className="w-5 h-5 text-blue-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">اللغة والعرض</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">اللغة والعرض</h2>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   اللغة الافتراضية
                 </label>
                 <select
@@ -547,23 +547,23 @@ export default function SettingsPage() {
           </div>
 
           {/* Notifications Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-yellow-100 rounded-lg">
                 <Bell className="w-5 h-5 text-yellow-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">الإشعارات</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">الإشعارات</h2>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       إشعارات البريد الإلكتروني
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تلقي التحديثات عبر البريد الإلكتروني
                     </p>
                   </div>
@@ -591,14 +591,14 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       إشعارات الرسائل القصيرة
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تلقي التنبيهات عبر الرسائل النصية
                     </p>
                   </div>
@@ -626,14 +626,14 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Bell className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       الإشعارات الفورية
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تلقي الإشعارات الفورية في المتصفح
                     </p>
                   </div>
@@ -661,14 +661,14 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       التقارير الأسبوعية
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       استلام ملخص أسبوعي للنشاطات
                     </p>
                   </div>
@@ -698,10 +698,10 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3">
                   <Shield className="w-5 h-5 text-red-600" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       التنبيهات الحرجة
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تنبيهات فورية للمشاكل الحرجة (موصى به)
                     </p>
                   </div>
@@ -745,17 +745,17 @@ export default function SettingsPage() {
       {selectedTab === "system" && (
         <div className="mt-6 space-y-6">
           {/* API Configuration Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-purple-100 rounded-lg">
                 <Database className="w-5 h-5 text-purple-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">إعدادات API</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">إعدادات API</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   نقطة نهاية API الرئيسية
                 </label>
                 <input
@@ -772,7 +772,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   الحد الأقصى لحجم التحميل (MB)
                 </label>
                 <input
@@ -789,7 +789,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   مهلة الجلسة (دقيقة)
                 </label>
                 <input
@@ -806,7 +806,7 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   تكرار النسخ الاحتياطي
                 </label>
                 <select
@@ -829,21 +829,21 @@ export default function SettingsPage() {
           </div>
 
           {/* System Options Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-green-100 rounded-lg">
                 <SettingsIcon className="w-5 h-5 text-green-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">خيارات النظام</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">خيارات النظام</h2>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Check className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">تفعيل التحليلات</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">تفعيل التحليلات</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تتبع استخدام المنصة والإحصائيات
                     </p>
                   </div>
@@ -871,12 +871,12 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Shield className="w-5 h-5 text-gray-400" />
                   <div>
-                    <p className="font-medium text-gray-900">تفعيل التشخيصات</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">تفعيل التشخيصات</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       جمع بيانات الأخطاء وتقارير الأداء
                     </p>
                   </div>
@@ -910,10 +910,10 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3">
                   <Database className="w-5 h-5 text-blue-600" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       النسخ الاحتياطي التلقائي
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       نسخ البيانات تلقائياً حسب الجدول المحدد
                     </p>
                   </div>
@@ -943,8 +943,8 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3">
                   <X className="w-5 h-5 text-yellow-600" />
                   <div>
-                    <p className="font-medium text-gray-900">وضع الصيانة</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">وضع الصيانة</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       تعطيل الوصول مؤقتاً للصيانة
                     </p>
                   </div>
@@ -975,23 +975,23 @@ export default function SettingsPage() {
           </div>
 
           {/* Feature Flags Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-indigo-100 rounded-lg">
                 <Flag className="w-5 h-5 text-indigo-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 المميزات التجريبية
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     لوحة التحكم الجديدة
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     تصميم محدث مع ميزات إضافية
                   </p>
                 </div>
@@ -1016,12 +1016,12 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     التشخيص بالذكاء الاصطناعي
                   </p>
-                  <p className="text-xs text-gray-500">تحسين دقة التشخيص</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">تحسين دقة التشخيص</p>
                 </div>
                 <button
                   onClick={() =>
@@ -1044,12 +1044,12 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
                     توقعات الطقس المتقدمة
                   </p>
-                  <p className="text-xs text-gray-500">تنبؤات دقيقة للطقس</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">تنبؤات دقيقة للطقس</p>
                 </div>
                 <button
                   onClick={() =>
@@ -1074,10 +1074,10 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">توصيات المحاصيل</p>
-                  <p className="text-xs text-gray-500">اقتراحات ذكية للزراعة</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">توصيات المحاصيل</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">اقتراحات ذكية للزراعة</p>
                 </div>
                 <button
                   onClick={() =>
@@ -1102,10 +1102,10 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">أسعار السوق</p>
-                  <p className="text-xs text-gray-500">تتبع أسعار المحاصيل</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">أسعار السوق</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">تتبع أسعار المحاصيل</p>
                 </div>
                 <button
                   onClick={() =>
@@ -1130,10 +1130,10 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">الصور الفضائية</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">الصور الفضائية</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     تحليل بيانات الأقمار الصناعية
                   </p>
                 </div>
@@ -1178,17 +1178,21 @@ export default function SettingsPage() {
       {selectedTab === "users" && (
         <div className="mt-6 space-y-6">
           {/* Admin Users Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <Users className="w-5 h-5 text-cyan-700" />
                 </div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   المستخدمين الإداريين
                 </h2>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors">
+              <button
+                disabled
+                className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="إضافة مستخدم (قريبًا)"
+              >
                 <Plus className="w-4 h-4" />
                 إضافة مستخدم
               </button>
@@ -1203,12 +1207,12 @@ export default function SettingsPage() {
           </div>
 
           {/* Roles & Permissions Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-orange-100 rounded-lg">
                 <Shield className="w-5 h-5 text-orange-700" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 الأدوار والصلاحيات
               </h2>
             </div>
@@ -1217,9 +1221,9 @@ export default function SettingsPage() {
               <div className="p-4 border-2 border-sahool-200 rounded-lg bg-sahool-50">
                 <div className="flex items-center gap-2 mb-3">
                   <Shield className="w-5 h-5 text-sahool-700" />
-                  <h3 className="font-bold text-gray-900">مدير النظام</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">مدير النظام</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-sahool-600" />
                     صلاحيات كاملة
@@ -1245,9 +1249,9 @@ export default function SettingsPage() {
               <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
                 <div className="flex items-center gap-2 mb-3">
                   <Eye className="w-5 h-5 text-blue-700" />
-                  <h3 className="font-bold text-gray-900">مشرف</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">مشرف</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-blue-600" />
                     إدارة المزارع
@@ -1270,12 +1274,12 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="p-4 border-2 border-gray-200 rounded-lg bg-gray-50">
+              <div className="p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                 <div className="flex items-center gap-2 mb-3">
-                  <Eye className="w-5 h-5 text-gray-700" />
-                  <h3 className="font-bold text-gray-900">مدقق</h3>
+                  <Eye className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">مدقق</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-gray-600" />
                     عرض المزارع
@@ -1293,8 +1297,8 @@ export default function SettingsPage() {
                     الحذف
                   </li>
                 </ul>
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-xs text-gray-500">عدد المستخدمين: 1</p>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">عدد المستخدمين: 1</p>
                 </div>
               </div>
             </div>

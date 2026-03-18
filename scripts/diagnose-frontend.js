@@ -50,6 +50,7 @@ const options = {
 function runCommand(cmd, description, cwd = '.', ignoreError = true) {
   log.subheader(description);
   try {
+    // nosemgrep: javascript.lang.security.detect-child-process.detect-child-process  -- internal CLI tool, no user input
     const output = execSync(cmd, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],

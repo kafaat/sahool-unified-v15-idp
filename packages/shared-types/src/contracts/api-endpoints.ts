@@ -46,6 +46,7 @@ export const AUTH_ENDPOINTS = {
   RESET_PASSWORD: `${API_PREFIX}/auth/reset-password`,
   VERIFY_OTP: `${API_PREFIX}/auth/verify-otp`,
   SEND_OTP: `${API_PREFIX}/auth/send-otp`,
+  RESEND_OTP: `${API_PREFIX}/auth/resend-otp`,
   ACTIVITY: `${API_PREFIX}/auth/activity`,
 } as const;
 

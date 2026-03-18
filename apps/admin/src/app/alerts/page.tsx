@@ -34,7 +34,7 @@ import {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_searchQuery] = useState("");
+  const [_searchQuery] = useState(""); // Reserved for future search feature
   const [typeFilter, setTypeFilter] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -221,7 +221,7 @@ export default function AlertsPage() {
               <Icon className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">{getAlertTypeLabel(alert.type)}</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">{getAlertTypeLabel(alert.type)}</p>
               <div className="flex items-center gap-1 text-xs">
                 <SeverityIcon className="w-3 h-3" />
                 <span>{getSeverityLabel(alert.severity)}</span>
@@ -236,8 +236,8 @@ export default function AlertsPage() {
       header: "الرسالة",
       render: (alert: Alert) => (
         <div>
-          <p className="font-medium text-gray-900">{alert.titleAr}</p>
-          <p className="text-sm text-gray-600 line-clamp-2">{alert.messageAr}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{alert.titleAr}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{alert.messageAr}</p>
         </div>
       ),
     },
@@ -245,7 +245,7 @@ export default function AlertsPage() {
       key: "field",
       header: "الحقل",
       render: (alert: Alert) => (
-        <span className="text-gray-700">{alert.fieldName || "عام"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{alert.fieldName || "عام"}</span>
       ),
     },
     {
@@ -261,7 +261,7 @@ export default function AlertsPage() {
       key: "createdAt",
       header: "التاريخ",
       render: (alert: Alert) => (
-        <span className="text-sm text-gray-600">{formatDate(alert.createdAt)}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{formatDate(alert.createdAt)}</span>
       ),
     },
     {
@@ -275,7 +275,7 @@ export default function AlertsPage() {
               setSelectedAlert(alert);
               setShowDetailsModal(true);
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="عرض التفاصيل"
           >
             <Eye className="w-4 h-4 text-gray-500" />
@@ -327,59 +327,59 @@ export default function AlertsPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Bell className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي التنبيهات</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي التنبيهات</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.unread}</p>
-              <p className="text-sm text-gray-500">غير مقروء</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.unread}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">غير مقروء</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.critical}</p>
-              <p className="text-sm text-gray-500">حرج</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.critical}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">حرج</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <Check className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.acknowledged}</p>
-              <p className="text-sm text-gray-500">تم الإقرار</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.acknowledged}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">تم الإقرار</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الأنواع</option>
             <option value="weather">طقس</option>
@@ -393,7 +393,7 @@ export default function AlertsPage() {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل المستويات</option>
             <option value="info">معلومات</option>
@@ -404,7 +404,7 @@ export default function AlertsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="unread">غير مقروء</option>
@@ -415,10 +415,10 @@ export default function AlertsPage() {
 
           <button
             onClick={loadAlerts}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
           </button>
           <button 
             onClick={() => setShowCreateModal(true)}
@@ -433,10 +433,10 @@ export default function AlertsPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>
@@ -463,15 +463,15 @@ export default function AlertsPage() {
       {/* Alert Details Modal */}
       {showDetailsModal && selectedAlert && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">تفاصيل التنبيه</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">تفاصيل التنبيه</h3>
               <button
                 onClick={() => {
                   setShowDetailsModal(false);
                   setSelectedAlert(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -479,9 +479,9 @@ export default function AlertsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">النوع والمستوى</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">النوع والمستوى</label>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="px-3 py-1 bg-gray-100 rounded-lg text-sm">
+                  <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
                     {getAlertTypeLabel(selectedAlert.type)}
                   </span>
                   <span className={cn(
@@ -494,36 +494,36 @@ export default function AlertsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">العنوان</label>
-                <p className="text-lg font-medium text-gray-900 mt-1">{selectedAlert.titleAr}</p>
-                <p className="text-sm text-gray-600">{selectedAlert.title}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">العنوان</label>
+                <p className="text-lg font-medium text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.titleAr}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedAlert.title}</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">الرسالة</label>
-                <p className="text-gray-900 mt-1">{selectedAlert.messageAr}</p>
-                <p className="text-sm text-gray-600 mt-1">{selectedAlert.message}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الرسالة</label>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.messageAr}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{selectedAlert.message}</p>
               </div>
 
               {selectedAlert.fieldName && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500">الحقل</label>
-                  <p className="text-gray-900 mt-1">{selectedAlert.fieldName}</p>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الحقل</label>
+                  <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.fieldName}</p>
                 </div>
               )}
 
               <div>
-                <label className="text-sm font-medium text-gray-500">المصدر</label>
-                <p className="text-gray-900 mt-1">{selectedAlert.source}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">المصدر</label>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.source}</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">التاريخ</label>
-                <p className="text-gray-900 mt-1">{formatDate(selectedAlert.createdAt)}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">التاريخ</label>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{formatDate(selectedAlert.createdAt)}</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">الحالة</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الحالة</label>
                 <p className="mt-1">
                   <span className={cn("px-3 py-1 rounded-full text-sm font-medium", getStatusColor(selectedAlert.status))}>
                     {getStatusLabel(selectedAlert.status)}
@@ -559,9 +559,9 @@ export default function AlertsPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedAlert && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">تأكيد الحذف</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف التنبيه <strong>{selectedAlert.titleAr}</strong>؟
               هذا الإجراء لا يمكن التراجع عنه.
             </p>
@@ -572,7 +572,7 @@ export default function AlertsPage() {
                   setSelectedAlert(null);
                 }}
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
                 إلغاء
               </button>
@@ -594,17 +594,17 @@ export default function AlertsPage() {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             السابق
           </button>
-          <span className="px-4 py-2 text-gray-600">
+          <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
             صفحة {page} من {totalPages}
           </span>
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             التالي
           </button>
@@ -645,12 +645,12 @@ function AlertFormModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -659,13 +659,13 @@ function AlertFormModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 النوع
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as Alert["type"] })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="weather">طقس</option>
                 <option value="disease">مرض</option>
@@ -677,13 +677,13 @@ function AlertFormModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 المستوى
               </label>
               <select
                 value={formData.severity}
                 onChange={(e) => setFormData({ ...formData, severity: e.target.value as Alert["severity"] })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="info">معلومات</option>
                 <option value="warning">تحذير</option>
@@ -693,7 +693,7 @@ function AlertFormModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               العنوان (عربي)
             </label>
             <input
@@ -701,12 +701,12 @@ function AlertFormModal({
               required
               value={formData.titleAr}
               onChange={(e) => setFormData({ ...formData, titleAr: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               العنوان (English)
             </label>
             <input
@@ -714,12 +714,12 @@ function AlertFormModal({
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               الرسالة (عربي)
             </label>
             <textarea
@@ -727,12 +727,12 @@ function AlertFormModal({
               rows={3}
               value={formData.messageAr}
               onChange={(e) => setFormData({ ...formData, messageAr: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               الرسالة (English)
             </label>
             <textarea
@@ -740,19 +740,19 @@ function AlertFormModal({
               rows={3}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               معرف الحقل (اختياري)
             </label>
             <input
               type="text"
               value={formData.fieldId}
               onChange={(e) => setFormData({ ...formData, fieldId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               placeholder="field-123"
             />
           </div>
@@ -762,7 +762,7 @@ function AlertFormModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
               إلغاء
             </button>

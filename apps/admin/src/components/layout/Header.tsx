@@ -8,9 +8,10 @@
  * are lazy-loaded via next/dynamic since they are hidden by default.
  */
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { Bell, Search, X } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
+import { useNotifications } from "@/hooks/api/use-notifications";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import dynamic from "next/dynamic";
@@ -79,33 +80,21 @@ export default function Header({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Mock notifications
-  const notifications = [
-    {
-      id: 1,
-      type: "alert",
-      title: "تنبيه جفاف",
-      message: "حقل القمح يحتاج للري",
-      time: "منذ 5 دقائق",
-      unread: true,
-    },
-    {
-      id: 2,
-      type: "success",
-      title: "تم الحصاد",
-      message: "اكتمل حصاد حقل الشعير",
-      time: "منذ ساعة",
-      unread: true,
-    },
-    {
-      id: 3,
-      type: "info",
-      title: "تحديث النظام",
-      message: "تم تحديث النظام بنجاح",
-      time: "منذ 3 ساعات",
-      unread: false,
-    },
-  ];
+  // Fetch real notifications from API (auto-refreshes every 30s)
+  const { data: apiNotifications } = useNotifications({ limit: 10 });
+
+  const notifications = useMemo(
+    () =>
+      (apiNotifications ?? []).map((n) => ({
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        time: n.createdAt,
+        unread: !n.read,
+      })),
+    [apiNotifications],
+  );
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 

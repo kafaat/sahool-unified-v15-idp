@@ -338,13 +338,13 @@ function VerifyOTPForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Language Toggle */}
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-            className="text-sm text-gray-600 hover:text-green-600 transition px-3 py-1 rounded-lg hover:bg-white/50"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 transition px-3 py-1 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700/50"
           >
             {language === "ar" ? "English" : "العربية"}
           </button>
@@ -355,22 +355,22 @@ function VerifyOTPForm() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-4">
             <Leaf className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
-          <p className="text-gray-600 mt-2">{t.subtitle}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t.title}</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">{t.subtitle}</p>
         </div>
 
         {/* OTP Verification Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8" dir={language === "ar" ? "rtl" : "ltr"}>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8" dir={language === "ar" ? "rtl" : "ltr"}>
           {isVerified ? (
             /* Success State */
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {t.success}
               </h2>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {t.successMessage}
               </p>
               <Loader2 className="w-6 h-6 animate-spin text-green-600 mx-auto" />
@@ -383,16 +383,16 @@ function VerifyOTPForm() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
                   <Shield className="w-6 h-6 text-green-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {t.verifyTitle}
                 </h2>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
                   {t.verifySubtitle}
                 </p>
                 <p className="text-green-600 font-medium mt-1" dir="ltr">
                   {maskIdentifier(identifier)}
                 </p>
-                <p className="text-gray-500 text-xs mt-1">
+                <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
                   {t.otpSentVia[channel]} - {t.purpose[purpose]}
                 </p>
               </div>
@@ -421,7 +421,7 @@ function VerifyOTPForm() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* OTP Input Fields */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-center">
                     {t.enterOtp}
                   </label>
                   <div className="flex justify-center gap-2" dir="ltr">
@@ -438,9 +438,9 @@ function VerifyOTPForm() {
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(index, e)}
                         onPaste={handlePaste}
-                        className={`w-12 h-14 text-center text-2xl font-semibold border-2 rounded-lg outline-none transition
-                          ${digit ? "border-green-500 bg-green-50" : "border-gray-300"}
-                          ${timeRemaining <= 0 ? "bg-gray-100 cursor-not-allowed" : ""}
+                        className={`w-12 h-14 text-center text-2xl font-semibold border-2 rounded-lg outline-none transition dark:text-gray-100
+                          ${digit ? "border-green-500 bg-green-50 dark:bg-green-900/30" : "border-gray-300 dark:border-gray-600 dark:bg-gray-700"}
+                          ${timeRemaining <= 0 ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
                           focus:ring-2 focus:ring-green-500 focus:border-green-500`}
                         disabled={isLoading || timeRemaining <= 0}
                         autoFocus={index === 0}
@@ -452,7 +452,7 @@ function VerifyOTPForm() {
                 {/* Timer */}
                 <div className="flex items-center justify-center gap-2 text-sm">
                   <Clock className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-600">{t.timeRemaining}:</span>
+                  <span className="text-gray-600 dark:text-gray-400">{t.timeRemaining}:</span>
                   <span
                     className={`font-mono font-medium ${
                       timeRemaining <= 60 ? "text-red-500" : "text-green-600"
@@ -517,7 +517,7 @@ function VerifyOTPForm() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
           &copy; 2025 {t.title} - {t.copyright}
         </p>
       </div>
@@ -529,7 +529,7 @@ export default function VerifyOTPPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         </div>
       }

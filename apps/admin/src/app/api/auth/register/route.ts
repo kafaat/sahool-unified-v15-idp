@@ -8,9 +8,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { API_URL } from "@/config/api";
+import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
 import { checkRateLimit } from "@/lib/rate-limiter";
-
-const REGISTER_ENDPOINT = "/api/v1/auth/register";
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     let response: Response;
     try {
-      response = await fetch(`${API_URL}${REGISTER_ENDPOINT}`, {
+      response = await fetch(`${API_URL}${AUTH_ENDPOINTS.REGISTER}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -51,8 +51,8 @@ export default function LogisticsPage() {
         const query = searchQuery.toLowerCase();
         if (
           !s.trackingNumber.toLowerCase().includes(query) &&
-          !s.destinationAr.includes(query) &&
-          !s.receiverAr.includes(query)
+          !s.destinationAr.toLowerCase().includes(query) &&
+          !s.receiverAr.toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -108,8 +108,8 @@ export default function LogisticsPage() {
       header: "رقم التتبع",
       render: (shipment: Shipment) => (
         <div>
-          <p className="font-medium text-gray-900 font-mono">{shipment.trackingNumber}</p>
-          <p className="text-xs text-gray-500">{formatDate(shipment.createdAt)}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100 font-mono">{shipment.trackingNumber}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(shipment.createdAt)}</p>
         </div>
       ),
     },
@@ -118,8 +118,8 @@ export default function LogisticsPage() {
       header: "المسار",
       render: (shipment: Shipment) => (
         <div className="text-sm">
-          <p className="text-gray-500">من: {shipment.originAr}</p>
-          <p className="text-gray-900 font-medium">إلى: {shipment.destinationAr}</p>
+          <p className="text-gray-500 dark:text-gray-400">من: {shipment.originAr}</p>
+          <p className="text-gray-900 dark:text-gray-100 font-medium">إلى: {shipment.destinationAr}</p>
         </div>
       ),
     },
@@ -127,7 +127,7 @@ export default function LogisticsPage() {
       key: "receiver",
       header: "المستلم",
       render: (shipment: Shipment) => (
-        <span className="text-gray-700">{shipment.receiverAr}</span>
+        <span className="text-gray-700 dark:text-gray-300">{shipment.receiverAr}</span>
       ),
     },
     {
@@ -135,9 +135,9 @@ export default function LogisticsPage() {
       header: "التفاصيل",
       render: (shipment: Shipment) => (
         <div className="text-sm">
-          <span className="text-gray-600">{shipment.weight} كجم</span>
+          <span className="text-gray-600 dark:text-gray-400">{shipment.weight} كجم</span>
           <span className="mx-2">•</span>
-          <span className="text-gray-600">{shipment.items} قطعة</span>
+          <span className="text-gray-600 dark:text-gray-400">{shipment.items} قطعة</span>
         </div>
       ),
     },
@@ -146,7 +146,7 @@ export default function LogisticsPage() {
       header: "التسليم",
       render: (shipment: Shipment) => (
         <div className="text-sm">
-          <p className="text-gray-500">المتوقع: {formatDate(shipment.estimatedDelivery)}</p>
+          <p className="text-gray-500 dark:text-gray-400">المتوقع: {formatDate(shipment.estimatedDelivery)}</p>
           {shipment.actualDelivery && (
             <p className="text-green-600">الفعلي: {formatDate(shipment.actualDelivery)}</p>
           )}
@@ -171,10 +171,10 @@ export default function LogisticsPage() {
       header: "",
       render: (_shipment: Shipment) => (
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
+          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="تتبع">
+          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تتبع (قريبًا)">
             <MapPin className="w-4 h-4 text-blue-500" />
           </button>
         </div>
@@ -189,54 +189,54 @@ export default function LogisticsPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي الشحنات</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الشحنات</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
               <Truck className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.inTransit}</p>
-              <p className="text-sm text-gray-500">في الطريق</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.inTransit}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">في الطريق</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
-              <p className="text-sm text-gray-500">تم التسليم</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.delivered}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">تم التسليم</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertCircle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.delayed}</p>
-              <p className="text-sm text-gray-500">متأخر</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.delayed}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">متأخر</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -244,7 +244,7 @@ export default function LogisticsPage() {
               placeholder="بحث برقم التتبع أو الوجهة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -252,7 +252,7 @@ export default function LogisticsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="pending">قيد الانتظار</option>
@@ -264,12 +264,16 @@ export default function LogisticsPage() {
 
           <button
             onClick={loadShipments}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
           </button>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="w-5 h-5 text-gray-600" />
+          <button
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
       </div>
@@ -277,10 +281,10 @@ export default function LogisticsPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>

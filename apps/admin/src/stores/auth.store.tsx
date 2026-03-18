@@ -226,7 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [logout]);
+  }, []);
 
   const value = React.useMemo(
     () => ({

@@ -84,23 +84,23 @@ function ResetPasswordForm() {
   // No token provided
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-4">
               <Leaf className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">سهول</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
               رابط غير صالح
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.
               يرجى طلب رابط جديد.
             </p>
@@ -117,29 +117,29 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-4">
             <Leaf className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">سهول</h1>
-          <p className="text-gray-600 mt-2">لوحة إدارة المنصة الزراعية</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">لوحة إدارة المنصة الزراعية</p>
         </div>
 
         {/* Reset Password Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           {isSuccess ? (
             /* Success State */
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 تم تغيير كلمة المرور بنجاح
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.
                 سيتم توجيهك تلقائيًا...
               </p>
@@ -154,10 +154,10 @@ function ResetPasswordForm() {
           ) : (
             /* Form State */
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2 text-center">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 text-center">
                 إعادة تعيين كلمة المرور
               </h2>
-              <p className="text-gray-600 text-sm mb-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 text-center">
                 أدخل كلمة المرور الجديدة لحسابك
               </p>
 
@@ -172,7 +172,7 @@ function ResetPasswordForm() {
                 <div>
                   <label
                     htmlFor="newPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
                     كلمة المرور الجديدة
                   </label>
@@ -183,7 +183,7 @@ function ResetPasswordForm() {
                       type={showPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                      className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                       placeholder="••••••••"
                       required
                       minLength={8}
@@ -207,7 +207,7 @@ function ResetPasswordForm() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
                     تأكيد كلمة المرور
                   </label>
@@ -218,7 +218,7 @@ function ResetPasswordForm() {
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                      className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                       placeholder="••••••••"
                       required
                       minLength={8}
@@ -279,7 +279,7 @@ function ResetPasswordForm() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
           © 2025 سهول - جميع الحقوق محفوظة
         </p>
       </div>
@@ -291,7 +291,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         </div>
       }

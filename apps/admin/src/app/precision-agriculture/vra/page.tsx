@@ -140,17 +140,17 @@ export default function VRAPage() {
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700">تصفية:</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">تصفية:</span>
           </div>
 
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">جميع الحالات</option>
             <option value="pending">قيد المراجعة</option>
@@ -162,7 +162,7 @@ export default function VRAPage() {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">جميع الأنواع</option>
             <option value="fertilizer">سماد</option>
@@ -170,7 +170,11 @@ export default function VRAPage() {
             <option value="irrigation">ري</option>
           </select>
 
-          <button className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium hover:bg-sahool-700 transition-colors flex items-center gap-2">
+          <button
+            disabled
+            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير التقرير (قريبًا)"
+          >
             <Download className="w-4 h-4" />
             تصدير التقرير
           </button>
@@ -178,38 +182,38 @@ export default function VRAPage() {
       </div>
 
       {/* Prescriptions Table */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-700">
               <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المزرعة / الحقل
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   النوع
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المساحة
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المناطق
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   التكلفة
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   الحالة
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   التاريخ
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   إجراءات
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {isLoading ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
@@ -231,38 +235,38 @@ export default function VRAPage() {
                 prescriptions.map((prescription) => (
                   <tr
                     key={prescription.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
                           {prescription.farmName}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {prescription.fieldName}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-900">
+                      <span className="text-sm text-gray-900 dark:text-gray-100">
                         {getPrescriptionTypeLabel(
                           prescription.prescriptionType,
                         )}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                       {prescription.area.toFixed(1)} هكتار
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                       {prescription.zones}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                       ${prescription.totalCost.toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge status={prescription.status} />
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {formatDate(prescription.createdAt)}
                     </td>
                     <td className="px-6 py-4">

@@ -98,33 +98,33 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-4">
             <Leaf className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">سهول</h1>
-          <p className="text-gray-600 mt-2">لوحة إدارة المنصة الزراعية</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">لوحة إدارة المنصة الزراعية</p>
         </div>
 
         {/* Forgot Password Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           {isSuccess ? (
             /* Success State */
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 تم إرسال رابط إعادة التعيين
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فسيتم إرسال رابط
                 إعادة تعيين كلمة المرور إليه.
               </p>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 الرابط صالح لمدة ساعة واحدة فقط.
               </p>
               <Link
@@ -138,10 +138,10 @@ export default function ForgotPasswordPage() {
           ) : (
             /* Form State */
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2 text-center">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 text-center">
                 نسيت كلمة المرور؟
               </h2>
-              <p className="text-gray-600 text-sm mb-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 text-center">
                 اختر طريقة استرداد الحساب
                 <br />
                 <span className="text-xs text-gray-500">Choose your recovery method</span>
@@ -155,7 +155,7 @@ export default function ForgotPasswordPage() {
 
               {/* Channel Selector */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   طريقة الاسترداد
                   <span className="text-xs text-gray-500 mr-2">Recovery Method</span>
                 </label>
@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
                       className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                         channel === option.id
                           ? "border-green-600 bg-green-50 text-green-700"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                          : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {option.icon}
@@ -184,7 +184,7 @@ export default function ForgotPasswordPage() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       البريد الإلكتروني
                       <span className="text-xs text-gray-500 mr-2">Email</span>
@@ -196,13 +196,13 @@ export default function ForgotPasswordPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                        className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                         placeholder="admin@sahool.io"
                         required
                         dir="ltr"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       سيتم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني
                     </p>
                   </div>
@@ -211,7 +211,7 @@ export default function ForgotPasswordPage() {
                   <div>
                     <label
                       htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       رقم الهاتف
                       <span className="text-xs text-gray-500 mr-2">Phone Number</span>
@@ -223,13 +223,13 @@ export default function ForgotPasswordPage() {
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                        className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                         placeholder="+966 5X XXX XXXX"
                         required
                         dir="ltr"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       {channel === "sms" && "سيتم إرسال رمز التحقق عبر رسالة نصية"}
                       {channel === "whatsapp" && "سيتم إرسال رمز التحقق عبر واتساب"}
                       {channel === "telegram" && "سيتم إرسال رمز التحقق عبر تيليجرام"}
@@ -271,7 +271,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
           © 2025 سهول - جميع الحقوق محفوظة
         </p>
       </div>

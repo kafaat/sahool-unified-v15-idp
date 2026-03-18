@@ -31,17 +31,17 @@ export default function StatCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md",
+        "bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md",
         className,
       )}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-500 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {displayValue}
             {suffix && (
-              <span className="text-lg text-gray-500 mr-1">{suffix}</span>
+              <span className="text-lg text-gray-500 dark:text-gray-400 mr-1">{suffix}</span>
             )}
           </p>
           {trend && (
@@ -53,7 +53,7 @@ export default function StatCard({
             >
               <span>{trend.isPositive ? "↑" : "↓"}</span>
               <span>{Math.abs(trend.value)}%</span>
-              <span className="text-gray-500">من الأسبوع الماضي</span>
+              <span className="text-gray-500 dark:text-gray-400">من الأسبوع الماضي</span>
             </p>
           )}
         </div>

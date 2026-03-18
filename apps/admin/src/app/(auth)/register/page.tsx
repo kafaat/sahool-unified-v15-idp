@@ -75,20 +75,20 @@ function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-4">
             <Leaf className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">سهول</h1>
-          <p className="text-gray-600 mt-2">لوحة إدارة المنصة الزراعية</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">لوحة إدارة المنصة الزراعية</p>
         </div>
 
         {/* Register Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
             إنشاء حساب جديد
           </h2>
 
@@ -103,7 +103,7 @@ function RegisterForm() {
             <div>
               <label
                 htmlFor="firstName"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 الاسم الأول
               </label>
@@ -115,7 +115,7 @@ function RegisterForm() {
                   type="text"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="محمد"
                   required
                 />
@@ -126,7 +126,7 @@ function RegisterForm() {
             <div>
               <label
                 htmlFor="lastName"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 اسم العائلة
               </label>
@@ -138,7 +138,7 @@ function RegisterForm() {
                   type="text"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="العبدالله"
                   required
                 />
@@ -149,7 +149,7 @@ function RegisterForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 البريد الإلكتروني
               </label>
@@ -161,7 +161,7 @@ function RegisterForm() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="example@sahool.io"
                   required
                   dir="ltr"
@@ -173,7 +173,7 @@ function RegisterForm() {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 رقم الهاتف <span className="text-gray-400">(اختياري)</span>
               </label>
@@ -185,7 +185,7 @@ function RegisterForm() {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="+966 5XX XXX XXXX"
                   dir="ltr"
                 />
@@ -196,7 +196,7 @@ function RegisterForm() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 كلمة المرور
               </label>
@@ -208,7 +208,7 @@ function RegisterForm() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                  className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="********"
                   required
                   dir="ltr"
@@ -226,7 +226,7 @@ function RegisterForm() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 يجب أن تكون كلمة المرور 8 أحرف على الأقل
               </p>
             </div>
@@ -250,7 +250,7 @@ function RegisterForm() {
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               لديك حساب بالفعل؟{" "}
               <Link
                 href="/login"
@@ -263,7 +263,7 @@ function RegisterForm() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
           © 2025 سهول - جميع الحقوق محفوظة
         </p>
       </div>
@@ -275,7 +275,7 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         </div>
       }

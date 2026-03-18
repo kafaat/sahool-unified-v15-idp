@@ -160,26 +160,26 @@ function DiseasesContent() {
 
       {/* Stats Summary */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-          <p className="text-sm text-gray-500">إجمالي التشخيصات</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي التشخيصات</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
-          <p className="text-sm text-gray-500">قيد المراجعة</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">قيد المراجعة</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
-          <p className="text-sm text-gray-500">حالات حرجة</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">حالات حرجة</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <p className="text-2xl font-bold text-blue-600">{stats.thisWeek}</p>
-          <p className="text-sm text-gray-500">هذا الأسبوع</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">هذا الأسبوع</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
@@ -188,7 +188,7 @@ function DiseasesContent() {
               placeholder="بحث بالمرض أو المزرعة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -197,7 +197,7 @@ function DiseasesContent() {
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             {SEVERITY_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -210,7 +210,7 @@ function DiseasesContent() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -222,21 +222,22 @@ function DiseasesContent() {
           {/* Actions */}
           <button
             onClick={loadDiagnoses}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600",
+                "w-5 h-5 text-gray-600 dark:text-gray-400",
                 isLoading && "animate-spin",
               )}
             />
           </button>
           <button
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            title="تصدير"
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
       </div>
@@ -252,9 +253,9 @@ function DiseasesContent() {
           ))}
         </div>
       ) : filteredDiagnoses.length === 0 ? (
-        <div className="mt-6 bg-white rounded-xl p-12 text-center border border-gray-100">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-100 dark:border-gray-700">
           <Bug className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">لا توجد تشخيصات مطابقة للبحث</p>
+          <p className="text-gray-500 dark:text-gray-400">لا توجد تشخيصات مطابقة للبحث</p>
         </div>
       ) : (
         <>
@@ -262,7 +263,7 @@ function DiseasesContent() {
             {paginatedDiagnoses.map((diagnosis) => (
               <div
                 key={diagnosis.id}
-                className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all cursor-pointer"
                 onClick={() => openModal(diagnosis)}
               >
                 {/* Image Placeholder */}
@@ -281,19 +282,19 @@ function DiseasesContent() {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-bold text-gray-900 mb-1">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
                     {diagnosis.diseaseNameAr}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     {diagnosis.diseaseName}
                   </p>
 
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <MapPin className="w-4 h-4" />
                       <span>{diagnosis.farmName}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(diagnosis.diagnosedAt)}</span>
                     </div>
@@ -337,11 +338,11 @@ function DiseasesContent() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <span className="px-4 py-2 text-sm">
+              <span className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
                 صفحة {currentPage} من {totalPages}
               </span>
               <button
@@ -349,7 +350,7 @@ function DiseasesContent() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -368,11 +369,11 @@ function DiseasesContent() {
           ></div>
 
           {/* Modal Content */}
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
             {/* Close Button */}
             <button
               onClick={closeModal}
-              className="absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-10"
+              className="absolute top-4 left-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors z-10"
             >
               <X className="w-5 h-5" />
             </button>
@@ -390,10 +391,10 @@ function DiseasesContent() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {selectedDiagnosis.diseaseNameAr}
                   </h2>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-400">
                     {selectedDiagnosis.diseaseName}
                   </p>
                 </div>
@@ -401,28 +402,28 @@ function DiseasesContent() {
                   <p className="text-3xl font-bold text-sahool-600">
                     {selectedDiagnosis.confidence.toFixed(1)}%
                   </p>
-                  <p className="text-sm text-gray-500">دقة التشخيص</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">دقة التشخيص</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-500 mb-1">المزرعة</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">المزرعة</p>
                   <p className="font-medium">{selectedDiagnosis.farmName}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-500 mb-1">نوع المحصول</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">نوع المحصول</p>
                   <p className="font-medium">{selectedDiagnosis.cropType}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-500 mb-1">الموقع</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">الموقع</p>
                   <p className="font-medium text-sm">
                     {selectedDiagnosis.location.lat.toFixed(4)},{" "}
                     {selectedDiagnosis.location.lng.toFixed(4)}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-500 mb-1">تاريخ التشخيص</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">تاريخ التشخيص</p>
                   <p className="font-medium">
                     {formatDate(selectedDiagnosis.diagnosedAt)}
                   </p>
@@ -430,39 +431,23 @@ function DiseasesContent() {
               </div>
 
               {/* Treatment Recommendation */}
-              {(
-                selectedDiagnosis as DiagnosisRecord & {
-                  treatment?: {
-                    recommendation?: string;
-                    recommendationAr?: string;
-                  };
-                }
-              ).treatment && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                  <h3 className="font-bold text-green-800 mb-2 flex items-center gap-2">
-                    <Pill className="w-5 h-5" />
-                    توصية العلاج
-                  </h3>
-                  <p className="text-green-700">
-                    {(
-                      selectedDiagnosis as DiagnosisRecord & {
-                        treatment?: {
-                          recommendation?: string;
-                          recommendationAr?: string;
-                        };
-                      }
-                    ).treatment?.recommendationAr ||
-                      (
-                        selectedDiagnosis as DiagnosisRecord & {
-                          treatment?: {
-                            recommendation?: string;
-                            recommendationAr?: string;
-                          };
-                        }
-                      ).treatment?.recommendation}
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const treatment = (selectedDiagnosis as DiagnosisRecord & {
+                  treatment?: { recommendation?: string; recommendationAr?: string };
+                }).treatment;
+                if (!treatment) return null;
+                return (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h3 className="font-bold text-green-800 mb-2 flex items-center gap-2">
+                      <Pill className="w-5 h-5" />
+                      توصية العلاج
+                    </h3>
+                    <p className="text-green-700">
+                      {treatment.recommendationAr || treatment.recommendation}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Expert Review */}
               {selectedDiagnosis.expertReview && (
@@ -540,7 +525,7 @@ function DiseasesContent() {
                       );
                     }
                   }}
-                  className="px-4 py-3 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="px-4 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <MapPin className="w-5 h-5" />
                 </button>

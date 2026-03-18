@@ -44,6 +44,7 @@ import {
   FlaskConical,
   // Admin-only feature icons
   Shield,
+  Target,
   ClipboardList,
   Eye,
   Plane,
@@ -51,6 +52,20 @@ import {
   Radio,
   Search,
   Bot,
+  CalendarDays,
+  CloudSun,
+  FileBarChart,
+  BarChart3,
+  ScanLine,
+  TestTubes,
+  ArrowLeftRight,
+  // P2/P3 feature icons
+  Truck,
+  Handshake,
+  Coins,
+  ShieldCheck,
+  Layers,
+  Wheat,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -78,6 +93,7 @@ const mainNavigation = [
 // Operations section
 const operationsNav = [
   { name: "المزارع", href: "/farms", icon: MapPin },
+  { name: "المواسم الزراعية", href: "/seasons", icon: CalendarDays },
   { name: "إدارة الأمراض", href: "/diseases", icon: Bug },
   { name: "الري الذكي", href: "/irrigation", icon: Droplets },
   { name: "المهام", href: "/tasks", icon: CheckSquare },
@@ -87,6 +103,7 @@ const operationsNav = [
 const monitoringNav = [
   { name: "المستشعرات", href: "/sensors", icon: Cpu },
   { name: "التنبيهات", href: "/alerts", icon: Bell },
+  { name: "الطقس والمناخ", href: "/weather", icon: CloudSun },
   { name: "مركز رصد الأوبئة", href: "/epidemic", icon: Activity },
   { name: "حاسبة الإنتاجية", href: "/yield", icon: TrendingUp },
 ];
@@ -95,10 +112,17 @@ const monitoringNav = [
 const managementNav = [
   { name: "المستخدمون", href: "/users", icon: Users },
   { name: "المعدات", href: "/equipment", icon: Wrench },
+  { name: "تتبع الأسطول", href: "/equipment/fleet-tracking", icon: Truck },
+  { name: "التعاونيات", href: "/cooperatives", icon: Handshake },
   { name: "المخزون", href: "/inventory", icon: Package },
   { name: "السوق", href: "/marketplace", icon: ShoppingCart },
+  { name: "أسعار السوق", href: "/market-prices", icon: Coins },
+  { name: "التأمين الزراعي", href: "/insurance", icon: ShieldCheck },
+  { name: "البذور والأصناف", href: "/seeds", icon: Wheat },
+  { name: "خريطة التربة", href: "/soil-map", icon: Layers },
   { name: "البحوث", href: "/research", icon: FlaskConical },
   { name: "الامتثال", href: "/compliance", icon: Shield },
+  { name: "التتبع والتوثيق", href: "/traceability", icon: ScanLine },
 ];
 
 // AI & Technology section (admin-only features)
@@ -136,11 +160,18 @@ const precisionAgricultureNav = [
   },
   { name: "إدارة الرش", href: "/precision-agriculture/spray", icon: Droplets },
   { name: "الري المحوري", href: "/precision-agriculture/pivot", icon: CircleDot },
+  { name: "وصفات التسميد", href: "/precision-agriculture/fertilizer", icon: FlaskConical },
 ];
 
 const analyticsNav = [
   { name: "تحليل الربحية", href: "/analytics/profitability", icon: DollarSign },
+  { name: "تحليل الغلة العميق", href: "/analytics/yield", icon: BarChart3 },
   { name: "تحليلات الأقمار", href: "/analytics/satellite", icon: Satellite },
+  { name: "التقرير الموسمي", href: "/reports/seasonal", icon: FileBarChart },
+  { name: "تحليل التربة", href: "/analytics/soil", icon: TestTubes },
+  { name: "مقارنة الحقول", href: "/analytics/field-compare", icon: ArrowLeftRight },
+  { name: "تنبؤ الإنتاجية", href: "/analytics/yield-forecasting", icon: TrendingUp },
+  { name: "تحليل الفجوات", href: "/analytics/gap-analysis", icon: Target },
 ];
 
 export default React.memo(function Sidebar() {
@@ -150,7 +181,7 @@ export default React.memo(function Sidebar() {
     pathname?.startsWith("/precision-agriculture"),
   );
   const [analyticsExpanded, setAnalyticsExpanded] = useState(
-    pathname?.startsWith("/analytics"),
+    pathname?.startsWith("/analytics") || pathname?.startsWith("/reports"),
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

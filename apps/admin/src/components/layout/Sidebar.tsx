@@ -44,6 +44,7 @@ import {
   FlaskConical,
   // Admin-only feature icons
   Shield,
+  Target,
   ClipboardList,
   Eye,
   Plane,
@@ -156,6 +157,7 @@ const analyticsNav = [
   { name: "التقرير الموسمي", href: "/reports/seasonal", icon: FileBarChart },
   { name: "تحليل التربة", href: "/analytics/soil", icon: TestTubes },
   { name: "مقارنة الحقول", href: "/analytics/field-compare", icon: ArrowLeftRight },
+  { name: "تحليل الفجوات", href: "/analytics/gap-analysis", icon: Target },
 ];
 
 export default React.memo(function Sidebar() {

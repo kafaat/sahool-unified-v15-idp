@@ -728,7 +728,7 @@ guards with `"unknown"` fallback values.
 ### BUG-011: Admin Weather API Hardcoded tenant_id
 
 **Severity:** HIGH
-**Affected Files:** `apps/admin/src/lib/api.ts`
+**Affected Files:** `apps/admin/src/lib/api.ts`, `apps/admin/src/app/api/weather/route.ts`
 
 **Issue:**
 Three weather API functions (`getWeatherCurrent`, `getWeatherForecast`,
@@ -736,10 +736,20 @@ Three weather API functions (`getWeatherCurrent`, `getWeatherForecast`,
 instead of extracting from the JWT token. Same class of bug as BUG-005
 (web app), causing incorrect tenant context for multi-tenant deployments.
 
+Initial fix attempted client-side JWT decoding via `getTenantFromToken()`,
+but this cannot work because `sahool_admin_token` is stored as an httpOnly
+cookie (set in `/api/auth/login/route.ts` with `httpOnly: true`), making it
+inaccessible to client-side JavaScript (`Cookies.get()` returns `undefined`).
+
 **Fix Applied:**
-Added `getTenantFromToken()` helper that decodes the JWT payload and
-reads the `tid` or `tenant_id` claim. All 3 weather calls now use
-`tenant_id: getTenantFromToken() || "default"`.
+Created a server-side Next.js API proxy route (`/api/weather`) that:
+1. Reads the httpOnly cookie server-side via `cookies()` API
+2. Extracts `tenant_id` from the JWT using `getUserFromToken()`
+3. Validates the tenant_id is a valid UUID (injection prevention)
+4. Forwards the request to the backend weather-service with the real tenant_id
+
+All 3 weather client functions now call `/api/weather` with `credentials: "same-origin"`
+instead of directly hitting the backend weather-service.
 
 **Status:** FIXED
 

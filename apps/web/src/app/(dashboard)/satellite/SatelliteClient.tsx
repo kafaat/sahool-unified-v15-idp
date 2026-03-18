@@ -131,7 +131,14 @@ export default function SatelliteClient() {
   // Get the value of the currently selected index for a field
   const getIndexValue = (field: SatelliteField): number => {
     if (selectedIndex === "ndvi") return field.indices.ndvi;
-    return field.indices[selectedIndex] ?? field.indices.ndvi;
+    const value = field.indices[selectedIndex];
+    if (value == null) {
+      console.warn(
+        `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`,
+      );
+      return field.indices.ndvi;
+    }
+    return value;
   };
 
   // Get color/label for a value based on the active index config

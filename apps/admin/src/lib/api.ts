@@ -41,26 +41,6 @@ function getToken(): string | undefined {
   return Cookies.get("sahool_admin_token");
 }
 
-/**
- * Extract tenant_id from JWT token payload (claim "tid" or "tenant_id").
- * Returns null if token is unavailable or not decodable.
- *
- * NOTE: With httpOnly cookies, getToken() returns undefined so this always
- * returns null on the client side. Callers must use a fallback (e.g. "default").
- * For server-side tenant extraction, use Next.js API routes instead.
- */
-function getTenantFromToken(): string | null {
-  const token = getToken();
-  if (!token) return null;
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]!));
-    return payload.tid || payload.tenant_id || null;
-  } catch {
-    return null;
-  }
-}
 
 // Axios instance with defaults
 // NOTE: withCredentials is set to true to send httpOnly cookies with requests
@@ -388,18 +368,27 @@ export async function updateDiagnosisStatus(
 // Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Weather API functions — proxied through Next.js API route (/api/weather)
+ * to extract tenant_id from the httpOnly JWT cookie server-side.
+ *
+ * واجهة الطقس — تمر عبر وكيل Next.js لاستخراج معرف المستأجر من الكوكي
+ */
+
 export async function getWeatherCurrent(
   lat: number,
   lng: number,
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.current,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "current", lat, lon: lng, field_id: fieldId }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     logger.error("Failed to fetch current weather:", error);
     return null;
@@ -413,12 +402,14 @@ export async function getWeatherForecast(
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.forecast,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng, days }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "forecast", lat, lon: lng, field_id: fieldId, days }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     logger.error("Failed to fetch weather forecast:", error);
     return null;
@@ -431,12 +422,14 @@ export async function getAgriculturalReport(
   fieldId: string = "default"
 ) {
   try {
-    const tenantId = getTenantFromToken();
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.agricultural,
-      { tenant_id: tenantId || "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "agricultural", lat, lon: lng, field_id: fieldId }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     logger.error("Failed to fetch agricultural report:", error);
     return null;

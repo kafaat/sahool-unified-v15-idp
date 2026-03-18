@@ -167,13 +167,16 @@ export default function SatellitePage() {
             {INDEX_OPTIONS.map((idx) => (
               <button
                 key={idx.value}
-                onClick={() => setSelectedIndex(idx.value)}
+                onClick={() => idx.value === "ndvi" && setSelectedIndex(idx.value)}
+                disabled={idx.value !== "ndvi"}
                 className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${
                   selectedIndex === idx.value
                     ? "bg-sahool-600 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    : idx.value !== "ndvi"
+                      ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
-                title={idx.labelAr}
+                title={idx.value !== "ndvi" ? `${idx.labelAr} — قريباً` : idx.labelAr}
               >
                 {idx.icon} {idx.label}
               </button>

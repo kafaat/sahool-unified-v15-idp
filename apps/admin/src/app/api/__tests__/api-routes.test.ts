@@ -158,7 +158,7 @@ describe("POST /api/auth/login", () => {
           refresh_token: "test-refresh-token",
           user: { id: "1", email: "admin@sahool.app", role: "admin" },
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -205,7 +205,7 @@ describe("POST /api/auth/login", () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(
         JSON.stringify({ message: "Invalid credentials" }),
-        { status: 401 },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -232,7 +232,7 @@ describe("POST /api/auth/login", () => {
           requires_2fa: true,
           temp_token: "temp-2fa-token",
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 

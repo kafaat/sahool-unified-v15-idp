@@ -113,6 +113,14 @@ vi.mock("lucide-react", () => {
     Mountain: createIcon("mountain"),
     Radio: createIcon("radio"),
     Bot: createIcon("bot"),
+    CalendarDays: createIcon("calendar-days"),
+    CloudSun: createIcon("cloud-sun"),
+    FileBarChart: createIcon("file-bar-chart"),
+    BarChart3: createIcon("bar-chart-3"),
+    ScanLine: createIcon("scan-line"),
+    TestTubes: createIcon("test-tubes"),
+    ArrowLeftRight: createIcon("arrow-left-right"),
+    Target: createIcon("target"),
   };
 });
 

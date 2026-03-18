@@ -1,11 +1,9 @@
-// Sahool Admin Dashboard - API Configuration
-// إعدادات الاتصال بالخادم
+// Sahool Admin Dashboard - API Layer
+// طبقة API للوحة الإدارة
+//
+// This module delegates to the unified @sahool/api-client via unified-client.ts.
+// All exports are preserved for backward compatibility.
 
-import axios, {
-  type AxiosResponse,
-  type AxiosError,
-  type InternalAxiosRequestConfig,
-} from "axios";
 import type {
   Farm,
   DiagnosisRecord,
@@ -14,82 +12,18 @@ import type {
   SensorReading,
 } from "@/types";
 import { apiClient as authApiClient } from "./api-client";
-import Cookies from "js-cookie";
 import { logger } from "./logger";
 
 // Import API configuration from centralized config
-import { API_URLS, API_CONFIG, TIMEOUT_TIERS } from "@/config/api";
+import { API_URLS, TIMEOUT_TIERS } from "@/config/api";
 
 // Re-export API_URLS for consumers of this module
 export { API_URLS };
 
-// Helper function to get token from cookies
-// NOTE: This will return undefined since tokens are now stored in httpOnly cookies
-// and are not accessible from client-side JavaScript for security reasons.
-//
-// Authentication flow uses Next.js API routes as server-side proxies which can
-// access httpOnly cookies. See implementations in:
-//   - /app/api/auth/me/route.ts - Current user endpoint
-//   - /app/api/auth/login/route.ts - Login with cookie setting
-//   - /app/api/auth/logout/route.ts - Logout with cookie clearing
-//   - /app/api/auth/refresh/route.ts - Token refresh
-//
-// For other API calls that require authentication, the backend services should
-// be configured to accept cookie-based authentication via Kong gateway, or
-// additional Next.js API routes should be created following the same pattern.
-function getToken(): string | undefined {
-  return Cookies.get("sahool_admin_token");
-}
-
-
-// Axios instance with defaults
-// NOTE: withCredentials is set to true to send httpOnly cookies with requests
-export const apiClient = axios.create({
-  timeout: API_CONFIG.timeout,
-  withCredentials: true, // Send cookies with cross-origin requests
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Language": "ar,en",
-  },
-});
-
-// Add auth token interceptor - uses centralized token management
-// NOTE: With httpOnly cookies, this interceptor may not be able to add the
-// Authorization header. Backend services should be configured to accept
-// cookie-based authentication, OR these API calls should be proxied through
-// Next.js API routes where tokens can be injected server-side.
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor for auth errors - consistent with auth store
-apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear session via logout endpoint
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
-      } catch (logoutError) {
-        logger.error("Logout error:", logoutError);
-      }
-
-      authApiClient.clearToken();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+// Unified API client — replaces raw axios.create() with @sahool/api-client instance.
+// Provides: token refresh with queuing, retry with exponential backoff, HTTPS enforcement.
+import { apiClient } from "./unified-client";
+export { apiClient };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Image Upload API (FormData support)

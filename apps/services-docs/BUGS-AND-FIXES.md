@@ -817,6 +817,30 @@ Used `useRef` for `onFieldClick` callback and removed it from deps array.
 21. ~~**Fix NdviTileLayer callback deps causing layer rebuild** (BUG-012)~~ ✅ DONE
 22. ~~**Fix SatelliteMap onFieldClick causing marker rebuild** (BUG-013)~~ ✅ DONE
 
+### Completed (March 2026 - Multi-Index Satellite Enhancement)
+
+23. ~~**Wire satellite index selector to display selected index data** (FEAT-001)~~ ✅ DONE
+    - SatelliteClient.tsx: Index selector now switches field list, stats, legend, and progress bars between NDVI/NDWI/EVI/SAVI/NDRE/LAI
+    - Added INDEX_CONFIG with per-index color stops, labels, and descriptions
+24. ~~**Generalize NdviTileLayer for multi-index support** (FEAT-002)~~ ✅ DONE
+    - Added `indexType` prop to NdviTileLayer component
+    - Added per-index color gradient scales (NDVI, NDWI, EVI, SAVI, NDRE, LAI)
+    - NdviColorLegend now accepts `indexType` prop for dynamic legend display
+    - Dynamic layer/source IDs per index type to support concurrent layers
+25. ~~**Add index selector to Admin satellite page** (FEAT-003)~~ ✅ DONE
+    - Added NDVI/SAVI/NDWI/NDRE/EVI tab switcher with icons
+    - Stats card label and icon update dynamically based on selected index
+    - Table header reflects selected index
+26. ~~**Yemen-specific SAVI L parameter** (FEAT-004)~~ ✅ DONE
+    - Added YEMEN_SAVI_L_PARAMS dict in sahool-eo/tasks/indices.py
+    - 7 regions: Tihama (0.75), Southern Coast (0.70), Hadhramaut (0.65), Eastern Plateau (0.60), Socotra (0.55), Northern Highlands (0.45), Highlands (0.40)
+    - SahoolSAVITask accepts `region` parameter for automatic L selection
+27. ~~**NDWI water stress alerts in satellite dashboard** (FEAT-005)~~ ✅ DONE
+    - Added water stress detection section (fields with NDWI < 0)
+    - Displays affected field name, NDWI value, and irrigation recommendation
+28. ~~**Fix admin api.ts TypeScript error in getTenantFromToken** (BUG-014)~~ ✅ DONE
+    - Added non-null assertion for `parts[1]` in `atob()` call
+
 ---
 
 ## Checklist for Coding Agent

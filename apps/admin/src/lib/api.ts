@@ -51,7 +51,7 @@ function getTenantFromToken(): string | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
+    const payload = JSON.parse(atob(parts[1]!));
     return payload.tid || payload.tenant_id || null;
   } catch {
     return null;

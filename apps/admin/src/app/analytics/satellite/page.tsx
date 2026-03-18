@@ -17,6 +17,8 @@ import {
   Download,
   Eye,
   Activity,
+  Droplets,
+  Leaf,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { logger } from "../../../lib/logger";
@@ -31,6 +33,16 @@ const SatelliteMap = dynamic(() => import("@/components/maps/SatelliteMap"), {
     </div>
   ),
 });
+
+type IndexType = "ndvi" | "ndwi" | "savi" | "evi" | "ndre";
+
+const INDEX_OPTIONS: Array<{ value: IndexType; label: string; labelAr: string; icon: string }> = [
+  { value: "ndvi", label: "NDVI", labelAr: "مؤشر الغطاء النباتي", icon: "🌿" },
+  { value: "savi", label: "SAVI", labelAr: "المعدّل للتربة", icon: "🏜️" },
+  { value: "ndwi", label: "NDWI", labelAr: "مؤشر المياه", icon: "💧" },
+  { value: "ndre", label: "NDRE", labelAr: "الحافة الحمراء", icon: "🍃" },
+  { value: "evi", label: "EVI", labelAr: "الغطاء المحسّن", icon: "🌱" },
+];
 
 interface SatelliteData {
   summary: {
@@ -89,6 +101,7 @@ export default function SatellitePage() {
   const [data, setData] = useState<SatelliteData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedField, setSelectedField] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<IndexType>("ndvi");
   const [dateRange, setDateRange] = useState<"week" | "month" | "season">(
     "month",
   );
@@ -152,6 +165,22 @@ export default function SatellitePage() {
           subtitle="Satellite Data Analytics - مراقبة صحة المحاصيل عبر الأقمار الصناعية"
         />
         <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            {INDEX_OPTIONS.map((idx) => (
+              <button
+                key={idx.value}
+                onClick={() => setSelectedIndex(idx.value)}
+                className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${
+                  selectedIndex === idx.value
+                    ? "bg-sahool-600 text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                }`}
+                title={idx.labelAr}
+              >
+                {idx.icon} {idx.label}
+              </button>
+            ))}
+          </div>
           <select
             value={dateRange}
             onChange={(e) =>
@@ -189,10 +218,10 @@ export default function SatellitePage() {
           iconColor="text-green-600"
         />
         <StatCard
-          title="متوسط NDVI"
+          title={`متوسط ${selectedIndex.toUpperCase()}`}
           value={avgNDVI.toFixed(2)}
-          icon={Activity}
-          iconColor="text-purple-600"
+          icon={selectedIndex === "ndwi" ? Droplets : selectedIndex === "ndre" ? Leaf : Activity}
+          iconColor={selectedIndex === "ndwi" ? "text-blue-600" : "text-purple-600"}
         />
         <StatCard
           title="تنبيهات حرجة"
@@ -360,7 +389,7 @@ export default function SatellitePage() {
                   المساحة
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  NDVI الحالي
+                  {selectedIndex.toUpperCase()} الحالي
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المتوسط

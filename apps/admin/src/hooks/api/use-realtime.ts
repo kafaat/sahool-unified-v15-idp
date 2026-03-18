@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { invalidateQueries } from "./use-api-query";
 
@@ -47,13 +47,20 @@ const EVENT_TO_CACHE_KEYS: Record<RealtimeEvent, string[]> = {
  */
 export function useRealtimeSync(events: RealtimeEvent[] = []) {
   const { isConnected, subscribe } = useWebSocket({ autoConnect: true });
+  // Use a ref to avoid re-subscriptions when the events array reference changes
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
+
+  // Stable key based on event names to only re-subscribe when events actually change
+  const eventsKey = events.join(",");
 
   useEffect(() => {
     if (!isConnected) return;
 
+    const currentEvents = eventsRef.current;
     const effectiveEvents =
-      events.length > 0
-        ? events
+      currentEvents.length > 0
+        ? currentEvents
         : (Object.keys(EVENT_TO_CACHE_KEYS) as RealtimeEvent[]);
 
     const unsubscribers = effectiveEvents.map((event) =>
@@ -70,7 +77,7 @@ export function useRealtimeSync(events: RealtimeEvent[] = []) {
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  }, [isConnected, subscribe, events]);
+  }, [isConnected, subscribe, eventsKey]);
 
   return { isConnected };
 }

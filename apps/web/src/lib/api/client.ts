@@ -582,10 +582,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number, fieldId: string = "default") {
+    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
     return this.request<WeatherData>("/api/v1/weather/weather/current", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: "default",
+        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -594,10 +595,11 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
+    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
     return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: "default",
+        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -607,10 +609,11 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
+    const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
     return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
-        tenant_id: "default",
+        tenant_id: tenantId || "default",
         field_id: fieldId,
         lat,
         lon: lng,

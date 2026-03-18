@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Web & Admin Frontend Bug Fixes** (March 2026)
+  - Added missing `credentials: "same-origin"` to 20 fetch calls in admin API services
+    (iotService, irrigationService, alertService, equipmentService, taskService,
+    inventoryService, researchService, marketplaceService) — auth cookies were not sent
+  - Fixed hardcoded `tenant_id: "default"` in web weather API methods (`getWeather`,
+    `getWeatherForecast`, `getAgriculturalRisks`) — now extracts tenant from JWT token
+  - Fixed `useContextCompression` decompression always applying RLE even for LOW/MEDIUM
+    compression levels — decompress now tries plain JSON first, falls back to RLE
+  - Added `AbortController` to `useApiQuery` to prevent state updates after component unmount
+  - Fixed `useRealtimeSync` events array causing WebSocket re-subscriptions every render
+    by using a stable string key instead of array reference
+  - Wrapped `validateJwtToken()` in middleware with try-catch to prevent edge runtime crashes
+  - Added SSR-safety guards for `window.location.href` and `navigator.userAgent` in
+    `ErrorBoundary.logErrorToServer()`
+  - Fixed hardcoded `tenant_id: "default"` in admin weather API (`getWeatherCurrent`,
+    `getWeatherForecast`, `getAgriculturalReport`) — now extracts tenant from JWT token
+  - Fixed TypeScript error in admin `getTenantFromToken` — added non-null assertion for JWT part
+
+### Added
+
+- **Multi-Index Satellite Dashboard** (March 2026)
+  - Web: Wired index selector in SatelliteClient to switch between NDVI/NDWI/EVI/SAVI/NDRE/LAI
+    with per-index color stops, labels, progress bars, and dynamic legend
+  - Web: Generalized NdviTileLayer to accept `indexType` prop with per-index color gradients
+    and dynamic layer/source IDs for concurrent map layers
+  - Web: Added NDWI-based water stress alert section showing fields with NDWI < 0
+  - Admin: Added index selector tabs (NDVI/SAVI/NDWI/NDRE/EVI) to satellite analytics page
+    with dynamic stat cards and table headers
+  - Backend: Added Yemen-specific SAVI L parameters for 7 agro-ecological zones
+    (Tihama=0.75, Highlands=0.40, etc.) in sahool-eo indices module
+  - Backend: SahoolSAVITask now accepts `region` parameter for automatic L value selection
+  - Fixed `NdviTileLayer` callback props (`onLoad`/`onError`) in useEffect deps causing
+    unnecessary NDVI layer removal/re-addition on parent re-renders
+  - Fixed `SatelliteMap` `onFieldClick` in useEffect deps causing all markers to be
+    destroyed and rebuilt on every parent re-render
+
 ### Security
 
 - **NATS StatefulSet Hardening** (March 2026)

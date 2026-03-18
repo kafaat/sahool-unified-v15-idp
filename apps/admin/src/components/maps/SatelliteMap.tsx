@@ -54,6 +54,10 @@ export default function SatelliteMap({
   const [isClient, setIsClient] = useState(false);
   const [activeLayer, setActiveLayer] = useState<LayerType>("satellite");
 
+  // Use ref for callback prop to avoid rebuilding all markers on parent re-render
+  const onFieldClickRef = useRef(onFieldClick);
+  onFieldClickRef.current = onFieldClick;
+
   useEffect(() => {
     setIsClient(true);
     // Load Leaflet CSS dynamically
@@ -232,9 +236,7 @@ export default function SatelliteMap({
         marker.bindPopup(popupContent);
 
         marker.on("click", () => {
-          if (onFieldClick) {
-            onFieldClick(field.id);
-          }
+          onFieldClickRef.current?.(field.id);
         });
 
         marker.addTo(map);
@@ -253,7 +255,7 @@ export default function SatelliteMap({
     };
 
     updateMarkers();
-  }, [isClient, fields, selectedFieldId, onFieldClick]);
+  }, [isClient, fields, selectedFieldId]);
 
   if (!isClient) {
     return (

@@ -88,7 +88,7 @@ export const taskService = {
       if (params?.assignedTo) queryParams.set("assigned_to", params.assignedTo);
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
 
-      const response = await fetch(`${TASK_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(`${TASK_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Task>;
     } catch (error) {
@@ -263,7 +263,7 @@ export const inventoryService = {
       if (params?.category) queryParams.set("category", params.category);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`${INVENTORY_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(`${INVENTORY_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<InventoryItem>;
     } catch (error) {
@@ -297,7 +297,7 @@ export const inventoryService = {
       if (params?.page) queryParams.set("page", params.page.toString());
       if (params?.limit) queryParams.set("limit", params.limit.toString());
 
-      const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId })}/transactions?${queryParams.toString()}`);
+      const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId })}/transactions?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<InventoryTransaction>;
     } catch (error) {
@@ -353,6 +353,7 @@ export const inventoryService = {
   async adjustQuantity(id: string, quantity: number, type: InventoryTransaction["type"], reason?: string) {
     try {
       const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id })}/adjust`, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity, type, reason }),
@@ -461,7 +462,7 @@ export const researchService = {
       if (params?.search) queryParams.set("search", params.search);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`${API_PREFIX}/research/projects?${queryParams.toString()}`);
+      const response = await fetch(`${API_PREFIX}/research/projects?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<ResearchProject>;
     } catch (error) {
@@ -476,7 +477,7 @@ export const researchService = {
    */
   async getProjectById(id: string) {
     try {
-      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`);
+      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as ResearchProject;
     } catch (error) {
@@ -492,6 +493,7 @@ export const researchService = {
   async createProject(data: CreateProjectData) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects`, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -511,6 +513,7 @@ export const researchService = {
   async updateProject(id: string, data: Partial<CreateProjectData> & { status?: ResearchProject["status"]; findings?: string }) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -530,6 +533,7 @@ export const researchService = {
   async deleteProject(id: string) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -551,7 +555,7 @@ export const researchService = {
       if (params?.limit) queryParams.set("limit", params.limit.toString());
       if (params?.projectId) queryParams.set("project_id", params.projectId);
 
-      const response = await fetch(`${API_PREFIX}/research/experiments?${queryParams.toString()}`);
+      const response = await fetch(`${API_PREFIX}/research/experiments?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Experiment>;
     } catch (error) {
@@ -567,6 +571,7 @@ export const researchService = {
   async createExperiment(data: CreateExperimentData) {
     try {
       const response = await fetch(`${API_PREFIX}/research/experiments`, {
+        ...fetchDefaults,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -639,7 +644,7 @@ export const marketplaceService = {
       if (params?.maxPrice) queryParams.set("max_price", params.maxPrice.toString());
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}?${queryParams.toString()}`);
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<MarketplaceListing>;
     } catch (error) {
@@ -654,7 +659,7 @@ export const marketplaceService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`);
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as MarketplaceListing;
     } catch (error) {
@@ -690,6 +695,7 @@ export const marketplaceService = {
   async update(id: string, data: Partial<CreateListingData> & { status?: MarketplaceListing["status"] }) {
     try {
       const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
+        ...fetchDefaults,
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -709,6 +715,7 @@ export const marketplaceService = {
   async delete(id: string) {
     try {
       const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
+        ...fetchDefaults,
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

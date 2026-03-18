@@ -91,8 +91,15 @@ export function useApiQuery<T>(
   onSuccessRef.current = onSuccess;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const isMountedRef = useRef(true);
 
-  const fetchData = useCallback(async () => {
+  // Track mount state to avoid state updates after unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+
+  const fetchData = useCallback(async (signal?: AbortSignal) => {
     // Check cache first
     const cached = queryCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < staleTime) {
@@ -104,11 +111,15 @@ export function useApiQuery<T>(
     setIsLoading(true);
     try {
       const result = await queryFnRef.current();
+      if (!isMountedRef.current) return;
+      if (signal?.aborted) return;
       setData(result);
       setError(null);
       queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
       onSuccessRef.current?.(result);
     } catch (err) {
+      if (!isMountedRef.current) return;
+      if (signal?.aborted) return;
       const apiError: ApiError = {
         message:
           err instanceof Error ? err.message : "An unknown error occurred",
@@ -117,22 +128,31 @@ export function useApiQuery<T>(
       setError(apiError);
       onErrorRef.current?.(apiError);
     } finally {
-      setIsLoading(false);
+      // Always clear isLoading if component is still mounted,
+      // even when the signal was aborted due to dep changes (not unmount).
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [cacheKey, staleTime]);
 
   // Initial fetch
   useEffect(() => {
-    if (enabled) {
-      fetchData();
-    }
+    if (!enabled) return;
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
   }, [enabled, fetchData]);
 
   // Auto-refetch interval
   useEffect(() => {
     if (!enabled || refetchInterval <= 0) return;
-    const interval = setInterval(fetchData, refetchInterval);
-    return () => clearInterval(interval);
+    const controller = new AbortController();
+    const interval = setInterval(() => fetchData(controller.signal), refetchInterval);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [enabled, refetchInterval, fetchData]);
 
   return {

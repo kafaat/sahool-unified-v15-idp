@@ -12,7 +12,7 @@
 
 import Cookies from "js-cookie";
 import { logger } from "../logger";
-import { sahoolClient } from "./unified-client";
+
 
 // ---------------------------------------------------------------------------
 // Types (inline to avoid importing the 510-line types.ts)
@@ -61,8 +61,6 @@ class AuthApiClient {
 
   setToken(token: string) {
     this.token = token;
-    // Keep the unified client in sync
-    sahoolClient.setToken(token);
   }
 
   clearToken() {

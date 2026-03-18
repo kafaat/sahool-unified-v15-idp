@@ -36,8 +36,39 @@ export function createApiClient(options?: {
   timeout?: number;
 }): AxiosInstance {
   // Default case: return the shared unified client (covers 40/42 features)
-  if (!options?.baseURL) {
+  if (!options?.baseURL && !options?.timeout) {
     return unifiedApiClient;
+  }
+
+  // Timeout-only: add a request interceptor that sets the custom timeout.
+  // Features like AI copilot (60s), vision (60s), terrain (60s) need longer
+  // timeouts but still benefit from the unified client's auth/retry/CSRF stack.
+  if (!options?.baseURL && options?.timeout) {
+    const timeoutMs = options.timeout;
+    const instance = axios.create({
+      ...unifiedApiClient.defaults,
+      timeout: timeoutMs,
+    });
+    // Re-apply CSRF and auth interceptors from unified client configuration
+    instance.interceptors.request.use((config) => {
+      if (typeof window !== "undefined" && config.method?.toLowerCase() !== "get") {
+        const csrf = Cookies.get("_csrf");
+        if (csrf) {
+          config.headers.set("X-CSRF-Token", csrf);
+        }
+      }
+      return config;
+    });
+    instance.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError) => {
+        if (error.response?.status === 401 && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("auth:session-expired"));
+        }
+        return Promise.reject(error);
+      },
+    );
+    return instance;
   }
 
   // Custom baseURL (e.g. copilot-api): create a standalone instance

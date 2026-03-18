@@ -59,6 +59,13 @@ import {
   ScanLine,
   TestTubes,
   ArrowLeftRight,
+  // P2/P3 feature icons
+  Truck,
+  Handshake,
+  Coins,
+  ShieldCheck,
+  Layers,
+  Wheat,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -105,8 +112,14 @@ const monitoringNav = [
 const managementNav = [
   { name: "المستخدمون", href: "/users", icon: Users },
   { name: "المعدات", href: "/equipment", icon: Wrench },
+  { name: "تتبع الأسطول", href: "/equipment/fleet-tracking", icon: Truck },
+  { name: "التعاونيات", href: "/cooperatives", icon: Handshake },
   { name: "المخزون", href: "/inventory", icon: Package },
   { name: "السوق", href: "/marketplace", icon: ShoppingCart },
+  { name: "أسعار السوق", href: "/market-prices", icon: Coins },
+  { name: "التأمين الزراعي", href: "/insurance", icon: ShieldCheck },
+  { name: "البذور والأصناف", href: "/seeds", icon: Wheat },
+  { name: "خريطة التربة", href: "/soil-map", icon: Layers },
   { name: "البحوث", href: "/research", icon: FlaskConical },
   { name: "الامتثال", href: "/compliance", icon: Shield },
   { name: "التتبع والتوثيق", href: "/traceability", icon: ScanLine },
@@ -157,6 +170,7 @@ const analyticsNav = [
   { name: "التقرير الموسمي", href: "/reports/seasonal", icon: FileBarChart },
   { name: "تحليل التربة", href: "/analytics/soil", icon: TestTubes },
   { name: "مقارنة الحقول", href: "/analytics/field-compare", icon: ArrowLeftRight },
+  { name: "تنبؤ الإنتاجية", href: "/analytics/yield-forecasting", icon: TrendingUp },
   { name: "تحليل الفجوات", href: "/analytics/gap-analysis", icon: Target },
 ];
 

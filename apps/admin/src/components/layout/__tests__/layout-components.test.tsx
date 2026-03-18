@@ -121,6 +121,12 @@ vi.mock("lucide-react", () => {
     TestTubes: createIcon("test-tubes"),
     ArrowLeftRight: createIcon("arrow-left-right"),
     Target: createIcon("target"),
+    Truck: createIcon("truck"),
+    Handshake: createIcon("handshake"),
+    Coins: createIcon("coins"),
+    ShieldCheck: createIcon("shield-check"),
+    Layers: createIcon("layers"),
+    Wheat: createIcon("wheat"),
   };
 });
 
@@ -170,8 +176,14 @@ describe("Sidebar", () => {
     // Management
     expect(screen.getByText("المستخدمون")).toBeInTheDocument();
     expect(screen.getByText("المعدات")).toBeInTheDocument();
+    expect(screen.getByText("تتبع الأسطول")).toBeInTheDocument();
+    expect(screen.getByText("التعاونيات")).toBeInTheDocument();
     expect(screen.getByText("المخزون")).toBeInTheDocument();
     expect(screen.getByText("السوق")).toBeInTheDocument();
+    expect(screen.getByText("أسعار السوق")).toBeInTheDocument();
+    expect(screen.getByText("التأمين الزراعي")).toBeInTheDocument();
+    expect(screen.getByText("البذور والأصناف")).toBeInTheDocument();
+    expect(screen.getByText("خريطة التربة")).toBeInTheDocument();
     expect(screen.getByText("البحوث")).toBeInTheDocument();
 
     // System
@@ -208,6 +220,7 @@ describe("Sidebar", () => {
     fireEvent.click(analyticsBtn);
 
     expect(screen.getByText("تحليل الربحية")).toBeInTheDocument();
+    expect(screen.getByText("تنبؤ الإنتاجية")).toBeInTheDocument();
     expect(screen.getByText("تحليلات الأقمار")).toBeInTheDocument();
   });
 

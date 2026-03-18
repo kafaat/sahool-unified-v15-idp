@@ -15,6 +15,7 @@
 --   - research-core: experiments, research_protocols, research_plots, treatments, etc.
 --   - chat-service: conversations, messages, participants, etc.
 --   - iot-service: devices, sensors, actuators, sensor_readings, etc.
+--   - weather-service: weather_observations, weather_forecasts, weather_alerts, location_configs
 --
 -- Tables in THIS file are used by Python services (FastAPI/SQLAlchemy/Tortoise) which
 -- use Base.metadata.create_all() or generate_schemas() and need tables pre-created.
@@ -129,64 +130,21 @@ CREATE TABLE IF NOT EXISTS crops (
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- SECTION 5: WEATHER TABLES
--- Kept: weather-service is a Python/FastAPI service using SQLAlchemy
+-- SECTION 5: WEATHER TABLES - REMOVED
+-- Now managed by Prisma ORM (weather-service runs `prisma migrate deploy` on startup)
+-- See: apps/services/weather-service/prisma/schema.prisma
+--
+-- This init script previously created weather_records and weather_forecasts tables
+-- with a different schema (UUID tenant_id, DATE/TIME columns, flat structure)
+-- which conflicted with the Prisma-managed schema (VARCHAR tenant_id, DATETIME,
+-- JSON forecast data, weather_observations table name).
+--
+-- Prisma migrations are the single source of truth for:
+--   - weather_observations (replaces weather_records)
+--   - weather_forecasts (with forecastFor, hourlyData, dailyData columns)
+--   - weather_alerts
+--   - location_configs
 -- ─────────────────────────────────────────────────────────────────────────────
-
--- Weather Records (سجلات الطقس)
-CREATE TABLE IF NOT EXISTS weather_records (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    location_id VARCHAR(100),
-    coordinates GEOMETRY(POINT, 4326),
-    location_name VARCHAR(255),
-    recorded_at TIMESTAMPTZ NOT NULL,
-    temperature_celsius DECIMAL(5,2),
-    feels_like_celsius DECIMAL(5,2),
-    humidity_percent DECIMAL(5,2),
-    pressure_hpa DECIMAL(7,2),
-    wind_speed_ms DECIMAL(6,2),
-    wind_direction_degrees INTEGER,
-    wind_gust_ms DECIMAL(6,2),
-    precipitation_mm DECIMAL(8,2),
-    precipitation_probability DECIMAL(5,2),
-    conditions VARCHAR(100),
-    conditions_ar VARCHAR(100),
-    icon_code VARCHAR(20),
-    uv_index DECIMAL(4,2),
-    visibility_km DECIMAL(6,2),
-    source VARCHAR(50),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_weather_tenant ON weather_records(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_weather_location ON weather_records(location_id);
-CREATE INDEX IF NOT EXISTS idx_weather_recorded ON weather_records(recorded_at);
-
--- Weather Forecasts (توقعات الطقس)
-CREATE TABLE IF NOT EXISTS weather_forecasts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    location_id VARCHAR(100),
-    coordinates GEOMETRY(POINT, 4326),
-    forecast_date DATE NOT NULL,
-    forecast_time TIME,
-    temperature_min DECIMAL(5,2),
-    temperature_max DECIMAL(5,2),
-    humidity_percent DECIMAL(5,2),
-    precipitation_probability DECIMAL(5,2),
-    precipitation_mm DECIMAL(8,2),
-    wind_speed_ms DECIMAL(6,2),
-    conditions VARCHAR(100),
-    conditions_ar VARCHAR(100),
-    icon_code VARCHAR(20),
-    source VARCHAR(50),
-    fetched_at TIMESTAMPTZ DEFAULT NOW(),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_forecast_date ON weather_forecasts(forecast_date);
-CREATE INDEX IF NOT EXISTS idx_forecast_location ON weather_forecasts(location_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION 6: TASKS & ACTIVITIES - REMOVED
@@ -543,12 +501,8 @@ VALUES
     ('00000000-0000-0000-0008-000000000003', 15, 'سعد الذابح', 'Saad Al-Thabeh', 2025, '2025-01-29', '2025-02-10', 'winter', 'الشتاء', '["wheat", "barley", "vegetables"]', '{"irrigation": "reduce", "activities": ["planting_grains"]}')
 ON CONFLICT DO NOTHING;
 
--- Insert demo weather records
-INSERT INTO weather_records (id, tenant_id, location_id, location_name, recorded_at, temperature_celsius, humidity_percent, wind_speed_ms, conditions, conditions_ar, source)
-VALUES
-    ('00000000-0000-0000-0009-000000000001', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW(), 32.5, 35.0, 4.2, 'Clear', 'صافي', 'openweather'),
-    ('00000000-0000-0000-0009-000000000002', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW() - INTERVAL '1 day', 30.2, 40.0, 3.8, 'Partly Cloudy', 'غائم جزئياً', 'openweather')
-ON CONFLICT DO NOTHING;
+-- Demo weather records: REMOVED - Tables now managed by Prisma ORM (weather-service)
+-- Use weather-service seed mechanism for demo data.
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- SECTION 18: GRANT PERMISSIONS
@@ -595,7 +549,7 @@ BEGIN
     RAISE NOTICE '  NOTE: Additional tables will be created by NestJS services';
     RAISE NOTICE '  running `prisma migrate deploy` on startup (user-service,';
     RAISE NOTICE '  field-management-service, marketplace-service, iot-service,';
-    RAISE NOTICE '  research-core, chat-service, disaster-assessment).';
+    RAISE NOTICE '  research-core, chat-service, disaster-assessment, weather-service).';
     RAISE NOTICE '';
     RAISE NOTICE '  Demo data is loaded separately from 03-demo-data.sql';
     RAISE NOTICE '  For production: Remove or rename 03-demo-data.sql';

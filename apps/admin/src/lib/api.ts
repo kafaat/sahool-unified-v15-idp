@@ -44,6 +44,10 @@ function getToken(): string | undefined {
 /**
  * Extract tenant_id from JWT token payload (claim "tid" or "tenant_id").
  * Returns null if token is unavailable or not decodable.
+ *
+ * NOTE: With httpOnly cookies, getToken() returns undefined so this always
+ * returns null on the client side. Callers must use a fallback (e.g. "default").
+ * For server-side tenant extraction, use Next.js API routes instead.
  */
 function getTenantFromToken(): string | null {
   const token = getToken();

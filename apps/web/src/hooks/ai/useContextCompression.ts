@@ -143,8 +143,8 @@ export function useContextCompression() {
    * Decompress context data
    * فك ضغط بيانات السياق
    *
-   * Attempts RLE decompression first (for HIGH level), falls back to plain JSON
-   * parse for MEDIUM/LOW levels that don't use RLE encoding.
+   * Attempts plain JSON parse first (for LOW/MEDIUM levels), falls back to RLE
+   * decompression for HIGH level that uses RLE encoding.
    */
   const decompress = useCallback((compressed: string): unknown => {
     try {

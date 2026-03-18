@@ -17,8 +17,6 @@ import {
   Download,
   Eye,
   Activity,
-  Droplets,
-  Leaf,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { logger } from "../../../lib/logger";
@@ -218,10 +216,10 @@ export default function SatellitePage() {
           iconColor="text-green-600"
         />
         <StatCard
-          title={`متوسط ${selectedIndex.toUpperCase()}`}
+          title="متوسط NDVI"
           value={avgNDVI.toFixed(2)}
-          icon={selectedIndex === "ndwi" ? Droplets : selectedIndex === "ndre" ? Leaf : Activity}
-          iconColor={selectedIndex === "ndwi" ? "text-blue-600" : "text-purple-600"}
+          icon={Activity}
+          iconColor="text-purple-600"
         />
         <StatCard
           title="تنبيهات حرجة"
@@ -389,7 +387,7 @@ export default function SatellitePage() {
                   المساحة
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  {selectedIndex.toUpperCase()} الحالي
+                  NDVI الحالي
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   المتوسط

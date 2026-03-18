@@ -148,7 +148,10 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   // تنسيق التاريخ للـ API - Format date for API
   const dateString = date ? date.toISOString().split("T")[0] : undefined;
 
-  // جلب بيانات خريطة NDVI - Fetch NDVI map data
+  // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
+  // TODO: useNDVIMap always fetches NDVI data regardless of indexType.
+  // When the backend satellite API supports multi-index endpoints, replace with
+  // a generic useVegetationIndexMap(fieldId, indexType, dateString) hook.
   const { data: ndviMapData, error } = useNDVIMap(fieldId, dateString);
 
   // تتبع حالة التحميل - Track loading state

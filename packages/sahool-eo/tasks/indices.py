@@ -352,9 +352,17 @@ class SahoolSAVITask(BaseIndexTask):
 
     def __init__(self, L: float = 0.5, region: Optional[str] = None, **kwargs):
         super().__init__(output_feature="SAVI", **kwargs)
-        if region and region in YEMEN_SAVI_L_PARAMS:
-            self.L = YEMEN_SAVI_L_PARAMS[region]
-            logger.info(f"SAVI using L={self.L} for Yemen region: {region}")
+        if region:
+            normalized = region.lower().replace("-", "_").replace(" ", "_")
+            if normalized in YEMEN_SAVI_L_PARAMS:
+                self.L = YEMEN_SAVI_L_PARAMS[normalized]
+                logger.info(f"SAVI using L={self.L} for Yemen region: {normalized}")
+            else:
+                logger.warning(
+                    f"Unknown Yemen region '{region}', using default L={L}. "
+                    f"Valid regions: {list(YEMEN_SAVI_L_PARAMS.keys())}"
+                )
+                self.L = L
         else:
             self.L = L
 

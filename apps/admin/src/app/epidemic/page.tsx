@@ -378,13 +378,13 @@ export default function EpidemicCenterPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">حالات حرجة:</span>
+                  <span className="text-gray-500 dark:text-gray-400">حالات حرجة:</span>
                   <span className="font-medium text-red-600">
                     {governorateStats[selectedGovernorate]?.critical || 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">خطورة عالية:</span>
+                  <span className="text-gray-500 dark:text-gray-400">خطورة عالية:</span>
                   <span className="font-medium text-orange-600">
                     {governorateStats[selectedGovernorate]?.high || 0}
                   </span>
@@ -397,7 +397,7 @@ export default function EpidemicCenterPage() {
 
       {/* Recent Critical Cases */}
       <div className="mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
           <AlertTriangle className="w-5 h-5 text-red-600" />
           الحالات الحرجة الأخيرة
         </h3>
@@ -428,8 +428,8 @@ export default function EpidemicCenterPage() {
               header: "المرض",
               render: (d: DiagnosisRecord) => (
                 <div>
-                  <p className="font-medium text-gray-900">{d.diseaseNameAr}</p>
-                  <p className="text-xs text-gray-500">{d.diseaseName}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{d.diseaseNameAr}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{d.diseaseName}</p>
                 </div>
               ),
             },

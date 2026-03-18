@@ -318,8 +318,8 @@ export default function EpidemicCenterPage() {
         </div>
 
         {/* Top Diseases Sidebar */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2" suppressHydrationWarning>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2" suppressHydrationWarning>
             <BarChart3 className="w-5 h-5 text-sahool-600" />
             أكثر الأمراض انتشاراً
           </h3>
@@ -333,12 +333,12 @@ export default function EpidemicCenterPage() {
                 return (
                   <div key={disease}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {disease}
                       </span>
-                      <span className="text-sm text-gray-500">{count}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{count}</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
@@ -366,13 +366,13 @@ export default function EpidemicCenterPage() {
 
           {/* Selected Governorate Details */}
           {selectedGovernorate && (
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <h4 className="font-bold text-gray-900 mb-3">
+            <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">
                 {GOVERNORATES.find((g) => g.id === selectedGovernorate)?.name}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">إجمالي الحالات:</span>
+                  <span className="text-gray-500 dark:text-gray-400">إجمالي الحالات:</span>
                   <span className="font-medium">
                     {governorateStats[selectedGovernorate]?.total || 0}
                   </span>

@@ -223,7 +223,16 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 6. JWT Token Validation (with signature verification)
   // ═══════════════════════════════════════════════════════════════════════════
-  const jwtValidation = await validateJwtToken(request);
+  let jwtValidation: { valid: boolean; error?: string };
+  try {
+    jwtValidation = await validateJwtToken(request);
+  } catch (err) {
+    edgeLogger.error("[JWT] Validation threw an exception", {
+      path: pathname,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    jwtValidation = { valid: false, error: "Token validation error" };
+  }
 
   if (!jwtValidation.valid) {
     // Log JWT failure

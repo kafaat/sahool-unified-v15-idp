@@ -92,7 +92,7 @@ export function useApiQuery<T>(
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (signal?: AbortSignal) => {
     // Check cache first
     const cached = queryCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < staleTime) {
@@ -104,11 +104,13 @@ export function useApiQuery<T>(
     setIsLoading(true);
     try {
       const result = await queryFnRef.current();
+      if (signal?.aborted) return;
       setData(result);
       setError(null);
       queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
       onSuccessRef.current?.(result);
     } catch (err) {
+      if (signal?.aborted) return;
       const apiError: ApiError = {
         message:
           err instanceof Error ? err.message : "An unknown error occurred",
@@ -117,22 +119,29 @@ export function useApiQuery<T>(
       setError(apiError);
       onErrorRef.current?.(apiError);
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) {
+        setIsLoading(false);
+      }
     }
   }, [cacheKey, staleTime]);
 
   // Initial fetch
   useEffect(() => {
-    if (enabled) {
-      fetchData();
-    }
+    if (!enabled) return;
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
   }, [enabled, fetchData]);
 
   // Auto-refetch interval
   useEffect(() => {
     if (!enabled || refetchInterval <= 0) return;
-    const interval = setInterval(fetchData, refetchInterval);
-    return () => clearInterval(interval);
+    const controller = new AbortController();
+    const interval = setInterval(() => fetchData(controller.signal), refetchInterval);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [enabled, refetchInterval, fetchData]);
 
   return {

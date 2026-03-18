@@ -245,7 +245,7 @@ export const iotService = {
       if (params?.type) queryParams.set("type", params.type);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`${IOT_ENDPOINTS.DEVICES}?${queryParams.toString()}`);
+      const response = await fetch(`${IOT_ENDPOINTS.DEVICES}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<IoTDevice>;
     } catch (error) {
@@ -281,7 +281,8 @@ export const iotService = {
       if (params?.metric) queryParams.set("metric", params.metric);
 
       const response = await fetch(
-        `${buildUrl(IOT_ENDPOINTS.DEVICE_READINGS, { deviceId })}?${queryParams.toString()}`
+        `${buildUrl(IOT_ENDPOINTS.DEVICE_READINGS, { deviceId })}?${queryParams.toString()}`,
+        fetchDefaults,
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<SensorReading>;
@@ -401,7 +402,7 @@ export const irrigationService = {
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?${queryParams.toString()}`);
+      const response = await fetch(`${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<IrrigationSchedule>;
     } catch (error) {
@@ -536,7 +537,7 @@ export const alertService = {
       if (params?.status) queryParams.set("status", params.status);
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
 
-      const response = await fetch(`${ALERT_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(`${ALERT_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Alert>;
     } catch (error) {
@@ -691,7 +692,7 @@ export const equipmentService = {
       if (params?.status) queryParams.set("status", params.status);
       if (params?.search) queryParams.set("search", params.search);
 
-      const response = await fetch(`${EQUIPMENT_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(`${EQUIPMENT_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Equipment>;
     } catch (error) {

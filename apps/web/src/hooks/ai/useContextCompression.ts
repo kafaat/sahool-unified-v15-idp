@@ -142,15 +142,24 @@ export function useContextCompression() {
   /**
    * Decompress context data
    * فك ضغط بيانات السياق
+   *
+   * Attempts RLE decompression first (for HIGH level), falls back to plain JSON
+   * parse for MEDIUM/LOW levels that don't use RLE encoding.
    */
   const decompress = useCallback((compressed: string): unknown => {
     try {
-      return JSON.parse(decompressRLE(compressed));
-    } catch (error) {
-      logger.error("[useContextCompression] Decompression failed:", error);
-      throw new Error(
-        `Decompression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      // Try plain JSON parse first (works for LOW and MEDIUM compression levels)
+      return JSON.parse(compressed);
+    } catch {
+      // If plain parse fails, try RLE decompression (HIGH level)
+      try {
+        return JSON.parse(decompressRLE(compressed));
+      } catch (error) {
+        logger.error("[useContextCompression] Decompression failed:", error);
+        throw new Error(
+          `Decompression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
     }
   }, []);
 

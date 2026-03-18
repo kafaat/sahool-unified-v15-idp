@@ -31,12 +31,12 @@ vi.mock("../unified-client", () => ({
   },
 }));
 
-// Mock validation module
+// Mock validation module — must match the actual exports used in client.ts
 vi.mock("../../validation", () => ({
   sanitizers: {
-    sanitizeText: (text: string) => {
+    html: (text: string) => {
+      if (typeof text !== "string") return "";
       // Iteratively strip HTML tags to prevent multi-character bypass
-      // e.g. "<scr<script>ipt>" → "<script>" → ""
       let result = text;
       let prev = "";
       while (result !== prev) {
@@ -47,11 +47,11 @@ vi.mock("../../validation", () => ({
     },
   },
   validators: {
-    isValidMessage: (text: string) => text.length > 0 && !/<script/i.test(text),
+    safeText: (text: string) => text.length > 0 && !/<script/i.test(text),
   },
   validationErrors: {
-    EMPTY_MESSAGE: "Message cannot be empty",
-    INVALID_MESSAGE: "Message contains invalid content",
+    unsafeText: "Message contains unsafe content",
+    emptyMessage: "Message cannot be empty",
   },
 }));
 

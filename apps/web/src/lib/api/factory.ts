@@ -40,16 +40,23 @@ export function createApiClient(options?: {
     return unifiedApiClient;
   }
 
-  // Timeout-only: add a request interceptor that sets the custom timeout.
-  // Features like AI copilot (60s), vision (60s), terrain (60s) need longer
-  // timeouts but still benefit from the unified client's auth/retry/CSRF stack.
+  // Timeout-only: create a standalone instance that inherits the unified
+  // client's base config (baseURL, headers, withCredentials) but with a
+  // custom timeout. We manually re-apply CSRF and 401 interceptors.
+  //
+  // Note: this does NOT inherit SahoolApiClient's retry/backoff or token
+  // refresh queuing — those are handled by the unified client's wrapper.
+  // For features that need both custom timeouts AND retry (rare), use
+  // per-request { timeout } config on the unified client directly.
   if (!options?.baseURL && options?.timeout) {
     const timeoutMs = options.timeout;
     const instance = axios.create({
-      ...unifiedApiClient.defaults,
+      baseURL: unifiedApiClient.defaults.baseURL,
+      headers: { ...unifiedApiClient.defaults.headers } as any,
+      withCredentials: unifiedApiClient.defaults.withCredentials,
       timeout: timeoutMs,
     });
-    // Re-apply CSRF and auth interceptors from unified client configuration
+    // CSRF interceptor (same as unified-client.ts)
     instance.interceptors.request.use((config) => {
       if (typeof window !== "undefined" && config.method?.toLowerCase() !== "get") {
         const csrf = Cookies.get("_csrf");
@@ -59,6 +66,7 @@ export function createApiClient(options?: {
       }
       return config;
     });
+    // 401 → session expired event
     instance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {

@@ -22,12 +22,7 @@ import { pestRoutes } from "./api/pest-routes";
 import { geoRoutes } from "./geo/geo-routes";
 import { fieldHealthRoutes } from "./api/field-health-routes";
 import { taskRoutes } from "./api/task-routes";
-import { Logger } from "./middleware/logger";
-
-const logger = new Logger(
-  process.env.SERVICE_NAME || "field-shared",
-  process.env.SERVICE_VERSION || "16.0.0",
-);
+import { logger } from "./middleware/logger";
 
 /**
  * Create and configure the field management Express application

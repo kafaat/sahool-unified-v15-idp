@@ -413,10 +413,10 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private getServiceUrl(port: number): string {
-    // In production: Kong gateway at baseUrl/api (domain methods append /v1/...)
-    // In development: direct service access at baseUrl:port
+    // In production: Kong gateway at baseUrl (domain methods append /api/v1/...)
+    // In development: direct service access at baseUrl:port (same /api/v1/ paths)
     return this.isProduction
-      ? `${this.config.baseUrl}/api`
+      ? this.config.baseUrl
       : `${this.config.baseUrl}:${port}`;
   }
 
@@ -599,7 +599,7 @@ export class SahoolApiClient {
     assigned_to?: string;
     limit?: number;
   }): Promise<Task[]> {
-    const endpoint = `${this.urls.task}/v1/tasks`;
+    const endpoint = `${this.urls.task}/api/v1/tasks`;
     return this.safeExecute(
       () => this.request<Task[]>(endpoint, { params }),
       [],
@@ -608,11 +608,11 @@ export class SahoolApiClient {
   }
 
   async getTask(taskId: string): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/v1/tasks/${taskId}`);
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`);
   }
 
   async createTask(task: CreateTaskRequest): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/v1/tasks`, {
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks`, {
       method: "POST",
       data: task,
     });
@@ -622,14 +622,14 @@ export class SahoolApiClient {
     taskId: string,
     data: Partial<CreateTaskRequest>,
   ): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/v1/tasks/${taskId}`, {
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
       method: "PUT",
       data,
     });
   }
 
   async updateTaskStatus(taskId: string, status: string): Promise<boolean> {
-    const endpoint = `${this.urls.task}/v1/tasks/${taskId}`;
+    const endpoint = `${this.urls.task}/api/v1/tasks/${taskId}`;
     return this.safeExecute(
       async () => {
         await this.request(endpoint, {
@@ -644,14 +644,14 @@ export class SahoolApiClient {
   }
 
   async deleteTask(taskId: string): Promise<void> {
-    await this.request<void>(`${this.urls.task}/v1/tasks/${taskId}`, {
+    await this.request<void>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
       method: "DELETE",
     });
   }
 
   async completeTask(taskId: string, evidence?: TaskEvidence): Promise<Task> {
     return this.request<Task>(
-      `${this.urls.task}/v1/tasks/${taskId}/complete`,
+      `${this.urls.task}/api/v1/tasks/${taskId}/complete`,
       {
         method: "POST",
         data: evidence || {},
@@ -664,7 +664,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getFields(params?: { farm_id?: string }): Promise<Field[]> {
-    const endpoint = `${this.urls.fieldCore}/v1/fields`;
+    const endpoint = `${this.urls.fieldCore}/api/v1/fields`;
     return this.safeExecute(
       () => this.request<Field[]>(endpoint, { params }),
       [],
@@ -674,7 +674,7 @@ export class SahoolApiClient {
 
   async getField(fieldId: string): Promise<Field> {
     return this.request<Field>(
-      `${this.urls.fieldCore}/v1/fields/${fieldId}`,
+      `${this.urls.fieldCore}/api/v1/fields/${fieldId}`,
     );
   }
 
@@ -683,7 +683,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getFarms(): Promise<Farm[]> {
-    const endpoint = `${this.urls.fieldCore}/v1/fields`;
+    const endpoint = `${this.urls.fieldCore}/api/v1/fields`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Field[]>(endpoint);
@@ -711,7 +711,7 @@ export class SahoolApiClient {
   }
 
   async getFarmById(id: string): Promise<Farm | null> {
-    const endpoint = `${this.urls.fieldCore}/v1/fields/${id}`;
+    const endpoint = `${this.urls.fieldCore}/api/v1/fields/${id}`;
     return this.safeExecute(
       async () => {
         const field = await this.getField(id);
@@ -740,7 +740,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getWeather(locationId: string): Promise<WeatherData | null> {
-    const endpoint = `${this.urls.weather}/v1/weather/current/${locationId}`;
+    const endpoint = `${this.urls.weather}/api/v1/weather/current/${locationId}`;
     return this.safeExecute(() => this.request<WeatherData>(endpoint), null, {
       endpoint,
       method: "GET",
@@ -751,7 +751,7 @@ export class SahoolApiClient {
     locationId: string,
     days = 7,
   ): Promise<WeatherForecast | null> {
-    const endpoint = `${this.urls.weather}/v1/weather/forecast/${locationId}`;
+    const endpoint = `${this.urls.weather}/api/v1/weather/forecast/${locationId}`;
     return this.safeExecute(
       () => this.request<WeatherForecast>(endpoint, { params: { days } }),
       null,
@@ -760,7 +760,7 @@ export class SahoolApiClient {
   }
 
   async getWeatherAlerts(): Promise<WeatherAlert[]> {
-    const endpoint = `${this.urls.weather}/v1/alerts`;
+    const endpoint = `${this.urls.weather}/api/v1/alerts`;
     return this.safeExecute(() => this.request<WeatherAlert[]>(endpoint), [], {
       endpoint,
       method: "GET",
@@ -779,7 +779,7 @@ export class SahoolApiClient {
     limit?: number;
     offset?: number;
   }): Promise<DiagnosisRecord[]> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Record<string, unknown>[]>(
@@ -835,7 +835,7 @@ export class SahoolApiClient {
   }
 
   async getDiagnosisStats(): Promise<DiagnosisStats> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/stats`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/stats`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Record<string, unknown>>(endpoint);
@@ -869,7 +869,7 @@ export class SahoolApiClient {
     status: DiagnosisStatus,
     notes?: string,
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/${id}`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
@@ -886,7 +886,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getDashboardStats(): Promise<DashboardStats> {
-    const endpoint = `${this.urls.indicators}/v1/dashboard`;
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
     const mockData = {
       totalFarms: 156,
       activeFarms: 142,
@@ -916,7 +916,7 @@ export class SahoolApiClient {
   }
 
   async getDashboard(tenantId: string): Promise<DashboardData | null> {
-    const endpoint = `${this.urls.indicators}/v1/indicators/dashboard/${tenantId}`;
+    const endpoint = `${this.urls.indicators}/api/v1/indicators/dashboard/${tenantId}`;
     return this.safeExecute(() => this.request<DashboardData>(endpoint), null, {
       endpoint,
       method: "GET",
@@ -924,7 +924,7 @@ export class SahoolApiClient {
   }
 
   async getFieldIndicators(fieldId: string): Promise<FieldIndicators | null> {
-    const endpoint = `${this.urls.indicators}/v1/indicators/field/${fieldId}`;
+    const endpoint = `${this.urls.indicators}/api/v1/indicators/field/${fieldId}`;
     return this.safeExecute(
       () => this.request<FieldIndicators>(endpoint),
       null,
@@ -937,7 +937,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getSensorReadings(farmId: string): Promise<SensorReading[]> {
-    const endpoint = `${this.urls.virtualSensors}/v1/readings/${farmId}`;
+    const endpoint = `${this.urls.virtualSensors}/api/v1/readings/${farmId}`;
     return this.safeExecute(() => this.request<SensorReading[]>(endpoint), [], {
       endpoint,
       method: "GET",
@@ -948,7 +948,7 @@ export class SahoolApiClient {
     type?: string;
     status?: string;
   }): Promise<Equipment[]> {
-    const endpoint = `${this.urls.equipment}/v1/equipment`;
+    const endpoint = `${this.urls.equipment}/api/v1/equipment`;
     return this.safeExecute(
       () => this.request<Equipment[]>(endpoint, { params }),
       [],
@@ -965,7 +965,7 @@ export class SahoolApiClient {
     priority?: string;
     limit?: number;
   }): Promise<Notification[]> {
-    const endpoint = `${this.urls.notifications}/v1/notifications`;
+    const endpoint = `${this.urls.notifications}/api/v1/notifications`;
     return this.safeExecute(
       () => this.request<Notification[]>(endpoint, { params }),
       [],
@@ -974,7 +974,7 @@ export class SahoolApiClient {
   }
 
   async markNotificationRead(id: string): Promise<boolean> {
-    const endpoint = `${this.urls.notifications}/v1/notifications/${id}/read`;
+    const endpoint = `${this.urls.notifications}/api/v1/notifications/${id}/read`;
     return this.safeExecute(
       async () => {
         await this.request(endpoint, { method: "PATCH" });
@@ -993,7 +993,7 @@ export class SahoolApiClient {
     category?: string;
     limit?: number;
   }): Promise<CommunityPost[]> {
-    const endpoint = `${this.urls.community}/v1/posts`;
+    const endpoint = `${this.urls.community}/api/v1/posts`;
     return this.safeExecute(
       () => this.request<CommunityPost[]>(endpoint, { params }),
       [],
@@ -1010,7 +1010,7 @@ export class SahoolApiClient {
     fieldId: string,
     options?: { from?: string; to?: string },
   ): Promise<unknown[]> {
-    const endpoint = `${this.urls.satellite}/v1/timeseries/${fieldId}`;
+    const endpoint = `${this.urls.satellite}/api/v1/timeseries/${fieldId}`;
     return this.safeExecute(
       () => this.request<unknown[]>(endpoint, { params: options }),
       [],
@@ -1022,7 +1022,7 @@ export class SahoolApiClient {
     fieldId: string,
     analysisType: "ndvi" | "moisture" | "thermal",
   ): Promise<unknown | null> {
-    const endpoint = `${this.urls.satellite}/v1/analyze`;
+    const endpoint = `${this.urls.satellite}/api/v1/analyze`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
@@ -1035,7 +1035,7 @@ export class SahoolApiClient {
   }
 
   async getSatelliteIndices(fieldId: string): Promise<unknown | null> {
-    const endpoint = `${this.urls.satellite}/v1/indices/${fieldId}`;
+    const endpoint = `${this.urls.satellite}/api/v1/indices/${fieldId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
       method: "GET",
@@ -1043,7 +1043,7 @@ export class SahoolApiClient {
   }
 
   async getAvailableSatellites(): Promise<{ satellites: unknown[] }> {
-    const endpoint = `${this.urls.satellite}/v1/satellites`;
+    const endpoint = `${this.urls.satellite}/api/v1/satellites`;
     return this.safeExecute(
       () => this.request(endpoint),
       { satellites: [] },
@@ -1059,7 +1059,7 @@ export class SahoolApiClient {
   async getYieldTrends(
     period: "7d" | "30d" | "90d" = "30d",
   ): Promise<Array<{ month: string; yield: number; forecast: number }>> {
-    const endpoint = `${this.urls.indicators}/v1/trends`;
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
     return this.safeExecute(
       async () => {
         const response = await this.request<{ data?: unknown[] }>(endpoint, {
@@ -1079,7 +1079,7 @@ export class SahoolApiClient {
   async getCropDistribution(): Promise<
     Array<{ name: string; value: number }>
   > {
-    const endpoint = `${this.urls.indicators}/v1/dashboard`;
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
     return this.safeExecute(
       async () => {
         const response = await this.request<{
@@ -1107,7 +1107,7 @@ export class SahoolApiClient {
       alerts: number;
     }>
   > {
-    const endpoint = `${this.urls.indicators}/v1/trends`;
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
     return this.safeExecute(
       async () => {
         const response = await this.request<{ data?: unknown[] }>(endpoint, {
@@ -1132,7 +1132,7 @@ export class SahoolApiClient {
     avgTemperature: number;
     monthlyGrowthRate: number;
   }> {
-    const endpoint = `${this.urls.indicators}/v1/dashboard`;
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
     const fallback = {
       activeFarmers: 0,
       dailySales: 0,
@@ -1164,7 +1164,7 @@ export class SahoolApiClient {
     fieldId: string,
     cropType?: string,
   ): Promise<{ recommendations: unknown[]; sources: unknown[] }> {
-    const endpoint = `${this.urls.advisory}/v1/advisory/recommendations`;
+    const endpoint = `${this.urls.advisory}/api/v1/advisory/recommendations`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
@@ -1180,7 +1180,7 @@ export class SahoolApiClient {
     fieldId: string,
     cropType: string,
   ): Promise<unknown | null> {
-    const endpoint = `${this.urls.yieldPrediction}/v1/yield/predict`;
+    const endpoint = `${this.urls.yieldPrediction}/api/v1/yield/predict`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
@@ -1193,7 +1193,7 @@ export class SahoolApiClient {
   }
 
   async getFieldIntelligence(fieldId: string): Promise<unknown | null> {
-    const endpoint = `${this.urls.fieldIntelligence}/v1/field-intelligence/${fieldId}`;
+    const endpoint = `${this.urls.fieldIntelligence}/api/v1/field-intelligence/${fieldId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
       method: "GET",
@@ -1210,7 +1210,7 @@ export class SahoolApiClient {
     acknowledged?: boolean;
     limit?: number;
   }): Promise<{ data: unknown[]; meta: { total: number; page: number; limit: number } }> {
-    const endpoint = `${this.urls.alerts}/v1/alerts`;
+    const endpoint = `${this.urls.alerts}/api/v1/alerts`;
     return this.safeExecute(
       () => this.request(endpoint, { params }),
       { data: [], meta: { total: 0, page: 1, limit: 20 } },
@@ -1223,7 +1223,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getBillingSubscription(): Promise<unknown | null> {
-    const endpoint = `${this.urls.billing}/v1/billing/subscription`;
+    const endpoint = `${this.urls.billing}/api/v1/billing/subscription`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
       method: "GET",
@@ -1238,7 +1238,7 @@ export class SahoolApiClient {
     lat?: number,
     lon?: number,
   ): Promise<unknown | null> {
-    const endpoint = `${this.urls.astronomicalCalendar}/v1/astronomical/today`;
+    const endpoint = `${this.urls.astronomicalCalendar}/api/v1/astronomical/today`;
     return this.safeExecute(
       () => this.request(endpoint, { params: { lat, lon } }),
       null,
@@ -1279,7 +1279,7 @@ export class SahoolApiClient {
     imageUrl?: string;
     processingTime?: number;
   }> {
-    const endpoint = `${this.urls.yoloVision}/v1/detect/${task}`;
+    const endpoint = `${this.urls.yoloVision}/api/v1/detect/${task}`;
     return this.client
       .post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -1293,7 +1293,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getWeatherByLocation(locationId: string): Promise<unknown | null> {
-    const endpoint = `${this.urls.weather}/v1/current/${locationId}`;
+    const endpoint = `${this.urls.weather}/api/v1/current/${locationId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
       method: "GET",
@@ -1304,7 +1304,7 @@ export class SahoolApiClient {
     locationId: string,
     days = 7,
   ): Promise<unknown | null> {
-    const endpoint = `${this.urls.weather}/v1/forecast/${locationId}`;
+    const endpoint = `${this.urls.weather}/api/v1/forecast/${locationId}`;
     return this.safeExecute(
       () => this.request(endpoint, { params: { days } }),
       null,
@@ -1313,7 +1313,7 @@ export class SahoolApiClient {
   }
 
   async getWeatherLocations(): Promise<{ locations: unknown[] }> {
-    const endpoint = `${this.urls.weather}/v1/locations`;
+    const endpoint = `${this.urls.weather}/api/v1/locations`;
     return this.safeExecute(
       () => this.request(endpoint),
       { locations: [] },
@@ -1324,7 +1324,7 @@ export class SahoolApiClient {
   async getWeatherAlertsByLocation(
     locationId: string = "sanaa",
   ): Promise<WeatherAlert[]> {
-    const endpoint = `${this.urls.weather}/v1/alerts/${locationId}`;
+    const endpoint = `${this.urls.weather}/api/v1/alerts/${locationId}`;
     return this.safeExecute(
       async () => {
         const response = await this.request<{ alerts?: WeatherAlert[] }>(

@@ -4,10 +4,8 @@
  */
 
 import { Router, Request, Response } from "express";
-import { Logger } from "../middleware/logger";
+import { logger } from "../middleware/logger";
 import { geoService } from "./geo-service";
-
-const logger = new Logger("field-shared", "16.0.0");
 
 export const geoRoutes = Router();
 

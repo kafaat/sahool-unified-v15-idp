@@ -4,12 +4,10 @@
  */
 
 import { Router, Request, Response } from "express";
-import { Logger } from "../middleware/logger";
+import { logger } from "../middleware/logger";
 import { AppDataSource } from "../data-source";
 import { PestIncident, PestType, IncidentStatus } from "../entity/PestIncident";
 import { PestTreatment } from "../entity/PestTreatment";
-
-const logger = new Logger("field-shared", "16.0.0");
 
 export const pestRoutes = Router();
 

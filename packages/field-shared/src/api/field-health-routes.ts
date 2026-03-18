@@ -7,9 +7,7 @@
  */
 
 import { Router, Request, Response } from "express";
-import { Logger } from "../middleware/logger";
-
-const logger = new Logger("field-shared", "16.0.0");
+import { logger } from "../middleware/logger";
 
 const router = Router();
 

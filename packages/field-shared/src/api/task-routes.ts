@@ -6,10 +6,8 @@
  */
 
 import { Router, Request, Response } from "express";
-import { Logger } from "../middleware/logger";
+import { logger } from "../middleware/logger";
 import { v4 as uuidv4 } from "uuid";
-
-const logger = new Logger("field-shared", "16.0.0");
 
 const router = Router();
 

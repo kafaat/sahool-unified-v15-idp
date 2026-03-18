@@ -43,6 +43,23 @@ import type {
 
 class SahoolApiClient {
   /**
+   * Set auth token. No-op in cookie-based auth mode — token management
+   * is handled by httpOnly cookies via the unified client.
+   * Retained for backward compatibility with tests and legacy code.
+   */
+  setToken(_token: string): void {
+    // No-op: auth is cookie-based via withCredentials
+  }
+
+  /**
+   * Clear auth token. No-op in cookie-based auth mode.
+   * Retained for backward compatibility with tests and legacy code.
+   */
+  clearToken(): void {
+    // No-op: auth is cookie-based via withCredentials
+  }
+
+  /**
    * Core request method — delegates to the unified axios instance.
    * Token management, retry, CSRF, and 401 handling are all provided
    * by the shared @sahool/api-client interceptors.

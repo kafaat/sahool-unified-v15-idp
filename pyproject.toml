@@ -204,6 +204,7 @@ markers = [
     "event_flow: Event flow tests",
     "mock: Tests using mocked dependencies",
     "specialist: Specialist agent tests",
+    "contract: Contract tests between services (Schemathesis / Pact)",
 ]
 
 [tool.coverage.run]

@@ -134,8 +134,9 @@ class TestAuthIntegration:
         # تنظيف Redis بعد الاختبار
         try:
             await redis_client.flushdb()
-        except Exception:
-            pass
+        except Exception as exc:
+            # Redis may be a mock or unavailable in some CI environments; cleanup failures are non-fatal.
+            print(f"[TestAuthIntegration.setup] Redis flushdb() failed during teardown: {exc!r}")
 
     @pytest.mark.asyncio
     async def test_full_registration_flow(self, client, db_session) -> None:

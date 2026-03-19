@@ -68,46 +68,57 @@ async def client():
 @pytest.fixture
 async def db_session():
     """
-    Async database session fixture.
-    جلسة قاعدة بيانات غير متزامنة.
-    Returns a mock when asyncpg is not available or DB is not running.
+    Async PostgreSQL session — skips when unavailable, fails on DB errors.
+    جلسة قاعدة بيانات غير متزامنة — تُهمَل الاختبارات عند عدم توفر قاعدة البيانات.
     """
     try:
         import asyncpg
+    except ImportError:
+        pytest.skip("asyncpg not installed — PostgreSQL not available for integration tests")
 
-        db_url = os.getenv(
-            "TEST_DATABASE_URL",
-            "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
-        )
+    db_url = os.getenv(
+        "TEST_DATABASE_URL",
+        "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
+    )
+    try:
         conn = await asyncpg.connect(db_url)
+    except (OSError, ConnectionError, Exception) as exc:
+        # Only skip for genuine connectivity failures (asyncpg raises OSError /
+        # asyncpg.exceptions.CannotConnectNowError on connection refused).
+        if "connect" in str(exc).lower() or "refused" in str(exc).lower() or "timeout" in str(exc).lower():
+            pytest.skip(f"PostgreSQL not reachable for integration tests: {exc}")
+        raise
+
+    try:
         yield conn
+    finally:
         await conn.close()
-    except Exception:
-        # Return a mock when DB is not available
-        mock_db = MagicMock()
-        mock_db.execute = AsyncMock()
-        mock_db.fetchrow = AsyncMock(return_value=None)
-        mock_db.fetch = AsyncMock(return_value=[])
-        yield mock_db
 
 
 @pytest.fixture
 async def redis_client():
     """
-    Redis client fixture.
-    عميل Redis.
+    Redis client — skips when unavailable, fails on other errors.
+    عميل Redis — يُهمَل عند عدم توفر الخادم.
     """
     try:
         import redis.asyncio as aioredis
+        from redis.exceptions import ConnectionError as RedisConnectionError
+    except ImportError:
+        pytest.skip("redis not installed")
 
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/1")
-        r = await aioredis.from_url(redis_url)
-        yield r
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/1")
+    r = aioredis.from_url(redis_url)
+    try:
+        await r.ping()
+    except (RedisConnectionError, OSError, TimeoutError) as exc:
         await r.aclose()
-    except Exception:
-        mock_redis = MagicMock()
-        mock_redis.flushdb = AsyncMock()
-        yield mock_redis
+        pytest.skip(f"Redis not reachable for integration tests: {exc}")
+
+    try:
+        yield r
+    finally:
+        await r.aclose()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -233,27 +244,28 @@ class TestAuthIntegration:
         """
         Kong يطبق Rate Limiting على طلبات تسجيل الدخول
 
-        Kong enforces rate limiting. Sending 101 requests should
-        yield at least one 429 Too Many Requests.
+        Kong enforces rate limiting. Sending a burst of sequential requests
+        should yield at least one 429 Too Many Requests response.
         """
         if not HAS_HTTPX:
             pytest.skip("httpx not installed")
 
-        responses = await asyncio.gather(
-            *[
-                client.post(
-                    "/api/v1/auth/login",
-                    json={"email": "test@test.ye", "password": "wrong"},
-                )
-                for _ in range(101)
-            ],
-            return_exceptions=True,
-        )
+        # Send requests sequentially with a small delay to avoid overloading
+        # local resources while still triggering the rate limiter in Kong.
+        saw_429 = False
+        max_requests = 30
 
-        status_codes = [
-            r.status_code for r in responses if not isinstance(r, Exception)
-        ]
-        assert 429 in status_codes, "Rate limiting not enforced — no 429 received after 101 requests"
+        for _ in range(max_requests):
+            resp = await client.post(
+                "/api/v1/auth/login",
+                json={"email": "test@test.ye", "password": "wrong"},
+            )
+            if resp.status_code == 429:
+                saw_429 = True
+                break
+            await asyncio.sleep(0.05)
+
+        assert saw_429, "Rate limiting not enforced — no 429 received after burst of login requests"
 
     @pytest.mark.asyncio
     async def test_login_invalid_credentials_returns_401(self, client) -> None:

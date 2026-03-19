@@ -79,47 +79,55 @@ async def authenticated_client():
 @pytest.fixture
 async def redis_client():
     """
-    عميل Redis — يُستخدم للتحقق من التخزين المؤقت.
-    Redis client — used to assert caching behaviour.
+    Redis client — skips when unavailable, fails on other errors.
+    عميل Redis للتحقق من سلوك التخزين المؤقت.
     """
     try:
         import redis.asyncio as aioredis
+        from redis.exceptions import ConnectionError as RedisConnectionError
+    except ImportError:
+        pytest.skip("redis not installed")
 
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/1")
-        r = await aioredis.from_url(redis_url)
-        yield r
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/1")
+    r = aioredis.from_url(redis_url)
+    try:
+        await r.ping()
+    except (RedisConnectionError, OSError, TimeoutError) as exc:
         await r.aclose()
-    except Exception:
-        mock_redis = MagicMock()
-        mock_redis.flushdb = AsyncMock()
-        yield mock_redis
+        pytest.skip(f"Redis not reachable for integration tests: {exc}")
+
+    try:
+        yield r
+    finally:
+        await r.aclose()
 
 
 @pytest.fixture
 async def db_session():
     """
-    PostgreSQL session لحفظ الصور.
-    PostgreSQL session for imagery persistence checks.
+    PostgreSQL session — skips when unavailable, fails on DB errors.
+    جلسة PostgreSQL للتحقق من حفظ البيانات.
     """
     try:
         import asyncpg
+    except ImportError:
+        pytest.skip("asyncpg not installed — PostgreSQL not available for integration tests")
 
-        db_url = os.getenv(
-            "TEST_DATABASE_URL",
-            "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
-        )
+    db_url = os.getenv(
+        "TEST_DATABASE_URL",
+        "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
+    )
+    try:
         conn = await asyncpg.connect(db_url)
+    except (OSError, ConnectionError, Exception) as exc:
+        if "connect" in str(exc).lower() or "refused" in str(exc).lower() or "timeout" in str(exc).lower():
+            pytest.skip(f"PostgreSQL not reachable for integration tests: {exc}")
+        raise
+
+    try:
         yield conn
+    finally:
         await conn.close()
-    except Exception:
-        mock_db = MagicMock()
-        mock_db.fetch = AsyncMock(
-            return_value=[
-                {"ndvi_mean": 0.65, "capture_date": "2026-01-05"},
-                {"ndvi_mean": 0.70, "capture_date": "2026-01-12"},
-            ]
-        )
-        yield mock_db
 
 
 @pytest.fixture
@@ -203,9 +211,12 @@ class TestSatelliteImagery:
         field_id = field_with_boundary.id
 
         try:
-            # Simulate Sentinel-2 timeout; if the patch target is invalid in this
-            # environment, skip rather than silently re-running without the mock.
-            with patch(_SENTINEL_PATCH_PATH, side_effect=TimeoutError("Sentinel timeout")):
+            patch_ctx = patch(_SENTINEL_PATCH_PATH, side_effect=TimeoutError("Sentinel timeout"))
+        except (AttributeError, ImportError, ModuleNotFoundError) as exc:
+            pytest.skip(f"Sentinel provider patch target not importable: {exc}")
+
+        try:
+            with patch_ctx:
                 resp = await authenticated_client.get(
                     f"/api/v1/fields/{field_id}/imagery",
                     params={"index": "NDVI", "date_from": "2026-01-01"},
@@ -255,34 +266,28 @@ class TestSatelliteImagery:
             return mock
 
         try:
-            with patch(_SENTINEL_PATCH_PATH, side_effect=_counting_fetch):
-                # الطلب الأول — first request
-                resp1 = await authenticated_client.get(
-                    f"/api/v1/fields/{field_id}/imagery", params=params
-                )
-                first_count = call_count[0]
+            patch_ctx = patch(_SENTINEL_PATCH_PATH, side_effect=_counting_fetch)
+        except (AttributeError, ImportError, ModuleNotFoundError) as exc:
+            pytest.skip(f"Unable to apply Sentinel patch for caching test: {exc}")
 
-                # الطلب الثاني — second identical request
-                resp2 = await authenticated_client.get(
-                    f"/api/v1/fields/{field_id}/imagery", params=params
-                )
-
-            # المزود لم يُستدعَ مرة ثانية — provider not called again
-            assert call_count[0] == first_count, (
-                "Sentinel called twice for identical request — caching not working"
-            )
-            assert resp1.status_code == 200
-            assert resp2.json() == resp1.json()
-        except Exception:
-            # Patch not applicable — still verify both requests succeed
+        with patch_ctx:
+            # الطلب الأول — first request
             resp1 = await authenticated_client.get(
                 f"/api/v1/fields/{field_id}/imagery", params=params
             )
+            first_count = call_count[0]
+
+            # الطلب الثاني — second identical request
             resp2 = await authenticated_client.get(
                 f"/api/v1/fields/{field_id}/imagery", params=params
             )
-            assert resp1.status_code == 200
-            assert resp2.status_code == 200
+
+        # المزود لم يُستدعَ مرة ثانية — provider not called again
+        assert call_count[0] == first_count, (
+            "Sentinel called twice for identical request — caching not working"
+        )
+        assert resp1.status_code == 200
+        assert resp2.json() == resp1.json()
 
     @pytest.mark.asyncio
     async def test_imagery_persisted_to_database(

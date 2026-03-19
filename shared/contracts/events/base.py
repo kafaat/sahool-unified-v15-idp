@@ -160,22 +160,29 @@ class BaseEvent:
         if _supports_registry:
             # Use the modern Registry API (jsonschema >= 4.18, requires
             # the ``referencing`` package which ships as a dependency).
-            from referencing import Registry, Resource
+            # If ``referencing`` is somehow absent (e.g. installed in a stripped
+            # container without it), fall back to the RefResolver path below.
+            try:
+                from referencing import Registry, Resource
+            except ImportError:
+                _supports_registry = False
+            else:
+                registry = Registry()
 
-            registry = Registry()
+                # Load all local schemas to resolve $ref references
+                for schema_file in _SCHEMA_DIR.glob("*.json"):
+                    local_schema = self._load_schema(schema_file.name)
+                    schema_id = local_schema.get("$id", f"file://{schema_file}")
+                    # Also register by filename for relative refs
+                    resource = Resource.from_contents(local_schema)
+                    registry = registry.with_resource(schema_id, resource)
+                    registry = registry.with_resource(schema_file.name, resource)
 
-            # Load all local schemas to resolve $ref references
-            for schema_file in _SCHEMA_DIR.glob("*.json"):
-                local_schema = self._load_schema(schema_file.name)
-                schema_id = local_schema.get("$id", f"file://{schema_file}")
-                # Also register by filename for relative refs
-                resource = Resource.from_contents(local_schema)
-                registry = registry.with_resource(schema_id, resource)
-                registry = registry.with_resource(schema_file.name, resource)
+                validator = jsonschema.Draft7Validator(schema, registry=registry)
 
-            validator = jsonschema.Draft7Validator(schema, registry=registry)
-        else:
-            # Fallback for jsonschema < 4.18 — use the older RefResolver API.
+        if not _supports_registry:
+            # Fallback for jsonschema < 4.18 or when the optional
+            # ``referencing`` package is not installed.
             store: dict[str, Any] = {}
             for schema_file in _SCHEMA_DIR.glob("*.json"):
                 local_schema = self._load_schema(schema_file.name)

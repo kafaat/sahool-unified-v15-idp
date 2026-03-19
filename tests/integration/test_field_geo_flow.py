@@ -50,34 +50,29 @@ BASE_URL = os.getenv("KONG_BASE_URL", "http://localhost:8000")
 @pytest.fixture
 async def db_session():
     """
-    قاعدة بيانات PostgreSQL مع PostGIS.
-    PostgreSQL + PostGIS session — returns mock when unavailable.
+    PostgreSQL + PostGIS session — skips when unavailable, fails on DB errors.
+    جلسة قاعدة بيانات مع PostGIS — تُهمَل الاختبارات عند عدم التوفر.
     """
     try:
         import asyncpg
+    except ImportError:
+        pytest.skip("asyncpg not installed — PostgreSQL with PostGIS not available for integration tests")
 
-        db_url = os.getenv(
-            "TEST_DATABASE_URL",
-            "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
-        )
+    db_url = os.getenv(
+        "TEST_DATABASE_URL",
+        "postgresql://sahool_test:test_password_123@localhost:5432/sahool_test",
+    )
+    try:
         conn = await asyncpg.connect(db_url)
+    except (OSError, ConnectionError, Exception) as exc:
+        if "connect" in str(exc).lower() or "refused" in str(exc).lower() or "timeout" in str(exc).lower():
+            pytest.skip(f"PostgreSQL not reachable for integration tests: {exc}")
+        raise
+
+    try:
         yield conn
+    finally:
         await conn.close()
-    except Exception:
-        mock_db = MagicMock()
-        mock_db.fetchrow = AsyncMock(
-            return_value={
-                "lat": 15.3694,
-                "lng": 44.1910,
-                "altitude": 2200,
-                "geojson": {"type": "Polygon"},
-                "area_ha": 2.5,
-                "is_valid": True,
-                "num_points": 5,
-            }
-        )
-        mock_db.execute = AsyncMock()
-        yield mock_db
 
 
 @pytest.fixture

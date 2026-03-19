@@ -86,6 +86,7 @@ _schema = _load_schema_or_skip()
 
 if _schema is not None:
 
+    @pytest.mark.contract
     @_schema.parametrize()
     def test_field_service_contract(case: Any) -> None:
         """

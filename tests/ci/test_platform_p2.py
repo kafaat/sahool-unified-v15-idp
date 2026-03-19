@@ -421,7 +421,7 @@ class TestRateLimitingAndSecurity:
         قيم المعدل يجب ألا تتجاوز السقف الداخلي المحدد في RATE_LIMITS
         """
         internal_ceiling = self.RATE_LIMITS["internal"]  # 1000 req/min
-        starter_floor = min(self.RATE_LIMITS.values())    # 30 req/min
+        starter_floor = min(self.RATE_LIMITS.values())   # 30 req/min (minimum documented tier)
         violations = []
         for svc in kong.get("services", []):
             for plugin in svc.get("plugins", []):
@@ -432,8 +432,12 @@ class TestRateLimitingAndSecurity:
                             violations.append(
                                 f"{svc['name']}: {minute_limit} req/min exceeds internal ceiling {internal_ceiling}"
                             )
+                        if minute_limit < starter_floor:
+                            violations.append(
+                                f"{svc['name']}: {minute_limit} req/min is below starter tier floor {starter_floor}"
+                            )
         assert not violations, (
-            "Kong services exceed the maximum documented tier limit:\n" + "\n".join(violations)
+            "Kong services exceed the documented tier bounds:\n" + "\n".join(violations)
         )
 
     def test_in_process_rate_limiter_blocks_after_threshold(self):

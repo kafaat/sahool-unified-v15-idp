@@ -21,7 +21,6 @@ import base64
 import hmac
 import hashlib
 import json
-import re
 import time
 import uuid
 from datetime import UTC, datetime, timedelta

@@ -315,7 +315,7 @@ test-infrastructure: ## تشغيل اختبارات البنية التحتية 
 
 test-e2e: ## تشغيل اختبارات E2E - Run end-to-end tests (opens browser)
 	@echo "$(BLUE)🌐 تشغيل اختبارات E2E - Running E2E tests...$(RESET)"
-	$(PYTHON) -m pytest tests/e2e/ -v --headed
+	$(PYTHON) -m pytest tests/e2e/ -v
 	@echo "$(GREEN)✅ اكتملت اختبارات E2E - E2E tests complete!$(RESET)"
 
 coverage-report: ## إنشاء تقرير التغطية - Generate HTML coverage report

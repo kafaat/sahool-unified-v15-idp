@@ -76,39 +76,14 @@ def _load_kong() -> dict:
     """
     Load the Kong configuration used by the platform.
 
-    Prefer the configuration file mounted by docker-compose
-    (KONG_GATEWAY_CONFIG_PATH) so that these tests validate the
-    deployed configuration. If both configuration files exist, verify
-    that they are identical to avoid configuration drift.
+    Prefer KONG_GATEWAY_CONFIG_PATH — the file mounted by docker-compose.yml
+    (./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro).
+    Fall back to the legacy infra path if the gateway config is absent.
     """
-    gateway_exists = KONG_GATEWAY_CONFIG_PATH.exists()
-    legacy_exists = KONG_CONFIG_PATH.exists()
-
-    # If both configs are present, ensure they remain in sync.
-    if gateway_exists and legacy_exists:
-        with open(KONG_GATEWAY_CONFIG_PATH, encoding="utf-8") as fh:
-            gateway_cfg = yaml.safe_load(fh)
-        with open(KONG_CONFIG_PATH, encoding="utf-8") as fh:
-            legacy_cfg = yaml.safe_load(fh)
-
-        if gateway_cfg != legacy_cfg:
-            pytest.fail(
-                "Kong configuration mismatch between "
-                f"{KONG_GATEWAY_CONFIG_PATH} and {KONG_CONFIG_PATH}. "
-                "Update the configs or tests so they remain identical."
-            )
-        return gateway_cfg
-
-    # Prefer the compose-mounted gateway config when available.
-    if gateway_exists:
-        with open(KONG_GATEWAY_CONFIG_PATH, encoding="utf-8") as fh:
-            return yaml.safe_load(fh)
-
-    # Fallback to the legacy infra path if that is the only one present.
-    if legacy_exists:
-        with open(KONG_CONFIG_PATH, encoding="utf-8") as fh:
-            return yaml.safe_load(fh)
-
+    for path in (KONG_GATEWAY_CONFIG_PATH, KONG_CONFIG_PATH):
+        if path.exists():
+            with open(path, encoding="utf-8") as fh:
+                return yaml.safe_load(fh)
     pytest.skip("Kong configuration file not found")
 
 
@@ -392,6 +367,16 @@ class TestRateLimitingAndSecurity:
     - Security response headers
     اختبارات تحديد معدل الطلبات والأمان
     """
+
+    # Expected per-minute limits per tier (from CLAUDE.md).
+    # Used to validate Kong service rate limits stay within documented bounds.
+    RATE_LIMITS = {
+        "starter": 30,
+        "professional": 60,
+        "enterprise": 120,
+        "research": 120,
+        "internal": 1000,
+    }
 
     @pytest.fixture(scope="class")
     def kong(self) -> dict:

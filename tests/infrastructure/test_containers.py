@@ -1,0 +1,170 @@
+"""
+tests/infrastructure/test_containers.py
+=========================================
+Infrastructure smoke-tests for the SAHOOL Docker stack.
+
+Covers:
+  - Container liveness (Docker SDK)
+  - Database migrations & table existence (asyncpg)
+  - PostGIS extension activation
+  - Row-Level Security (RLS) on sensitive tables
+  - Kong Admin API route inventory
+  - NATS JetStream stream existence
+
+All tests gracefully skip when the required service / env-var is absent so
+the suite can be collected and reported in CI environments that do not run
+the full Docker stack.
+
+Run:
+    pytest tests/infrastructure/ -v -m infrastructure
+"""
+
+from __future__ import annotations
+
+import os
+
+import httpx
+import pytest
+
+pytestmark = [pytest.mark.infrastructure]
+
+
+# ===========================================================================
+# 1. Container liveness
+# ===========================================================================
+
+
+class TestContainerHealth:
+    """اختبارات صحة الحاويات - Container health checks."""
+
+    @pytest.fixture
+    def docker_client(self):
+        """Return a docker.DockerClient or skip if the daemon is not reachable."""
+        try:
+            import docker  # noqa: PLC0415
+
+            client = docker.from_env()
+            client.ping()  # raises if daemon is not running
+            return client
+        except Exception as exc:
+            pytest.skip(f"Docker daemon not reachable: {exc}")
+
+    # -----------------------------------------------------------------------
+    def test_all_containers_running(self, docker_client):
+        """كل الحاويات المطلوبة تعمل – all required containers are running."""
+        required = [
+            "sahool-kong",
+            "sahool-postgres",
+            "sahool-redis",
+            "sahool-nats",
+            "sahool-auth-svc",
+            "sahool-field-svc",
+            "sahool-satellite-svc",
+            "sahool-graphql-bff",
+        ]
+        running = [c.name for c in docker_client.containers.list() if c.status == "running"]
+        missing = [name for name in required if name not in running]
+        assert not missing, f"الحاويات التالية لا تعمل – containers not running: {missing}"
+
+    # -----------------------------------------------------------------------
+    async def test_database_migrations_applied(self, db_connection):
+        """كل الـ migrations تم تطبيقها – all DB migrations have been applied."""
+        # Verify core tables that must exist after migrations
+        required_tables = [
+            "users",
+            "farms",
+            "fields",
+            "field_imagery",
+            "sensors",
+            "irrigation_events",
+            "tasks",
+        ]
+        existing = await db_connection.fetch(
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+        )
+        existing_names = {r["tablename"] for r in existing}
+        missing = [t for t in required_tables if t not in existing_names]
+        assert not missing, f"جداول مفقودة – missing tables: {missing}"
+
+    # -----------------------------------------------------------------------
+    async def test_postgis_extension_active(self, db_connection):
+        """PostGIS مفعّل في PostgreSQL – PostGIS extension is active (v3.x)."""
+        result = await db_connection.fetchval("SELECT PostGIS_version()")
+        assert result is not None, "PostGIS_version() returned NULL"
+        assert "3." in result, f"Expected PostGIS 3.x, got: {result}"
+
+    # -----------------------------------------------------------------------
+    async def test_rls_policies_active(self, db_connection):
+        """RLS مفعّل على الجداول الحساسة – Row-Level Security is enabled."""
+        rls_tables = await db_connection.fetch(
+            """
+            SELECT tablename, rowsecurity
+            FROM pg_tables
+            WHERE tablename IN ('fields', 'sensors', 'users', 'tasks')
+              AND schemaname = 'public'
+            """
+        )
+        disabled = [r["tablename"] for r in rls_tables if not r["rowsecurity"]]
+        assert not disabled, f"RLS غير مفعّل على – RLS not enabled on: {disabled}"
+
+    # -----------------------------------------------------------------------
+    async def test_kong_routes_configured(self):
+        """Kong لديه كل الـ routes المطلوبة – Kong has all required routes."""
+        kong_admin = os.getenv("KONG_ADMIN_URL", "http://localhost:8001")
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(f"{kong_admin}/routes")
+        except Exception as exc:
+            pytest.skip(f"Kong Admin API not reachable: {exc}")
+
+        if resp.status_code != 200:
+            pytest.skip(f"Kong Admin API returned {resp.status_code}")
+
+        data = resp.json()
+        routes = {r["name"] for r in data.get("data", []) if r.get("name")}
+
+        required_routes = {
+            "auth-register",
+            "auth-login",
+            "fields-crud",
+            "fields-boundary",
+            "fields-imagery",
+            "graphql-bff",
+            "ws-gateway",
+        }
+        missing = required_routes - routes
+        assert not missing, f"Kong routes مفقودة – missing Kong routes: {missing}"
+
+    # -----------------------------------------------------------------------
+    async def test_nats_jetstream_streams_created(self):
+        """NATS JetStream streams موجودة – required JetStream streams exist."""
+        nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+        try:
+            import nats  # noqa: PLC0415
+        except ImportError:
+            pytest.skip("nats-py not installed")
+
+        try:
+            nc = await nats.connect(nats_url)
+        except Exception as exc:
+            pytest.skip(f"NATS not reachable at {nats_url}: {exc}")
+
+        try:
+            js = nc.jetstream()
+            required_streams = [
+                "SENSORS",
+                "IRRIGATION_EVENTS",
+                "FIELD_ALERTS",
+                "SATELLITE_JOBS",
+            ]
+            missing = []
+            for stream in required_streams:
+                try:
+                    info = await js.stream_info(stream)
+                    assert info is not None
+                except Exception:
+                    missing.append(stream)
+
+            assert not missing, f"NATS streams مفقودة – missing JetStream streams: {missing}"
+        finally:
+            await nc.drain()

@@ -196,6 +196,7 @@ markers = [
     "llm: Tests for LLM provider functionality",
     "guardrails: Tests for AI safety guardrails",
     "container: Container and Docker tests",
+    "infrastructure: Infrastructure stack tests (requires live Docker stack)",
     "ux: UX scenario tests",
     "agent: Agent-related tests",
     "auth: Authentication tests",

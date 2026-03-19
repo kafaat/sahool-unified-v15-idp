@@ -498,5 +498,112 @@ class TestOfflineFirstJourney:
             assert strategy in valid_strategies
 
 
+class TestFarmerCompleteJourney:
+    """
+    Playwright-based end-to-end test for the full farmer journey.
+    رحلة كاملة: تسجيل → إنشاء حقل → رسم الحدود → استعراض NDVI
+
+    Skips automatically when Playwright or the web app is not available,
+    so the suite can be collected safely in CI without a running browser stack.
+    """
+
+    @pytest.fixture
+    async def page(self):
+        """Launch a Chromium browser page and close it after the test."""
+        try:
+            from playwright.async_api import async_playwright  # noqa: PLC0415
+        except ImportError:
+            pytest.skip("playwright not installed – run `pip install playwright`")
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            _page = await browser.new_page()
+            try:
+                yield _page
+            finally:
+                await browser.close()
+
+    # -----------------------------------------------------------------------
+    async def test_register_create_field_view_imagery(self, page):
+        """
+        Complete farmer journey via the web UI:
+        register → create field → draw boundary → view NDVI imagery.
+        رحلة كاملة: تسجيل → إنشاء حقل → رسم الحدود → استعراض NDVI
+        """
+        import os  # noqa: PLC0415
+        import uuid  # noqa: PLC0415
+
+        base_url = os.getenv("WEB_APP_URL", "http://localhost:3000")
+        try:
+            await page.goto(base_url, timeout=15000)
+        except Exception as exc:
+            pytest.skip(f"Web app not reachable at {base_url}: {exc}")
+
+        # ------------------------------------------------------------------
+        # 1. تسجيل حساب جديد – Register a new account
+        # ------------------------------------------------------------------
+        unique_email = f"ahmed-{uuid.uuid4().hex[:8]}@test.ye"
+        await page.click("[data-testid='register-btn']")
+        await page.fill("[data-testid='name-input']", "أحمد المزارع")
+        await page.fill("[data-testid='email-input']", unique_email)
+        await page.fill("[data-testid='pass-input']", "Secure123!")
+        await page.click("[data-testid='submit-register']")
+
+        # Verify redirect to dashboard
+        await page.wait_for_url("**/dashboard", timeout=15000)
+
+        # ------------------------------------------------------------------
+        # 2. إنشاء حقل جديد – Create a new field
+        # ------------------------------------------------------------------
+        await page.click("[data-testid='add-field-btn']")
+        await page.fill("[data-testid='field-name']", "حقل الاختبار")
+        await page.select_option("[data-testid='crop-select']", "wheat")
+        await page.click("[data-testid='save-field']")
+
+        field_id = await page.get_attribute("[data-testid='field-card']:first-child", "data-field-id")
+        assert field_id is not None, "Field card data-field-id attribute is missing"
+
+        # ------------------------------------------------------------------
+        # 3. رسم الحدود على الخريطة – Draw boundary on the map
+        # ------------------------------------------------------------------
+        await page.click(f"[data-field-id='{field_id}']")
+        await page.click("[data-testid='draw-boundary-btn']")
+
+        map_element = page.locator("[data-testid='field-map']")
+        box = await map_element.bounding_box()
+        assert box is not None, "Map element bounding box not found"
+
+        # Simulate drawing a polygon by clicking four corners then pressing Enter
+        await page.mouse.click(box["x"] + 100, box["y"] + 100)
+        await page.mouse.click(box["x"] + 200, box["y"] + 100)
+        await page.mouse.click(box["x"] + 200, box["y"] + 200)
+        await page.mouse.click(box["x"] + 100, box["y"] + 200)
+        await page.keyboard.press("Enter")  # Close the polygon
+
+        # Verify area is displayed
+        area_text = await page.text_content("[data-testid='field-area']")
+        assert area_text is not None and "هكتار" in area_text, (
+            f"Expected 'هكتار' in area text, got: {area_text!r}"
+        )
+
+        # ------------------------------------------------------------------
+        # 4. استعراض صور NDVI – View NDVI imagery
+        # ------------------------------------------------------------------
+        await page.click("[data-testid='imagery-tab']")
+        await page.select_option("[data-testid='index-select']", "NDVI")
+
+        await page.wait_for_selector("[data-testid='ndvi-timeline']", timeout=15000)
+
+        images = page.locator("[data-testid='ndvi-image-card']")
+        count = await images.count()
+        assert count > 0, "No NDVI image cards found in the timeline"
+
+        # Verify the first image card exposes the NDVI value
+        first = images.first
+        assert await first.locator("[data-testid='ndvi-value']").is_visible(), (
+            "NDVI value element is not visible on the first image card"
+        )
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

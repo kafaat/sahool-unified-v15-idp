@@ -48,6 +48,7 @@ class TestContainerHealth:
             return client
         except Exception as exc:
             pytest.skip(f"Docker daemon not reachable: {exc}")
+            return None
 
     # -----------------------------------------------------------------------
     def test_all_containers_running(self, docker_client):

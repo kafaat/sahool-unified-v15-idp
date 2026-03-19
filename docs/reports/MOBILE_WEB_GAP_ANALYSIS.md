@@ -819,4 +819,159 @@ packages/shared-types/src/
 
 ---
 
+## Part 11: Mobile Feature Data Source Analysis (Real API vs Mock)
+
+> **Critical Discovery**: Many mobile features use **mock/demo data** with no real API calls.
+> This significantly reduces the web implementation effort for some features.
+
+### Features with Real API (Ready for Web)
+
+| Feature | API Base | Endpoints | Notes |
+|---------|----------|-----------|-------|
+| **billing** | `/api/v1/billing` | 20 | Stripe + wallet, invoices, usage |
+| **chat** | `/api/v1/chat` + WebSocket | 10 REST + WS events | Socket.IO for real-time |
+| **crm** | `/api/v1/crm` | 14 | Offline-first with SQLite sync |
+| **gdd** | `/api/v1/gdd` | 7 | Accumulation, forecast, settings |
+| **profitability** | `/profitability` | 17 | Costs, revenue, break-even, export PDF/Excel |
+| **spray** | Port 8098 `/api/v1/spray` | 11 | **Dedicated microservice** (not main backend) |
+| **payment** | Tharwatt gateway | 10 | Yemen Tharwatt + Stripe |
+| **daily_brief** | `/api/v1/daily-brief` | 1 | With offline fallback |
+| **lab** (field app) | Kong Gateway → soil-analysis:8134 | 7 | Barcode search, samples CRUD |
+
+### Features with MOCK/DEMO Data Only (Need Backend First)
+
+| Feature | Current State | Web Recommendation |
+|---------|--------------|-------------------|
+| **field_hub** | Static hardcoded data, no API | Build as composite widget from existing APIs (fields + weather + tasks) |
+| **gamification** | All mock in provider, no service | **SKIP** - needs backend service first |
+| **profile** | Hardcoded mock values | Use existing user-service:3025 endpoints |
+| **scanner** | Simulated camera, no real capture | **SKIP** for web (hardware-dependent) |
+| **smart_alerts** | 5 mock alerts, WebSocket placeholder | Enhance existing web `alerts` feature |
+| **rotation** (main) | Local simulation with 500ms delay | Needs backend API or use `shared/crop_rotation/` |
+| **onboarding** | SharedPreferences only | Client-side wizard, no backend needed |
+| **polygon_editor** | Local geometry computation | Client-side Leaflet.Draw, no backend needed |
+
+### Key Mobile API Details for Web Implementation
+
+#### Billing Endpoints (20)
+```
+GET    /api/v1/billing/wallet/balance
+POST   /api/v1/billing/wallet/topup
+GET    /api/v1/billing/wallet/transactions
+GET    /api/v1/billing/plans
+GET    /api/v1/billing/subscription
+POST   /api/v1/billing/subscription
+PUT    /api/v1/billing/subscription/{id}
+DELETE /api/v1/billing/subscription/{id}/cancel
+POST   /api/v1/billing/subscription/reactivate
+GET    /api/v1/billing/invoices
+GET    /api/v1/billing/invoices/{id}
+GET    /api/v1/billing/invoices/{id}/download
+GET    /api/v1/billing/usage
+POST   /api/v1/billing/payment-intent          (Stripe)
+POST   /api/v1/billing/payment-intent/{id}/confirm
+POST   /api/v1/billing/setup-intent
+POST   /api/v1/billing/setup-intent/{id}/confirm
+GET    /api/v1/billing/payment-methods
+POST   /api/v1/billing/payment-methods/{id}/default
+DELETE /api/v1/billing/payment-methods/{id}
+```
+
+#### Chat Endpoints (10 REST + WebSocket)
+```
+GET    /api/v1/chat/conversations
+GET    /api/v1/chat/conversations/{id}
+POST   /api/v1/chat/conversations
+GET    /api/v1/chat/conversations/{id}/messages
+POST   /api/v1/chat/conversations/{id}/messages
+PUT    /api/v1/chat/messages/{id}/read
+DELETE /api/v1/chat/messages/{id}
+POST   /api/v1/chat/messages/{id}/react
+GET    /api/v1/chat/users/search
+POST   /api/v1/chat/upload
+
+WebSocket Events:
+  Emit: join_conversation, leave_conversation, typing, stop_typing, mark_read
+  Recv: new_message, message_updated, typing, stop_typing, user_online, user_offline
+```
+
+#### CRM Endpoints (14)
+```
+GET    /api/v1/crm/farmers
+POST   /api/v1/crm/farmers
+GET    /api/v1/crm/farmers/{id}
+PUT    /api/v1/crm/farmers/{id}
+DELETE /api/v1/crm/farmers/{id}
+GET    /api/v1/crm/farmers/{id}/interactions
+POST   /api/v1/crm/interactions
+GET    /api/v1/crm/opportunities
+POST   /api/v1/crm/opportunities
+PUT    /api/v1/crm/opportunities/{id}
+GET    /api/v1/crm/activity-log
+GET    /api/v1/crm/stats
+POST   /api/v1/crm/sync
+GET    /api/v1/crm/health
+```
+
+#### Profitability Endpoints (17)
+```
+GET    /profitability/{fieldId}
+GET    /profitability/{fieldId}/costs
+POST   /profitability/{fieldId}/costs
+PUT    /profitability/{fieldId}/costs/{costId}
+DELETE /profitability/{fieldId}/costs/{costId}
+GET    /profitability/{fieldId}/revenue
+POST   /profitability/{fieldId}/revenue
+PUT    /profitability/{fieldId}/revenue/{revId}
+DELETE /profitability/{fieldId}/revenue/{revId}
+GET    /profitability/{fieldId}/summary
+GET    /profitability/farm-seasons/{farmId}
+GET    /profitability/{fieldId}/cost-breakdown
+GET    /profitability/{fieldId}/break-even
+GET    /profitability/comparison/{fieldId}
+GET    /profitability/{fieldId}/trend
+GET    /profitability/crop-averages/{cropType}
+GET    /profitability/{fieldId}/export/pdf|excel
+```
+
+#### Spray Endpoints (dedicated port 8098)
+```
+GET    /api/v1/spray/recommendations/{fieldId}
+GET    /api/v1/spray/windows/{fieldId}
+GET    /api/v1/spray/weather/forecast/{fieldId}
+GET    /api/v1/spray/weather/current/{fieldId}
+GET    /api/v1/spray/products
+GET    /api/v1/spray/products/{id}
+GET    /api/v1/spray/log/{fieldId}
+POST   /api/v1/spray/log
+PUT    /api/v1/spray/log/{id}
+DELETE /api/v1/spray/log/{id}
+POST   /api/v1/spray/log/{id}/photo
+```
+
+### Revised Implementation Effort (Based on API Readiness)
+
+| Feature | Original Estimate | Revised Estimate | Why |
+|---------|------------------|------------------|-----|
+| Chat | 3-4 days | 3-4 days | Real API + WebSocket ready |
+| Billing | 2-3 days | 3-4 days | 20 endpoints to wire (more than initially estimated) |
+| CRM | 3-4 days | 3-4 days | Full API ready |
+| Profitability | 3-4 days | 3-4 days | 17 real endpoints ready |
+| Daily Brief | 3-4 days | 2-3 days | Single API + compose from existing data |
+| Field Hub | 3-4 days | 2-3 days | Composite of existing APIs, no new backend |
+| Onboarding | 2-3 days | 2 days | Client-side only |
+| Profile | 1-2 days | 1 day | Reuse user-service + settings feature |
+| Gamification | 1-2 days | **SKIP** | No backend service exists |
+| Rotation | 2-3 days | 3-4 days | Needs backend API exposure first |
+| Smart Alerts | 1-2 days | 1 day | Enhance existing alerts |
+| Polygon Editor | 3-4 days | 2-3 days | Client-side only (Leaflet.Draw) |
+| Payment | 2-3 days | 2-3 days | Tharwatt integration (billing-core handles it) |
+| Lab | 1-2 days | 1-2 days | Merge into soil-analysis |
+| Spray | N/A (exists) | 0 days | Already at `/precision-agriculture/spray` |
+| GDD | N/A (exists) | 0 days | Already at `/precision-agriculture/gdd` |
+
+**Total Revised Effort**: ~28-34 days (excluding Gamification and Scanner)
+
+---
+
 _Generated: 2026-03-19 | SAHOOL Platform v16.0.0_

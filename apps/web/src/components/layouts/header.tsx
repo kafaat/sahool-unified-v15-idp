@@ -139,11 +139,11 @@ export const Header = React.memo(function Header({ onMenuToggle }: HeaderProps) 
                 userEmail={user?.email}
                 onProfileClick={() => {
                   setShowUserMenu(false);
-                  router.push("/dashboard/profile");
+                  router.push("/settings");
                 }}
                 onSettingsClick={() => {
                   setShowUserMenu(false);
-                  router.push("/dashboard/settings");
+                  router.push("/settings");
                 }}
                 onLogout={handleLogout}
                 onClose={() => setShowUserMenu(false)}

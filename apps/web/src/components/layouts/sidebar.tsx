@@ -38,6 +38,20 @@ import {
   AlertTriangle,
   Bell,
   X,
+  MapPin,
+  CloudSun,
+  ListChecks,
+  Wrench,
+  Cpu,
+  Activity,
+  ShoppingCart,
+  Users,
+  HeartPulse,
+  Wallet,
+  BarChart3,
+  Crosshair,
+  Bot,
+  HelpCircle,
 } from "lucide-react";
 
 interface NavItem {
@@ -46,8 +60,13 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+interface NavGroup {
+  groupKey: string;
+  items: NavItem[];
+}
+
 /**
- * Client/Farmer navigation items.
+ * Client/Farmer navigation items grouped by category.
  * Only includes features relevant to farm operations.
  *
  * Removed (admin-only, available in apps/admin/):
@@ -55,81 +74,81 @@ interface NavItem {
  * - Research (الأبحاث) → admin portal
  * - Compliance (الامتثال) → admin portal
  */
-const navItems: NavItem[] = [
+const navGroups: NavGroup[] = [
   {
-    labelKey: "dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
+    groupKey: "overview",
+    items: [
+      { labelKey: "dashboard", href: "/dashboard", icon: LayoutDashboard },
+    ],
   },
   {
-    labelKey: "farms",
-    href: "/farms",
-    icon: Building2,
+    groupKey: "farmManagement",
+    items: [
+      { labelKey: "farms", href: "/farms", icon: Building2 },
+      { labelKey: "fields", href: "/fields", icon: MapPin },
+      { labelKey: "crops", href: "/crops", icon: Sprout },
+      { labelKey: "seasons", href: "/seasons", icon: Calendar },
+      { labelKey: "inventory", href: "/inventory", icon: Package },
+      { labelKey: "tasks", href: "/tasks", icon: ListChecks },
+    ],
   },
   {
-    labelKey: "crops",
-    href: "/crops",
-    icon: Sprout,
+    groupKey: "waterAndIrrigation",
+    items: [
+      { labelKey: "irrigation", href: "/irrigation", icon: Droplets },
+      { labelKey: "pivotIrrigation", href: "/pivot-irrigation", icon: Droplets },
+    ],
   },
   {
-    labelKey: "inventory",
-    href: "/inventory",
-    icon: Package,
+    groupKey: "cropIntelligence",
+    items: [
+      { labelKey: "cropHealth", href: "/crop-health", icon: HeartPulse },
+      { labelKey: "weather", href: "/weather", icon: CloudSun },
+      { labelKey: "satellite", href: "/satellite", icon: Satellite },
+      { labelKey: "yield", href: "/yield", icon: BarChart3 },
+      { labelKey: "precisionAgriculture", href: "/precision-agriculture/gdd", icon: Crosshair },
+    ],
   },
   {
-    labelKey: "seasons",
-    href: "/seasons",
-    icon: Calendar,
+    groupKey: "iotAndEquipment",
+    items: [
+      { labelKey: "iot", href: "/iot", icon: Cpu },
+      { labelKey: "sensors", href: "/sensors", icon: Activity },
+      { labelKey: "equipment", href: "/equipment", icon: Wrench },
+    ],
   },
   {
-    labelKey: "pivotIrrigation",
-    href: "/pivot-irrigation",
-    icon: Droplets,
+    groupKey: "businessAndCommunity",
+    items: [
+      { labelKey: "marketplace", href: "/marketplace", icon: ShoppingCart },
+      { labelKey: "wallet", href: "/wallet", icon: Wallet },
+      { labelKey: "community", href: "/community", icon: Users },
+      { labelKey: "logistics", href: "/logistics", icon: Truck },
+    ],
   },
   {
-    labelKey: "reports",
-    href: "/reports",
-    icon: FileBarChart,
+    groupKey: "reportsAndDocs",
+    items: [
+      { labelKey: "reports", href: "/reports", icon: FileBarChart },
+      { labelKey: "analytics", href: "/analytics", icon: TrendingUp },
+      { labelKey: "documents", href: "/documents", icon: FileText },
+    ],
   },
   {
-    labelKey: "documents",
-    href: "/documents",
-    icon: FileText,
+    groupKey: "alertsAndNotifications",
+    items: [
+      { labelKey: "alerts", href: "/alerts", icon: AlertTriangle },
+      { labelKey: "notifications", href: "/notifications", icon: Bell },
+      { labelKey: "disasterAssessment", href: "/disaster-assessment", icon: AlertTriangle },
+    ],
   },
   {
-    labelKey: "analytics",
-    href: "/analytics",
-    icon: TrendingUp,
-  },
-  {
-    labelKey: "satellite",
-    href: "/satellite",
-    icon: Satellite,
-  },
-  {
-    labelKey: "logistics",
-    href: "/logistics",
-    icon: Truck,
-  },
-  {
-    labelKey: "disasterAssessment",
-    href: "/disaster-assessment",
-    icon: AlertTriangle,
-  },
-  {
-    labelKey: "alerts",
-    href: "/alerts",
-    icon: AlertTriangle,
-  },
-  {
-    labelKey: "notifications",
-    href: "/notifications",
-    icon: Bell,
-  },
-  {
-    labelKey: "settings",
-    href: "/settings",
-    icon: Settings,
+    groupKey: "tools",
+    items: [
+      { labelKey: "copilot", href: "/copilot", icon: Bot },
+      { labelKey: "support", href: "/support", icon: HelpCircle },
+      { labelKey: "settings", href: "/settings", icon: Settings },
+    ],
   },
 ];
 
@@ -208,47 +227,58 @@ export const Sidebar = React.memo(function Sidebar({
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
-            const Icon = item.icon;
+        <div className="space-y-4">
+          {navGroups.map((group) => (
+            <div key={group.groupKey}>
+              {group.groupKey !== "overview" && (
+                <div className="px-4 py-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  {t(group.groupKey)}
+                </div>
+              )}
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive =
+                    pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const Icon = item.icon;
 
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  prefetch={false}
-                  onClick={handleNavClick}
-                  className={clsx(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                    "hover:bg-sahool-green-50 dark:hover:bg-gray-700 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
-                    isActive
-                      ? "bg-sahool-green-100 dark:bg-sahool-green-900/30 text-sahool-green-700 dark:text-sahool-green-400 font-medium"
-                      : "text-gray-700 dark:text-gray-300",
-                  )}
-                  aria-current={isActive ? "page" : undefined}
-                  aria-label={t(item.labelKey)}
-                >
-                  <Icon
-                    className={clsx(
-                      "w-5 h-5 flex-shrink-0",
-                      isActive
-                        ? "text-sahool-green-600 dark:text-sahool-green-400"
-                        : "text-gray-400 group-hover:text-sahool-green-600 dark:group-hover:text-sahool-green-400",
-                    )}
-                    aria-hidden="true"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">
-                      {t(item.labelKey)}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        prefetch={false}
+                        onClick={handleNavClick}
+                        className={clsx(
+                          "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors",
+                          "hover:bg-sahool-green-50 dark:hover:bg-gray-700 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
+                          isActive
+                            ? "bg-sahool-green-100 dark:bg-sahool-green-900/30 text-sahool-green-700 dark:text-sahool-green-400 font-medium"
+                            : "text-gray-700 dark:text-gray-300",
+                        )}
+                        aria-current={isActive ? "page" : undefined}
+                        aria-label={t(item.labelKey)}
+                      >
+                        <Icon
+                          className={clsx(
+                            "w-5 h-5 flex-shrink-0",
+                            isActive
+                              ? "text-sahool-green-600 dark:text-sahool-green-400"
+                              : "text-gray-400 group-hover:text-sahool-green-600 dark:group-hover:text-sahool-green-400",
+                          )}
+                          aria-hidden="true"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium">
+                            {t(item.labelKey)}
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       </nav>
 
       {/* Footer */}

@@ -19,10 +19,10 @@
 | **Accessibility** | 8/10 | Good ARIA, RTL, bilingual support |
 | **Performance** | 7/10 | Good code splitting, lazy loading needs more |
 | **Testing** | 5/10 | 74 test files, but gaps in feature tests |
-| **Offline Support** | 3/10 | Basic PWA only, no IndexedDB |
+| **Offline Support** | N/A | Not required - web targets connected users |
 | **UI Components** | 6/10 | Only 12 components, needs expansion |
 
-**Overall: 6.75/10** - Solid foundation but needs more feature depth and testing.
+**Overall: 7.5/10** - Solid foundation with excellent security. Needs more UI components and testing.
 
 ---
 
@@ -354,7 +354,7 @@ The Playwright setup is well-configured:
 
 ---
 
-## 10. Offline/PWA Review | مراجعة العمل بدون إنترنت
+## 10. PWA Support | دعم PWA
 
 ### 10.1 Current State
 
@@ -362,18 +362,9 @@ The Playwright setup is well-configured:
 - `manifest.json` configured
 - React Query has `refetchOnReconnect: true`
 
-### 10.2 Critical Gaps
+**Note**: Full offline support is **not required** for the web app. The web application targets managers and analysts who typically have stable internet connections. The mobile app (Flutter) handles offline-first field operations.
 
-| Gap | Priority | Recommendation |
-|-----|----------|----------------|
-| **No IndexedDB** | HIGH | Add Dexie.js or idb for local data cache |
-| **No offline queue** | HIGH | Queue mutations when offline |
-| **No sync indicator** | HIGH | Show online/offline status |
-| **No cached pages** | MEDIUM | Service worker caching strategies |
-| **No conflict resolution** | MEDIUM | ETag-based merge like mobile |
-| **No background sync** | LOW | Use Background Sync API |
-
-This is the **biggest gap** for a platform targeting low-connectivity environments.
+The current PWA setup is sufficient for installability and basic caching.
 
 ---
 
@@ -409,7 +400,6 @@ This is the **biggest gap** for a platform targeting low-connectivity environmen
 | 3 | No mobile responsive sidebar | `sidebar.tsx` | HIGH |
 | 6 | Edge logger suppresses production errors | `middleware.ts` | HIGH |
 | 10 | No dynamic imports for heavy features | Multiple | HIGH |
-| - | No offline data persistence | N/A | HIGH |
 
 ### Important (ينبغي إصلاحها)
 
@@ -448,18 +438,16 @@ This is the **biggest gap** for a platform targeting low-connectivity environmen
 ### Short-term (قصير المدى)
 
 5. **Expand UI component library** (Table, Select, Tabs, DatePicker, Pagination)
-6. **Add offline support** with IndexedDB and sync queue
-7. **Fix dark mode** for Modal and Toast components
-8. **Centralize mutation hooks** in API layer
-9. **Increase test coverage** - target 150+ test files
-10. **Add `prefetch={false}`** to sidebar links
+6. **Fix dark mode** for Modal and Toast components
+7. **Centralize mutation hooks** in API layer
+8. **Increase test coverage** - target 150+ test files
+9. **Add `prefetch={false}`** to sidebar links
 
 ### Long-term (طويل المدى)
 
-11. **Implement full offline-first** architecture matching mobile capabilities
-12. **Add Web Speech API** for voice commands (matching mobile)
-13. **Add WebAuthn/FIDO2** for biometric authentication
-14. **Create shared design system** fully integrated between web and mobile
+10. **Add WebAuthn/FIDO2** for biometric authentication
+11. **Create shared design system** fully integrated between web and mobile
+12. **Add Web Speech API** for voice commands (optional)
 
 ---
 

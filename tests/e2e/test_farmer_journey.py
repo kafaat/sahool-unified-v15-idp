@@ -19,6 +19,11 @@ from typing import Any
 
 import pytest
 
+try:
+    from playwright.async_api import async_playwright  # noqa: PLC0415
+except ImportError:
+    async_playwright = None  # type: ignore[assignment]
+
 # Mark all tests in this module as e2e
 pytestmark = [pytest.mark.e2e, pytest.mark.integration]
 
@@ -510,9 +515,7 @@ class TestFarmerCompleteJourney:
     @pytest.fixture
     async def page(self):
         """Launch a Chromium browser page and close it after the test."""
-        try:
-            from playwright.async_api import async_playwright  # noqa: PLC0415
-        except ImportError:
+        if async_playwright is None:
             pytest.skip("playwright not installed – run `pip install playwright`")
 
         async with async_playwright() as p:

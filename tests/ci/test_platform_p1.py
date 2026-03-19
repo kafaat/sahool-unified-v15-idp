@@ -449,7 +449,9 @@ class TestJWTPropagationThroughKong:
         except ImportError:
             # Decode base64 payload manually
             parts = token.split(".")
-            padded = parts[1] + "=="
+            payload_segment = parts[1]
+            padding = "=" * (-len(payload_segment) % 4)
+            padded = payload_segment + padding
             payload = json.loads(base64.urlsafe_b64decode(padded))
             assert "tid" in payload, "JWT must include 'tid' claim"
 

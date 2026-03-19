@@ -173,7 +173,6 @@ export function useWebSocket(
   const eventsRef = useRef(events);
   eventsRef.current = events;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally using ref
   const eventsKey = events.map((e) => e.type).join(",");
 
   useEffect(() => {
@@ -185,7 +184,6 @@ export function useWebSocket(
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
     // Re-subscribe only when the set of event types changes, not on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventsKey, subscribe]);
 
   return {

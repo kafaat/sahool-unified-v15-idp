@@ -178,7 +178,9 @@ function decryptWithKey(encryptedData: string, key: Buffer): string {
   const authTag = Buffer.from(authTagBase64, "base64");
   const encrypted = Buffer.from(encryptedBase64, "base64");
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, {
+    authTagLength: AUTH_TAG_LENGTH,
+  });
   decipher.setAuthTag(authTag);
 
   let decrypted = decipher.update(encrypted);

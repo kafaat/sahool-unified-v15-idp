@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import {
   Users,
   UserPlus,
@@ -72,7 +73,7 @@ export const TeamManagement: React.FC = () => {
       });
       setEditingMember(null);
     } catch (error) {
-      console.error("Failed to update role:", error);
+      logger.error("Failed to update role:", error);
     }
   };
 
@@ -87,7 +88,7 @@ export const TeamManagement: React.FC = () => {
       await removeMemberMutation.mutateAsync(removingMember.id);
       setRemovingMember(null);
     } catch (error) {
-      console.error("Failed to remove member:", error);
+      logger.error("Failed to remove member:", error);
     }
   };
 

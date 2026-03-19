@@ -922,6 +922,12 @@ export const SERVICE_PORT_ALIASES = {
   levelingOptimizer: SERVICE_PORTS.LEVELING_OPTIMIZER,
   edgeOrchestrator: SERVICE_PORTS.EDGE_ORCHESTRATOR,
   vllmDeepseek: SERVICE_PORTS.VLLM_DEEPSEEK,
+  advisory: SERVICE_PORTS.ADVISORY,
+  yieldPrediction: SERVICE_PORTS.YIELD_PREDICTION,
+  fieldIntelligence: SERVICE_PORTS.FIELD_INTELLIGENCE,
+  astronomicalCalendar: SERVICE_PORTS.ASTRONOMICAL_CALENDAR,
+  cropIntelligence: SERVICE_PORTS.CROP_INTELLIGENCE,
+  audit: SERVICE_PORTS.AUDIT_SERVICE,
 } as const;
 
 // ---------------------------------------------------------------------------

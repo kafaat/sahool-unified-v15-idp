@@ -8,6 +8,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import { Loader2, Sprout, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,7 +84,7 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
         onPrescriptionGenerated(prescription);
       }
     } catch (error) {
-      console.error("Failed to generate prescription:", error);
+      logger.error("Failed to generate prescription:", error);
     }
   };
 

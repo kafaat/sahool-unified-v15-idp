@@ -22,6 +22,7 @@ import { pestRoutes } from "./api/pest-routes";
 import { geoRoutes } from "./geo/geo-routes";
 import { fieldHealthRoutes } from "./api/field-health-routes";
 import { taskRoutes } from "./api/task-routes";
+import { logger } from "./middleware/logger";
 
 /**
  * Create and configure the field management Express application
@@ -60,7 +61,8 @@ export function createFieldApp(
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`⚠️ CORS blocked request from: ${origin}`);
+        const sanitizedOrigin = origin.replace(/[\n\r\t\x1b]/g, "");
+        logger.warn(`⚠️ CORS blocked request from: ${sanitizedOrigin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -89,7 +91,7 @@ export function createFieldApp(
   app.use((req: Request, _res: Response, next: NextFunction) => {
     const ifMatch = getIfMatchHeader(req);
     const etagInfo = ifMatch ? ` [If-Match: ${ifMatch}]` : "";
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${req.path}${etagInfo}`,
     );
     next();
@@ -165,7 +167,7 @@ export function createFieldApp(
         },
       });
     } catch (error) {
-      console.error("Error fetching fields:", error);
+      logger.error("Error fetching fields:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch fields",
@@ -213,7 +215,7 @@ export function createFieldApp(
         etag: etag, // Also include in body for mobile clients
       });
     } catch (error) {
-      console.error("Error fetching field:", error);
+      logger.error("Error fetching field:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch field",
@@ -314,7 +316,7 @@ export function createFieldApp(
 
         // Calculate approximate area locally
         const approxArea = calculatePolygonArea(closedCoords);
-        console.log(`📐 Approximate area: ${approxArea.toFixed(2)} hectares`);
+        logger.info(`📐 Approximate area: ${approxArea.toFixed(2)} hectares`);
       }
 
       // If boundary provided as GeoJSON, validate it
@@ -369,7 +371,7 @@ export function createFieldApp(
         message: "حقل جديد تم إنشاؤه بنجاح", // New field created successfully
       });
     } catch (error) {
-      console.error("Error creating field:", error);
+      logger.error("Error creating field:", error);
       res.status(500).json({
         success: false,
         error: "Failed to create field",
@@ -411,7 +413,7 @@ export function createFieldApp(
       if (ifMatch && !validateIfMatch(ifMatch, field.id, field.version)) {
         // 409 Conflict - the field was modified by another user
         const currentETag = generateETag(field.id, field.version);
-        console.log(
+        logger.info(
           `⚠️ 409 Conflict: Field ${field.id} - Client ETag: ${ifMatch}, Server ETag: ${currentETag}`,
         );
 
@@ -449,7 +451,7 @@ export function createFieldApp(
         message: "تم تحديث الحقل بنجاح", // Field updated successfully
       });
     } catch (error) {
-      console.error("Error updating field:", error);
+      logger.error("Error updating field:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update field",
@@ -481,7 +483,7 @@ export function createFieldApp(
         message: "تم حذف الحقل بنجاح", // Field deleted successfully
       });
     } catch (error) {
-      console.error("Error deleting field:", error);
+      logger.error("Error deleting field:", error);
       res.status(500).json({
         success: false,
         error: "Failed to delete field",
@@ -539,7 +541,7 @@ export function createFieldApp(
         query: { lat, lng, radius },
       });
     } catch (error) {
-      console.error("Error finding nearby fields:", error);
+      logger.error("Error finding nearby fields:", error);
       res.status(500).json({
         success: false,
         error: "Failed to find nearby fields",
@@ -618,7 +620,7 @@ export function createFieldApp(
         },
       });
     } catch (error) {
-      console.error("Error fetching NDVI data:", error);
+      logger.error("Error fetching NDVI data:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch NDVI data",
@@ -679,7 +681,7 @@ export function createFieldApp(
         message: "تم تحديث مؤشر NDVI بنجاح",
       });
     } catch (error) {
-      console.error("Error updating NDVI:", error);
+      logger.error("Error updating NDVI:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update NDVI",
@@ -739,7 +741,7 @@ export function createFieldApp(
         },
       });
     } catch (error) {
-      console.error("Error fetching NDVI summary:", error);
+      logger.error("Error fetching NDVI summary:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch NDVI summary",
@@ -889,7 +891,7 @@ export function createFieldApp(
         },
       });
     } catch (error) {
-      console.error("Error in delta sync:", error);
+      logger.error("Error in delta sync:", error);
       res.status(500).json({
         success: false,
         error: "Failed to perform delta sync",
@@ -1100,7 +1102,7 @@ export function createFieldApp(
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
-      console.error("Error in batch sync:", error);
+      logger.error("Error in batch sync:", error);
       res.status(500).json({
         success: false,
         error: "Failed to perform batch sync",
@@ -1173,7 +1175,7 @@ export function createFieldApp(
         },
       });
     } catch (error) {
-      console.error("Error fetching sync status:", error);
+      logger.error("Error fetching sync status:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch sync status",
@@ -1225,7 +1227,7 @@ export function createFieldApp(
         message: "تم تحديث حالة المزامنة بنجاح",
       });
     } catch (error) {
-      console.error("Error updating sync status:", error);
+      logger.error("Error updating sync status:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update sync status",
@@ -1308,7 +1310,7 @@ export function createFieldApp(
           count: history.length,
         });
       } catch (error) {
-        console.error("Error fetching boundary history:", error);
+        logger.error("Error fetching boundary history:", error);
         res.status(500).json({
           success: false,
           error: "Failed to fetch boundary history",
@@ -1396,7 +1398,7 @@ export function createFieldApp(
           message: "تم استرجاع الحدود السابقة بنجاح",
         });
       } catch (error) {
-        console.error("Error rolling back boundary:", error);
+        logger.error("Error rolling back boundary:", error);
         res.status(500).json({
           success: false,
           error: "Failed to rollback boundary",
@@ -1434,7 +1436,7 @@ export function createFieldApp(
   // ─────────────────────────────────────────────────────────────────────────────
 
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("Unhandled error:", err);
+    logger.error("Unhandled error:", err);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -1465,170 +1467,170 @@ export async function startFieldService(
     try {
       await AppDataSource.initialize();
       dbConnected = true;
-      console.log("═══════════════════════════════════════════════════════════");
-      console.log("  🔥 Database Connected & PostGIS Engine Ready!");
-      console.log("═══════════════════════════════════════════════════════════");
+      logger.info("═══════════════════════════════════════════════════════════");
+      logger.info("  🔥 Database Connected & PostGIS Engine Ready!");
+      logger.info("═══════════════════════════════════════════════════════════");
 
       // Enable PostGIS extension if not exists
       try {
         await AppDataSource.query("CREATE EXTENSION IF NOT EXISTS postgis");
-        console.log("  ✅ PostGIS extension enabled");
+        logger.info("  ✅ PostGIS extension enabled");
       } catch (e) {
-        console.log("  ⚠️  PostGIS extension may already exist");
+        logger.info("  ⚠️  PostGIS extension may already exist");
       }
     } catch (dbError) {
-      console.warn("═══════════════════════════════════════════════════════════");
-      console.warn("  ⚠️  Database connection failed - running in limited mode");
-      console.warn(`  Error: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
-      console.warn("═══════════════════════════════════════════════════════════");
+      logger.warn("═══════════════════════════════════════════════════════════");
+      logger.warn("  ⚠️  Database connection failed - running in limited mode");
+      logger.warn(`  Error: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+      logger.warn("═══════════════════════════════════════════════════════════");
     }
   } else {
-    console.log("═══════════════════════════════════════════════════════════");
-    console.log("  ⚠️  SKIP_DB_INIT=true - Database initialization skipped");
-    console.log("═══════════════════════════════════════════════════════════");
+    logger.info("═══════════════════════════════════════════════════════════");
+    logger.info("  ⚠️  SKIP_DB_INIT=true - Database initialization skipped");
+    logger.info("═══════════════════════════════════════════════════════════");
   }
 
   app.listen(port, "0.0.0.0", () => {
-    console.log(`  🚀 ${serviceName} running on port ${port}`);
-    console.log("═══════════════════════════════════════════════════════════");
-    console.log("");
-    console.log("  📡 Field CRUD Endpoints:");
-    console.log("    GET  /healthz              - Health check");
-    console.log("    GET  /readyz               - Readiness check");
-    console.log("    GET  /api/v1/fields        - List fields");
-    console.log("    GET  /api/v1/fields/:id    - Get field (+ ETag)");
-    console.log("    POST /api/v1/fields        - Create field (+ ETag)");
-    console.log(
+    logger.info(`  🚀 ${serviceName} running on port ${port}`);
+    logger.info("═══════════════════════════════════════════════════════════");
+    logger.info("");
+    logger.info("  📡 Field CRUD Endpoints:");
+    logger.info("    GET  /healthz              - Health check");
+    logger.info("    GET  /readyz               - Readiness check");
+    logger.info("    GET  /api/v1/fields        - List fields");
+    logger.info("    GET  /api/v1/fields/:id    - Get field (+ ETag)");
+    logger.info("    POST /api/v1/fields        - Create field (+ ETag)");
+    logger.info(
       "    PUT  /api/v1/fields/:id    - Update field (If-Match → 409)",
     );
-    console.log("    DELETE /api/v1/fields/:id  - Delete field");
-    console.log("    GET  /api/v1/fields/nearby - Geospatial query");
-    console.log("");
-    console.log("  📱 Mobile Sync (Delta Sync):");
-    console.log(
+    logger.info("    DELETE /api/v1/fields/:id  - Delete field");
+    logger.info("    GET  /api/v1/fields/nearby - Geospatial query");
+    logger.info("");
+    logger.info("  📱 Mobile Sync (Delta Sync):");
+    logger.info(
       "    GET  /api/v1/fields/sync          - Delta sync (since=timestamp)",
     );
-    console.log(
+    logger.info(
       "    POST /api/v1/fields/sync/batch    - Batch upload with conflict check",
     );
-    console.log("    GET  /api/v1/sync/status          - Device sync status");
-    console.log("    PUT  /api/v1/sync/status          - Update sync status");
-    console.log("");
-    console.log("  📜 Boundary History:");
-    console.log("    GET  /api/v1/fields/:id/boundary-history  - Get history");
-    console.log(
+    logger.info("    GET  /api/v1/sync/status          - Device sync status");
+    logger.info("    PUT  /api/v1/sync/status          - Update sync status");
+    logger.info("");
+    logger.info("  📜 Boundary History:");
+    logger.info("    GET  /api/v1/fields/:id/boundary-history  - Get history");
+    logger.info(
       "    POST /api/v1/fields/:id/boundary-history/rollback - Rollback",
     );
-    console.log("");
-    console.log("  🌿 NDVI Analysis:");
-    console.log("    GET  /api/v1/fields/:id/ndvi  - Field NDVI analysis");
-    console.log("    PUT  /api/v1/fields/:id/ndvi  - Update NDVI value");
-    console.log("    GET  /api/v1/ndvi/summary     - Tenant-wide NDVI summary");
-    console.log("");
-    console.log("  🐛 Pest Management:");
-    console.log(
+    logger.info("");
+    logger.info("  🌿 NDVI Analysis:");
+    logger.info("    GET  /api/v1/fields/:id/ndvi  - Field NDVI analysis");
+    logger.info("    PUT  /api/v1/fields/:id/ndvi  - Update NDVI value");
+    logger.info("    GET  /api/v1/ndvi/summary     - Tenant-wide NDVI summary");
+    logger.info("");
+    logger.info("  🐛 Pest Management:");
+    logger.info(
       "    GET    /api/v1/pests/incidents           - List pest incidents",
     );
-    console.log(
+    logger.info(
       "    POST   /api/v1/pests/incidents           - Report pest incident",
     );
-    console.log(
+    logger.info(
       "    GET    /api/v1/pests/incidents/:id       - Get incident details",
     );
-    console.log(
+    logger.info(
       "    PUT    /api/v1/pests/incidents/:id       - Update incident",
     );
-    console.log(
+    logger.info(
       "    PATCH  /api/v1/pests/incidents/:id/status - Update status",
     );
-    console.log(
+    logger.info(
       "    DELETE /api/v1/pests/incidents/:id       - Delete incident",
     );
-    console.log(
+    logger.info(
       "    GET    /api/v1/pests/treatments          - List treatments",
     );
-    console.log(
+    logger.info(
       "    POST   /api/v1/pests/treatments          - Record treatment",
     );
-    console.log(
+    logger.info(
       "    GET    /api/v1/pests/treatments/:id      - Get treatment details",
     );
-    console.log(
+    logger.info(
       "    PUT    /api/v1/pests/treatments/:id      - Update treatment",
     );
-    console.log(
+    logger.info(
       "    DELETE /api/v1/pests/treatments/:id      - Delete treatment",
     );
-    console.log("");
-    console.log("  🌍 Geospatial (PostGIS):");
-    console.log(
+    logger.info("");
+    logger.info("  🌍 Geospatial (PostGIS):");
+    logger.info(
       "    GET  /api/v1/geo/fields/radius          - Find fields in radius",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/farms/nearby           - Find nearby farms",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/fields/:id/area        - Calculate field area",
     );
-    console.log(
+    logger.info(
       "    POST /api/v1/geo/fields/:id/contains-point - Check point in field",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/fields/bbox            - Find fields in bbox",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/fields/:id1/distance/:id2 - Distance between fields",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/region/stats           - Regional statistics",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/fields/:id/geojson     - Get field GeoJSON",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/farms/:id/geojson      - Get farm GeoJSON",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/geo/farms/:id/fields       - Get farm's fields",
     );
-    console.log(
+    logger.info(
       "    POST /api/v1/geo/fields                 - Create field with boundary",
     );
-    console.log(
+    logger.info(
       "    PUT  /api/v1/geo/fields/:id/boundary    - Update field boundary",
     );
-    console.log(
+    logger.info(
       "    POST /api/v1/geo/farms                  - Create farm with location",
     );
-    console.log("");
-    console.log("  🏥 Field Health Analysis (migrated from field-ops):");
-    console.log(
+    logger.info("");
+    logger.info("  🏥 Field Health Analysis (migrated from field-ops):");
+    logger.info(
       "    POST /api/v1/field-health               - Comprehensive health analysis",
     );
-    console.log("");
-    console.log("  📋 Operations & Tasks (migrated from field-ops):");
-    console.log(
+    logger.info("");
+    logger.info("  📋 Operations & Tasks (migrated from field-ops):");
+    logger.info(
       "    GET  /api/v1/operations                 - List operations",
     );
-    console.log(
+    logger.info(
       "    POST /api/v1/operations                 - Create operation",
     );
-    console.log("    GET  /api/v1/operations/:id             - Get operation");
-    console.log(
+    logger.info("    GET  /api/v1/operations/:id             - Get operation");
+    logger.info(
       "    PATCH /api/v1/operations/:id            - Update operation",
     );
-    console.log("    POST /api/v1/operations/:id/complete    - Mark complete");
-    console.log(
+    logger.info("    POST /api/v1/operations/:id/complete    - Mark complete");
+    logger.info(
       "    DELETE /api/v1/operations/:id           - Delete operation",
     );
-    console.log(
+    logger.info(
       "    GET  /api/v1/stats/tenant/:id           - Tenant statistics",
     );
-    console.log("");
-    console.log("  🔐 Conflict Resolution:");
-    console.log("    • GET returns ETag header + body.etag + server_version");
-    console.log("    • PUT with If-Match header validates version");
-    console.log("    • 409 Conflict returns serverData + server_version");
-    console.log("");
+    logger.info("");
+    logger.info("  🔐 Conflict Resolution:");
+    logger.info("    • GET returns ETag header + body.etag + server_version");
+    logger.info("    • PUT with If-Match header validates version");
+    logger.info("    • 409 Conflict returns serverData + server_version");
+    logger.info("");
   });
 }

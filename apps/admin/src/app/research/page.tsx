@@ -51,8 +51,8 @@ export default function ResearchPage() {
         const query = searchQuery.toLowerCase();
         if (
           !t.name.toLowerCase().includes(query) &&
-          !t.nameAr.includes(query) &&
-          !t.cropAr.includes(query)
+          !t.nameAr.toLowerCase().includes(query) &&
+          !t.cropAr.toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -98,8 +98,8 @@ export default function ResearchPage() {
       header: "التجربة",
       render: (trial: ResearchTrial) => (
         <div>
-          <p className="font-medium text-gray-900">{trial.nameAr}</p>
-          <p className="text-xs text-gray-500">{trial.cropAr}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{trial.nameAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{trial.cropAr}</p>
         </div>
       ),
     },
@@ -107,7 +107,7 @@ export default function ResearchPage() {
       key: "field",
       header: "الموقع",
       render: (trial: ResearchTrial) => (
-        <div className="flex items-center gap-1 text-gray-700 text-sm">
+        <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300 text-sm">
           <MapPin className="w-4 h-4 text-gray-400" />
           {trial.fieldNameAr}
         </div>
@@ -117,7 +117,7 @@ export default function ResearchPage() {
       key: "team",
       header: "الفريق",
       render: (trial: ResearchTrial) => (
-        <div className="flex items-center gap-1 text-gray-700">
+        <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
           <Users className="w-4 h-4 text-gray-400" />
           {trial.researchers} باحث
         </div>
@@ -128,8 +128,8 @@ export default function ResearchPage() {
       header: "المدة",
       render: (trial: ResearchTrial) => (
         <div className="text-sm">
-          <p className="text-gray-500">{formatDate(trial.startDate)}</p>
-          <p className="text-gray-900">{formatDate(trial.endDate)}</p>
+          <p className="text-gray-500 dark:text-gray-400">{formatDate(trial.startDate)}</p>
+          <p className="text-gray-900 dark:text-gray-100">{formatDate(trial.endDate)}</p>
         </div>
       ),
     },
@@ -139,7 +139,7 @@ export default function ResearchPage() {
       render: (trial: ResearchTrial) => (
         <div className="w-24">
           <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">{trial.progress}%</span>
+            <span className="text-gray-600 dark:text-gray-400">{trial.progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
@@ -158,10 +158,10 @@ export default function ResearchPage() {
       header: "الميزانية",
       render: (trial: ResearchTrial) => (
         <div className="text-sm">
-          <p className="font-medium text-gray-900">
+          <p className="font-medium text-gray-900 dark:text-gray-100">
             {trial.spent.toLocaleString()} / {trial.budget.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500">{trial.currency}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{trial.currency}</p>
         </div>
       ),
     },
@@ -178,7 +178,7 @@ export default function ResearchPage() {
       key: "actions",
       header: "",
       render: (_trial: ResearchTrial) => (
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="عرض">
+        <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
           <Eye className="w-4 h-4 text-gray-500" />
         </button>
       ),
@@ -192,65 +192,65 @@ export default function ResearchPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <FlaskConical className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي التجارب</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي التجارب</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
-              <p className="text-sm text-gray-500">نشط</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.active}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">نشط</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               <FlaskConical className="w-5 h-5 text-gray-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-              <p className="text-sm text-gray-500">مكتمل</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.completed}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مكتمل</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sahool-100 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalResearchers}</p>
-              <p className="text-sm text-gray-500">باحث</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalResearchers}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">باحث</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <Calendar className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{(stats.totalBudget / 1000).toFixed(0)}K</p>
-              <p className="text-sm text-gray-500">الميزانية (SAR)</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{(stats.totalBudget / 1000).toFixed(0)}K</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">الميزانية (SAR)</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -258,7 +258,7 @@ export default function ResearchPage() {
               placeholder="بحث بالاسم أو المحصول..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -266,7 +266,7 @@ export default function ResearchPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="planning">قيد التخطيط</option>
@@ -278,14 +278,22 @@ export default function ResearchPage() {
 
           <button
             onClick={loadTrials}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
           </button>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="w-5 h-5 text-gray-600" />
+          <button
+            disabled
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير (قريبًا)"
+          >
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors">
+          <button
+            disabled
+            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تجربة جديدة (قريبًا)"
+          >
             <Plus className="w-5 h-5" />
             تجربة جديدة
           </button>
@@ -295,10 +303,10 @@ export default function ResearchPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>

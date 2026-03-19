@@ -142,10 +142,18 @@ export function useContextCompression() {
   /**
    * Decompress context data
    * فك ضغط بيانات السياق
+   *
+   * Checks for RLE_PREFIX to route HIGH-level data through decompressRLE(),
+   * otherwise parses as plain JSON (LOW/MEDIUM levels).
    */
   const decompress = useCallback((compressed: string): unknown => {
     try {
-      return JSON.parse(decompressRLE(compressed));
+      if (compressed.startsWith(RLE_PREFIX)) {
+        // HIGH level: strip prefix, reverse RLE, then parse JSON
+        return JSON.parse(decompressRLE(compressed));
+      }
+      // LOW/MEDIUM level: plain JSON
+      return JSON.parse(compressed);
     } catch (error) {
       logger.error("[useContextCompression] Decompression failed:", error);
       throw new Error(
@@ -238,20 +246,26 @@ function stripWhitespace(obj: unknown): unknown {
   return obj;
 }
 
+/** Prefix marker for RLE-encoded strings to distinguish from plain JSON */
+const RLE_PREFIX = "\x02RLE:";
+
 /**
- * Apply simple Run-Length Encoding for compression
+ * Apply simple Run-Length Encoding for compression.
+ * Prepends RLE_PREFIX so decompress() can detect RLE-encoded data.
  */
 function applySimpleRLE(str: string): string {
-  return str.replace(/(.)\1{2,}/g, (matchStr) => {
+  const encoded = str.replace(/(.)\1{2,}/g, (matchStr) => {
     return `_${matchStr.length}${matchStr[0]}`;
   });
+  return RLE_PREFIX + encoded;
 }
 
 /**
- * Decompress simple RLE
+ * Decompress simple RLE (strips RLE_PREFIX before decoding)
  */
 function decompressRLE(str: string): string {
-  return str.replace(/_(\d+)(.)/g, (_match, count, char) => {
+  const body = str.startsWith(RLE_PREFIX) ? str.slice(RLE_PREFIX.length) : str;
+  return body.replace(/_(\d+)(.)/g, (_match, count, char) => {
     return char.repeat(parseInt(count, 10));
   });
 }

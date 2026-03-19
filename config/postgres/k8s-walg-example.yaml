@@ -344,11 +344,10 @@ metadata:
   name: postgres-walg-backup
   namespace: sahool-database
   annotations:
-    checkov.io/skip: >-
-      CKV_K8S_22=Backup job needs writable tmp space,
-      CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
-      CKV_K8S_40=UID 999 is the standard PostgreSQL user,
-      CKV_K8S_43=Custom internal image without published digest
+    checkov.io/skip1: CKV_K8S_22=Backup job needs writable tmp space
+    checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+    checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+    checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
 spec:
   # Run daily at 2 AM
   schedule: "0 2 * * *"
@@ -362,11 +361,10 @@ spec:
           labels:
             app: postgres-backup
           annotations:
-            checkov.io/skip: >-
-              CKV_K8S_22=Backup job needs writable tmp space,
-              CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
-              CKV_K8S_40=UID 999 is the standard PostgreSQL user,
-              CKV_K8S_43=Custom internal image without published digest
+            checkov.io/skip1: CKV_K8S_22=Backup job needs writable tmp space
+            checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+            checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+            checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
         spec:
           restartPolicy: OnFailure
           automountServiceAccountToken: false
@@ -460,11 +458,10 @@ metadata:
   name: postgres-walg-verify
   namespace: sahool-database
   annotations:
-    checkov.io/skip: >-
-      CKV_K8S_22=Verify job needs writable tmp space,
-      CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
-      CKV_K8S_40=UID 999 is the standard PostgreSQL user,
-      CKV_K8S_43=Custom internal image without published digest
+    checkov.io/skip1: CKV_K8S_22=Verify job needs writable tmp space
+    checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+    checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+    checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
 spec:
   # Run weekly on Sunday at 3 AM
   schedule: "0 3 * * 0"
@@ -477,11 +474,10 @@ spec:
           labels:
             app: postgres-backup-verify
           annotations:
-            checkov.io/skip: >-
-              CKV_K8S_22=Verify job needs writable tmp space,
-              CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
-              CKV_K8S_40=UID 999 is the standard PostgreSQL user,
-              CKV_K8S_43=Custom internal image without published digest
+            checkov.io/skip1: CKV_K8S_22=Verify job needs writable tmp space
+            checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+            checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+            checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
         spec:
           restartPolicy: OnFailure
           automountServiceAccountToken: false

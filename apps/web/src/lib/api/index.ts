@@ -4,4 +4,5 @@
  */
 
 export { apiClient, default } from "./client";
+export { sahoolClient, unifiedApiClient } from "./unified-client";
 export * from "./hooks";

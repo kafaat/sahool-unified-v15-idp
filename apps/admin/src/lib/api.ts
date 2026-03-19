@@ -1,11 +1,9 @@
-// Sahool Admin Dashboard - API Configuration
-// إعدادات الاتصال بالخادم
+// Sahool Admin Dashboard - API Layer
+// طبقة API للوحة الإدارة
+//
+// This module delegates to the unified @sahool/api-client via unified-client.ts.
+// All exports are preserved for backward compatibility.
 
-import axios, {
-  type AxiosResponse,
-  type AxiosError,
-  type InternalAxiosRequestConfig,
-} from "axios";
 import type {
   Farm,
   DiagnosisRecord,
@@ -14,90 +12,132 @@ import type {
   SensorReading,
 } from "@/types";
 import { apiClient as authApiClient } from "./api-client";
-import Cookies from "js-cookie";
 import { logger } from "./logger";
 
 // Import API configuration from centralized config
-import { API_URLS, API_CONFIG, TIMEOUT_TIERS } from "@/config/api";
+import { API_URLS, TIMEOUT_TIERS } from "@/config/api";
 
 // Re-export API_URLS for consumers of this module
 export { API_URLS };
 
-// Helper function to get token from cookies
-// NOTE: This will return undefined since tokens are now stored in httpOnly cookies
-// and are not accessible from client-side JavaScript for security reasons.
-//
-// Authentication flow uses Next.js API routes as server-side proxies which can
-// access httpOnly cookies. See implementations in:
-//   - /app/api/auth/me/route.ts - Current user endpoint
-//   - /app/api/auth/login/route.ts - Login with cookie setting
-//   - /app/api/auth/logout/route.ts - Logout with cookie clearing
-//   - /app/api/auth/refresh/route.ts - Token refresh
-//
-// For other API calls that require authentication, the backend services should
-// be configured to accept cookie-based authentication via Kong gateway, or
-// additional Next.js API routes should be created following the same pattern.
-function getToken(): string | undefined {
-  return Cookies.get("sahool_admin_token");
+// Unified API client — replaces raw axios.create() with @sahool/api-client instance.
+// Provides: token refresh with queuing, retry with exponential backoff, HTTPS enforcement.
+import { apiClient } from "./unified-client";
+export { apiClient };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Image Upload API (FormData support)
+// دعم رفع الصور عبر FormData
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MAX_IMAGE_SIZE_MB = 50;
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/tiff",
+];
+
+/**
+ * Upload an image for crop disease diagnosis
+ * رفع صورة لتشخيص أمراض المحاصيل
+ */
+export async function uploadDiagnosisImage(
+  file: File,
+  metadata: {
+    fieldId: string;
+    cropType?: string;
+    notes?: string;
+  },
+): Promise<{
+  diagnosisId: string;
+  imageUrl: string;
+  disease?: string;
+  confidence?: number;
+}> {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+    );
+  }
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+    throw new Error(
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+    );
+  }
+
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("field_id", metadata.fieldId);
+  if (metadata.cropType) formData.append("crop_type", metadata.cropType);
+  if (metadata.notes) formData.append("notes", metadata.notes);
+
+  const response = await apiClient.post(
+    API_URLS.diagnoses.analyze,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: TIMEOUT_TIERS.upload,
+    },
+  );
+  return response.data;
 }
 
-// Axios instance with defaults
-// NOTE: withCredentials is set to true to send httpOnly cookies with requests
-export const apiClient = axios.create({
-  timeout: API_CONFIG.timeout,
-  withCredentials: true, // Send cookies with cross-origin requests
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Language": "ar,en",
+/**
+ * Upload an image for vision detection (pest/disease/weed)
+ * رفع صورة لكشف الآفات/الأمراض/الأعشاب عبر خدمة الرؤية
+ */
+export async function uploadVisionImage(
+  file: File,
+  task: "pest" | "disease" | "weed",
+  options?: {
+    confidence?: number;
+    modelVariant?: "n" | "s" | "m" | "l" | "x";
   },
-});
-
-// Add auth token interceptor - uses centralized token management
-// NOTE: With httpOnly cookies, this interceptor may not be able to add the
-// Authorization header. Backend services should be configured to accept
-// cookie-based authentication, OR these API calls should be proxied through
-// Next.js API routes where tokens can be injected server-side.
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+): Promise<{
+  detections: Array<{
+    class: string;
+    confidence: number;
+    bbox: [number, number, number, number];
+  }>;
+  imageUrl?: string;
+  processingTime?: number;
+}> {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+    );
   }
-  return config;
-});
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+    throw new Error(
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+    );
+  }
 
-// Add response interceptor for auth errors - consistent with auth store
-apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear session via logout endpoint
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
-      } catch (logoutError) {
-        logger.error("Logout error:", logoutError);
-      }
+  const formData = new FormData();
+  formData.append("image", file);
+  if (options?.confidence) formData.append("confidence", String(options.confidence));
+  if (options?.modelVariant) formData.append("model_variant", options.modelVariant);
 
-      authApiClient.clearToken();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+  const endpoint = {
+    pest: API_URLS.visionEndpoints.detectPest,
+    disease: API_URLS.visionEndpoints.detectDisease,
+    weed: API_URLS.visionEndpoints.detectWeed,
+  }[task];
+
+  const response = await apiClient.post(endpoint, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: TIMEOUT_TIERS.analysis,
+  });
+  return response.data;
+}
 
 // API Functions
 
 // Dashboard Stats
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`,
-    );
+    const response = await apiClient.get(API_URLS.dashboard.stats);
     return response.data;
   } catch (error) {
     logger.error("fetchDashboardStats failed", { error });
@@ -105,10 +145,10 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
   }
 }
 
-// Farms
+// Farms / Fields
 export async function fetchFarms(): Promise<Farm[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.fieldCore}/api/v1/fields`);
+    const response = await apiClient.get(API_URLS.fields.list);
     return response.data;
   } catch (error) {
     logger.error("Failed to fetch farms:", error);
@@ -117,10 +157,13 @@ export async function fetchFarms(): Promise<Farm[]> {
 }
 
 export async function fetchFarmById(id: string): Promise<Farm> {
-  const response = await apiClient.get(
-    `${API_URLS.fieldCore}/api/v1/fields/${id}`,
-  );
-  return response.data;
+  try {
+    const response = await apiClient.get(API_URLS.fields.byId(id));
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch farm by ID:", error);
+    throw error;
+  }
 }
 
 // Diagnoses - connects to crop-intelligence-service (formerly crop-health-ai)
@@ -135,7 +178,7 @@ export async function fetchDiagnoses(params?: {
 }): Promise<DiagnosisRecord[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses`,
+      API_URLS.diagnoses.list,
       {
         params: {
           status: params?.status,
@@ -154,11 +197,11 @@ export async function fetchDiagnoses(params?: {
       farmId:
         (d.field_id as string) || `farm-${(d.id as string) || "unknown"}`,
       farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
-      imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
+      imageUrl: (d.image_url as string) || "",
       thumbnailUrl:
         (d.thumbnail_url as string) ||
         (d.image_url as string) ||
-        "/api/placeholder/100/100",
+        "",
       cropType: (d.crop_type as string) || "unknown",
       diseaseId: d.disease_id as string,
       diseaseName: d.disease_name as string,
@@ -202,7 +245,7 @@ export async function fetchDiagnosisStats(params?: {
 }> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
+      API_URLS.diagnoses.stats,
       { params: { time_range: params?.timeRange } },
     );
     const data = response.data || {};
@@ -238,7 +281,7 @@ export async function updateDiagnosisStatus(
 ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
   try {
     const response = await apiClient.patch(
-      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/${id}`,
+      API_URLS.diagnoses.byId(id),
       null,
       {
         params: {
@@ -255,9 +298,37 @@ export async function updateDiagnosisStatus(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Weather API (weather-core service - POST-based with lat/lon)
-// Uses weather-core service (port 8108) for coordinate-based weather data
+// Weather API (POST-based with lat/lon coordinates)
+// Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
 // ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Weather API functions — proxied through Next.js API route (/api/weather)
+ * to extract tenant_id from the httpOnly JWT cookie server-side.
+ *
+ * واجهة الطقس — تمر عبر وكيل Next.js لاستخراج معرف المستأجر من الكوكي
+ */
+
+/**
+ * Helper to handle weather proxy responses consistently.
+ * Redirects to login on 401 (matching apiClient interceptor behavior).
+ */
+async function handleWeatherResponse(response: Response): Promise<unknown | null> {
+  if (response.status === 401) {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch (logoutError) {
+      logger.error("Logout error during weather auth redirect:", logoutError);
+    }
+    authApiClient.clearToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    return null;
+  }
+  if (!response.ok) return null;
+  return await response.json();
+}
 
 export async function getWeatherCurrent(
   lat: number,
@@ -265,11 +336,13 @@ export async function getWeatherCurrent(
   fieldId: string = "default"
 ) {
   try {
-    const response = await apiClient.post(
-      `${API_URLS.weather}/weather/current`,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "current", lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch current weather:", error);
     return null;
@@ -283,11 +356,13 @@ export async function getWeatherForecast(
   fieldId: string = "default"
 ) {
   try {
-    const response = await apiClient.post(
-      `${API_URLS.weather}/weather/forecast`,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "forecast", lat, lon: lng, field_id: fieldId, days }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch weather forecast:", error);
     return null;
@@ -300,11 +375,13 @@ export async function getAgriculturalReport(
   fieldId: string = "default"
 ) {
   try {
-    const response = await apiClient.post(
-      `${API_URLS.weather}/weather/agricultural-report`,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch("/api/weather", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "agricultural", lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
     logger.error("Failed to fetch agricultural report:", error);
     return null;
@@ -317,7 +394,7 @@ export async function getAgriculturalReport(
 export async function getWeatherByLocation(locationId: string) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/current/${locationId}`
+      API_URLS.weatherEndpoints.byLocation(locationId)
     );
     return response.data;
   } catch (error) {
@@ -341,7 +418,7 @@ export async function getWeatherForecastByLocation(locationId: string, days: num
 export async function getWeatherLocations() {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/locations`
+      API_URLS.weatherEndpoints.locations
     );
     return response.data;
   } catch (error) {
@@ -354,7 +431,7 @@ export async function getWeatherLocations() {
 export async function fetchWeatherAlerts(locationId: string = "sanaa"): Promise<WeatherAlert[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.weather}/v1/alerts/${locationId}`
+      API_URLS.weatherEndpoints.alerts(locationId)
     );
     return response.data?.alerts || [];
   } catch (error) {
@@ -369,7 +446,7 @@ export async function fetchSensorReadings(
 ): Promise<SensorReading[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`,
+      API_URLS.sensors.readings(farmId),
     );
     return response.data;
   } catch (error) {
@@ -396,7 +473,7 @@ export async function fetchNotifications(params?: {
 > {
   try {
     const response = await apiClient.get(
-      `${API_URLS.notifications}/api/v1/notifications`,
+      API_URLS.notificationEndpoints.list,
       { params },
     );
     return response.data;
@@ -409,7 +486,7 @@ export async function fetchNotifications(params?: {
 export async function markNotificationRead(id: string): Promise<boolean> {
   try {
     await apiClient.patch(
-      `${API_URLS.notifications}/api/v1/notifications/${id}/read`,
+      API_URLS.notificationEndpoints.markRead(id),
     );
     return true;
   } catch (error) {
@@ -438,7 +515,7 @@ export async function fetchTasks(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(`${API_URLS.task}/api/v1/tasks`, {
+    const response = await apiClient.get(API_URLS.taskEndpoints.list, {
       params,
     });
     return response.data;
@@ -453,7 +530,7 @@ export async function updateTaskStatus(
   status: string,
 ): Promise<boolean> {
   try {
-    await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
+    await apiClient.patch(API_URLS.taskEndpoints.byId(id), { status });
     return true;
   } catch (error) {
     logger.error("Failed to update task status:", error);
@@ -479,7 +556,7 @@ export async function fetchCommunityPosts(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(`${API_URLS.fieldManagement}/api/v1/posts`, {
+    const response = await apiClient.get(`${API_URLS.chatService}/api/v1/posts`, {
       params,
     });
     return response.data;
@@ -507,7 +584,7 @@ export async function fetchEquipment(params?: {
 > {
   try {
     const response = await apiClient.get(
-      `${API_URLS.equipment}/api/v1/equipment`,
+      API_URLS.equipmentEndpoints.list,
       { params },
     );
     return response.data;
@@ -528,7 +605,7 @@ export async function getSatelliteTimeseries(
 ) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/timeseries/${fieldId}`,
+      API_URLS.satelliteEndpoints.timeseries(fieldId),
       { params: options }
     );
     return response.data;
@@ -544,7 +621,7 @@ export async function requestSatelliteAnalysis(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.satellite}/v1/analyze`,
+      API_URLS.satelliteEndpoints.analyze,
       { field_id: fieldId, analysis_type: analysisType }
     );
     return response.data;
@@ -557,7 +634,7 @@ export async function requestSatelliteAnalysis(
 export async function getSatelliteIndices(fieldId: string) {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/indices/${fieldId}`
+      API_URLS.satelliteEndpoints.indices(fieldId)
     );
     return response.data;
   } catch (error) {
@@ -569,7 +646,7 @@ export async function getSatelliteIndices(fieldId: string) {
 export async function getAvailableSatellites() {
   try {
     const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/satellites`
+      API_URLS.satelliteEndpoints.satellites
     );
     return response.data;
   } catch (error) {
@@ -587,7 +664,7 @@ export async function getAvailableSatellites() {
 export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Promise<Array<{ month: string; yield: number; forecast: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/trends`,
+      API_URLS.dashboard.trends,
       { params: { metric: "yield", period } }
     );
     return response.data?.data || [];
@@ -601,7 +678,7 @@ export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Pr
 export async function fetchCropDistribution(): Promise<Array<{ name: string; value: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`
+      API_URLS.dashboard.stats
     );
     return response.data?.crop_distribution?.map((c: { crop: string; area: number }) => ({
       name: c.crop,
@@ -617,7 +694,7 @@ export async function fetchCropDistribution(): Promise<Array<{ name: string; val
 export async function fetchWeeklyActivity(): Promise<Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/trends`,
+      API_URLS.dashboard.trends,
       { params: { metric: "weekly_activity", period: "7d" } }
     );
     return response.data?.data || [];
@@ -637,7 +714,7 @@ export async function fetchPlatformMetrics(): Promise<{
 }> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.indicators}/api/v1/indicators/dashboard`
+      API_URLS.dashboard.stats
     );
     const data = response.data;
     return {
@@ -746,14 +823,16 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {};
 
   await Promise.all(
-    services.map(async ([name, url]) => {
-      try {
-        await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
-        results[name] = true;
-      } catch {
-        results[name] = false;
-      }
-    }),
+    services
+      .filter(([, url]) => typeof url === "string")
+      .map(async ([name, url]) => {
+        try {
+          await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
+          results[name] = true;
+        } catch {
+          results[name] = false;
+        }
+      }),
   );
 
   return results;

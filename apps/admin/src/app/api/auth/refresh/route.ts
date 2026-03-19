@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS } from "@/config/api";
+import { API_URL, TIMEOUT_TIERS, API_PATHS } from "@/config/api";
 
 export async function POST(_request: NextRequest) {
   try {
@@ -26,7 +26,7 @@ export async function POST(_request: NextRequest) {
 
     let response: Response;
     try {
-      response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+      response = await fetch(`${API_URL}${API_PATHS.auth.refresh}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,8 @@ export async function POST(_request: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true });
+    // Return token so the unified client can retry the failed request
+    return NextResponse.json({ success: true, token: data.access_token });
   } catch (error) {
     logger.production("Token refresh error:", error);
     return NextResponse.json(

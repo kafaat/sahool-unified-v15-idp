@@ -8,6 +8,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import { Table, FileJson, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +61,7 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = React.memo(({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Export failed:", error);
+      logger.error("Export failed:", error);
     } finally {
       setExportingFormat(null);
     }

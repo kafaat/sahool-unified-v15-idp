@@ -661,6 +661,14 @@ export interface ApiClientConfig {
    * @default true
    */
   enforceHttps?: boolean;
+
+  /**
+   * Whether to send cookies with cross-origin requests (axios withCredentials).
+   * Required for httpOnly cookie-based authentication (e.g., admin dashboard).
+   * هل يتم إرسال الكوكيز مع الطلبات عبر النطاقات
+   * @default false
+   */
+  withCredentials?: boolean;
 }
 
 export interface ServicePorts {
@@ -686,4 +694,14 @@ export interface ServicePorts {
   drone: number;
   cooperative: number;
   traceability: number;
+  // Extended ports for admin/web unified support
+  advisory: number;
+  yieldPrediction: number;
+  fieldIntelligence: number;
+  billing: number;
+  astronomicalCalendar: number;
+  alerts: number;
+  cropIntelligence: number;
+  yoloVision: number;
+  audit: number;
 }

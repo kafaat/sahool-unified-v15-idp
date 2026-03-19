@@ -8,6 +8,7 @@
  */
 
 import React, { useState } from "react";
+import { logger } from "@/lib/logger";
 import { SprayWindowsPanel } from "./SprayWindowsPanel";
 import { IrrigationWindowsPanel } from "./IrrigationWindowsPanel";
 import { ActionRecommendation } from "./ActionRecommendation";
@@ -81,7 +82,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     } catch (error) {
       setErrorMessage("فشل إنشاء مهمة الرش. حاول مرة أخرى.");
       setSuccessMessage("");
-      console.error("Failed to create spray task:", error);
+      logger.error("Failed to create spray task:", error);
     }
   };
 
@@ -113,7 +114,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     } catch (error) {
       setErrorMessage("فشل إنشاء مهمة الري. حاول مرة أخرى.");
       setSuccessMessage("");
-      console.error("Failed to create irrigation task:", error);
+      logger.error("Failed to create irrigation task:", error);
     }
   };
 
@@ -144,7 +145,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     } catch (error) {
       setErrorMessage("فشل إنشاء المهمة. حاول مرة أخرى.");
       setSuccessMessage("");
-      console.error("Failed to create recommendation task:", error);
+      logger.error("Failed to create recommendation task:", error);
     }
   };
 

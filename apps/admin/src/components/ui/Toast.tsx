@@ -158,6 +158,8 @@ function ToastItemView({
 
 // ─── Toast Provider ──────────────────────────────────────────────────────────
 
+let toastCounter = 0;
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -167,7 +169,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const addToast = useCallback(
     (type: ToastType, message: string, messageAr?: string) => {
-      const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const id = `toast-${Date.now()}-${(++toastCounter).toString(36)}`;
       setToasts((prev) => [...prev.slice(-4), { id, type, message, messageAr }]);
     },
     [],

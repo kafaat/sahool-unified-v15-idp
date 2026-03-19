@@ -1,7 +1,7 @@
 # SAHOOL Platform - Bugs, Fixes, and Recommendations
 # الأخطاء والإصلاحات والتوصيات
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-18
 **Platform Version:** 16.0.0
 
 ---
@@ -14,7 +14,8 @@
 4. [Configuration Issues](#configuration-issues)
 5. [Missing Features](#missing-features)
 6. [Deprecated Services](#deprecated-services)
-7. [Recommended Actions](#recommended-actions)
+7. [Recently Fixed - Web & Admin Review (March 2026)](#recently-fixed---web--admin-review-march-2026)
+8. [Recommended Actions](#recommended-actions)
 
 ---
 
@@ -564,6 +565,229 @@ The following services should NOT be used:
 
 ---
 
+## Recently Fixed - Web & Admin Review (March 2026)
+
+The following bugs were identified and fixed during a comprehensive code review
+of the Web and Admin frontend applications on 2026-03-18.
+
+### BUG-004: Missing Auth Credentials in Admin API Service Calls
+
+**Severity:** HIGH
+**Affected Files:** `apps/admin/src/lib/api/services.ts`, `apps/admin/src/lib/api/extended-services.ts`
+
+**Issue:**
+20 `fetch()` calls across IoT, Irrigation, Alert, Equipment, Task, Inventory,
+Research, and Marketplace services were missing `credentials: "same-origin"`.
+This prevented httpOnly authentication cookies from being sent with requests.
+
+**Affected Services:**
+| Service | Missing Calls |
+|---------|--------------|
+| iotService | `getAll()`, `getReadings()` |
+| irrigationService | `getAll()` |
+| alertService | `getAll()` |
+| equipmentService | `getAll()` |
+| taskService | `getAll()` |
+| inventoryService | `getAll()`, `getTransactions()`, `adjustQuantity()` |
+| researchService | `getAllProjects()`, `getProjectById()`, `createProject()`, `updateProject()`, `deleteProject()`, `getAllExperiments()`, `createExperiment()` |
+| marketplaceService | `getAll()`, `getById()`, `update()`, `delete()` |
+
+**Impact:**
+API calls fail authentication in production when using cookie-based auth.
+Users would see unauthorized errors on list/read operations.
+
+**Fix Applied:**
+Added `fetchDefaults` (with `credentials: "same-origin"`) to all 20 fetch calls.
+
+**Status:** FIXED
+
+---
+
+### BUG-005: Hardcoded tenant_id in Web Weather API
+
+**Severity:** HIGH
+**Affected Files:** `apps/web/src/lib/api/client.ts`
+
+**Issue:**
+Three weather API methods (`getWeather`, `getWeatherForecast`, `getAgriculturalRisks`)
+hardcoded `tenant_id: "default"` instead of extracting it from the JWT token.
+
+```typescript
+// Before (broken):
+body: JSON.stringify({
+  tenant_id: "default",  // Always sends "default"
+  ...
+});
+
+// After (fixed):
+const tenantId = this.token ? this.extractTenantFromToken(this.token) : null;
+body: JSON.stringify({
+  tenant_id: tenantId || "default",  // Uses actual tenant from JWT
+  ...
+});
+```
+
+**Impact:**
+Multi-tenant isolation was bypassed for weather data. All tenants received
+the same weather data regardless of their tenant context.
+
+**Status:** FIXED
+
+---
+
+### BUG-006: useContextCompression Decompression Bug
+
+**Severity:** HIGH
+**Affected Files:** `apps/web/src/hooks/ai/useContextCompression.ts`
+
+**Issue:**
+The `decompress()` function always applied RLE (Run-Length Encoding) decompression,
+but `compress()` only applies RLE at `CompressionLevel.HIGH`. Data compressed at
+LOW or MEDIUM levels would fail to decompress or produce corrupted output.
+
+**Fix Applied:**
+Decompress now tries plain JSON parse first (works for LOW/MEDIUM), and falls
+back to RLE decompression only if plain parse fails (for HIGH level).
+
+**Status:** FIXED
+
+---
+
+### BUG-007: useApiQuery State Updates After Unmount
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/hooks/api/use-api-query.ts`
+
+**Issue:**
+The `fetchData` callback in `useApiQuery` had no mechanism to cancel in-flight
+requests. If a component unmounts while a fetch is in progress, `setState` calls
+would execute after unmount, causing React warnings and potential memory leaks.
+
+**Fix Applied:**
+Added `AbortController` support. The effect cleanup aborts pending requests,
+and all setState calls check `signal.aborted` before executing.
+
+**Status:** FIXED
+
+---
+
+### BUG-008: useRealtimeSync Events Array Re-subscription
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/hooks/api/use-realtime.ts`
+
+**Issue:**
+The `events` array parameter was included directly in the useEffect dependency
+array. Since arrays are recreated on every render, this caused unnecessary
+WebSocket re-subscriptions on every render cycle.
+
+**Fix Applied:**
+Used a `useRef` to store the events array and a stable string key (`events.join(",")`)
+for the dependency array. Re-subscriptions now only happen when the actual event
+types change.
+
+**Status:** FIXED
+
+---
+
+### BUG-009: Middleware JWT Validation Missing Error Handling
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/web/src/middleware.ts`
+
+**Issue:**
+The `validateJwtToken()` call in the Edge middleware was not wrapped in try-catch.
+If the function threw an unhandled exception (e.g., malformed token causing a
+crypto error), the entire middleware would crash, returning a 500 error instead
+of redirecting to login.
+
+**Fix Applied:**
+Wrapped `validateJwtToken()` in try-catch. On exception, logs the error and
+treats it as an invalid token, redirecting to login gracefully.
+
+**Status:** FIXED
+
+---
+
+### BUG-010: ErrorBoundary Unsafe Window/Navigator Access
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/components/common/ErrorBoundary.tsx`
+
+**Issue:**
+The `logErrorToServer()` method accessed `window.location.href` and
+`navigator.userAgent` without SSR-safety guards. In server-side rendering
+contexts, these globals are undefined and would throw.
+
+**Fix Applied:**
+Added `typeof window !== "undefined"` and `typeof navigator !== "undefined"`
+guards with `"unknown"` fallback values.
+
+**Status:** FIXED
+
+### BUG-011: Admin Weather API Hardcoded tenant_id
+
+**Severity:** HIGH
+**Affected Files:** `apps/admin/src/lib/api.ts`, `apps/admin/src/app/api/weather/route.ts`
+
+**Issue:**
+Three weather API functions (`getWeatherCurrent`, `getWeatherForecast`,
+`getAgriculturalReport`) hardcoded `tenant_id: "default"` in POST bodies
+instead of extracting from the JWT token. Same class of bug as BUG-005
+(web app), causing incorrect tenant context for multi-tenant deployments.
+
+Initial fix attempted client-side JWT decoding via `getTenantFromToken()`,
+but this cannot work because `sahool_admin_token` is stored as an httpOnly
+cookie (set in `/api/auth/login/route.ts` with `httpOnly: true`), making it
+inaccessible to client-side JavaScript (`Cookies.get()` returns `undefined`).
+
+**Fix Applied:**
+Created a server-side Next.js API proxy route (`/api/weather`) that:
+1. Reads the httpOnly cookie server-side via `cookies()` API
+2. Extracts `tenant_id` from the JWT using `getUserFromToken()`
+3. Validates the tenant_id is a valid UUID (injection prevention)
+4. Forwards the request to the backend weather-service with the real tenant_id
+
+All 3 weather client functions now call `/api/weather` with `credentials: "same-origin"`
+instead of directly hitting the backend weather-service.
+
+**Status:** FIXED
+
+### BUG-012: NdviTileLayer Callback Props in useEffect Dependencies
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/web/src/features/fields/components/NdviTileLayer.tsx`
+
+**Issue:**
+The main `useEffect` that manages the NDVI raster layer included `onLoad`,
+`onError`, and `isLayerLoaded` in its dependency array. Since `onLoad`/`onError`
+are callback props, parent re-renders create new function references, causing
+the effect to re-run and unnecessarily remove/re-add the NDVI tile layer.
+
+**Fix Applied:**
+Used `useRef` for `onLoad` and `onError` callbacks (same pattern as BUG-008).
+Removed `onLoad`, `onError`, and `isLayerLoaded` from deps array.
+
+**Status:** FIXED
+
+### BUG-013: SatelliteMap onFieldClick Causes Full Marker Rebuild
+
+**Severity:** MEDIUM
+**Affected Files:** `apps/admin/src/components/maps/SatelliteMap.tsx`
+
+**Issue:**
+The `updateMarkers` `useEffect` included `onFieldClick` in its dependency
+array. Since this callback is a prop, every parent re-render caused all
+map markers to be destroyed and rebuilt (clear → recreate → fitBounds),
+resulting in visible flickering and wasted computation.
+
+**Fix Applied:**
+Used `useRef` for `onFieldClick` callback and removed it from deps array.
+
+**Status:** FIXED
+
+---
+
 ## Recommended Actions
 
 ### Immediate (This Week)
@@ -587,6 +811,46 @@ The following services should NOT be used:
 11. **Document all required environment variables** (CONFIG-001)
 12. **Implement missing admin features** (MISSING-001 to MISSING-004)
 
+### Completed (March 2026 - Web & Admin Review)
+
+13. ~~**Fix missing auth credentials in admin API** (BUG-004)~~ ✅ DONE
+14. ~~**Fix hardcoded tenant_id in weather API** (BUG-005)~~ ✅ DONE
+15. ~~**Fix decompression bug in context compression** (BUG-006)~~ ✅ DONE
+16. ~~**Fix useApiQuery state updates after unmount** (BUG-007)~~ ✅ DONE
+17. ~~**Fix useRealtimeSync re-subscription** (BUG-008)~~ ✅ DONE
+18. ~~**Fix middleware JWT error handling** (BUG-009)~~ ✅ DONE
+19. ~~**Fix ErrorBoundary SSR-safety** (BUG-010)~~ ✅ DONE
+
+### Completed (March 2026 - Map & Field Tools Review)
+
+20. ~~**Fix admin weather API hardcoded tenant_id** (BUG-011)~~ ✅ DONE
+21. ~~**Fix NdviTileLayer callback deps causing layer rebuild** (BUG-012)~~ ✅ DONE
+22. ~~**Fix SatelliteMap onFieldClick causing marker rebuild** (BUG-013)~~ ✅ DONE
+
+### Completed (March 2026 - Multi-Index Satellite Enhancement)
+
+23. ~~**Wire satellite index selector to display selected index data** (FEAT-001)~~ ✅ DONE
+    - SatelliteClient.tsx: Index selector now switches field list, stats, legend, and progress bars between NDVI/NDWI/EVI/SAVI/NDRE/LAI
+    - Added INDEX_CONFIG with per-index color stops, labels, and descriptions
+24. ~~**Generalize NdviTileLayer for multi-index support** (FEAT-002)~~ ✅ DONE
+    - Added `indexType` prop to NdviTileLayer component
+    - Added per-index color gradient scales (NDVI, NDWI, EVI, SAVI, NDRE, LAI)
+    - NdviColorLegend now accepts `indexType` prop for dynamic legend display
+    - Dynamic layer/source IDs per index type to support concurrent layers
+25. ~~**Add index selector to Admin satellite page** (FEAT-003)~~ ✅ DONE
+    - Added NDVI/SAVI/NDWI/NDRE/EVI tab switcher with icons
+    - Stats card label and icon update dynamically based on selected index
+    - Table header reflects selected index
+26. ~~**Yemen-specific SAVI L parameter** (FEAT-004)~~ ✅ DONE
+    - Added YEMEN_SAVI_L_PARAMS dict in sahool-eo/tasks/indices.py
+    - 7 regions: Tihama (0.75), Southern Coast (0.70), Hadhramaut (0.65), Eastern Plateau (0.60), Socotra (0.55), Northern Highlands (0.45), Highlands (0.40)
+    - SahoolSAVITask accepts `region` parameter for automatic L selection
+27. ~~**NDWI water stress alerts in satellite dashboard** (FEAT-005)~~ ✅ DONE
+    - Added water stress detection section (fields with NDWI < 0)
+    - Displays affected field name, NDWI value, and irrigation recommendation
+28. ~~**Fix admin api.ts TypeScript error in getTenantFromToken** (BUG-014)~~ ✅ DONE
+    - Added non-null assertion for `parts[1]` in `atob()` call
+
 ---
 
 ## Checklist for Coding Agent
@@ -596,11 +860,15 @@ The following services should NOT be used:
 - [ ] Check environment variables are set
 - [ ] Verify Kong routes exist for target services
 - [ ] Use correct (non-deprecated) service names
-- [ ] Implement proper error handling
+- [ ] Implement proper error handling (see BUG-004 pattern: always include `credentials: "same-origin"`)
 - [ ] Add loading states to UI
 - [ ] Test with services down to verify error handling
+- [ ] Ensure `fetchDefaults` is spread in all fetch calls (admin app)
+- [ ] Extract tenant_id from JWT, never hardcode (web app)
+- [ ] Use AbortController in useEffect async operations
+- [ ] Guard `window`/`navigator` access for SSR safety
 
 ---
 
 **Document Maintainer:** SAHOOL Platform Team
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-18

@@ -51,8 +51,8 @@ export default function CommunityPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !p.contentAr.includes(query) &&
-          !p.authorAr.includes(query)
+          !p.contentAr.toLowerCase().includes(query) &&
+          !p.authorAr.toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -96,8 +96,8 @@ export default function CommunityPage() {
       header: "المنشور",
       render: (post: Post) => (
         <div className="max-w-md">
-          <p className="font-medium text-gray-900 line-clamp-2">{post.contentAr}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">{post.contentAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             بواسطة: {post.authorAr} • {post.categoryAr}
           </p>
         </div>
@@ -108,10 +108,10 @@ export default function CommunityPage() {
       header: "التفاعل",
       render: (post: Post) => (
         <div className="flex items-center gap-4 text-sm">
-          <span className="flex items-center gap-1 text-gray-600">
+          <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
             <ThumbsUp className="w-4 h-4" /> {post.likes}
           </span>
-          <span className="flex items-center gap-1 text-gray-600">
+          <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
             <MessageSquare className="w-4 h-4" /> {post.comments}
           </span>
         </div>
@@ -142,7 +142,7 @@ export default function CommunityPage() {
       key: "createdAt",
       header: "التاريخ",
       render: (post: Post) => (
-        <span className="text-gray-500 text-sm">{formatDate(post.createdAt)}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(post.createdAt)}</span>
       ),
     },
     {
@@ -152,7 +152,7 @@ export default function CommunityPage() {
         <div className="flex items-center gap-1">
           <button
             disabled
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             title="عرض (قريبًا)"
           >
             <Eye className="w-4 h-4 text-gray-500" />
@@ -194,54 +194,54 @@ export default function CommunityPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm text-gray-500">إجمالي المنشورات</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي المنشورات</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
-              <p className="text-sm text-gray-500">نشط</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.active}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">نشط</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <Flag className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.flagged}</p>
-              <p className="text-sm text-gray-500">مُبلغ عنه</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.flagged}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مُبلغ عنه</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              <p className="text-sm text-gray-500">قيد المراجعة</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.pending}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">قيد المراجعة</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -249,7 +249,7 @@ export default function CommunityPage() {
               placeholder="بحث في المنشورات..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
@@ -257,7 +257,7 @@ export default function CommunityPage() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الفئات</option>
             <option value="tips">نصائح</option>
@@ -270,7 +270,7 @@ export default function CommunityPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="">كل الحالات</option>
             <option value="active">نشط</option>
@@ -281,9 +281,9 @@ export default function CommunityPage() {
 
           <button
             onClick={loadPosts}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
           </button>
         </div>
       </div>
@@ -291,10 +291,10 @@ export default function CommunityPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>

@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
+import { logger } from "@/lib/logger";
 
 /**
  * Generate a cryptographically secure CSRF token
@@ -51,7 +52,7 @@ export async function GET(_request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("Error generating CSRF token:", error);
+    logger.error("Error generating CSRF token:", error);
     return NextResponse.json(
       {
         success: false,
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
       message: "CSRF token valid",
     });
   } catch (error) {
-    console.error("Error validating CSRF token:", error);
+    logger.error("Error validating CSRF token:", error);
     return NextResponse.json(
       {
         success: false,

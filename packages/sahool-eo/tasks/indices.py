@@ -323,20 +323,48 @@ class SahoolNDWITask(BaseIndexTask):
 # =============================================================================
 
 
+# Yemen region-specific SAVI L parameters
+# Based on soil brightness characteristics per agro-ecological zone
+# Higher L for light/sandy soils, lower L for dark/volcanic soils
+YEMEN_SAVI_L_PARAMS: dict[str, float] = {
+    "tihama": 0.75,           # Coastal sandy loam — light/bright soils
+    "southern_coast": 0.70,   # Aden/Lahj — saline sandy soils
+    "hadhramaut": 0.65,       # Wadi silt loam — moderate brightness
+    "eastern_plateau": 0.60,  # Marib/Al-Jawf — semi-arid mixed
+    "highlands": 0.40,        # Sana'a/Ibb — dark volcanic clay loam
+    "northern_highlands": 0.45,  # Sa'dah/Amran — cool arid, moderate soil
+    "socotra": 0.55,          # Island ecosystem — varied
+}
+
+
 class SahoolSAVITask(BaseIndexTask):
     """
     Soil Adjusted Vegetation Index (SAVI)
 
     SAVI = ((NIR - RED) / (NIR + RED + L)) * (1 + L)
 
-    Where L is a soil brightness correction factor (typically 0.5)
+    Where L is a soil brightness correction factor.
 
     Minimizes soil brightness influences for sparse vegetation.
+    For Yemen-specific L values per region, use YEMEN_SAVI_L_PARAMS
+    or pass a region name to the constructor.
     """
 
-    def __init__(self, L: float = 0.5, **kwargs):
+    def __init__(self, L: float = 0.5, region: Optional[str] = None, **kwargs):
         super().__init__(output_feature="SAVI", **kwargs)
-        self.L = L
+        if region:
+            normalized = region.lower().replace("-", "_").replace(" ", "_")
+            if normalized in YEMEN_SAVI_L_PARAMS:
+                self.L = YEMEN_SAVI_L_PARAMS[normalized]
+                logger.info(f"SAVI using L={self.L} for Yemen region: {normalized}")
+            else:
+                logger.warning(
+                    f"Unknown Yemen region '{region}', using default L={L}. "
+                    f"Valid regions: {list(YEMEN_SAVI_L_PARAMS.keys())}"
+                )
+                self.L = L
+        else:
+            self.L = L
 
     def calculate(self, data: np.ndarray) -> np.ndarray:
         """Calculate SAVI"""

@@ -100,8 +100,8 @@ export default function InventoryPage() {
         const query = searchQuery.toLowerCase();
         if (
           !item.name.toLowerCase().includes(query) &&
-          !item.nameAr.includes(query) &&
-          !item.farmNameAr.includes(query)
+          !item.nameAr.toLowerCase().includes(query) &&
+          !item.farmNameAr.toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -265,8 +265,8 @@ export default function InventoryPage() {
       header: "الصنف",
       render: (item: InventoryItem) => (
         <div>
-          <p className="font-medium text-gray-900">{item.nameAr}</p>
-          <p className="text-xs text-gray-500">{item.categoryAr}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">{item.nameAr}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{item.categoryAr}</p>
         </div>
       ),
     },
@@ -274,7 +274,7 @@ export default function InventoryPage() {
       key: "farm",
       header: "المزرعة",
       render: (item: InventoryItem) => (
-        <span className="text-gray-700">{item.farmNameAr}</span>
+        <span className="text-gray-700 dark:text-gray-300">{item.farmNameAr}</span>
       ),
     },
     {
@@ -284,7 +284,7 @@ export default function InventoryPage() {
         <div>
           <span className={cn(
             "font-medium",
-            item.quantity <= item.minQuantity ? "text-red-600" : "text-gray-900"
+            item.quantity <= item.minQuantity ? "text-red-600" : "text-gray-900 dark:text-gray-100"
           )}>
             {item.quantity} {item.unit}
           </span>
@@ -298,7 +298,7 @@ export default function InventoryPage() {
       key: "value",
       header: "القيمة",
       render: (item: InventoryItem) => (
-        <span className="font-medium text-gray-900">
+        <span className="font-medium text-gray-900 dark:text-gray-100">
           {item.value.toLocaleString()} {item.currency}
         </span>
       ),
@@ -316,7 +316,7 @@ export default function InventoryPage() {
       key: "lastUpdated",
       header: "آخر تحديث",
       render: (item: InventoryItem) => (
-        <span className="text-gray-500 text-sm">{formatDate(item.lastUpdated)}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(item.lastUpdated)}</span>
       ),
     },
     {
@@ -326,11 +326,11 @@ export default function InventoryPage() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => openView(item)}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="عرض"
             aria-label={`عرض ${item.nameAr}`}
           >
-            <Eye className="w-4 h-4 text-gray-500" />
+            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
           <button
             onClick={() => openEdit(item)}
@@ -360,54 +360,54 @@ export default function InventoryPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalItems}</p>
-              <p className="text-sm text-gray-500">إجمالي الأصناف</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalItems}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الأصناف</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <Warehouse className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalValue.toLocaleString()}</p>
-              <p className="text-sm text-gray-500">إجمالي القيمة (SAR)</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalValue.toLocaleString()}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي القيمة (SAR)</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <TrendingDown className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.lowStock}</p>
-              <p className="text-sm text-gray-500">مخزون منخفض</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.lowStock}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مخزون منخفض</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.outOfStock}</p>
-              <p className="text-sm text-gray-500">نفذ</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.outOfStock}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">نفذ</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters + Actions */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -415,7 +415,7 @@ export default function InventoryPage() {
               placeholder="بحث بالصنف أو المزرعة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
               aria-label="بحث في المخزون"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -424,7 +424,7 @@ export default function InventoryPage() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             aria-label="تصفية حسب الفئة"
           >
             <option value="">كل الفئات</option>
@@ -437,7 +437,7 @@ export default function InventoryPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             aria-label="تصفية حسب الحالة"
           >
             <option value="">كل الحالات</option>
@@ -449,17 +449,17 @@ export default function InventoryPage() {
 
           <button
             onClick={loadInventory}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             aria-label="تحديث البيانات"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
           </button>
           <button
             onClick={handleExportCSV}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             aria-label="تصدير CSV"
           >
-            <Download className="w-5 h-5 text-gray-600" />
+            <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={openCreate}
@@ -474,7 +474,7 @@ export default function InventoryPage() {
       {/* Table */}
       <div className="mt-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="animate-pulse space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-16 bg-gray-200 rounded"></div>
@@ -515,7 +515,7 @@ export default function InventoryPage() {
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label="إغلاق"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -550,7 +550,7 @@ export default function InventoryPage() {
                       type="text"
                       value={formData.nameAr}
                       onChange={(e) => updateField("nameAr", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="مثال: سماد NPK"
                     />
                   </FormField>
@@ -559,7 +559,7 @@ export default function InventoryPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => updateField("name", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="e.g. NPK Fertilizer"
                     />
                   </FormField>
@@ -568,7 +568,7 @@ export default function InventoryPage() {
                       <select
                         value={formData.category}
                         onChange={(e) => updateField("category", e.target.value as InventoryItem["category"])}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       >
                         {CATEGORY_OPTIONS.map((o) => (
                           <option key={o.value} value={o.value}>{o.label}</option>
@@ -579,7 +579,7 @@ export default function InventoryPage() {
                       <select
                         value={formData.status}
                         onChange={(e) => updateField("status", e.target.value as InventoryItem["status"])}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       >
                         {STATUS_OPTIONS.map((o) => (
                           <option key={o.value} value={o.value}>{o.label}</option>
@@ -592,7 +592,7 @@ export default function InventoryPage() {
                       type="text"
                       value={formData.farmNameAr}
                       onChange={(e) => updateField("farmNameAr", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="مثال: مزرعة الراشد"
                     />
                   </FormField>
@@ -603,7 +603,7 @@ export default function InventoryPage() {
                         min={0}
                         value={formData.quantity}
                         onChange={(e) => updateField("quantity", Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
                     <FormField label="الوحدة">
@@ -611,7 +611,7 @@ export default function InventoryPage() {
                         type="text"
                         value={formData.unit}
                         onChange={(e) => updateField("unit", e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
                     <FormField label="الحد الأدنى">
@@ -620,7 +620,7 @@ export default function InventoryPage() {
                         min={0}
                         value={formData.minQuantity}
                         onChange={(e) => updateField("minQuantity", Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
                   </div>
@@ -630,7 +630,7 @@ export default function InventoryPage() {
                       min={0}
                       value={formData.value}
                       onChange={(e) => updateField("value", Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                     />
                   </FormField>
                 </>
@@ -642,7 +642,7 @@ export default function InventoryPage() {
               <div className="flex gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={closeModal}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                 >
                   إلغاء
                 </button>
@@ -687,7 +687,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         {label}
         {required && <span className="text-red-500 mr-1">*</span>}
       </label>

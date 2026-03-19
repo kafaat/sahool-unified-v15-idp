@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useMemo } from "react";
+import { logger } from "@/lib/logger";
 import {
   Droplets,
   TrendingDown,
@@ -204,7 +205,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
         // Optionally show success toast
       } catch (error) {
         // Optionally show error toast
-        console.error("Failed to create irrigation task:", error);
+        logger.error("Failed to create irrigation task:", error);
       }
     };
 

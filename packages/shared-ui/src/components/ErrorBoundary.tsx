@@ -59,21 +59,20 @@ export class ErrorBoundary extends Component<
             },
           });
         }
-      } catch (sentryError) {
+      } catch {
         // Silently fail if Sentry is not available
-        console.warn("Sentry not available:", sentryError);
       }
     }
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
 
-    // Log to console in development
+    // Log to console in development only
     if (process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console
       console.error("ErrorBoundary caught:", error);
+      // eslint-disable-next-line no-console
       console.error("Component stack:", errorInfo.componentStack);
-    } else {
-      console.error("ErrorBoundary caught:", error, errorInfo);
     }
   }
 

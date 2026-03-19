@@ -172,15 +172,15 @@ export default function SprayPage() {
       </div>
 
       {/* Tabs */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="border-b border-gray-100 dark:border-gray-700">
           <div className="flex">
             <button
               onClick={() => setActiveTab("windows")}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === "windows"
                   ? "text-sahool-600 border-b-2 border-sahool-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
               نوافذ الرش القادمة
@@ -190,7 +190,7 @@ export default function SprayPage() {
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === "history"
                   ? "text-sahool-600 border-b-2 border-sahool-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
               سجل الرش
@@ -206,7 +206,7 @@ export default function SprayPage() {
                 <div className="w-8 h-8 border-4 border-sahool-600 border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : windows.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 لا توجد نوافذ رش متاحة
               </div>
             ) : (
@@ -214,14 +214,14 @@ export default function SprayPage() {
                 {windows.map((window) => (
                   <div
                     key={window.id}
-                    className="border border-gray-100 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    className="border border-gray-100 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-bold text-gray-900">
+                        <h3 className="font-bold text-gray-900 dark:text-gray-100">
                           {window.farmName}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {window.fieldName} - {window.cropType}
                         </p>
                       </div>
@@ -234,36 +234,36 @@ export default function SprayPage() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">المنتج</p>
-                        <p className="font-medium text-gray-900 text-sm">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المنتج</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                           {window.productName}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {productTypeLabels[window.productType]}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                           الوقت المثالي
                         </p>
-                        <p className="font-medium text-gray-900 text-sm">
+                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                           {formatDate(window.optimalTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الحرارة</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">الحرارة</p>
                         <div className="flex items-center gap-1">
                           <Sun className="w-4 h-4 text-yellow-500" />
-                          <span className="font-medium text-gray-900 text-sm">
+                          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                             {window.conditions.temperature}°C
                           </span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الرياح</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">الرياح</p>
                         <div className="flex items-center gap-1">
                           <Wind className="w-4 h-4 text-blue-500" />
-                          <span className="font-medium text-gray-900 text-sm">
+                          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                             {window.conditions.windSpeed} km/h
                           </span>
                         </div>
@@ -312,80 +312,80 @@ export default function SprayPage() {
             {/* History Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       المزرعة / الحقل
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       المنتج
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       المساحة
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       الكمية
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       التكلفة
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       الفعالية
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       التاريخ
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {history.map((record) => (
                     <tr
                       key={record.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">
+                          <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                             {record.farmName}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {record.fieldName}
                           </p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">
+                          <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                             {record.productName}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {productTypeLabels[record.productType]}
                           </p>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                         {record.area.toFixed(1)} هكتار
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                         {record.quantity.toFixed(1)} لتر
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         ${record.cost.toFixed(2)}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-green-500 rounded-full"
                               style={{ width: `${record.effectiveness}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs text-gray-600">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {record.effectiveness}%
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                         {formatDate(record.appliedAt)}
                       </td>
                     </tr>

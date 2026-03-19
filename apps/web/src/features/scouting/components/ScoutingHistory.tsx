@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
+import { logger } from "@/lib/logger";
 import { useLocale } from "next-intl";
 import {
   Calendar,
@@ -149,7 +150,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(({
         window.open(result.downloadUrl, "_blank");
       }
     } catch (error) {
-      console.error("Failed to generate report:", error);
+      logger.error("Failed to generate report:", error);
     }
   }, [generateReport]);
 

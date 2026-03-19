@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { isRateLimited } from "@/lib/rate-limiter";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
       message: "Session created successfully",
     });
   } catch (error) {
-    console.error("[Auth Session API] Error setting session:", error);
+    logger.error("[Auth Session API] Error setting session:", error);
     return NextResponse.json(
       { success: false, error: "Failed to set session" },
       { status: 500 },
@@ -201,7 +202,7 @@ export async function DELETE(request: NextRequest) {
       message: "Session removed successfully",
     });
   } catch (error) {
-    console.error("[Auth Session API] Error removing session:", error);
+    logger.error("[Auth Session API] Error removing session:", error);
     return NextResponse.json(
       { success: false, error: "Failed to remove session" },
       { status: 500 },
@@ -228,7 +229,7 @@ export async function GET() {
       hasRefreshToken: !!refreshToken,
     });
   } catch (error) {
-    console.error("[Auth Session API] Error checking session:", error);
+    logger.error("[Auth Session API] Error checking session:", error);
     return NextResponse.json(
       { success: false, error: "Failed to check session" },
       { status: 500 },

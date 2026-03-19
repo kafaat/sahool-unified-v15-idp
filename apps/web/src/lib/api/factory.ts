@@ -19,24 +19,73 @@ import {
   ERROR_CODES,
   getErrorMessage,
 } from "@sahool/shared-types/contracts";
+import { unifiedApiClient } from "./unified-client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const DEFAULT_TIMEOUT = 15000;
 
 /**
  * Creates a configured Axios instance with auth interceptors.
  * Each feature module should use this instead of creating its own.
+ *
+ * When no custom baseURL is provided, returns the unified client's axios
+ * instance — giving all features token refresh, retry, CSRF, and HTTPS
+ * enforcement from @sahool/api-client for free.
  */
 export function createApiClient(options?: {
   baseURL?: string;
   timeout?: number;
 }): AxiosInstance {
+  // Default case: return the shared unified client (covers 40/42 features)
+  if (!options?.baseURL && !options?.timeout) {
+    return unifiedApiClient;
+  }
+
+  // Timeout-only: create a standalone instance that inherits the unified
+  // client's base config (baseURL, headers, withCredentials) but with a
+  // custom timeout. We manually re-apply CSRF and 401 interceptors.
+  //
+  // Note: this does NOT inherit SahoolApiClient's retry/backoff or token
+  // refresh queuing — those are handled by the unified client's wrapper.
+  // For features that need both custom timeouts AND retry (rare), use
+  // per-request { timeout } config on the unified client directly.
+  if (!options?.baseURL && options?.timeout) {
+    const timeoutMs = options.timeout;
+    const instance = axios.create({
+      baseURL: unifiedApiClient.defaults.baseURL,
+      headers: { ...unifiedApiClient.defaults.headers } as any,
+      withCredentials: unifiedApiClient.defaults.withCredentials,
+      timeout: timeoutMs,
+    });
+    // CSRF interceptor (same as unified-client.ts)
+    instance.interceptors.request.use((config) => {
+      if (typeof window !== "undefined" && config.method?.toLowerCase() !== "get") {
+        const csrf = Cookies.get("_csrf");
+        if (csrf) {
+          config.headers.set("X-CSRF-Token", csrf);
+        }
+      }
+      return config;
+    });
+    // 401 → session expired event
+    instance.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError) => {
+        if (error.response?.status === 401 && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("auth:session-expired"));
+        }
+        return Promise.reject(error);
+      },
+    );
+    return instance;
+  }
+
+  // Custom baseURL (e.g. copilot-api): create a standalone instance
   const client = axios.create({
-    baseURL: options?.baseURL ?? API_BASE_URL,
+    baseURL: options.baseURL,
     headers: {
       "Content-Type": "application/json",
     },
-    timeout: options?.timeout ?? DEFAULT_TIMEOUT,
+    timeout: options.timeout ?? DEFAULT_TIMEOUT,
   });
 
   // Request interceptor: attach JWT token

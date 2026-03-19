@@ -4,6 +4,7 @@
  */
 
 import { Router, Request, Response } from "express";
+import { logger } from "../middleware/logger";
 import { geoService } from "./geo-service";
 
 export const geoRoutes = Router();
@@ -95,7 +96,7 @@ geoRoutes.get("/fields/radius", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    console.error("Error finding fields in radius:", error);
+    logger.error("Error finding fields in radius:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -151,7 +152,7 @@ geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
       farms,
     });
   } catch (error: any) {
-    console.error("Error finding nearby farms:", error);
+    logger.error("Error finding nearby farms:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -178,7 +179,7 @@ geoRoutes.get("/fields/:fieldId/area", async (req: Request, res: Response) => {
     const result = await geoService.calculateFieldArea(fieldId);
     res.json(result);
   } catch (error: any) {
-    console.error("Error calculating field area:", error);
+    logger.error("Error calculating field area:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -228,7 +229,7 @@ geoRoutes.post(
       const result = await geoService.checkPointInField(lat, lng, fieldId);
       res.json(result);
     } catch (error: any) {
-      console.error("Error checking point in field:", error);
+      logger.error("Error checking point in field:", error);
       res.status(500).json({ error: error.message || "Internal server error" });
     }
   },
@@ -291,7 +292,7 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    console.error("Error finding fields in bbox:", error);
+    logger.error("Error finding fields in bbox:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -333,7 +334,7 @@ geoRoutes.get(
       );
       res.json(result);
     } catch (error: any) {
-      console.error("Error calculating fields distance:", error);
+      logger.error("Error calculating fields distance:", error);
       if (
         error.message.includes("not found") ||
         error.message.includes("Could not calculate")
@@ -404,7 +405,7 @@ geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
       statistics: stats,
     });
   } catch (error: any) {
-    console.error("Error getting region stats:", error);
+    logger.error("Error getting region stats:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -433,7 +434,7 @@ geoRoutes.get(
       const geojson = await geoService.getFieldGeoJSON(fieldId);
       res.json(geojson);
     } catch (error: any) {
-      console.error("Error getting field GeoJSON:", error);
+      logger.error("Error getting field GeoJSON:", error);
       if (error.message.includes("not found")) {
         res.status(404).json({ error: error.message });
       } else {
@@ -467,7 +468,7 @@ geoRoutes.get("/farms/:farmId/geojson", async (req: Request, res: Response) => {
     const geojson = await geoService.getFarmGeoJSON(farmId);
     res.json(geojson);
   } catch (error: any) {
-    console.error("Error getting farm GeoJSON:", error);
+    logger.error("Error getting farm GeoJSON:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -503,7 +504,7 @@ geoRoutes.get("/farms/:farmId/fields", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    console.error("Error getting farm fields:", error);
+    logger.error("Error getting farm fields:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -554,7 +555,7 @@ geoRoutes.post("/fields", async (req: Request, res: Response) => {
 
     res.status(201).json(field);
   } catch (error: any) {
-    console.error("Error creating field:", error);
+    logger.error("Error creating field:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
@@ -596,7 +597,7 @@ geoRoutes.put(
       );
       res.json(field);
     } catch (error: any) {
-      console.error("Error updating field boundary:", error);
+      logger.error("Error updating field boundary:", error);
       if (error.message.includes("not found")) {
         res.status(404).json({ error: error.message });
       } else {
@@ -671,7 +672,7 @@ geoRoutes.post("/farms", async (req: Request, res: Response) => {
 
     res.status(201).json(farm);
   } catch (error: any) {
-    console.error("Error creating farm:", error);
+    logger.error("Error creating farm:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
   }
 });

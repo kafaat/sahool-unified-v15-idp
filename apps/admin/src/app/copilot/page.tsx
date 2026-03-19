@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { logger } from "../../lib/logger";
+import { API_URLS } from "@/config/api";
 import axios from "axios";
 import {
   Bot,
@@ -89,8 +90,8 @@ interface DashboardStats {
 async function fetchDashboardStats(): Promise<DashboardStats> {
   // Aggregate stats from multiple endpoints
   const [docsRes, toolsRes] = await Promise.allSettled([
-    axios.get(`${COPILOT_API}/api/v1/rag/documents`),
-    axios.get(`${COPILOT_API}/api/v1/tools/list`),
+    axios.get(API_URLS.copilotEndpoints.ragDocuments),
+    axios.get(API_URLS.copilotEndpoints.tools),
   ]);
 
   const docs =
@@ -111,7 +112,7 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
 }
 
 async function fetchRAGDocuments(): Promise<RAGDocument[]> {
-  const res = await axios.get(`${COPILOT_API}/api/v1/rag/documents`);
+  const res = await axios.get(API_URLS.copilotEndpoints.ragDocuments);
   return res.data?.documents || res.data || [];
 }
 
@@ -121,12 +122,12 @@ async function addRAGDocument(payload: {
   content: string;
   source?: string;
 }): Promise<RAGDocument> {
-  const res = await axios.post(`${COPILOT_API}/api/v1/rag/documents`, payload);
+  const res = await axios.post(API_URLS.copilotEndpoints.ragDocuments, payload);
   return res.data;
 }
 
 async function deleteRAGDocument(id: string): Promise<void> {
-  await axios.delete(`${COPILOT_API}/api/v1/rag/documents/${id}`);
+  await axios.delete(`${API_URLS.copilotEndpoints.ragDocuments}/${encodeURIComponent(id)}`);
 }
 
 async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
@@ -134,7 +135,7 @@ async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
   // In a real scenario, there would be a dedicated logs endpoint.
   // We simulate with a POST to guard with a probe payload.
   try {
-    const res = await axios.post(`${COPILOT_API}/api/v1/tools/guard`, {
+    const res = await axios.post(API_URLS.copilotEndpoints.guardLogs, {
       tool_name: "__list_logs__",
       dry_run: true,
     });
@@ -146,7 +147,7 @@ async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
 }
 
 async function fetchTools(): Promise<ToolInfo[]> {
-  const res = await axios.get(`${COPILOT_API}/api/v1/tools/list`);
+  const res = await axios.get(API_URLS.copilotEndpoints.tools);
   return res.data?.tools || res.data || [];
 }
 
@@ -381,103 +382,103 @@ export default function CopilotPage() {
     <>
       {/* Stats Cards */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-blue-50 rounded-lg">
               <MessageSquare className="w-5 h-5 text-blue-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.total_chats}</p>
-          <p className="text-sm text-gray-500 mt-1">إجمالي المحادثات | Total Chats</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total_chats}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">إجمالي المحادثات | Total Chats</p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-green-50 rounded-lg">
               <Users className="w-5 h-5 text-green-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-green-600">{stats.active_users}</p>
-          <p className="text-sm text-gray-500 mt-1">المستخدمون النشطون | Active Users</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">المستخدمون النشطون | Active Users</p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-red-50 rounded-lg">
               <ShieldAlert className="w-5 h-5 text-red-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-red-600">{stats.blocked_tools}</p>
-          <p className="text-sm text-gray-500 mt-1">أدوات محظورة | Blocked Tools</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">أدوات محظورة | Blocked Tools</p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-purple-50 rounded-lg">
               <Database className="w-5 h-5 text-purple-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-purple-600">{stats.rag_docs_count}</p>
-          <p className="text-sm text-gray-500 mt-1">مستندات RAG | RAG Documents</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">مستندات RAG | RAG Documents</p>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-6 bg-white rounded-xl p-6 border border-gray-100">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
           إجراءات سريعة | Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => setActiveTab("rag")}
-            className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
+            className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-purple-100 rounded-lg">
               <FileText className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">إدارة المستندات | Manage Documents</p>
-              <p className="text-sm text-gray-500">إضافة وحذف مستندات RAG</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">إدارة المستندات | Manage Documents</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">إضافة وحذف مستندات RAG</p>
             </div>
           </button>
 
           <button
             onClick={() => setActiveTab("guards")}
-            className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
+            className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-amber-100 rounded-lg">
               <Shield className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">سجل الحماية | Guard Logs</p>
-              <p className="text-sm text-gray-500">مراجعة قرارات الحماية</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">سجل الحماية | Guard Logs</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">مراجعة قرارات الحماية</p>
             </div>
           </button>
 
           <button
             onClick={() => setActiveTab("tools")}
-            className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
+            className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
               <Wrench className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">الأدوات المتاحة | Available Tools</p>
-              <p className="text-sm text-gray-500">عرض وإدارة أدوات الكوبايلوت</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">الأدوات المتاحة | Available Tools</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">عرض وإدارة أدوات الكوبايلوت</p>
             </div>
           </button>
         </div>
       </div>
 
       {/* API Status */}
-      <div className="mt-6 bg-white rounded-xl p-6 border border-gray-100">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
           حالة الخدمة | Service Status
         </h3>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-gray-700">copilot-api (:{8088})</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">copilot-api</span>
           </div>
           <a
             href={`${COPILOT_API}/healthz`}
@@ -498,7 +499,7 @@ export default function CopilotPage() {
   const renderRAG = () => (
     <>
       {/* Search & Actions */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -506,14 +507,14 @@ export default function CopilotPage() {
               placeholder="بحث في المستندات... | Search documents..."
               value={ragSearch}
               onChange={(e) => setRagSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
 
           <button
             onClick={loadRAGDocs}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
             <RefreshCw
@@ -539,32 +540,32 @@ export default function CopilotPage() {
           ))}
         </div>
       ) : filteredRagDocs.length === 0 ? (
-        <div className="mt-6 bg-white rounded-xl p-12 text-center border border-gray-100">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-100 dark:border-gray-700">
           <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">لا توجد مستندات | No documents found</p>
+          <p className="text-gray-500 dark:text-gray-400">لا توجد مستندات | No documents found</p>
         </div>
       ) : (
-        <div className="mt-6 bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     العنوان | Title
                   </th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     المصدر | Source
                   </th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     النوع | Type
                   </th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     الأجزاء | Chunks
                   </th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     التاريخ | Date
                   </th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                     الحالة | Status
                   </th>
                   <th className="px-4 py-3 w-12" />
@@ -574,30 +575,30 @@ export default function CopilotPage() {
                 {filteredRagDocs.map((doc) => (
                   <tr
                     key={doc.id}
-                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
                           {doc.title_ar || doc.title}
                         </p>
                         {doc.title_ar && (
-                          <p className="text-xs text-gray-500">{doc.title}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{doc.title}</p>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {doc.source || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                         {doc.content_type || "text"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {doc.chunk_count ?? "-"}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {doc.created_at ? formatTimestamp(doc.created_at) : "-"}
                     </td>
                     <td className="px-4 py-3">
@@ -637,7 +638,7 @@ export default function CopilotPage() {
               </tbody>
             </table>
           </div>
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-sm text-gray-500">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
             {filteredRagDocs.length} مستند | {filteredRagDocs.length} document(s)
           </div>
         </div>
@@ -650,23 +651,23 @@ export default function CopilotPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-slide-up">
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-10"
+              className="absolute top-4 left-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors z-10"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                 إضافة مستند RAG
               </h2>
-              <p className="text-sm text-gray-500 mb-6">Add RAG Document</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Add RAG Document</p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     العنوان (إنجليزي) | Title (English) *
                   </label>
                   <input
@@ -675,13 +676,13 @@ export default function CopilotPage() {
                     onChange={(e) =>
                       setAddForm((prev) => ({ ...prev, title: e.target.value }))
                     }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="Document title..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     العنوان (عربي) | Title (Arabic)
                   </label>
                   <input
@@ -690,13 +691,13 @@ export default function CopilotPage() {
                     onChange={(e) =>
                       setAddForm((prev) => ({ ...prev, title_ar: e.target.value }))
                     }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="عنوان المستند..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     المحتوى | Content *
                   </label>
                   <textarea
@@ -705,13 +706,13 @@ export default function CopilotPage() {
                       setAddForm((prev) => ({ ...prev, content: e.target.value }))
                     }
                     rows={6}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="محتوى المستند... | Document content..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     المصدر | Source
                   </label>
                   <input
@@ -720,7 +721,7 @@ export default function CopilotPage() {
                     onChange={(e) =>
                       setAddForm((prev) => ({ ...prev, source: e.target.value }))
                     }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="https://... or file path"
                   />
                 </div>
@@ -741,7 +742,7 @@ export default function CopilotPage() {
                 </button>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-3 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="px-4 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   إلغاء | Cancel
                 </button>
@@ -758,16 +759,16 @@ export default function CopilotPage() {
   const renderGuardLogs = () => (
     <>
       {/* Actions */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               سجل قرارات نظام الحماية للأدوات | Tool guard decision log
             </p>
           </div>
           <button
             onClick={loadGuardLogs}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
             <RefreshCw
@@ -785,9 +786,9 @@ export default function CopilotPage() {
           ))}
         </div>
       ) : guardLogs.length === 0 ? (
-        <div className="mt-6 bg-white rounded-xl p-12 text-center border border-gray-100">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-100 dark:border-gray-700">
           <Shield className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             لا توجد سجلات حماية | No guard logs available
           </p>
           <p className="text-sm text-gray-400 mt-2">
@@ -796,27 +797,27 @@ export default function CopilotPage() {
         </div>
       ) : (
         <>
-          <div className="mt-6 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                  <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       الأداة | Tool
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       الملخص | Summary
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       القرار | Decision
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       السبب | Reason
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       المستخدم | User
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                       الوقت | Time
                     </th>
                   </tr>
@@ -825,25 +826,25 @@ export default function CopilotPage() {
                   {paginatedGuardLogs.map((log) => (
                     <tr
                       key={log.id}
-                      className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                      className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1.5 font-medium text-gray-900">
+                        <span className="inline-flex items-center gap-1.5 font-medium text-gray-900 dark:text-gray-100">
                           <Wrench className="w-3.5 h-3.5 text-gray-400" />
                           {log.tool_name}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate">
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
                         {log.input_summary || "-"}
                       </td>
                       <td className="px-4 py-3">{getDecisionBadge(log.decision)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate">
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
                         {log.reason || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {log.user_id || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTimestamp(log.timestamp)}
@@ -862,7 +863,7 @@ export default function CopilotPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -874,7 +875,7 @@ export default function CopilotPage() {
                   setCurrentPage((p) => Math.min(totalGuardPages, p + 1))
                 }
                 disabled={currentPage === totalGuardPages}
-                className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -890,7 +891,7 @@ export default function CopilotPage() {
   const renderTools = () => (
     <>
       {/* Search & Actions */}
-      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -898,14 +899,14 @@ export default function CopilotPage() {
               placeholder="بحث في الأدوات... | Search tools..."
               value={toolSearch}
               onChange={(e) => setToolSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           </div>
 
           <button
             onClick={loadTools}
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
             <RefreshCw
@@ -923,9 +924,9 @@ export default function CopilotPage() {
           ))}
         </div>
       ) : filteredTools.length === 0 ? (
-        <div className="mt-6 bg-white rounded-xl p-12 text-center border border-gray-100">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-100 dark:border-gray-700">
           <Wrench className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             لا توجد أدوات | No tools available
           </p>
         </div>
@@ -935,9 +936,9 @@ export default function CopilotPage() {
             <div
               key={tool.name}
               className={cn(
-                "bg-white rounded-xl p-5 border transition-all",
+                "bg-white dark:bg-gray-800 rounded-xl p-5 border transition-all",
                 tool.allowed
-                  ? "border-gray-100 hover:border-green-200 hover:shadow-sm"
+                  ? "border-gray-100 dark:border-gray-700 hover:border-green-200 hover:shadow-sm"
                   : "border-red-100 bg-red-50/30",
               )}
             >
@@ -957,9 +958,9 @@ export default function CopilotPage() {
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{tool.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{tool.name}</p>
                     {tool.category && (
-                      <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500 mt-0.5">
+                      <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 mt-0.5">
                         {tool.category}
                       </span>
                     )}
@@ -987,7 +988,7 @@ export default function CopilotPage() {
                 </span>
               </div>
 
-              <p className="text-sm text-gray-600 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                 {tool.description_ar || tool.description || "بدون وصف | No description"}
               </p>
 
@@ -1004,23 +1005,23 @@ export default function CopilotPage() {
 
       {/* Summary */}
       {!isLoading && tools.length > 0 && (
-        <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex flex-wrap gap-6 text-sm">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-gray-600">
+              <span className="text-gray-600 dark:text-gray-400">
                 {tools.filter((t) => t.allowed).length} مسموح | Allowed
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-gray-600">
+              <span className="text-gray-600 dark:text-gray-400">
                 {tools.filter((t) => !t.allowed).length} محظور | Blocked
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-amber-500" />
-              <span className="text-gray-600">
+              <span className="text-gray-600 dark:text-gray-400">
                 {tools.filter((t) => t.requires_guard).length} يتطلب حماية | Guarded
               </span>
             </div>
@@ -1040,8 +1041,8 @@ export default function CopilotPage() {
       />
 
       {/* Tabs */}
-      <div className="mt-6 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="flex border-b border-gray-100 overflow-x-auto">
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="flex border-b border-gray-100 dark:border-gray-700 overflow-x-auto">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -1052,7 +1053,7 @@ export default function CopilotPage() {
                   "flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
                   activeTab === tab.id
                     ? "border-sahool-600 text-sahool-600 bg-sahool-50/50"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50",
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
                 )}
               >
                 <Icon className="w-4 h-4" />

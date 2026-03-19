@@ -303,6 +303,15 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  // Update last activity timestamp for idle timeout (sliding session)
+  response.cookies.set("sahool_admin_last_activity", String(Date.now()), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60 * 24, // 24 hours
+  });
+
   // Store nonce in response headers for use in HTML
   response.headers.set("X-Nonce", nonce);
 

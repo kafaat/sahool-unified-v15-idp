@@ -34,7 +34,10 @@ export function initSentry(dsn?: string): void {
   const sentryDsn = dsn || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
   if (!sentryDsn) {
-    console.warn("[Sentry] No DSN provided, error tracking disabled");
+    if (process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console
+      console.warn("[Sentry] No DSN provided, error tracking disabled");
+    }
     return;
   }
 
@@ -42,7 +45,10 @@ export function initSentry(dsn?: string): void {
   // import * as Sentry from '@sentry/nextjs';
   // Sentry.init({ dsn: sentryDsn, ... });
 
-  console.info("[Sentry] Error tracking initialized");
+  if (process.env.NODE_ENV === "development") {
+    // eslint-disable-next-line no-console
+    console.info("[Sentry] Error tracking initialized");
+  }
 
   // Set up global error handlers
   window.onerror = (message, source, lineno, colno, error) => {

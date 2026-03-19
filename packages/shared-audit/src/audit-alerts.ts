@@ -362,9 +362,12 @@ export class AuditAlertService {
 
       case "matches":
         if (typeof value === "string" && typeof condition.value === "string") {
+          // Limit pattern length to prevent ReDoS from overly complex regexes
+          if (condition.value.length > 200) return false;
           try {
             const regex = new RegExp(condition.value);
-            return regex.test(value);
+            // Test against a length-limited substring to bound execution time
+            return regex.test(value.slice(0, 1000));
           } catch {
             return false;
           }
@@ -546,15 +549,17 @@ export class AuditAlertService {
 /**
  * Console alert handler (for debugging)
  */
+const consoleHandlerLogger = new Logger("ConsoleAlertHandler");
+
 export const consoleAlertHandler: AlertHandler = {
   name: "console",
   async handle(alert: AuditAlert): Promise<void> {
-    console.error("=".repeat(80));
-    console.error(`🚨 SECURITY ALERT: ${alert.message}`);
-    console.error(`Severity: ${alert.severity}`);
-    console.error(`Events: ${alert.events.length}`);
-    console.error(`Timestamp: ${alert.timestamp.toISOString()}`);
-    console.error("=".repeat(80));
+    consoleHandlerLogger.error("=".repeat(80));
+    consoleHandlerLogger.error(`SECURITY ALERT: ${alert.message}`);
+    consoleHandlerLogger.error(`Severity: ${alert.severity}`);
+    consoleHandlerLogger.error(`Events: ${alert.events.length}`);
+    consoleHandlerLogger.error(`Timestamp: ${alert.timestamp.toISOString()}`);
+    consoleHandlerLogger.error("=".repeat(80));
   },
 };
 
@@ -917,6 +922,8 @@ export const slackAlertHandler: AlertHandler = {
 /**
  * Webhook alert handler
  */
+const webhookLogger = new Logger("WebhookAlertHandler");
+
 export function createWebhookAlertHandler(url: string): AlertHandler {
   return {
     name: "webhook",
@@ -931,7 +938,9 @@ export function createWebhookAlertHandler(url: string): AlertHandler {
           throw new Error(`Webhook failed: ${response.statusText}`);
         }
       } catch (error) {
-        console.error("Failed to send webhook alert:", error);
+        webhookLogger.error(
+          `Failed to send webhook alert: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     },
   };

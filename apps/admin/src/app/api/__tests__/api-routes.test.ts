@@ -55,6 +55,15 @@ vi.mock("@/config/api", () => ({
       refresh: "/api/v1/auth/refresh",
     },
   },
+  API_PATHS: {
+    auth: {
+      login: "/api/v1/auth/login",
+      logout: "/api/v1/auth/logout",
+      refresh: "/api/v1/auth/refresh",
+      me: "/api/v1/auth/me",
+      activity: "/api/v1/auth/activity",
+    },
+  },
   TIMEOUT_TIERS: {
     default: 10000,
     upload: 30000,
@@ -158,7 +167,7 @@ describe("POST /api/auth/login", () => {
           refresh_token: "test-refresh-token",
           user: { id: "1", email: "admin@sahool.app", role: "admin" },
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -205,7 +214,7 @@ describe("POST /api/auth/login", () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       new Response(
         JSON.stringify({ message: "Invalid credentials" }),
-        { status: 401 },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       ),
     );
 
@@ -232,7 +241,7 @@ describe("POST /api/auth/login", () => {
           requires_2fa: true,
           temp_token: "temp-2fa-token",
         }),
-        { status: 200 },
+        { status: 200, headers: { "Content-Type": "application/json" } },
       ),
     );
 

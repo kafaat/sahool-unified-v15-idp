@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS } from "@/config/api";
+import { API_URL, TIMEOUT_TIERS, API_PATHS } from "@/config/api";
 
 export async function GET(_request: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest) {
 
     let response: Response;
     try {
-      response = await fetch(`${API_URL}/api/v1/auth/me`, {
+      response = await fetch(`${API_URL}${API_PATHS.auth.me}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

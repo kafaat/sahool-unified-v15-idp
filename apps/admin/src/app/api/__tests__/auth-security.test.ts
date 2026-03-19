@@ -47,6 +47,15 @@ vi.mock("@/config/api", () => ({
     report: 120000,
     healthCheck: 5000,
   },
+  API_PATHS: {
+    auth: {
+      login: "/api/v1/auth/login",
+      logout: "/api/v1/auth/logout",
+      refresh: "/api/v1/auth/refresh",
+      me: "/api/v1/auth/me",
+      activity: "/api/v1/auth/activity",
+    },
+  },
 }));
 
 vi.mock("@/lib/rate-limiter", () => ({
@@ -191,6 +200,15 @@ describe("POST /api/auth/refresh - maxAge alignment", () => {
     vi.doMock("@/config/api", () => ({
       API_URL: "http://localhost:8000",
       TIMEOUT_TIERS: { default: 10000 },
+      API_PATHS: {
+        auth: {
+          login: "/api/v1/auth/login",
+          logout: "/api/v1/auth/logout",
+          refresh: "/api/v1/auth/refresh",
+          me: "/api/v1/auth/me",
+          activity: "/api/v1/auth/activity",
+        },
+      },
     }));
 
     const { POST } = await import("@/app/api/auth/refresh/route");

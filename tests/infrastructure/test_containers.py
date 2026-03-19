@@ -49,7 +49,6 @@ class TestContainerHealth:
             return client
         except Exception as exc:
             pytest.skip(f"Docker daemon not reachable: {exc}")
-            return None
 
     # -----------------------------------------------------------------------
     def test_all_containers_running(self, docker_client):
@@ -169,13 +168,13 @@ class TestContainerHealth:
         kong_admin = os.getenv("KONG_ADMIN_URL", "http://localhost:8001")
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(f"{kong_admin}/routes")
 
             if resp.status_code != 200:
                 pytest.skip(f"Kong Admin API returned {resp.status_code}")
 
             data = resp.json()
             routes = {r["name"] for r in data.get("data", []) if r.get("name")}
-                resp = await client.get(f"{kong_admin}/routes")
         except Exception as exc:
             pytest.skip(f"Kong Admin API not reachable: {exc}")
 

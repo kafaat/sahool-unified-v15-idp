@@ -23,7 +23,7 @@ import json
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -616,7 +616,9 @@ class TestTenantIsolation:
             extracted_tenant = payload.get("tid")
         except ImportError:
             parts = token.split(".")
-            payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
+            payload_seg = parts[1]
+            padding = "=" * (-len(payload_seg) % 4)
+            payload = json.loads(base64.urlsafe_b64decode(payload_seg + padding))
             extracted_tenant = payload.get("tid")
 
         assert extracted_tenant == tenant_id, (

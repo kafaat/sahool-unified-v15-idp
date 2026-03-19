@@ -60,7 +60,9 @@ def _load_compose() -> dict:
 
 
 def _load_kong() -> dict:
-    for path in (KONG_CONFIG_PATH, KONG_GATEWAY_CONFIG_PATH):
+    # Prefer infrastructure/gateway/kong/kong.yml — this is the file mounted by
+    # docker-compose.yml (./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro)
+    for path in (KONG_GATEWAY_CONFIG_PATH, KONG_CONFIG_PATH):
         if path.exists():
             with open(path, encoding="utf-8") as fh:
                 return yaml.safe_load(fh)
@@ -178,19 +180,21 @@ class TestAllContainersRunning:
 
     def test_services_use_internal_network(self, compose: dict):
         """
-        All services should be connected to the internal network.
-        جميع الخدمات يجب أن تكون متصلة بالشبكة الداخلية
+        All required services should be connected to the platform's shared network.
+        جميع الخدمات المطلوبة يجب أن تكون متصلة بالشبكة المشتركة للمنصة
         """
         networks = compose.get("networks", {})
-        # Internal network must be explicitly defined at the top level
-        assert "internal" in networks, "Expected 'internal' network to be defined in docker-compose.yml"
+        # docker-compose.yml defines 'sahool-network' as the shared bridge
+        assert "sahool-network" in networks, (
+            "Expected 'sahool-network' to be defined as a top-level network in docker-compose.yml"
+        )
 
         services = compose.get("services", {})
-        missing_internal = []
+        missing_network = []
         for svc_name in self.REQUIRED_SERVICES:
             svc_def = services.get(svc_name)
             if not svc_def:
-                # Some services may be optional; presence is validated elsewhere
+                # Presence validated elsewhere; skip optional services
                 continue
 
             svc_networks = svc_def.get("networks")
@@ -203,12 +207,12 @@ class TestAllContainersRunning:
             else:
                 svc_network_names = set()
 
-            if "internal" not in svc_network_names:
-                missing_internal.append(svc_name)
+            if "sahool-network" not in svc_network_names:
+                missing_network.append(svc_name)
 
-        assert not missing_internal, (
-            "The following services are not connected to the 'internal' network: "
-            + ", ".join(sorted(missing_internal))
+        assert not missing_network, (
+            "The following services are not connected to 'sahool-network': "
+            + ", ".join(sorted(missing_network))
         )
 
 

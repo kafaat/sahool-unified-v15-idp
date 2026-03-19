@@ -18,8 +18,9 @@ Run:
 from __future__ import annotations
 
 import base64
+import hashlib
+import hmac
 import json
-import re
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -72,7 +73,9 @@ def _make_jwt(user_id: str, tenant_id: str, roles: list[str]) -> str:
 
 
 def _load_kong() -> dict:
-    for path in (KONG_CONFIG_PATH, KONG_GATEWAY_CONFIG_PATH):
+    # Prefer infrastructure/gateway/kong/kong.yml — this is the file mounted by
+    # docker-compose.yml (./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro)
+    for path in (KONG_GATEWAY_CONFIG_PATH, KONG_CONFIG_PATH):
         if path.exists():
             with open(path, encoding="utf-8") as fh:
                 return yaml.safe_load(fh)
@@ -404,6 +407,29 @@ class TestRateLimitingAndSecurity:
                             f"Rate limit 'minute' for {svc['name']} must be a positive int"
                         )
 
+    def test_kong_rate_limits_within_tier_bounds(self, kong: dict):
+        """
+        All Kong per-minute rate limits must not exceed the internal-tier ceiling
+        defined in RATE_LIMITS, ensuring no service can be misconfigured above the
+        maximum documented throughput.
+        قيم المعدل يجب ألا تتجاوز السقف الداخلي المحدد في RATE_LIMITS
+        """
+        internal_ceiling = self.RATE_LIMITS["internal"]  # 1000 req/min
+        starter_floor = min(self.RATE_LIMITS.values())    # 30 req/min
+        violations = []
+        for svc in kong.get("services", []):
+            for plugin in svc.get("plugins", []):
+                if plugin.get("name") == "rate-limiting":
+                    minute_limit = plugin.get("config", {}).get("minute")
+                    if minute_limit is not None:
+                        if minute_limit > internal_ceiling:
+                            violations.append(
+                                f"{svc['name']}: {minute_limit} req/min exceeds internal ceiling {internal_ceiling}"
+                            )
+        assert not violations, (
+            "Kong services exceed the maximum documented tier limit:\n" + "\n".join(violations)
+        )
+
     def test_in_process_rate_limiter_blocks_after_threshold(self):
         """
         An in-process rate limiter must block requests exceeding the threshold.
@@ -434,9 +460,10 @@ class TestRateLimitingAndSecurity:
         """
         token = _make_jwt("user-001", "tenant-001", ["farmer"])
         parts = token.split(".")
-        # Tamper the payload
-        padded = parts[1] + "=="
-        payload = json.loads(base64.urlsafe_b64decode(padded))
+        # Tamper the payload — use correct base64url padding
+        payload_seg = parts[1]
+        p_padding = "=" * (-len(payload_seg) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(payload_seg + p_padding))
         payload["roles"] = ["admin"]  # Privilege escalation attempt
         tampered_payload = base64.urlsafe_b64encode(
             json.dumps(payload).encode()
@@ -454,8 +481,17 @@ class TestRateLimitingAndSecurity:
                     options={"verify_aud": False},
                 )
         except ImportError:
-            # Without PyJWT, verify signature mismatch structurally
-            assert tampered_token != token, "Tampered token must differ from original"
+            # Stdlib HMAC-SHA256 verification: recompute the expected signature
+            # for the tampered header.payload and compare to the original signature.
+            signing_input = f"{parts[0]}.{tampered_payload}".encode()
+            expected_sig = base64.urlsafe_b64encode(
+                hmac.new(JWT_SECRET.encode(), signing_input, hashlib.sha256).digest()
+            ).rstrip(b"=").decode()
+            actual_sig = parts[2]  # original signature (from untampered token)
+            assert expected_sig != actual_sig, (
+                "Tampered payload must produce a different HMAC signature — "
+                "the original signature must not validate the modified content"
+            )
 
     def test_security_headers_in_kong_config(self, kong: dict):
         """

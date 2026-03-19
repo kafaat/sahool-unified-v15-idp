@@ -334,7 +334,11 @@ class TestRLSPoliciesActive:
         ملف ترحيل RLS يجب أن يفعّل أمان مستوى الصف على جميع الجداول المطلوبة
         """
         for table in self.RLS_REQUIRED_TABLES:
-            pattern = rf"ALTER\s+TABLE\s+{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
+            pattern = (
+                rf"ALTER\s+TABLE\s+"
+                rf"(?:[A-Za-z_][\w]*\.)?"  # optional schema prefix, e.g. geo.fields
+                rf"{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
+            )
             assert re.search(pattern, rls_sql, re.IGNORECASE), (
                 f"RLS not enabled on table: {table}"
             )

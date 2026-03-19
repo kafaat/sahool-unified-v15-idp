@@ -182,8 +182,34 @@ class TestAllContainersRunning:
         جميع الخدمات يجب أن تكون متصلة بالشبكة الداخلية
         """
         networks = compose.get("networks", {})
-        # There should be at least one network defined
-        assert networks, "No networks defined in docker-compose.yml"
+        # Internal network must be explicitly defined at the top level
+        assert "internal" in networks, "Expected 'internal' network to be defined in docker-compose.yml"
+
+        services = compose.get("services", {})
+        missing_internal = []
+        for svc_name in self.REQUIRED_SERVICES:
+            svc_def = services.get(svc_name)
+            if not svc_def:
+                # Some services may be optional; presence is validated elsewhere
+                continue
+
+            svc_networks = svc_def.get("networks")
+            if isinstance(svc_networks, str):
+                svc_network_names = {svc_networks}
+            elif isinstance(svc_networks, list):
+                svc_network_names = set(svc_networks)
+            elif isinstance(svc_networks, dict):
+                svc_network_names = set(svc_networks.keys())
+            else:
+                svc_network_names = set()
+
+            if "internal" not in svc_network_names:
+                missing_internal.append(svc_name)
+
+        assert not missing_internal, (
+            "The following services are not connected to the 'internal' network: "
+            + ", ".join(sorted(missing_internal))
+        )
 
 
 # ---------------------------------------------------------------------------

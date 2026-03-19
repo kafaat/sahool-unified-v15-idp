@@ -13,6 +13,7 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
+import os
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -518,8 +519,18 @@ class TestFarmerCompleteJourney:
         if async_playwright is None:
             pytest.skip("playwright not installed – run `pip install playwright`")
 
+        # Allow headless/headed mode to be controlled via environment variable.
+        # Default remains headless=True to match Playwright's default behavior.
+        headless_env = os.getenv("E2E_HEADLESS", "").strip().lower()
+        if headless_env in {"0", "false", "no", "off"}:
+            headless = False
+        elif headless_env in {"1", "true", "yes", "on"}:
+            headless = True
+        else:
+            headless = True
+
         async with async_playwright() as p:
-            browser = await p.chromium.launch()
+            browser = await p.chromium.launch(headless=headless)
             _page = await browser.new_page()
             try:
                 yield _page

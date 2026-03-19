@@ -73,10 +73,42 @@ def _make_jwt(user_id: str, tenant_id: str, roles: list[str]) -> str:
 
 
 def _load_kong() -> dict:
-    for path in (KONG_CONFIG_PATH, KONG_GATEWAY_CONFIG_PATH):
-        if path.exists():
-            with open(path, encoding="utf-8") as fh:
-                return yaml.safe_load(fh)
+    """
+    Load the Kong configuration used by the platform.
+
+    Prefer the configuration file mounted by docker-compose
+    (KONG_GATEWAY_CONFIG_PATH) so that these tests validate the
+    deployed configuration. If both configuration files exist, verify
+    that they are identical to avoid configuration drift.
+    """
+    gateway_exists = KONG_GATEWAY_CONFIG_PATH.exists()
+    legacy_exists = KONG_CONFIG_PATH.exists()
+
+    # If both configs are present, ensure they remain in sync.
+    if gateway_exists and legacy_exists:
+        with open(KONG_GATEWAY_CONFIG_PATH, encoding="utf-8") as fh:
+            gateway_cfg = yaml.safe_load(fh)
+        with open(KONG_CONFIG_PATH, encoding="utf-8") as fh:
+            legacy_cfg = yaml.safe_load(fh)
+
+        if gateway_cfg != legacy_cfg:
+            pytest.fail(
+                "Kong configuration mismatch between "
+                f"{KONG_GATEWAY_CONFIG_PATH} and {KONG_CONFIG_PATH}. "
+                "Update the configs or tests so they remain identical."
+            )
+        return gateway_cfg
+
+    # Prefer the compose-mounted gateway config when available.
+    if gateway_exists:
+        with open(KONG_GATEWAY_CONFIG_PATH, encoding="utf-8") as fh:
+            return yaml.safe_load(fh)
+
+    # Fallback to the legacy infra path if that is the only one present.
+    if legacy_exists:
+        with open(KONG_CONFIG_PATH, encoding="utf-8") as fh:
+            return yaml.safe_load(fh)
+
     pytest.skip("Kong configuration file not found")
 
 

@@ -107,16 +107,55 @@ class TestContainerHealth:
     # -----------------------------------------------------------------------
     async def test_rls_policies_active(self, db_connection):
         """RLS مفعّل على الجداول الحساسة – Row-Level Security is enabled."""
-        rls_tables = await db_connection.fetch(
+        # Expected tables (schema, table) that must have RLS enabled.
+        expected_tables = [
+            ("public", "fields"),
+            ("public", "sensors"),
+            ("public", "users"),
+            ("public", "tasks"),
+        ]
+
+        expected_schemas = sorted({schema for schema, _ in expected_tables})
+        expected_names = sorted({name for _, name in expected_tables})
+
+        rows = await db_connection.fetch(
             """
-            SELECT tablename, rowsecurity
-            FROM pg_tables
-            WHERE tablename IN ('fields', 'sensors', 'users', 'tasks')
-              AND schemaname = 'public'
-            """
+            SELECT
+                n.nspname AS schemaname,
+                c.relname AS tablename,
+                c.relrowsecurity AS rowsecurity
+            FROM pg_class AS c
+            JOIN pg_namespace AS n ON n.oid = c.relnamespace
+            WHERE c.relkind = 'r'  -- ordinary tables only
+              AND n.nspname = ANY($1::text[])
+              AND c.relname = ANY($2::text[])
+            """,
+            expected_schemas,
+            expected_names,
         )
-        disabled = [r["tablename"] for r in rls_tables if not r["rowsecurity"]]
-        assert not disabled, f"RLS غير مفعّل على – RLS not enabled on: {disabled}"
+
+        found = {
+            (row["schemaname"], row["tablename"]): row["rowsecurity"]
+            for row in rows
+        }
+
+        missing = [
+            f"{schema}.{table}"
+            for (schema, table) in expected_tables
+            if (schema, table) not in found
+        ]
+        disabled = [
+            f"{schema}.{table}"
+            for (schema, table), rls_enabled in found.items()
+            if not rls_enabled
+        ]
+
+        assert not missing, (
+            f"جداول مفقودة لـ RLS – expected tables not found in catalogs: {missing}"
+        )
+        assert not disabled, (
+            f"RLS غير مفعّل على – RLS not enabled on: {disabled}"
+        )
 
     # -----------------------------------------------------------------------
     async def test_kong_routes_configured(self):

@@ -72,7 +72,7 @@ def _make_jwt(user_id: str, tenant_id: str, roles: list[str]) -> str:
         return f"{header.decode()}.{body.decode()}.fake_sig"
 
 
-def _load_kong() -> dict:
+def _load_kong() -> dict | None:
     """
     Load the Kong configuration used by the platform.
 
@@ -85,6 +85,7 @@ def _load_kong() -> dict:
             with open(path, encoding="utf-8") as fh:
                 return yaml.safe_load(fh)
     pytest.skip("Kong configuration file not found")
+    return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

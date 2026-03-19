@@ -318,7 +318,7 @@ spec:
       imagePullPolicy: Always
       securityContext:
         allowPrivilegeEscalation: false
-        readOnlyRootFilesystem: false
+        readOnlyRootFilesystem: true
         runAsNonRoot: true
         capabilities:
           drop:
@@ -327,22 +327,48 @@ spec:
         - /bin/sh
         - -c
         - |
-          apk add --no-cache bc coreutils
+          # db_health_check.sh must perform only read-only operations (no temp file writes).
+          # Credentials are mounted as files under /secrets/db-credentials/
           /scripts/db_health_check.sh
+      livenessProbe:
+        exec:
+          command: ["/scripts/db_health_check.sh", "--json"]
+        initialDelaySeconds: 30
+        periodSeconds: 30
+        timeoutSeconds: 10
+        failureThreshold: 3
+      readinessProbe:
+        exec:
+          command: ["/scripts/db_health_check.sh", "--json"]
+        initialDelaySeconds: 10
+        periodSeconds: 15
+        timeoutSeconds: 10
+        failureThreshold: 2
       envFrom:
         - configMapRef:
             name: db-health-check-config
-        - secretRef:
-            name: db-credentials
       volumeMounts:
         - name: scripts
           mountPath: /scripts
           readOnly: true
+        - name: db-credentials
+          mountPath: /secrets/db-credentials
+          readOnly: true
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
   volumes:
     - name: scripts
       configMap:
         name: db-health-check-script
         defaultMode: 0755
+    - name: db-credentials
+      secret:
+        secretName: db-credentials
 
 ---
 # PodDisruptionBudget to ensure availability during health checks
@@ -367,6 +393,8 @@ kind: Deployment
 metadata:
   name: migration-job
   namespace: sahool
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=Custom internal sahool/migrations image without published digest
 spec:
   replicas: 1
   selector:
@@ -392,7 +420,7 @@ spec:
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             capabilities:
               drop:
@@ -401,25 +429,28 @@ spec:
             - /bin/sh
             - -c
             - |
-              apk add --no-cache bc coreutils
               echo "Waiting for database to be healthy..."
-              while true; do
-                if /scripts/db_health_check.sh --json; then
-                  echo "Database is healthy!"
-                  break
-                fi
+              # pg_isready only checks TCP connectivity - no password required
+              until pg_isready -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"; do
                 echo "Database not ready, waiting 5 seconds..."
                 sleep 5
               done
+              echo "Database is healthy!"
           envFrom:
             - configMapRef:
                 name: db-health-check-config
-            - secretRef:
-                name: db-credentials
+            # Note: password not needed by pg_isready (connectivity check only)
           volumeMounts:
             - name: scripts
               mountPath: /scripts
               readOnly: true
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
       containers:
         - name: migration
           image: sahool/migrations:latest
@@ -432,16 +463,45 @@ spec:
               drop:
                 - ALL
           command: ["npm", "run", "migrate"]
+          livenessProbe:
+            exec:
+              command: ["/scripts/db_health_check.sh", "--json"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["/scripts/db_health_check.sh", "--json"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 2
           envFrom:
             - configMapRef:
                 name: db-health-check-config
-            - secretRef:
-                name: db-credentials
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: db-credentials
+              mountPath: /secrets/db-credentials
+              readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
       volumes:
         - name: scripts
           configMap:
             name: db-health-check-script
             defaultMode: 0755
+        - name: db-credentials
+          secret:
+            secretName: db-credentials
       restartPolicy: OnFailure
 
 ---

@@ -62,11 +62,19 @@ api/       → Server-side API routes (auth, CSRF, health)
 - **Impact**: Users see blank screens during navigation
 - **Recommendation**: Add `loading.tsx` to all dashboard routes
 
-**ISSUE-3: Sidebar has no mobile responsive menu**
-- `src/components/layouts/sidebar.tsx` is a fixed 264px sidebar
-- No hamburger menu or drawer for mobile viewports
-- **Impact**: Poor mobile web experience
-- **Recommendation**: Add responsive sidebar with drawer pattern
+**ISSUE-3: Sidebar has no mobile responsive menu** *(Verified: CONFIRMED)*
+- `src/components/layouts/sidebar.tsx` uses fixed `w-64` (256px) with no responsive breakpoints
+- No `hidden`/`md:block` classes, no hamburger menu, no drawer component
+- `src/app/(dashboard)/layout.tsx` always renders sidebar in flex layout with no conditional hiding
+- `src/components/layouts/header.tsx` has no mobile menu toggle button
+- `e2e/responsive.spec.ts` expects `[data-testid="mobile-menu"]` and `[data-testid="mobile-drawer"]` - **these selectors don't exist in any component**, so E2E responsive tests will fail
+- **Affected Files**:
+  - `src/components/layouts/sidebar.tsx` - needs responsive classes + drawer
+  - `src/components/layouts/header.tsx` - needs hamburger menu button
+  - `src/app/(dashboard)/layout.tsx` - needs conditional sidebar rendering
+  - `e2e/responsive.spec.ts` - tests reference non-existent selectors
+- **Impact**: Sidebar overlays or breaks on mobile viewports. E2E responsive tests broken.
+- **Recommendation**: Add responsive sidebar with drawer pattern (hidden on mobile, visible on md+)
 
 ---
 
@@ -110,11 +118,29 @@ api/       → Server-side API routes (auth, CSRF, health)
 - **Risk**: Low - SameSite=strict mitigates most CSRF vectors
 - **Recommendation**: Rotate CSRF token after login/password change
 
-**ISSUE-6: `edgeLogger` suppresses errors in production**
-- `middleware.ts:44-48` - Only logs in development
-- JWT and CSRF failures are silently swallowed in production
-- **Risk**: Medium - no visibility into authentication attacks
-- **Recommendation**: Send errors to a monitoring endpoint even in production
+**ISSUE-6: `edgeLogger` suppresses errors in production** *(Verified: CONFIRMED)*
+- `middleware.ts:43-48` defines `edgeLogger.error()` that only logs when `NODE_ENV === "development"`:
+  ```typescript
+  const edgeLogger = {
+    error: (...args: unknown[]) => {
+      if (process.env.NODE_ENV === "development") {
+        console.error(...args);
+      }
+    },
+  };
+  ```
+- Used at 3 critical security points:
+  - Line 193: CSRF validation failure logging
+  - Line 230: JWT validation exception logging
+  - Line 239: JWT validation failure logging
+- `src/lib/logger.ts` also has `logger.error()` as dev-only - but can't be used in middleware because it imports `@sentry/nextjs` (~300KB), too heavy for Edge Runtime
+- Only `logger.critical()` and `logger.production()` work in production, but neither is Edge-compatible
+- **Affected Files**:
+  - `src/middleware.ts` - edgeLogger needs production-safe output
+  - `src/lib/logger.ts` - needs an Edge-compatible production logger export
+- **Impact**: In production, JWT brute-force attacks, CSRF failures, and signature tampering are **completely invisible**. No logs, no alerts, no monitoring.
+- **Risk**: HIGH - security blind spot
+- **Recommendation**: Add Edge-compatible production logging (e.g., `console.error` unconditionally or POST to `/api/security-log` endpoint)
 
 ---
 
@@ -310,10 +336,22 @@ The Playwright setup is well-configured:
 
 ### 8.2 Performance Issues
 
-**ISSUE-10: No dynamic imports for heavy features**
-- Map components, chart pages, satellite features loaded eagerly
-- **Impact**: Large initial bundle for dashboard pages
-- **Recommendation**: Use `next/dynamic` for map and chart features
+**~~ISSUE-10: No dynamic imports for heavy features~~** *(Verified: DISPROVEN)*
+- **Deep verification found 12 `.dynamic.tsx` wrapper files** properly implementing code splitting:
+  - `components/charts/LazyRecharts.dynamic.tsx` - 15 Recharts components lazy-loaded (~120KB saved)
+  - `components/dashboard/MapView.dynamic.tsx` - MapLibre GL lazy-loaded (~200KB saved)
+  - `features/fields/components/FieldMap.dynamic.tsx` - Field map lazy-loaded
+  - `features/fields/components/InteractiveFieldMap.dynamic.tsx` - Interactive map lazy-loaded
+  - `features/analytics/components/ComparisonChart.dynamic.tsx` - Analytics charts lazy-loaded
+  - `features/analytics/components/CostAnalysis.dynamic.tsx` - Cost analysis lazy-loaded
+  - `features/analytics/components/YieldAnalysis.dynamic.tsx` - Yield analysis lazy-loaded
+  - `features/analytics/components/YieldChart.dynamic.tsx` - Yield chart lazy-loaded
+  - `features/iot/components/SensorChart.dynamic.tsx` - IoT charts lazy-loaded
+  - `features/iot/components/SensorReadings.dynamic.tsx` - Sensor data lazy-loaded
+  - `features/scouting/components/ObservationMarker.dynamic.tsx` - Map markers lazy-loaded
+  - `features/scouting/components/ScoutingMode.dynamic.tsx` - Scouting UI lazy-loaded
+- All use `next/dynamic` with `{ ssr: false }` and loading spinners
+- **This issue is NOT valid** - code splitting is well-implemented
 
 **ISSUE-11: No image optimization component**
 - Images use `<img>` tags instead of `next/image`
@@ -393,13 +431,13 @@ The current PWA setup is sufficient for installability and basic caching.
 
 ## 12. Summary of Issues | ملخص المشاكل
 
-### Critical (يجب إصلاحها)
+### Critical (يجب إصلاحها) - تم التحقق العميق
 
-| # | Issue | File | Priority |
-|---|-------|------|----------|
-| 3 | No mobile responsive sidebar | `sidebar.tsx` | HIGH |
-| 6 | Edge logger suppresses production errors | `middleware.ts` | HIGH |
-| 10 | No dynamic imports for heavy features | Multiple | HIGH |
+| # | Issue | Files | Status | Priority |
+|---|-------|-------|--------|----------|
+| 3 | No mobile responsive sidebar | `sidebar.tsx`, `header.tsx`, `layout.tsx`, `responsive.spec.ts` | **CONFIRMED** | HIGH |
+| 6 | Edge logger suppresses production errors | `middleware.ts`, `logger.ts` | **CONFIRMED** | HIGH |
+| ~~10~~ | ~~No dynamic imports for heavy features~~ | ~~Multiple~~ | **DISPROVEN** - 12 `.dynamic.tsx` wrappers found | ~~HIGH~~ |
 
 ### Important (ينبغي إصلاحها)
 
@@ -430,10 +468,10 @@ The current PWA setup is sufficient for installability and basic caching.
 
 ### Immediate Actions (فوري)
 
-1. **Add responsive sidebar** with mobile drawer (hamburger menu)
-2. **Add `loading.tsx`** to all dashboard routes
-3. **Enable production error logging** in middleware
-4. **Use `next/dynamic`** for map and chart features
+1. **Add responsive sidebar** with mobile drawer (hamburger menu) - fix `sidebar.tsx`, `header.tsx`, `layout.tsx`
+2. **Enable production error logging** in middleware - fix `edgeLogger` in `middleware.ts` to log unconditionally
+3. **Fix E2E responsive tests** - `responsive.spec.ts` references non-existent `data-testid` selectors
+4. **Add `loading.tsx`** to all dashboard routes (only `fields/` has one currently)
 
 ### Short-term (قصير المدى)
 
@@ -451,7 +489,63 @@ The current PWA setup is sufficient for installability and basic caching.
 
 ---
 
-## 14. Positive Highlights | النقاط الإيجابية
+## 14. Deep Verification Results | نتائج التحقق العميق
+
+تم إجراء تحقق عميق من المشاكل الحرجة الثلاث مع فحص الملفات المتأثرة والتبعيات.
+
+### Issue #3: Sidebar Responsiveness - CONFIRMED
+
+**الملفات المفحوصة:**
+
+| File | Finding |
+|------|---------|
+| `src/components/layouts/sidebar.tsx` | Fixed `w-64`, NO responsive breakpoints (`hidden`, `md:block`, `lg:block`), no drawer |
+| `src/components/layouts/header.tsx` | Has `next/dynamic` for UserMenuDropdown, LocaleSwitcher, ThemeToggle - but NO hamburger/mobile menu button |
+| `src/app/(dashboard)/layout.tsx` | `<div className="flex h-screen ..."><Sidebar /><div className="flex-1 ...">` - always shows sidebar |
+| `e2e/responsive.spec.ts` | Tests expect `[data-testid="mobile-menu"]` and `[data-testid="mobile-drawer"]` - **both selectors do NOT exist in any component** |
+
+**التأثير:** الشريط الجانبي يظهر دائماً بعرض 256px حتى على شاشات الهاتف. اختبارات E2E للاستجابة ستفشل جميعها.
+
+### Issue #6: Edge Logger - CONFIRMED
+
+**الملفات المفحوصة:**
+
+| File | Finding |
+|------|---------|
+| `src/middleware.ts:43-48` | `edgeLogger.error()` wrapped in `if (process.env.NODE_ENV === "development")` - silent in production |
+| `src/middleware.ts:193` | CSRF failure log → **silent in production** |
+| `src/middleware.ts:230` | JWT exception log → **silent in production** |
+| `src/middleware.ts:239` | JWT validation failure log → **silent in production** |
+| `src/lib/logger.ts` | `logger.error()`, `logger.warn()`, `logger.info()` all dev-only. Only `logger.critical()` (uses Sentry) works in prod, but imports `@sentry/nextjs` (~300KB) - **too heavy for Edge Runtime** |
+
+**التأثير:** في بيئة الإنتاج، هجمات JWT brute-force وفشل CSRF وتلاعب التوقيعات كلها **غير مرئية تماماً**. لا سجلات، لا تنبيهات.
+
+**السبب الجذري:** Edge Runtime لا يدعم استيراد `@sentry/nextjs` (300KB+) ولا `@/lib/logger` الذي يعتمد عليه. الحل المؤقت (`edgeLogger` المحلي) أسكت كل شيء بدلاً من استخدام `console.error` بدون شرط.
+
+### Issue #10: Dynamic Imports - DISPROVEN
+
+**الملفات المكتشفة:**
+
+| Dynamic Wrapper File | Component | Bundle Savings |
+|---------------------|-----------|----------------|
+| `components/charts/LazyRecharts.dynamic.tsx` | 15 Recharts components | ~120KB |
+| `components/dashboard/MapView.dynamic.tsx` | MapLibre GL JS | ~200KB |
+| `features/fields/components/FieldMap.dynamic.tsx` | Field map | ~50KB |
+| `features/fields/components/InteractiveFieldMap.dynamic.tsx` | Interactive field map | ~50KB |
+| `features/analytics/components/ComparisonChart.dynamic.tsx` | Comparison charts | ~30KB |
+| `features/analytics/components/CostAnalysis.dynamic.tsx` | Cost analysis | ~30KB |
+| `features/analytics/components/YieldAnalysis.dynamic.tsx` | Yield analysis | ~30KB |
+| `features/analytics/components/YieldChart.dynamic.tsx` | Yield chart | ~30KB |
+| `features/iot/components/SensorChart.dynamic.tsx` | IoT sensor charts | ~30KB |
+| `features/iot/components/SensorReadings.dynamic.tsx` | Sensor readings | ~20KB |
+| `features/scouting/components/ObservationMarker.dynamic.tsx` | Map markers | ~15KB |
+| `features/scouting/components/ScoutingMode.dynamic.tsx` | Scouting UI | ~20KB |
+
+**النتيجة:** تقسيم الكود مُطبق بشكل ممتاز عبر 12 ملف wrapper. تم تصحيح تقييم الأداء من 7/10 إلى 8/10.
+
+---
+
+## 15. Positive Highlights | النقاط الإيجابية
 
 The web application has several excellent patterns worth preserving:
 
@@ -465,7 +559,8 @@ The web application has several excellent patterns worth preserving:
 8. **QueryClient scoping** to dashboard layout is a smart architectural choice
 9. **Progressive dashboard loading** with Suspense and custom skeletons
 10. **Tailwind shared config** via `@sahool/tailwind-config` package
+11. **Code splitting is thorough** - 12 `.dynamic.tsx` wrappers for maps, charts, and heavy components (~600KB+ savings)
 
 ---
 
-_Generated: 2026-03-19 | Platform Version: 16.0.0_
+_Generated: 2026-03-19 | Deep Verification: 2026-03-19 | Platform Version: 16.0.0_

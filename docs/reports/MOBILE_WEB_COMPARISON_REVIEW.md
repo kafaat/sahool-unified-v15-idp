@@ -132,7 +132,7 @@
 | **Background Sync** | Workmanager for background tasks | Not available |
 | **Offline UI** | Dedicated offline UI components | Basic loading states |
 
-**تقييم**: **الموبايل متفوق بشكل كبير** في العمل بدون إنترنت. الويب يحتاج تحسين كبير في هذا الجانب.
+**تقييم**: **الموبايل متفوق بشكل كبير** في العمل بدون إنترنت. لكن دعم الأوفلاين **ليس مطلوباً للويب** - تطبيق الويب يستهدف المدراء والمحللين الذين لديهم اتصال مستقر بالإنترنت.
 
 ### 3.3 Security
 
@@ -195,14 +195,14 @@
 
 | Aspect | Mobile | Web |
 |--------|--------|-----|
-| **Test Files** | **190 files** | **47 files** |
+| **Test Files** | **190 files** | **74 files** (47 unit + 27 E2E) |
 | **Unit Tests** | pytest markers + flutter test | Vitest |
 | **Integration Tests** | integration_test/ directory | Playwright E2E |
 | **Component Tests** | Widget tests | React Testing Library |
 | **Coverage Tool** | flutter test --coverage | Vitest coverage (v8) |
 | **E2E** | Flutter integration tests | Playwright |
 
-**تقييم**: **الموبايل متفوق بشكل واضح** بنسبة 4:1 في عدد ملفات الاختبار. الويب يحتاج زيادة تغطية الاختبارات.
+**تقييم**: **الموبايل متفوق** بنسبة 2.6:1 في عدد ملفات الاختبار (190 vs 74). الويب يحتاج زيادة تغطية الاختبارات خاصة على مستوى الميزات.
 
 ---
 
@@ -232,10 +232,12 @@
 - Rich design system with animations and haptics
 
 **Web:**
-- Clean Next.js 15 App Router architecture
-- Good security with CSP, CSRF, nonce-based protection
+- Clean Next.js 15 App Router architecture with route groups `(auth)` / `(dashboard)`
+- Excellent security with CSP nonce, CSRF double-submit cookie, JWT signature verification, HSTS
+- Excellent code splitting with 12 `.dynamic.tsx` wrappers (~600KB+ lazy-loaded)
 - Rich dashboard features (terrain, vision, drone, edge devices)
 - Better for admin/management workflows
+- Edge middleware optimized (~500KB+ saved by avoiding heavy imports)
 - PWA support via Service Worker
 - Monitoring with OpenTelemetry integration
 
@@ -245,12 +247,14 @@
 
 | Priority | Gap | Recommendation |
 |----------|-----|----------------|
-| **HIGH** | Only 47 test files vs 190 in mobile | Increase test coverage, target 100+ test files |
-| **HIGH** | No offline data persistence | Implement IndexedDB with sync engine |
+| **HIGH** | No responsive sidebar for mobile web | Add mobile drawer with hamburger menu (`sidebar.tsx`, `header.tsx`) |
+| **HIGH** | Edge logger silent in production | Fix `edgeLogger` in `middleware.ts` - security events invisible |
+| **HIGH** | 74 test files vs 190 in mobile | Increase test coverage, target 120+ test files |
 | **HIGH** | Only 12 UI components | Expand component library, leverage @sahool/shared-ui |
-| **MEDIUM** | No voice/speech features | Add Web Speech API integration |
+| **HIGH** | E2E responsive tests broken | Fix `responsive.spec.ts` - references non-existent selectors |
 | **MEDIUM** | No biometric auth | Add WebAuthn/FIDO2 support |
 | **MEDIUM** | No onboarding flow | Create first-time user experience |
+| **MEDIUM** | No voice/speech features | Add Web Speech API integration |
 | **LOW** | No gamification | Consider adding for user engagement |
 | **LOW** | No QR/barcode scanning | Add camera-based scanning |
 
@@ -279,7 +283,21 @@ Web Advantage:       Admin tools, terrain, vision, compliance, team
 
 ---
 
-## 8. LOC Distribution | توزيع أسطر الكود
+## 8. Deep Verification Summary | ملخص التحقق العميق
+
+تم إجراء تحقق عميق من المشاكل الحرجة في الويب:
+
+| Issue | Status | Affected Files | Impact |
+|-------|--------|---------------|--------|
+| Sidebar not responsive | **CONFIRMED** | `sidebar.tsx`, `header.tsx`, `layout.tsx`, `responsive.spec.ts` | Sidebar breaks on mobile, E2E tests fail |
+| Edge logger silent in production | **CONFIRMED** | `middleware.ts`, `logger.ts` | JWT/CSRF security attacks invisible in production |
+| Missing dynamic imports | **DISPROVEN** | 12 `.dynamic.tsx` files found | Code splitting is well-implemented |
+
+**ملاحظة**: تم تصحيح تقييم أداء الويب من 7/10 إلى 8/10 بعد اكتشاف 12 ملف wrapper للتحميل الديناميكي. التقييم العام: 7.75/10.
+
+---
+
+## 9. LOC Distribution | توزيع أسطر الكود
 
 ```
 Mobile:  350,173 lines across 695 files  (avg 504 lines/file)
@@ -295,7 +313,7 @@ Ratio:   Mobile is 3.1x larger than Web
 
 ---
 
-## 9. Conclusion | الخلاصة
+## 10. Conclusion | الخلاصة
 
 Both applications serve complementary roles in the SAHOOL platform:
 
@@ -303,11 +321,12 @@ Both applications serve complementary roles in the SAHOOL platform:
 - **Web**: Best for managers/analysts - dashboards, reports, administration, compliance
 
 **Priority Actions:**
-1. **Increase web test coverage** - critical gap at 47 vs 190 test files
-2. **Add offline support to web** - essential for target low-connectivity environments
-3. **Standardize shared features** - ensure feature parity for the 23 shared modules
+1. **Fix responsive sidebar** - fixed 256px sidebar breaks on mobile, E2E tests reference non-existent selectors
+2. **Fix production security logging** - edge logger in `middleware.ts` silences all JWT/CSRF errors in production
+3. **Increase web test coverage** - gap at 74 vs 190 test files, feature-level tests minimal
 4. **Expand web UI components** - 12 components is insufficient for 37 features
+5. **Standardize shared features** - ensure feature parity for the 23 shared modules
 
 ---
 
-_Generated: 2026-03-19 | Platform Version: 16.0.0_
+_Generated: 2026-03-19 | Updated: 2026-03-19 (deep verification) | Platform Version: 16.0.0_

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import base64
 import json
+import re
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -546,11 +547,11 @@ class TestTenantIsolation:
         ملف ترحيل RLS يجب أن يغطي جميع الجداول الأساسية متعددة المستأجرين
         """
         critical_tables = ["fields", "tasks", "orders", "equipment"]
-        import re
-
         for table in critical_tables:
             pattern = (
-                rf"ALTER\s+TABLE\s+(?:\w+\.)?{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
+                rf"ALTER\s+TABLE\s+"
+                rf"(?:[A-Za-z_][\w]*\.)?"  # optional schema prefix, e.g. geo.fields
+                rf"{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
             )
             assert re.search(pattern, rls_sql, re.IGNORECASE), (
                 f"RLS not enabled on critical table: {table}"

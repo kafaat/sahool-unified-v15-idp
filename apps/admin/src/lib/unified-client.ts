@@ -61,9 +61,10 @@ export const sahoolClient = new SahoolApiClient(
           });
           if (!res.ok) return null;
           const data = await res.json();
-          if (data.token) {
-            Cookies.set("sahool_admin_token", data.token);
-            return data.token;
+          const token = data.access_token ?? data.token;
+          if (token) {
+            Cookies.set("sahool_admin_token", token);
+            return token;
           }
           return null;
         } catch {

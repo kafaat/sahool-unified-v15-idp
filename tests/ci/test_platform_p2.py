@@ -18,6 +18,8 @@ Run:
 from __future__ import annotations
 
 import base64
+import hmac
+import hashlib
 import json
 import re
 import time
@@ -454,8 +456,22 @@ class TestRateLimitingAndSecurity:
                     options={"verify_aud": False},
                 )
         except ImportError:
-            # Without PyJWT, verify signature mismatch structurally
-            assert tampered_token != token, "Tampered token must differ from original"
+            # Without PyJWT, perform minimal HS256 signature verification using stdlib.
+            def _verify_hs256(token: str, secret: str) -> None:
+                header_b64, payload_b64, signature_b64 = token.split(".")
+                signing_input = f"{header_b64}.{payload_b64}".encode()
+                # Base64url-decode the provided signature (add padding if needed)
+                sig_bytes = base64.urlsafe_b64decode(signature_b64 + "==")
+                expected_sig = hmac.new(
+                    secret.encode(),
+                    signing_input,
+                    hashlib.sha256,
+                ).digest()
+                if not hmac.compare_digest(sig_bytes, expected_sig):
+                    raise ValueError("Invalid JWT signature")
+
+            with pytest.raises(ValueError):
+                _verify_hs256(tampered_token, JWT_SECRET)
 
     def test_security_headers_in_kong_config(self, kong: dict):
         """

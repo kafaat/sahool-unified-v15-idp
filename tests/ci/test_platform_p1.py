@@ -549,7 +549,9 @@ class TestTenantIsolation:
         import re
 
         for table in critical_tables:
-            pattern = rf"ALTER\s+TABLE\s+{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
+            pattern = (
+                rf"ALTER\s+TABLE\s+(?:\w+\.)?{re.escape(table)}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY"
+            )
             assert re.search(pattern, rls_sql, re.IGNORECASE), (
                 f"RLS not enabled on critical table: {table}"
             )

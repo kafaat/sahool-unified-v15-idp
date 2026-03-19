@@ -17,7 +17,7 @@
 | **Lines of Code** | ~350,173 | ~113,410 |
 | **Test Files** | 190 test files | 47 test files |
 | **Features** | 56 feature modules | 37 feature modules |
-| **UI Components** | Custom widgets + Material | 12 core UI components + Tailwind |
+| **UI Components** | Custom widgets + Material | 266 components (10 base UI + 26 shared + 99 feature + 131 page/layout) + Tailwind |
 | **State Management** | Riverpod 2.6.x | TanStack React Query 5.x |
 | **Maps** | flutter_map 8.1.x | Leaflet 1.9.4 + MapLibre GL 4.7.1 |
 
@@ -167,7 +167,7 @@
 
 | Aspect | Mobile | Web |
 |--------|--------|-----|
-| **Component Library** | Custom widgets (48+ core modules) | 12 core UI components |
+| **Component Library** | Custom widgets (48+ core modules) | 266 total components (10 base UI primitives + 256 feature/page components) |
 | **Styling** | Material Design + custom theme | Tailwind CSS 3.4.x |
 | **Icons** | Cupertino + Material + SVG | Lucide React |
 | **Charts** | FL Chart | Recharts |
@@ -178,7 +178,7 @@
 | **Theme** | Dark/Light with custom theme engine | ThemeToggle component |
 | **RTL Support** | Built-in Flutter RTL | CSS direction |
 
-**تقييم**: الموبايل لديه نظام تصميم أكثر شمولاً مع 48 وحدة أساسية، بينما الويب يعتمد على 12 مكون UI أساسي فقط.
+**تقييم**: الموبايل لديه نظام تصميم أكثر شمولاً مع 48 وحدة أساسية. الويب لديه 266 مكون إجمالي (10 مكونات UI أساسية + 26 مكون مشترك + 99 مكون ميزات + 131 صفحة/تخطيط)، وهو كافٍ لتغطية 37 ميزة.
 
 ### 4.2 Localization (التعريب)
 
@@ -250,7 +250,7 @@
 | **HIGH** | No responsive sidebar for mobile web | Add mobile drawer with hamburger menu (`sidebar.tsx`, `header.tsx`) |
 | **HIGH** | Edge logger silent in production | Fix `edgeLogger` in `middleware.ts` - security events invisible |
 | **HIGH** | 74 test files vs 190 in mobile | Increase test coverage, target 120+ test files |
-| **HIGH** | Only 12 UI components | Expand component library, leverage @sahool/shared-ui |
+| **LOW** | Base UI primitives limited to 10 | ~~CORRECTED: 266 total components exist~~ — consider expanding `components/ui/` reusable primitives |
 | **HIGH** | E2E responsive tests broken | Fix `responsive.spec.ts` - references non-existent selectors |
 | **MEDIUM** | No biometric auth | Add WebAuthn/FIDO2 support |
 | **MEDIUM** | No onboarding flow | Create first-time user experience |
@@ -324,7 +324,7 @@ Both applications serve complementary roles in the SAHOOL platform:
 1. **Fix responsive sidebar** - fixed 256px sidebar breaks on mobile, E2E tests reference non-existent selectors
 2. **Fix production security logging** - edge logger in `middleware.ts` silences all JWT/CSRF errors in production
 3. **Increase web test coverage** - gap at 74 vs 190 test files, feature-level tests minimal
-4. **Expand web UI components** - 12 components is insufficient for 37 features
+4. ~~**Expand web UI components**~~ - CORRECTED: Web has 266 components total (10 base UI + 26 shared + 99 feature + 131 page/layout), sufficient for 37 features
 5. **Standardize shared features** - ensure feature parity for the 23 shared modules
 
 ---

@@ -80,7 +80,7 @@ class TestContainerHealth:
     # -----------------------------------------------------------------------
     async def test_database_migrations_applied(self, db_connection):
         """كل الـ migrations تم تطبيقها – all DB migrations have been applied."""
-        # Verify core tables that must exist after migrations
+        # Verify core tables that must exist after migrations, regardless of schema
         required_tables = [
             "users",
             "farms",
@@ -91,9 +91,14 @@ class TestContainerHealth:
             "tasks",
         ]
         existing = await db_connection.fetch(
-            "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+            """
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name = ANY($1::text[])
+            """,
+            required_tables,
         )
-        existing_names = {r["tablename"] for r in existing}
+        existing_names = {r["table_name"] for r in existing}
         missing = [t for t in required_tables if t not in existing_names]
         assert not missing, f"جداول مفقودة – missing tables: {missing}"
 

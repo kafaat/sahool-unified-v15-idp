@@ -302,14 +302,28 @@ spec:
         - port: 8002
           protocol: TCP
   egress:
+    # Allow database connectivity to Postgres and PgBouncer pods in the same namespace
     - to:
         - podSelector:
             matchLabels:
-              app: sahool
+              app: postgres
+        - podSelector:
+            matchLabels:
+              app: pgbouncer
       ports:
         - port: 5432
           protocol: TCP
         - port: 6432
+          protocol: TCP
+    # Allow DNS queries to the cluster DNS service
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
           protocol: TCP
 
 ---
@@ -547,7 +561,6 @@ spec:
         - name: db-credentials
           secret:
             secretName: db-credentials
-      restartPolicy: OnFailure
 
 ---
 # NetworkPolicy for db-health-check-manual pod

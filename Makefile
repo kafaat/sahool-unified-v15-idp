@@ -298,8 +298,10 @@ test-all: ## تشغيل كل الاختبارات مع Docker - Run all tests wi
 		--cov=shared \
 		--cov-report=html \
 		--cov-report=term-missing \
-		-n auto
-	docker compose -f $(COMPOSE_TEST) down
+		-n auto; \
+	STATUS=$$?; \
+	docker compose -f $(COMPOSE_TEST) down; \
+	exit $$STATUS
 	@echo "$(GREEN)✅ اكتملت جميع الاختبارات - All tests complete!$(RESET)"
 
 test-contract: ## تشغيل اختبارات العقود - Run contract tests

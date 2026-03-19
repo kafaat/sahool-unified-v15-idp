@@ -544,9 +544,6 @@ class TestFarmerCompleteJourney:
         register → create field → draw boundary → view NDVI imagery.
         رحلة كاملة: تسجيل → إنشاء حقل → رسم الحدود → استعراض NDVI
         """
-        import os  # noqa: PLC0415
-        import uuid  # noqa: PLC0415
-
         base_url = os.getenv("WEB_APP_URL", "http://localhost:3000")
         try:
             await page.goto(base_url, timeout=15000)

@@ -43,8 +43,6 @@ async def db_connection():
 
     try:
         yield conn
-        if conn is not None:
-            await conn.close()
-    except Exception:
+    finally:
         if conn is not None:
             await conn.close()

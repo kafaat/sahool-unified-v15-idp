@@ -404,7 +404,7 @@ class TestJWTPropagationThroughKong:
         """Load Kong YAML config (skip if absent)."""
         import yaml
 
-        for path in (KONG_CONFIG_PATH, KONG_GATEWAY_CONFIG_PATH):
+        for path in (KONG_GATEWAY_CONFIG_PATH, KONG_CONFIG_PATH):
             if path.exists():
                 with open(path, encoding="utf-8") as fh:
                     return yaml.safe_load(fh)

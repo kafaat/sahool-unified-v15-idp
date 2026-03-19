@@ -65,7 +65,7 @@ def _load_kong() -> dict:
             with open(path, encoding="utf-8") as fh:
                 return yaml.safe_load(fh)
     pytest.skip("Kong configuration file not found")
-
+    return
 
 # ---------------------------------------------------------------------------
 # P0-1  test_all_containers_running

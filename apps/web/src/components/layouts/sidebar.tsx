@@ -10,8 +10,14 @@
  *
  * Modeled after John Deere Operations Center, Trimble Ag, and similar
  * agricultural platforms where farmers see only their operational tools.
+ *
+ * Responsive behaviour:
+ * - Desktop (md+): Static sidebar visible in flex layout
+ * - Mobile (<md): Hidden by default, shown as a drawer overlay via
+ *   the hamburger button in Header. Parent layout passes `isOpen`
+ *   and `onClose` props.
  */
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -31,6 +37,7 @@ import {
   Truck,
   AlertTriangle,
   Bell,
+  X,
 } from "lucide-react";
 
 interface NavItem {
@@ -126,30 +133,77 @@ const navItems: NavItem[] = [
   },
 ];
 
-export const Sidebar = React.memo(function Sidebar() {
+interface SidebarProps {
+  /** Whether the mobile drawer is open (ignored on md+ viewports) */
+  isOpen?: boolean;
+  /** Callback to close the mobile drawer */
+  onClose?: () => void;
+}
+
+export const Sidebar = React.memo(function Sidebar({
+  isOpen = false,
+  onClose,
+}: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
 
-  return (
+  // Close drawer when route changes (user navigated)
+  useEffect(() => {
+    if (isOpen && onClose) {
+      onClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on pathname change
+  }, [pathname]);
+
+  // Close drawer on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  const handleNavClick = useCallback(() => {
+    // On mobile, close drawer after clicking a link
+    onClose?.();
+  }, [onClose]);
+
+  const sidebarContent = (
     <aside
-      className="w-64 bg-white border-e border-gray-200 flex flex-col h-full"
+      className={clsx(
+        "w-64 bg-white dark:bg-gray-800 border-e border-gray-200 dark:border-gray-700 flex flex-col h-full",
+      )}
+      data-testid="desktop-sidebar"
       role="navigation"
       aria-label={t("mainNav")}
     >
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
+      {/* Logo + Close button (mobile only) */}
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sahool-green-600 rounded-lg flex items-center justify-center">
             <div className="w-6 h-6 bg-white rounded-full" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               {tCommon("appName")}
             </h1>
-            <p className="text-xs text-gray-500">{tCommon("tagline")}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{tCommon("tagline")}</p>
           </div>
         </Link>
+        {/* Close button - visible only inside mobile drawer */}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
+            aria-label={t("closeMenu") || "Close menu"}
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -164,12 +218,14 @@ export const Sidebar = React.memo(function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch={false}
+                  onClick={handleNavClick}
                   className={clsx(
                     "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                    "hover:bg-sahool-green-50 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
+                    "hover:bg-sahool-green-50 dark:hover:bg-gray-700 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
                     isActive
-                      ? "bg-sahool-green-100 text-sahool-green-700 font-medium"
-                      : "text-gray-700",
+                      ? "bg-sahool-green-100 dark:bg-sahool-green-900/30 text-sahool-green-700 dark:text-sahool-green-400 font-medium"
+                      : "text-gray-700 dark:text-gray-300",
                   )}
                   aria-current={isActive ? "page" : undefined}
                   aria-label={t(item.labelKey)}
@@ -178,8 +234,8 @@ export const Sidebar = React.memo(function Sidebar() {
                     className={clsx(
                       "w-5 h-5 flex-shrink-0",
                       isActive
-                        ? "text-sahool-green-600"
-                        : "text-gray-400 group-hover:text-sahool-green-600",
+                        ? "text-sahool-green-600 dark:text-sahool-green-400"
+                        : "text-gray-400 group-hover:text-sahool-green-600 dark:group-hover:text-sahool-green-400",
                     )}
                     aria-hidden="true"
                   />
@@ -196,11 +252,41 @@ export const Sidebar = React.memo(function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
           <div className="font-medium">{t("version")} 16.0.0</div>
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar - always visible on md+ */}
+      <div className="hidden md:block h-full">{sidebarContent}</div>
+
+      {/* Mobile drawer overlay */}
+      {isOpen && (
+        <div className="md:hidden fixed inset-0 z-40">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 transition-opacity"
+            onClick={onClose}
+            aria-hidden="true"
+            data-testid="mobile-drawer-backdrop"
+          />
+          {/* Drawer panel */}
+          <div
+            className="fixed inset-y-0 start-0 z-50 w-64 shadow-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("mainNav")}
+            data-testid="mobile-drawer"
+          >
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 });

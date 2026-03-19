@@ -11,7 +11,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, Menu } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import { Badge } from "@/components/ui/badge";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
@@ -25,7 +25,12 @@ const UserMenuDropdown = dynamic(
   { ssr: false },
 );
 
-export const Header = React.memo(function Header() {
+interface HeaderProps {
+  /** Callback to toggle the mobile sidebar drawer */
+  onMenuToggle?: () => void;
+}
+
+export const Header = React.memo(function Header({ onMenuToggle }: HeaderProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
   const t = useTranslations("common");
@@ -58,7 +63,19 @@ export const Header = React.memo(function Header() {
     <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between transition-colors">
       {/* Left section */}
       <div className="flex items-center gap-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        {/* Hamburger menu - mobile only */}
+        {onMenuToggle && (
+          <button
+            type="button"
+            onClick={onMenuToggle}
+            className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
+            data-testid="mobile-menu"
+            aria-label={t("openMenu") || "Open menu"}
+          >
+            <Menu className="w-6 h-6" aria-hidden="true" />
+          </button>
+        )}
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
           {t("welcomeMessage")}, {user?.name_ar || user?.name}
         </h2>
         <Badge variant="success" size="sm">

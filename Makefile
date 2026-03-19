@@ -292,8 +292,7 @@ test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in D
 
 test-all: ## تشغيل كل الاختبارات مع Docker - Run all tests with Docker stack
 	@echo "$(BLUE)🧪 تشغيل كل الاختبارات - Running all tests...$(RESET)"
-	docker compose -f $(COMPOSE_TEST) up -d
-	sleep 5
+	docker compose -f $(COMPOSE_TEST) up -d --wait
 	$(PYTHON) -m pytest tests/ -v --tb=short \
 		--cov=apps/services \
 		--cov=shared \

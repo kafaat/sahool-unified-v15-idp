@@ -25,6 +25,7 @@ import os
 
 import httpx
 import pytest
+from shared.events.streams import STREAMS
 
 pytestmark = [pytest.mark.infrastructure]
 
@@ -206,12 +207,7 @@ class TestContainerHealth:
 
         try:
             js = nc.jetstream()
-            required_streams = [
-                "SENSORS",
-                "IRRIGATION_EVENTS",
-                "FIELD_ALERTS",
-                "SATELLITE_JOBS",
-            ]
+            required_streams = list(STREAMS)
             missing = []
             for stream in required_streams:
                 try:

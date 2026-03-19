@@ -386,21 +386,12 @@ class TestE2ECompleteFarmerJourney:
 class TestRateLimitingAndSecurity:
     """
     Validate rate-limiting configuration in Kong and in-process security controls:
-    - Per-tier rate limit thresholds
+    - Rate limiting is configured on production services
     - JWT tampering detection
     - CORS policy
     - Security response headers
     اختبارات تحديد معدل الطلبات والأمان
     """
-
-    # Expected per-minute limits per tier (from CLAUDE.md)
-    RATE_LIMITS = {
-        "starter": 30,
-        "professional": 60,
-        "enterprise": 120,
-        "research": 120,
-        "internal": 1000,
-    }
 
     @pytest.fixture(scope="class")
     def kong(self) -> dict:
@@ -408,8 +399,7 @@ class TestRateLimitingAndSecurity:
 
     def test_rate_limiting(self, kong: dict):
         """
-        Kong must configure rate-limiting on production services with the
-        correct per-tier thresholds.
+        Kong must configure rate-limiting on production services.
         Kong يجب أن يكوّن تحديد معدل الطلبات للخدمات
         """
         rate_limited_services = [

@@ -306,6 +306,7 @@ class TestAuthIntegration:
             )
             if reg_resp.status_code == 201:
                 return reg_resp.json().get("access_token", f"mock-token-{tenant}")
-        except Exception:
-            pass
+        except Exception as exc:
+            # Registration may not be available in some environments; fall back to mock token.
+            print(f"[AuthIntegration] _get_token: registration failed, falling back to mock token: {exc}")
         return f"mock-jwt-token-{tenant}"

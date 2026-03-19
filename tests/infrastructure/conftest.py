@@ -34,6 +34,7 @@ async def db_connection():
     db_url = os.getenv("DATABASE_URL", "")
     if not db_url:
         pytest.skip("DATABASE_URL not set – infrastructure tests require a live DB")
+    conn = None
 
     try:
         conn = await asyncpg.connect(db_url)
@@ -42,5 +43,6 @@ async def db_connection():
 
     try:
         yield conn
-    finally:
+        if conn is not None:
+            await conn.close()
         await conn.close()

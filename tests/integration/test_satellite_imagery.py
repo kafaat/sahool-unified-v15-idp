@@ -203,26 +203,22 @@ class TestSatelliteImagery:
         field_id = field_with_boundary.id
 
         try:
+            # Simulate Sentinel-2 timeout; if the patch target is invalid in this
+            # environment, skip rather than silently re-running without the mock.
             with patch(_SENTINEL_PATCH_PATH, side_effect=TimeoutError("Sentinel timeout")):
                 resp = await authenticated_client.get(
                     f"/api/v1/fields/{field_id}/imagery",
                     params={"index": "NDVI", "date_from": "2026-01-01"},
                 )
-        except Exception:
-            # Patch target not importable in this environment — test the behaviour
-            # by calling the endpoint without mock (fallback logic tested elsewhere)
-            resp = await authenticated_client.get(
-                f"/api/v1/fields/{field_id}/imagery",
-                params={"index": "NDVI", "date_from": "2026-01-01"},
-            )
+        except (AttributeError, ImportError, ModuleNotFoundError) as exc:
+            pytest.skip(f"Sentinel provider patch target not importable: {exc}")
 
         # يجب أن ينجح مع المزود الاحتياطي — should succeed with fallback provider
         assert resp.status_code == 200, f"Provider fallback failed: {resp.text}"
 
         provider = resp.json().get("provider")
-        if provider is not None:
-            # إذا كان المزود الأصلي فشل، يجب أن يُستخدم المزود الاحتياطي
-            assert provider in ("landsat", "sentinel-2"), f"Unexpected provider: {provider}"
+        # في حالة فشل Sentinel-2 يجب أن يتحول المزود إلى Landsat
+        assert provider == "landsat", f"Expected fallback provider 'landsat', got: {provider}"
 
     @pytest.mark.asyncio
     async def test_imagery_cached_after_first_fetch(

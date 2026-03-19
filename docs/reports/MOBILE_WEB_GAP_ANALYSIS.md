@@ -728,4 +728,95 @@ packages/shared-types/src/
 
 ---
 
+## Part 10: Web Feature Completeness Audit
+
+### Full Features (complete UI + route)
+
+| Feature | Route | Client Lines | Key Components |
+|---------|-------|-------------|----------------|
+| `fields` | `/fields`, `/fields/[id]` | 131 + 589 | InteractiveFieldMap, FieldDashboard, NDVI overlay, 24 components |
+| `irrigation` | `/irrigation` | 569 | Smart scheduling, recommendations |
+| `marketplace` | `/marketplace` | 528 | Product grid, cart, filtering |
+| `pivot-irrigation` | `/pivot-irrigation` | 470 | Dedicated pivot management |
+| `notifications` | `/notifications` | 429 | Full notification management |
+| `alerts` | `/alerts` | 487 | Alert list with filters |
+| `satellite` | `/satellite` | 408 | NDVI visualization |
+| `sensors` | `/sensors` | 346 | IoT dashboard |
+| `copilot` | `/copilot` | ~800 (inline) | SSE streaming AI chat |
+| `dashboard` | `/dashboard` | 240 | Stats, quick actions, weather widget |
+
+### Medium Features (route exists, limited components)
+
+| Feature | Route | Lines | Notes |
+|---------|-------|-------|-------|
+| `compliance` | `/compliance` | 287 | Status/certification lists, no edit forms |
+| `disaster-assessment` | `/disaster-assessment` | 332 | Risk cards, disaster events |
+| `logistics` | `/logistics` | 229 | Shipment list, status filter |
+| `documents` | `/documents` | 231 | File list; **Upload button DISABLED** |
+| `seasons` | `/seasons` | 226 | Season list with budget/yield |
+| `users` | `/users` | 216 | User list; **Add User DISABLED** |
+| `crops` | `/crops` | 213 | Crop list, no planning/rotation |
+| `research` | `/research` | 212 | Research list |
+| `farms` | `/farms` | 174 | Farm list; **Add Farm DISABLED** |
+| `GDD` | `/precision-agriculture/gdd` | 270 | Growing degree days |
+| `spray` | `/precision-agriculture/spray` | 308 | Spray planning |
+| `VRA` | `/precision-agriculture/vra` | 298 | Variable rate application |
+| `yield` | `/yield` | 281 | Yield prediction |
+
+### Thin/Stub Features (route exists, minimal UI)
+
+| Feature | Route | Lines | Notes |
+|---------|-------|-------|-------|
+| `wallet` | `/wallet` | 153 | **Deposit/withdraw feature-flagged FALSE** |
+| `tasks` | `/tasks` | 151 | Thin client (but full feature module with 5 components) |
+| `equipment` | `/equipment` | 134 | Thin wrapper |
+| `weather` | `/weather` | 93 | Very thin |
+| `crop-health` | `/crop-health` | 77 | Thin wrapper |
+
+### Features with NO Route Page (feature dir exists but no route)
+
+| Feature | Components | Why No Route |
+|---------|-----------|-------------|
+| `team` | 5 full components (RBAC, invite, roles) | Intentionally admin-only |
+| `action-windows` | 6 components (irrigation/spray windows) | No route created yet |
+| `scouting` | 6 components (observation forms) | Intentionally admin-only |
+| `audit` | API + hooks only | Intentionally admin-only |
+| `drone` | API + hooks only | Intentionally admin-only |
+| `edge-devices` | API + hooks only | Intentionally admin-only |
+| `soil-analysis` | API + hooks only | No route created |
+| `terrain` | API + hooks only | Intentionally admin-only |
+| `virtual-sensors` | API + hooks only | Intentionally admin-only |
+| `vision` | API + hooks only | Intentionally admin-only |
+| `ndvi` | API + hooks only | Embedded in fields |
+| `field-map` | API + hooks only | Embedded in fields |
+| `astronomical` | API + hooks only | Widget in fields |
+
+### Disabled/Placeholder Features in Web
+
+| Feature | Location | Issue |
+|---------|----------|-------|
+| **Farms "Add Farm"** | `/farms` FarmsClient.tsx | Button is disabled with "coming soon" |
+| **Users "Add User"** | `/users` UsersClient.tsx | Button is disabled with "coming soon" |
+| **Documents "Upload"** | `/documents` DocumentsClient.tsx | Upload button is disabled |
+| **Wallet deposit/withdraw** | `/wallet` WalletClient.tsx | Feature-flagged `false` |
+| **Settings > Integrations tab** | SettingsPage | **PLACEHOLDER**: Just `<h2>التكاملات</h2><p>Integrations content...</p>` |
+| **PDF export** | Reports feature | `ReportFormat` type has PDF/Excel/CSV but `@react-pdf/renderer` NOT in package.json |
+
+### Best Practices Features NOT Implemented at All
+
+| Feature | Status | Priority |
+|---------|--------|----------|
+| bulk-operations | Zero code | HIGH for large farms |
+| data-export (CSV/Excel) | Only PDF stub in reports | HIGH |
+| import-wizard (Shapefile/KML) | Zero code | HIGH for onboarding |
+| budget-planning | Budget fields in seasons model only | MEDIUM |
+| dashboard-builder | Fixed layout only | LOW |
+| integrations | Settings tab is a placeholder | MEDIUM |
+| workflow-builder | Zero code | LOW |
+| knowledge-base | Backend exists (`shared/ai/knowledge/`), no web UI | MEDIUM |
+| api-keys | Zero code | LOW |
+| webhooks | Zero code | LOW |
+
+---
+
 _Generated: 2026-03-19 | SAHOOL Platform v16.0.0_

@@ -25,6 +25,7 @@ async def db_connection():
     Live asyncpg connection to the test PostgreSQL instance.
     Skips the test automatically when DATABASE_URL is not set or unreachable.
     """
+    asyncpg = None
     try:
         import asyncpg  # noqa: PLC0415
     except ImportError:

@@ -53,16 +53,26 @@ class TestContainerHealth:
     # -----------------------------------------------------------------------
     def test_all_containers_running(self, docker_client):
         """كل الحاويات المطلوبة تعمل – all required containers are running."""
-        required = [
-            "sahool-kong",
-            "sahool-postgres",
-            "sahool-redis",
-            "sahool-nats",
-            "sahool-auth-svc",
-            "sahool-field-svc",
-            "sahool-satellite-svc",
-            "sahool-graphql-bff",
-        ]
+        # Select the expected containers based on the active stack profile.
+        # This avoids hard-coding names that do not exist in the Compose files.
+        stack_profile = os.getenv("SAHOOL_STACK_PROFILE", "default").lower()
+
+        if stack_profile == "test":
+            # docker-compose.test.yml: uses *-test container names for infra.
+            required = [
+                "sahool-postgres-test",
+                "sahool-redis-test",
+                "sahool-nats-test",
+            ]
+        else:
+            # Default stack (e.g. docker-compose.yml).
+            required = [
+                "sahool-kong",
+                "sahool-postgres",
+                "sahool-redis",
+                "sahool-nats",
+            ]
+
         running = [c.name for c in docker_client.containers.list() if c.status == "running"]
         missing = [name for name in required if name not in running]
         assert not missing, f"الحاويات التالية لا تعمل – containers not running: {missing}"

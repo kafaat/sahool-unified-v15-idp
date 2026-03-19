@@ -197,11 +197,9 @@ class TestContainerHealth:
         nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
         try:
             import nats  # noqa: PLC0415
+            nc = await nats.connect(nats_url)
         except ImportError:
             pytest.skip("nats-py not installed")
-
-        try:
-            nc = await nats.connect(nats_url)
         except Exception as exc:
             pytest.skip(f"NATS not reachable at {nats_url}: {exc}")
 

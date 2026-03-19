@@ -45,20 +45,26 @@ After thorough review of both mobile (`apps/mobile/lib/features/` - 56 modules) 
 
 ## Part 2: Features in Mobile Missing from Web | وحدات الموبايل المفقودة من الويب
 
-### Category A: API Already Exists - Needs Web UI Only
+### Category A: Full Backend Service Exists - Needs Web UI Only
 
-These features have backend services and API client methods already wired in `apps/web/src/lib/api/client.ts`.
+These features have **fully implemented backend services** with REST endpoints, plus API client methods in `apps/web/src/lib/api/client.ts`.
+
+> **Key Discovery**: `billing-core` has 20+ endpoints (payments, refunds, Stripe/Tharwatt webhooks),
+> `chat-service` has REST + WebSocket gateway, and `crm-service` has full CRUD + NLQ (natural language query).
 
 #### A1: Chat (المحادثة) - Priority: HIGH
 
 | Item | Details |
 |------|---------|
 | **Mobile Feature** | `apps/mobile/lib/features/chat/` |
-| **Backend Service** | `chat-service` (port 8115, NestJS) |
+| **Backend Service** | `chat-service` (port 8115, NestJS) - **FULLY IMPLEMENTED (REST + WebSocket)** |
+| **Backend Endpoints** | `POST /conversations`, `GET /conversations/me`, `GET /conversations/:id`, `GET /conversations/:id/messages`, `POST /messages`, `POST /messages/:id/read`, `POST /conversations/:id/read`, `GET /unread-count` |
+| **WebSocket** | `chat.gateway.ts` - real-time messaging with typing indicators, read receipts |
+| **DTOs** | `CreateConversationDto`, `SendMessageDto`, `JoinConversationDto`, `ReadReceiptDto`, `TypingIndicatorDto` |
 | **API Client** | `client.ts:492-543` - `getFieldMessages()`, `sendFieldMessage()`, `getFieldChatParticipants()` |
 | **Kong Route** | `/api/v1/chat` → `chat-service:8115` |
 | **Shared Types** | `CHAT_ENDPOINTS` in `packages/shared-types/src/contracts/api-endpoints.ts:316` |
-| **Missing** | Web feature module + route page |
+| **Missing** | Web feature module + route page (WebSocket integration via `apps/web/src/lib/ws/`) |
 
 **Files to Create:**
 ```
@@ -92,9 +98,11 @@ apps/web/src/app/(dashboard)/chat/
 | Item | Details |
 |------|---------|
 | **Mobile Feature** | `apps/mobile/lib/features/billing/` |
-| **Backend Service** | `billing-core` (port 8089, Python FastAPI) |
-| **API Client** | `client.ts:844-858` - `getSubscription()`, `getInvoices()`, `getUsageStats()` |
-| **Missing** | Web feature module + route page |
+| **Backend Service** | `billing-core` (port 8089, Python FastAPI) - **FULLY IMPLEMENTED (20+ endpoints)** |
+| **Backend Endpoints** | Plans CRUD, tenant provisioning, subscriptions, usage quotas, invoices, payments, refunds, Stripe/Tharwatt webhooks, revenue/subscription reports |
+| **API Client** | `client.ts:844-858` - `getSubscription()`, `getInvoices()`, `getUsageStats()` + `api-client` has `getBillingSubscription()` |
+| **Shared Types** | `BILLING_ENDPOINTS` in contracts covers subscription, plans, invoices, wallet (deposit/withdraw/transfer), transactions |
+| **Missing** | Web feature module + route page (most API methods need to be added to web client) |
 
 **Files to Create:**
 ```
@@ -121,14 +129,14 @@ apps/web/src/app/(dashboard)/billing/
 
 ---
 
-### Category B: Backend Service Exists - Needs API Client + Web UI
-
-#### B1: CRM (إدارة علاقات المزارعين) - Priority: MEDIUM
+#### A3: CRM (إدارة علاقات المزارعين) - Priority: MEDIUM
 
 | Item | Details |
 |------|---------|
 | **Mobile Feature** | `apps/mobile/lib/features/crm/` |
-| **Backend Service** | `crm-service` (port 8131, Python FastAPI) |
+| **Backend Service** | `crm-service` (port 8131, Python FastAPI) - **FULLY IMPLEMENTED** |
+| **Backend Endpoints** | `POST/GET /api/v1/farmers`, `GET/PATCH /api/v1/farmers/:id`, `POST/GET /api/v1/deals`, `PATCH /api/v1/deals/:id/stage`, `GET /api/v1/deals/pipeline`, `POST/GET /api/v1/interactions`, `POST /api/v1/query` (NLQ) |
+| **Features** | PostgreSQL + Redis caching, NATS events, tenant isolation, rate limiting, natural language query (AR/EN) |
 | **Shared Types** | `CRM_SERVICE: 8131` in service-ports.ts |
 | **Missing** | API client methods + Web feature module |
 
@@ -159,7 +167,9 @@ apps/web/src/app/(dashboard)/crm/
 
 ---
 
-#### B2: Profitability (تحليل الربحية) - Priority: HIGH
+### Category B: Backend Module Exists - Needs API Exposure + Web UI
+
+#### B1: Profitability (تحليل الربحية) - Priority: HIGH
 
 | Item | Details |
 |------|---------|
@@ -194,7 +204,7 @@ apps/web/src/app/(dashboard)/profitability/
 
 ---
 
-#### B3: Crop Rotation (دورة المحاصيل) - Priority: MEDIUM
+#### B2: Crop Rotation (دورة المحاصيل) - Priority: MEDIUM
 
 | Item | Details |
 |------|---------|
@@ -223,7 +233,7 @@ apps/web/src/app/(dashboard)/crop-rotation/
 
 ---
 
-#### B4: Spray Management (إدارة الرش) - Priority: ALREADY EXISTS (PARTIAL)
+#### B3: Spray Management (إدارة الرش) - Priority: ALREADY EXISTS (PARTIAL)
 
 | Item | Details |
 |------|---------|
@@ -236,7 +246,7 @@ apps/web/src/app/(dashboard)/crop-rotation/
 
 ---
 
-#### B5: GDD (درجات النمو الحراري) - Priority: ALREADY EXISTS (PARTIAL)
+#### B4: GDD (درجات النمو الحراري) - Priority: ALREADY EXISTS (PARTIAL)
 
 | Item | Details |
 |------|---------|
@@ -385,8 +395,9 @@ apps/web/src/app/(dashboard)/profile/
 | Item | Details |
 |------|---------|
 | **Mobile Feature** | `apps/mobile/lib/features/gamification/` |
-| **Missing** | Full feature - no backend service for gamification |
-| **Recommendation** | Skip for web initially. Gamification works better on mobile (push notifications, badges). Consider adding as a dashboard widget only. |
+| **Backend** | **NO SERVICE EXISTS** - No gamification service in `apps/services/` |
+| **Related** | `shared/learning_marketplace/` has achievements/certifications (course completion, competency) but not gamification points/badges |
+| **Recommendation** | Skip for web initially. Gamification works better on mobile (push notifications, badges). If needed later, build backend service first. |
 
 ---
 
@@ -566,31 +577,35 @@ Settings (الإعدادات)
 | 1.3 | Add missing routes to sidebar | HIGH | `sidebar.tsx` |
 | 1.4 | Add precision-agriculture section to sidebar (GDD, Spray, VRA already exist) | HIGH | `sidebar.tsx` |
 
-### Phase 2: Features with Existing API (1-2 weeks)
+### Phase 2: Features with Full Backend (1-2 weeks)
 
-| # | Task | Priority | Effort |
-|---|------|----------|--------|
-| 2.1 | Chat feature (UI only - API exists) | HIGH | 3-4 days |
-| 2.2 | Billing feature (UI only - API exists) | HIGH | 2-3 days |
-| 2.3 | Profile page + fix header link | HIGH | 1-2 days |
+These features have **fully implemented backend services** - only need web UI.
 
-### Phase 3: Composite Features (2-3 weeks)
+| # | Task | Priority | Effort | Backend Status |
+|---|------|----------|--------|----------------|
+| 2.1 | Chat feature (REST + WebSocket) | HIGH | 3-4 days | chat-service:8115 READY |
+| 2.2 | Billing feature (20+ endpoints) | HIGH | 2-3 days | billing-core:8089 READY |
+| 2.3 | Profile page + fix header link | HIGH | 1-2 days | user-service:3025 READY |
+| 2.4 | CRM feature (CRUD + NLQ) | MEDIUM | 3-4 days | crm-service:8131 READY |
 
-| # | Task | Priority | Effort |
-|---|------|----------|--------|
-| 3.1 | Daily Brief (aggregation) | HIGH | 3-4 days |
-| 3.2 | Profitability (cross-service) | HIGH | 3-4 days |
-| 3.3 | Onboarding wizard | HIGH | 2-3 days |
-| 3.4 | Field Hub (enhance fields/[id]) | MEDIUM | 3-4 days |
+### Phase 3: Composite/Aggregation Features (2-3 weeks)
+
+These need to aggregate data from multiple existing services.
+
+| # | Task | Priority | Effort | Data Sources |
+|---|------|----------|--------|--------------|
+| 3.1 | Daily Brief | HIGH | 3-4 days | weather + alerts + tasks + field-intelligence |
+| 3.2 | Profitability | HIGH | 3-4 days | billing + yield + field-management |
+| 3.3 | Onboarding wizard | HIGH | 2-3 days | user + field-management |
+| 3.4 | Field Hub (enhance fields/[id]) | MEDIUM | 3-4 days | NDVI + weather + tasks + health |
 
 ### Phase 4: Domain Features (2-3 weeks)
 
 | # | Task | Priority | Effort |
 |---|------|----------|--------|
-| 4.1 | CRM feature | MEDIUM | 3-4 days |
-| 4.2 | Crop Rotation | MEDIUM | 2-3 days |
-| 4.3 | Polygon Editor (for field-map) | MEDIUM | 3-4 days |
-| 4.4 | Payment integration | MEDIUM | 2-3 days |
+| 4.1 | Crop Rotation | MEDIUM | 2-3 days |
+| 4.2 | Polygon Editor (for field-map) | MEDIUM | 3-4 days |
+| 4.3 | Payment integration (into billing/wallet) | MEDIUM | 2-3 days |
 
 ### Phase 5: Enhancements (1 week)
 
@@ -654,7 +669,35 @@ Settings (الإعدادات)
 
 ---
 
-## Part 7: Shared Type Definitions Needed
+## Part 7: Backend Service Readiness Matrix
+
+| Feature | Backend Service | Port | Status | Endpoints |
+|---------|----------------|------|--------|-----------|
+| **Chat** | chat-service (NestJS) | 8115 | READY | 8 REST + WebSocket gateway |
+| **Billing** | billing-core (FastAPI) | 8089 | READY | 20+ (plans, subscriptions, invoices, payments, refunds, webhooks) |
+| **CRM** | crm-service (FastAPI) | 8131 | READY | 10+ (farmers, deals, interactions, NLQ, pipeline) |
+| **Payment** | billing-core (FastAPI) | 8089 | READY | Stripe + Tharwatt webhooks, payments, refunds |
+| **Daily Brief** | N/A (composite) | - | NEEDS AGGREGATION | Combines weather:8092, alerts:8113, tasks:8103, field-intelligence:8120 |
+| **Profitability** | N/A (composite) | - | NEEDS AGGREGATION | Combines billing:8089, yield:8152, fields:3000 |
+| **Crop Rotation** | shared/crop_rotation/ (Python module) | - | MODULE ONLY | No REST API - needs service or endpoint exposure |
+| **Profile** | user-service (NestJS) | 3025 | READY | Part of user management endpoints |
+| **Onboarding** | N/A | - | NEEDS NEW | Client-side wizard + user-service flags |
+| **Gamification** | N/A | - | NOT IMPLEMENTED | No backend at all |
+| **Field Hub** | Multiple | - | READY | Combines existing field, NDVI, weather, task APIs |
+
+### `packages/api-client` Already Has
+
+The shared `@sahool/api-client` package already provides these methods that the web app can use:
+
+- `getBillingSubscription()`, `getAstronomicalToday()`, `getAlerts()`, `getTasks()`, `getFields()`, `getWeather()`, `getDiagnoses()`, `getSatelliteTimeseries()`, `getAdvisoryRecommendations()`, `getYieldPrediction()`, `getFieldIntelligence()`, `getEquipment()`, `getNotifications()`, `getCommunityPosts()`
+
+### `packages/shared-types` Missing Types
+
+No dedicated type files exist for: billing, chat, CRM, gamification, daily-brief, profitability, crop-rotation, payment, onboarding. These types currently live only partially in `api-client/src/types.ts`.
+
+---
+
+## Part 8: Shared Type Definitions Needed
 
 New types should be added to `packages/shared-types/src/` for cross-platform consistency:
 
@@ -672,7 +715,7 @@ packages/shared-types/src/
 
 ---
 
-## Part 8: Best Practices Reference (Global Agricultural Platforms)
+## Part 9: Best Practices Reference (Global Agricultural Platforms)
 
 | Platform | Features Web Has That Mobile Doesn't | Features Mobile Has That Web Doesn't |
 |----------|--------------------------------------|--------------------------------------|

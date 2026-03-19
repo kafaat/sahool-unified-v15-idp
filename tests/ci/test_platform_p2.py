@@ -495,8 +495,13 @@ class TestRateLimitingAndSecurity:
             def _verify_hs256(token: str, secret: str) -> None:
                 header_b64, payload_b64, signature_b64 = token.split(".")
                 signing_input = f"{header_b64}.{payload_b64}".encode()
-                # Base64url-decode the provided signature (add padding if needed)
-                sig_bytes = base64.urlsafe_b64decode(signature_b64 + "==")
+                # Base64url-decode the provided signature (add correct padding if needed)
+                s_padding = "=" * (-len(signature_b64) % 4)
+                try:
+                    sig_bytes = base64.urlsafe_b64decode(signature_b64 + s_padding)
+                except Exception as exc:
+                    # Normalize any base64 decoding error to ValueError so tests are reliable.
+                    raise ValueError("Invalid JWT signature") from exc
                 expected_sig = hmac.new(
                     secret.encode(),
                     signing_input,

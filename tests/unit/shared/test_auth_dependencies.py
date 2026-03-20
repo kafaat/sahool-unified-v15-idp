@@ -83,10 +83,12 @@ class TestGetCurrentUser:
         assert exc_info.value.status_code == 401
 
     @pytest.mark.asyncio
+    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_valid_token_returns_user(self, mock_repo, mock_cache, valid_credentials, mock_request):
+    async def test_valid_token_returns_user(self, mock_repo, mock_cache, mock_config, valid_credentials, mock_request):
         """Test that valid token returns user."""
+        mock_config.TOKEN_REVOCATION_ENABLED = False
         mock_cache.return_value = None  # No cache
         mock_repo.return_value = None  # No repository
 
@@ -100,10 +102,12 @@ class TestGetCurrentUser:
         assert "admin" in user.roles
 
     @pytest.mark.asyncio
+    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_user_stored_in_request_state(self, mock_repo, mock_cache, valid_credentials, mock_request):
+    async def test_user_stored_in_request_state(self, mock_repo, mock_cache, mock_config, valid_credentials, mock_request):
         """Test that user is stored in request state."""
+        mock_config.TOKEN_REVOCATION_ENABLED = False
         mock_cache.return_value = None
         mock_repo.return_value = None
 
@@ -115,10 +119,12 @@ class TestGetCurrentUser:
         assert mock_request.state.user == user
 
     @pytest.mark.asyncio
+    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_cached_inactive_user_raises_403(self, mock_repo, mock_cache, valid_credentials):
+    async def test_cached_inactive_user_raises_403(self, mock_repo, mock_cache, mock_config, valid_credentials):
         """Test that inactive cached user raises 403."""
+        mock_config.TOKEN_REVOCATION_ENABLED = False
         cache = AsyncMock()
         cache.get_user_status.return_value = {
             "is_active": False,
@@ -391,8 +397,15 @@ class TestGetOptionalUser:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_returns_user_with_valid_credentials(self):
+    @patch("shared.auth.dependencies.config")
+    @patch("shared.auth.dependencies.get_user_cache")
+    @patch("shared.auth.dependencies.get_user_repository")
+    async def test_returns_user_with_valid_credentials(self, mock_repo, mock_cache, mock_config):
         """Test that user is returned with valid credentials."""
+        mock_config.TOKEN_REVOCATION_ENABLED = False
+        mock_cache.return_value = None
+        mock_repo.return_value = None
+
         token = create_access_token(
             user_id="user123",
             roles=["farmer"],

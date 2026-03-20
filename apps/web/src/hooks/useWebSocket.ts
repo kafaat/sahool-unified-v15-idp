@@ -169,7 +169,7 @@ export function useWebSocket({
 
           onMessageRef.current?.(message);
         } catch (err) {
-          logger.error("Failed to parse WebSocket message:", err);
+          logger.warn("Failed to parse WebSocket message:", err);
         }
       };
 
@@ -213,11 +213,11 @@ export function useWebSocket({
 
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        logger.error("WebSocket error:", event);
+        logger.warn("WebSocket error:", event);
         setError("Connection error");
       };
     } catch (err) {
-      logger.error("Failed to connect WebSocket:", err);
+      logger.warn("Failed to connect WebSocket:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
   }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);

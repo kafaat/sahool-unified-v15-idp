@@ -101,7 +101,7 @@ class WebSocketClient {
             this.ws?.send(JSON.stringify({ type: "pong" }));
           }
         } catch (error) {
-          logger.error("Failed to parse WebSocket message:", error);
+          logger.warn("Failed to parse WebSocket message:", error);
         }
       };
 
@@ -112,10 +112,10 @@ class WebSocketClient {
       };
 
       this.ws.onerror = (error) => {
-        logger.error("WebSocket error:", error);
+        logger.warn("WebSocket error:", error);
       };
     } catch (error) {
-      logger.error("Failed to create WebSocket:", error);
+      logger.warn("Failed to create WebSocket:", error);
       this.attemptReconnect();
     }
   }

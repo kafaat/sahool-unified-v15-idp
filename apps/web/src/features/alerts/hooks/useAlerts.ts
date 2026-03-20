@@ -300,7 +300,7 @@ export function useAlertStream(
           queryClient.invalidateQueries({ queryKey: alertKeys.count() });
           queryClient.setQueryData(alertKeys.detail(alert.id), alert);
         } catch (e) {
-          logger.error("Failed to parse alert from stream:", e);
+          logger.warn("Failed to parse alert from stream:", e);
         }
       };
 
@@ -308,7 +308,7 @@ export function useAlertStream(
         setIsConnected(false);
         const errorObj = new Error("Alert stream connection lost");
         setError(errorObj);
-        logger.error("Alert stream error:", e);
+        logger.warn("Alert stream error:", e);
 
         eventSource.close();
 
@@ -321,7 +321,7 @@ export function useAlertStream(
         }
       };
     } catch (e) {
-      logger.error("Failed to create EventSource:", e);
+      logger.warn("Failed to create EventSource:", e);
       setError(e as Error);
     }
   }, [onAlert, queryClient, enabled]);

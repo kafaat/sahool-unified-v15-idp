@@ -33,7 +33,7 @@ export class ApiErrorHandler {
 
     // Network error (no response)
     if (!error.response) {
-      logger.error('Network error:', error);
+      logger.warn('Network error:', error);
       return {
         message: 'Network error. Please check your internet connection.',
         messageAr: 'خطأ في الشبكة. يرجى التحقق من اتصال الإنترنت.',
@@ -120,7 +120,7 @@ export class ApiErrorHandler {
       case 502:
       case 503:
       case 504:
-        logger.error('Server error:', { status, data });
+        logger.warn('Server error:', { status, data });
         return {
           message: 'Server error. Please try again later.',
           messageAr: 'خطأ في الخادم. حاول مرة أخرى لاحقاً.',

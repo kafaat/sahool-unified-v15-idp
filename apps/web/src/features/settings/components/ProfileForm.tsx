@@ -93,7 +93,7 @@ export const ProfileForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Avatar Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-4">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
           الصورة الشخصية
         </label>
         <div className="flex items-center gap-6">
@@ -134,7 +134,7 @@ export const ProfileForm: React.FC = () => {
       {/* Basic Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             الاسم بالعربية *
           </label>
           <input
@@ -143,21 +143,21 @@ export const ProfileForm: React.FC = () => {
             onChange={(e) =>
               setFormData({ ...formData, nameAr: e.target.value })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Name in English *
           </label>
           <input
             type="text"
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
             dir="ltr"
@@ -165,7 +165,7 @@ export const ProfileForm: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             رقم الهاتف
           </label>
           <input
@@ -174,14 +174,14 @@ export const ProfileForm: React.FC = () => {
             onChange={(e) =>
               setFormData({ ...formData, phone: e.target.value })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
             dir="ltr"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             اللغة المفضلة
           </label>
           <select
@@ -192,7 +192,7 @@ export const ProfileForm: React.FC = () => {
                 language: e.target.value as "ar" | "en" | "both",
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
           >
             <option value="ar">العربية</option>
@@ -204,14 +204,14 @@ export const ProfileForm: React.FC = () => {
 
       {/* Bio */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           نبذة عنك
         </label>
         <textarea
           value={formData.bioAr || ""}
           onChange={(e) => setFormData({ ...formData, bioAr: e.target.value })}
           rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           placeholder="اكتب نبذة مختصرة عنك وعن خبرتك في الزراعة..."
           disabled={isSaving}
         />
@@ -225,7 +225,7 @@ export const ProfileForm: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               المدينة
             </label>
             <input
@@ -237,13 +237,13 @@ export const ProfileForm: React.FC = () => {
                   location: { ...formData.location!, cityAr: e.target.value },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               المنطقة
             </label>
             <input
@@ -255,13 +255,13 @@ export const ProfileForm: React.FC = () => {
                   location: { ...formData.location!, regionAr: e.target.value },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               الدولة
             </label>
             <input
@@ -276,7 +276,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
@@ -291,7 +291,7 @@ export const ProfileForm: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               اسم المزرعة
             </label>
             <input
@@ -306,13 +306,13 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               إجمالي المساحة (هكتار)
             </label>
             <input
@@ -327,7 +327,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
               step="0.1"
               min="0"
@@ -335,7 +335,7 @@ export const ProfileForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               نوع المزرعة
             </label>
             <select
@@ -355,7 +355,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 });
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             >
               <option value="individual">فردية</option>
@@ -366,7 +366,7 @@ export const ProfileForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               سنة التأسيس
             </label>
             <input
@@ -381,7 +381,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
               min="1900"
               max={new Date().getFullYear()}
@@ -409,7 +409,7 @@ export const ProfileForm: React.FC = () => {
               setAvatarPreview(profile.avatar || "");
             }
           }}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           disabled={isSaving}
         >
           إلغاء

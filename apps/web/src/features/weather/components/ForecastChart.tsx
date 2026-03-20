@@ -31,8 +31,8 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">توقعات 7 أيام</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">توقعات 7 أيام</h2>
         <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
       </div>
     );
@@ -40,8 +40,8 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
 
   if (!forecast || forecast.length === 0) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">توقعات 7 أيام</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">توقعات 7 أيام</h2>
         <div className="text-center py-16 text-gray-500">
           <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
           <p>لا توجد بيانات توقعات متاحة</p>
@@ -51,7 +51,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">توقعات 7 أيام</h2>
         <span className="text-sm text-gray-600">7-Day Forecast</span>
@@ -68,10 +68,10 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
             <div key={index} className="flex items-center gap-4">
               {/* Date */}
               <div className="w-24 text-sm">
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-gray-900 dark:text-white">
                   {date.toLocaleDateString("ar-EG", { weekday: "short" })}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {date.toLocaleDateString("ar-EG", {
                     month: "short",
                     day: "numeric",
@@ -80,13 +80,13 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               </div>
 
               {/* Condition */}
-              <div className="w-32 text-sm text-gray-600">
+              <div className="w-32 text-sm text-gray-600 dark:text-gray-400">
                 {day.conditionAr}
               </div>
 
               {/* Temperature Bar */}
               <div className="flex-1">
-                <div className="h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                <div className="h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                   <div
                     className="h-full bg-gradient-to-r from-blue-400 to-red-400 rounded-lg transition-all"
                     style={{
@@ -111,7 +111,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-6 border-t-2 border-gray-100 flex items-center justify-center gap-8 text-sm text-gray-600">
+      <div className="mt-6 pt-6 border-t-2 border-gray-100 dark:border-gray-700 flex items-center justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4" />
           <span>درجة الحرارة</span>

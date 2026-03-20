@@ -31,11 +31,11 @@ import {
 import type { IrrigationStatus, IrrigationType, IrrigationSchedule } from "@/features/irrigation/types";
 
 const STATUS_STYLES: Record<IrrigationStatus, string> = {
-  scheduled: "bg-blue-100 text-blue-800",
-  in_progress: "bg-yellow-100 text-yellow-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-gray-100 text-gray-800",
-  overdue: "bg-red-100 text-red-800",
+  scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
+  in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
+  completed: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+  cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+  overdue: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
 };
 
 const STATUS_LABELS: Record<IrrigationStatus, string> = {
@@ -237,8 +237,8 @@ export default function IrrigationClient() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة الري</h1>
-          <p className="text-gray-500 mt-1">Irrigation Management</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة الري</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Irrigation Management</p>
         </div>
         <button
           onClick={openCreate}
@@ -289,46 +289,46 @@ export default function IrrigationClient() {
       {/* Stats */}
       {!isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Droplets className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">استهلاك اليوم</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">استهلاك اليوم</div>
                 <div className="text-xl font-bold text-blue-600">{totalWaterToday.toLocaleString()} م³</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center ${inProgressCount > 0 ? "animate-pulse-dot" : ""}`}>
                 <Clock className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">جاري الآن</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">جاري الآن</div>
                 <div className="text-xl font-bold text-yellow-600">{inProgressCount}</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">مجدول اليوم</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">مجدول اليوم</div>
                 <div className="text-xl font-bold text-green-600">{scheduledCount}</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-sahool-green-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-500">كفاءة الري</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">كفاءة الري</div>
                 <div className="text-xl font-bold text-sahool-green-600">{avgEfficiency}%</div>
               </div>
             </div>
@@ -345,14 +345,14 @@ export default function IrrigationClient() {
             placeholder="بحث عن حقل..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+            className="w-full pr-10 pl-4 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
             aria-label="بحث في جداول الري"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as IrrigationStatus | "all")}
-          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+          className="px-4 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
           aria-label="تصفية حسب الحالة"
         >
           <option value="all">جميع الحالات</option>
@@ -366,25 +366,25 @@ export default function IrrigationClient() {
 
       {/* Table */}
       {!isLoading && (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحقل</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">النوع</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الموعد</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المدة</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">كمية المياه</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">الحقل</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">النوع</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">الموعد</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">المدة</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">كمية المياه</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">الحالة</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredSchedules.map((schedule, index) => (
                   <tr
                     key={schedule.id}
-                    className="hover:bg-gray-50 transition-colors animate-slide-in-up"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors animate-slide-in-up"
                     style={{ animationDelay: `${index * 40}ms`, animationFillMode: "both" }}
                   >
                     <td className="px-4 py-3">
@@ -392,17 +392,17 @@ export default function IrrigationClient() {
                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                           <Droplets className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="font-medium text-gray-900">{schedule.fieldName}</div>
+                        <div className="font-medium text-gray-900 dark:text-white">{schedule.fieldName}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {irrigationTypes[schedule.type]?.labelAr ?? schedule.type}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {formatDate(schedule.scheduledAt)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{schedule.duration} دقيقة</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{schedule.waterAmount} م³</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{schedule.duration} دقيقة</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{schedule.waterAmount} م³</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
                         {getStatusBadge(schedule.status)}
@@ -463,7 +463,7 @@ export default function IrrigationClient() {
                 ))}
                 {filteredSchedules.length === 0 && !isLoading && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                       لا توجد جداول ري مطابقة للبحث
                     </td>
                   </tr>
@@ -478,36 +478,36 @@ export default function IrrigationClient() {
       {modalOpen && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-scale-in">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 animate-scale-in">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingId ? "تعديل جدول الري" : "جدولة ري جديد"}
               </h2>
-              <button onClick={() => setModalOpen(false)} className="p-1.5 hover:bg-gray-100 rounded-lg" aria-label="إغلاق">
+              <button onClick={() => setModalOpen(false)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label="إغلاق">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   اسم الحقل <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.fieldName}
                   onChange={(e) => setFormData((p) => ({ ...p, fieldName: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
+                  className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
                   placeholder="مثال: الحقل الشمالي"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">نوع الري</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نوع الري</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value as IrrigationType }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   >
                     {Object.entries(irrigationTypes).map(([key, val]) => (
                       <option key={key} value={key}>{val.labelAr}</option>
@@ -515,43 +515,43 @@ export default function IrrigationClient() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">الموعد</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الموعد</label>
                   <input
                     type="datetime-local"
                     value={formData.scheduledAt}
                     onChange={(e) => setFormData((p) => ({ ...p, scheduledAt: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">المدة (دقيقة)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المدة (دقيقة)</label>
                   <input
                     type="number"
                     min={1}
                     value={formData.duration}
                     onChange={(e) => setFormData((p) => ({ ...p, duration: Number(e.target.value) }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">كمية المياه (م³)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كمية المياه (م³)</label>
                   <input
                     type="number"
                     min={1}
                     value={formData.waterAmount}
                     onChange={(e) => setFormData((p) => ({ ...p, waterAmount: Number(e.target.value) }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-200">
+            <div className="flex gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setModalOpen(false)}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
               >
                 إلغاء
               </button>
@@ -575,18 +575,18 @@ export default function IrrigationClient() {
       {deleteTarget && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setDeleteTarget(null)} />
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6 animate-scale-in text-center">
-            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6 animate-scale-in text-center">
+            <div className="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trash2 className="w-7 h-7 text-red-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">حذف جدول الري</h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">حذف جدول الري</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف جدول ري &quot;{deleteTarget.fieldName}&quot;؟
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
               >
                 إلغاء
               </button>

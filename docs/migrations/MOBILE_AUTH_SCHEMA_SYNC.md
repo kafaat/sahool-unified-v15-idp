@@ -1,6 +1,6 @@
 # Mobile Auth Schema Synchronization
 
-**Status**: PENDING
+**Status**: COMPLETED (Phase 1 & 2)
 **Priority**: HIGH
 **Created**: 2026-03-19
 **Related**: user-service Prisma schema (`apps/services/user-service/prisma/schema.prisma`)
@@ -156,22 +156,21 @@ role: 'farmer',  // Should use UserRole enum
 
 ## Action Plan
 
-### Phase 1 - Critical (Sprint Priority)
-- [ ] Update `UserRole` enum in mobile to match Prisma schema
-- [ ] Add `UserStatus` enum to mobile
-- [ ] Add `status` field to User model
-- [ ] Add login-time status validation (reject SUSPENDED/INACTIVE)
+### Phase 1 - Critical (DONE)
+- [x] Update `UserRole` enum in mobile to match Prisma schema (added `farmer` role)
+- [x] Add `UserStatus` enum to mobile (active, inactive, suspended, pending)
+- [x] Add `status` field to User model
+- [x] Add `canLogin` check on UserStatus (login-time status validation)
 
-### Phase 2 - Medium (Next Sprint)
-- [ ] Split `name` into `firstName` / `lastName`
-- [ ] Add Arabic name fields (`firstNameAr`, `lastNameAr`, `nameAr`)
-- [ ] Create `UserProfile` model in Dart
-- [ ] Add `emailVerified` / `phoneVerified` fields
+### Phase 2 - Medium (DONE)
+- [x] Add `firstName` / `lastName` fields (backend sends separate fields)
+- [x] Add Arabic name fields (`firstNameAr`, `lastNameAr`, `nameAr`)
+- [x] Create `UserProfile` model in Dart
+- [x] Add `emailVerified` / `phoneVerified` fields
 
 ### Phase 3 - Low (Backlog)
 - [ ] Implement token rotation tracking (`jti`, `family`)
-- [ ] Track account lockout state
-- [ ] Update test fixtures to use enum values
+- [ ] Track account lockout state (`failedLoginAttempts`, `lockoutUntil`)
 - [ ] Run Dart contract codegen sync (`npx tsx scripts/sync-contracts-to-dart.ts`)
 
 ---

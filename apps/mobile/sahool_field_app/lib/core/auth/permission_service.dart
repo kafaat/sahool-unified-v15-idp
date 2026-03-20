@@ -77,10 +77,38 @@ class Permission {
 // تعريفات الأدوار
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// System roles
+/// User account status (matches Prisma UserStatus enum)
+/// حالة حساب المستخدم
+enum UserStatus {
+  active('active', 'نشط'),
+  inactive('inactive', 'غير نشط'),
+  suspended('suspended', 'معلّق'),
+  pending('pending', 'قيد الانتظار');
+
+  final String value;
+  final String arabicLabel;
+
+  const UserStatus(this.value, this.arabicLabel);
+
+  static UserStatus fromString(String value) {
+    final normalized = value.toLowerCase();
+    return UserStatus.values.firstWhere(
+      (s) => s.value == normalized || s.name == normalized,
+      orElse: () => UserStatus.pending,
+    );
+  }
+
+  /// Whether this status allows login
+  bool get canLogin => this == UserStatus.active;
+}
+
+/// System roles (aligned with Prisma UserRole enum)
+/// الأدوار: ADMIN, MANAGER, FARMER, WORKER, VIEWER from backend
+/// plus mobile-specific: supervisor, superAdmin
 enum UserRole {
   viewer('viewer', 'مشاهد'),
   worker('worker', 'عامل ميداني'),
+  farmer('farmer', 'مزارع'),
   supervisor('supervisor', 'مشرف'),
   manager('manager', 'مدير'),
   admin('admin', 'مسؤول'),
@@ -92,8 +120,9 @@ enum UserRole {
   const UserRole(this.value, this.arabicLabel);
 
   static UserRole fromString(String value) {
+    final normalized = value.toLowerCase();
     return UserRole.values.firstWhere(
-      (r) => r.value == value,
+      (r) => r.value == normalized || r.name.toLowerCase() == normalized,
       orElse: () => UserRole.viewer,
     );
   }
@@ -130,6 +159,30 @@ final Map<UserRole, Set<String>> rolePermissions = {
     Permission.taskEdit,
     Permission.taskExecute,
     Permission.taskComplete,
+    Permission.chatWrite,
+    Permission.offlineSync,
+    Permission.offlinePhotoUpload,
+  },
+
+  // Farmer - مزارع (field operations + advisory)
+  UserRole.farmer: {
+    // All worker permissions
+    Permission.fieldView,
+    Permission.fieldCreate,
+    Permission.fieldEdit,
+    Permission.taskView,
+    Permission.taskCreate,
+    Permission.taskEdit,
+    Permission.taskExecute,
+    Permission.taskComplete,
+    Permission.ndviView,
+    Permission.weatherView,
+    Permission.iotView,
+    Permission.sensorView,
+    Permission.irrigationView,
+    Permission.irrigationControl,
+    Permission.reportView,
+    Permission.chatRead,
     Permission.chatWrite,
     Permission.offlineSync,
     Permission.offlinePhotoUpload,

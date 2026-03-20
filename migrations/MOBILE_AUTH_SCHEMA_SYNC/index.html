@@ -1117,7 +1117,7 @@
 
 
 <h1 id="mobile-auth-schema-synchronization">Mobile Auth Schema Synchronization<a class="headerlink" href="#mobile-auth-schema-synchronization" title="Permanent link">&para;</a></h1>
-<p><strong>Status</strong>: PENDING
+<p><strong>Status</strong>: COMPLETED (Phase 1 &amp; 2)
 <strong>Priority</strong>: HIGH
 <strong>Created</strong>: 2026-03-19
 <strong>Related</strong>: user-service Prisma schema (<code>apps/services/user-service/prisma/schema.prisma</code>)
@@ -1299,25 +1299,24 @@
 </ul>
 <hr />
 <h2 id="action-plan">Action Plan<a class="headerlink" href="#action-plan" title="Permanent link">&para;</a></h2>
-<h3 id="phase-1-critical-sprint-priority">Phase 1 - Critical (Sprint Priority)<a class="headerlink" href="#phase-1-critical-sprint-priority" title="Permanent link">&para;</a></h3>
+<h3 id="phase-1-critical-done">Phase 1 - Critical (DONE)<a class="headerlink" href="#phase-1-critical-done" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Update <code>UserRole</code> enum in mobile to match Prisma schema</li>
-<li>[ ] Add <code>UserStatus</code> enum to mobile</li>
-<li>[ ] Add <code>status</code> field to User model</li>
-<li>[ ] Add login-time status validation (reject SUSPENDED/INACTIVE)</li>
+<li>[x] Update <code>UserRole</code> enum in mobile to match Prisma schema (added <code>farmer</code> role)</li>
+<li>[x] Add <code>UserStatus</code> enum to mobile (active, inactive, suspended, pending)</li>
+<li>[x] Add <code>status</code> field to User model</li>
+<li>[x] Add <code>canLogin</code> check on UserStatus (login-time status validation)</li>
 </ul>
-<h3 id="phase-2-medium-next-sprint">Phase 2 - Medium (Next Sprint)<a class="headerlink" href="#phase-2-medium-next-sprint" title="Permanent link">&para;</a></h3>
+<h3 id="phase-2-medium-done">Phase 2 - Medium (DONE)<a class="headerlink" href="#phase-2-medium-done" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Split <code>name</code> into <code>firstName</code> / <code>lastName</code></li>
-<li>[ ] Add Arabic name fields (<code>firstNameAr</code>, <code>lastNameAr</code>, <code>nameAr</code>)</li>
-<li>[ ] Create <code>UserProfile</code> model in Dart</li>
-<li>[ ] Add <code>emailVerified</code> / <code>phoneVerified</code> fields</li>
+<li>[x] Add <code>firstName</code> / <code>lastName</code> fields (backend sends separate fields)</li>
+<li>[x] Add Arabic name fields (<code>firstNameAr</code>, <code>lastNameAr</code>, <code>nameAr</code>)</li>
+<li>[x] Create <code>UserProfile</code> model in Dart</li>
+<li>[x] Add <code>emailVerified</code> / <code>phoneVerified</code> fields</li>
 </ul>
 <h3 id="phase-3-low-backlog">Phase 3 - Low (Backlog)<a class="headerlink" href="#phase-3-low-backlog" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[ ] Implement token rotation tracking (<code>jti</code>, <code>family</code>)</li>
-<li>[ ] Track account lockout state</li>
-<li>[ ] Update test fixtures to use enum values</li>
+<li>[ ] Track account lockout state (<code>failedLoginAttempts</code>, <code>lockoutUntil</code>)</li>
 <li>[ ] Run Dart contract codegen sync (<code>npx tsx scripts/sync-contracts-to-dart.ts</code>)</li>
 </ul>
 <hr />

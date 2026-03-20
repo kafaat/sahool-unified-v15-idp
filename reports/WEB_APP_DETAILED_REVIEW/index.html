@@ -1,0 +1,1990 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Web Application Detailed Code Review - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#web-application-detailed-code-review" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Web Application Detailed Code Review
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="web-application-detailed-code-review">Web Application Detailed Code Review<a class="headerlink" href="#web-application-detailed-code-review" title="Permanent link">&para;</a></h1>
+<h2 id="_1">مراجعة تفصيلية لتطبيق الويب<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>Date</strong>: 2026-03-19
+<strong>Version</strong>: 16.0.0
+<strong>Reviewer</strong>: Claude Code AI
+<strong>Framework</strong>: Next.js 15.5.12 / React 19.2.4 / TypeScript 5.9.3</p>
+<hr />
+<h2 id="1-overall-assessment">1. Overall Assessment | التقييم العام<a class="headerlink" href="#1-overall-assessment" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Score</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Architecture</strong></td>
+<td>8/10</td>
+<td>Clean App Router structure, good separation</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>9/10</td>
+<td>Excellent CSP, CSRF, JWT implementation</td>
+</tr>
+<tr>
+<td><strong>Code Quality</strong></td>
+<td>8/10</td>
+<td>Well-typed, consistent patterns</td>
+</tr>
+<tr>
+<td><strong>Accessibility</strong></td>
+<td>8/10</td>
+<td>Good ARIA, RTL, bilingual support</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>8/10</td>
+<td>Excellent code splitting with 12 dynamic wrappers</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>5/10</td>
+<td>74 test files, but gaps in feature tests</td>
+</tr>
+<tr>
+<td><strong>Offline Support</strong></td>
+<td>N/A</td>
+<td>Not required - web targets connected users</td>
+</tr>
+<tr>
+<td><strong>UI Components</strong></td>
+<td>6/10</td>
+<td>Only 12 components, needs expansion</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall: 7.75/10</strong> - Solid foundation with excellent security and performance. Needs more UI components and testing.</p>
+<hr />
+<h2 id="2-architecture-review">2. Architecture Review | مراجعة المعمارية<a class="headerlink" href="#2-architecture-review" title="Permanent link">&para;</a></h2>
+<h3 id="21-strengths">2.1 Strengths (نقاط القوة)<a class="headerlink" href="#21-strengths" title="Permanent link">&para;</a></h3>
+<p><strong>App Router Structure</strong> - Well-organized route groups:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">auth</span><span class="p">)</span><span class="o">/</span><span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">Public</span><span class="w"> </span><span class="n">auth</span><span class="w"> </span><span class="n">pages</span><span class="w"> </span><span class="p">(</span><span class="n">login</span><span class="p">,</span><span class="w"> </span><span class="n">register</span><span class="p">,</span><span class="w"> </span><span class="n">OTP</span><span class="p">)</span>
+<span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Protected</span><span class="w"> </span><span class="n">dashboard</span><span class="w"> </span><span class="n">pages</span><span class="w"> </span><span class="p">(</span><span class="mh">37</span><span class="w"> </span><span class="n">routes</span><span class="p">)</span>
+<span class="n">api</span><span class="o">/</span><span class="w">       </span><span class="err">→</span><span class="w"> </span><span class="n">Server</span><span class="o">-</span><span class="n">side</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">routes</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">,</span><span class="w"> </span><span class="n">CSRF</span><span class="p">,</span><span class="w"> </span><span class="n">health</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Provider Hierarchy</strong> - Smart scoping:
+- Root: <code>ThemeProvider</code> → <code>AuthProvider</code> → <code>ToastProvider</code>
+- Dashboard only: <code>QueryClientProvider</code> (saves bundle for auth pages)
+- This is an excellent pattern - auth pages don't load React Query.</p>
+<p><strong>Error Boundaries</strong> - Granular error isolation:
+- Sidebar, Header, and main content each have separate ErrorBoundary
+- Server-side error logging via <code>/api/log-error</code>
+- Development-only stack traces
+- Bilingual error messages with reference IDs</p>
+<h3 id="22-issues-found">2.2 Issues Found (المشاكل المكتشفة)<a class="headerlink" href="#22-issues-found" title="Permanent link">&para;</a></h3>
+<p><strong>ISSUE-1: <code>HomeClient.tsx</code> imports <code>Cockpit</code> without auth check</strong>
+- <code>apps/web/src/app/HomeClient.tsx:1</code> - The root page <code>/</code> renders <code>&lt;Cockpit /&gt;</code> directly
+- This is a public route but renders a dashboard component
+- <strong>Risk</strong>: Low (middleware would redirect), but confusing UX
+- <strong>Recommendation</strong>: Root page should redirect to <code>/dashboard</code> or show a landing page</p>
+<p><strong>ISSUE-2: No <code>loading.tsx</code> for most dashboard routes</strong>
+- Only <code>fields/loading.tsx</code> has a loading state
+- Other routes (analytics, weather, tasks, etc.) have no loading state
+- <strong>Impact</strong>: Users see blank screens during navigation
+- <strong>Recommendation</strong>: Add <code>loading.tsx</code> to all dashboard routes</p>
+<p><strong>ISSUE-3: Sidebar has no mobile responsive menu</strong> <em>(Verified: CONFIRMED)</em>
+- <code>src/components/layouts/sidebar.tsx</code> uses fixed <code>w-64</code> (256px) with no responsive breakpoints
+- No <code>hidden</code>/<code>md:block</code> classes, no hamburger menu, no drawer component
+- <code>src/app/(dashboard)/layout.tsx</code> always renders sidebar in flex layout with no conditional hiding
+- <code>src/components/layouts/header.tsx</code> has no mobile menu toggle button
+- <code>e2e/responsive.spec.ts</code> expects <code>[data-testid="mobile-menu"]</code> and <code>[data-testid="mobile-drawer"]</code> - <strong>these selectors don't exist in any component</strong>, so E2E responsive tests will fail
+- <strong>Affected Files</strong>:
+  - <code>src/components/layouts/sidebar.tsx</code> - needs responsive classes + drawer
+  - <code>src/components/layouts/header.tsx</code> - needs hamburger menu button
+  - <code>src/app/(dashboard)/layout.tsx</code> - needs conditional sidebar rendering
+  - <code>e2e/responsive.spec.ts</code> - tests reference non-existent selectors
+- <strong>Impact</strong>: Sidebar overlays or breaks on mobile viewports. E2E responsive tests broken.
+- <strong>Recommendation</strong>: Add responsive sidebar with drawer pattern (hidden on mobile, visible on md+)</p>
+<hr />
+<h2 id="3-security-review">3. Security Review | مراجعة الأمان<a class="headerlink" href="#3-security-review" title="Permanent link">&para;</a></h2>
+<h3 id="31-excellent-implementations">3.1 Excellent Implementations<a class="headerlink" href="#31-excellent-implementations" title="Permanent link">&para;</a></h3>
+<p><strong>Middleware Security</strong> (<code>src/middleware.ts</code>):
+- JWT validation with signature verification on every protected route
+- CSRF double-submit cookie pattern (httpOnly <code>csrf_token</code> + readable <code>_csrf</code>)
+- CSP with nonce generation per request
+- Open redirect prevention via <code>sanitizeReturnUrl()</code>
+- X-Frame-Options: DENY, HSTS, X-Content-Type-Options: nosniff
+- Edge bundle optimization (no heavy imports in middleware)</p>
+<p><strong>Authentication</strong> (<code>src/stores/auth.store.tsx</code>):
+- httpOnly cookies for tokens (not accessible via JS)
+- Server-side session management via <code>/api/auth/session</code>
+- BroadcastChannel for cross-tab logout sync
+- Auto session expiry listener (<code>auth:session-expired</code> event)
+- UUID validation for <code>tenant_id</code> to prevent injection
+- E2E test mode properly gated behind <code>NODE_ENV=development</code> + explicit flag</p>
+<p><strong>CSP Configuration</strong> (<code>src/lib/security/csp-config.ts</code>):
+- Nonce-based script protection
+- Environment-aware directives (dev vs prod)
+- CSP violation reporting to <code>/api/csp-report</code>
+- <code>object-src: 'none'</code>, <code>frame-ancestors: 'none'</code>
+- Block mixed content and upgrade insecure requests in production</p>
+<h3 id="32-security-issues-found">3.2 Security Issues Found<a class="headerlink" href="#32-security-issues-found" title="Permanent link">&para;</a></h3>
+<p><strong>ISSUE-4: Cookie cleanup in logout is fragile</strong>
+- <code>auth.store.tsx:179-187</code> removes cookies with specific paths
+- If cookie was set with different path or domain, removal fails silently
+- <strong>Risk</strong>: Medium - stale tokens could persist
+- <strong>Recommendation</strong>: Server-side cookie clearing should set <code>Max-Age=0</code> explicitly</p>
+<p><strong>ISSUE-5: CSRF token rotation not enforced</strong>
+- CSRF token has 24-hour lifetime but no rotation on sensitive actions
+- <strong>Risk</strong>: Low - SameSite=strict mitigates most CSRF vectors
+- <strong>Recommendation</strong>: Rotate CSRF token after login/password change</p>
+<p><strong>ISSUE-6: <code>edgeLogger</code> suppresses errors in production</strong> <em>(Verified: CONFIRMED)</em>
+- <code>middleware.ts:43-48</code> defines <code>edgeLogger.error()</code> that only logs when <code>NODE_ENV === "development"</code>:
+  <code>typescript
+  const edgeLogger = {
+    error: (...args: unknown[]) =&gt; {
+      if (process.env.NODE_ENV === "development") {
+        console.error(...args);
+      }
+    },
+  };</code>
+- Used at 3 critical security points:
+  - Line 193: CSRF validation failure logging
+  - Line 230: JWT validation exception logging
+  - Line 239: JWT validation failure logging
+- <code>src/lib/logger.ts</code> also has <code>logger.error()</code> as dev-only - but can't be used in middleware because it imports <code>@sentry/nextjs</code> (~300KB), too heavy for Edge Runtime
+- Only <code>logger.critical()</code> and <code>logger.production()</code> work in production, but neither is Edge-compatible
+- <strong>Affected Files</strong>:
+  - <code>src/middleware.ts</code> - edgeLogger needs production-safe output
+  - <code>src/lib/logger.ts</code> - needs an Edge-compatible production logger export
+- <strong>Impact</strong>: In production, JWT brute-force attacks, CSRF failures, and signature tampering are <strong>completely invisible</strong>. No logs, no alerts, no monitoring.
+- <strong>Risk</strong>: HIGH - security blind spot
+- <strong>Recommendation</strong>: Add Edge-compatible production logging (e.g., <code>console.error</code> unconditionally or POST to <code>/api/security-log</code> endpoint)</p>
+<hr />
+<h2 id="4-ui-components-review">4. UI Components Review | مراجعة مكونات الواجهة<a class="headerlink" href="#4-ui-components-review" title="Permanent link">&para;</a></h2>
+<h3 id="41-component-quality">4.1 Component Quality<a class="headerlink" href="#41-component-quality" title="Permanent link">&para;</a></h3>
+<p><strong>Button</strong> (<code>src/components/ui/button.tsx</code>) - <strong>Score: 9/10</strong>
+- 5 variants (primary, secondary, outline, ghost, danger)
+- 3 sizes (sm, md, lg)
+- Loading state with screen reader text (bilingual)
+- Left/right icon support with RTL-aware margins (<code>ms-</code>/<code>me-</code>)
+- Proper <code>aria-busy</code>, <code>aria-disabled</code> attributes
+- Default <code>type="button"</code> prevents accidental form submissions</p>
+<p><strong>Modal</strong> (<code>src/components/ui/modal.tsx</code>) - <strong>Score: 9/10</strong>
+- Focus lock via <code>react-focus-lock</code> (excellent)
+- Escape key handling
+- Focus restoration on close
+- Screen reader announcement on open
+- Body scroll lock
+- 5 sizes (sm, md, lg, xl, full)
+- Proper <code>aria-modal</code>, <code>aria-labelledby</code>, <code>aria-describedby</code></p>
+<p><strong>Toast</strong> (<code>src/components/ui/toast.tsx</code>) - <strong>Score: 8/10</strong>
+- Exit animations with <code>isExiting</code> state
+- Lazy-loaded Lucide icons (saves ~5KB initial bundle)
+- Action buttons with callbacks
+- Bilingual messages
+- Auto-dismiss with configurable duration
+- Proper <code>aria-live="polite"</code> for screen readers
+- <strong>Minor issue</strong>: No toast limit - could stack infinitely</p>
+<p><strong>ErrorBoundary</strong> (<code>src/components/common/ErrorBoundary.tsx</code>) - <strong>Score: 9/10</strong>
+- Server-side error logging with unique error IDs
+- Retry and home navigation options
+- Development-only stack traces
+- HOC wrapper (<code>withErrorBoundary</code>) for easy use
+- Full bilingual and accessible</p>
+<h3 id="42-missing-components">4.2 Missing Components<a class="headerlink" href="#42-missing-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Priority</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Table/DataGrid</strong></td>
+<td>HIGH</td>
+<td>Required for fields, tasks, inventory lists</td>
+</tr>
+<tr>
+<td><strong>Select/Dropdown</strong></td>
+<td>HIGH</td>
+<td>No custom select component</td>
+</tr>
+<tr>
+<td><strong>Tabs</strong></td>
+<td>HIGH</td>
+<td>Needed for detail pages</td>
+</tr>
+<tr>
+<td><strong>Breadcrumb</strong></td>
+<td>MEDIUM</td>
+<td>Navigation context</td>
+</tr>
+<tr>
+<td><strong>Avatar</strong></td>
+<td>MEDIUM</td>
+<td>User profile display</td>
+</tr>
+<tr>
+<td><strong>Pagination</strong></td>
+<td>MEDIUM</td>
+<td>List navigation</td>
+</tr>
+<tr>
+<td><strong>Skeleton</strong></td>
+<td>MEDIUM</td>
+<td>Loading placeholders (inline in dashboard only)</td>
+</tr>
+<tr>
+<td><strong>Alert/Banner</strong></td>
+<td>MEDIUM</td>
+<td>Inline notifications</td>
+</tr>
+<tr>
+<td><strong>Progress</strong></td>
+<td>LOW</td>
+<td>Upload/sync progress</td>
+</tr>
+<tr>
+<td><strong>Tooltip</strong></td>
+<td>LOW</td>
+<td>Feature hints</td>
+</tr>
+<tr>
+<td><strong>Date Picker</strong></td>
+<td>HIGH</td>
+<td>Season/calendar features need it</td>
+</tr>
+<tr>
+<td><strong>Map Component</strong></td>
+<td>HIGH</td>
+<td>Reusable map wrapper</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-api-integration-review-api">5. API Integration Review | مراجعة تكامل الـ API<a class="headerlink" href="#5-api-integration-review-api" title="Permanent link">&para;</a></h2>
+<h3 id="51-strengths">5.1 Strengths<a class="headerlink" href="#51-strengths" title="Permanent link">&para;</a></h3>
+<p><strong>Unified Client</strong> (<code>src/lib/api/unified-client.ts</code>):
+- Uses <code>@sahool/api-client</code> shared package
+- Auto CSRF header injection for non-GET requests
+- httpOnly cookie-based auth (withCredentials: true)
+- Token refresh via server-side proxy <code>/api/auth/refresh</code>
+- Retry with exponential backoff (3 retries, 1s-30s)
+- HTTPS enforcement in production</p>
+<p><strong>React Query Hooks</strong> (<code>src/lib/api/hooks.ts</code>):
+- Centralized query key management (<code>apiQueryKeys</code>)
+- Proper <code>enabled</code> flags (no fetching with null params)
+- Custom stale times per resource (2 min for fields)
+- Exponential retry delays
+- Clean separation of query keys for cache invalidation</p>
+<h3 id="52-issues-found">5.2 Issues Found<a class="headerlink" href="#52-issues-found" title="Permanent link">&para;</a></h3>
+<p><strong>ISSUE-7: No mutation hooks in central API</strong>
+- <code>hooks.ts</code> only has query hooks (read), no mutations (write)
+- Create/update/delete are spread across feature modules
+- <strong>Impact</strong>: Inconsistent error handling and cache invalidation
+- <strong>Recommendation</strong>: Add <code>useMutation</code> hooks to central API layer</p>
+<p><strong>ISSUE-8: No request deduplication for WebSocket</strong>
+- <code>src/lib/ws/index.ts</code> creates new WebSocket per subscription
+- No connection sharing or multiplexing
+- <strong>Impact</strong>: Multiple WebSocket connections in dashboards
+- <strong>Recommendation</strong>: Implement connection pooling</p>
+<p><strong>ISSUE-9: API client fallback URL empty string</strong>
+- <code>unified-client.ts:19</code> - <code>NEXT_PUBLIC_API_URL || ""</code>
+- Empty string means requests go to same origin (which may work via rewrites)
+- But can cause confusion in debugging
+- <strong>Recommendation</strong>: Log a warning when running without explicit API URL</p>
+<hr />
+<h2 id="6-feature-implementation-review">6. Feature Implementation Review | مراجعة تنفيذ الميزات<a class="headerlink" href="#6-feature-implementation-review" title="Permanent link">&para;</a></h2>
+<h3 id="61-dashboard-srcfeatureshome">6.1 Dashboard (<code>src/features/home/</code>)<a class="headerlink" href="#61-dashboard-srcfeatureshome" title="Permanent link">&para;</a></h3>
+<p><strong>Quality: 8/10</strong>
+- Progressive loading with Suspense boundaries
+- Custom skeleton loaders for each section
+- 5 dashboard sections: Stats, Activity, Weather, Tasks, QuickActions
+- <code>useMemo</code> for derived data</p>
+<h3 id="62-fields-srcfeaturesfields">6.2 Fields (<code>src/features/fields/</code>)<a class="headerlink" href="#62-fields-srcfeaturesfields" title="Permanent link">&para;</a></h3>
+<p><strong>Quality: 8/10</strong>
+- Full CRUD with form validation
+- Error tracking breadcrumbs
+- Bilingual error messages
+- Detail page with <code>[id]</code> dynamic route
+- <code>useCreateField</code> mutation hook
+- Field form with validation (name length, area bounds)</p>
+<h3 id="63-login-srcappauthlogin">6.3 Login (<code>src/app/(auth)/login/</code>)<a class="headerlink" href="#63-login-srcappauthlogin" title="Permanent link">&para;</a></h3>
+<p><strong>Quality: 8/10</strong>
+- Dual login method (phone/email)
+- Yemen phone format support (+967)
+- Proper <code>autoComplete</code> attributes
+- Error message extraction from API responses
+- Loading state on button
+- Links to register and forgot-password</p>
+<h3 id="64-sidebar-navigation">6.4 Sidebar Navigation<a class="headerlink" href="#64-sidebar-navigation" title="Permanent link">&para;</a></h3>
+<p><strong>Quality: 7/10</strong>
+- 15 navigation items with proper icons
+- Active state detection with <code>pathname</code>
+- i18n labels via <code>useTranslations</code>
+- <code>aria-current="page"</code> for active item
+- <code>React.memo</code> for performance
+- <strong>Missing</strong>: Mobile drawer, collapsible mode, notification badges</p>
+<hr />
+<h2 id="7-testing-review">7. Testing Review | مراجعة الاختبارات<a class="headerlink" href="#7-testing-review" title="Permanent link">&para;</a></h2>
+<h3 id="71-test-coverage">7.1 Test Coverage<a class="headerlink" href="#71-test-coverage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Files</th>
+<th>Framework</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unit tests</strong></td>
+<td>47 files</td>
+<td>Vitest</td>
+</tr>
+<tr>
+<td><strong>E2E tests</strong></td>
+<td>27 files</td>
+<td>Playwright</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>74 files</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-well-tested-areas">7.2 Well-Tested Areas<a class="headerlink" href="#72-well-tested-areas" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Security: CSP, CSRF, JWT, nonce validation (6 test files)</li>
+<li>Auth store: State management, security, contracts (4 test files)</li>
+<li>API client: Routes, auth, client methods (3 test files)</li>
+<li>UI components: Button, modal, toast, input (2 test files)</li>
+<li>E2E: Auth flows, navigation, forms, responsive (27 specs)</li>
+</ul>
+<h3 id="73-gaps-in-testing">7.3 Gaps in Testing<a class="headerlink" href="#73-gaps-in-testing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Priority</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No feature-level unit tests</strong></td>
+<td>HIGH</td>
+<td>37 features with minimal tests</td>
+</tr>
+<tr>
+<td><strong>No hook tests</strong></td>
+<td>HIGH</td>
+<td>Only <code>useFormValidation</code> tested</td>
+</tr>
+<tr>
+<td><strong>No integration tests</strong></td>
+<td>MEDIUM</td>
+<td>API → UI flow untested</td>
+</tr>
+<tr>
+<td><strong>No snapshot tests</strong></td>
+<td>LOW</td>
+<td>UI regression not caught</td>
+</tr>
+<tr>
+<td><strong>No performance tests</strong></td>
+<td>LOW</td>
+<td>No Web Vitals benchmarks</td>
+</tr>
+</tbody>
+</table>
+<h3 id="74-e2e-test-quality">7.4 E2E Test Quality<a class="headerlink" href="#74-e2e-test-quality" title="Permanent link">&para;</a></h3>
+<p>The Playwright setup is well-configured:
+- Multi-browser (Chromium, Firefox, WebKit)
+- Mobile viewport testing (Pixel 5, iPhone 12)
+- CI adaptations (2 workers, 1 retry)
+- Screenshots/video on failure
+- 27 comprehensive test suites covering auth, navigation, forms, accessibility</p>
+<hr />
+<h2 id="8-performance-review">8. Performance Review | مراجعة الأداء<a class="headerlink" href="#8-performance-review" title="Permanent link">&para;</a></h2>
+<h3 id="81-optimizations-present">8.1 Optimizations Present<a class="headerlink" href="#81-optimizations-present" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Code Splitting</strong>: Charts (recharts/d3), Maps (leaflet/maplibre), Framework chunks</li>
+<li><strong>Lazy Icons</strong>: Toast icons loaded via <code>React.lazy()</code> (~5KB saved)</li>
+<li><strong>Async CSS</strong>: Leaflet CSS loaded non-blocking via media="print" swap</li>
+<li><strong>Self-hosted Fonts</strong>: Tajawal WOFF2 with CDN fallback</li>
+<li><strong>Query Scoping</strong>: QueryClientProvider only in dashboard layout</li>
+<li><strong>Package Optimization</strong>: <code>optimizePackageImports</code> for 14 packages</li>
+<li><strong>Standalone Output</strong>: Minimal Docker image</li>
+</ul>
+<h3 id="82-performance-issues">8.2 Performance Issues<a class="headerlink" href="#82-performance-issues" title="Permanent link">&para;</a></h3>
+<p><strong>~~ISSUE-10: No dynamic imports for heavy features~~</strong> <em>(Verified: DISPROVEN)</em>
+- <strong>Deep verification found 12 <code>.dynamic.tsx</code> wrapper files</strong> properly implementing code splitting:
+  - <code>components/charts/LazyRecharts.dynamic.tsx</code> - 15 Recharts components lazy-loaded (~120KB saved)
+  - <code>components/dashboard/MapView.dynamic.tsx</code> - MapLibre GL lazy-loaded (~200KB saved)
+  - <code>features/fields/components/FieldMap.dynamic.tsx</code> - Field map lazy-loaded
+  - <code>features/fields/components/InteractiveFieldMap.dynamic.tsx</code> - Interactive map lazy-loaded
+  - <code>features/analytics/components/ComparisonChart.dynamic.tsx</code> - Analytics charts lazy-loaded
+  - <code>features/analytics/components/CostAnalysis.dynamic.tsx</code> - Cost analysis lazy-loaded
+  - <code>features/analytics/components/YieldAnalysis.dynamic.tsx</code> - Yield analysis lazy-loaded
+  - <code>features/analytics/components/YieldChart.dynamic.tsx</code> - Yield chart lazy-loaded
+  - <code>features/iot/components/SensorChart.dynamic.tsx</code> - IoT charts lazy-loaded
+  - <code>features/iot/components/SensorReadings.dynamic.tsx</code> - Sensor data lazy-loaded
+  - <code>features/scouting/components/ObservationMarker.dynamic.tsx</code> - Map markers lazy-loaded
+  - <code>features/scouting/components/ScoutingMode.dynamic.tsx</code> - Scouting UI lazy-loaded
+- All use <code>next/dynamic</code> with <code>{ ssr: false }</code> and loading spinners
+- <strong>This issue is NOT valid</strong> - code splitting is well-implemented</p>
+<p><strong>ISSUE-11: No image optimization component</strong>
+- Images use <code>&lt;img&gt;</code> tags instead of <code>next/image</code>
+- <strong>Impact</strong>: No automatic WebP/AVIF, no lazy loading, no blur placeholder
+- <strong>Recommendation</strong>: Create wrapper around <code>next/image</code> for farm photos</p>
+<p><strong>ISSUE-12: No route prefetching control</strong>
+- All sidebar links use <code>&lt;Link&gt;</code> which prefetches by default
+- 15 routes × ~50KB each = ~750KB prefetched on dashboard load
+- <strong>Impact</strong>: Bandwidth waste in low-connectivity environments
+- <strong>Recommendation</strong>: Add <code>prefetch={false}</code> to sidebar links</p>
+<hr />
+<h2 id="9-internationalization-review">9. Internationalization Review | مراجعة التعريب<a class="headerlink" href="#9-internationalization-review" title="Permanent link">&para;</a></h2>
+<h3 id="91-strengths">9.1 Strengths<a class="headerlink" href="#91-strengths" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>next-intl</code> properly configured with Arabic as default</li>
+<li>Edge-optimized locale detection (no heavy middleware import)</li>
+<li>Cookie-based locale persistence (1 year)</li>
+<li>RTL-aware CSS (<code>start</code>/<code>end</code> instead of <code>left</code>/<code>right</code>)</li>
+<li>Components use <code>ms-</code>/<code>me-</code> Tailwind utilities for RTL spacing</li>
+<li>Skip-to-content link is bilingual</li>
+</ul>
+<h3 id="92-issues">9.2 Issues<a class="headerlink" href="#92-issues" title="Permanent link">&para;</a></h3>
+<p><strong>ISSUE-13: Mixed hardcoded and i18n strings</strong>
+- Login page has hardcoded Arabic: <code>"تسجيل الدخول إلى سهول"</code>
+- Error boundary has hardcoded Arabic: <code>"حدث خطأ غير متوقع"</code>
+- Sidebar labels use <code>t()</code> properly, but some features don't
+- <strong>Recommendation</strong>: Move all strings to <code>next-intl</code> message files</p>
+<p><strong>ISSUE-14: No locale switcher in sidebar</strong>
+- <code>LocaleSwitcher</code> component exists but not used in main navigation
+- Users can't switch language from the dashboard
+- <strong>Recommendation</strong>: Add language toggle to sidebar footer or header</p>
+<hr />
+<h2 id="10-pwa-support-pwa">10. PWA Support | دعم PWA<a class="headerlink" href="#10-pwa-support-pwa" title="Permanent link">&para;</a></h2>
+<h3 id="101-current-state">10.1 Current State<a class="headerlink" href="#101-current-state" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Basic <code>ServiceWorkerRegistration.tsx</code> component exists</li>
+<li><code>manifest.json</code> configured</li>
+<li>React Query has <code>refetchOnReconnect: true</code></li>
+</ul>
+<p><strong>Note</strong>: Full offline support is <strong>not required</strong> for the web app. The web application targets managers and analysts who typically have stable internet connections. The mobile app (Flutter) handles offline-first field operations.</p>
+<p>The current PWA setup is sufficient for installability and basic caching.</p>
+<hr />
+<h2 id="11-dark-mode-review">11. Dark Mode Review | مراجعة الوضع الداكن<a class="headerlink" href="#11-dark-mode-review" title="Permanent link">&para;</a></h2>
+<h3 id="111-implementation">11.1 Implementation<a class="headerlink" href="#111-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Class-based (<code>darkMode: "class"</code>) via ThemeProvider</li>
+<li>System preference detection</li>
+<li>LocalStorage persistence</li>
+<li><code>ThemeToggle</code> component exists</li>
+</ul>
+<h3 id="112-issues">11.2 Issues<a class="headerlink" href="#112-issues" title="Permanent link">&para;</a></h3>
+<p><strong>ISSUE-15: Modal not dark-mode aware</strong>
+- <code>modal.tsx:119</code> uses <code>bg-white</code> without dark variant
+- Same for border colors and text
+- <strong>Impact</strong>: Modal appears bright white in dark mode
+- <strong>Recommendation</strong>: Add <code>dark:bg-gray-800 dark:border-gray-700</code> variants</p>
+<p><strong>ISSUE-16: Toast not dark-mode aware</strong>
+- Toast variants use light backgrounds only
+- <strong>Recommendation</strong>: Add dark mode variants</p>
+<hr />
+<h2 id="12-summary-of-issues">12. Summary of Issues | ملخص المشاكل<a class="headerlink" href="#12-summary-of-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-">Critical (يجب إصلاحها) - تم التحقق العميق<a class="headerlink" href="#critical-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Files</th>
+<th>Status</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>No mobile responsive sidebar</td>
+<td><code>sidebar.tsx</code>, <code>header.tsx</code>, <code>layout.tsx</code>, <code>responsive.spec.ts</code></td>
+<td><strong>CONFIRMED</strong></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Edge logger suppresses production errors</td>
+<td><code>middleware.ts</code>, <code>logger.ts</code></td>
+<td><strong>CONFIRMED</strong></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>~~10~~</td>
+<td>~~No dynamic imports for heavy features~~</td>
+<td>~~Multiple~~</td>
+<td><strong>DISPROVEN</strong> - 12 <code>.dynamic.tsx</code> wrappers found</td>
+<td>~~HIGH~~</td>
+</tr>
+</tbody>
+</table>
+<h3 id="important">Important (ينبغي إصلاحها)<a class="headerlink" href="#important" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>File</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>Missing <code>loading.tsx</code> for routes</td>
+<td>Dashboard routes</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>7</td>
+<td>No centralized mutation hooks</td>
+<td><code>hooks.ts</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Route prefetching wastes bandwidth</td>
+<td><code>sidebar.tsx</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Mixed hardcoded and i18n strings</td>
+<td>Multiple</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>14</td>
+<td>No locale switcher in dashboard</td>
+<td><code>sidebar.tsx</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Modal not dark-mode aware</td>
+<td><code>modal.tsx</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Toast not dark-mode aware</td>
+<td><code>toast.tsx</code></td>
+<td>MEDIUM</td>
+</tr>
+</tbody>
+</table>
+<h3 id="minor">Minor (تحسينات)<a class="headerlink" href="#minor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>File</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Root page renders Cockpit without auth</td>
+<td><code>HomeClient.tsx</code></td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Cookie cleanup fragile</td>
+<td><code>auth.store.tsx</code></td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>5</td>
+<td>No CSRF rotation on sensitive actions</td>
+<td><code>middleware.ts</code></td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>8</td>
+<td>No WebSocket connection pooling</td>
+<td><code>ws/index.ts</code></td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>9</td>
+<td>API URL fallback to empty string</td>
+<td><code>unified-client.ts</code></td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>11</td>
+<td>No next/image wrapper</td>
+<td>N/A</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-recommendations-summary">13. Recommendations Summary | ملخص التوصيات<a class="headerlink" href="#13-recommendations-summary" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-actions">Immediate Actions (فوري)<a class="headerlink" href="#immediate-actions" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Add responsive sidebar</strong> with mobile drawer (hamburger menu) - fix <code>sidebar.tsx</code>, <code>header.tsx</code>, <code>layout.tsx</code></li>
+<li><strong>Enable production error logging</strong> in middleware - fix <code>edgeLogger</code> in <code>middleware.ts</code> to log unconditionally</li>
+<li><strong>Fix E2E responsive tests</strong> - <code>responsive.spec.ts</code> references non-existent <code>data-testid</code> selectors</li>
+<li><strong>Add <code>loading.tsx</code></strong> to all dashboard routes (only <code>fields/</code> has one currently)</li>
+</ol>
+<h3 id="short-term">Short-term (قصير المدى)<a class="headerlink" href="#short-term" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Expand UI component library</strong> (Table, Select, Tabs, DatePicker, Pagination)</li>
+<li><strong>Fix dark mode</strong> for Modal and Toast components</li>
+<li><strong>Centralize mutation hooks</strong> in API layer</li>
+<li><strong>Increase test coverage</strong> - target 150+ test files</li>
+<li><strong>Add <code>prefetch={false}</code></strong> to sidebar links</li>
+</ol>
+<h3 id="long-term">Long-term (طويل المدى)<a class="headerlink" href="#long-term" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Add WebAuthn/FIDO2</strong> for biometric authentication</li>
+<li><strong>Create shared design system</strong> fully integrated between web and mobile</li>
+<li><strong>Add Web Speech API</strong> for voice commands (optional)</li>
+</ol>
+<hr />
+<h2 id="14-deep-verification-results">14. Deep Verification Results | نتائج التحقق العميق<a class="headerlink" href="#14-deep-verification-results" title="Permanent link">&para;</a></h2>
+<p>تم إجراء تحقق عميق من المشاكل الحرجة الثلاث مع فحص الملفات المتأثرة والتبعيات.</p>
+<h3 id="issue-3-sidebar-responsiveness-confirmed">Issue #3: Sidebar Responsiveness - CONFIRMED<a class="headerlink" href="#issue-3-sidebar-responsiveness-confirmed" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات المفحوصة:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/components/layouts/sidebar.tsx</code></td>
+<td>Fixed <code>w-64</code>, NO responsive breakpoints (<code>hidden</code>, <code>md:block</code>, <code>lg:block</code>), no drawer</td>
+</tr>
+<tr>
+<td><code>src/components/layouts/header.tsx</code></td>
+<td>Has <code>next/dynamic</code> for UserMenuDropdown, LocaleSwitcher, ThemeToggle - but NO hamburger/mobile menu button</td>
+</tr>
+<tr>
+<td><code>src/app/(dashboard)/layout.tsx</code></td>
+<td><code>&lt;div className="flex h-screen ..."&gt;&lt;Sidebar /&gt;&lt;div className="flex-1 ..."&gt;</code> - always shows sidebar</td>
+</tr>
+<tr>
+<td><code>e2e/responsive.spec.ts</code></td>
+<td>Tests expect <code>[data-testid="mobile-menu"]</code> and <code>[data-testid="mobile-drawer"]</code> - <strong>both selectors do NOT exist in any component</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير:</strong> الشريط الجانبي يظهر دائماً بعرض 256px حتى على شاشات الهاتف. اختبارات E2E للاستجابة ستفشل جميعها.</p>
+<h3 id="issue-6-edge-logger-confirmed">Issue #6: Edge Logger - CONFIRMED<a class="headerlink" href="#issue-6-edge-logger-confirmed" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات المفحوصة:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/middleware.ts:43-48</code></td>
+<td><code>edgeLogger.error()</code> wrapped in <code>if (process.env.NODE_ENV === "development")</code> - silent in production</td>
+</tr>
+<tr>
+<td><code>src/middleware.ts:193</code></td>
+<td>CSRF failure log → <strong>silent in production</strong></td>
+</tr>
+<tr>
+<td><code>src/middleware.ts:230</code></td>
+<td>JWT exception log → <strong>silent in production</strong></td>
+</tr>
+<tr>
+<td><code>src/middleware.ts:239</code></td>
+<td>JWT validation failure log → <strong>silent in production</strong></td>
+</tr>
+<tr>
+<td><code>src/lib/logger.ts</code></td>
+<td><code>logger.error()</code>, <code>logger.warn()</code>, <code>logger.info()</code> all dev-only. Only <code>logger.critical()</code> (uses Sentry) works in prod, but imports <code>@sentry/nextjs</code> (~300KB) - <strong>too heavy for Edge Runtime</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير:</strong> في بيئة الإنتاج، هجمات JWT brute-force وفشل CSRF وتلاعب التوقيعات كلها <strong>غير مرئية تماماً</strong>. لا سجلات، لا تنبيهات.</p>
+<p><strong>السبب الجذري:</strong> Edge Runtime لا يدعم استيراد <code>@sentry/nextjs</code> (300KB+) ولا <code>@/lib/logger</code> الذي يعتمد عليه. الحل المؤقت (<code>edgeLogger</code> المحلي) أسكت كل شيء بدلاً من استخدام <code>console.error</code> بدون شرط.</p>
+<h3 id="issue-10-dynamic-imports-disproven">Issue #10: Dynamic Imports - DISPROVEN<a class="headerlink" href="#issue-10-dynamic-imports-disproven" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات المكتشفة:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dynamic Wrapper File</th>
+<th>Component</th>
+<th>Bundle Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>components/charts/LazyRecharts.dynamic.tsx</code></td>
+<td>15 Recharts components</td>
+<td>~120KB</td>
+</tr>
+<tr>
+<td><code>components/dashboard/MapView.dynamic.tsx</code></td>
+<td>MapLibre GL JS</td>
+<td>~200KB</td>
+</tr>
+<tr>
+<td><code>features/fields/components/FieldMap.dynamic.tsx</code></td>
+<td>Field map</td>
+<td>~50KB</td>
+</tr>
+<tr>
+<td><code>features/fields/components/InteractiveFieldMap.dynamic.tsx</code></td>
+<td>Interactive field map</td>
+<td>~50KB</td>
+</tr>
+<tr>
+<td><code>features/analytics/components/ComparisonChart.dynamic.tsx</code></td>
+<td>Comparison charts</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>features/analytics/components/CostAnalysis.dynamic.tsx</code></td>
+<td>Cost analysis</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>features/analytics/components/YieldAnalysis.dynamic.tsx</code></td>
+<td>Yield analysis</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>features/analytics/components/YieldChart.dynamic.tsx</code></td>
+<td>Yield chart</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>features/iot/components/SensorChart.dynamic.tsx</code></td>
+<td>IoT sensor charts</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>features/iot/components/SensorReadings.dynamic.tsx</code></td>
+<td>Sensor readings</td>
+<td>~20KB</td>
+</tr>
+<tr>
+<td><code>features/scouting/components/ObservationMarker.dynamic.tsx</code></td>
+<td>Map markers</td>
+<td>~15KB</td>
+</tr>
+<tr>
+<td><code>features/scouting/components/ScoutingMode.dynamic.tsx</code></td>
+<td>Scouting UI</td>
+<td>~20KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>النتيجة:</strong> تقسيم الكود مُطبق بشكل ممتاز عبر 12 ملف wrapper. تم تصحيح تقييم الأداء من 7/10 إلى 8/10.</p>
+<hr />
+<h2 id="15-positive-highlights">15. Positive Highlights | النقاط الإيجابية<a class="headerlink" href="#15-positive-highlights" title="Permanent link">&para;</a></h2>
+<p>The web application has several excellent patterns worth preserving:</p>
+<ol>
+<li><strong>Security is production-grade</strong> - CSP, CSRF, JWT, nonce, HSTS all properly implemented</li>
+<li><strong>Auth store is well-designed</strong> - Cross-tab logout, session expiry, UUID validation</li>
+<li><strong>ErrorBoundary is comprehensive</strong> - Server logging, retry, bilingual, accessible</li>
+<li><strong>Button component is exemplary</strong> - Variants, sizes, loading, icons, RTL, ARIA</li>
+<li><strong>Modal accessibility is excellent</strong> - Focus lock, restore, screen reader announcements</li>
+<li><strong>Toast lazy-loading pattern</strong> is creative and effective</li>
+<li><strong>Edge middleware optimization</strong> saves ~500KB+ by avoiding heavy imports</li>
+<li><strong>QueryClient scoping</strong> to dashboard layout is a smart architectural choice</li>
+<li><strong>Progressive dashboard loading</strong> with Suspense and custom skeletons</li>
+<li><strong>Tailwind shared config</strong> via <code>@sahool/tailwind-config</code> package</li>
+<li><strong>Code splitting is thorough</strong> - 12 <code>.dynamic.tsx</code> wrappers for maps, charts, and heavy components (~600KB+ savings)</li>
+</ol>
+<hr />
+<p><em>Generated: 2026-03-19 | Deep Verification: 2026-03-19 | Platform Version: 16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

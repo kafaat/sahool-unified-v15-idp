@@ -1,0 +1,2122 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Mobile vs Web Application Comparison Review - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mobile-vs-web-application-comparison-review" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mobile vs Web Application Comparison Review
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mobile-vs-web-application-comparison-review">Mobile vs Web Application Comparison Review<a class="headerlink" href="#mobile-vs-web-application-comparison-review" title="Permanent link">&para;</a></h1>
+<h2 id="_1">مراجعة مقارنة تطبيق الهاتف والويب<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>Date</strong>: 2026-03-19
+<strong>Version</strong>: 16.0.0
+<strong>Reviewer</strong>: Claude Code AI</p>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary | ملخص تنفيذي<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Mobile (Flutter)</th>
+<th>Web (Next.js)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Framework</strong></td>
+<td>Flutter 3.27.x / Dart 3.6.0</td>
+<td>Next.js 15.x / React 19.x</td>
+</tr>
+<tr>
+<td><strong>Source Files</strong></td>
+<td>695 Dart files</td>
+<td>583 TypeScript files</td>
+</tr>
+<tr>
+<td><strong>Lines of Code</strong></td>
+<td>~350,173</td>
+<td>~113,410</td>
+</tr>
+<tr>
+<td><strong>Test Files</strong></td>
+<td>190 test files</td>
+<td>47 test files</td>
+</tr>
+<tr>
+<td><strong>Features</strong></td>
+<td>56 feature modules</td>
+<td>37 feature modules</td>
+</tr>
+<tr>
+<td><strong>UI Components</strong></td>
+<td>Custom widgets + Material</td>
+<td>266 components (10 base UI + 26 shared + 99 feature + 131 page/layout) + Tailwind</td>
+</tr>
+<tr>
+<td><strong>State Management</strong></td>
+<td>Riverpod 2.6.x</td>
+<td>TanStack React Query 5.x</td>
+</tr>
+<tr>
+<td><strong>Maps</strong></td>
+<td>flutter_map 8.1.x</td>
+<td>Leaflet 1.9.4 + MapLibre GL 4.7.1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الموبايل أكبر بـ 3 أضعاف من الويب من حيث حجم الكود والميزات.</strong></p>
+<hr />
+<h2 id="2-feature-comparison">2. Feature Comparison | مقارنة الميزات<a class="headerlink" href="#2-feature-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="21-features-in-both-platforms">2.1 Features in Both Platforms (مشتركة)<a class="headerlink" href="#21-features-in-both-platforms" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Mobile</th>
+<th>Web</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication (Login/Register)</td>
+<td>login, OTP, biometric, role selection</td>
+<td>login, register, forgot-password, OTP</td>
+<td>Mobile has biometric auth</td>
+</tr>
+<tr>
+<td>Fields Management</td>
+<td>field, fields, field_hub</td>
+<td>fields, field-map</td>
+<td>Mobile has field_hub &amp; field_scout</td>
+</tr>
+<tr>
+<td>Crop Health</td>
+<td>crop_health</td>
+<td>crop-health</td>
+<td>Both have components</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>weather</td>
+<td>weather</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>irrigation, pivot_irrigation</td>
+<td>irrigation, pivot-irrigation</td>
+<td>Parity</td>
+</tr>
+<tr>
+<td>Equipment</td>
+<td>equipment</td>
+<td>equipment</td>
+<td>Both have data/presentation</td>
+</tr>
+<tr>
+<td>Tasks</td>
+<td>tasks</td>
+<td>tasks</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Alerts</td>
+<td>alerts, smart_alerts</td>
+<td>alerts</td>
+<td>Mobile has smart_alerts extra</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>analytics</td>
+<td>analytics</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Marketplace</td>
+<td>marketplace</td>
+<td>marketplace</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td>chat</td>
+<td>- community feature</td>
+<td>Different scope</td>
+</tr>
+<tr>
+<td>Satellite/NDVI</td>
+<td>satellite, ndvi</td>
+<td>satellite, ndvi</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>settings</td>
+<td>settings</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>notifications</td>
+<td>notifications</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Community</td>
+<td>community</td>
+<td>community</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>reports</td>
+<td>reports</td>
+<td>Web has richer report components</td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td>inventory</td>
+<td>inventory</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>IoT</td>
+<td>iot</td>
+<td>iot</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Crops</td>
+<td>crops</td>
+<td>crops</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>VRA</td>
+<td>vra</td>
+<td>vra</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>GDD</td>
+<td>gdd</td>
+<td>precision-agriculture/gdd</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Wallet/Billing</td>
+<td>wallet, billing</td>
+<td>wallet</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Research</td>
+<td>research</td>
+<td>research</td>
+<td>Both implemented</td>
+</tr>
+<tr>
+<td>Scouting</td>
+<td>scouting, field_scout</td>
+<td>scouting</td>
+<td>Mobile has dual modules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-mobile-only-features">2.2 Mobile-Only Features (حصرية للهاتف)<a class="headerlink" href="#22-mobile-only-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI Advisor</strong></td>
+<td>Dedicated AI advisory with state management</td>
+</tr>
+<tr>
+<td><strong>Astronomical Calendar</strong></td>
+<td>Islamic calendar with prayer times</td>
+</tr>
+<tr>
+<td><strong>CRM</strong></td>
+<td>Farmer CRM with full domain layer</td>
+</tr>
+<tr>
+<td><strong>Daily Brief</strong></td>
+<td>Daily summary briefing screen</td>
+</tr>
+<tr>
+<td><strong>Gamification</strong></td>
+<td>Achievement/points system</td>
+</tr>
+<tr>
+<td><strong>Home v16</strong></td>
+<td>New redesigned home screen</td>
+</tr>
+<tr>
+<td><strong>Lab</strong></td>
+<td>Laboratory/soil testing results</td>
+</tr>
+<tr>
+<td><strong>Map Home</strong></td>
+<td>Dedicated map-centric home view</td>
+</tr>
+<tr>
+<td><strong>Onboarding</strong></td>
+<td>First-time user onboarding flow</td>
+</tr>
+<tr>
+<td><strong>Payment</strong></td>
+<td>In-app payment processing</td>
+</tr>
+<tr>
+<td><strong>Polygon Editor</strong></td>
+<td>Field boundary drawing tool</td>
+</tr>
+<tr>
+<td><strong>Profitability</strong></td>
+<td>Farm profitability calculator</td>
+</tr>
+<tr>
+<td><strong>Rotation</strong></td>
+<td>Crop rotation planning</td>
+</tr>
+<tr>
+<td><strong>Scanner</strong></td>
+<td>QR/barcode scanning</td>
+</tr>
+<tr>
+<td><strong>Spray</strong></td>
+<td>Spray scheduling &amp; tracking</td>
+</tr>
+<tr>
+<td><strong>Splash</strong></td>
+<td>Splash screen</td>
+</tr>
+<tr>
+<td><strong>Sync</strong></td>
+<td>Dedicated sync management UI</td>
+</tr>
+<tr>
+<td><strong>Virtual Sensors</strong></td>
+<td>Virtual sensor management</td>
+</tr>
+<tr>
+<td><strong>Voice Commands</strong></td>
+<td>Speech-to-text, TTS, voice UI</td>
+</tr>
+<tr>
+<td><strong>ML On-Device</strong></td>
+<td>On-device machine learning</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-web-only-features">2.3 Web-Only Features (حصرية للويب)<a class="headerlink" href="#23-web-only-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI Copilot</strong></td>
+<td>AI copilot assistant panel</td>
+</tr>
+<tr>
+<td><strong>Compliance</strong></td>
+<td>Compliance management dashboard</td>
+</tr>
+<tr>
+<td><strong>Disaster Assessment</strong></td>
+<td>Disaster risk assessment module</td>
+</tr>
+<tr>
+<td><strong>Diseases</strong></td>
+<td>Disease database/encyclopedia</td>
+</tr>
+<tr>
+<td><strong>Documents</strong></td>
+<td>Farm document management</td>
+</tr>
+<tr>
+<td><strong>Drone</strong></td>
+<td>Drone management features</td>
+</tr>
+<tr>
+<td><strong>Edge Devices</strong></td>
+<td>Edge device management</td>
+</tr>
+<tr>
+<td><strong>Farms</strong></td>
+<td>Multi-farm management view</td>
+</tr>
+<tr>
+<td><strong>Logistics</strong></td>
+<td>Logistics management</td>
+</tr>
+<tr>
+<td><strong>Precision Agriculture</strong></td>
+<td>Umbrella for GDD, spray, VRA</td>
+</tr>
+<tr>
+<td><strong>Seasons</strong></td>
+<td>Season planning &amp; management</td>
+</tr>
+<tr>
+<td><strong>Sensors</strong></td>
+<td>Dedicated sensor management</td>
+</tr>
+<tr>
+<td><strong>Soil Analysis</strong></td>
+<td>Soil analysis dashboard</td>
+</tr>
+<tr>
+<td><strong>Support</strong></td>
+<td>Customer support module</td>
+</tr>
+<tr>
+<td><strong>Team</strong></td>
+<td>Team/user management</td>
+</tr>
+<tr>
+<td><strong>Terrain</strong></td>
+<td>Terrain analysis visualization</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>User administration</td>
+</tr>
+<tr>
+<td><strong>Vision</strong></td>
+<td>Vision AI results viewer</td>
+</tr>
+<tr>
+<td><strong>Action Windows</strong></td>
+<td>Optimal action window planning</td>
+</tr>
+<tr>
+<td><strong>Audit</strong></td>
+<td>Audit trail viewer</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-architecture-comparison">3. Architecture Comparison | مقارنة المعمارية<a class="headerlink" href="#3-architecture-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="31-state-management">3.1 State Management<a class="headerlink" href="#31-state-management" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile (Riverpod)</th>
+<th>Web (React Query + Context)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pattern</td>
+<td>Provider-based reactive state</td>
+<td>Server state + client state separation</td>
+</tr>
+<tr>
+<td>Caching</td>
+<td>Built-in Riverpod cache</td>
+<td>TanStack Query cache</td>
+</tr>
+<tr>
+<td>Offline State</td>
+<td>Drift DB + outbox pattern</td>
+<td>Service Worker (basic PWA)</td>
+</tr>
+<tr>
+<td>Real-time</td>
+<td>WebSocket provider</td>
+<td>WebSocket hook</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تقييم</strong>: الموبايل يستخدم نمط أكثر نضجاً للحالة مع Riverpod، بينما الويب يعتمد على React Query للبيانات من الخادم.</p>
+<h3 id="32-offline-capabilities">3.2 Offline Capabilities<a class="headerlink" href="#32-offline-capabilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Local Database</strong></td>
+<td>Drift + SQLCipher (encrypted)</td>
+<td>No local DB</td>
+</tr>
+<tr>
+<td><strong>Sync Engine</strong></td>
+<td>Full offline sync engine with conflict resolution</td>
+<td>Basic PWA Service Worker</td>
+</tr>
+<tr>
+<td><strong>Outbox Pattern</strong></td>
+<td>Implemented (outbox_repository.dart)</td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><strong>Conflict Resolution</strong></td>
+<td>ETag-based (schema v4)</td>
+<td>Not implemented</td>
+</tr>
+<tr>
+<td><strong>Background Sync</strong></td>
+<td>Workmanager for background tasks</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td><strong>Offline UI</strong></td>
+<td>Dedicated offline UI components</td>
+<td>Basic loading states</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تقييم</strong>: <strong>الموبايل متفوق بشكل كبير</strong> في العمل بدون إنترنت. لكن دعم الأوفلاين <strong>ليس مطلوباً للويب</strong> - تطبيق الويب يستهدف المدراء والمحللين الذين لديهم اتصال مستقر بالإنترنت.</p>
+<h3 id="33-security">3.3 Security<a class="headerlink" href="#33-security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Certificate Pinning</strong></td>
+<td>3-tier (prod, staging, dev)</td>
+<td>N/A (browser-managed)</td>
+</tr>
+<tr>
+<td><strong>Device Integrity</strong></td>
+<td>Root/jailbreak detection</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Biometric Auth</strong></td>
+<td>Fingerprint/Face via local_auth</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td><strong>Screen Security</strong></td>
+<td>Screenshot prevention</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Request Signing</strong></td>
+<td>HMAC signing</td>
+<td>CSRF token</td>
+</tr>
+<tr>
+<td><strong>CSP</strong></td>
+<td>N/A</td>
+<td>Full CSP with nonce</td>
+</tr>
+<tr>
+<td><strong>JWT</strong></td>
+<td>Secure storage</td>
+<td>HTTP-only cookies</td>
+</tr>
+<tr>
+<td><strong>Session Management</strong></td>
+<td>Custom session manager</td>
+<td>Next.js middleware</td>
+</tr>
+<tr>
+<td><strong>Encryption</strong></td>
+<td>SQLCipher 256-bit AES</td>
+<td>TLS only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تقييم</strong>: كلاهما يتبع نهج أمني قوي ومناسب لمنصته. الموبايل يتميز بالأمان على مستوى الجهاز.</p>
+<h3 id="34-navigation-routing">3.4 Navigation &amp; Routing<a class="headerlink" href="#34-navigation-routing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pattern</td>
+<td>GoRouter-style routing</td>
+<td>Next.js App Router (file-based)</td>
+</tr>
+<tr>
+<td>Auth Guards</td>
+<td>Route guards</td>
+<td>Middleware-based</td>
+</tr>
+<tr>
+<td>Deep Linking</td>
+<td>Supported</td>
+<td>URL-based (native)</td>
+</tr>
+<tr>
+<td>Layout Groups</td>
+<td>N/A</td>
+<td><code>(auth)</code>, <code>(dashboard)</code> groups</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-uiux-comparison">4. UI/UX Comparison | مقارنة واجهة المستخدم<a class="headerlink" href="#4-uiux-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="41-design-system">4.1 Design System<a class="headerlink" href="#41-design-system" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Component Library</strong></td>
+<td>Custom widgets (48+ core modules)</td>
+<td>266 total components (10 base UI primitives + 256 feature/page components)</td>
+</tr>
+<tr>
+<td><strong>Styling</strong></td>
+<td>Material Design + custom theme</td>
+<td>Tailwind CSS 3.4.x</td>
+</tr>
+<tr>
+<td><strong>Icons</strong></td>
+<td>Cupertino + Material + SVG</td>
+<td>Lucide React</td>
+</tr>
+<tr>
+<td><strong>Charts</strong></td>
+<td>FL Chart</td>
+<td>Recharts</td>
+</tr>
+<tr>
+<td><strong>Fonts</strong></td>
+<td>IBM Plex Sans Arabic (local)</td>
+<td>System/web fonts</td>
+</tr>
+<tr>
+<td><strong>Animations</strong></td>
+<td>Custom animation module</td>
+<td>CSS transitions</td>
+</tr>
+<tr>
+<td><strong>Accessibility</strong></td>
+<td>Dedicated accessibility module</td>
+<td>Basic a11y</td>
+</tr>
+<tr>
+<td><strong>Haptics</strong></td>
+<td>Haptic feedback module</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Theme</strong></td>
+<td>Dark/Light with custom theme engine</td>
+<td>ThemeToggle component</td>
+</tr>
+<tr>
+<td><strong>RTL Support</strong></td>
+<td>Built-in Flutter RTL</td>
+<td>CSS direction</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تقييم</strong>: الموبايل لديه نظام تصميم أكثر شمولاً مع 48 وحدة أساسية. الويب لديه 266 مكون إجمالي (10 مكونات UI أساسية + 26 مكون مشترك + 99 مكون ميزات + 131 صفحة/تخطيط)، وهو كافٍ لتغطية 37 ميزة.</p>
+<h3 id="42-localization">4.2 Localization (التعريب)<a class="headerlink" href="#42-localization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Framework</strong></td>
+<td>Flutter l10n (ARB files)</td>
+<td>next-intl</td>
+</tr>
+<tr>
+<td><strong>Languages</strong></td>
+<td>Arabic + English</td>
+<td>Arabic + English</td>
+</tr>
+<tr>
+<td><strong>Files</strong></td>
+<td>app_ar.arb, app_en.arb</td>
+<td>next-intl config</td>
+</tr>
+<tr>
+<td><strong>Integration Guide</strong></td>
+<td>Dedicated INTEGRATION_GUIDE.md</td>
+<td>Inline configuration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-testing-comparison">5. Testing Comparison | مقارنة الاختبارات<a class="headerlink" href="#5-testing-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Test Files</strong></td>
+<td><strong>190 files</strong></td>
+<td><strong>74 files</strong> (47 unit + 27 E2E)</td>
+</tr>
+<tr>
+<td><strong>Unit Tests</strong></td>
+<td>pytest markers + flutter test</td>
+<td>Vitest</td>
+</tr>
+<tr>
+<td><strong>Integration Tests</strong></td>
+<td>integration_test/ directory</td>
+<td>Playwright E2E</td>
+</tr>
+<tr>
+<td><strong>Component Tests</strong></td>
+<td>Widget tests</td>
+<td>React Testing Library</td>
+</tr>
+<tr>
+<td><strong>Coverage Tool</strong></td>
+<td>flutter test --coverage</td>
+<td>Vitest coverage (v8)</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flutter integration tests</td>
+<td>Playwright</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تقييم</strong>: <strong>الموبايل متفوق</strong> بنسبة 2.6:1 في عدد ملفات الاختبار (190 vs 74). الويب يحتاج زيادة تغطية الاختبارات خاصة على مستوى الميزات.</p>
+<hr />
+<h2 id="6-api-integration-api">6. API Integration | تكامل الـ API<a class="headerlink" href="#6-api-integration-api" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Mobile</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HTTP Client</strong></td>
+<td>Dio 5.x with interceptors</td>
+<td>Axios 1.13.x</td>
+</tr>
+<tr>
+<td><strong>API Client</strong></td>
+<td>Custom with retry &amp; rate limiter</td>
+<td>@sahool/api-client package</td>
+</tr>
+<tr>
+<td><strong>Real-time</strong></td>
+<td>WebSocket + Socket.IO</td>
+<td>WebSocket</td>
+</tr>
+<tr>
+<td><strong>Error Handling</strong></td>
+<td>Dedicated error_handling module</td>
+<td>API error handling</td>
+</tr>
+<tr>
+<td><strong>Retry Logic</strong></td>
+<td>Built-in with exponential backoff</td>
+<td>Basic retry</td>
+</tr>
+<tr>
+<td><strong>Rate Limiting</strong></td>
+<td>Client-side rate limiter</td>
+<td>Server-side</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-key-findings-recommendations">7. Key Findings &amp; Recommendations | النتائج والتوصيات<a class="headerlink" href="#7-key-findings-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="71-strengths">7.1 Strengths (نقاط القوة)<a class="headerlink" href="#71-strengths" title="Permanent link">&para;</a></h3>
+<p><strong>Mobile:</strong>
+- Offline-first architecture is mature and production-ready
+- Comprehensive feature set (56 modules)
+- Strong security with certificate pinning, device integrity, biometrics
+- Good test coverage (190 test files)
+- Voice commands and on-device ML
+- Rich design system with animations and haptics</p>
+<p><strong>Web:</strong>
+- Clean Next.js 15 App Router architecture with route groups <code>(auth)</code> / <code>(dashboard)</code>
+- Excellent security with CSP nonce, CSRF double-submit cookie, JWT signature verification, HSTS
+- Excellent code splitting with 12 <code>.dynamic.tsx</code> wrappers (~600KB+ lazy-loaded)
+- Rich dashboard features (terrain, vision, drone, edge devices)
+- Better for admin/management workflows
+- Edge middleware optimized (~500KB+ saved by avoiding heavy imports)
+- PWA support via Service Worker
+- Monitoring with OpenTelemetry integration</p>
+<h3 id="72-gaps-recommendations">7.2 Gaps &amp; Recommendations (الفجوات والتوصيات)<a class="headerlink" href="#72-gaps-recommendations" title="Permanent link">&para;</a></h3>
+<h4 id="web-needs-improvement">Web Needs Improvement (الويب يحتاج تحسين):<a class="headerlink" href="#web-needs-improvement" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Gap</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>No responsive sidebar for mobile web</td>
+<td>Add mobile drawer with hamburger menu (<code>sidebar.tsx</code>, <code>header.tsx</code>)</td>
+</tr>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>Edge logger silent in production</td>
+<td>Fix <code>edgeLogger</code> in <code>middleware.ts</code> - security events invisible</td>
+</tr>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>74 test files vs 190 in mobile</td>
+<td>Increase test coverage, target 120+ test files</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>Base UI primitives limited to 10</td>
+<td>~~CORRECTED: 266 total components exist~~ — consider expanding <code>components/ui/</code> reusable primitives</td>
+</tr>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>E2E responsive tests broken</td>
+<td>Fix <code>responsive.spec.ts</code> - references non-existent selectors</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No biometric auth</td>
+<td>Add WebAuthn/FIDO2 support</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No onboarding flow</td>
+<td>Create first-time user experience</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No voice/speech features</td>
+<td>Add Web Speech API integration</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>No gamification</td>
+<td>Consider adding for user engagement</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>No QR/barcode scanning</td>
+<td>Add camera-based scanning</td>
+</tr>
+</tbody>
+</table>
+<h4 id="mobile-needs-improvement">Mobile Needs Improvement (الموبايل يحتاج تحسين):<a class="headerlink" href="#mobile-needs-improvement" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Gap</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No compliance module</td>
+<td>Add compliance tracking feature</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No disaster assessment</td>
+<td>Port from web</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No terrain analysis UI</td>
+<td>Add terrain visualization</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>No team management</td>
+<td>Add team/user management</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>No audit trail viewer</td>
+<td>Add audit log viewing</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>No edge device management</td>
+<td>Add for IoT power users</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-feature-parity-score">7.3 Feature Parity Score<a class="headerlink" href="#73-feature-parity-score" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">Shared</span><span class="w"> </span><span class="n">Features</span><span class="p">:</span><span class="w">     </span><span class="mi">23</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">(</span><span class="n">core</span><span class="w"> </span><span class="n">functionality</span><span class="p">)</span>
+<span class="n">Mobile</span><span class="o">-</span><span class="n">Only</span><span class="p">:</span><span class="w">         </span><span class="mi">20</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">(</span><span class="n">field</span><span class="o">-</span><span class="n">first</span><span class="w"> </span><span class="n">capabilities</span><span class="p">)</span>
+<span class="n">Web</span><span class="o">-</span><span class="n">Only</span><span class="p">:</span><span class="w">            </span><span class="mi">20</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">(</span><span class="n">admin</span><span class="o">/</span><span class="n">management</span><span class="w"> </span><span class="n">capabilities</span><span class="p">)</span>
+
+<span class="n">Feature</span><span class="w"> </span><span class="n">Parity</span><span class="p">:</span><span class="w">      </span><span class="o">~</span><span class="mi">53</span><span class="o">%</span><span class="w"> </span><span class="n">overlap</span>
+<span class="n">Mobile</span><span class="w"> </span><span class="n">Advantage</span><span class="p">:</span><span class="w">    </span><span class="n">Offline</span><span class="p">,</span><span class="w"> </span><span class="n">security</span><span class="p">,</span><span class="w"> </span><span class="n">voice</span><span class="p">,</span><span class="w"> </span><span class="n">ML</span><span class="p">,</span><span class="w"> </span><span class="n">maps</span>
+<span class="n">Web</span><span class="w"> </span><span class="n">Advantage</span><span class="p">:</span><span class="w">       </span><span class="n">Admin</span><span class="w"> </span><span class="n">tools</span><span class="p">,</span><span class="w"> </span><span class="n">terrain</span><span class="p">,</span><span class="w"> </span><span class="n">vision</span><span class="p">,</span><span class="w"> </span><span class="n">compliance</span><span class="p">,</span><span class="w"> </span><span class="n">team</span>
+</code></pre></div>
+
+<hr />
+<h2 id="8-deep-verification-summary">8. Deep Verification Summary | ملخص التحقق العميق<a class="headerlink" href="#8-deep-verification-summary" title="Permanent link">&para;</a></h2>
+<p>تم إجراء تحقق عميق من المشاكل الحرجة في الويب:</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Status</th>
+<th>Affected Files</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sidebar not responsive</td>
+<td><strong>CONFIRMED</strong></td>
+<td><code>sidebar.tsx</code>, <code>header.tsx</code>, <code>layout.tsx</code>, <code>responsive.spec.ts</code></td>
+<td>Sidebar breaks on mobile, E2E tests fail</td>
+</tr>
+<tr>
+<td>Edge logger silent in production</td>
+<td><strong>CONFIRMED</strong></td>
+<td><code>middleware.ts</code>, <code>logger.ts</code></td>
+<td>JWT/CSRF security attacks invisible in production</td>
+</tr>
+<tr>
+<td>Missing dynamic imports</td>
+<td><strong>DISPROVEN</strong></td>
+<td>12 <code>.dynamic.tsx</code> files found</td>
+<td>Code splitting is well-implemented</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة</strong>: تم تصحيح تقييم أداء الويب من 7/10 إلى 8/10 بعد اكتشاف 12 ملف wrapper للتحميل الديناميكي. التقييم العام: 7.75/10.</p>
+<hr />
+<h2 id="9-loc-distribution">9. LOC Distribution | توزيع أسطر الكود<a class="headerlink" href="#9-loc-distribution" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">Mobile</span><span class="o">:</span><span class="w">  </span><span class="mi">350</span><span class="o">,</span><span class="mi">173</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="n">across</span><span class="w"> </span><span class="mi">695</span><span class="w"> </span><span class="n">files</span><span class="w">  </span><span class="o">(</span><span class="n">avg</span><span class="w"> </span><span class="mi">504</span><span class="w"> </span><span class="n">lines</span><span class="o">/</span><span class="n">file</span><span class="o">)</span>
+<span class="n">Web</span><span class="o">:</span><span class="w">     </span><span class="mi">113</span><span class="o">,</span><span class="mi">410</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="n">across</span><span class="w"> </span><span class="mi">583</span><span class="w"> </span><span class="n">files</span><span class="w">  </span><span class="o">(</span><span class="n">avg</span><span class="w"> </span><span class="mi">195</span><span class="w"> </span><span class="n">lines</span><span class="o">/</span><span class="n">file</span><span class="o">)</span>
+<span class="n">Ratio</span><span class="o">:</span><span class="w">   </span><span class="n">Mobile</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="mf">3.1</span><span class="n">x</span><span class="w"> </span><span class="n">larger</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="n">Web</span>
+</code></pre></div>
+
+<p><strong>ملاحظة</strong>: الموبايل أكبر بسبب:
+1. Offline sync engine and local database
+2. More feature modules (56 vs 37)
+3. Platform-specific code (security, voice, ML)
+4. Widget-based UI (more verbose than JSX)</p>
+<hr />
+<h2 id="10-conclusion">10. Conclusion | الخلاصة<a class="headerlink" href="#10-conclusion" title="Permanent link">&para;</a></h2>
+<p>Both applications serve complementary roles in the SAHOOL platform:</p>
+<ul>
+<li><strong>Mobile</strong>: Best for field workers - offline capability, GPS, camera, voice, sensors</li>
+<li><strong>Web</strong>: Best for managers/analysts - dashboards, reports, administration, compliance</li>
+</ul>
+<p><strong>Priority Actions:</strong>
+1. <strong>Fix responsive sidebar</strong> - fixed 256px sidebar breaks on mobile, E2E tests reference non-existent selectors
+2. <strong>Fix production security logging</strong> - edge logger in <code>middleware.ts</code> silences all JWT/CSRF errors in production
+3. <strong>Increase web test coverage</strong> - gap at 74 vs 190 test files, feature-level tests minimal
+4. ~~<strong>Expand web UI components</strong>~~ - CORRECTED: Web has 266 components total (10 base UI + 26 shared + 99 feature + 131 page/layout), sufficient for 37 features
+5. <strong>Standardize shared features</strong> - ensure feature parity for the 23 shared modules</p>
+<hr />
+<p><em>Generated: 2026-03-19 | Updated: 2026-03-19 (deep verification) | Platform Version: 16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

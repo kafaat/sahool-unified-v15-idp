@@ -1,0 +1,3188 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Mobile vs Web Gap Analysis & Implementation Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mobile-vs-web-gap-analysis-implementation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mobile vs Web Gap Analysis &amp; Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mobile-vs-web-gap-analysis-implementation-plan">Mobile vs Web Gap Analysis &amp; Implementation Plan<a class="headerlink" href="#mobile-vs-web-gap-analysis-implementation-plan" title="Permanent link">&para;</a></h1>
+<h2 id="_1">تحليل الفجوات بين الموبايل والويب وخطة التنفيذ<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>Date</strong>: 2026-03-19
+<strong>Version</strong>: 16.0.0
+<strong>Status</strong>: Planning
+<strong>Author</strong>: AI Review</p>
+<hr />
+<h2 id="executive-summary">Executive Summary | ملخص تنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>After thorough review of both mobile (<code>apps/mobile/lib/features/</code> - 56 modules) and web (<code>apps/web/src/features/</code> - 42 modules), this document identifies:</p>
+<ul>
+<li><strong>17 features</strong> in mobile but missing from web</li>
+<li><strong>13 features</strong> in web but missing from mobile (by design)</li>
+<li><strong>3 critical bugs</strong> in current web app</li>
+<li><strong>6 features</strong> that already have partial backend/API support but no web UI</li>
+</ul>
+<hr />
+<h2 id="part-1-critical-bugs-found">Part 1: Critical Bugs Found | أخطاء حرجة مكتشفة<a class="headerlink" href="#part-1-critical-bugs-found" title="Permanent link">&para;</a></h2>
+<h3 id="bug-1-broken-profile-link-high">Bug 1: Broken Profile Link (HIGH)<a class="headerlink" href="#bug-1-broken-profile-link-high" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/components/layouts/header.tsx</code></li>
+<li><strong>Issue</strong>: User menu dropdown navigates to <code>/dashboard/profile</code> which does NOT exist as a route</li>
+<li><strong>Impact</strong>: 404 error when user clicks profile</li>
+<li><strong>Fix</strong>: Create <code>/profile</code> route OR redirect <code>/dashboard/profile</code> to <code>/settings</code></li>
+</ul>
+<h3 id="bug-2-broken-settings-link-high">Bug 2: Broken Settings Link (HIGH)<a class="headerlink" href="#bug-2-broken-settings-link-high" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/components/layouts/header.tsx</code></li>
+<li><strong>Issue</strong>: User menu navigates to <code>/dashboard/settings</code> instead of <code>/settings</code></li>
+<li><strong>Impact</strong>: 404 error when user clicks settings from dropdown</li>
+<li><strong>Fix</strong>: Update link href to <code>/settings</code></li>
+</ul>
+<h3 id="bug-3-hidden-routes-medium">Bug 3: Hidden Routes (MEDIUM)<a class="headerlink" href="#bug-3-hidden-routes-medium" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/components/layouts/sidebar.tsx</code></li>
+<li><strong>Issue</strong>: Sidebar shows only 15 items but middleware protects 37+ routes. Many features exist but are undiscoverable</li>
+<li><strong>Routes not in sidebar but exist</strong>: <code>/irrigation</code>, <code>/weather</code>, <code>/iot</code>, <code>/equipment</code>, <code>/wallet</code>, <code>/tasks</code>, <code>/marketplace</code>, <code>/crop-health</code>, <code>/fields</code>, <code>/copilot</code>, <code>/crops</code>, <code>/yield</code>, <code>/sensors</code>, <code>/community</code>, <code>/precision-agriculture/*</code></li>
+<li><strong>Impact</strong>: Users cannot discover features without knowing the URL</li>
+<li><strong>Fix</strong>: Add sidebar sections/groups or expandable menus</li>
+</ul>
+<hr />
+<h2 id="part-2-features-in-mobile-missing-from-web">Part 2: Features in Mobile Missing from Web | وحدات الموبايل المفقودة من الويب<a class="headerlink" href="#part-2-features-in-mobile-missing-from-web" title="Permanent link">&para;</a></h2>
+<h3 id="category-a-full-backend-service-exists-needs-web-ui-only">Category A: Full Backend Service Exists - Needs Web UI Only<a class="headerlink" href="#category-a-full-backend-service-exists-needs-web-ui-only" title="Permanent link">&para;</a></h3>
+<p>These features have <strong>fully implemented backend services</strong> with REST endpoints, plus API client methods in <code>apps/web/src/lib/api/client.ts</code>.</p>
+<blockquote>
+<p><strong>Key Discovery</strong>: <code>billing-core</code> has 20+ endpoints (payments, refunds, Stripe/Tharwatt webhooks),
+<code>chat-service</code> has REST + WebSocket gateway, and <code>crm-service</code> has full CRUD + NLQ (natural language query).</p>
+</blockquote>
+<h4 id="a1-chat-priority-high">A1: Chat (المحادثة) - Priority: HIGH<a class="headerlink" href="#a1-chat-priority-high" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/chat/</code></td>
+</tr>
+<tr>
+<td><strong>Backend Service</strong></td>
+<td><code>chat-service</code> (port 8115, NestJS) - <strong>FULLY IMPLEMENTED (REST + WebSocket)</strong></td>
+</tr>
+<tr>
+<td><strong>Backend Endpoints</strong></td>
+<td><code>POST /conversations</code>, <code>GET /conversations/me</code>, <code>GET /conversations/:id</code>, <code>GET /conversations/:id/messages</code>, <code>POST /messages</code>, <code>POST /messages/:id/read</code>, <code>POST /conversations/:id/read</code>, <code>GET /unread-count</code></td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td><code>chat.gateway.ts</code> - real-time messaging with typing indicators, read receipts</td>
+</tr>
+<tr>
+<td><strong>DTOs</strong></td>
+<td><code>CreateConversationDto</code>, <code>SendMessageDto</code>, <code>JoinConversationDto</code>, <code>ReadReceiptDto</code>, <code>TypingIndicatorDto</code></td>
+</tr>
+<tr>
+<td><strong>API Client</strong></td>
+<td><code>client.ts:492-543</code> - <code>getFieldMessages()</code>, <code>sendFieldMessage()</code>, <code>getFieldChatParticipants()</code></td>
+</tr>
+<tr>
+<td><strong>Kong Route</strong></td>
+<td><code>/api/v1/chat</code> → <code>chat-service:8115</code></td>
+</tr>
+<tr>
+<td><strong>Shared Types</strong></td>
+<td><code>CHAT_ENDPOINTS</code> in <code>packages/shared-types/src/contracts/api-endpoints.ts:316</code></td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Web feature module + route page (WebSocket integration via <code>apps/web/src/lib/ws/</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># Barrel export</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># ChatMessage, ChatRoom, Participant types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span><span class="w">                      </span><span class="c1"># Chat API hooks (wrapping existing client methods)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useChat</span><span class="o">.</span><span class="n">ts</span><span class="w">              </span><span class="c1"># React Query hooks for messages, participants</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">ChatPage</span><span class="o">.</span><span class="n">tsx</span><span class="w">            </span><span class="c1"># Main chat page</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">ChatSidebar</span><span class="o">.</span><span class="n">tsx</span><span class="w">         </span><span class="c1"># Chat rooms/fields list</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">MessageList</span><span class="o">.</span><span class="n">tsx</span><span class="w">         </span><span class="c1"># Message display with virtual scrolling</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">MessageInput</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Text input with sanitization</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">ParticipantList</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Online participants</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span><span class="w">                    </span><span class="c1"># Route page</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span><span class="w">                 </span><span class="c1"># Loading skeleton</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/components/layouts/sidebar.tsx</code> - Add chat nav item
+- <code>apps/web/src/middleware.ts</code> - Add <code>/chat</code> to protected routes (if not already)
+- <code>apps/web/messages/ar.json</code> - Add Arabic translations for chat
+- <code>apps/web/messages/en.json</code> - Add English translations for chat</p>
+<hr />
+<h4 id="a2-billing-priority-high">A2: Billing (الفوترة) - Priority: HIGH<a class="headerlink" href="#a2-billing-priority-high" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/billing/</code></td>
+</tr>
+<tr>
+<td><strong>Backend Service</strong></td>
+<td><code>billing-core</code> (port 8089, Python FastAPI) - <strong>FULLY IMPLEMENTED (20+ endpoints)</strong></td>
+</tr>
+<tr>
+<td><strong>Backend Endpoints</strong></td>
+<td>Plans CRUD, tenant provisioning, subscriptions, usage quotas, invoices, payments, refunds, Stripe/Tharwatt webhooks, revenue/subscription reports</td>
+</tr>
+<tr>
+<td><strong>API Client</strong></td>
+<td><code>client.ts:844-858</code> - <code>getSubscription()</code>, <code>getInvoices()</code>, <code>getUsageStats()</code> + <code>api-client</code> has <code>getBillingSubscription()</code></td>
+</tr>
+<tr>
+<td><strong>Shared Types</strong></td>
+<td><code>BILLING_ENDPOINTS</code> in contracts covers subscription, plans, invoices, wallet (deposit/withdraw/transfer), transactions</td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Web feature module + route page (most API methods need to be added to web client)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># Subscription, Invoice, UsageStats types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span><span class="w">                      </span><span class="c1"># Billing API hooks</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useBilling</span><span class="o">.</span><span class="n">ts</span><span class="w">           </span><span class="c1"># React Query hooks</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">BillingPage</span><span class="o">.</span><span class="n">tsx</span><span class="w">         </span><span class="c1"># Main billing dashboard</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">SubscriptionCard</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Current plan details</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">InvoiceTable</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Invoice history table</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">UsageChart</span><span class="o">.</span><span class="n">tsx</span><span class="w">          </span><span class="c1"># Usage statistics charts</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">PlanComparison</span><span class="o">.</span><span class="n">tsx</span><span class="w">      </span><span class="c1"># Plan upgrade comparison</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/components/layouts/sidebar.tsx</code> - Add billing nav item
+- <code>apps/web/messages/ar.json</code> / <code>en.json</code> - Translations</p>
+<hr />
+<h4 id="a3-crm-priority-medium">A3: CRM (إدارة علاقات المزارعين) - Priority: MEDIUM<a class="headerlink" href="#a3-crm-priority-medium" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/crm/</code></td>
+</tr>
+<tr>
+<td><strong>Backend Service</strong></td>
+<td><code>crm-service</code> (port 8131, Python FastAPI) - <strong>FULLY IMPLEMENTED</strong></td>
+</tr>
+<tr>
+<td><strong>Backend Endpoints</strong></td>
+<td><code>POST/GET /api/v1/farmers</code>, <code>GET/PATCH /api/v1/farmers/:id</code>, <code>POST/GET /api/v1/deals</code>, <code>PATCH /api/v1/deals/:id/stage</code>, <code>GET /api/v1/deals/pipeline</code>, <code>POST/GET /api/v1/interactions</code>, <code>POST /api/v1/query</code> (NLQ)</td>
+</tr>
+<tr>
+<td><strong>Features</strong></td>
+<td>PostgreSQL + Redis caching, NATS events, tenant isolation, rate limiting, natural language query (AR/EN)</td>
+</tr>
+<tr>
+<td><strong>Shared Types</strong></td>
+<td><code>CRM_SERVICE: 8131</code> in service-ports.ts</td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>API client methods + Web feature module</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">crm</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="k">index</span><span class="p">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="p">.</span><span class="n">ts</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="n">Farmer</span><span class="p">,</span><span class="w"> </span><span class="n">Contact</span><span class="p">,</span><span class="w"> </span><span class="n">Interaction</span><span class="w"> </span><span class="n">types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">ts</span><span class="w">                      </span><span class="err">#</span><span class="w"> </span><span class="n">CRM</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hooks</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useCRM</span><span class="p">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">CRMPage</span><span class="p">.</span><span class="n">tsx</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="n">Main</span><span class="w"> </span><span class="n">CRM</span><span class="w"> </span><span class="n">dashboard</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FarmerList</span><span class="p">.</span><span class="n">tsx</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="n">Farmer</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="k">search</span><span class="o">/</span><span class="k">filter</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FarmerDetail</span><span class="p">.</span><span class="n">tsx</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Farmer</span><span class="w"> </span><span class="n">profile</span><span class="w"> </span><span class="n">detail</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">InteractionLog</span><span class="p">.</span><span class="n">tsx</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="n">Interaction</span><span class="w"> </span><span class="n">history</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">FarmerStats</span><span class="p">.</span><span class="n">tsx</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="n">Farmer</span><span class="w"> </span><span class="n">analytics</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">crm</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="p">.</span><span class="n">tsx</span>
+<span class="err">├──</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]/</span><span class="n">page</span><span class="p">.</span><span class="n">tsx</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="n">Individual</span><span class="w"> </span><span class="n">farmer</span><span class="w"> </span><span class="n">detail</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="p">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/lib/api/client.ts</code> - Add CRM API methods
+- <code>apps/web/src/components/layouts/sidebar.tsx</code> - Add CRM nav item
+- <code>apps/web/messages/ar.json</code> / <code>en.json</code></p>
+<hr />
+<h3 id="category-b-backend-module-exists-needs-api-exposure-web-ui">Category B: Backend Module Exists - Needs API Exposure + Web UI<a class="headerlink" href="#category-b-backend-module-exists-needs-api-exposure-web-ui" title="Permanent link">&para;</a></h3>
+<h4 id="b1-profitability-priority-high">B1: Profitability (تحليل الربحية) - Priority: HIGH<a class="headerlink" href="#b1-profitability-priority-high" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/profitability/</code></td>
+</tr>
+<tr>
+<td><strong>Backend Services</strong></td>
+<td><code>billing-core</code>, <code>field-management-service</code>, <code>yield-prediction-service</code></td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Dedicated feature module combining data from multiple services</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># ProfitReport, CostBreakdown, ROI types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span><span class="w">                      </span><span class="c1"># Aggregates billing + yield + field data</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useProfitability</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">ProfitabilityPage</span><span class="o">.</span><span class="n">tsx</span><span class="w">   </span><span class="c1"># Main dashboard</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">RevenueChart</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Revenue over time</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">CostBreakdown</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Costs by category (seeds, fertilizer, labor)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">ROICalculator</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Return on investment calculator</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FieldComparison</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Compare profitability across fields</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">SeasonSummary</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Seasonal P&amp;L</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/lib/api/client.ts</code> - Add profitability aggregation endpoints
+- <code>apps/web/src/components/layouts/sidebar.tsx</code> - Add to sidebar
+- <code>apps/web/messages/ar.json</code> / <code>en.json</code></p>
+<hr />
+<h4 id="b2-crop-rotation-priority-medium">B2: Crop Rotation (دورة المحاصيل) - Priority: MEDIUM<a class="headerlink" href="#b2-crop-rotation-priority-medium" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/rotation/</code></td>
+</tr>
+<tr>
+<td><strong>Backend Module</strong></td>
+<td><code>shared/crop_rotation/</code> (Python module)</td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Web feature module + API endpoints if not exposed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">rotation</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># RotationPlan, CropSequence types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useCropRotation</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">CropRotationPage</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Main page</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">RotationTimeline</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Visual timeline of planned crops</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FieldRotationMap</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Map showing rotation per field</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">SoilHealthIndicator</span><span class="o">.</span><span class="n">tsx</span><span class="w"> </span><span class="c1"># Soil health impact</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">RotationPlanner</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Drag-and-drop rotation planner</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">rotation</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<hr />
+<h4 id="b3-spray-management-priority-already-exists-partial">B3: Spray Management (إدارة الرش) - Priority: ALREADY EXISTS (PARTIAL)<a class="headerlink" href="#b3-spray-management-priority-already-exists-partial" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/spray/</code></td>
+</tr>
+<tr>
+<td><strong>Web Route</strong></td>
+<td><code>/precision-agriculture/spray</code> - <strong>ALREADY EXISTS</strong></td>
+</tr>
+<tr>
+<td><strong>Web File</strong></td>
+<td><code>apps/web/src/app/(dashboard)/precision-agriculture/spray/SprayClient.tsx</code></td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>Not in sidebar, may need full feature module</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Action</strong>: Verify <code>SprayClient.tsx</code> completeness. Add to sidebar navigation or create a redirecting shortcut.</p>
+<hr />
+<h4 id="b4-gdd-priority-already-exists-partial">B4: GDD (درجات النمو الحراري) - Priority: ALREADY EXISTS (PARTIAL)<a class="headerlink" href="#b4-gdd-priority-already-exists-partial" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/gdd/</code></td>
+</tr>
+<tr>
+<td><strong>Web Route</strong></td>
+<td><code>/precision-agriculture/gdd</code> - <strong>ALREADY EXISTS</strong></td>
+</tr>
+<tr>
+<td><strong>Web File</strong></td>
+<td><code>apps/web/src/app/(dashboard)/precision-agriculture/gdd/GDDClient.tsx</code></td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>Not in sidebar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Action</strong>: Add <code>/precision-agriculture</code> section to sidebar.</p>
+<hr />
+<h3 id="category-c-new-feature-needs-full-stack">Category C: New Feature - Needs Full Stack<a class="headerlink" href="#category-c-new-feature-needs-full-stack" title="Permanent link">&para;</a></h3>
+<h4 id="c1-daily-brief-priority-high">C1: Daily Brief (الملخص اليومي) - Priority: HIGH<a class="headerlink" href="#c1-daily-brief-priority-high" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/daily_brief/</code></td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>Aggregates data from weather, field-intelligence, alerts, tasks services</td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Everything - this is a composite view</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">daily</span><span class="o">-</span><span class="n">brief</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># DailyBrief, WeatherSummary, TaskSummary types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span><span class="w">                      </span><span class="c1"># Aggregates multiple API calls</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useDailyBrief</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">DailyBriefPage</span><span class="o">.</span><span class="n">tsx</span><span class="w">      </span><span class="c1"># Full daily brief page</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">DailyBriefWidget</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Dashboard widget version</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">WeatherWidget</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Weather summary card</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">AlertsSummary</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Active alerts summary</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">TasksToday</span><span class="o">.</span><span class="n">tsx</span><span class="w">          </span><span class="c1"># Tasks due today</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FieldStatusGrid</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Quick status of all fields</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">RecommendationsCard</span><span class="o">.</span><span class="n">tsx</span><span class="w"> </span><span class="c1"># AI recommendations for today</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">daily</span><span class="o">-</span><span class="n">brief</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/features/home/</code> - Embed DailyBriefWidget in dashboard home
+- <code>apps/web/src/components/layouts/sidebar.tsx</code>
+- <code>apps/web/messages/ar.json</code> / <code>en.json</code></p>
+<hr />
+<h4 id="c2-field-hub-priority-medium">C2: Field Hub (مركز الحقل) - Priority: MEDIUM<a class="headerlink" href="#c2-field-hub-priority-medium" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/field_hub/</code></td>
+</tr>
+<tr>
+<td><strong>Existing Web</strong></td>
+<td><code>/fields/[id]</code> route exists but may lack the unified hub view</td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>Mobile has a rich hub combining NDVI, weather, tasks, health in one screen</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create/Modify:</strong></p>
+<div class="codehilite"><pre><span></span><code>apps/web/src/features/fields/components/
+├── FieldHub.tsx                # Unified field dashboard (new)
+├── FieldHubNDVI.tsx            # NDVI section
+├── FieldHubWeather.tsx         # Weather section
+├── FieldHubTasks.tsx           # Tasks section
+├── FieldHubHealth.tsx          # Crop health section
+├── FieldHubIrrigation.tsx      # Irrigation section
+└── FieldHubTimeline.tsx        # Activity timeline
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/app/(dashboard)/fields/[id]/page.tsx</code> - Use FieldHub as main view</p>
+<hr />
+<h4 id="c3-payment-priority-medium">C3: Payment (الدفع) - Priority: MEDIUM<a class="headerlink" href="#c3-payment-priority-medium" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/payment/</code></td>
+</tr>
+<tr>
+<td><strong>Related</strong></td>
+<td><code>wallet</code> feature exists in web, <code>billing</code> API exists</td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>Payment processing flow (not just viewing wallet)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span><span class="nx">features</span><span class="o">/</span><span class="nx">payment</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="nx">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">ts</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">PaymentMethod</span><span class="p">,</span><span class="w"> </span><span class="nx">Transaction</span><span class="w"> </span><span class="nx">types</span>
+<span class="err">├──</span><span class="w"> </span><span class="kn">api</span><span class="p">.</span><span class="nx">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">usePayment</span><span class="p">.</span><span class="nx">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">PaymentPage</span><span class="p">.</span><span class="nx">tsx</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">Payment</span><span class="w"> </span><span class="nx">management</span><span class="w"> </span><span class="nx">page</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">PaymentMethodList</span><span class="p">.</span><span class="nx">tsx</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Saved</span><span class="w"> </span><span class="nx">payment</span><span class="w"> </span><span class="nx">methods</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">AddPaymentMethod</span><span class="p">.</span><span class="nx">tsx</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Add</span><span class="w"> </span><span class="nx">card</span><span class="o">/</span><span class="nx">bank</span><span class="w"> </span><span class="nx">form</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">PaymentHistory</span><span class="p">.</span><span class="nx">tsx</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Transaction</span><span class="w"> </span><span class="nx">history</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">CheckoutFlow</span><span class="p">.</span><span class="nx">tsx</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Payment</span><span class="w"> </span><span class="nx">checkout</span><span class="w"> </span><span class="nx">wizard</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/features/wallet/</code> - Integrate payment into wallet
+- <code>apps/web/src/features/billing/</code> - Link billing → payment flow</p>
+<hr />
+<h4 id="c4-profile-priority-high-bug-fix-feature">C4: Profile (الملف الشخصي) - Priority: HIGH (BUG FIX + FEATURE)<a class="headerlink" href="#c4-profile-priority-high-bug-fix-feature" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/profile/</code></td>
+</tr>
+<tr>
+<td><strong>Existing Web</strong></td>
+<td>Profile is inside settings feature (<code>apps/web/src/features/settings/types.ts</code> has profile types)</td>
+</tr>
+<tr>
+<td><strong>Bug</strong></td>
+<td>Header links to non-existent <code>/dashboard/profile</code></td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>No dedicated profile page</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Option A (Minimal):</strong> Fix header link to point to <code>/settings</code> with profile tab active.</p>
+<p><strong>Option B (Recommended):</strong> Create dedicated profile route.</p>
+<p><strong>Files to Create (Option B):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">profile</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span><span class="w">                    </span><span class="c1"># UserProfile, FarmProfile types</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useProfile</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">ProfilePage</span><span class="o">.</span><span class="n">tsx</span><span class="w">         </span><span class="c1"># Main profile page</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">PersonalInfo</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Name, email, phone</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">FarmInfo</span><span class="o">.</span><span class="n">tsx</span><span class="w">            </span><span class="c1"># Farm details</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">AvatarUpload</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Profile photo upload</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">ActivitySummary</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Recent activity</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">profile</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/components/layouts/header.tsx</code> - Fix profile link
+- <code>apps/web/src/middleware.ts</code> - Add <code>/profile</code> to protected routes</p>
+<hr />
+<h4 id="c5-gamification-priority-low">C5: Gamification (التلعيب) - Priority: LOW<a class="headerlink" href="#c5-gamification-priority-low" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/gamification/</code></td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td><strong>NO SERVICE EXISTS</strong> - No gamification service in <code>apps/services/</code></td>
+</tr>
+<tr>
+<td><strong>Related</strong></td>
+<td><code>shared/learning_marketplace/</code> has achievements/certifications (course completion, competency) but not gamification points/badges</td>
+</tr>
+<tr>
+<td><strong>Recommendation</strong></td>
+<td>Skip for web initially. Gamification works better on mobile (push notifications, badges). If needed later, build backend service first.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="c6-onboarding-priority-high">C6: Onboarding (التهيئة الأولية) - Priority: HIGH<a class="headerlink" href="#c6-onboarding-priority-high" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/onboarding/</code></td>
+</tr>
+<tr>
+<td><strong>Missing</strong></td>
+<td>Web onboarding wizard for new users</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">onboarding</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">index</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">types</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">hooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">useOnboarding</span><span class="o">.</span><span class="n">ts</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">OnboardingWizard</span><span class="o">.</span><span class="n">tsx</span><span class="w">    </span><span class="c1"># Multi-step wizard</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">StepFarmSetup</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Step 1: Farm details</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">StepFieldSetup</span><span class="o">.</span><span class="n">tsx</span><span class="w">      </span><span class="c1"># Step 2: Add first field</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">StepCropSetup</span><span class="o">.</span><span class="n">tsx</span><span class="w">       </span><span class="c1"># Step 3: Add crops</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">StepPreferences</span><span class="o">.</span><span class="n">tsx</span><span class="w">     </span><span class="c1"># Step 4: Notification preferences</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">StepComplete</span><span class="o">.</span><span class="n">tsx</span><span class="w">        </span><span class="c1"># Completion/welcome</span>
+<span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">onboarding</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">page</span><span class="o">.</span><span class="n">tsx</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">loading</span><span class="o">.</span><span class="n">tsx</span>
+</code></pre></div>
+
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/app/(dashboard)/layout.tsx</code> - Redirect new users to onboarding
+- <code>apps/web/src/lib/auth/route-guard.tsx</code> - Check onboarding completion</p>
+<hr />
+<h4 id="c7-polygon-editor-priority-medium">C7: Polygon Editor (محرر المضلعات) - Priority: MEDIUM<a class="headerlink" href="#c7-polygon-editor-priority-medium" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/polygon_editor/</code></td>
+</tr>
+<tr>
+<td><strong>Existing Web</strong></td>
+<td><code>field-map</code> feature exists with Leaflet/MapLibre</td>
+</tr>
+<tr>
+<td><strong>Gap</strong></td>
+<td>Drawing/editing field boundaries on the map</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Create:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">field</span><span class="o">-</span><span class="n">map</span><span class="o">/</span><span class="n">components</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">PolygonEditor</span><span class="o">.</span><span class="n">tsx</span><span class="w">           </span><span class="c1"># Draw polygon on map (Leaflet.Draw)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">PolygonToolbar</span><span class="o">.</span><span class="n">tsx</span><span class="w">          </span><span class="c1"># Drawing tools</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">CoordinateInput</span><span class="o">.</span><span class="n">tsx</span><span class="w">         </span><span class="c1"># Manual coordinate entry</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">BoundaryImport</span><span class="o">.</span><span class="n">tsx</span><span class="w">          </span><span class="c1"># Import from Shapefile/KML/GeoJSON</span>
+</code></pre></div>
+
+<p><strong>Dependencies to Add:</strong>
+- <code>leaflet-draw</code> or <code>@mapbox/mapbox-gl-draw</code> for MapLibre
+- <code>shpjs</code> or <code>shapefile</code> for Shapefile import</p>
+<p><strong>Files to Modify:</strong>
+- <code>apps/web/src/features/field-map/</code> - Integrate polygon editor
+- <code>apps/web/package.json</code> - Add drawing dependencies</p>
+<hr />
+<h4 id="c8-lab-priority-low">C8: Lab (المختبر) - Priority: LOW<a class="headerlink" href="#c8-lab-priority-low" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/lab/</code></td>
+</tr>
+<tr>
+<td><strong>Related Web</strong></td>
+<td><code>soil-analysis</code> feature exists</td>
+</tr>
+<tr>
+<td><strong>Recommendation</strong></td>
+<td>Merge lab features into <code>soil-analysis</code> rather than creating separate module</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Modify:</strong></p>
+<div class="codehilite"><pre><span></span><code>apps/web/src/features/soil-analysis/components/
+├── LabResults.tsx              # Lab test results display (new)
+├── LabRequestForm.tsx          # Request new lab test (new)
+└── LabHistory.tsx              # Historical lab results (new)
+</code></pre></div>
+
+<hr />
+<h4 id="c9-smart-alerts-priority-low">C9: Smart Alerts (التنبيهات الذكية) - Priority: LOW<a class="headerlink" href="#c9-smart-alerts-priority-low" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mobile Feature</strong></td>
+<td><code>apps/mobile/lib/features/smart_alerts/</code></td>
+</tr>
+<tr>
+<td><strong>Existing Web</strong></td>
+<td><code>alerts</code> feature exists</td>
+</tr>
+<tr>
+<td><strong>Recommendation</strong></td>
+<td>Enhance existing alerts feature with smart/AI-powered alert rules</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to Modify:</strong></p>
+<div class="codehilite"><pre><span></span><code>apps/web/src/features/alerts/components/
+├── SmartAlertRules.tsx         # AI-powered alert configuration (new)
+├── AlertPriority.tsx           # Priority-based alert grouping (new)
+└── AlertInsights.tsx           # Alert pattern insights (new)
+</code></pre></div>
+
+<hr />
+<h4 id="c10-scanner-priority-skip">C10: Scanner (الماسح الضوئي) - Priority: SKIP<a class="headerlink" href="#c10-scanner-priority-skip" title="Permanent link">&para;</a></h4>
+<p><strong>Recommendation</strong>: Scanner (QR/barcode) is hardware-dependent. Not applicable for web. Skip.</p>
+<hr />
+<h2 id="part-3-sidebar-navigation-restructuring">Part 3: Sidebar Navigation Restructuring<a class="headerlink" href="#part-3-sidebar-navigation-restructuring" title="Permanent link">&para;</a></h2>
+<h3 id="current-sidebar-15-items-flat-list">Current Sidebar (15 items flat list)<a class="headerlink" href="#current-sidebar-15-items-flat-list" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Dashboard, Farms, Crops, Inventory, Seasons, Pivot Irrigation,
+Reports, Documents, Analytics, Satellite, Logistics,
+Disaster Assessment, Alerts, Notifications, Settings
+</code></pre></div>
+
+<h3 id="proposed-sidebar-grouped-25-items">Proposed Sidebar (Grouped, 25+ items)<a class="headerlink" href="#proposed-sidebar-grouped-25-items" title="Permanent link">&para;</a></h3>
+<p><strong>File to Modify:</strong> <code>apps/web/src/components/layouts/sidebar.tsx</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Overview</span><span class="w"> </span><span class="p">(</span><span class="n">نظرة</span><span class="w"> </span><span class="n">عامة</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Dashboard</span><span class="w"> </span><span class="p">(</span><span class="n">لوحة</span><span class="w"> </span><span class="n">المتابعة</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Daily</span><span class="w"> </span><span class="n">Brief</span><span class="w"> </span><span class="p">(</span><span class="n">الملخص</span><span class="w"> </span><span class="n">اليومي</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Profile</span><span class="w"> </span><span class="p">(</span><span class="n">الملف</span><span class="w"> </span><span class="n">الشخصي</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+
+<span class="n">Farm</span><span class="w"> </span><span class="n">Management</span><span class="w"> </span><span class="p">(</span><span class="n">إدارة</span><span class="w"> </span><span class="n">المزرعة</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Farms</span><span class="w"> </span><span class="p">(</span><span class="n">المزارع</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Fields</span><span class="w"> </span><span class="p">(</span><span class="n">الحقول</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Crops</span><span class="w"> </span><span class="p">(</span><span class="n">المحاصيل</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Rotation</span><span class="w"> </span><span class="p">(</span><span class="n">دورة</span><span class="w"> </span><span class="n">المحاصيل</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Seasons</span><span class="w"> </span><span class="p">(</span><span class="n">المواسم</span><span class="p">)</span>
+
+<span class="n">Operations</span><span class="w"> </span><span class="p">(</span><span class="n">العمليات</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Tasks</span><span class="w"> </span><span class="p">(</span><span class="n">المهام</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Irrigation</span><span class="w"> </span><span class="p">(</span><span class="n">الري</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Equipment</span><span class="w"> </span><span class="p">(</span><span class="n">المعدات</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Inventory</span><span class="w"> </span><span class="p">(</span><span class="n">المخزون</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Logistics</span><span class="w"> </span><span class="p">(</span><span class="n">اللوجستيات</span><span class="p">)</span>
+
+<span class="n">Precision</span><span class="w"> </span><span class="n">Agriculture</span><span class="w"> </span><span class="p">(</span><span class="n">الزراعة</span><span class="w"> </span><span class="n">الدقيقة</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="w"> </span><span class="n">SECTION</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Satellite</span><span class="w"> </span><span class="p">(</span><span class="n">الأقمار</span><span class="w"> </span><span class="n">الصناعية</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="p">(</span><span class="n">صحة</span><span class="w"> </span><span class="n">المحصول</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">GDD</span><span class="w"> </span><span class="p">(</span><span class="n">درجات</span><span class="w"> </span><span class="n">النمو</span><span class="w"> </span><span class="n">الحراري</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">LINK</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">EXISTING</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Spray</span><span class="w"> </span><span class="n">Planning</span><span class="w"> </span><span class="p">(</span><span class="n">تخطيط</span><span class="w"> </span><span class="n">الرش</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">LINK</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">EXISTING</span><span class="p">]</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">VRA</span><span class="w"> </span><span class="p">(</span><span class="n">التطبيق</span><span class="w"> </span><span class="n">المتغير</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">LINK</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">EXISTING</span><span class="p">]</span>
+
+<span class="n">Analytics</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Reports</span><span class="w"> </span><span class="p">(</span><span class="n">التحليلات</span><span class="w"> </span><span class="n">والتقارير</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Analytics</span><span class="w"> </span><span class="p">(</span><span class="n">التحليلات</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Reports</span><span class="w"> </span><span class="p">(</span><span class="n">التقارير</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Profitability</span><span class="w"> </span><span class="p">(</span><span class="n">الربحية</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Yield</span><span class="w"> </span><span class="p">(</span><span class="n">التنبؤ</span><span class="w"> </span><span class="n">بالمحصول</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+
+<span class="n">Communication</span><span class="w"> </span><span class="p">(</span><span class="n">التواصل</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Chat</span><span class="w"> </span><span class="p">(</span><span class="n">المحادثة</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Community</span><span class="w"> </span><span class="p">(</span><span class="n">المجتمع</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Alerts</span><span class="w"> </span><span class="p">(</span><span class="n">التنبيهات</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Notifications</span><span class="w"> </span><span class="p">(</span><span class="n">الإشعارات</span><span class="p">)</span>
+
+<span class="n">Financial</span><span class="w"> </span><span class="p">(</span><span class="n">المالية</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="w"> </span><span class="n">SECTION</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Billing</span><span class="w"> </span><span class="p">(</span><span class="n">الفوترة</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">NEW</span><span class="p">]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Wallet</span><span class="w"> </span><span class="p">(</span><span class="n">المحفظة</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Marketplace</span><span class="w"> </span><span class="p">(</span><span class="n">السوق</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="n">ADD</span><span class="w"> </span><span class="n">TO</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="p">]</span>
+
+<span class="n">Settings</span><span class="w"> </span><span class="p">(</span><span class="n">الإعدادات</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">Settings</span><span class="w"> </span><span class="p">(</span><span class="n">الإعدادات</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="part-4-implementation-phases">Part 4: Implementation Phases<a class="headerlink" href="#part-4-implementation-phases" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-bug-fixes-quick-wins-1-2-days">Phase 1: Bug Fixes + Quick Wins (1-2 days)<a class="headerlink" href="#phase-1-bug-fixes-quick-wins-1-2-days" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Priority</th>
+<th>Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1</td>
+<td>Fix header profile link (404)</td>
+<td>CRITICAL</td>
+<td><code>header.tsx</code></td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>Fix header settings link (404)</td>
+<td>CRITICAL</td>
+<td><code>header.tsx</code></td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>Add missing routes to sidebar</td>
+<td>HIGH</td>
+<td><code>sidebar.tsx</code></td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>Add precision-agriculture section to sidebar (GDD, Spray, VRA already exist)</td>
+<td>HIGH</td>
+<td><code>sidebar.tsx</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-features-with-full-backend-1-2-weeks">Phase 2: Features with Full Backend (1-2 weeks)<a class="headerlink" href="#phase-2-features-with-full-backend-1-2-weeks" title="Permanent link">&para;</a></h3>
+<p>These features have <strong>fully implemented backend services</strong> - only need web UI.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+<th>Backend Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td>Chat feature (REST + WebSocket)</td>
+<td>HIGH</td>
+<td>3-4 days</td>
+<td>chat-service:8115 READY</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Billing feature (20+ endpoints)</td>
+<td>HIGH</td>
+<td>2-3 days</td>
+<td>billing-core:8089 READY</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Profile page + fix header link</td>
+<td>HIGH</td>
+<td>1-2 days</td>
+<td>user-service:3025 READY</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>CRM feature (CRUD + NLQ)</td>
+<td>MEDIUM</td>
+<td>3-4 days</td>
+<td>crm-service:8131 READY</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-compositeaggregation-features-2-3-weeks">Phase 3: Composite/Aggregation Features (2-3 weeks)<a class="headerlink" href="#phase-3-compositeaggregation-features-2-3-weeks" title="Permanent link">&para;</a></h3>
+<p>These need to aggregate data from multiple existing services.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+<th>Data Sources</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1</td>
+<td>Daily Brief</td>
+<td>HIGH</td>
+<td>3-4 days</td>
+<td>weather + alerts + tasks + field-intelligence</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>Profitability</td>
+<td>HIGH</td>
+<td>3-4 days</td>
+<td>billing + yield + field-management</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>Onboarding wizard</td>
+<td>HIGH</td>
+<td>2-3 days</td>
+<td>user + field-management</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>Field Hub (enhance fields/[id])</td>
+<td>MEDIUM</td>
+<td>3-4 days</td>
+<td>NDVI + weather + tasks + health</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-4-domain-features-2-3-weeks">Phase 4: Domain Features (2-3 weeks)<a class="headerlink" href="#phase-4-domain-features-2-3-weeks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.1</td>
+<td>Crop Rotation</td>
+<td>MEDIUM</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>4.2</td>
+<td>Polygon Editor (for field-map)</td>
+<td>MEDIUM</td>
+<td>3-4 days</td>
+</tr>
+<tr>
+<td>4.3</td>
+<td>Payment integration (into billing/wallet)</td>
+<td>MEDIUM</td>
+<td>2-3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-5-enhancements-1-week">Phase 5: Enhancements (1 week)<a class="headerlink" href="#phase-5-enhancements-1-week" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Priority</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.1</td>
+<td>Smart Alerts (enhance existing alerts)</td>
+<td>LOW</td>
+<td>1-2 days</td>
+</tr>
+<tr>
+<td>5.2</td>
+<td>Lab results (merge into soil-analysis)</td>
+<td>LOW</td>
+<td>1-2 days</td>
+</tr>
+<tr>
+<td>5.3</td>
+<td>Gamification widget (dashboard only)</td>
+<td>LOW</td>
+<td>1-2 days</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-5-complete-file-impact-matrix">Part 5: Complete File Impact Matrix<a class="headerlink" href="#part-5-complete-file-impact-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="new-files-to-create-estimated-85-files">New Files to Create (Estimated ~85 files)<a class="headerlink" href="#new-files-to-create-estimated-85-files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>New Files</th>
+<th>New Route Pages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chat</td>
+<td>~10</td>
+<td>2 (page + loading)</td>
+</tr>
+<tr>
+<td>billing</td>
+<td>~10</td>
+<td>2</td>
+</tr>
+<tr>
+<td>crm</td>
+<td>~10</td>
+<td>3 (page + [id] + loading)</td>
+</tr>
+<tr>
+<td>profitability</td>
+<td>~10</td>
+<td>2</td>
+</tr>
+<tr>
+<td>daily-brief</td>
+<td>~10</td>
+<td>2</td>
+</tr>
+<tr>
+<td>profile</td>
+<td>~8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>onboarding</td>
+<td>~8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>crop-rotation</td>
+<td>~8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>payment</td>
+<td>~8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Total</td>
+<td><strong>~82</strong></td>
+<td><strong>~19</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="existing-files-to-modify-15-files">Existing Files to Modify (~15 files)<a class="headerlink" href="#existing-files-to-modify-15-files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/web/src/components/layouts/sidebar.tsx</code></td>
+<td>Restructure navigation to grouped sections</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/layouts/header.tsx</code></td>
+<td>Fix profile/settings links</td>
+</tr>
+<tr>
+<td><code>apps/web/src/lib/api/client.ts</code></td>
+<td>Add CRM, crop-rotation, profitability API methods</td>
+</tr>
+<tr>
+<td><code>apps/web/src/middleware.ts</code></td>
+<td>Add new routes to protected routes list</td>
+</tr>
+<tr>
+<td><code>apps/web/messages/ar.json</code></td>
+<td>Add Arabic translations for all new features</td>
+</tr>
+<tr>
+<td><code>apps/web/messages/en.json</code></td>
+<td>Add English translations for all new features</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/fields/</code></td>
+<td>Integrate FieldHub components</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/field-map/</code></td>
+<td>Add polygon editor</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/alerts/</code></td>
+<td>Add smart alert components</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/soil-analysis/</code></td>
+<td>Add lab results components</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/home/</code></td>
+<td>Embed DailyBrief widget</td>
+</tr>
+<tr>
+<td><code>apps/web/src/features/wallet/</code></td>
+<td>Integrate payment flow</td>
+</tr>
+<tr>
+<td><code>apps/web/src/app/(dashboard)/layout.tsx</code></td>
+<td>Onboarding redirect check</td>
+</tr>
+<tr>
+<td><code>apps/web/src/lib/auth/route-guard.tsx</code></td>
+<td>Onboarding completion check</td>
+</tr>
+<tr>
+<td><code>apps/web/package.json</code></td>
+<td>Add leaflet-draw dependency</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-6-features-to-not-add-to-web-by-design">Part 6: Features to NOT Add to Web (By Design)<a class="headerlink" href="#part-6-features-to-not-add-to-web-by-design" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>scanner</strong></td>
+<td>Hardware-dependent (camera/barcode) - web can't replicate</td>
+</tr>
+<tr>
+<td><strong>splash</strong></td>
+<td>Mobile-specific (app launch screen)</td>
+</tr>
+<tr>
+<td><strong>sync</strong></td>
+<td>Mobile offline-first sync - web is always online</td>
+</tr>
+<tr>
+<td><strong>map_home</strong></td>
+<td>Already covered by <code>field-map</code> feature</td>
+</tr>
+<tr>
+<td><strong>main_layout</strong></td>
+<td>Mobile-specific layout wrapper</td>
+</tr>
+<tr>
+<td><strong>shared</strong></td>
+<td>Mobile-specific shared utilities</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-7-backend-service-readiness-matrix">Part 7: Backend Service Readiness Matrix<a class="headerlink" href="#part-7-backend-service-readiness-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Backend Service</th>
+<th>Port</th>
+<th>Status</th>
+<th>Endpoints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chat</strong></td>
+<td>chat-service (NestJS)</td>
+<td>8115</td>
+<td>READY</td>
+<td>8 REST + WebSocket gateway</td>
+</tr>
+<tr>
+<td><strong>Billing</strong></td>
+<td>billing-core (FastAPI)</td>
+<td>8089</td>
+<td>READY</td>
+<td>20+ (plans, subscriptions, invoices, payments, refunds, webhooks)</td>
+</tr>
+<tr>
+<td><strong>CRM</strong></td>
+<td>crm-service (FastAPI)</td>
+<td>8131</td>
+<td>READY</td>
+<td>10+ (farmers, deals, interactions, NLQ, pipeline)</td>
+</tr>
+<tr>
+<td><strong>Payment</strong></td>
+<td>billing-core (FastAPI)</td>
+<td>8089</td>
+<td>READY</td>
+<td>Stripe + Tharwatt webhooks, payments, refunds</td>
+</tr>
+<tr>
+<td><strong>Daily Brief</strong></td>
+<td>N/A (composite)</td>
+<td>-</td>
+<td>NEEDS AGGREGATION</td>
+<td>Combines weather:8092, alerts:8113, tasks:8103, field-intelligence:8120</td>
+</tr>
+<tr>
+<td><strong>Profitability</strong></td>
+<td>N/A (composite)</td>
+<td>-</td>
+<td>NEEDS AGGREGATION</td>
+<td>Combines billing:8089, yield:8152, fields:3000</td>
+</tr>
+<tr>
+<td><strong>Crop Rotation</strong></td>
+<td>shared/crop_rotation/ (Python module)</td>
+<td>-</td>
+<td>MODULE ONLY</td>
+<td>No REST API - needs service or endpoint exposure</td>
+</tr>
+<tr>
+<td><strong>Profile</strong></td>
+<td>user-service (NestJS)</td>
+<td>3025</td>
+<td>READY</td>
+<td>Part of user management endpoints</td>
+</tr>
+<tr>
+<td><strong>Onboarding</strong></td>
+<td>N/A</td>
+<td>-</td>
+<td>NEEDS NEW</td>
+<td>Client-side wizard + user-service flags</td>
+</tr>
+<tr>
+<td><strong>Gamification</strong></td>
+<td>N/A</td>
+<td>-</td>
+<td>NOT IMPLEMENTED</td>
+<td>No backend at all</td>
+</tr>
+<tr>
+<td><strong>Field Hub</strong></td>
+<td>Multiple</td>
+<td>-</td>
+<td>READY</td>
+<td>Combines existing field, NDVI, weather, task APIs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="packagesapi-client-already-has"><code>packages/api-client</code> Already Has<a class="headerlink" href="#packagesapi-client-already-has" title="Permanent link">&para;</a></h3>
+<p>The shared <code>@sahool/api-client</code> package already provides these methods that the web app can use:</p>
+<ul>
+<li><code>getBillingSubscription()</code>, <code>getAstronomicalToday()</code>, <code>getAlerts()</code>, <code>getTasks()</code>, <code>getFields()</code>, <code>getWeather()</code>, <code>getDiagnoses()</code>, <code>getSatelliteTimeseries()</code>, <code>getAdvisoryRecommendations()</code>, <code>getYieldPrediction()</code>, <code>getFieldIntelligence()</code>, <code>getEquipment()</code>, <code>getNotifications()</code>, <code>getCommunityPosts()</code></li>
+</ul>
+<h3 id="packagesshared-types-missing-types"><code>packages/shared-types</code> Missing Types<a class="headerlink" href="#packagesshared-types-missing-types" title="Permanent link">&para;</a></h3>
+<p>No dedicated type files exist for: billing, chat, CRM, gamification, daily-brief, profitability, crop-rotation, payment, onboarding. These types currently live only partially in <code>api-client/src/types.ts</code>.</p>
+<hr />
+<h2 id="part-8-shared-type-definitions-needed">Part 8: Shared Type Definitions Needed<a class="headerlink" href="#part-8-shared-type-definitions-needed" title="Permanent link">&para;</a></h2>
+<p>New types should be added to <code>packages/shared-types/src/</code> for cross-platform consistency:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">types</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">chat</span><span class="p">.</span><span class="nx">ts</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">ChatMessage</span><span class="p">,</span><span class="w"> </span><span class="nx">ChatRoom</span><span class="p">,</span><span class="w"> </span><span class="nx">Participant</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">billing</span><span class="p">.</span><span class="nx">ts</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">Subscription</span><span class="p">,</span><span class="w"> </span><span class="nx">Invoice</span><span class="p">,</span><span class="w"> </span><span class="nx">UsageStats</span><span class="w"> </span><span class="p">(</span><span class="nx">may</span><span class="w"> </span><span class="nx">already</span><span class="w"> </span><span class="nx">exist</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">crm</span><span class="p">.</span><span class="nx">ts</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Farmer</span><span class="p">,</span><span class="w"> </span><span class="nx">Contact</span><span class="p">,</span><span class="w"> </span><span class="nx">Interaction</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">profitability</span><span class="p">.</span><span class="nx">ts</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">ProfitReport</span><span class="p">,</span><span class="w"> </span><span class="nx">CostBreakdown</span><span class="p">,</span><span class="w"> </span><span class="nx">ROI</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">daily</span><span class="o">-</span><span class="nx">brief</span><span class="p">.</span><span class="nx">ts</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">DailyBrief</span><span class="p">,</span><span class="w"> </span><span class="nx">FieldStatus</span><span class="p">,</span><span class="w"> </span><span class="nx">TodaySummary</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">onboarding</span><span class="p">.</span><span class="nx">ts</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">OnboardingStep</span><span class="p">,</span><span class="w"> </span><span class="nx">OnboardingProgress</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">crop</span><span class="o">-</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">ts</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">RotationPlan</span><span class="p">,</span><span class="w"> </span><span class="nx">CropSequence</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">payment</span><span class="p">.</span><span class="nx">ts</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">PaymentMethod</span><span class="p">,</span><span class="w"> </span><span class="nx">Transaction</span>
+</code></pre></div>
+
+<hr />
+<h2 id="part-9-best-practices-reference-global-agricultural-platforms">Part 9: Best Practices Reference (Global Agricultural Platforms)<a class="headerlink" href="#part-9-best-practices-reference-global-agricultural-platforms" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Features Web Has That Mobile Doesn't</th>
+<th>Features Mobile Has That Web Doesn't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>John Deere Operations Center</strong></td>
+<td>Fleet management, data export, integrations</td>
+<td>Offline scouting, photo capture</td>
+</tr>
+<tr>
+<td><strong>Trimble Ag</strong></td>
+<td>Advanced analytics, multi-farm comparison</td>
+<td>GPS field walk, offline maps</td>
+</tr>
+<tr>
+<td><strong>Climate FieldView</strong></td>
+<td>Season planning, print reports</td>
+<td>Planting monitor, real-time yield</td>
+</tr>
+<tr>
+<td><strong>FarmLogs</strong></td>
+<td>Financial reports, tax export</td>
+<td>Field notes, scouting photos</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SAHOOL should follow:</strong> Web for planning/analysis/admin, Mobile for field execution/capture.</p>
+<hr />
+<h2 id="part-10-web-feature-completeness-audit">Part 10: Web Feature Completeness Audit<a class="headerlink" href="#part-10-web-feature-completeness-audit" title="Permanent link">&para;</a></h2>
+<h3 id="full-features-complete-ui-route">Full Features (complete UI + route)<a class="headerlink" href="#full-features-complete-ui-route" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Route</th>
+<th>Client Lines</th>
+<th>Key Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fields</code></td>
+<td><code>/fields</code>, <code>/fields/[id]</code></td>
+<td>131 + 589</td>
+<td>InteractiveFieldMap, FieldDashboard, NDVI overlay, 24 components</td>
+</tr>
+<tr>
+<td><code>irrigation</code></td>
+<td><code>/irrigation</code></td>
+<td>569</td>
+<td>Smart scheduling, recommendations</td>
+</tr>
+<tr>
+<td><code>marketplace</code></td>
+<td><code>/marketplace</code></td>
+<td>528</td>
+<td>Product grid, cart, filtering</td>
+</tr>
+<tr>
+<td><code>pivot-irrigation</code></td>
+<td><code>/pivot-irrigation</code></td>
+<td>470</td>
+<td>Dedicated pivot management</td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td><code>/notifications</code></td>
+<td>429</td>
+<td>Full notification management</td>
+</tr>
+<tr>
+<td><code>alerts</code></td>
+<td><code>/alerts</code></td>
+<td>487</td>
+<td>Alert list with filters</td>
+</tr>
+<tr>
+<td><code>satellite</code></td>
+<td><code>/satellite</code></td>
+<td>408</td>
+<td>NDVI visualization</td>
+</tr>
+<tr>
+<td><code>sensors</code></td>
+<td><code>/sensors</code></td>
+<td>346</td>
+<td>IoT dashboard</td>
+</tr>
+<tr>
+<td><code>copilot</code></td>
+<td><code>/copilot</code></td>
+<td>~800 (inline)</td>
+<td>SSE streaming AI chat</td>
+</tr>
+<tr>
+<td><code>dashboard</code></td>
+<td><code>/dashboard</code></td>
+<td>240</td>
+<td>Stats, quick actions, weather widget</td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-features-route-exists-limited-components">Medium Features (route exists, limited components)<a class="headerlink" href="#medium-features-route-exists-limited-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Route</th>
+<th>Lines</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compliance</code></td>
+<td><code>/compliance</code></td>
+<td>287</td>
+<td>Status/certification lists, no edit forms</td>
+</tr>
+<tr>
+<td><code>disaster-assessment</code></td>
+<td><code>/disaster-assessment</code></td>
+<td>332</td>
+<td>Risk cards, disaster events</td>
+</tr>
+<tr>
+<td><code>logistics</code></td>
+<td><code>/logistics</code></td>
+<td>229</td>
+<td>Shipment list, status filter</td>
+</tr>
+<tr>
+<td><code>documents</code></td>
+<td><code>/documents</code></td>
+<td>231</td>
+<td>File list; <strong>Upload button DISABLED</strong></td>
+</tr>
+<tr>
+<td><code>seasons</code></td>
+<td><code>/seasons</code></td>
+<td>226</td>
+<td>Season list with budget/yield</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td><code>/users</code></td>
+<td>216</td>
+<td>User list; <strong>Add User DISABLED</strong></td>
+</tr>
+<tr>
+<td><code>crops</code></td>
+<td><code>/crops</code></td>
+<td>213</td>
+<td>Crop list, no planning/rotation</td>
+</tr>
+<tr>
+<td><code>research</code></td>
+<td><code>/research</code></td>
+<td>212</td>
+<td>Research list</td>
+</tr>
+<tr>
+<td><code>farms</code></td>
+<td><code>/farms</code></td>
+<td>174</td>
+<td>Farm list; <strong>Add Farm DISABLED</strong></td>
+</tr>
+<tr>
+<td><code>GDD</code></td>
+<td><code>/precision-agriculture/gdd</code></td>
+<td>270</td>
+<td>Growing degree days</td>
+</tr>
+<tr>
+<td><code>spray</code></td>
+<td><code>/precision-agriculture/spray</code></td>
+<td>308</td>
+<td>Spray planning</td>
+</tr>
+<tr>
+<td><code>VRA</code></td>
+<td><code>/precision-agriculture/vra</code></td>
+<td>298</td>
+<td>Variable rate application</td>
+</tr>
+<tr>
+<td><code>yield</code></td>
+<td><code>/yield</code></td>
+<td>281</td>
+<td>Yield prediction</td>
+</tr>
+</tbody>
+</table>
+<h3 id="thinstub-features-route-exists-minimal-ui">Thin/Stub Features (route exists, minimal UI)<a class="headerlink" href="#thinstub-features-route-exists-minimal-ui" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Route</th>
+<th>Lines</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wallet</code></td>
+<td><code>/wallet</code></td>
+<td>153</td>
+<td><strong>Deposit/withdraw feature-flagged FALSE</strong></td>
+</tr>
+<tr>
+<td><code>tasks</code></td>
+<td><code>/tasks</code></td>
+<td>151</td>
+<td>Thin client (but full feature module with 5 components)</td>
+</tr>
+<tr>
+<td><code>equipment</code></td>
+<td><code>/equipment</code></td>
+<td>134</td>
+<td>Thin wrapper</td>
+</tr>
+<tr>
+<td><code>weather</code></td>
+<td><code>/weather</code></td>
+<td>93</td>
+<td>Very thin</td>
+</tr>
+<tr>
+<td><code>crop-health</code></td>
+<td><code>/crop-health</code></td>
+<td>77</td>
+<td>Thin wrapper</td>
+</tr>
+</tbody>
+</table>
+<h3 id="features-with-no-route-page-feature-dir-exists-but-no-route">Features with NO Route Page (feature dir exists but no route)<a class="headerlink" href="#features-with-no-route-page-feature-dir-exists-but-no-route" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Components</th>
+<th>Why No Route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>team</code></td>
+<td>5 full components (RBAC, invite, roles)</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>action-windows</code></td>
+<td>6 components (irrigation/spray windows)</td>
+<td>No route created yet</td>
+</tr>
+<tr>
+<td><code>scouting</code></td>
+<td>6 components (observation forms)</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>drone</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>edge-devices</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>soil-analysis</code></td>
+<td>API + hooks only</td>
+<td>No route created</td>
+</tr>
+<tr>
+<td><code>terrain</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>virtual-sensors</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>vision</code></td>
+<td>API + hooks only</td>
+<td>Intentionally admin-only</td>
+</tr>
+<tr>
+<td><code>ndvi</code></td>
+<td>API + hooks only</td>
+<td>Embedded in fields</td>
+</tr>
+<tr>
+<td><code>field-map</code></td>
+<td>API + hooks only</td>
+<td>Embedded in fields</td>
+</tr>
+<tr>
+<td><code>astronomical</code></td>
+<td>API + hooks only</td>
+<td>Widget in fields</td>
+</tr>
+</tbody>
+</table>
+<h3 id="disabledplaceholder-features-in-web">Disabled/Placeholder Features in Web<a class="headerlink" href="#disabledplaceholder-features-in-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Location</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Farms "Add Farm"</strong></td>
+<td><code>/farms</code> FarmsClient.tsx</td>
+<td>Button is disabled with "coming soon"</td>
+</tr>
+<tr>
+<td><strong>Users "Add User"</strong></td>
+<td><code>/users</code> UsersClient.tsx</td>
+<td>Button is disabled with "coming soon"</td>
+</tr>
+<tr>
+<td><strong>Documents "Upload"</strong></td>
+<td><code>/documents</code> DocumentsClient.tsx</td>
+<td>Upload button is disabled</td>
+</tr>
+<tr>
+<td><strong>Wallet deposit/withdraw</strong></td>
+<td><code>/wallet</code> WalletClient.tsx</td>
+<td>Feature-flagged <code>false</code></td>
+</tr>
+<tr>
+<td><strong>Settings &gt; Integrations tab</strong></td>
+<td>SettingsPage</td>
+<td><strong>PLACEHOLDER</strong>: Just <code>&lt;h2&gt;التكاملات&lt;/h2&gt;&lt;p&gt;Integrations content...&lt;/p&gt;</code></td>
+</tr>
+<tr>
+<td><strong>PDF export</strong></td>
+<td>Reports feature</td>
+<td><code>ReportFormat</code> type has PDF/Excel/CSV but <code>@react-pdf/renderer</code> NOT in package.json</td>
+</tr>
+</tbody>
+</table>
+<h3 id="best-practices-features-not-implemented-at-all">Best Practices Features NOT Implemented at All<a class="headerlink" href="#best-practices-features-not-implemented-at-all" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bulk-operations</td>
+<td>Zero code</td>
+<td>HIGH for large farms</td>
+</tr>
+<tr>
+<td>data-export (CSV/Excel)</td>
+<td>Only PDF stub in reports</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>import-wizard (Shapefile/KML)</td>
+<td>Zero code</td>
+<td>HIGH for onboarding</td>
+</tr>
+<tr>
+<td>budget-planning</td>
+<td>Budget fields in seasons model only</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>dashboard-builder</td>
+<td>Fixed layout only</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>integrations</td>
+<td>Settings tab is a placeholder</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>workflow-builder</td>
+<td>Zero code</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>knowledge-base</td>
+<td>Backend exists (<code>shared/ai/knowledge/</code>), no web UI</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>api-keys</td>
+<td>Zero code</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>webhooks</td>
+<td>Zero code</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-11-mobile-feature-data-source-analysis-real-api-vs-mock">Part 11: Mobile Feature Data Source Analysis (Real API vs Mock)<a class="headerlink" href="#part-11-mobile-feature-data-source-analysis-real-api-vs-mock" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Critical Discovery</strong>: Many mobile features use <strong>mock/demo data</strong> with no real API calls.
+This significantly reduces the web implementation effort for some features.</p>
+</blockquote>
+<h3 id="features-with-real-api-ready-for-web">Features with Real API (Ready for Web)<a class="headerlink" href="#features-with-real-api-ready-for-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API Base</th>
+<th>Endpoints</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>billing</strong></td>
+<td><code>/api/v1/billing</code></td>
+<td>20</td>
+<td>Stripe + wallet, invoices, usage</td>
+</tr>
+<tr>
+<td><strong>chat</strong></td>
+<td><code>/api/v1/chat</code> + WebSocket</td>
+<td>10 REST + WS events</td>
+<td>Socket.IO for real-time</td>
+</tr>
+<tr>
+<td><strong>crm</strong></td>
+<td><code>/api/v1/crm</code></td>
+<td>14</td>
+<td>Offline-first with SQLite sync</td>
+</tr>
+<tr>
+<td><strong>gdd</strong></td>
+<td><code>/api/v1/gdd</code></td>
+<td>7</td>
+<td>Accumulation, forecast, settings</td>
+</tr>
+<tr>
+<td><strong>profitability</strong></td>
+<td><code>/profitability</code></td>
+<td>17</td>
+<td>Costs, revenue, break-even, export PDF/Excel</td>
+</tr>
+<tr>
+<td><strong>spray</strong></td>
+<td>Port 8098 <code>/api/v1/spray</code></td>
+<td>11</td>
+<td><strong>Dedicated microservice</strong> (not main backend)</td>
+</tr>
+<tr>
+<td><strong>payment</strong></td>
+<td>Tharwatt gateway</td>
+<td>10</td>
+<td>Yemen Tharwatt + Stripe</td>
+</tr>
+<tr>
+<td><strong>daily_brief</strong></td>
+<td><code>/api/v1/daily-brief</code></td>
+<td>1</td>
+<td>With offline fallback</td>
+</tr>
+<tr>
+<td><strong>lab</strong> (field app)</td>
+<td>Kong Gateway → soil-analysis:8134</td>
+<td>7</td>
+<td>Barcode search, samples CRUD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="features-with-mockdemo-data-only-need-backend-first">Features with MOCK/DEMO Data Only (Need Backend First)<a class="headerlink" href="#features-with-mockdemo-data-only-need-backend-first" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Current State</th>
+<th>Web Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>field_hub</strong></td>
+<td>Static hardcoded data, no API</td>
+<td>Build as composite widget from existing APIs (fields + weather + tasks)</td>
+</tr>
+<tr>
+<td><strong>gamification</strong></td>
+<td>All mock in provider, no service</td>
+<td><strong>SKIP</strong> - needs backend service first</td>
+</tr>
+<tr>
+<td><strong>profile</strong></td>
+<td>Hardcoded mock values</td>
+<td>Use existing user-service:3025 endpoints</td>
+</tr>
+<tr>
+<td><strong>scanner</strong></td>
+<td>Simulated camera, no real capture</td>
+<td><strong>SKIP</strong> for web (hardware-dependent)</td>
+</tr>
+<tr>
+<td><strong>smart_alerts</strong></td>
+<td>5 mock alerts, WebSocket placeholder</td>
+<td>Enhance existing web <code>alerts</code> feature</td>
+</tr>
+<tr>
+<td><strong>rotation</strong> (main)</td>
+<td>Local simulation with 500ms delay</td>
+<td>Needs backend API or use <code>shared/crop_rotation/</code></td>
+</tr>
+<tr>
+<td><strong>onboarding</strong></td>
+<td>SharedPreferences only</td>
+<td>Client-side wizard, no backend needed</td>
+</tr>
+<tr>
+<td><strong>polygon_editor</strong></td>
+<td>Local geometry computation</td>
+<td>Client-side Leaflet.Draw, no backend needed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-mobile-api-details-for-web-implementation">Key Mobile API Details for Web Implementation<a class="headerlink" href="#key-mobile-api-details-for-web-implementation" title="Permanent link">&para;</a></h3>
+<h4 id="billing-endpoints-20">Billing Endpoints (20)<a class="headerlink" href="#billing-endpoints-20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">wallet</span><span class="o">/</span><span class="n">balance</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">wallet</span><span class="o">/</span><span class="n">topup</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">wallet</span><span class="o">/</span><span class="n">transactions</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">plans</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">subscription</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">subscription</span>
+<span class="n">PUT</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">subscription</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span>
+<span class="n">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">subscription</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">cancel</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">subscription</span><span class="o">/</span><span class="n">reactivate</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">invoices</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">invoices</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">invoices</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">download</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">usage</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">payment</span><span class="o">-</span><span class="n">intent</span><span class="w">          </span><span class="p">(</span><span class="n">Stripe</span><span class="p">)</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">payment</span><span class="o">-</span><span class="n">intent</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">confirm</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">intent</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">intent</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">confirm</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">payment</span><span class="o">-</span><span class="n">methods</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">payment</span><span class="o">-</span><span class="n">methods</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">default</span>
+<span class="n">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">billing</span><span class="o">/</span><span class="n">payment</span><span class="o">-</span><span class="n">methods</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span>
+</code></pre></div>
+
+<h4 id="chat-endpoints-10-rest-websocket">Chat Endpoints (10 REST + WebSocket)<a class="headerlink" href="#chat-endpoints-10-rest-websocket" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">conversations</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">conversations</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">conversations</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">conversations</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">messages</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">conversations</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">messages</span>
+<span class="n">PUT</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">messages</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">read</span>
+<span class="n">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">messages</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">messages</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">react</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="n">search</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span><span class="o">/</span><span class="n">upload</span>
+
+<span class="n">WebSocket</span><span class="w"> </span><span class="n">Events</span><span class="p">:</span>
+<span class="w">  </span><span class="n">Emit</span><span class="p">:</span><span class="w"> </span><span class="n">join_conversation</span><span class="p">,</span><span class="w"> </span><span class="n">leave_conversation</span><span class="p">,</span><span class="w"> </span><span class="n">typing</span><span class="p">,</span><span class="w"> </span><span class="n">stop_typing</span><span class="p">,</span><span class="w"> </span><span class="n">mark_read</span>
+<span class="w">  </span><span class="n">Recv</span><span class="p">:</span><span class="w"> </span><span class="n">new_message</span><span class="p">,</span><span class="w"> </span><span class="n">message_updated</span><span class="p">,</span><span class="w"> </span><span class="n">typing</span><span class="p">,</span><span class="w"> </span><span class="n">stop_typing</span><span class="p">,</span><span class="w"> </span><span class="n">user_online</span><span class="p">,</span><span class="w"> </span><span class="n">user_offline</span>
+</code></pre></div>
+
+<h4 id="crm-endpoints-14">CRM Endpoints (14)<a class="headerlink" href="#crm-endpoints-14" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>GET    /api/v1/crm/farmers
+POST   /api/v1/crm/farmers
+GET    /api/v1/crm/farmers/{id}
+PUT    /api/v1/crm/farmers/{id}
+DELETE /api/v1/crm/farmers/{id}
+GET    /api/v1/crm/farmers/{id}/interactions
+POST   /api/v1/crm/interactions
+GET    /api/v1/crm/opportunities
+POST   /api/v1/crm/opportunities
+PUT    /api/v1/crm/opportunities/{id}
+GET    /api/v1/crm/activity-log
+GET    /api/v1/crm/stats
+POST   /api/v1/crm/sync
+GET    /api/v1/crm/health
+</code></pre></div>
+
+<h4 id="profitability-endpoints-17">Profitability Endpoints (17)<a class="headerlink" href="#profitability-endpoints-17" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">costs</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">costs</span>
+<span class="n">PUT</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">costs</span><span class="o">/</span><span class="p">{</span><span class="n">costId</span><span class="p">}</span>
+<span class="n">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">costs</span><span class="o">/</span><span class="p">{</span><span class="n">costId</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">revenue</span>
+<span class="n">POST</span><span class="w">   </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">revenue</span>
+<span class="n">PUT</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">revenue</span><span class="o">/</span><span class="p">{</span><span class="n">revId</span><span class="p">}</span>
+<span class="n">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">revenue</span><span class="o">/</span><span class="p">{</span><span class="n">revId</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">summary</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="n">farm</span><span class="o">-</span><span class="n">seasons</span><span class="o">/</span><span class="p">{</span><span class="n">farmId</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">cost</span><span class="o">-</span><span class="n">breakdown</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="k">break</span><span class="o">-</span><span class="n">even</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="n">comparison</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="n">trend</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">averages</span><span class="o">/</span><span class="p">{</span><span class="n">cropType</span><span class="p">}</span>
+<span class="n">GET</span><span class="w">    </span><span class="o">/</span><span class="n">profitability</span><span class="o">/</span><span class="p">{</span><span class="n">fieldId</span><span class="p">}</span><span class="o">/</span><span class="k">export</span><span class="o">/</span><span class="n">pdf</span><span class="o">|</span><span class="n">excel</span>
+</code></pre></div>
+
+<h4 id="spray-endpoints-dedicated-port-8098">Spray Endpoints (dedicated port 8098)<a class="headerlink" href="#spray-endpoints-dedicated-port-8098" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>GET    /api/v1/spray/recommendations/{fieldId}
+GET    /api/v1/spray/windows/{fieldId}
+GET    /api/v1/spray/weather/forecast/{fieldId}
+GET    /api/v1/spray/weather/current/{fieldId}
+GET    /api/v1/spray/products
+GET    /api/v1/spray/products/{id}
+GET    /api/v1/spray/log/{fieldId}
+POST   /api/v1/spray/log
+PUT    /api/v1/spray/log/{id}
+DELETE /api/v1/spray/log/{id}
+POST   /api/v1/spray/log/{id}/photo
+</code></pre></div>
+
+<h3 id="revised-implementation-effort-based-on-api-readiness">Revised Implementation Effort (Based on API Readiness)<a class="headerlink" href="#revised-implementation-effort-based-on-api-readiness" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Original Estimate</th>
+<th>Revised Estimate</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chat</td>
+<td>3-4 days</td>
+<td>3-4 days</td>
+<td>Real API + WebSocket ready</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>2-3 days</td>
+<td>3-4 days</td>
+<td>20 endpoints to wire (more than initially estimated)</td>
+</tr>
+<tr>
+<td>CRM</td>
+<td>3-4 days</td>
+<td>3-4 days</td>
+<td>Full API ready</td>
+</tr>
+<tr>
+<td>Profitability</td>
+<td>3-4 days</td>
+<td>3-4 days</td>
+<td>17 real endpoints ready</td>
+</tr>
+<tr>
+<td>Daily Brief</td>
+<td>3-4 days</td>
+<td>2-3 days</td>
+<td>Single API + compose from existing data</td>
+</tr>
+<tr>
+<td>Field Hub</td>
+<td>3-4 days</td>
+<td>2-3 days</td>
+<td>Composite of existing APIs, no new backend</td>
+</tr>
+<tr>
+<td>Onboarding</td>
+<td>2-3 days</td>
+<td>2 days</td>
+<td>Client-side only</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td>1-2 days</td>
+<td>1 day</td>
+<td>Reuse user-service + settings feature</td>
+</tr>
+<tr>
+<td>Gamification</td>
+<td>1-2 days</td>
+<td><strong>SKIP</strong></td>
+<td>No backend service exists</td>
+</tr>
+<tr>
+<td>Rotation</td>
+<td>2-3 days</td>
+<td>3-4 days</td>
+<td>Needs backend API exposure first</td>
+</tr>
+<tr>
+<td>Smart Alerts</td>
+<td>1-2 days</td>
+<td>1 day</td>
+<td>Enhance existing alerts</td>
+</tr>
+<tr>
+<td>Polygon Editor</td>
+<td>3-4 days</td>
+<td>2-3 days</td>
+<td>Client-side only (Leaflet.Draw)</td>
+</tr>
+<tr>
+<td>Payment</td>
+<td>2-3 days</td>
+<td>2-3 days</td>
+<td>Tharwatt integration (billing-core handles it)</td>
+</tr>
+<tr>
+<td>Lab</td>
+<td>1-2 days</td>
+<td>1-2 days</td>
+<td>Merge into soil-analysis</td>
+</tr>
+<tr>
+<td>Spray</td>
+<td>N/A (exists)</td>
+<td>0 days</td>
+<td>Already at <code>/precision-agriculture/spray</code></td>
+</tr>
+<tr>
+<td>GDD</td>
+<td>N/A (exists)</td>
+<td>0 days</td>
+<td>Already at <code>/precision-agriculture/gdd</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Revised Effort</strong>: ~28-34 days (excluding Gamification and Scanner)</p>
+<hr />
+<p><em>Generated: 2026-03-19 | SAHOOL Platform v16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

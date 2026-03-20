@@ -100,7 +100,8 @@ export async function POST(_request: NextRequest) {
     });
 
     // Return token so the unified client can retry the failed request
-    return NextResponse.json({ success: true, token: data.access_token });
+    // Uses `access_token` key — aligned with web app refresh route
+    return NextResponse.json({ success: true, access_token: data.access_token });
   } catch (error) {
     logger.production("Token refresh error:", error);
     return NextResponse.json(

@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 
 // Mock next/link
@@ -42,21 +42,46 @@ vi.mock("next-intl", () => ({
       nav: {
         dashboard: "Dashboard",
         farms: "Farms",
+        fields: "Fields",
         crops: "Crops",
         inventory: "Inventory",
         seasons: "Seasons",
+        tasks: "Tasks",
         pivotIrrigation: "Pivot Irrigation",
+        irrigation: "Irrigation",
+        cropHealth: "Crop Health",
+        weather: "Weather",
+        satellite: "Satellite",
+        yield: "Yield",
+        precisionAgriculture: "Precision Agriculture",
+        iot: "IoT",
+        sensors: "Sensors",
+        equipment: "Equipment",
+        marketplace: "Marketplace",
+        wallet: "Wallet",
+        community: "Community",
+        logistics: "Logistics",
         reports: "Reports",
         documents: "Documents",
         analytics: "Analytics",
-        satellite: "Satellite",
-        logistics: "Logistics",
         disasterAssessment: "Disaster Assessment",
         alerts: "Alerts",
         notifications: "Notifications",
+        copilot: "Copilot",
+        support: "Support",
         settings: "Settings",
         mainNav: "Main Navigation",
         version: "Version",
+        overview: "Overview",
+        farmManagement: "Farm Management",
+        waterAndIrrigation: "Water & Irrigation",
+        cropIntelligence: "Crop Intelligence",
+        iotAndEquipment: "IoT & Equipment",
+        businessAndCommunity: "Business & Community",
+        reportsAndDocs: "Reports & Docs",
+        alertsAndNotifications: "Alerts & Notifications",
+        tools: "Tools",
+        closeMenu: "Close Menu",
       },
       common: {
         appName: "SAHOOL",
@@ -87,6 +112,21 @@ vi.mock("lucide-react", () => {
     Truck: IconMock,
     AlertTriangle: IconMock,
     Bell: IconMock,
+    X: IconMock,
+    MapPin: IconMock,
+    CloudSun: IconMock,
+    ListChecks: IconMock,
+    Wrench: IconMock,
+    Cpu: IconMock,
+    Activity: IconMock,
+    ShoppingCart: IconMock,
+    Users: IconMock,
+    HeartPulse: IconMock,
+    Wallet: IconMock,
+    BarChart3: IconMock,
+    Crosshair: IconMock,
+    Bot: IconMock,
+    HelpCircle: IconMock,
   };
 });
 
@@ -235,6 +275,43 @@ describe("Sidebar Navigation (Client/Farmer)", () => {
       render(<Sidebar />);
 
       expect(screen.getByText("SAHOOL")).toBeInTheDocument();
+    });
+  });
+
+  describe("Mobile Drawer", () => {
+    it("should render mobile drawer when isOpen is true", () => {
+      const onClose = vi.fn();
+      render(<Sidebar isOpen={true} onClose={onClose} />);
+
+      const drawer = screen.getByTestId("mobile-drawer");
+      expect(drawer).toBeInTheDocument();
+    });
+
+    it("should NOT render mobile drawer when isOpen is false", () => {
+      const onClose = vi.fn();
+      render(<Sidebar isOpen={false} onClose={onClose} />);
+
+      expect(screen.queryByTestId("mobile-drawer")).not.toBeInTheDocument();
+    });
+
+    it("should call onClose when backdrop is clicked", () => {
+      const onClose = vi.fn();
+      render(<Sidebar isOpen={true} onClose={onClose} />);
+
+      const backdrop = screen.getByTestId("mobile-drawer-backdrop");
+      fireEvent.click(backdrop);
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it("should render without drawer props (backward compatible)", () => {
+      render(<Sidebar />);
+
+      // Desktop sidebar should still render
+      const sidebar = screen.getByTestId("desktop-sidebar");
+      expect(sidebar).toBeInTheDocument();
+
+      // No drawer should be present
+      expect(screen.queryByTestId("mobile-drawer")).not.toBeInTheDocument();
     });
   });
 });

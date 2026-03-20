@@ -26,10 +26,10 @@ export default function EquipmentClient() {
     selectedEquipmentId || "",
   );
 
-  // const handleEquipmentClick = (equipmentId: string) => {
-  //   setSelectedEquipmentId(equipmentId);
-  //   setShowForm(false);
-  // };
+  const handleEquipmentClick = (equipmentId: string) => {
+    setSelectedEquipmentId(equipmentId);
+    setShowForm(false);
+  };
 
   const handleCreateClick = () => {
     setShowForm(true);
@@ -118,7 +118,7 @@ export default function EquipmentClient() {
               <EquipmentDetails equipmentId={selectedEquipmentId} />
             </div>
           ) : (
-            <EquipmentList />
+            <EquipmentList onFieldClick={handleEquipmentClick} onCreateClick={handleCreateClick} />
           )}
         </div>
 

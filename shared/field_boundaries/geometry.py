@@ -738,7 +738,7 @@ def generate_postgis_overlap_query(table1: str, table2: str, geometry_column: st
 
 
 def generate_postgis_neighbors_query(
-    table: str, boundary_id: str, geometry_column: str = "geometry", buffer_m: float = 10.0
+    table: str, boundary_id: str, geometry_column: str = "geometry", buffer_m: float = 10.0  # noqa: ARG001 — buffer_m now via $2
 ) -> str:
     """
     Generate PostGIS query to find neighboring boundaries.
@@ -767,7 +767,7 @@ def generate_postgis_neighbors_query(
     WHERE a.id = $1
         AND (
             ST_Touches(a.{g}, b.{g})
-            OR ST_DWithin(a.{g}::geography, b.{g}::geography, {buffer_m})
+            OR ST_DWithin(a.{g}::geography, b.{g}::geography, $2)
         )
     ORDER BY distance_m ASC
     """

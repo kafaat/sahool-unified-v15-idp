@@ -40,20 +40,20 @@ class PreferencesStorage(Protocol):
     بروتوكول لتخزين التفضيلات
     """
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
-        """Get preferences for a user"""
+    async def get(self, user_id: str, tenant_id: str) -> UserNotificationPreferences | None:
+        """Get preferences for a user within a specific tenant"""
         ...
 
     async def save(self, preferences: UserNotificationPreferences) -> None:
         """Save preferences"""
         ...
 
-    async def delete(self, user_id: str, tenant_id: str | None = None) -> bool:
-        """Delete preferences"""
+    async def delete(self, user_id: str, tenant_id: str) -> bool:
+        """Delete preferences for a user within a specific tenant"""
         ...
 
-    async def list_all(self, tenant_id: str | None = None) -> list[UserNotificationPreferences]:
-        """List all preferences, optionally filtered by tenant"""
+    async def list_all(self, tenant_id: str) -> list[UserNotificationPreferences]:
+        """List all preferences for a specific tenant"""
         ...
 
 
@@ -66,35 +66,37 @@ class InMemoryStorage:
     def __init__(self):
         self._storage: dict[str, UserNotificationPreferences] = {}
 
-    def _key(self, user_id: str, tenant_id: str | None = None) -> str:
-        """Generate storage key"""
-        return f"{tenant_id or 'default'}:{user_id}"
+    def _key(self, user_id: str, tenant_id: str) -> str:
+        """Generate storage key. tenant_id is required for isolation."""
+        if not tenant_id:
+            raise ValueError("tenant_id is required for notification preferences")
+        return f"{tenant_id}:{user_id}"
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
-        """Get preferences for a user"""
+    async def get(self, user_id: str, tenant_id: str) -> UserNotificationPreferences | None:
+        """Get preferences for a user within a specific tenant"""
         key = self._key(user_id, tenant_id)
         return self._storage.get(key)
 
     async def save(self, preferences: UserNotificationPreferences) -> None:
         """Save preferences"""
+        if not preferences.tenant_id:
+            raise ValueError("tenant_id is required on preferences")
         key = self._key(preferences.user_id, preferences.tenant_id)
         preferences.updated_at = datetime.now(UTC)
         preferences.version += 1
         self._storage[key] = preferences
 
-    async def delete(self, user_id: str, tenant_id: str | None = None) -> bool:
-        """Delete preferences"""
+    async def delete(self, user_id: str, tenant_id: str) -> bool:
+        """Delete preferences for a user within a specific tenant"""
         key = self._key(user_id, tenant_id)
         if key in self._storage:
             del self._storage[key]
             return True
         return False
 
-    async def list_all(self, tenant_id: str | None = None) -> list[UserNotificationPreferences]:
-        """List all preferences, optionally filtered by tenant"""
-        if tenant_id:
-            return [p for p in self._storage.values() if p.tenant_id == tenant_id]
-        return list(self._storage.values())
+    async def list_all(self, tenant_id: str) -> list[UserNotificationPreferences]:
+        """List all preferences for a specific tenant"""
+        return [p for p in self._storage.values() if p.tenant_id == tenant_id]
 
 
 class NotificationPreferencesManager:
@@ -122,16 +124,16 @@ class NotificationPreferencesManager:
     async def get_preferences(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
         create_if_missing: bool = True,
     ) -> UserNotificationPreferences:
         """
-        Get notification preferences for a user
-        الحصول على تفضيلات الإشعارات للمستخدم
+        Get notification preferences for a user within a tenant.
+        الحصول على تفضيلات الإشعارات للمستخدم ضمن مستأجر محدد
 
         Args:
             user_id: User identifier
-            tenant_id: Optional tenant identifier
+            tenant_id: Tenant identifier (required for isolation)
             create_if_missing: Create default preferences if not found
 
         Returns:
@@ -172,7 +174,7 @@ class NotificationPreferencesManager:
     async def delete_preferences(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> bool:
         """
         Delete notification preferences
@@ -193,7 +195,7 @@ class NotificationPreferencesManager:
     async def reset_to_defaults(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Reset preferences to defaults
@@ -218,7 +220,7 @@ class NotificationPreferencesManager:
     async def enable_notifications(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Enable all notifications for a user
@@ -231,7 +233,7 @@ class NotificationPreferencesManager:
     async def disable_notifications(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Disable all notifications for a user (except critical)
@@ -249,7 +251,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         language: Language,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Set language preference
@@ -275,7 +277,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         channels: list[NotificationChannel],
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Set default notification channels
@@ -301,7 +303,7 @@ class NotificationPreferencesManager:
         user_id: str,
         channel: NotificationChannel,
         address: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
         verified: bool = False,
     ) -> UserNotificationPreferences:
         """
@@ -343,7 +345,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         channel: NotificationChannel,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Remove a notification channel
@@ -365,7 +367,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         channel: NotificationChannel,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Enable a notification channel
@@ -381,7 +383,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         channel: NotificationChannel,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Disable a notification channel
@@ -397,7 +399,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         channel: NotificationChannel,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Mark a channel as verified
@@ -417,11 +419,11 @@ class NotificationPreferencesManager:
     async def set_alert_preference(
         self,
         user_id: str,
+        tenant_id: str,
         alert_type: AlertType,
         enabled: bool = True,
         channels: list[NotificationChannel] | None = None,
         min_urgency: AlertUrgency | None = None,
-        tenant_id: str | None = None,
     ) -> UserNotificationPreferences:
         """
         Set preference for a specific alert type
@@ -462,7 +464,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         alert_type: AlertType,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Disable notifications for a specific alert type
@@ -474,7 +476,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         alert_type: AlertType,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Enable notifications for a specific alert type
@@ -489,13 +491,13 @@ class NotificationPreferencesManager:
     async def set_quiet_hours(
         self,
         user_id: str,
+        tenant_id: str,
         start_time: time,
         end_time: time,
         enabled: bool = True,
         timezone: str = "Asia/Riyadh",
         days: list[DayOfWeek] | None = None,
         bypass_urgency: AlertUrgency = AlertUrgency.CRITICAL,
-        tenant_id: str | None = None,
     ) -> UserNotificationPreferences:
         """
         Set quiet hours (do not disturb period)
@@ -530,7 +532,7 @@ class NotificationPreferencesManager:
     async def disable_quiet_hours(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Disable quiet hours
@@ -543,7 +545,7 @@ class NotificationPreferencesManager:
     async def enable_quiet_hours(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Enable quiet hours
@@ -561,7 +563,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         rule: TimeBasedRule,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Add a time-based routing rule
@@ -590,7 +592,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         rule_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Remove a time-based routing rule
@@ -611,9 +613,9 @@ class NotificationPreferencesManager:
     async def create_no_sms_at_night_rule(
         self,
         user_id: str,
+        tenant_id: str,
         start_hour: int = 22,
         end_hour: int = 6,
-        tenant_id: str | None = None,
     ) -> UserNotificationPreferences:
         """
         Create a "no SMS at night" rule
@@ -650,7 +652,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         override: UrgencyOverride,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Set or update an urgency override
@@ -676,7 +678,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         urgency: AlertUrgency,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Remove an urgency override
@@ -702,7 +704,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         updates: dict[str, Any],
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> UserNotificationPreferences:
         """
         Update multiple preference fields at once
@@ -760,7 +762,7 @@ class NotificationPreferencesManager:
     async def export_preferences(
         self,
         user_id: str,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> dict[str, Any]:
         """
         Export preferences as JSON-serializable dictionary
@@ -782,7 +784,7 @@ class NotificationPreferencesManager:
         self,
         user_id: str,
         data: dict[str, Any],
-        tenant_id: str | None = None,
+        tenant_id: str,
         merge: bool = False,
     ) -> UserNotificationPreferences:
         """
@@ -883,7 +885,7 @@ class NotificationPreferencesManager:
     async def get_users_by_channel(
         self,
         channel: NotificationChannel,
-        tenant_id: str | None = None,
+        tenant_id: str,
         verified_only: bool = True,
     ) -> list[str]:
         """
@@ -915,7 +917,7 @@ class NotificationPreferencesManager:
     async def get_users_subscribed_to_alert(
         self,
         alert_type: AlertType,
-        tenant_id: str | None = None,
+        tenant_id: str,
     ) -> list[str]:
         """
         Get user IDs subscribed to a specific alert type

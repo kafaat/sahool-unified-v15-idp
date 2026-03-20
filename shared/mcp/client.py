@@ -62,6 +62,17 @@ class MCPClient:
             command: Command for stdio transport (e.g., ["python", "server.py"])
         """
         self.server_url = server_url
+        # SECURITY: Validate command to prevent arbitrary code execution.
+        # Only allow known MCP server executables.
+        if command:
+            import shutil
+
+            executable = command[0]
+            # Resolve to absolute path to prevent path traversal
+            resolved = shutil.which(executable)
+            if resolved is None:
+                raise MCPClientError(f"MCP server executable not found: {executable}")
+            command = [resolved] + command[1:]
         self.command = command
         self.client = httpx.AsyncClient(timeout=60.0)
         self.process: subprocess.Popen | None = None

@@ -119,7 +119,11 @@ class AgMLDatasetManager:
     """
 
     def __init__(self, cache_dir: str | None = None):
-        self.cache_dir = Path(cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml"))
+        resolved = Path(cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml")).resolve()
+        # SECURITY: Prevent path traversal — restrict to /tmp or explicit allowed base
+        if not str(resolved).startswith(("/tmp/", "/var/cache/")):
+            raise ValueError(f"cache_dir must be under /tmp or /var/cache, got: {resolved}")
+        self.cache_dir = resolved
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self._agml = None

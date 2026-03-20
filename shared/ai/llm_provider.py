@@ -57,6 +57,20 @@ class LLMProvider(StrEnum):
     DEEPSEEK = "deepseek"
 
 
+def _validate_base_url(url: str | None) -> str | None:
+    """Validate LLM base URL to prevent SSRF."""
+    if url is None:
+        return None
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"LLM base_url must use http/https, got: {parsed.scheme}")
+    if not parsed.hostname:
+        raise ValueError("LLM base_url must have a valid hostname")
+    return url
+
+
 @dataclass
 class LLMConfig:
     """Configuration for an LLM provider."""
@@ -70,6 +84,9 @@ class LLMConfig:
     timeout: float = 120.0
     enabled: bool = True
     priority: int = 0  # Lower = higher priority
+
+    def __post_init__(self):
+        self.base_url = _validate_base_url(self.base_url)
 
     @classmethod
     def from_env(cls, provider: LLMProvider) -> LLMConfig:

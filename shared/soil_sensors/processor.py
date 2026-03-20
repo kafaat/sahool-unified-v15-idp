@@ -49,6 +49,10 @@ class SensorDataProcessor:
         if not reading.is_valid:
             return alerts
 
+        # SECURITY: Only accept readings from registered sensors (tenant isolation)
+        if reading.sensor_id not in self._sensors:
+            return alerts
+
         # Apply calibration if available
         sensor = self._sensors.get(reading.sensor_id)
         if sensor and sensor.calibration:
@@ -186,14 +190,15 @@ class SensorDataProcessor:
         if len(recent) < 5:
             return None
 
-        # Calculate statistics
-        values = [r.value for r in recent[:-1]]  # Exclude current reading
+        # Calculate statistics — clamp values to valid sensor range to prevent overflow
+        values = [max(-1e6, min(1e6, r.value)) for r in recent[:-1]]  # Exclude current reading
         avg = sum(values) / len(values)
         variance = sum((v - avg) ** 2 for v in values) / len(values)
         std = math.sqrt(variance) if variance > 0 else 0.1
 
         # Check if current reading is anomalous (> 3 std deviations)
-        z_score = abs(reading.value - avg) / std if std > 0 else 0
+        clamped_value = max(-1e6, min(1e6, reading.value))
+        z_score = abs(clamped_value - avg) / std if std > 0 else 0
 
         if z_score > 3:
             self._sensors.get(reading.sensor_id)

@@ -12,9 +12,12 @@ Based on:
 
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import dataclass, field
 from enum import StrEnum
+
+logger = logging.getLogger(__name__)
 
 
 class SalinityRisk(StrEnum):
@@ -111,8 +114,12 @@ def calculate_sar(na: float, ca: float, mg: float) -> float:
         SAR value (dimensionless)
     """
     if ca + mg <= 0:
+        logger.warning("SAR calculation: ca + mg <= 0, returning 0.0")
         return 0.0
-    return na / math.sqrt((ca + mg) / 2.0)
+    denominator = math.sqrt((ca + mg) / 2.0)
+    if denominator <= 0:
+        return 0.0
+    return na / denominator
 
 
 def classify_salinity_risk(ec_water: float, sar: float) -> SalinityRisk:

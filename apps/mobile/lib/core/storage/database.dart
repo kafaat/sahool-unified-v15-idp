@@ -202,7 +202,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor, {this.onMigrationComplete});
 
   @override
-  int get schemaVersion => currentSchemaVersion; // v5: Migration tracking + metadata
+  int get schemaVersion => currentSchemaVersion; // v6: CachedUsers + CachedUserProfiles
 
   @override
   MigrationStrategy get migration => SahoolMigrationStrategy.create(

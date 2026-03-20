@@ -73,8 +73,8 @@ class WebSocketClient {
 
   /**
    * Set JWT token for authenticated WebSocket connections.
-   * Browser WebSocket API doesn't support custom headers, so token
-   * is passed via query parameter (ws-gateway supports both).
+   * Token is passed via Sec-WebSocket-Protocol subprotocol header
+   * to avoid leaking credentials in URL query strings.
    */
   setToken(token: string | null) {
     this.token = token;
@@ -92,10 +92,12 @@ class WebSocketClient {
     this.subscriptions = subscriptions;
 
     try {
-      const wsUrl = this.token
-        ? `${this.url}/events?token=${encodeURIComponent(this.token)}`
-        : `${this.url}/events`;
-      this.ws = new WebSocket(wsUrl);
+      const wsUrl = `${this.url}/events`;
+      // Pass JWT via Sec-WebSocket-Protocol subprotocol header to avoid
+      // leaking tokens in URL query strings (server logs, referer).
+      this.ws = this.token
+        ? new WebSocket(wsUrl, ["v1.sahool.events", `auth.${this.token}`])
+        : new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         logger.log("🔌 WebSocket connected");

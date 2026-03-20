@@ -17,6 +17,7 @@ class MockWebSocket {
 
   readyState = MockWebSocket.CONNECTING;
   url: string;
+  protocols: string | string[] | undefined;
   onopen: ((ev: Event) => void) | null = null;
   onclose: ((ev: CloseEvent) => void) | null = null;
   onmessage: ((ev: MessageEvent) => void) | null = null;
@@ -27,8 +28,9 @@ class MockWebSocket {
     this.readyState = MockWebSocket.CLOSED;
   });
 
-  constructor(url: string) {
+  constructor(url: string, protocols?: string | string[]) {
     this.url = url;
+    this.protocols = protocols;
     // Simulate async connection
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
@@ -62,8 +64,8 @@ describe("WebSocket Client", () => {
     vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
 
     // @ts-expect-error - MockWebSocket is test-only
-    global.WebSocket = vi.fn((url: string) => {
-      const ws = new MockWebSocket(url);
+    global.WebSocket = vi.fn((url: string, protocols?: string | string[]) => {
+      const ws = new MockWebSocket(url, protocols);
       wsInstances.push(ws);
       return ws;
     });
@@ -299,24 +301,29 @@ describe("WebSocket Client", () => {
   });
 
   describe("Authentication", () => {
-    it("should append token to WebSocket URL when setToken is called", async () => {
+    it("should pass token via Sec-WebSocket-Protocol when setToken is called", async () => {
       const { wsClient } = await import("../index");
       wsClient.setToken("test-jwt-token-123");
       wsClient.connect();
       await vi.advanceTimersByTimeAsync(10);
 
-      const calledUrl = (global.WebSocket as unknown as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-      expect(calledUrl).toContain("token=test-jwt-token-123");
+      const ws = wsInstances[0]!;
+      expect(ws.url).not.toContain("token=");
+      expect(ws.protocols).toEqual([
+        "v1.sahool.events",
+        "auth.test-jwt-token-123",
+      ]);
     });
 
-    it("should not append token when setToken is called with null", async () => {
+    it("should not pass protocols when setToken is called with null", async () => {
       const { wsClient } = await import("../index");
       wsClient.setToken(null);
       wsClient.connect();
       await vi.advanceTimersByTimeAsync(10);
 
-      const calledUrl = (global.WebSocket as unknown as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-      expect(calledUrl).not.toContain("token=");
+      const ws = wsInstances[0]!;
+      expect(ws.url).not.toContain("token=");
+      expect(ws.protocols).toBeUndefined();
     });
 
     it("should not reconnect on auth failure (code 4001)", async () => {

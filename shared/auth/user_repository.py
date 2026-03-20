@@ -230,7 +230,7 @@ class AsyncpgUserRepository(UserRepository):
                 email=row.get("email", ""),
                 is_active=status == "ACTIVE",
                 is_verified=bool(row.get("emailVerified", False)),
-                roles=[row.get("role", "FARMER")],
+                roles=[row.get("role", "FARMER").lower()],
                 tenant_id=row.get("tenantId"),
                 is_deleted=status == "DELETED",
                 is_suspended=status == "SUSPENDED",

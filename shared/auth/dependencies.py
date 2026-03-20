@@ -136,6 +136,7 @@ async def get_current_user(
 
                 if request:
                     request.state.user = user
+                    request.state.token_payload = payload
 
                 return user
 
@@ -222,9 +223,10 @@ async def get_current_user(
 
             logger.info(f"User {user_id} authenticated successfully (token only)")
 
-        # Store user in request state
+        # Store user and token payload in request state
         if request:
             request.state.user = user
+            request.state.token_payload = payload
 
         return user
 

@@ -263,7 +263,6 @@ export class AuthModule {
     ) => Promise<AuthModuleOptions> | AuthModuleOptions;
     inject?: any[];
   }): DynamicModule {
-    // Provider factory that builds the full provider list based on resolved config
     const AUTH_CONFIG_TOKEN = "AUTH_MODULE_OPTIONS";
 
     return {
@@ -289,7 +288,7 @@ export class AuthModule {
         }),
       ],
       providers: [
-        // Resolve and store config for other providers
+        // Resolve config so conditional providers can read it
         {
           provide: AUTH_CONFIG_TOKEN,
           useFactory: options.useFactory,
@@ -301,10 +300,47 @@ export class AuthModule {
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
-        JwtStrategy,
-        // Token revocation providers (always registered, guard checks config)
-        TokenRevocationGuard,
-        TokenRevocationInterceptor,
+        // JwtStrategy conditionally uses UserValidationService
+        {
+          provide: JwtStrategy,
+          useFactory: (
+            config: AuthModuleOptions,
+            userValidationService?: UserValidationService,
+          ) => {
+            return new JwtStrategy(
+              config.enableUserValidation !== false
+                ? userValidationService
+                : undefined,
+            );
+          },
+          inject: [AUTH_CONFIG_TOKEN, { token: UserValidationService, optional: true }],
+        },
+        // UserValidationService registered conditionally via factory
+        {
+          provide: UserValidationService,
+          useFactory: (config: AuthModuleOptions, redis: any) => {
+            if (config.enableUserValidation === false) return undefined;
+            return new UserValidationService(redis, config.userRepository);
+          },
+          inject: [AUTH_CONFIG_TOKEN, { token: "REDIS_CLIENT", optional: true }],
+        },
+        // Token revocation providers registered conditionally
+        {
+          provide: TokenRevocationGuard,
+          useFactory: (config: AuthModuleOptions) => {
+            if (config.enableTokenRevocation === false) return undefined;
+            return new TokenRevocationGuard();
+          },
+          inject: [AUTH_CONFIG_TOKEN],
+        },
+        {
+          provide: TokenRevocationInterceptor,
+          useFactory: (config: AuthModuleOptions) => {
+            if (config.enableTokenRevocation === false) return undefined;
+            return new TokenRevocationInterceptor();
+          },
+          inject: [AUTH_CONFIG_TOKEN],
+        },
       ],
       exports: [
         JwtModule,
@@ -316,6 +352,7 @@ export class AuthModule {
         OptionalAuthGuard,
         ActiveAccountGuard,
         JwtStrategy,
+        UserValidationService,
         TokenRevocationGuard,
         TokenRevocationInterceptor,
       ],

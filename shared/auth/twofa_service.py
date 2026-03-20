@@ -211,9 +211,23 @@ class TwoFactorAuthService:
 
         return hashlib.sha256(clean_code.encode()).hexdigest()
 
-    def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None, list[str]]:
+    def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None]:
         """
         Verify a backup code against stored hashes.
+
+        Args:
+            code: The backup code to verify
+            hashed_codes: List of hashed backup codes
+
+        Returns:
+            Tuple of (is_valid, matched_hash)
+        """
+        is_valid, matched_hash, _ = self.verify_backup_code_with_remaining(code, hashed_codes)
+        return is_valid, matched_hash
+
+    def verify_backup_code_with_remaining(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None, list[str]]:
+        """
+        Verify a backup code and return remaining codes after invalidation.
 
         The matched code is removed from the list to prevent reuse.
         Callers MUST persist the returned remaining_codes to storage.

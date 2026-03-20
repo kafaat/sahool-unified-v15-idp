@@ -19,6 +19,8 @@ class MockWebSocket {
 
   readyState = MockWebSocket.CONNECTING;
   url: string;
+  protocol: string = "";
+  protocols: string | string[] | undefined;
   onopen: ((ev: Event) => void) | null = null;
   onclose: ((ev: CloseEvent) => void) | null = null;
   onmessage: ((ev: MessageEvent) => void) | null = null;
@@ -29,8 +31,9 @@ class MockWebSocket {
     this.readyState = MockWebSocket.CLOSED;
   });
 
-  constructor(url: string) {
+  constructor(url: string, protocols?: string | string[]) {
     this.url = url;
+    this.protocols = protocols;
     this.readyState = MockWebSocket.CONNECTING;
   }
 
@@ -77,8 +80,8 @@ describe("useWebSocket", () => {
     });
 
     // @ts-expect-error - MockWebSocket is test-only
-    global.WebSocket = vi.fn((url: string) => {
-      const ws = new MockWebSocket(url);
+    global.WebSocket = vi.fn((url: string, protocols?: string | string[]) => {
+      const ws = new MockWebSocket(url, protocols);
       wsInstances.push(ws);
       return ws;
     });
@@ -136,7 +139,7 @@ describe("useWebSocket", () => {
   });
 
   describe("Authentication", () => {
-    it("should append token to WebSocket URL", () => {
+    it("should pass token via Sec-WebSocket-Protocol subprotocol", () => {
       renderHook(() =>
         useWebSocket({
           url: "ws://localhost:8081",
@@ -144,10 +147,14 @@ describe("useWebSocket", () => {
         }),
       );
 
-      expect(wsInstances[0]?.url).toContain("token=my-jwt-token");
+      expect(wsInstances[0]?.url).not.toContain("token=");
+      expect(wsInstances[0]?.protocols).toEqual([
+        "v1.sahool.events",
+        "auth.my-jwt-token",
+      ]);
     });
 
-    it("should not append token when null", () => {
+    it("should not pass protocols when token is null", () => {
       renderHook(() =>
         useWebSocket({
           url: "ws://localhost:8081",
@@ -155,19 +162,18 @@ describe("useWebSocket", () => {
         }),
       );
 
-      expect(wsInstances[0]?.url).not.toContain("token=");
+      expect(wsInstances[0]?.protocols).toBeUndefined();
     });
 
-    it("should URL-encode token parameter", () => {
+    it("should not leak token in URL", () => {
       renderHook(() =>
         useWebSocket({
           url: "ws://localhost:8081",
-          token: "token with spaces&special=chars",
+          token: "secret-token",
         }),
       );
 
-      const url = wsInstances[0]?.url ?? "";
-      expect(url).toContain("token=token%20with%20spaces%26special%3Dchars");
+      expect(wsInstances[0]?.url).not.toContain("secret-token");
     });
 
     it("should set error on auth failure close (code 4001)", () => {

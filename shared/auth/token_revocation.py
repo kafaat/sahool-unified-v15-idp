@@ -13,6 +13,7 @@ Provides:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
@@ -595,6 +596,15 @@ class RedisTokenRevocationStore:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _store: RedisTokenRevocationStore | None = None
+_store_lock: asyncio.Lock | None = None
+
+
+def _get_store_lock() -> asyncio.Lock:
+    """Lazily create the asyncio.Lock (must be in a running event loop)."""
+    global _store_lock
+    if _store_lock is None:
+        _store_lock = asyncio.Lock()
+    return _store_lock
 
 
 async def get_revocation_store() -> RedisTokenRevocationStore:
@@ -602,14 +612,22 @@ async def get_revocation_store() -> RedisTokenRevocationStore:
     Get the global token revocation store instance.
     الحصول على نسخة مخزن إلغاء الرموز العامة.
 
+    Thread-safe: uses asyncio.Lock to prevent duplicate initialization.
+
     Returns:
         RedisTokenRevocationStore instance
     """
     global _store
 
-    if _store is None:
-        _store = RedisTokenRevocationStore()
-        await _store.initialize()
+    if _store is not None:
+        return _store
+
+    async with _get_store_lock():
+        # Double-check after acquiring lock
+        if _store is None:
+            store = RedisTokenRevocationStore()
+            await store.initialize()
+            _store = store
 
     return _store
 

@@ -215,6 +215,11 @@ class TwoFactorAuthService:
         """
         Verify a backup code against stored hashes.
 
+        .. deprecated::
+            Use :meth:`verify_backup_code_with_remaining` instead.
+            This method discards the remaining-codes list, so callers
+            cannot remove the used code from storage — allowing reuse.
+
         Args:
             code: The backup code to verify
             hashed_codes: List of hashed backup codes
@@ -222,6 +227,15 @@ class TwoFactorAuthService:
         Returns:
             Tuple of (is_valid, matched_hash)
         """
+        import warnings
+
+        warnings.warn(
+            "verify_backup_code() discards remaining codes, allowing reuse. "
+            "Use verify_backup_code_with_remaining() and persist the returned "
+            "remaining_codes list.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         is_valid, matched_hash, _ = self.verify_backup_code_with_remaining(code, hashed_codes)
         return is_valid, matched_hash
 

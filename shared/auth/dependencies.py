@@ -106,7 +106,23 @@ async def get_current_user(
             cached_user = await cache.get_user_status(user_id)
 
             if cached_user:
-                # Validate cached user status
+                # Validate cached user status — check ALL denial conditions.
+                # Security: defaults are fail-closed (False/True) so that a
+                # missing key rejects rather than admits the user.
+                if cached_user.get("is_deleted", False):
+                    logger.warning(f"Authentication failed: User {user_id} is deleted (cached)")
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=AuthErrors.ACCOUNT_DISABLED.en,
+                    )
+
+                if cached_user.get("is_suspended", False):
+                    logger.warning(f"Authentication failed: User {user_id} is suspended (cached)")
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=AuthErrors.ACCOUNT_DISABLED.en,
+                    )
+
                 if not cached_user.get("is_active", False):
                     logger.warning(f"Authentication failed: User {user_id} is inactive (cached)")
                     raise HTTPException(
@@ -121,15 +137,15 @@ async def get_current_user(
                         detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
                     )
 
-                # Create User object from cache
+                # Create User object from cache — use fail-closed defaults
                 user = User(
                     id=user_id,
                     email=cached_user.get("email", ""),
                     roles=cached_user.get("roles", payload.roles),
                     tenant_id=cached_user.get("tenant_id", payload.tenant_id),
                     permissions=payload.permissions,
-                    is_active=cached_user.get("is_active", True),
-                    is_verified=cached_user.get("is_verified", True),
+                    is_active=cached_user.get("is_active", False),
+                    is_verified=cached_user.get("is_verified", False),
                 )
 
                 logger.debug(f"User {user_id} authenticated successfully (from cache)")
@@ -186,9 +202,10 @@ async def get_current_user(
                     detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
                 )
 
-            # Update cache
+            # Update cache — include all status fields so cached path
+            # can perform the same denial checks as the DB path.
             if cache:
-                await cache.set_user_status(
+                cache_kwargs = dict(
                     user_id=user_id,
                     is_active=user_data.is_active,
                     is_verified=user_data.is_verified,
@@ -196,6 +213,24 @@ async def get_current_user(
                     email=user_data.email,
                     tenant_id=user_data.tenant_id,
                 )
+                # Pass is_deleted/is_suspended if the cache accepts them
+                if hasattr(user_data, "is_deleted"):
+                    cache_kwargs["is_deleted"] = user_data.is_deleted
+                if hasattr(user_data, "is_suspended"):
+                    cache_kwargs["is_suspended"] = user_data.is_suspended
+                try:
+                    await cache.set_user_status(**cache_kwargs)
+                except TypeError:
+                    # Older cache implementation may not accept new fields;
+                    # fall back to the original signature.
+                    await cache.set_user_status(
+                        user_id=user_id,
+                        is_active=user_data.is_active,
+                        is_verified=user_data.is_verified,
+                        roles=user_data.roles,
+                        email=user_data.email,
+                        tenant_id=user_data.tenant_id,
+                    )
 
             # Create User object from database
             user = User(
@@ -365,10 +400,12 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
         )
 
     if requested_tenant_id:
-        # Admin users can access any tenant
-        if "admin" in (user.roles or []):
+        # Only super_admin can access other tenants (cross-tenant access).
+        # Regular admin is scoped to their own tenant.
+        # الأمان: فقط المشرف الأعلى يمكنه الوصول عبر المستأجرين
+        if "super_admin" in (user.roles or []):
             return requested_tenant_id
-        # Non-admin users must match their own tenant
+        # Non-super_admin users must match their own tenant
         if user_tenant and user_tenant != requested_tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

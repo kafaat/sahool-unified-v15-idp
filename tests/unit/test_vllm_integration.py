@@ -188,7 +188,7 @@ class TestLLMNATSSubjects:
         """LLM wildcard subject matches pattern."""
         from shared.events.subjects import SAHOOL_LLM_ALL
 
-        assert SAHOOL_LLM_ALL == "sahool.llm.*"
+        assert SAHOOL_LLM_ALL == "sahool.llm.>"
 
     def test_all_llm_subjects_follow_naming_convention(self):
         """All LLM subjects start with 'sahool.llm.'."""

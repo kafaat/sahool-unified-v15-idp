@@ -581,6 +581,7 @@ class EventPublisher:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _publisher_instance: EventPublisher | None = None
+_publisher_lock = asyncio.Lock()
 
 
 async def get_publisher(
@@ -591,6 +592,9 @@ async def get_publisher(
     Get or create the singleton publisher instance.
     الحصول على أو إنشاء ناشر الأحداث الوحيد
 
+    Thread-safe: uses asyncio.Lock to prevent duplicate initialization
+    when multiple coroutines call get_publisher() concurrently.
+
     Args:
         service_name: Service name
         service_version: Service version
@@ -600,12 +604,18 @@ async def get_publisher(
     """
     global _publisher_instance
 
-    if _publisher_instance is None:
-        _publisher_instance = EventPublisher(
-            service_name=service_name,
-            service_version=service_version,
-        )
-        await _publisher_instance.connect()
+    if _publisher_instance is not None:
+        return _publisher_instance
+
+    async with _publisher_lock:
+        # Double-check after acquiring lock
+        if _publisher_instance is None:
+            instance = EventPublisher(
+                service_name=service_name,
+                service_version=service_version,
+            )
+            await instance.connect()
+            _publisher_instance = instance
 
     return _publisher_instance
 
@@ -614,9 +624,10 @@ async def close_publisher():
     """Close the singleton publisher instance."""
     global _publisher_instance
 
-    if _publisher_instance:
-        await _publisher_instance.close()
-        _publisher_instance = None
+    async with _publisher_lock:
+        if _publisher_instance:
+            await _publisher_instance.close()
+            _publisher_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -247,7 +247,7 @@ export default function InventoryPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast.info("Export complete", "تم تصدير البيانات");
-  }, [filteredInventory, toast]);
+  }, [filteredInventory, toast, getStatusLabel]);
 
   const updateField = useCallback(<K extends keyof typeof EMPTY_FORM>(key: K, value: (typeof EMPTY_FORM)[K]) => {
     setFormData((prev) => {

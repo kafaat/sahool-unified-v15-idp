@@ -23,9 +23,9 @@ postgresql:
   auth:
     username: sahool
     database: sahool
-    existingSecret: sahool-postgresql-secret
+    existingSecret: sahool-postgresql-secret  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     secretKeys:
-      adminPasswordKey: postgres-password
+      adminPasswordKey: postgres-password  # checkov:skip=CKV_SECRET_6:Key name within K8s Secret, not a password value
       userPasswordKey: password
   primary:
     persistence:
@@ -48,8 +48,8 @@ redis:
     tag: "7.4-alpine"
   auth:
     enabled: true
-    existingSecret: sahool-redis-secret
-    existingSecretPasswordKey: redis-password
+    existingSecret: sahool-redis-secret  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
+    existingSecretPasswordKey: redis-password  # checkov:skip=CKV_SECRET_6:Key name within K8s Secret, not a password value
   master:
     persistence:
       enabled: true
@@ -111,9 +111,9 @@ rocketchat:
   admin:
     username: rc_admin
     email: admin@sahool.io
-    existingSecret: sahool-rocketchat-secret
+    existingSecret: sahool-rocketchat-secret  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     secretKeys:
-      passwordKey: admin-password
+      passwordKey: admin-password  # checkov:skip=CKV_SECRET_6:Key name within K8s Secret, not a password value
   settings:
     language: ar
     siteName: "SAHOOL Community | مجتمع سهول"
@@ -130,9 +130,9 @@ rocketchat:
       repository: mongo
       tag: "6.0"
     auth:
-      existingSecret: sahool-mongodb-secret
+      existingSecret: sahool-mongodb-secret  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
       secretKeys:
-        rootPasswordKey: root-password
+        rootPasswordKey: root-password  # checkov:skip=CKV_SECRET_6:Key name within K8s Secret, not a password value
     persistence:
       enabled: true
       size: 10Gi

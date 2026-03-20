@@ -83,9 +83,9 @@ api_addr      = "https://vault.sahool.com:8200"
 # ─────────────────────────────────────────────────────────────────────────────
 # Uncomment and configure for Azure deployments
 # seal "azurekeyvault" {
-#   tenant_id      = "AZURE_TENANT_ID"
-#   client_id      = "AZURE_CLIENT_ID"
-#   client_secret  = "AZURE_CLIENT_SECRET"
+#   tenant_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Tenant ID at deploy time
+#   client_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client ID at deploy time
+#   client_secret  = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client Secret at deploy time
 #   vault_name     = "sahool-vault"
 #   key_name       = "vault-unseal-key"
 # }

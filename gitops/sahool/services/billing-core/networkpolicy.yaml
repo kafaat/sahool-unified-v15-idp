@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: billing-core-netpol
+  namespace: sahool
+spec:
+  podSelector:
+    matchLabels:
+      app: billing-core
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8087
+  egress:
+    - to:
+        - podSelector: {}

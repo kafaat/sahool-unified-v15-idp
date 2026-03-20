@@ -1398,16 +1398,18 @@ void main() {
       expect(tableNames, contains('test_fields'));
       expect(tableNames, contains('test_sync_logs'));
       expect(tableNames, contains('test_sync_events'));
-      expect(tableNames.length, equals(5));
+      expect(tableNames, contains('test_cached_users'));
+      expect(tableNames, contains('test_cached_user_profiles'));
+      expect(tableNames.length, equals(7));
     });
 
-    test('should verify all expected indexes exist (25 total)', () async {
+    test('should verify all expected indexes exist (27 total)', () async {
       final indexes = await db.customSelect(
         "SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_%'",
       ).get();
 
       final indexNames = indexes.map((r) => r.read<String>('name')).toSet();
-      expect(indexNames.length, equals(25));
+      expect(indexNames.length, equals(27));
     });
 
     test('should get database statistics (table counts)', () async {
@@ -1597,7 +1599,7 @@ void main() {
 
     test('should verify schema version matches expected', () {
       // Mirrors production schemaVersion check
-      expect(db.schemaVersion, equals(4));
+      expect(db.schemaVersion, equals(6));
     });
 
     test('should verify database page size and journal mode', () async {

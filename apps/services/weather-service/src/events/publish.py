@@ -2,12 +2,21 @@
 Event Publisher - SAHOOL Weather Core
 """
 
+from __future__ import annotations
+
 import json
 import os
 import uuid
 from datetime import UTC, datetime, timezone
+from typing import TYPE_CHECKING
 
-from nats.aio.client import Client as NATS
+if TYPE_CHECKING:
+    from nats.aio.client import Client as NATS
+
+try:
+    from nats.aio.client import Client as NATS  # noqa: F811
+except ImportError:
+    NATS = None  # type: ignore[assignment,misc]
 
 from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
@@ -83,6 +92,11 @@ class WeatherPublisher:
         """Connect to NATS"""
         if self._connected:
             return
+        if NATS is None:
+            raise RuntimeError(
+                "NATS client library is not installed. "
+                "Install it with: pip install nats-py"
+            )
         self.nc = NATS()
         await self.nc.connect(self.nats_url)
         self._connected = True

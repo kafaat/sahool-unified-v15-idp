@@ -94,6 +94,8 @@ class DronePublisher:
 
     async def connect(self) -> None:
         """Connect to NATS server."""
+        if NATS is None:
+            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
         import nats as nats_lib
 
         self.nc = await nats_lib.connect(self.nats_url)

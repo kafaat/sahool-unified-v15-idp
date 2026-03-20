@@ -26,17 +26,21 @@ enum Role {
   /// عامل حقل - تنفيذ المهام، عرض الحقول المخصصة
   fieldWorker('field_worker', 'عامل حقل', 2),
 
+  /// Farmer - Field operations, irrigation, advisory (matches Prisma FARMER role)
+  /// مزارع - عمليات الحقل، الري، الاستشارات
+  farmer('farmer', 'مزارع', 3),
+
   /// Agronomist - Advisory, reports, all field data
   /// مهندس زراعي - استشارات، تقارير، جميع بيانات الحقول
-  agronomist('agronomist', 'مهندس زراعي', 3),
+  agronomist('agronomist', 'مهندس زراعي', 4),
 
   /// Manager - Manage fields, tasks, workers
   /// مشرف - إدارة الحقول والمهام والعمال
-  manager('manager', 'مشرف', 4),
+  manager('manager', 'مشرف', 5),
 
   /// Admin - Full access to tenant
   /// مدير - وصول كامل للمستأجر
-  admin('admin', 'مدير', 5);
+  admin('admin', 'مدير', 6);
 
   /// Internal value (for API/storage)
   final String value;
@@ -54,6 +58,7 @@ enum Role {
         Role.guest => 'Guest',
         Role.viewer => 'Viewer',
         Role.fieldWorker => 'Field Worker',
+        Role.farmer => 'Farmer',
         Role.agronomist => 'Agronomist',
         Role.manager => 'Manager',
         Role.admin => 'Administrator',
@@ -69,6 +74,7 @@ enum Role {
         Role.guest => 'Limited access for visitors',
         Role.viewer => 'Read-only access to view data',
         Role.fieldWorker => 'Execute assigned tasks and operations',
+        Role.farmer => 'Manage own fields, irrigation, and crops',
         Role.agronomist => 'Provide advisory and generate reports',
         Role.manager => 'Manage fields, tasks, and workers',
         Role.admin => 'Full administrative access',
@@ -79,6 +85,7 @@ enum Role {
         Role.guest => 'وصول محدود للزوار',
         Role.viewer => 'وصول للقراءة فقط لعرض البيانات',
         Role.fieldWorker => 'تنفيذ المهام والعمليات المخصصة',
+        Role.farmer => 'إدارة الحقول والري والمحاصيل الخاصة',
         Role.agronomist => 'تقديم الاستشارات وإنشاء التقارير',
         Role.manager => 'إدارة الحقول والمهام والعمال',
         Role.admin => 'وصول إداري كامل',
@@ -94,6 +101,7 @@ enum Role {
         Role.guest => Icons.person_outline,
         Role.viewer => Icons.visibility,
         Role.fieldWorker => Icons.agriculture,
+        Role.farmer => Icons.grass,
         Role.agronomist => Icons.science,
         Role.manager => Icons.supervisor_account,
         Role.admin => Icons.admin_panel_settings,
@@ -104,6 +112,7 @@ enum Role {
         Role.guest => Colors.grey,
         Role.viewer => Colors.blue,
         Role.fieldWorker => Colors.green,
+        Role.farmer => Colors.teal,
         Role.agronomist => Colors.orange,
         Role.manager => Colors.purple,
         Role.admin => Colors.red,

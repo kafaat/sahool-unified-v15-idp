@@ -710,7 +710,8 @@ class ClientIdentifier:
         if api_key:
             # تجزئة مفتاح API للأمان
             # Hash API key for security
-            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()[:16]
+            # SECURITY: Use full hash to prevent collision attacks
+            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()
             return f"apikey:{api_key_hash}"
 
         # 2. محاولة الحصول على معرف المستخدم من المصادقة

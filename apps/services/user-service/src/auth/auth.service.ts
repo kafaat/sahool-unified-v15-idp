@@ -416,7 +416,6 @@ export class AuthService {
       const familyTokens = await this.prisma.refreshToken.findMany({
         where: { family },
         select: { jti: true },
-        take: 100,
       });
 
       // Revoke each token in Redis

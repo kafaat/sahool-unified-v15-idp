@@ -314,10 +314,20 @@ async def websocket_endpoint(
 
     # SECURITY FIX: Accept token from Authorization header (preferred) or query param (deprecated)
     auth_header = websocket.headers.get("authorization") or websocket.headers.get("Authorization")
+    token_from_header = False
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header[7:]  # Remove "Bearer " prefix
+        token_from_header = True
     elif auth_header:
         token = auth_header
+        token_from_header = True
+
+    if token and not token_from_header:
+        logger.warning(
+            f"WebSocket using deprecated query param token. "
+            f"Connection ID: {connection_id}, Tenant: {sanitize_log_input(tenant_id)}. "
+            f"Migrate to Authorization header."
+        )
 
     # JWT authentication is always required
     if not token:

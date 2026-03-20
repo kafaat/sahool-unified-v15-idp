@@ -117,9 +117,7 @@ const ACTIVITY_CONFIG: Record<
 // Mock Data Generator (for demo when WS not connected)
 // ═══════════════════════════════════════════════════════════════════════════
 
-let mockEventCounter = 0;
-
-const generateMockEvent = (): ActivityEvent => {
+const generateMockEvent = (counterRef: React.RefObject<number>): ActivityEvent => {
   const types: ActivityType[] = [
     "field_created",
     "field_updated",
@@ -222,7 +220,7 @@ const generateMockEvent = (): ActivityEvent => {
     },
   };
 
-  const currentCount = mockEventCounter++;
+  const currentCount = counterRef.current++;
   const typeIndex = currentCount % types.length;
   const type = types[typeIndex] ?? "system_event";
   const mockData = mockEvents[type] ?? mockEvents.system_event;
@@ -257,6 +255,7 @@ export function RealTimeActivityFeed({
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mockIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const mockEventCounterRef = useRef(0);
   const isPausedRef = useRef(isPaused);
   isPausedRef.current = isPaused;
 
@@ -276,12 +275,12 @@ export function RealTimeActivityFeed({
       // Prevent double mock generation
       if (mockIntervalRef.current) return;
 
-      const initialEvents = Array.from({ length: 5 }, () => generateMockEvent());
+      const initialEvents = Array.from({ length: 5 }, () => generateMockEvent(mockEventCounterRef));
       setActivities(initialEvents);
 
       mockIntervalRef.current = setInterval(() => {
         if (!isPausedRef.current) {
-          addEvent(generateMockEvent());
+          addEvent(generateMockEvent(mockEventCounterRef));
         }
       }, 5000);
     };

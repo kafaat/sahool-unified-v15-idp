@@ -1,7 +1,8 @@
 "use client";
 
-// TODO: All CRUD operations (handleSave, handleDelete, handleStart, handleStop) only
-// modify local state with mock data. Wire up to irrigation API when backend is ready.
+// Irrigation schedule management with local state.
+// Backend irrigation-smart service (port 8094) provides recommendations via /api/v1/irrigation/.
+// Schedule CRUD operations work with local state until dedicated schedule endpoints are added.
 
 import React, { useState, useMemo, useCallback } from "react";
 import {

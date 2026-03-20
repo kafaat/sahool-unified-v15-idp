@@ -3,85 +3,95 @@
 import React, { useState } from "react";
 import {
   FileBarChart, Download, TrendingUp, Droplets,
-  Sprout, DollarSign, BarChart3, PieChart,
+  Sprout, DollarSign, BarChart3, PieChart, Loader2, AlertTriangle,
 } from "lucide-react";
+import { useReports, useGenerateReport } from "@/features/reports";
+import type { Report } from "@/features/reports";
+import { useToast } from "@/components/ui/toast";
 
-type ReportType = "yield" | "irrigation" | "financial" | "crop-health" | "inventory" | "weather";
+type ReportCardType = "yield" | "irrigation" | "financial" | "crop-health" | "inventory" | "weather";
 type ReportPeriod = "weekly" | "monthly" | "quarterly" | "annual";
 
 interface ReportCard {
-  type: ReportType;
+  type: ReportCardType;
+  apiType: string;
   titleAr: string;
   title: string;
   descriptionAr: string;
   icon: React.ElementType;
   iconColor: string;
   bgColor: string;
-  available: boolean;
 }
 
 const reportCards: ReportCard[] = [
   {
     type: "yield",
+    apiType: "yield_analysis",
     titleAr: "تقرير الإنتاجية",
     title: "Yield Report",
     descriptionAr: "تحليل شامل لإنتاجية المحاصيل والمقارنة بالمواسم السابقة",
     icon: TrendingUp,
     iconColor: "text-green-600",
     bgColor: "bg-green-100",
-    available: true,
   },
   {
     type: "irrigation",
+    apiType: "irrigation",
     titleAr: "تقرير الري",
     title: "Irrigation Report",
     descriptionAr: "استهلاك المياه وكفاءة الري وتوصيات التحسين",
     icon: Droplets,
     iconColor: "text-blue-600",
     bgColor: "bg-blue-100",
-    available: true,
   },
   {
     type: "financial",
+    apiType: "financial",
     titleAr: "التقرير المالي",
     title: "Financial Report",
     descriptionAr: "الإيرادات والمصروفات والعائد على الاستثمار لكل موسم",
     icon: DollarSign,
     iconColor: "text-purple-600",
     bgColor: "bg-purple-100",
-    available: true,
   },
   {
     type: "crop-health",
+    apiType: "ndvi_summary",
     titleAr: "تقرير صحة المحاصيل",
     title: "Crop Health Report",
     descriptionAr: "مؤشرات NDVI وتحليل الأمراض وحالة النمو",
     icon: Sprout,
     iconColor: "text-sahool-green-600",
     bgColor: "bg-sahool-green-100",
-    available: true,
   },
   {
     type: "inventory",
+    apiType: "custom",
     titleAr: "تقرير المخزون",
     title: "Inventory Report",
     descriptionAr: "حركة المخزون والاستهلاك والتنبيهات",
     icon: BarChart3,
     iconColor: "text-orange-600",
     bgColor: "bg-orange-100",
-    available: true,
   },
   {
     type: "weather",
+    apiType: "weather",
     titleAr: "تقرير الطقس",
     title: "Weather Report",
     descriptionAr: "تحليل بيانات الطقس وتأثيرها على المحاصيل",
     icon: PieChart,
     iconColor: "text-cyan-600",
     bgColor: "bg-cyan-100",
-    available: true,
   },
 ];
+
+const periodMap: Record<ReportPeriod, string> = {
+  weekly: "weekly",
+  monthly: "monthly",
+  quarterly: "quarterly",
+  annual: "yearly",
+};
 
 const periodOptions: Array<{ value: ReportPeriod; labelAr: string }> = [
   { value: "weekly", labelAr: "أسبوعي" },
@@ -90,51 +100,52 @@ const periodOptions: Array<{ value: ReportPeriod; labelAr: string }> = [
   { value: "annual", labelAr: "سنوي" },
 ];
 
-// Mock recent reports
-const recentReports = [
-  {
-    id: "r-001",
-    titleAr: "تقرير إنتاجية القمح - يناير 2026",
-    type: "yield" as ReportType,
-    date: "2026-02-01",
-    sizeMb: 2.4,
-    status: "ready",
-  },
-  {
-    id: "r-002",
-    titleAr: "تقرير الري الشهري - يناير 2026",
-    type: "irrigation" as ReportType,
-    date: "2026-02-03",
-    sizeMb: 1.8,
-    status: "ready",
-  },
-  {
-    id: "r-003",
-    titleAr: "التقرير المالي - الربع الرابع 2025",
-    type: "financial" as ReportType,
-    date: "2026-01-15",
-    sizeMb: 3.1,
-    status: "ready",
-  },
-  {
-    id: "r-004",
-    titleAr: "تقرير صحة المحاصيل - فبراير 2026",
-    type: "crop-health" as ReportType,
-    date: "2026-02-15",
-    sizeMb: 0,
-    status: "generating",
-  },
-];
-
 export default function ReportsClient() {
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>("monthly");
-  const [generatingReport, setGeneratingReport] = useState<string | null>(null);
+  const { data: reports = [], isLoading, error } = useReports();
+  const generateReport = useGenerateReport();
+  const { showToast } = useToast();
 
-  const handleGenerate = (type: ReportType) => {
-    setGeneratingReport(type);
-    // Simulate report generation
-    setTimeout(() => setGeneratingReport(null), 3000);
+  const handleGenerate = async (card: ReportCard) => {
+    try {
+      await generateReport.mutateAsync({
+        type: card.apiType as Report["type"],
+        format: "pdf",
+        period: periodMap[selectedPeriod] as Report["period"],
+      });
+      showToast({ type: "success", message: "Report generation started", messageAr: "بدأ إنشاء التقرير" });
+    } catch {
+      showToast({ type: "error", message: "Failed to generate report", messageAr: "فشل في إنشاء التقرير" });
+    }
   };
+
+  const handleDownload = (report: Report) => {
+    if (report.downloadUrl) {
+      window.open(report.downloadUrl, "_blank");
+    } else {
+      showToast({ type: "info", message: "Download URL not available yet", messageAr: "رابط التحميل غير متاح بعد" });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-sahool-green-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">فشل في تحميل التقارير</p>
+          <p className="text-gray-500 text-sm">Failed to load reports</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -161,7 +172,7 @@ export default function ReportsClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {reportCards.map((card) => {
           const Icon = card.icon;
-          const isGenerating = generatingReport === card.type;
+          const isGenerating = generateReport.isPending;
           return (
             <div key={card.type} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4 mb-4">
@@ -174,7 +185,7 @@ export default function ReportsClient() {
                 </div>
               </div>
               <button
-                onClick={() => handleGenerate(card.type)}
+                onClick={() => handleGenerate(card)}
                 disabled={isGenerating}
                 className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
                   isGenerating
@@ -184,7 +195,7 @@ export default function ReportsClient() {
               >
                 {isGenerating ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-sahool-green-600" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     جاري الإنشاء...
                   </span>
                 ) : (
@@ -216,46 +227,66 @@ export default function ReportsClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {recentReports.map((report) => (
-                  <tr key={report.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FileBarChart className="w-5 h-5 text-gray-400" />
-                        <span className="font-medium text-gray-900">{report.titleAr}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {reportCards.find((c) => c.type === report.type)?.titleAr ?? report.type}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {new Date(report.date).toLocaleDateString("ar-SA")}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {report.sizeMb > 0 ? `${report.sizeMb} MB` : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {report.status === "ready" ? (
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          جاهز
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          قيد الإنشاء
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {report.status === "ready" ? (
-                        <button className="inline-flex items-center gap-1 text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
-                          <Download className="w-4 h-4" />
-                          تحميل
-                        </button>
-                      ) : (
-                        <span className="text-xs text-gray-400">انتظر...</span>
-                      )}
+                {reports.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                      لا توجد تقارير بعد
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  reports.map((report: Report) => (
+                    <tr key={report.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <FileBarChart className="w-5 h-5 text-gray-400" />
+                          <span className="font-medium text-gray-900">{report.nameAr || report.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {reportCards.find((c) => c.apiType === report.type)?.titleAr ?? report.type}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500">
+                        {new Date(report.createdAt).toLocaleDateString("ar-SA")}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500">
+                        {report.fileSize ? `${(report.fileSize / (1024 * 1024)).toFixed(1)} MB` : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {report.status === "ready" ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            جاهز
+                          </span>
+                        ) : report.status === "generating" || report.status === "pending" ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            قيد الإنشاء
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            فشل
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {report.status === "ready" ? (
+                          <button
+                            onClick={() => handleDownload(report)}
+                            className="inline-flex items-center gap-1 text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                          >
+                            <Download className="w-4 h-4" />
+                            تحميل
+                          </button>
+                        ) : report.status === "generating" || report.status === "pending" ? (
+                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            انتظر...
+                          </span>
+                        ) : (
+                          <span className="text-xs text-red-400">خطأ</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

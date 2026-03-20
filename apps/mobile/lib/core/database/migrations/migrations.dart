@@ -30,3 +30,4 @@ export 'migration_verification.dart';
 
 // Individual migrations
 export 'migration_v5.dart';
+export 'migration_v6.dart';

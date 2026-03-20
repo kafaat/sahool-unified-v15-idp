@@ -158,9 +158,10 @@ export class SahoolApiClient {
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      // Add tenant ID header for multi-tenant isolation
+      // Add tenant ID header for multi-tenant isolation.
+      // Use AxiosHeaders .set() for case-insensitive consistency (Axios v1+).
       if (this.tenantId) {
-        config.headers[CUSTOM_HEADERS.TENANT_ID] = this.tenantId;
+        config.headers.set(CUSTOM_HEADERS.TENANT_ID, this.tenantId);
       }
 
       return config;

@@ -43,6 +43,30 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "منتهي الصلاحية" },
 ];
 
+// Module-scope status helpers with frozen lookup tables to avoid
+// re-creating objects on every render and to remove useCallback overhead.
+const STATUS_LABELS: Readonly<Record<InventoryItem["status"], string>> = Object.freeze({
+  in_stock: "متوفر",
+  low_stock: "مخزون منخفض",
+  out_of_stock: "نفذ",
+  expired: "منتهي الصلاحية",
+});
+
+const STATUS_COLORS: Readonly<Record<InventoryItem["status"], string>> = Object.freeze({
+  in_stock: "bg-green-100 text-green-800",
+  low_stock: "bg-yellow-100 text-yellow-800",
+  out_of_stock: "bg-red-100 text-red-800",
+  expired: "bg-gray-100 text-gray-800",
+});
+
+function getStatusLabel(status: InventoryItem["status"]): string {
+  return STATUS_LABELS[status];
+}
+
+function getStatusColor(status: InventoryItem["status"]): string {
+  return STATUS_COLORS[status];
+}
+
 const EMPTY_FORM: Omit<InventoryItem, "id" | "lastUpdated"> = {
   name: "",
   nameAr: "",
@@ -118,26 +142,6 @@ export default function InventoryPage() {
     lowStock: inventory.filter((item) => item.status === "low_stock").length,
     outOfStock: inventory.filter((item) => item.status === "out_of_stock").length,
   }), [inventory]);
-
-  const getStatusLabel = useCallback((status: InventoryItem["status"]) => {
-    const labels: Record<InventoryItem["status"], string> = {
-      in_stock: "متوفر",
-      low_stock: "مخزون منخفض",
-      out_of_stock: "نفذ",
-      expired: "منتهي الصلاحية",
-    };
-    return labels[status];
-  }, []);
-
-  const getStatusColor = (status: InventoryItem["status"]) => {
-    const colors: Record<InventoryItem["status"], string> = {
-      in_stock: "bg-green-100 text-green-800",
-      low_stock: "bg-yellow-100 text-yellow-800",
-      out_of_stock: "bg-red-100 text-red-800",
-      expired: "bg-gray-100 text-gray-800",
-    };
-    return colors[status];
-  };
 
   // Modal handlers
   const openCreate = useCallback(() => {
@@ -245,7 +249,7 @@ export default function InventoryPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast.info("Export complete", "تم تصدير البيانات");
-  }, [filteredInventory, toast, getStatusLabel]);
+  }, [filteredInventory, toast]);
 
   const updateField = useCallback(<K extends keyof typeof EMPTY_FORM>(key: K, value: (typeof EMPTY_FORM)[K]) => {
     setFormData((prev) => {

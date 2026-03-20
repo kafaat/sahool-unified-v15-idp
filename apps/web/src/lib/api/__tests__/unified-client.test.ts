@@ -53,6 +53,7 @@ vi.mock("@sahool/api-client", () => ({
 describe("Unified Client (Web)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetModules();
   });
 
   afterEach(() => {

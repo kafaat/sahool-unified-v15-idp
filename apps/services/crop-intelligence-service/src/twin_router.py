@@ -355,11 +355,11 @@ async def twin_step(
     summary="Get field twin state history | جلب سجل حالة التوأم",
 )
 async def get_twin_state(
+    request: Request,
     field_id: UUID,
     tenant_id: UUID = Query(...),
     from_date: date = Query(default=None),
     to_date: date = Query(default=None),
-    request: Request = None,
 ) -> list:
     """
     Retrieve FieldDailyState records for a date range.
@@ -454,11 +454,11 @@ async def ingest_observations(
     summary="Get irrigation recommendation | جلب توصية الري",
 )
 async def get_irrigation_recommendation(
+    request: Request,
     field_id: UUID,
     tenant_id: UUID = Query(...),
     day: date = Query(default=None),
     taw_mm: float = Query(default=180.0),
-    request: Request = None,
 ) -> dict:
     """
     Return the irrigation recommendation for a field-day.

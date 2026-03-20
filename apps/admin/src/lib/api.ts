@@ -318,7 +318,7 @@ async function handleWeatherResponse(response: Response): Promise<unknown | null
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     } catch (logoutError) {
-      logger.error("Logout error during weather auth redirect:", logoutError);
+      logger.warn("Logout error during weather auth redirect:", logoutError);
     }
     authApiClient.clearToken();
     if (typeof window !== "undefined") {

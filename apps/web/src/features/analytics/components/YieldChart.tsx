@@ -43,9 +43,9 @@ export const YieldChart: React.FC<YieldChartProps> = ({
 }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-        <p className="text-gray-600">لا توجد بيانات متاحة</p>
-        <p className="text-sm text-gray-500 mt-1">No data available</p>
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+        <p className="text-gray-600 dark:text-gray-400">لا توجد بيانات متاحة</p>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">No data available</p>
       </div>
     );
   }
@@ -139,14 +139,14 @@ export const YieldChart: React.FC<YieldChartProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
       {(title || titleAr) && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {titleAr || title}
           </h3>
           {title && titleAr && (
-            <p className="text-sm text-gray-600 mt-1">{title}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{title}</p>
           )}
         </div>
       )}

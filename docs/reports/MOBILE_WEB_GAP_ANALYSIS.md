@@ -2,9 +2,9 @@
 
 ## تحليل الفجوات بين الموبايل والويب وخطة التنفيذ
 
-**Date**: 2026-03-19
+**Date**: 2026-03-19 | **Updated**: 2026-03-20
 **Version**: 16.0.0
-**Status**: Planning
+**Status**: Planning (partially implemented)
 **Author**: AI Review
 
 ---
@@ -974,4 +974,33 @@ POST   /api/v1/spray/log/{id}/photo
 
 ---
 
-_Generated: 2026-03-19 | SAHOOL Platform v16.0.0_
+## Update Log (2026-03-20) | سجل التحديثات
+
+### Fixes Applied from Review Findings
+
+| # | Bug/Issue | Fix | Status |
+|---|-----------|-----|--------|
+| 1 | Dark mode missing on 7 web components (IrrigationClient, SettingsPage, ProfileForm, YieldChart, ComparisonChart, SensorChart, ForecastChart) | Added `dark:` Tailwind CSS variants | ✅ Fixed |
+| 2 | Weather proxy missing lat/lon range validation | Added `Number.isFinite()` + bounds check (-90..90 lat, -180..180 lon) | ✅ Fixed |
+| 3 | `logger.error` used for expected conditions (8 instances) | Downgraded to `logger.warn` in PWA, weather proxy, auth, logout handlers | ✅ Fixed |
+| 4 | `Math.random()` in web weather mock forecast data | Replaced with deterministic index-based formulas | ✅ Fixed |
+
+### Bugs Not Yet Fixed
+
+| Bug | Status | Notes |
+|-----|--------|-------|
+| Bug 1: Broken Profile Link (`/dashboard/profile` → 404) | **Open** | Needs route creation or redirect |
+| Bug 2: Broken Settings Link (`/dashboard/settings` → wrong route) | **Open** | Needs href update to `/settings` |
+| Bug 3: Hidden Routes (37+ undiscoverable features) | **Open** | Needs sidebar redesign |
+
+### Remaining Shared Package Issues (deferred)
+
+| Issue | Location |
+|-------|----------|
+| ~25 Math.random() calls in mock data | `packages/api-client/src/index.ts` |
+| Math.random() in mock NDVI | `packages/field-shared/src/app.ts` |
+| console.* direct calls (no logger) | 6 shared packages |
+
+---
+
+_Generated: 2026-03-19 | Updated: 2026-03-20 | SAHOOL Platform v16.0.0_

@@ -211,7 +211,7 @@ class AuthApiClient {
         return false;
       }
     } catch (error) {
-      logger.error("Error refreshing token:", error);
+      logger.warn("Error refreshing token:", error);
       return false;
     }
   }

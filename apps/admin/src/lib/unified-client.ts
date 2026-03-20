@@ -43,7 +43,7 @@ export const sahoolClient = new SahoolApiClient(
           credentials: "same-origin",
         });
       } catch (logoutError) {
-        logger.error("Logout error:", logoutError);
+        logger.warn("Logout error:", logoutError);
       }
       authApiClient.clearToken();
       if (typeof window !== "undefined") {

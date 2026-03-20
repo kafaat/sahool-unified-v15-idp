@@ -386,13 +386,27 @@ class RemediationEngine:
                     # Execute auto-fix
                     if action.command:
                         import asyncio
+                        import shlex
 
-                        proc = await asyncio.create_subprocess_shell(
-                            action.command,
+                        # Use subprocess_exec with args list to prevent shell injection.
+                        # Timeout prevents hung processes from blocking remediation.
+                        args = shlex.split(action.command)
+                        proc = await asyncio.create_subprocess_exec(
+                            *args,
                             stdout=asyncio.subprocess.PIPE,
                             stderr=asyncio.subprocess.PIPE,
                         )
-                        stdout, stderr = await proc.communicate()
+                        try:
+                            stdout, stderr = await asyncio.wait_for(
+                                proc.communicate(), timeout=120
+                            )
+                        except asyncio.TimeoutError:
+                            proc.kill()
+                            await proc.wait()
+                            action.status = RemediationStatus.FAILED
+                            action.result = "Command timed out after 120s"
+                            logger.error(f"Remediation timed out for {action.resource}")
+                            continue
                         if proc.returncode == 0:
                             action.status = RemediationStatus.COMPLETED
                             action.result = stdout.decode()[:500]

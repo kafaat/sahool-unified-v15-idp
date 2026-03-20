@@ -647,19 +647,25 @@ class RedisSentinelClient:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _redis_client: RedisSentinelClient | None = None
+_redis_client_lock = threading.Lock()
 
 
 def get_redis_client() -> RedisSentinelClient:
     """
     الحصول على Redis Client (Singleton)
+    Thread-safe with double-check locking.
 
     Returns:
         RedisSentinelClient instance
     """
     global _redis_client
 
-    if _redis_client is None:
-        _redis_client = RedisSentinelClient()
+    if _redis_client is not None:
+        return _redis_client
+
+    with _redis_client_lock:
+        if _redis_client is None:
+            _redis_client = RedisSentinelClient()
 
     return _redis_client
 
@@ -668,6 +674,7 @@ def close_redis_client():
     """إغلاق Redis Client"""
     global _redis_client
 
-    if _redis_client is not None:
-        _redis_client.close()
-        _redis_client = None
+    with _redis_client_lock:
+        if _redis_client is not None:
+            _redis_client.close()
+            _redis_client = None

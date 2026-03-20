@@ -211,11 +211,11 @@ export function useWebSocket({
         }, backoff);
       };
 
-      ws.onerror = () => {
+      ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
         // Use warn instead of error to avoid triggering Next.js error overlay
         // WebSocket unavailability is expected when backend services are down
-        logger.warn("WebSocket connection unavailable");
+        logger.warn("WebSocket connection unavailable", event);
         setError("Connection unavailable");
       };
     } catch (err) {

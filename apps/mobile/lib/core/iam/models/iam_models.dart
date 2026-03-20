@@ -57,6 +57,10 @@ class UserIdentity {
   /// Whether phone is verified | هل رقم الهاتف مُتحقق منه
   final bool phoneVerified;
 
+  /// Account status (matches Prisma UserStatus: active, inactive, suspended, pending)
+  /// حالة الحساب
+  final String status;
+
   /// Whether account is active | هل الحساب نشط
   final bool isActive;
 
@@ -90,6 +94,7 @@ class UserIdentity {
     this.attributes = const {},
     this.emailVerified = false,
     this.phoneVerified = false,
+    this.status = 'active',
     this.isActive = true,
     this.mfaEnabled = false,
     this.preferredLanguage = 'ar',
@@ -128,6 +133,7 @@ class UserIdentity {
     Map<String, dynamic>? attributes,
     bool? emailVerified,
     bool? phoneVerified,
+    String? status,
     bool? isActive,
     bool? mfaEnabled,
     String? preferredLanguage,
@@ -150,6 +156,7 @@ class UserIdentity {
       attributes: attributes ?? this.attributes,
       emailVerified: emailVerified ?? this.emailVerified,
       phoneVerified: phoneVerified ?? this.phoneVerified,
+      status: status ?? this.status,
       isActive: isActive ?? this.isActive,
       mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
@@ -176,7 +183,8 @@ class UserIdentity {
       attributes: (json['attributes'] as Map<String, dynamic>?) ?? {},
       emailVerified: json['email_verified'] as bool? ?? false,
       phoneVerified: json['phone_verified'] as bool? ?? false,
-      isActive: json['is_active'] as bool? ?? true,
+      status: (json['status'] as String? ?? 'active').toLowerCase(),
+      isActive: json['is_active'] as bool? ?? (json['status'] as String?)?.toLowerCase() == 'active' ?? true,
       mfaEnabled: json['mfa_enabled'] as bool? ?? false,
       preferredLanguage: json['preferred_language'] as String? ?? 'ar',
       createdAt: json['created_at'] != null
@@ -208,6 +216,7 @@ class UserIdentity {
       'attributes': attributes,
       'email_verified': emailVerified,
       'phone_verified': phoneVerified,
+      'status': status,
       'is_active': isActive,
       'mfa_enabled': mfaEnabled,
       'preferred_language': preferredLanguage,

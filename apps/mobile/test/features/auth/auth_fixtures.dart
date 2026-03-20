@@ -6,15 +6,23 @@
 
 /// Sample user data for tests
 class AuthFixtures {
-  /// Valid test user data
+  /// Valid test user data (aligned with Prisma User schema)
   static const validUserData = {
     'id': 'user_001',
     'email': 'test@sahool.com',
     'name': 'Test User',
+    'first_name': 'Test',
+    'last_name': 'User',
+    'first_name_ar': 'مستخدم',
+    'last_name_ar': 'تجريبي',
+    'name_ar': 'مستخدم تجريبي',
     'role': 'farmer',
+    'status': 'active',
     'tenant_id': 'tenant_1',
     'phone': '+966501234567',
     'avatar_url': 'https://example.com/avatar.jpg',
+    'email_verified': true,
+    'phone_verified': true,
   };
 
   /// Admin user data
@@ -22,10 +30,15 @@ class AuthFixtures {
     'id': 'admin_001',
     'email': 'admin@sahool.com',
     'name': 'Admin User',
+    'first_name': 'Admin',
+    'last_name': 'User',
     'role': 'admin',
+    'status': 'active',
     'tenant_id': 'tenant_1',
     'phone': '+966509876543',
     'avatar_url': null,
+    'email_verified': true,
+    'phone_verified': false,
   };
 
   /// Valid test credentials (test-only domain, never matches production)
@@ -98,19 +111,31 @@ class TestUserFactory {
     String? id,
     String? email,
     String? name,
+    String? firstName,
+    String? lastName,
     String role = 'farmer',
+    String status = 'active',
     String tenantId = 'tenant_1',
     String? phone,
     String? avatarUrl,
+    bool emailVerified = false,
+    bool phoneVerified = false,
   }) {
+    final resolvedFirstName = firstName ?? 'Test';
+    final resolvedLastName = lastName ?? 'User';
     return {
       'id': id ?? 'user_${DateTime.now().millisecondsSinceEpoch}',
       'email': email ?? 'test_${DateTime.now().millisecondsSinceEpoch}@sahool.com',
-      'name': name ?? 'Test User',
+      'name': name ?? '$resolvedFirstName $resolvedLastName',
+      'first_name': resolvedFirstName,
+      'last_name': resolvedLastName,
       'role': role,
+      'status': status,
       'tenant_id': tenantId,
       'phone': phone,
       'avatar_url': avatarUrl,
+      'email_verified': emailVerified,
+      'phone_verified': phoneVerified,
     };
   }
 

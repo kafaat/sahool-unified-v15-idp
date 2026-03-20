@@ -213,11 +213,13 @@ export function useWebSocket({
 
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        logger.warn("WebSocket error:", event);
-        setError("Connection error");
+        // Use warn instead of error to avoid triggering Next.js error overlay
+        // WebSocket unavailability is expected when backend services are down
+        logger.warn("WebSocket connection unavailable", event);
+        setError("Connection unavailable");
       };
     } catch (err) {
-      logger.warn("Failed to connect WebSocket:", err);
+      logger.warn("WebSocket unavailable:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
   }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);

@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: backstage
   namespace: backstage
+  annotations:
+    checkov.io/skip1: CKV_K8S_40=Backstage requires UID 1000 for volume/cache access; elevated UID breaks runtime
+    checkov.io/skip2: CKV_K8S_43=Backstage public image; digest pinning managed by GitOps release pipeline
   labels: { app: backstage }
 spec:
   replicas: 1
@@ -70,3 +73,23 @@ spec:
             name: backstage-config
         - name: tmp
           emptyDir: {}
+---
+# NetworkPolicy for Backstage pod (CKV2_K8S_6)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backstage-netpol
+  namespace: backstage
+spec:
+  podSelector:
+    matchLabels:
+      app: backstage
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - port: 7007
+          protocol: TCP
+  egress:
+    - {}

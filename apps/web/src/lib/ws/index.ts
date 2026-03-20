@@ -111,11 +111,13 @@ class WebSocketClient {
         this.attemptReconnect();
       };
 
-      this.ws.onerror = (error) => {
-        logger.warn("WebSocket error:", error);
+      this.ws.onerror = (event) => {
+        // WebSocket errors are expected when ws-gateway is unavailable.
+        // Use warn (not error) to avoid triggering Next.js error overlay.
+        logger.warn("WebSocket connection unavailable - using demo mode", event);
       };
     } catch (error) {
-      logger.warn("Failed to create WebSocket:", error);
+      logger.warn("WebSocket unavailable - using demo mode", error);
       this.attemptReconnect();
     }
   }

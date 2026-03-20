@@ -24,7 +24,8 @@
     "newNotifications": "New notifications",
     "profile": "Profile",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "openMenu": "Open menu"
   },
   "auth": {
     "login": "Login",

@@ -24,7 +24,8 @@
     "newNotifications": "إشعارات جديدة",
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "openMenu": "فتح القائمة"
   },
   "auth": {
     "login": "تسجيل الدخول",

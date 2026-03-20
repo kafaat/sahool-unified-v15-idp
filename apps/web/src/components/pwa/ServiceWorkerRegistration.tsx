@@ -82,7 +82,7 @@ export function useServiceWorker() {
 
         logger.log("[PWA] Service worker registered successfully");
       } catch (error) {
-        logger.error("[PWA] Service worker registration failed:", error);
+        logger.warn("[PWA] Service worker registration failed:", error);
       }
     };
 

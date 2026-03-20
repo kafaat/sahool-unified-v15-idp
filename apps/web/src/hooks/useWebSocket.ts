@@ -169,7 +169,7 @@ export function useWebSocket({
 
           onMessageRef.current?.(message);
         } catch (err) {
-          logger.error("Failed to parse WebSocket message:", err);
+          logger.warn("Failed to parse WebSocket message:", err);
         }
       };
 

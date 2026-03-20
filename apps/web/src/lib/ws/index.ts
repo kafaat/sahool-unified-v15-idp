@@ -101,7 +101,7 @@ class WebSocketClient {
             this.ws?.send(JSON.stringify({ type: "pong" }));
           }
         } catch (error) {
-          logger.error("Failed to parse WebSocket message:", error);
+          logger.warn("Failed to parse WebSocket message:", error);
         }
       };
 

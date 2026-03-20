@@ -411,9 +411,8 @@ class TestGetOptionalUser:
     async def test_returns_none_with_invalid_credentials(self):
         """Test that invalid credentials return None.
 
-        Note: AuthException.error is an AuthErrorMessage which has .code,
-        not .value. The except clause catches the resulting AttributeError
-        via the generic Exception handler and returns None.
+        The AuthException is caught by the except clause which logs
+        the error code and returns None for optional auth.
         """
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer",
@@ -422,6 +421,4 @@ class TestGetOptionalUser:
 
         result = await get_optional_user(credentials=credentials)
 
-        # Returns None because the AuthException handler hits an
-        # AttributeError on .value which is caught by the generic handler
         assert result is None

@@ -94,6 +94,7 @@ export const Header = React.memo(function Header({ onMenuToggle }: HeaderProps) 
         {/* Notifications */}
         <button
           type="button"
+          onClick={() => router.push("/notifications")}
           className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={t("notifications") || "Notifications"}
         >

@@ -226,7 +226,10 @@ export default function InventoryClient() {
                     <td className="px-4 py-3 text-sm text-gray-600">{item.locationAr || item.location}</td>
                     <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
                     <td className="px-4 py-3">
-                      <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                      <button
+                        onClick={() => showToast({ type: "info", message: "Edit coming in next update", messageAr: "التعديل قادم في التحديث القادم" })}
+                        className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                      >
                         تعديل
                       </button>
                     </td>

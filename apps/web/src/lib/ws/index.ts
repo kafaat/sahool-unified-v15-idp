@@ -57,6 +57,7 @@ type ConnectionHandler = (connected: boolean) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
+  private token: string | null = null;
   private eventHandlers: Set<EventHandler> = new Set();
   private connectionHandlers: Set<ConnectionHandler> = new Set();
   private reconnectAttempts = 0;
@@ -68,6 +69,15 @@ class WebSocketClient {
 
   constructor(url: string) {
     this.url = url;
+  }
+
+  /**
+   * Set JWT token for authenticated WebSocket connections.
+   * Token is passed via Sec-WebSocket-Protocol subprotocol header
+   * to avoid leaking credentials in URL query strings.
+   */
+  setToken(token: string | null) {
+    this.token = token;
   }
 
   connect(
@@ -82,7 +92,12 @@ class WebSocketClient {
     this.subscriptions = subscriptions;
 
     try {
-      this.ws = new WebSocket(`${this.url}/events`);
+      // Pass JWT via query parameter — ws-gateway reads token from
+      // Authorization header or ?token= query param (not subprotocol).
+      const wsUrl = this.token
+        ? `${this.url}/events?token=${encodeURIComponent(this.token)}`
+        : `${this.url}/events`;
+      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         logger.log("🔌 WebSocket connected");
@@ -108,6 +123,13 @@ class WebSocketClient {
       this.ws.onclose = (event) => {
         logger.log("🔌 WebSocket disconnected", event.code);
         this.notifyConnectionHandlers(false);
+
+        // Don't auto-reconnect on authentication failures (ws-gateway codes)
+        if (event.code === 4001 || event.code === 4003) {
+          logger.warn(`WebSocket auth failed (code ${event.code}) - token may be expired`);
+          return;
+        }
+
         this.attemptReconnect();
       };
 

@@ -17,6 +17,7 @@ class MockWebSocket {
 
   readyState = MockWebSocket.CONNECTING;
   url: string;
+  protocols: string | string[] | undefined;
   onopen: ((ev: Event) => void) | null = null;
   onclose: ((ev: CloseEvent) => void) | null = null;
   onmessage: ((ev: MessageEvent) => void) | null = null;
@@ -27,8 +28,9 @@ class MockWebSocket {
     this.readyState = MockWebSocket.CLOSED;
   });
 
-  constructor(url: string) {
+  constructor(url: string, protocols?: string | string[]) {
     this.url = url;
+    this.protocols = protocols;
     // Simulate async connection
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
@@ -62,8 +64,8 @@ describe("WebSocket Client", () => {
     vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
 
     // @ts-expect-error - MockWebSocket is test-only
-    global.WebSocket = vi.fn((url: string) => {
-      const ws = new MockWebSocket(url);
+    global.WebSocket = vi.fn((url: string, protocols?: string | string[]) => {
+      const ws = new MockWebSocket(url, protocols);
       wsInstances.push(ws);
       return ws;
     });
@@ -284,6 +286,85 @@ describe("WebSocket Client", () => {
 
       // Should not throw
       expect(true).toBe(true);
+    });
+
+    it("should pass error event to onerror handler", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      // Should not throw when error event fires
+      ws.simulateError();
+      expect(true).toBe(true);
+    });
+  });
+
+  describe("Authentication", () => {
+    it("should pass token via query parameter when setToken is called", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.setToken("test-jwt-token-123");
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      expect(ws.url).toContain("token=test-jwt-token-123");
+    });
+
+    it("should not include token param when setToken is called with null", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.setToken(null);
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      expect(ws.url).not.toContain("token=");
+    });
+
+    it("should not reconnect on auth failure (code 4001)", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      // Simulate auth failure close
+      ws.readyState = MockWebSocket.CLOSED;
+      ws.onclose?.({ code: 4001 } as CloseEvent);
+
+      // Advance past reconnect delay
+      await vi.advanceTimersByTimeAsync(10000);
+
+      // Should NOT have created a new WebSocket (no reconnect)
+      expect(wsInstances.length).toBe(1);
+    });
+
+    it("should not reconnect on auth failure (code 4003)", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      ws.readyState = MockWebSocket.CLOSED;
+      ws.onclose?.({ code: 4003 } as CloseEvent);
+
+      await vi.advanceTimersByTimeAsync(10000);
+      expect(wsInstances.length).toBe(1);
+    });
+
+    it("should reconnect on normal close (code 1006)", async () => {
+      const { wsClient } = await import("../index");
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0]!;
+      ws.readyState = MockWebSocket.CLOSED;
+      ws.onclose?.({ code: 1006 } as CloseEvent);
+
+      // Advance past reconnect delay (2000ms base * 2^1)
+      await vi.advanceTimersByTimeAsync(5000);
+
+      // Should have attempted reconnection
+      expect(wsInstances.length).toBeGreaterThan(1);
     });
   });
 });

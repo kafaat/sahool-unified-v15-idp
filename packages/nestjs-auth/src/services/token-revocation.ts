@@ -274,9 +274,14 @@ export class RedisTokenRevocationStore
       const exists = await this.redis!.exists(key);
       return exists > 0;
     } catch (error) {
-      this.logger.error(`Error checking token revocation: ${error instanceof Error ? error.message : String(error)}`);
-      // Fail open: don't block access on Redis errors
-      return false;
+      this.logger.error(
+        `SECURITY: Cannot verify token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`
+      );
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
+      // Aligned with Python shared/auth/token_revocation.py behavior.
+      return true;
     }
   }
 
@@ -403,9 +408,11 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking user token revocation: ${error instanceof Error ? error.message : String(error)}`,
+        `SECURITY: Cannot verify user token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return false;
+      // Fail closed: treat as revoked when store is unavailable
+      return true;
     }
   }
 
@@ -523,9 +530,11 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking tenant token revocation: ${error instanceof Error ? error.message : String(error)}`,
+        `SECURITY: Cannot verify tenant token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return false;
+      // Fail closed: treat as revoked when store is unavailable
+      return true;
     }
   }
 

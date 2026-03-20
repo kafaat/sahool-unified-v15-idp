@@ -158,7 +158,14 @@ class TwoFactorAuthService:
         if is_valid:
             logger.info("TOTP token verified successfully")
         else:
-            logger.warning("TOTP token verification failed")
+            # Security audit: log failed 2FA attempts for brute-force detection
+            logger.warning(
+                "SECURITY: TOTP token verification failed",
+                extra={
+                    "event": "2fa_verification_failed",
+                    "method": "totp",
+                },
+            )
 
         return is_valid
 
@@ -215,8 +222,26 @@ class TwoFactorAuthService:
         Returns:
             Tuple of (is_valid, matched_hash)
         """
+        is_valid, matched_hash, _ = self.verify_backup_code_with_remaining(code, hashed_codes)
+        return is_valid, matched_hash
+
+    def verify_backup_code_with_remaining(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None, list[str]]:
+        """
+        Verify a backup code and return remaining codes after invalidation.
+
+        The matched code is removed from the list to prevent reuse.
+        Callers MUST persist the returned remaining_codes to storage.
+
+        Args:
+            code: The backup code to verify
+            hashed_codes: List of hashed backup codes
+
+        Returns:
+            Tuple of (is_valid, matched_hash, remaining_codes)
+            remaining_codes has the used code removed if valid
+        """
         if not code or not hashed_codes:
-            return False, None
+            return False, None, list(hashed_codes) if hashed_codes else []
 
         # Hash the provided code
         code_hash = self.hash_backup_code(code)
@@ -226,11 +251,22 @@ class TwoFactorAuthService:
 
         for stored_hash in hashed_codes:
             if hmac.compare_digest(code_hash, stored_hash):
-                logger.info("Backup code verified successfully")
-                return True, stored_hash
+                # Remove used code to prevent reuse
+                remaining = [h for h in hashed_codes if h != stored_hash]
+                logger.info(
+                    f"Backup code verified successfully. "
+                    f"Remaining codes: {len(remaining)}/{len(hashed_codes)}"
+                )
+                return True, stored_hash, remaining
 
-        logger.warning("Backup code verification failed")
-        return False, None
+        logger.warning(
+            "SECURITY: Backup code verification failed",
+            extra={
+                "event": "2fa_backup_code_failed",
+                "method": "backup_code",
+            },
+        )
+        return False, None, list(hashed_codes)
 
     def get_current_totp(self, secret: str) -> str:
         """

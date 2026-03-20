@@ -14,6 +14,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import config
 from .jwt_handler import verify_token
 from .models import AuthErrors, AuthException, User
+from .token_revocation import is_token_revoked
 from .user_cache import get_user_cache
 from .user_repository import get_user_repository
 
@@ -68,6 +69,35 @@ async def get_current_user(
         payload = verify_token(token)
         user_id = payload.user_id
 
+        # Check token revocation before any other validation
+        if config.TOKEN_REVOCATION_ENABLED:
+            try:
+                revoked, reason = await is_token_revoked(
+                    jti=payload.jti,
+                    user_id=user_id,
+                    tenant_id=payload.tenant_id,
+                    issued_at=payload.iat.timestamp() if payload.iat else None,
+                )
+                if revoked:
+                    logger.warning(
+                        f"Authentication failed: Token revoked for user {user_id}, reason={reason}"
+                    )
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail=AuthErrors.TOKEN_REVOKED.en,
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
+            except HTTPException:
+                raise
+            except Exception as e:
+                # Fail closed: reject token if revocation store is unavailable
+                logger.error(f"SECURITY: Token revocation check failed, failing closed: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=AuthErrors.TOKEN_REVOKED.en,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
         # Check cache first for user status
         cache = get_user_cache()
         cached_user = None
@@ -106,6 +136,7 @@ async def get_current_user(
 
                 if request:
                     request.state.user = user
+                    request.state.token_payload = payload
 
                 return user
 
@@ -192,9 +223,10 @@ async def get_current_user(
 
             logger.info(f"User {user_id} authenticated successfully (token only)")
 
-        # Store user in request state
+        # Store user and token payload in request state
         if request:
             request.state.user = user
+            request.state.token_payload = payload
 
         return user
 
@@ -215,6 +247,53 @@ async def get_current_user(
             detail=AuthErrors.INVALID_TOKEN.en,
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+async def require_2fa_verified(
+    user: User = Depends(get_current_user),
+    request: Request = Depends(),
+) -> User:
+    """
+    Dependency that enforces 2FA verification.
+
+    Use on sensitive endpoints that require completed 2FA.
+    Checks the JWT claim 'twofa_verified' to ensure the user
+    has passed 2FA during the current session.
+
+    Args:
+        user: Authenticated user from get_current_user
+        request: FastAPI request (injected by DI, never None)
+
+    Returns:
+        User object if 2FA is verified
+
+    Raises:
+        HTTPException 403: If 2FA is required but not verified
+
+    Example:
+        ```python
+        @app.post("/admin/danger")
+        async def danger(user: User = Depends(require_2fa_verified)):
+            ...
+        ```
+    """
+    # Fail-closed: if token_payload is missing from request state,
+    # we cannot verify 2FA status. get_current_user always sets it
+    # when request is available, so this should not happen in practice.
+    if not hasattr(request.state, "token_payload"):
+        logger.warning("require_2fa_verified: token_payload missing from request state")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Two-factor authentication is required for this operation",
+        )
+
+    payload = request.state.token_payload
+    if getattr(payload, "twofa_required", False) and not getattr(payload, "twofa_verified", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Two-factor authentication is required for this operation",
+        )
+    return user
 
 
 async def get_current_active_user(
@@ -548,7 +627,7 @@ async def rate_limit_dependency(
     return user
 
 
-def get_optional_user(
+async def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
 ) -> User | None:
     """
@@ -579,6 +658,22 @@ def get_optional_user(
         token = credentials.credentials
         payload = verify_token(token)
 
+        # Check token revocation for optional auth too
+        if config.TOKEN_REVOCATION_ENABLED:
+            try:
+                revoked, _reason = await is_token_revoked(
+                    jti=payload.jti,
+                    user_id=payload.user_id,
+                    tenant_id=payload.tenant_id,
+                    issued_at=payload.iat.timestamp() if payload.iat else None,
+                )
+                if revoked:
+                    logger.debug(f"Optional auth: token revoked for user {payload.user_id}")
+                    return None
+            except Exception:
+                # Fail closed for optional auth: treat as unauthenticated
+                return None
+
         return User(
             id=payload.user_id,
             email="",
@@ -587,7 +682,7 @@ def get_optional_user(
             permissions=payload.permissions,
         )
     except AuthException as e:
-        logger.debug(f"Optional auth failed: {e.error.value}")
+        logger.debug(f"Optional auth failed: {e.error.code}")
         return None
     except Exception as e:
         logger.warning(f"Unexpected error in optional auth: {type(e).__name__}: {e}")

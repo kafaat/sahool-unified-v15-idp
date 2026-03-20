@@ -2,7 +2,7 @@
 
 ## مراجعة مقارنة تطبيق الهاتف والويب
 
-**Date**: 2026-03-19
+**Date**: 2026-03-19 | **Updated**: 2026-03-20
 **Version**: 16.0.0
 **Reviewer**: Claude Code AI
 
@@ -329,4 +329,27 @@ Both applications serve complementary roles in the SAHOOL platform:
 
 ---
 
-_Generated: 2026-03-19 | Updated: 2026-03-19 (deep verification) | Platform Version: 16.0.0_
+## 11. Follow-Up Fixes (2026-03-20) | إصلاحات المتابعة
+
+The following issues identified in this review were fixed:
+
+| # | Issue | Fix Applied | Status |
+|---|-------|------------|--------|
+| 1 | Dark mode missing on Irrigation, Settings, Profile, Charts | Added `dark:` Tailwind variants to 7 components | ✅ Fixed |
+| 2 | logger.error for expected conditions (SW, upstream 502, logout) | Downgraded 8 calls to `logger.warn` | ✅ Fixed |
+| 3 | Weather proxy missing lat/lon range validation | Added bounds check (-90..90, -180..180) with `Number.isFinite()` | ✅ Fixed |
+| 4 | Math.random() in web weather mock data | Replaced with deterministic index-based formulas | ✅ Fixed |
+| 5 | Weather proxy `field_id` not UUID-validated | Added explicit UUID validation for `field_id` in weather proxy route | ✅ Fixed |
+| 6 | Weather proxy `days` unbounded | Added explicit 1-30 bounds validation for `days` parameter | ✅ Fixed |
+
+### Remaining Shared Package Issues (deferred)
+
+| Issue | Location | Reason Deferred |
+|-------|----------|----------------|
+| ~25 Math.random() in mock generators | `packages/api-client/` | Shared package — needs coordinated update |
+| console.* in 6 shared packages | `packages/shared-*` | Shared packages — broader impact |
+| No UI indicator for mock data | Admin pages | Needs UX design decision |
+
+---
+
+_Generated: 2026-03-19 | Updated: 2026-03-20 | Platform Version: 16.0.0_

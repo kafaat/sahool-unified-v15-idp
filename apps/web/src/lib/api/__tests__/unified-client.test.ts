@@ -53,6 +53,9 @@ vi.mock("@sahool/api-client", () => ({
 describe("Unified Client (Web)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset module registry so each test re-executes the module code,
+    // including the CSRF interceptor registration.
+    vi.resetModules();
   });
 
   afterEach(() => {

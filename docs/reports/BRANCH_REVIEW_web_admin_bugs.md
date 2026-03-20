@@ -14,11 +14,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Commits** | 72 |
-| **Files Modified** | 69 |
-| **Lines Added** | 2,784 |
-| **Lines Removed** | 1,629 |
-| **Net Change** | +1,155 |
+| **Total Commits** | 72+ (including follow-up fixes) |
+| **Files Modified** | 76+ |
+| **Lines Added** | ~2,800 |
+| **Lines Removed** | ~1,640 |
+| **Net Change** | ~+1,160 |
 | **New Files** | 7 (unified clients, API routes, test files) |
 | **Security Issues Fixed** | 12+ (Semgrep, CodeQL, CSRF, JWT, ReDoS, log injection) |
 | **Bug Fixes** | 15+ (auth, timers, division-by-zero, dark mode, tenant isolation) |
@@ -404,7 +404,9 @@ The branch is significantly stronger than initially assessed. Key upgrades:
 
 ## 15. Follow-Up Fixes (2026-03-20) | إصلاحات المتابعة
 
-**Branch**: `claude/review-mobile-web-comparison-zUB6y`
+> **Note**: These follow-up fixes were applied on a separate branch (`claude/review-mobile-web-comparison-zUB6y`), not on the reviewed branch (`claude/review-web-admin-bugs-ks09r`). They address issues identified during this review but were implemented as part of the mobile-vs-web comparison workstream.
+
+**Applied on Branch**: `claude/review-mobile-web-comparison-zUB6y`
 **Commits**: `85cbc50` (dark mode), `b27c9f4` (validation + logger + Math.random)
 
 ### 15.1 Fixes Applied (تم الإصلاح)

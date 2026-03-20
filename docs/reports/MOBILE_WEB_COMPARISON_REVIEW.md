@@ -339,8 +339,8 @@ The following issues identified in this review were fixed:
 | 2 | logger.error for expected conditions (SW, upstream 502, logout) | Downgraded 8 calls to `logger.warn` | ✅ Fixed |
 | 3 | Weather proxy missing lat/lon range validation | Added bounds check (-90..90, -180..180) with `Number.isFinite()` | ✅ Fixed |
 | 4 | Math.random() in web weather mock data | Replaced with deterministic index-based formulas | ✅ Fixed |
-| 5 | Weather proxy `field_id` not UUID-validated | UUID validation already existed, confirmed working | ✅ Verified |
-| 6 | Weather proxy `days` unbounded | Already bounded to 1-30, confirmed working | ✅ Verified |
+| 5 | Weather proxy `field_id` not UUID-validated | Added explicit UUID validation for `field_id` in weather proxy route | ✅ Fixed |
+| 6 | Weather proxy `days` unbounded | Added explicit 1-30 bounds validation for `days` parameter | ✅ Fixed |
 
 ### Remaining Shared Package Issues (deferred)
 

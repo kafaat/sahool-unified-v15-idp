@@ -235,10 +235,10 @@ function getMockForecast(days: number): ForecastDataPoint[] {
 
     forecast.push({
       date: date.toISOString(),
-      temperature: 25 + Math.random() * 10,
-      humidity: 50 + Math.random() * 30,
-      precipitation: Math.random() * 20,
-      windSpeed: 10 + Math.random() * 15,
+      temperature: 25 + ((i * 3 + 7) % 10),
+      humidity: 50 + ((i * 7 + 3) % 30),
+      precipitation: (i * 5 + 2) % 20,
+      windSpeed: 10 + ((i * 4 + 1) % 15),
       condition: i % 2 === 0 ? "Sunny" : "Partly Cloudy",
       conditionAr: i % 2 === 0 ? "مشمس" : "غائم جزئياً",
     });

@@ -19,7 +19,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 export async function POST(_request: NextRequest) {
   try {
     if (!API_BASE_URL) {
-      logger.error("[Auth Refresh API] NEXT_PUBLIC_API_URL is not configured");
+      logger.warn("[Auth Refresh API] NEXT_PUBLIC_API_URL is not configured");
       return NextResponse.json(
         { success: false, error: "Server configuration error" },
         { status: 500 },

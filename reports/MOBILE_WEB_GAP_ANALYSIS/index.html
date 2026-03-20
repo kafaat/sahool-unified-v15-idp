@@ -1118,9 +1118,9 @@
 
 <h1 id="mobile-vs-web-gap-analysis-implementation-plan">Mobile vs Web Gap Analysis &amp; Implementation Plan<a class="headerlink" href="#mobile-vs-web-gap-analysis-implementation-plan" title="Permanent link">&para;</a></h1>
 <h2 id="_1">تحليل الفجوات بين الموبايل والويب وخطة التنفيذ<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p><strong>Date</strong>: 2026-03-19
+<p><strong>Date</strong>: 2026-03-19 | <strong>Updated</strong>: 2026-03-20
 <strong>Version</strong>: 16.0.0
-<strong>Status</strong>: Planning
+<strong>Status</strong>: Planning (partially implemented)
 <strong>Author</strong>: AI Review</p>
 <hr />
 <h2 id="executive-summary">Executive Summary | ملخص تنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
@@ -3128,7 +3128,96 @@ POST   /api/v1/spray/log/{id}/photo
 </table>
 <p><strong>Total Revised Effort</strong>: ~28-34 days (excluding Gamification and Scanner)</p>
 <hr />
-<p><em>Generated: 2026-03-19 | SAHOOL Platform v16.0.0</em></p>
+<h2 id="update-log-2026-03-20">Update Log (2026-03-20) | سجل التحديثات<a class="headerlink" href="#update-log-2026-03-20" title="Permanent link">&para;</a></h2>
+<h3 id="fixes-applied-from-review-findings">Fixes Applied from Review Findings<a class="headerlink" href="#fixes-applied-from-review-findings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bug/Issue</th>
+<th>Fix</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Dark mode missing on 7 web components (IrrigationClient, SettingsPage, ProfileForm, YieldChart, ComparisonChart, SensorChart, ForecastChart)</td>
+<td>Added <code>dark:</code> Tailwind CSS variants</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Weather proxy missing lat/lon range validation</td>
+<td>Added <code>Number.isFinite()</code> + bounds check (-90..90 lat, -180..180 lon)</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>logger.error</code> used for expected conditions (8 instances)</td>
+<td>Downgraded to <code>logger.warn</code> in PWA, weather proxy, auth, logout handlers</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Math.random()</code> in web weather mock forecast data</td>
+<td>Replaced with deterministic index-based formulas</td>
+<td>✅ Fixed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bugs-not-yet-fixed">Bugs Not Yet Fixed<a class="headerlink" href="#bugs-not-yet-fixed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bug</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bug 1: Broken Profile Link (<code>/dashboard/profile</code> → 404)</td>
+<td><strong>Open</strong></td>
+<td>Needs route creation or redirect</td>
+</tr>
+<tr>
+<td>Bug 2: Broken Settings Link (<code>/dashboard/settings</code> → wrong route)</td>
+<td><strong>Open</strong></td>
+<td>Needs href update to <code>/settings</code></td>
+</tr>
+<tr>
+<td>Bug 3: Hidden Routes (37+ undiscoverable features)</td>
+<td><strong>Open</strong></td>
+<td>Needs sidebar redesign</td>
+</tr>
+</tbody>
+</table>
+<h3 id="remaining-shared-package-issues-deferred">Remaining Shared Package Issues (deferred)<a class="headerlink" href="#remaining-shared-package-issues-deferred" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~25 Math.random() calls in mock data</td>
+<td><code>packages/api-client/src/index.ts</code></td>
+</tr>
+<tr>
+<td>Math.random() in mock NDVI</td>
+<td><code>packages/field-shared/src/app.ts</code></td>
+</tr>
+<tr>
+<td>console.* direct calls (no logger)</td>
+<td>6 shared packages</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated: 2026-03-19 | Updated: 2026-03-20 | SAHOOL Platform v16.0.0</em></p>
 
 
 

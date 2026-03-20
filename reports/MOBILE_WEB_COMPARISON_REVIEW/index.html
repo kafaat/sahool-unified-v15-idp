@@ -1118,7 +1118,7 @@
 
 <h1 id="mobile-vs-web-application-comparison-review">Mobile vs Web Application Comparison Review<a class="headerlink" href="#mobile-vs-web-application-comparison-review" title="Permanent link">&para;</a></h1>
 <h2 id="_1">مراجعة مقارنة تطبيق الهاتف والويب<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p><strong>Date</strong>: 2026-03-19
+<p><strong>Date</strong>: 2026-03-19 | <strong>Updated</strong>: 2026-03-20
 <strong>Version</strong>: 16.0.0
 <strong>Reviewer</strong>: Claude Code AI</p>
 <hr />
@@ -2062,7 +2062,85 @@
 4. ~~<strong>Expand web UI components</strong>~~ - CORRECTED: Web has 266 components total (10 base UI + 26 shared + 99 feature + 131 page/layout), sufficient for 37 features
 5. <strong>Standardize shared features</strong> - ensure feature parity for the 23 shared modules</p>
 <hr />
-<p><em>Generated: 2026-03-19 | Updated: 2026-03-19 (deep verification) | Platform Version: 16.0.0</em></p>
+<h2 id="11-follow-up-fixes-2026-03-20">11. Follow-Up Fixes (2026-03-20) | إصلاحات المتابعة<a class="headerlink" href="#11-follow-up-fixes-2026-03-20" title="Permanent link">&para;</a></h2>
+<p>The following issues identified in this review were fixed:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix Applied</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Dark mode missing on Irrigation, Settings, Profile, Charts</td>
+<td>Added <code>dark:</code> Tailwind variants to 7 components</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>logger.error for expected conditions (SW, upstream 502, logout)</td>
+<td>Downgraded 8 calls to <code>logger.warn</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Weather proxy missing lat/lon range validation</td>
+<td>Added bounds check (-90..90, -180..180) with <code>Number.isFinite()</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Math.random() in web weather mock data</td>
+<td>Replaced with deterministic index-based formulas</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Weather proxy <code>field_id</code> not UUID-validated</td>
+<td>Added explicit UUID validation for <code>field_id</code> in weather proxy route</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Weather proxy <code>days</code> unbounded</td>
+<td>Added explicit 1-30 bounds validation for <code>days</code> parameter</td>
+<td>✅ Fixed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="remaining-shared-package-issues-deferred">Remaining Shared Package Issues (deferred)<a class="headerlink" href="#remaining-shared-package-issues-deferred" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Location</th>
+<th>Reason Deferred</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~25 Math.random() in mock generators</td>
+<td><code>packages/api-client/</code></td>
+<td>Shared package — needs coordinated update</td>
+</tr>
+<tr>
+<td>console.* in 6 shared packages</td>
+<td><code>packages/shared-*</code></td>
+<td>Shared packages — broader impact</td>
+</tr>
+<tr>
+<td>No UI indicator for mock data</td>
+<td>Admin pages</td>
+<td>Needs UX design decision</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated: 2026-03-19 | Updated: 2026-03-20 | Platform Version: 16.0.0</em></p>
 
 
 

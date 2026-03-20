@@ -27,7 +27,7 @@ oauth2_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
-    request: Request = None,
+    request: Request | None = None,
 ) -> User:
     """
     Get the current authenticated user from the JWT token.
@@ -250,8 +250,8 @@ async def get_current_user(
 
 
 async def require_2fa_verified(
+    request: Request,
     user: User = Depends(get_current_user),
-    request: Request = Depends(),
 ) -> User:
     """
     Dependency that enforces 2FA verification.
@@ -261,8 +261,8 @@ async def require_2fa_verified(
     has passed 2FA during the current session.
 
     Args:
+        request: FastAPI request object (injected automatically)
         user: Authenticated user from get_current_user
-        request: FastAPI request (injected by DI, never None)
 
     Returns:
         User object if 2FA is verified

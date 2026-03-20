@@ -134,8 +134,8 @@ class UserRepository:
                 )
 
             logger.warning(
-                "UserRepository.get_user_validation_data() - no session available. "
-                "Override this method or provide a database session."
+                "UserRepository.get_user_validation_data() - SQLAlchemy is not available. "
+                "Install SQLAlchemy or override this method in a subclass."
             )
             return None
 

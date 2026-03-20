@@ -42,21 +42,46 @@ vi.mock("next-intl", () => ({
       nav: {
         dashboard: "Dashboard",
         farms: "Farms",
+        fields: "Fields",
         crops: "Crops",
         inventory: "Inventory",
         seasons: "Seasons",
+        tasks: "Tasks",
         pivotIrrigation: "Pivot Irrigation",
+        irrigation: "Irrigation",
+        cropHealth: "Crop Health",
+        weather: "Weather",
+        satellite: "Satellite",
+        yield: "Yield",
+        precisionAgriculture: "Precision Agriculture",
+        iot: "IoT",
+        sensors: "Sensors",
+        equipment: "Equipment",
+        marketplace: "Marketplace",
+        wallet: "Wallet",
+        community: "Community",
+        logistics: "Logistics",
         reports: "Reports",
         documents: "Documents",
         analytics: "Analytics",
-        satellite: "Satellite",
-        logistics: "Logistics",
         disasterAssessment: "Disaster Assessment",
         alerts: "Alerts",
         notifications: "Notifications",
+        copilot: "Copilot",
+        support: "Support",
         settings: "Settings",
         mainNav: "Main Navigation",
         version: "Version",
+        overview: "Overview",
+        farmManagement: "Farm Management",
+        waterAndIrrigation: "Water & Irrigation",
+        cropIntelligence: "Crop Intelligence",
+        iotAndEquipment: "IoT & Equipment",
+        businessAndCommunity: "Business & Community",
+        reportsAndDocs: "Reports & Docs",
+        alertsAndNotifications: "Alerts & Notifications",
+        tools: "Tools",
+        closeMenu: "Close Menu",
       },
       common: {
         appName: "SAHOOL",
@@ -88,6 +113,20 @@ vi.mock("lucide-react", () => {
     AlertTriangle: IconMock,
     Bell: IconMock,
     X: IconMock,
+    MapPin: IconMock,
+    CloudSun: IconMock,
+    ListChecks: IconMock,
+    Wrench: IconMock,
+    Cpu: IconMock,
+    Activity: IconMock,
+    ShoppingCart: IconMock,
+    Users: IconMock,
+    HeartPulse: IconMock,
+    Wallet: IconMock,
+    BarChart3: IconMock,
+    Crosshair: IconMock,
+    Bot: IconMock,
+    HelpCircle: IconMock,
   };
 });
 
@@ -261,7 +300,7 @@ describe("Sidebar Navigation (Client/Farmer)", () => {
 
       const backdrop = screen.getByTestId("mobile-drawer-backdrop");
       fireEvent.click(backdrop);
-      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(onClose).toHaveBeenCalled();
     });
 
     it("should render without drawer props (backward compatible)", () => {

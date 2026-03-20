@@ -5,7 +5,7 @@
  * مكون تفاصيل الحقل
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {

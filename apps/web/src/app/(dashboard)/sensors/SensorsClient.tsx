@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useSensors, useSensorStats } from "@/features/iot";
-import type { Sensor, SensorType, SensorStatus } from "@/features/iot";
+import type { Sensor, SensorStatus } from "@/features/iot";
 import { useRouter } from "next/navigation";
 
 const sensorTypeConfig: Record<string, { icon: React.ReactNode; label: string; labelAr: string }> = {
@@ -85,9 +85,9 @@ export default function SensorsClient() {
     return "text-red-600";
   };
 
-  const onlineCount = stats?.online ?? sensors.filter((s: Sensor) => s.status === "online" || s.status === "active").length;
-  const offlineCount = stats?.offline ?? sensors.filter((s: Sensor) => s.status === "offline" || s.status === "inactive").length;
-  const warningCount = stats?.warning ?? sensors.filter((s: Sensor) => s.status === "error" || s.status === "maintenance").length;
+  const onlineCount = stats?.byStatus?.["online"] ?? sensors.filter((s: Sensor) => s.status === "online" || s.status === "active").length;
+  const offlineCount = stats?.byStatus?.["offline"] ?? sensors.filter((s: Sensor) => s.status === "offline" || s.status === "inactive").length;
+  const warningCount = stats?.byStatus?.["error"] ?? sensors.filter((s: Sensor) => s.status === "error" || s.status === "maintenance").length;
   const lowBatteryCount = sensors.filter((s: Sensor) => (s.battery ?? 100) < 20).length;
 
   if (isLoading) {

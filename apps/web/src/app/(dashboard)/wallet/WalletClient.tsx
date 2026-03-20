@@ -113,9 +113,8 @@ export default function WalletClient() {
             try {
               await depositMutation.mutateAsync({
                 amount: Number(fd.get("amount")),
-                currency: "YER",
                 paymentMethod: "bank_transfer",
-                description: fd.get("description") as string || "",
+                reference: fd.get("description") as string || "",
               });
               setViewMode("dashboard");
               showToast({ type: "success", message: "Deposit successful", messageAr: "تم الإيداع بنجاح" });
@@ -151,9 +150,8 @@ export default function WalletClient() {
             try {
               await withdrawMutation.mutateAsync({
                 amount: Number(fd.get("amount")),
-                currency: "YER",
-                withdrawalMethod: "bank_transfer",
-                accountDetails: fd.get("accountDetails") as string || "",
+                method: "bank_transfer",
+                bankAccount: fd.get("accountDetails") as string || "",
               });
               setViewMode("dashboard");
               showToast({ type: "success", message: "Withdrawal successful", messageAr: "تم السحب بنجاح" });

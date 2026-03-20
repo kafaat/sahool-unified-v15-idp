@@ -31,11 +31,13 @@ export default function InventoryClient() {
       name: fd.get("name") as string,
       nameAr: fd.get("nameAr") as string,
       category: fd.get("category") as InventoryCategory,
+      sku: fd.get("name") as string,
       quantity: Number(fd.get("quantity")) || 0,
-      unit: fd.get("unit") as string || "كجم",
+      unit: fd.get("unit") as string || "kg",
+      unitAr: fd.get("unit") as string || "كجم",
       minQuantity: Number(fd.get("minQuantity")) || 0,
+      purchasePrice: Number(fd.get("unitPrice")) || 0,
       location: fd.get("location") as string || "",
-      unitPrice: Number(fd.get("unitPrice")) || 0,
     };
     try {
       await createInventory.mutateAsync(data);

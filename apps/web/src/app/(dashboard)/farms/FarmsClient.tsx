@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X, Loader2 } from "lucide-react";
+import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, Loader2 } from "lucide-react";
 import { useFarms, useFarmStats, useCreateFarm } from "@/features/farms";
 import type { FarmStatus, FarmFormData } from "@/features/farms";
 import { useToast } from "@/components/ui/toast";

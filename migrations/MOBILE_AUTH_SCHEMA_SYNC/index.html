@@ -1117,7 +1117,7 @@
 
 
 <h1 id="mobile-auth-schema-synchronization">Mobile Auth Schema Synchronization<a class="headerlink" href="#mobile-auth-schema-synchronization" title="Permanent link">&para;</a></h1>
-<p><strong>Status</strong>: COMPLETED (Phase 1 &amp; 2)
+<p><strong>Status</strong>: COMPLETED (Phase 1, 2 &amp; 3)
 <strong>Priority</strong>: HIGH
 <strong>Created</strong>: 2026-03-19
 <strong>Related</strong>: user-service Prisma schema (<code>apps/services/user-service/prisma/schema.prisma</code>)
@@ -1313,14 +1313,28 @@
 <li>[x] Create <code>UserProfile</code> model in Dart</li>
 <li>[x] Add <code>emailVerified</code> / <code>phoneVerified</code> fields</li>
 </ul>
-<h3 id="phase-3-low-backlog">Phase 3 - Low (Backlog)<a class="headerlink" href="#phase-3-low-backlog" title="Permanent link">&para;</a></h3>
+<h3 id="phase-3-security-schema-alignment-done">Phase 3 - Security &amp; Schema Alignment (DONE)<a class="headerlink" href="#phase-3-security-schema-alignment-done" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Implement token rotation tracking (<code>jti</code>, <code>family</code>)</li>
-<li>[ ] Track account lockout state (<code>failedLoginAttempts</code>, <code>lockoutUntil</code>)</li>
+<li>[x] Implement token rotation tracking models (<code>TokenRotationInfo</code> with <code>jti</code>, <code>family</code>, <code>revoked</code>, <code>used</code>, <code>replacedBy</code>)</li>
+<li>[x] Add account lockout models (<code>AccountLockoutInfo</code> with <code>failedLoginAttempts</code>, <code>lockoutUntil</code>, <code>lastFailedLoginAt</code>)</li>
+<li>[x] Add <code>CachedUsers</code> and <code>CachedUserProfiles</code> tables to Drift DB for offline access</li>
+<li>[x] Document mobile-only roles (<code>supervisor</code>, <code>superAdmin</code>) with comments</li>
+<li>[x] Add deprecation notice to <code>UserIdentity</code> IAM model referencing <code>User</code> model</li>
+<li>[x] Add token revocation check in Python <code>get_current_user()</code> dependency</li>
+<li>[x] Align NestJS token revocation to fail-closed (matching Python behavior)</li>
+<li>[x] Add JWT token support to WebSocket connections (hook + client)</li>
+<li>[x] Implement <code>AsyncpgUserRepository</code> for FastAPI services</li>
+<li>[x] Add <code>require_2fa_verified</code> dependency for sensitive endpoints</li>
+<li>[x] Fix NestJS <code>forRootAsync()</code> to support <code>TokenRevocationGuard</code> export</li>
+<li>[x] Invalidate 2FA backup codes after use (return remaining codes)</li>
+<li>[x] Add security audit logging for failed 2FA attempts</li>
+<li>[x] Add WebSocket auth failure detection (codes 4001/4003)</li>
+<li>[x] Create <code>useWebSocket</code> hook tests</li>
+<li>[x] Enhance WebSocket client auth + error tests</li>
 <li>[ ] Run Dart contract codegen sync (<code>npx tsx scripts/sync-contracts-to-dart.ts</code>)</li>
 </ul>
 <hr />
-<h2 id="files-to-modify">Files to Modify<a class="headerlink" href="#files-to-modify" title="Permanent link">&para;</a></h2>
+<h2 id="files-modified">Files Modified<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1330,24 +1344,56 @@
 </thead>
 <tbody>
 <tr>
-<td><code>apps/mobile/sahool_field_app/lib/core/auth/permission_service.dart</code></td>
-<td>Update UserRole enum</td>
+<td><code>shared/auth/dependencies.py</code></td>
+<td>Token revocation check, 2FA enforcement, optional user revocation</td>
 </tr>
 <tr>
-<td><code>apps/mobile/lib/core/auth/auth_service.dart</code></td>
-<td>Add UserStatus, update User model</td>
+<td><code>shared/auth/user_repository.py</code></td>
+<td><code>AsyncpgUserRepository</code> implementation, SQLAlchemy fallback</td>
 </tr>
 <tr>
-<td><code>apps/mobile/lib/core/api/kong_gateway_client.dart</code></td>
-<td>No changes needed</td>
+<td><code>shared/auth/twofa_service.py</code></td>
+<td>Backup code invalidation, security audit logging</td>
 </tr>
 <tr>
-<td><code>apps/mobile/test/features/auth/auth_mocks.dart</code></td>
-<td>Update test fixtures</td>
+<td><code>packages/nestjs-auth/src/services/token-revocation.ts</code></td>
+<td>Fail-closed on Redis errors</td>
 </tr>
 <tr>
-<td><code>apps/mobile/sahool_field_app/test/unit/core/auth/auth_models_test.dart</code></td>
-<td>Use enum values</td>
+<td><code>packages/nestjs-auth/src/auth.module.ts</code></td>
+<td><code>forRootAsync</code> with token revocation exports</td>
+</tr>
+<tr>
+<td><code>apps/web/src/hooks/useWebSocket.ts</code></td>
+<td>JWT token param, auth failure detection</td>
+</tr>
+<tr>
+<td><code>apps/web/src/lib/ws/index.ts</code></td>
+<td><code>setToken()</code>, auth failure handling</td>
+</tr>
+<tr>
+<td><code>apps/mobile/lib/core/storage/database.dart</code></td>
+<td><code>CachedUsers</code>, <code>CachedUserProfiles</code> tables</td>
+</tr>
+<tr>
+<td><code>apps/mobile/lib/core/auth/permission_service.dart</code></td>
+<td>Role documentation</td>
+</tr>
+<tr>
+<td><code>apps/mobile/lib/core/auth/token_manager.dart</code></td>
+<td><code>TokenRotationInfo</code>, <code>AccountLockoutInfo</code></td>
+</tr>
+<tr>
+<td><code>apps/mobile/lib/core/iam/models/iam_models.dart</code></td>
+<td><code>UserIdentity</code> deprecation note</td>
+</tr>
+<tr>
+<td><code>apps/web/src/hooks/__tests__/useWebSocket.test.ts</code></td>
+<td>New test file</td>
+</tr>
+<tr>
+<td><code>apps/web/src/lib/ws/__tests__/websocket-client.test.ts</code></td>
+<td>Auth + error tests</td>
 </tr>
 </tbody>
 </table>

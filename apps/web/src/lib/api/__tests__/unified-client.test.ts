@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { InternalAxiosRequestConfig, AxiosHeaders } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks
@@ -59,7 +59,12 @@ describe("Unified Client (Web)", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    // Use clearAllMocks instead of restoreAllMocks: restoreAllMocks calls
+    // mockRestore() on every vi.fn(), which strips mockImplementation from
+    // the SahoolApiClient factory mock.  On the next vi.resetModules() +
+    // dynamic import the cleared constructor returns an empty object (no
+    // axiosInstance), causing the module-level CSRF interceptor setup to throw.
+    vi.clearAllMocks();
   });
 
   describe("Module Exports", () => {

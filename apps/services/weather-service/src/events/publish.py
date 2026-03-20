@@ -7,7 +7,10 @@ import os
 import uuid
 from datetime import UTC, datetime, timezone
 
-from nats.aio.client import Client as NATS
+try:
+    from nats.aio.client import Client as NATS
+except ImportError:
+    NATS = None  # NATS not available in test environment
 
 from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 

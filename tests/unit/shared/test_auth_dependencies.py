@@ -15,6 +15,7 @@ import os
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
+os.environ["TOKEN_REVOCATION_ENABLED"] = "false"
 
 from shared.auth.dependencies import (
     get_current_user,

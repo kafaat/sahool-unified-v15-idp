@@ -205,14 +205,14 @@ async def get_current_user(
             # Update cache — include all status fields so cached path
             # can perform the same denial checks as the DB path.
             if cache:
-                cache_kwargs = dict(
-                    user_id=user_id,
-                    is_active=user_data.is_active,
-                    is_verified=user_data.is_verified,
-                    roles=user_data.roles,
-                    email=user_data.email,
-                    tenant_id=user_data.tenant_id,
-                )
+                cache_kwargs = {
+                    "user_id": user_id,
+                    "is_active": user_data.is_active,
+                    "is_verified": user_data.is_verified,
+                    "roles": user_data.roles,
+                    "email": user_data.email,
+                    "tenant_id": user_data.tenant_id,
+                }
                 # Pass is_deleted/is_suspended if the cache accepts them
                 if hasattr(user_data, "is_deleted"):
                     cache_kwargs["is_deleted"] = user_data.is_deleted

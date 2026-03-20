@@ -15,9 +15,13 @@ from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorCode(StrEnum):

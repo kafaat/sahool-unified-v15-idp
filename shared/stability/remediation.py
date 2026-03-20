@@ -400,7 +400,7 @@ class RemediationEngine:
                             stdout, stderr = await asyncio.wait_for(
                                 proc.communicate(), timeout=120
                             )
-                        except asyncio.TimeoutError:
+                        except TimeoutError:
                             proc.kill()
                             await proc.wait()
                             action.status = RemediationStatus.FAILED

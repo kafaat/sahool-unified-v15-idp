@@ -9,13 +9,13 @@
 
 ## Executive Summary
 
-The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application with **38 page routes**, **52 test files** (1,044 test cases), and **~21,129 lines** of page code. The portal covers farm management, crop health, disease diagnosis, IoT sensors, weather, market prices, insurance, and more.
+The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application with **60 page routes** (including nested routes under analytics/, precision-agriculture/, reports/, auth/, settings/), **52 test files** (1,044 test cases), and **~32,000 lines** of page code. The portal covers farm management, crop health, disease diagnosis, IoT sensors, weather, market prices, insurance, precision agriculture, analytics, and more.
 
 **Key Findings**:
-- **7 STUB pages** (78 lines each, hardcoded stats only) need real implementations
-- **16 MOCK-only pages** display realistic UI but have no backend integration
-- **~10 FULL pages** with real API integration are production-ready
-- **5 MEDIUM pages** try API first, fall back to mock data gracefully
+- **8 STUB pages** (78 lines each, hardcoded stats only) need real implementations
+- **20 MOCK-only pages** display realistic UI but have no backend integration
+- **~16 FULL pages** with real API integration are production-ready
+- **16 MEDIUM pages** try API first, fall back to mock data gracefully
 - **Security is solid**: JWT + CSRF + CSP + rate limiting + HSTS
 - **1 security gap**: `edgeLogger` silently drops all logs in production (middleware.ts:56-59)
 - **No placeholder tests** found (no `expect(true).toBe(true)`)
@@ -26,38 +26,45 @@ The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application w
 
 ## 1. Dependencies Verification
 
-### Production Dependencies (17)
+### Production Dependencies (15)
 
 | Package | Version | Purpose | Status |
 |---------|---------|---------|--------|
-| react | 19.2.4 | UI framework | Current |
+| react | ^19.2.4 | UI framework | Current |
+| react-dom | ^19.2.4 | React DOM | Current |
 | next | 15.5.12 | Framework | Current |
 | axios | 1.13.6 | HTTP client | Current |
 | jose | 5.9.6 | JWT verification (Edge-compatible) | Current |
-| xss | 1.0.15 | XSS sanitization | Current |
+| xss | ^1.0.15 | XSS sanitization | Current |
 | leaflet | 1.9.4 | Maps | Current |
-| react-leaflet | 5.0.0 | React maps binding | Current |
+| react-leaflet | 4.2.1 | React maps binding | Current |
 | recharts | 2.15.4 | Charts | Current |
-| lucide-react | 0.511.0 | Icons | Current |
-| @sahool/api-client | workspace:* | Shared API client | Internal |
-| @sahool/shared-types | workspace:* | Shared types | Internal |
+| lucide-react | 0.575.0 | Icons | Current |
+| @sahool/api-client | ^16.0.0 | Shared API client | Internal |
+| @sahool/shared-types | ^16.0.0 | Shared types | Internal |
+| @opentelemetry/api | ^1.9.0 | OpenTelemetry tracing | Current |
 | clsx | 2.1.1 | Classname utility | Current |
-| tailwind-merge | 3.3.0 | TW class merge | Current |
+| tailwind-merge | 2.6.0 | TW class merge | Current |
 | date-fns | 4.1.0 | Date utilities | Current |
-| @sentry/nextjs | ^9.5.0 | Error tracking (optional) | Current |
-| sharp | ^0.33.5 | Image optimization | Current |
-| next-themes | ^0.4.4 | Dark mode | Current |
+| js-cookie | 3.0.5 | Cookie management | Current |
 
-**No outdated or vulnerable dependencies found.**
+### Optional Dependencies (1)
+
+| Package | Version | Purpose | Status |
+|---------|---------|---------|--------|
+| @sentry/nextjs | ^9.5.0 | Error tracking | Current |
+
+**Note**: Dependency versions verified against `apps/admin/package.json` on 2026-03-20. No `npm audit` was run; vulnerability status was not independently verified.
 
 ### Dev Dependencies Verified
-- vitest 3.x, @testing-library/react 16.x, playwright 1.57.x — all current
+- vitest 3.2.4, @testing-library/react 16.3.2, typescript 5.9.3, tailwindcss 3.4.17 — all current
+- Note: Playwright is a project-level dependency, not in admin's package.json
 
 ---
 
-## 2. Page Classification (38 pages)
+## 2. Page Classification (60 pages)
 
-### FULL — Real API Integration (10 pages)
+### FULL — Real API Integration (16 pages)
 
 | Page | Lines | API Source | Features |
 |------|-------|-----------|----------|
@@ -71,8 +78,14 @@ The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application w
 | `/tasks` | 862 | `fetchTasks`, `createTask`, `updateTask` | Full task management, create/edit modals |
 | `/alerts` | 782 | `fetchAlerts`, `updateAlertStatus` | Alert management, severity filters, actions |
 | `/settings` | 1,310 | `fetchSettings`, `updateSettings` | System settings, theme, notifications |
+| `/(auth)/login` | 355 | Zustand auth store | 2FA support, backup codes, field validation |
+| `/(auth)/register` | 287 | `/api/auth/register` | Registration form, post-register redirect |
+| `/(auth)/forgot-password` | 280 | `/api/auth/forgot-password` | Multi-channel OTP (email, SMS, WhatsApp, Telegram) |
+| `/(auth)/reset-password` | 303 | `/api/auth/reset-password` | Token-based reset, 8-char minimum, auto-redirect |
+| `/(auth)/verify-otp` | 541 | `/api/auth/verify-otp` | 6-digit OTP, 5-min expiry, 60s resend cooldown |
+| `/settings/security` | 528 | `/admin/2fa` endpoints | 2FA setup/verify/disable, QR code, backup codes |
 
-### MEDIUM — API with Mock Fallback (5 pages)
+### MEDIUM — API with Mock Fallback (16 pages)
 
 | Page | Lines | Pattern | Notes |
 |------|-------|---------|-------|
@@ -81,8 +94,19 @@ The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application w
 | `/traceability` | 371 | `Promise.allSettled` → MOCK on reject | Supply chain timeline, batch tracking |
 | `/support` | 537 | `apiClient.get` → mock on catch | Support chat management, expert assignment |
 | `/equipment` | 1,061 | `apiClient.get` → mock on catch | Equipment CRUD, maintenance tracking |
+| `/analytics/field-compare` | 683 | `field.list` API → mock fallback | NPK/soil/climate comparison, swap fields |
+| `/analytics/profitability` | 310 | `fetchProfitabilityData` → fallback | Revenue/costs/profit, crop profitability |
+| `/analytics/satellite` | 513 | `fetchSatelliteData` → fallback | Dynamic map, NDVI/SAVI/NDWI indices, alerts |
+| `/analytics/soil` | 385 | `/api/soil-analysis/tests` → fallback | 6 test records, nutrient indicators |
+| `/analytics/yield` | 449 | `Promise.allSettled` → fallback | Multi-dimension comparison (crop/soil/irrigation) |
+| `/precision-agriculture/fertilizer` | 752 | `/api/advisory/fertilizer` → fallback | Zone-based NPK, product selector, prescriptions |
+| `/precision-agriculture/gdd` | 276 | `fetchGDDData` → fallback | Growing Degree Days monitoring, milestone alerts |
+| `/precision-agriculture/spray` | 402 | `Promise.all` → fallback | Optimal spray windows, weather conditions |
+| `/precision-agriculture/vra` | 311 | `fetchVRAPrescriptions` → fallback | VRA workflow (pending→approved→rejected→applied) |
+| `/reports/seasonal` | 566 | `/api/v1/reports/seasonal` → fallback | 7 data sections, PDF export |
+| `/(dashboard)/settings/sessions` | 270 | `/api/admin/sessions` | 30s auto-refresh, session revocation, device detection |
 
-### MOCK — Static Mock Data Only (16 pages)
+### MOCK — Static Mock Data Only (20 pages)
 
 | Page | Lines | Mock Pattern | Features |
 |------|-------|-------------|----------|
@@ -102,13 +126,18 @@ The SAHOOL Admin Portal (`apps/admin/`) is a Next.js 15 + React 19 application w
 | `/cooperatives` | 897 | `MOCK_COOPERATIVES` (6 items) | 4-tab (overview, members, resources, revenue) |
 | `/soil-map` | 950 | `AGRO_ECO_ZONES` (7 zones) | 3-tab soil info, no map yet |
 | `/lab` | 470 | `demoSamples` (8 items) | Kanban/list view, batch management |
+| `/analytics/gap-analysis` | 1,002 | 41 features across 7 categories | SAHOOL infrastructure audit, effort estimates |
+| `/analytics/yield-forecasting` | 893 | Mock predictions | Growth stages, confidence, harvest countdown |
+| `/precision-agriculture/pivot` | 595 | Mock 3 pivot systems | SVG animation, 8-sector viz, VRI zones |
+| `/equipment/fleet-tracking` | 1,080 | Mock 8 fleet items | GPS/speed/fuel telemetry, geofence alerts |
 
-### STUB — Placeholder Pages (7 pages)
+### STUB — Placeholder Pages (8 pages)
 
-All 78 lines each, identical pattern: 4 stat cards with hardcoded numbers + "سيتم عرض ... هنا" placeholder.
+All 78 lines each (except root at 15 lines), identical pattern: 4 stat cards with hardcoded numbers + "سيتم عرض ... هنا" placeholder.
 
 | Page | Hardcoded Stats |
 |------|----------------|
+| `/` | 15 lines — redirect to `/dashboard` |
 | `/vision` | 156 analyses, 89.2% accuracy, 23 alerts, 12,450 images |
 | `/terrain` | 234 analyses, 67 DEMs, 1,250 km² coverage, 45 plans |
 | `/edge-devices` | 45 devices, 38 online, 156 models, 23 alerts |
@@ -149,7 +178,7 @@ All 78 lines each, identical pattern: 4 stat cards with hardcoded numbers + "س�
 
 - No `Math.random()` in production code (only in 2 test files)
 - No hardcoded secrets or API keys
-- `console.*` only in 3 appropriate files: `logger.ts`, `middleware.ts`, `api-middleware.ts`
+- `console.*` in 3 production files (`logger.ts`, `middleware.ts`, `api-middleware.ts`) and 2 test files (`admin-ui-components.test.tsx`, `ErrorBoundary-security.test.tsx`)
 - Google Maps links use `encodeURIComponent` and validate coordinates (diseases page)
 
 ---
@@ -252,13 +281,15 @@ SahoolApiClient (@sahool/api-client)
 
 ## 8. Page Inventory Summary
 
-| Classification | Count | Lines | % of Code |
-|---------------|-------|-------|-----------|
-| FULL (real API) | 10 | 7,430 | 35% |
-| MEDIUM (API + fallback) | 5 | 3,006 | 14% |
-| MOCK (static data) | 16 | 9,147 | 43% |
-| STUB (placeholder) | 7 | 546 | 3% |
-| **Total** | **38** | **21,129** | **100%** |
+| Classification | Count | Lines (approx.) | % of Pages |
+|---------------|-------|-----------------|------------|
+| FULL (real API) | 16 | 9,724 | 27% |
+| MEDIUM (API + fallback) | 16 | 7,163 | 27% |
+| MOCK (static data) | 20 | 12,717 | 33% |
+| STUB (placeholder) | 8 | 561 | 13% |
+| **Total** | **60** | **~30,165** | **100%** |
+
+> **Note**: Page count includes nested routes under `analytics/` (7), `precision-agriculture/` (5), `(auth)/` (5), `reports/` (1), `equipment/` (1), and `settings/` (2) which were missing from the original review.
 
 ---
 
@@ -293,3 +324,27 @@ The following files were read with the `Read` tool (not via agent summaries):
 
 Additional pages verified via agent with source file reads:
 - epidemic, lab, seasons, seeds, soil-map, logistics, cooperatives, research, sensors, copilot
+
+Pages added in review revision (2026-03-20, addressing PR #1286 review feedback):
+- `apps/admin/src/app/page.tsx` — root redirect (STUB)
+- `apps/admin/src/app/(auth)/login/page.tsx` — auth (FULL)
+- `apps/admin/src/app/(auth)/register/page.tsx` — auth (FULL)
+- `apps/admin/src/app/(auth)/forgot-password/page.tsx` — auth (FULL)
+- `apps/admin/src/app/(auth)/reset-password/page.tsx` — auth (FULL)
+- `apps/admin/src/app/(auth)/verify-otp/page.tsx` — auth (FULL)
+- `apps/admin/src/app/(dashboard)/settings/sessions/page.tsx` — sessions (MEDIUM)
+- `apps/admin/src/app/settings/security/page.tsx` — 2FA security (FULL)
+- `apps/admin/src/app/analytics/field-compare/page.tsx` — analytics (MEDIUM)
+- `apps/admin/src/app/analytics/gap-analysis/page.tsx` — analytics (MOCK)
+- `apps/admin/src/app/analytics/profitability/page.tsx` — analytics (MEDIUM)
+- `apps/admin/src/app/analytics/satellite/page.tsx` — analytics (MEDIUM)
+- `apps/admin/src/app/analytics/soil/page.tsx` — analytics (MEDIUM)
+- `apps/admin/src/app/analytics/yield-forecasting/page.tsx` — analytics (MOCK)
+- `apps/admin/src/app/analytics/yield/page.tsx` — analytics (MEDIUM)
+- `apps/admin/src/app/precision-agriculture/fertilizer/page.tsx` — precision ag (MEDIUM)
+- `apps/admin/src/app/precision-agriculture/gdd/page.tsx` — precision ag (MEDIUM)
+- `apps/admin/src/app/precision-agriculture/pivot/page.tsx` — precision ag (MOCK)
+- `apps/admin/src/app/precision-agriculture/spray/page.tsx` — precision ag (MEDIUM)
+- `apps/admin/src/app/precision-agriculture/vra/page.tsx` — precision ag (MEDIUM)
+- `apps/admin/src/app/reports/seasonal/page.tsx` — reports (MEDIUM)
+- `apps/admin/src/app/equipment/fleet-tracking/page.tsx` — equipment (MOCK)

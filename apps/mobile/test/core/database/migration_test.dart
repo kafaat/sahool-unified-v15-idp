@@ -12,12 +12,13 @@ import 'package:sahool_field_app/core/database/schema_version.dart';
 import 'package:sahool_field_app/core/database/migration_strategy.dart';
 import 'package:sahool_field_app/core/database/migrations/migration_base.dart';
 import 'package:sahool_field_app/core/database/migrations/migration_v5.dart';
+import 'package:sahool_field_app/core/database/migrations/migration_v6.dart';
 import 'package:sahool_field_app/core/database/migrations/migration_verification.dart';
 
 void main() {
   group('SchemaVersion', () {
-    test('currentSchemaVersion should be 5', () {
-      expect(currentSchemaVersion, equals(5));
+    test('currentSchemaVersion should be 6', () {
+      expect(currentSchemaVersion, equals(6));
     });
 
     test('minimumSupportedVersion should be 1', () {
@@ -25,15 +26,15 @@ void main() {
     });
 
     test('SchemaVersionRegistry should have all versions', () {
-      expect(SchemaVersionRegistry.versions.length, equals(5));
+      expect(SchemaVersionRegistry.versions.length, equals(6));
       expect(SchemaVersionRegistry.versions.first.version, equals(1));
-      expect(SchemaVersionRegistry.versions.last.version, equals(5));
+      expect(SchemaVersionRegistry.versions.last.version, equals(6));
     });
 
     test('SchemaVersionRegistry.current should return latest version', () {
       final current = SchemaVersionRegistry.current;
-      expect(current.version, equals(5));
-      expect(current.description, contains('migration tracking'));
+      expect(current.version, equals(6));
+      expect(current.description, contains('CachedUsers'));
     });
 
     test('SchemaVersionRegistry.getVersion should return correct version', () {
@@ -51,19 +52,19 @@ void main() {
     test('SchemaVersionRegistry.isSupported should check version bounds', () {
       expect(SchemaVersionRegistry.isSupported(0), isFalse);
       expect(SchemaVersionRegistry.isSupported(1), isTrue);
-      expect(SchemaVersionRegistry.isSupported(5), isTrue);
-      expect(SchemaVersionRegistry.isSupported(6), isFalse);
+      expect(SchemaVersionRegistry.isSupported(6), isTrue);
+      expect(SchemaVersionRegistry.isSupported(7), isFalse);
     });
 
     test('SchemaVersionRegistry.getVersionsBetween should return correct versions', () {
-      final versions = SchemaVersionRegistry.getVersionsBetween(2, 5);
-      expect(versions.length, equals(3));
-      expect(versions.map((v) => v.version).toList(), equals([3, 4, 5]));
+      final versions = SchemaVersionRegistry.getVersionsBetween(2, 6);
+      expect(versions.length, equals(4));
+      expect(versions.map((v) => v.version).toList(), equals([3, 4, 5, 6]));
     });
 
     test('SchemaVersionRegistry.getMigrationPath should return correct path', () {
-      final path = SchemaVersionRegistry.getMigrationPath(1, 5);
-      expect(path, equals([2, 3, 4, 5]));
+      final path = SchemaVersionRegistry.getMigrationPath(1, 6);
+      expect(path, equals([2, 3, 4, 5, 6]));
     });
   });
 
@@ -150,6 +151,43 @@ void main() {
     test('should generate consistent checksum', () {
       final checksum1 = migration.checksum;
       final checksum2 = MigrationV5().checksum;
+      expect(checksum1, equals(checksum2));
+    });
+  });
+
+  group('MigrationV6', () {
+    late MigrationV6 migration;
+
+    setUp(() {
+      migration = MigrationV6();
+    });
+
+    test('should have correct version numbers', () {
+      expect(migration.targetVersion, equals(6));
+      expect(migration.fromVersion, equals(5));
+    });
+
+    test('should have descriptions', () {
+      expect(migration.description, isNotEmpty);
+      expect(migration.descriptionAr, isNotEmpty);
+    });
+
+    test('should support rollback', () {
+      expect(migration.supportsRollback, isTrue);
+    });
+
+    test('should require backup', () {
+      expect(migration.requiresBackup, isTrue);
+    });
+
+    test('should list affected tables', () {
+      expect(migration.affectedTables, contains('cached_users'));
+      expect(migration.affectedTables, contains('cached_user_profiles'));
+    });
+
+    test('should generate consistent checksum', () {
+      final checksum1 = migration.checksum;
+      final checksum2 = MigrationV6().checksum;
       expect(checksum1, equals(checksum2));
     });
   });
@@ -370,9 +408,13 @@ void main() {
 
   group('SahoolMigrationStrategy', () {
     test('getMigration should return migration for valid version', () {
-      final migration = SahoolMigrationStrategy.getMigration(5);
-      expect(migration, isNotNull);
-      expect(migration!.targetVersion, equals(5));
+      final migration5 = SahoolMigrationStrategy.getMigration(5);
+      expect(migration5, isNotNull);
+      expect(migration5!.targetVersion, equals(5));
+
+      final migration6 = SahoolMigrationStrategy.getMigration(6);
+      expect(migration6, isNotNull);
+      expect(migration6!.targetVersion, equals(6));
     });
 
     test('getMigration should return null for invalid version', () {
@@ -381,13 +423,14 @@ void main() {
     });
 
     test('getMigrationsBetween should return correct migrations', () {
-      final migrations = SahoolMigrationStrategy.getMigrationsBetween(4, 5);
-      expect(migrations.length, equals(1));
+      final migrations = SahoolMigrationStrategy.getMigrationsBetween(4, 6);
+      expect(migrations.length, equals(2));
       expect(migrations.first.targetVersion, equals(5));
+      expect(migrations.last.targetVersion, equals(6));
     });
 
     test('getMigrationsBetween should return empty for no migrations', () {
-      final migrations = SahoolMigrationStrategy.getMigrationsBetween(5, 5);
+      final migrations = SahoolMigrationStrategy.getMigrationsBetween(6, 6);
       expect(migrations, isEmpty);
     });
   });

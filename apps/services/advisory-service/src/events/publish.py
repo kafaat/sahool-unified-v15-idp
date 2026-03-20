@@ -3,17 +3,27 @@ Event Publisher - SAHOOL Agro Advisor
 Publish events to NATS JetStream
 """
 
+from __future__ import annotations
+
 import json
 import os
 import uuid
 from datetime import UTC, datetime
 
 import structlog
-from nats.aio.client import Client as NATS
 
 from .types import get_subject, get_version
 
 logger = structlog.get_logger(__name__)
+
+_nats_available = False
+try:
+    from nats.aio.client import Client as NATS
+
+    _nats_available = True
+except ImportError:
+    NATS = None  # type: ignore[assignment,misc]
+    logger.warning("nats_not_installed", msg="nats-py not available, event publishing disabled")
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 
@@ -50,7 +60,7 @@ class EventEnvelope:
         tenant_id: str,
         correlation_id: str,
         payload: dict,
-    ) -> "EventEnvelope":
+    ) -> EventEnvelope:
         return cls(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
@@ -87,6 +97,8 @@ class AdvisorPublisher:
         """Connect to NATS server"""
         if self._connected:
             return
+        if not _nats_available:
+            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
 
         self.nc = NATS()
         try:

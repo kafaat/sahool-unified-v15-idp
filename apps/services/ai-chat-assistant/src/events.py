@@ -3,13 +3,24 @@ NATS event handler for AI chat queries.
 معالج أحداث NATS لاستفسارات الشات الذكية.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from typing import Optional
 from datetime import UTC, datetime
 
-from nats.aio.client import Client as NATS
-from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
+_nats_available = False
+try:
+    from nats.aio.client import Client as NATS
+    from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
+
+    _nats_available = True
+except ImportError:
+    NATS = None  # type: ignore[assignment,misc]
+    ErrConnectionClosed = Exception  # type: ignore[assignment,misc]
+    ErrTimeout = Exception  # type: ignore[assignment,misc]
+    ErrNoServers = Exception  # type: ignore[assignment,misc]
 
 from src.config import settings
 from src.models import AIQuery, AIResponse, ResponseMetadata
@@ -28,6 +39,8 @@ class NATSEventHandler:
 
     async def connect(self):
         """Connect to NATS server."""
+        if not _nats_available:
+            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
         try:
             self.nc = NATS()
             await self.nc.connect(

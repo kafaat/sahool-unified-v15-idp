@@ -15,6 +15,7 @@ import { logger } from "../lib/logger";
 
 interface UseWebSocketOptions {
   url: string;
+  token?: string | null;
   onMessage?: (message: WSMessage) => void;
   reconnectInterval?: number;
   enabled?: boolean;
@@ -24,6 +25,7 @@ interface UseWebSocketOptions {
 
 export function useWebSocket({
   url,
+  token,
   onMessage,
   reconnectInterval = 5000,
   enabled = true,
@@ -133,7 +135,11 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      const ws = new WebSocket(url);
+      // Append JWT token as query parameter for authentication.
+      // Browser WebSocket API does not support custom headers, so token is
+      // passed via query param. ws-gateway supports both header and query.
+      const wsUrl = token ? `${url}${url.includes("?") ? "&" : "?"}token=${encodeURIComponent(token)}` : url;
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -173,12 +179,19 @@ export function useWebSocket({
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         // Ignore close events from stale sockets
         if (ws !== wsRef.current) return;
         if (!isMountedRef.current) return;
         setIsConnected(false);
         stopHeartbeat();
+
+        // Detect authentication failures from ws-gateway (codes 4001, 4003)
+        if (event.code === 4001 || event.code === 4003) {
+          logger.warn(`WebSocket auth failed (code ${event.code}) - token may be expired`);
+          setError("Authentication failed");
+          return; // Don't auto-reconnect on auth failure
+        }
 
         // Don't reconnect if manually disconnected or unmounting
         if (!shouldReconnectRef.current) {
@@ -222,7 +235,7 @@ export function useWebSocket({
       logger.warn("WebSocket unavailable:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
-  }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
+  }, [url, token, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
 
   // Keep connectRef in sync with latest connect
   useEffect(() => {

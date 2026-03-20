@@ -263,6 +263,9 @@ export class AuthModule {
     ) => Promise<AuthModuleOptions> | AuthModuleOptions;
     inject?: any[];
   }): DynamicModule {
+    // Provider factory that builds the full provider list based on resolved config
+    const AUTH_CONFIG_TOKEN = "AUTH_MODULE_OPTIONS";
+
     return {
       module: AuthModule,
       imports: [
@@ -286,6 +289,12 @@ export class AuthModule {
         }),
       ],
       providers: [
+        // Resolve and store config for other providers
+        {
+          provide: AUTH_CONFIG_TOKEN,
+          useFactory: options.useFactory,
+          inject: options.inject,
+        },
         JwtAuthGuard,
         RolesGuard,
         PermissionsGuard,
@@ -293,6 +302,9 @@ export class AuthModule {
         OptionalAuthGuard,
         ActiveAccountGuard,
         JwtStrategy,
+        // Token revocation providers (always registered, guard checks config)
+        TokenRevocationGuard,
+        TokenRevocationInterceptor,
       ],
       exports: [
         JwtModule,
@@ -304,6 +316,8 @@ export class AuthModule {
         OptionalAuthGuard,
         ActiveAccountGuard,
         JwtStrategy,
+        TokenRevocationGuard,
+        TokenRevocationInterceptor,
       ],
     };
   }

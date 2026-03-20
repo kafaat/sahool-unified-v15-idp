@@ -13,6 +13,14 @@ import 'package:flutter/foundation.dart';
 
 /// Complete user identity with all attributes
 /// الهوية الكاملة للمستخدم مع جميع الخصائص
+///
+/// NOTE: This model has field name differences from the backend User model
+/// (Prisma schema). When possible, prefer using `User` from `auth_service.dart`
+/// for data synced from the backend. Field mapping:
+///   - displayName → name (backend)
+///   - displayNameAr → nameAr (backend)
+///   - username → not in backend User model
+///   - tenantIds → single tenantId in backend
 @immutable
 class UserIdentity {
   /// Unique user identifier | المعرف الفريد للمستخدم

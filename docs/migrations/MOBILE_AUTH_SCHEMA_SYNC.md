@@ -1,6 +1,6 @@
 # Mobile Auth Schema Synchronization
 
-**Status**: COMPLETED (Phase 1 & 2)
+**Status**: COMPLETED (Phase 1, 2 & 3)
 **Priority**: HIGH
 **Created**: 2026-03-19
 **Related**: user-service Prisma schema (`apps/services/user-service/prisma/schema.prisma`)
@@ -168,19 +168,41 @@ role: 'farmer',  // Should use UserRole enum
 - [x] Create `UserProfile` model in Dart
 - [x] Add `emailVerified` / `phoneVerified` fields
 
-### Phase 3 - Low (Backlog)
-- [ ] Implement token rotation tracking (`jti`, `family`)
-- [ ] Track account lockout state (`failedLoginAttempts`, `lockoutUntil`)
+### Phase 3 - Security & Schema Alignment (DONE)
+- [x] Implement token rotation tracking models (`TokenRotationInfo` with `jti`, `family`, `revoked`, `used`, `replacedBy`)
+- [x] Add account lockout models (`AccountLockoutInfo` with `failedLoginAttempts`, `lockoutUntil`, `lastFailedLoginAt`)
+- [x] Add `CachedUsers` and `CachedUserProfiles` tables to Drift DB for offline access
+- [x] Document mobile-only roles (`supervisor`, `superAdmin`) with comments
+- [x] Add deprecation notice to `UserIdentity` IAM model referencing `User` model
+- [x] Add token revocation check in Python `get_current_user()` dependency
+- [x] Align NestJS token revocation to fail-closed (matching Python behavior)
+- [x] Add JWT token support to WebSocket connections (hook + client)
+- [x] Implement `AsyncpgUserRepository` for FastAPI services
+- [x] Add `require_2fa_verified` dependency for sensitive endpoints
+- [x] Fix NestJS `forRootAsync()` to support `TokenRevocationGuard` export
+- [x] Invalidate 2FA backup codes after use (return remaining codes)
+- [x] Add security audit logging for failed 2FA attempts
+- [x] Add WebSocket auth failure detection (codes 4001/4003)
+- [x] Create `useWebSocket` hook tests
+- [x] Enhance WebSocket client auth + error tests
 - [ ] Run Dart contract codegen sync (`npx tsx scripts/sync-contracts-to-dart.ts`)
 
 ---
 
-## Files to Modify
+## Files Modified
 
 | File | Changes |
 |------|---------|
-| `apps/mobile/sahool_field_app/lib/core/auth/permission_service.dart` | Update UserRole enum |
-| `apps/mobile/lib/core/auth/auth_service.dart` | Add UserStatus, update User model |
-| `apps/mobile/lib/core/api/kong_gateway_client.dart` | No changes needed |
-| `apps/mobile/test/features/auth/auth_mocks.dart` | Update test fixtures |
-| `apps/mobile/sahool_field_app/test/unit/core/auth/auth_models_test.dart` | Use enum values |
+| `shared/auth/dependencies.py` | Token revocation check, 2FA enforcement, optional user revocation |
+| `shared/auth/user_repository.py` | `AsyncpgUserRepository` implementation, SQLAlchemy fallback |
+| `shared/auth/twofa_service.py` | Backup code invalidation, security audit logging |
+| `packages/nestjs-auth/src/services/token-revocation.ts` | Fail-closed on Redis errors |
+| `packages/nestjs-auth/src/auth.module.ts` | `forRootAsync` with token revocation exports |
+| `apps/web/src/hooks/useWebSocket.ts` | JWT token param, auth failure detection |
+| `apps/web/src/lib/ws/index.ts` | `setToken()`, auth failure handling |
+| `apps/mobile/lib/core/storage/database.dart` | `CachedUsers`, `CachedUserProfiles` tables |
+| `apps/mobile/lib/core/auth/permission_service.dart` | Role documentation |
+| `apps/mobile/lib/core/auth/token_manager.dart` | `TokenRotationInfo`, `AccountLockoutInfo` |
+| `apps/mobile/lib/core/iam/models/iam_models.dart` | `UserIdentity` deprecation note |
+| `apps/web/src/hooks/__tests__/useWebSocket.test.ts` | New test file |
+| `apps/web/src/lib/ws/__tests__/websocket-client.test.ts` | Auth + error tests |

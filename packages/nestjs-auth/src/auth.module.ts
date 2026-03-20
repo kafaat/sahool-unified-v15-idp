@@ -324,23 +324,11 @@ export class AuthModule {
           },
           inject: [AUTH_CONFIG_TOKEN, { token: "REDIS_CLIENT", optional: true }],
         },
-        // Token revocation providers registered conditionally
-        {
-          provide: TokenRevocationGuard,
-          useFactory: (config: AuthModuleOptions) => {
-            if (config.enableTokenRevocation === false) return undefined;
-            return new TokenRevocationGuard();
-          },
-          inject: [AUTH_CONFIG_TOKEN],
-        },
-        {
-          provide: TokenRevocationInterceptor,
-          useFactory: (config: AuthModuleOptions) => {
-            if (config.enableTokenRevocation === false) return undefined;
-            return new TokenRevocationInterceptor();
-          },
-          inject: [AUTH_CONFIG_TOKEN],
-        },
+        // Token revocation providers - registered as classes so NestJS DI
+        // resolves their constructor dependencies. The guard itself checks
+        // the @SkipRevocationCheck() decorator to bypass when not needed.
+        TokenRevocationGuard,
+        TokenRevocationInterceptor,
       ],
       exports: [
         JwtModule,

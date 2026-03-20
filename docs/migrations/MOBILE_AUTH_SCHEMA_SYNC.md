@@ -81,17 +81,17 @@ enum UserStatus {
 
 | Field | Prisma Schema | Mobile | Status |
 |-------|--------------|--------|--------|
-| `firstName` | Separate field | Combined into `name` | INCOMPLETE |
-| `lastName` | Separate field | Combined into `name` | INCOMPLETE |
-| `firstNameAr` | Separate field | Not supported | MISSING |
-| `lastNameAr` | Separate field | Not supported | MISSING |
-| `nameAr` | Separate field | Not supported | MISSING |
-| `status` | `UserStatus` enum | Not modeled | MISSING |
-| `emailVerified` | Boolean | Not tracked | MISSING |
-| `phoneVerified` | Boolean | Not tracked | MISSING |
-| `avatarUrl` | In `UserProfile` model | Directly on User | MISPLACED |
-| `failedLoginAttempts` | Integer | Not tracked | MISSING |
-| `lockoutUntil` | DateTime? | Not tracked | MISSING |
+| `firstName` | Separate field | Separate field | DONE |
+| `lastName` | Separate field | Separate field | DONE |
+| `firstNameAr` | Separate field | Separate field | DONE |
+| `lastNameAr` | Separate field | Separate field | DONE |
+| `nameAr` | Separate field | Separate field | DONE |
+| `status` | `UserStatus` enum | `UserStatus` enum | DONE |
+| `emailVerified` | Boolean | Boolean (default: false) | DONE |
+| `phoneVerified` | Boolean | Boolean (default: false) | DONE |
+| `avatarUrl` | In `UserProfile` model | In `UserProfile` model | DONE |
+| `failedLoginAttempts` | Integer | Not tracked | BACKLOG |
+| `lockoutUntil` | DateTime? | Not tracked | BACKLOG |
 
 ---
 

@@ -5,11 +5,14 @@
  * مكون قائمة الحقول
  */
 
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import { Grid3x3, List, Map as MapIcon, Search, Plus } from "lucide-react";
 import { useFields } from "../hooks/useFields";
 import { FieldCard } from "./FieldCard";
 import type { FieldViewMode, FieldFilters } from "../types";
+
+// Lazy-load the map component to avoid loading leaflet on initial render
+const FieldMap = lazy(() => import("./FieldMap.dynamic"));
 
 interface FieldsListProps {
   onFieldClick?: (fieldId: string) => void;
@@ -99,7 +102,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({
         </div>
       </div>
 
-      {/* Fields Grid/List */}
+      {/* Fields Grid/List/Map */}
       {!fields || fields.length === 0 ? (
         <div className="text-center py-16">
           <MapIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -116,6 +119,20 @@ export const FieldsList: React.FC<FieldsListProps> = ({
             </button>
           )}
         </div>
+      ) : viewMode === "map" ? (
+        <Suspense
+          fallback={
+            <div className="h-[500px] bg-gray-100 rounded-xl border-2 border-gray-200 animate-pulse flex items-center justify-center">
+              <p className="text-gray-500">جاري تحميل الخريطة...</p>
+            </div>
+          }
+        >
+          <FieldMap
+            fields={fields}
+            height="500px"
+            onFieldClick={(fieldId) => onFieldClick?.(fieldId)}
+          />
+        </Suspense>
       ) : (
         <div
           className={

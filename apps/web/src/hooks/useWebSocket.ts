@@ -211,13 +211,15 @@ export function useWebSocket({
         }, backoff);
       };
 
-      ws.onerror = (event) => {
+      ws.onerror = () => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        logger.error("WebSocket error:", event);
-        setError("Connection error");
+        // Use warn instead of error to avoid triggering Next.js error overlay
+        // WebSocket unavailability is expected when backend services are down
+        logger.warn("WebSocket connection unavailable");
+        setError("Connection unavailable");
       };
     } catch (err) {
-      logger.error("Failed to connect WebSocket:", err);
+      logger.warn("WebSocket unavailable:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
   }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);

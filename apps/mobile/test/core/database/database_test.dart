@@ -9,6 +9,8 @@
 /// - Error handling
 ///
 /// Uses in-memory database for testing
+import 'dart:convert';
+
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -1025,7 +1027,7 @@ void main() {
 
     test('should mark task done with evidence photos as JSON array', () async {
       final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
-      final photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
+      final photosJson = jsonEncode(photos);
 
       await (db.update(db.testTasks)
             ..where((t) => t.id.equals('mark-done-1')))

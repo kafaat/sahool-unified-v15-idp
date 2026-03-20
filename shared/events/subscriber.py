@@ -95,10 +95,23 @@ class SubscriberConfig(BaseModel):
         description="JetStream domain (default: sahool)",
     )
 
-    # Error handling (DEPRECATED - use dlq_config instead)
-    enable_error_retry: bool = Field(default=True, description="Retry failed messages")
-    max_error_retries: int = Field(default=3, description="Maximum error retries per message")
-    error_retry_delay: float = Field(default=1.0, description="Delay between error retries")
+    # Error handling — DEPRECATED: use dlq_config + DLQConfig instead.
+    # These fields will be removed in v17.0.0.
+    enable_error_retry: bool = Field(
+        default=True,
+        description="DEPRECATED: Retry failed messages. Use dlq_config instead.",
+        deprecated=True,
+    )
+    max_error_retries: int = Field(
+        default=3,
+        description="DEPRECATED: Maximum error retries per message. Use dlq_config instead.",
+        deprecated=True,
+    )
+    error_retry_delay: float = Field(
+        default=1.0,
+        description="DEPRECATED: Delay between error retries. Use dlq_config instead.",
+        deprecated=True,
+    )
 
     # Performance
     max_concurrent_messages: int = Field(default=10, description="Max concurrent message processing")

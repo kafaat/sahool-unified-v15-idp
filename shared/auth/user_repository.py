@@ -100,11 +100,18 @@ class UserRepository:
 
         try:
             if SQLALCHEMY_AVAILABLE and self.session:
+                try:
+                    user_model = self._get_user_model()
+                except NotImplementedError:
+                    logger.warning(
+                        "UserRepository._get_user_model() not implemented. "
+                        "Subclass UserRepository and override _get_user_model()."
+                    )
+                    return None
+
                 # SQLAlchemy async session query
                 result = await self.session.execute(
-                    select(self._get_user_model()).where(
-                        self._get_user_model().id == user_id
-                    )
+                    select(user_model).where(user_model.id == user_id)
                 )
                 user = result.scalar_one_or_none()
 
@@ -112,15 +119,18 @@ class UserRepository:
                     logger.warning(f"User {user_id} not found in database")
                     return None
 
+                # Fail-closed: default to restrictive values when attributes
+                # are missing, so an incomplete user model denies access
+                # rather than silently granting it.
                 return UserValidationData(
                     user_id=str(user.id),
                     email=getattr(user, "email", ""),
-                    is_active=getattr(user, "is_active", True),
-                    is_verified=getattr(user, "is_verified", True),
+                    is_active=getattr(user, "is_active", False),
+                    is_verified=getattr(user, "is_verified", False),
                     roles=getattr(user, "roles", []) or [],
                     tenant_id=getattr(user, "tenant_id", None),
-                    is_deleted=getattr(user, "is_deleted", False),
-                    is_suspended=getattr(user, "is_suspended", False),
+                    is_deleted=getattr(user, "is_deleted", True),
+                    is_suspended=getattr(user, "is_suspended", True),
                 )
 
             logger.warning(

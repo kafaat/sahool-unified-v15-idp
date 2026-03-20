@@ -139,7 +139,7 @@ describe("useWebSocket", () => {
   });
 
   describe("Authentication", () => {
-    it("should pass token via Sec-WebSocket-Protocol subprotocol", () => {
+    it("should pass token via query parameter", () => {
       renderHook(() =>
         useWebSocket({
           url: "ws://localhost:8081",
@@ -147,14 +147,10 @@ describe("useWebSocket", () => {
         }),
       );
 
-      expect(wsInstances[0]?.url).not.toContain("token=");
-      expect(wsInstances[0]?.protocols).toEqual([
-        "v1.sahool.events",
-        "auth.my-jwt-token",
-      ]);
+      expect(wsInstances[0]?.url).toContain("token=my-jwt-token");
     });
 
-    it("should not pass protocols when token is null", () => {
+    it("should not include token param when token is null", () => {
       renderHook(() =>
         useWebSocket({
           url: "ws://localhost:8081",
@@ -162,18 +158,7 @@ describe("useWebSocket", () => {
         }),
       );
 
-      expect(wsInstances[0]?.protocols).toBeUndefined();
-    });
-
-    it("should not leak token in URL", () => {
-      renderHook(() =>
-        useWebSocket({
-          url: "ws://localhost:8081",
-          token: "secret-token",
-        }),
-      );
-
-      expect(wsInstances[0]?.url).not.toContain("secret-token");
+      expect(wsInstances[0]?.url).not.toContain("token=");
     });
 
     it("should set error on auth failure close (code 4001)", () => {

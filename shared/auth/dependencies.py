@@ -251,7 +251,7 @@ async def get_current_user(
 
 async def require_2fa_verified(
     user: User = Depends(get_current_user),
-    request: Request = None,
+    request: Request = Depends(),
 ) -> User:
     """
     Dependency that enforces 2FA verification.
@@ -262,6 +262,7 @@ async def require_2fa_verified(
 
     Args:
         user: Authenticated user from get_current_user
+        request: FastAPI request (injected by DI, never None)
 
     Returns:
         User object if 2FA is verified
@@ -276,15 +277,22 @@ async def require_2fa_verified(
             ...
         ```
     """
-    # Check if the token was issued after 2FA verification
-    # The JWT should contain twofa_verified=true if 2FA was completed
-    if request and hasattr(request.state, "token_payload"):
-        payload = request.state.token_payload
-        if getattr(payload, "twofa_required", False) and not getattr(payload, "twofa_verified", False):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Two-factor authentication is required for this operation",
-            )
+    # Fail-closed: if token_payload is missing from request state,
+    # we cannot verify 2FA status. get_current_user always sets it
+    # when request is available, so this should not happen in practice.
+    if not hasattr(request.state, "token_payload"):
+        logger.warning("require_2fa_verified: token_payload missing from request state")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Two-factor authentication is required for this operation",
+        )
+
+    payload = request.state.token_payload
+    if getattr(payload, "twofa_required", False) and not getattr(payload, "twofa_verified", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Two-factor authentication is required for this operation",
+        )
     return user
 
 
@@ -674,7 +682,7 @@ async def get_optional_user(
             permissions=payload.permissions,
         )
     except AuthException as e:
-        logger.debug(f"Optional auth failed: {e.error.value}")
+        logger.debug(f"Optional auth failed: {e.error.code}")
         return None
     except Exception as e:
         logger.warning(f"Unexpected error in optional auth: {type(e).__name__}: {e}")

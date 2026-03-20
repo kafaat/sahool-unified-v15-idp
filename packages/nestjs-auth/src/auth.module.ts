@@ -320,6 +320,12 @@ export class AuthModule {
           provide: UserValidationService,
           useFactory: (config: AuthModuleOptions, redis: any) => {
             if (config.enableUserValidation === false) return undefined;
+            if (!redis) {
+              console.warn(
+                "[AuthModule] REDIS_CLIENT not available — UserValidationService " +
+                "will operate without caching. Provide REDIS_CLIENT for production use.",
+              );
+            }
             return new UserValidationService(redis, config.userRepository);
           },
           inject: [AUTH_CONFIG_TOKEN, { token: "REDIS_CLIENT", optional: true }],

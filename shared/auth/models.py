@@ -78,6 +78,8 @@ class TokenPayload:
     jti: str | None = None  # Token ID for revocation
     token_type: str = "access"  # access or refresh
     permissions: list[str] = field(default_factory=list)
+    twofa_required: bool = False  # Whether 2FA is required for this user
+    twofa_verified: bool = False  # Whether 2FA was completed for this session
 
     def has_role(self, role: str) -> bool:
         """Check if user has a specific role"""

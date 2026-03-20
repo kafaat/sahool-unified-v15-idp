@@ -301,21 +301,17 @@ describe("WebSocket Client", () => {
   });
 
   describe("Authentication", () => {
-    it("should pass token via Sec-WebSocket-Protocol when setToken is called", async () => {
+    it("should pass token via query parameter when setToken is called", async () => {
       const { wsClient } = await import("../index");
       wsClient.setToken("test-jwt-token-123");
       wsClient.connect();
       await vi.advanceTimersByTimeAsync(10);
 
       const ws = wsInstances[0]!;
-      expect(ws.url).not.toContain("token=");
-      expect(ws.protocols).toEqual([
-        "v1.sahool.events",
-        "auth.test-jwt-token-123",
-      ]);
+      expect(ws.url).toContain("token=test-jwt-token-123");
     });
 
-    it("should not pass protocols when setToken is called with null", async () => {
+    it("should not include token param when setToken is called with null", async () => {
       const { wsClient } = await import("../index");
       wsClient.setToken(null);
       wsClient.connect();
@@ -323,7 +319,6 @@ describe("WebSocket Client", () => {
 
       const ws = wsInstances[0]!;
       expect(ws.url).not.toContain("token=");
-      expect(ws.protocols).toBeUndefined();
     });
 
     it("should not reconnect on auth failure (code 4001)", async () => {

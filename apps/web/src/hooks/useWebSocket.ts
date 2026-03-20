@@ -135,12 +135,13 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      // Pass JWT token via Sec-WebSocket-Protocol subprotocol header.
-      // This avoids leaking tokens in URL query strings (server logs, referer).
-      // ws-gateway extracts the token from the second subprotocol value.
-      const ws = token
-        ? new WebSocket(url, ["v1.sahool.events", `auth.${token}`])
-        : new WebSocket(url);
+      // Pass JWT token via query parameter.
+      // Browser WebSocket API does not support custom headers, and ws-gateway
+      // reads the token from the Authorization header or ?token= query param.
+      const wsUrl = token
+        ? `${url}${url.includes("?") ? "&" : "?"}token=${encodeURIComponent(token)}`
+        : url;
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {

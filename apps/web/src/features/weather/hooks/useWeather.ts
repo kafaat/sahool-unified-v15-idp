@@ -5,6 +5,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { WeatherData, WeatherAlert, ForecastDataPoint } from "../types";
+import { WEATHER_ENDPOINTS } from "@sahool/shared-types/contracts";
+import { createApiClient } from "@/lib/api/factory";
 import { logger } from "@/lib/logger";
 
 // API Response Types
@@ -36,15 +38,7 @@ interface ApiWeatherAlert {
   isActive?: boolean;
 }
 
-// API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  logger.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const WEATHER_API_BASE = `${API_BASE_URL}/api/v1/weather`;
+const api = createApiClient();
 
 // Default coordinates for Yemen (Sana'a)
 const DEFAULT_COORDS = { lat: 15.3694, lon: 44.191 };
@@ -60,22 +54,11 @@ async function fetchCurrentWeather(
   const longitude = lon ?? DEFAULT_COORDS.lon;
 
   try {
-    const response = await fetch(
-      `${WEATHER_API_BASE}/current?lat=${latitude}&lon=${longitude}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
+    const response = await api.get(WEATHER_ENDPOINTS.CURRENT, {
+      params: { lat: latitude, lon: longitude },
+    });
 
-    if (!response.ok) {
-      throw new Error(`فشل الحصول على بيانات الطقس: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = response.data;
 
     // Transform API response to our WeatherData format
     return {
@@ -111,22 +94,11 @@ async function fetchWeatherForecast(
   const longitude = lon ?? DEFAULT_COORDS.lon;
 
   try {
-    const response = await fetch(
-      `${WEATHER_API_BASE}/forecast?lat=${latitude}&lon=${longitude}&days=${days}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
+    const response = await api.get(WEATHER_ENDPOINTS.FORECAST, {
+      params: { lat: latitude, lon: longitude, days },
+    });
 
-    if (!response.ok) {
-      throw new Error(`فشل الحصول على توقعات الطقس: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = response.data;
 
     // Transform API response to our ForecastDataPoint format
     const forecastData = data.forecast || data.daily_forecast || [];
@@ -166,22 +138,11 @@ async function fetchWeatherAlerts(
   const longitude = lon ?? DEFAULT_COORDS.lon;
 
   try {
-    const response = await fetch(
-      `${WEATHER_API_BASE}/alerts?lat=${latitude}&lon=${longitude}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
+    const response = await api.get(WEATHER_ENDPOINTS.ALERTS, {
+      params: { lat: latitude, lon: longitude },
+    });
 
-    if (!response.ok) {
-      throw new Error(`فشل الحصول على تنبيهات الطقس: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = response.data;
     const alerts = data.alerts || [];
 
     return alerts.map((alert: ApiWeatherAlert) => ({

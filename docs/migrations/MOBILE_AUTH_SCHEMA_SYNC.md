@@ -89,7 +89,7 @@ enum UserStatus {
 | `status` | `UserStatus` enum | `UserStatus` enum | DONE |
 | `emailVerified` | Boolean | Boolean (default: false) | DONE |
 | `phoneVerified` | Boolean | Boolean (default: false) | DONE |
-| `avatarUrl` | In `UserProfile` model | In `UserProfile` model | DONE |
+| `avatarUrl` | In `UserProfile` model | On `User` (no `UserProfile` model yet) | TODO |
 | `failedLoginAttempts` | Integer | Not tracked | BACKLOG |
 | `lockoutUntil` | DateTime? | Not tracked | BACKLOG |
 

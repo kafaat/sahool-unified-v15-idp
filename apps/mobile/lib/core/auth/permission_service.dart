@@ -105,13 +105,20 @@ enum UserStatus {
 /// System roles (aligned with Prisma UserRole enum)
 /// الأدوار: ADMIN, MANAGER, FARMER, WORKER, VIEWER from backend
 /// plus mobile-specific: supervisor, superAdmin
+/// User roles aligned with backend Prisma schema.
+/// Backend roles: ADMIN, MANAGER, FARMER, WORKER, VIEWER
+/// Mobile-only: supervisor, superAdmin (for future backend alignment)
 enum UserRole {
   viewer('viewer', 'مشاهد'),
   worker('worker', 'عامل ميداني'),
   farmer('farmer', 'مزارع'),
+  /// Mobile-only role, not yet in backend Prisma schema.
+  /// Maps to manager-level permissions with field oversight focus.
   supervisor('supervisor', 'مشرف'),
   manager('manager', 'مدير'),
   admin('admin', 'مسؤول'),
+  /// Mobile-only role, not yet in backend Prisma schema.
+  /// Maps to admin-level permissions with system-wide access.
   superAdmin('super_admin', 'مسؤول النظام');
 
   final String value;

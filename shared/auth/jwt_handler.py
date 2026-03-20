@@ -187,6 +187,8 @@ def verify_token(token: str) -> TokenPayload:
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
             permissions=payload.get("permissions", []),
+            twofa_required=payload.get("twofa_required", False),
+            twofa_verified=payload.get("twofa_verified", False),
         )
 
     except jwt.ExpiredSignatureError:

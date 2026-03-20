@@ -263,6 +263,8 @@ export class AuthModule {
     ) => Promise<AuthModuleOptions> | AuthModuleOptions;
     inject?: any[];
   }): DynamicModule {
+    const AUTH_CONFIG_TOKEN = "AUTH_MODULE_OPTIONS";
+
     return {
       module: AuthModule,
       imports: [
@@ -286,13 +288,53 @@ export class AuthModule {
         }),
       ],
       providers: [
+        // Resolve config so conditional providers can read it
+        {
+          provide: AUTH_CONFIG_TOKEN,
+          useFactory: options.useFactory,
+          inject: options.inject,
+        },
         JwtAuthGuard,
         RolesGuard,
         PermissionsGuard,
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
-        JwtStrategy,
+        // JwtStrategy conditionally uses UserValidationService
+        {
+          provide: JwtStrategy,
+          useFactory: (
+            config: AuthModuleOptions,
+            userValidationService?: UserValidationService,
+          ) => {
+            return new JwtStrategy(
+              config.enableUserValidation !== false
+                ? userValidationService
+                : undefined,
+            );
+          },
+          inject: [AUTH_CONFIG_TOKEN, { token: UserValidationService, optional: true }],
+        },
+        // UserValidationService registered conditionally via factory
+        {
+          provide: UserValidationService,
+          useFactory: (config: AuthModuleOptions, redis: any) => {
+            if (config.enableUserValidation === false) return undefined;
+            if (!redis) {
+              console.warn(
+                "[AuthModule] REDIS_CLIENT not available — UserValidationService " +
+                "will operate without caching. Provide REDIS_CLIENT for production use.",
+              );
+            }
+            return new UserValidationService(redis, config.userRepository);
+          },
+          inject: [AUTH_CONFIG_TOKEN, { token: "REDIS_CLIENT", optional: true }],
+        },
+        // Token revocation providers - registered as classes so NestJS DI
+        // resolves their constructor dependencies. The guard itself checks
+        // the @SkipRevocationCheck() decorator to bypass when not needed.
+        TokenRevocationGuard,
+        TokenRevocationInterceptor,
       ],
       exports: [
         JwtModule,
@@ -304,6 +346,9 @@ export class AuthModule {
         OptionalAuthGuard,
         ActiveAccountGuard,
         JwtStrategy,
+        UserValidationService,
+        TokenRevocationGuard,
+        TokenRevocationInterceptor,
       ],
     };
   }

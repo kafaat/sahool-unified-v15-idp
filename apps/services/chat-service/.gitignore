@@ -32,8 +32,8 @@ npm-debug.log*
 coverage/
 .nyc_output/
 
-# Prisma
-prisma/migrations/
+# Prisma generated client
+prisma/generated/
 
 # Misc
 .cache/

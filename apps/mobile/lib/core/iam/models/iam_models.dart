@@ -192,7 +192,7 @@ class UserIdentity {
       emailVerified: json['email_verified'] as bool? ?? false,
       phoneVerified: json['phone_verified'] as bool? ?? false,
       status: (json['status'] as String? ?? 'active').toLowerCase(),
-      isActive: json['is_active'] as bool? ?? ((json['status'] as String?)?.toLowerCase() == 'active'),
+      isActive: json['is_active'] as bool? ?? ((json['status'] as String? ?? 'active').toLowerCase() == 'active'),
       mfaEnabled: json['mfa_enabled'] as bool? ?? false,
       preferredLanguage: json['preferred_language'] as String? ?? 'ar',
       createdAt: json['created_at'] != null

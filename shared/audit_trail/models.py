@@ -20,7 +20,9 @@ Updated: January 2026
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
+import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
@@ -340,7 +342,14 @@ class AuditEntry:
             self.entry_hash = self._calculate_hash()
 
     def _calculate_hash(self) -> str:
-        """Calculate SHA-256 hash for tamper detection."""
+        """
+        Calculate HMAC-SHA256 hash for tamper detection.
+        حساب تجزئة HMAC-SHA256 لكشف التلاعب
+
+        Uses a server-side secret so that hashes cannot be forged by an
+        attacker who only has access to the stored data.  Falls back to
+        plain SHA-256 when the secret is not configured (development).
+        """
         hash_data = {
             "id": self.id,
             "tenant_id": self.tenant_id,
@@ -351,8 +360,14 @@ class AuditEntry:
             "resource_id": self.resource_id,
             "prev_hash": self.prev_hash,
         }
-        hash_string = json.dumps(hash_data, sort_keys=True)
-        return hashlib.sha256(hash_string.encode()).hexdigest()
+        hash_string = json.dumps(hash_data, sort_keys=True).encode()
+
+        secret = os.getenv("AUDIT_HMAC_SECRET", "")
+        if secret:
+            return hmac.new(
+                secret.encode(), hash_string, hashlib.sha256
+            ).hexdigest()
+        return hashlib.sha256(hash_string).hexdigest()
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage/serialization."""

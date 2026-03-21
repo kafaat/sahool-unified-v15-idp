@@ -1364,5 +1364,93 @@ class TestIntegration:
         assert failed[0].error_code == "NOT_FOUND"
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# A-05: HMAC Signing Tests
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestHMACSigning:
+    """Tests for HMAC-based audit log signing (A-05)."""
+
+    def test_hmac_signing_with_secret(self, monkeypatch):
+        """When AUDIT_HMAC_SECRET is set, hash uses HMAC-SHA256."""
+        monkeypatch.setenv("AUDIT_HMAC_SECRET", "test-secret-32-chars-minimum!!")
+
+        entry = AuditEntry(
+            tenant_id="farm-001",
+            actor_id="user-001",
+            action=AuditActionType.CREATE,
+            resource_type="field",
+            resource_id="field-001",
+        )
+
+        assert entry.entry_hash is not None
+        assert len(entry.entry_hash) == 64
+
+    def test_different_secrets_produce_different_hashes(self, monkeypatch):
+        """Different secrets must produce different hashes for identical data."""
+        fixed_id = "test-entry-001"
+        ts = datetime(2026, 1, 1, tzinfo=UTC)
+
+        monkeypatch.setenv("AUDIT_HMAC_SECRET", "secret-A")
+        entry_a = AuditEntry(
+            id=fixed_id,
+            tenant_id="farm-001",
+            actor_id="user-001",
+            action=AuditActionType.CREATE,
+            resource_type="field",
+            resource_id="field-001",
+            timestamp=ts,
+        )
+
+        monkeypatch.setenv("AUDIT_HMAC_SECRET", "secret-B")
+        # Force recalculation with new secret
+        entry_b = AuditEntry(
+            id=fixed_id,
+            tenant_id="farm-001",
+            actor_id="user-001",
+            action=AuditActionType.CREATE,
+            resource_type="field",
+            resource_id="field-001",
+            timestamp=ts,
+        )
+
+        assert entry_a.entry_hash != entry_b.entry_hash
+
+    def test_tampered_entry_fails_verification(self, monkeypatch):
+        """Modifying entry data must break hash verification."""
+        monkeypatch.setenv("AUDIT_HMAC_SECRET", "test-secret-for-tamper-check")
+
+        entry = AuditEntry(
+            tenant_id="farm-001",
+            actor_id="user-001",
+            action=AuditActionType.CREATE,
+            resource_type="field",
+            resource_id="field-001",
+        )
+        original_hash = entry.entry_hash
+
+        # Tamper with the data
+        entry.actor_id = "attacker-001"
+
+        # Hash should no longer match
+        assert entry._calculate_hash() != original_hash
+
+    def test_fallback_to_sha256_without_secret(self, monkeypatch):
+        """Without AUDIT_HMAC_SECRET, falls back to plain SHA-256."""
+        monkeypatch.delenv("AUDIT_HMAC_SECRET", raising=False)
+
+        entry = AuditEntry(
+            tenant_id="farm-001",
+            actor_id="user-001",
+            action=AuditActionType.CREATE,
+            resource_type="field",
+            resource_id="field-001",
+        )
+
+        assert entry.entry_hash is not None
+        assert len(entry.entry_hash) == 64
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

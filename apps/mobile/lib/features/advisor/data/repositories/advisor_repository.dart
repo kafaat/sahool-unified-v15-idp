@@ -148,7 +148,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => DeficiencySymptom.fromJson(e)).toList();
+        return data.map((e) => DeficiencySymptom.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch symptoms',
@@ -180,7 +180,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => CropWaterRequirement.fromJson(e)).toList();
+        return data.map((e) => CropWaterRequirement.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch irrigation crops',
@@ -207,7 +207,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => IrrigationMethodOption.fromJson(e)).toList();
+        return data.map((e) => IrrigationMethodOption.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch irrigation methods',
@@ -236,7 +236,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return IrrigationCalculation.fromJson(json.decode(response.body));
+        return IrrigationCalculation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to calculate irrigation',
@@ -273,7 +273,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return WaterBalance.fromJson(json.decode(response.body));
+        return WaterBalance.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get water balance',
@@ -300,7 +300,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return WaterBalance.fromJson(json.decode(response.body));
+        return WaterBalance.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to submit sensor reading',

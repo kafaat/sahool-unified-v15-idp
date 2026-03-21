@@ -232,7 +232,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildHealthScoreCard(dynamic fieldHealth, BuildContext context, bool isArabic) {
+  Widget _buildHealthScoreCard(FieldHealth fieldHealth, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () {
         // Show health details dialog
@@ -270,7 +270,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildNdviCard(dynamic ndviAnalysis, BuildContext context, bool isArabic) {
+  Widget _buildNdviCard(NdviAnalysis ndviAnalysis, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToNdviDetail(context),
       child: Container(
@@ -356,7 +356,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildGrowthStageCard(dynamic phenologyData, BuildContext context, bool isArabic) {
+  Widget _buildGrowthStageCard(PhenologyData phenologyData, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToPhenology(context),
       child: Container(
@@ -414,7 +414,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildAlertsSection(List<dynamic> alerts, bool isArabic) {
+  Widget _buildAlertsSection(List<HealthAlert> alerts, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -452,7 +452,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildRecommendationsSection(List<dynamic> recommendations, bool isArabic) {
+  Widget _buildRecommendationsSection(List<Recommendation> recommendations, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

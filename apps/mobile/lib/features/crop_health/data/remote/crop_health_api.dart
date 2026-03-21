@@ -19,8 +19,9 @@ class CropHealthApi {
   /// قائمة المناطق في الحقل
   Future<List<Zone>> getZones(String fieldId) async {
     final response = await _client.get('$_baseUrl/fields/$fieldId/zones');
-    final zones = response['zones'] as List;
-    return zones.map((z) => Zone.fromJson(z)).toList();
+    final data = response as Map<String, dynamic>;
+    final zones = data['zones'] as List;
+    return zones.map((z) => Zone.fromJson(z as Map<String, dynamic>)).toList();
   }
 
   /// إنشاء منطقة جديدة
@@ -45,7 +46,7 @@ class CropHealthApi {
 
   /// GeoJSON للمناطق
   Future<Map<String, dynamic>> getZonesGeoJson(String fieldId) async {
-    return await _client.get('$_baseUrl/fields/$fieldId/zones.geojson');
+    return await _client.get('$_baseUrl/fields/$fieldId/zones.geojson') as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -87,7 +88,8 @@ class CropHealthApi {
       '$_baseUrl/fields/$fieldId/zones/$zoneId/observations',
       queryParameters: {'limit': limit},
     );
-    return List<Map<String, dynamic>>.from(response['observations']);
+    final data = response as Map<String, dynamic>;
+    return List<Map<String, dynamic>>.from(data['observations'] as Iterable);
   }
 
   // ═══════════════════════════════════════════════════════════════

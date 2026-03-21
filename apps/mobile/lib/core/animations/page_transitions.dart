@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// SAHOOL Page Transitions - انتقالات الصفحات المتقدمة
 /// Comprehensive page transition system for smooth navigation

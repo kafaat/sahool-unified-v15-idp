@@ -325,6 +325,7 @@ class AuditEntry:
     # Hash chain for tamper detection
     prev_hash: str | None = None
     entry_hash: str | None = None
+    hash_version: int = 2  # v1 = original fields only, v2 = extended fields
 
     # Retention
     retention_period: RetentionPeriod = RetentionPeriod.GLOBALGAP
@@ -341,7 +342,7 @@ class AuditEntry:
         if not self.entry_hash:
             self.entry_hash = self._calculate_hash()
 
-    def _calculate_hash(self) -> str:
+    def _calculate_hash(self, *, version: int | None = None) -> str:
         """
         Calculate HMAC-SHA256 hash for tamper detection.
         حساب تجزئة HMAC-SHA256 لكشف التلاعب
@@ -349,28 +350,50 @@ class AuditEntry:
         Uses a server-side secret so that hashes cannot be forged by an
         attacker who only has access to the stored data.  Falls back to
         plain SHA-256 when the secret is not configured (development).
+
+        Args:
+            version: Hash version to use. Defaults to self.hash_version.
+                     v1 = original fields only (legacy entries).
+                     v2 = extended fields (current).
         """
-        hash_data = {
-            "id": self.id,
-            "tenant_id": self.tenant_id,
-            "timestamp": self.timestamp.isoformat(),
-            "actor_id": self.actor_id,
-            "actor_type": self.actor_type.value,
-            "action": self.action.value,
-            "category": self.category.value,
-            "severity": self.severity.value,
-            "resource_type": self.resource_type,
-            "resource_id": self.resource_id,
-            "changes": [c.to_dict() for c in self.changes],
-            "before_state": self.before_state,
-            "after_state": self.after_state,
-            "success": self.success,
-            "error_code": self.error_code,
-            "error_message": self.error_message,
-            "metadata": self.metadata.to_dict(),
-            "prev_hash": self.prev_hash,
-        }
-        hash_string = json.dumps(hash_data, sort_keys=True).encode()
+        v = version if version is not None else self.hash_version
+
+        if v == 1:
+            # Legacy hash: original fields only (backward-compatible)
+            hash_data = {
+                "id": self.id,
+                "tenant_id": self.tenant_id,
+                "timestamp": self.timestamp.isoformat(),
+                "actor_id": self.actor_id,
+                "action": self.action.value,
+                "resource_type": self.resource_type,
+                "resource_id": self.resource_id,
+                "prev_hash": self.prev_hash,
+            }
+        else:
+            # v2: extended fields for stronger tamper detection
+            hash_data = {
+                "id": self.id,
+                "tenant_id": self.tenant_id,
+                "timestamp": self.timestamp.isoformat(),
+                "actor_id": self.actor_id,
+                "actor_type": self.actor_type.value,
+                "action": self.action.value,
+                "category": self.category.value,
+                "severity": self.severity.value,
+                "resource_type": self.resource_type,
+                "resource_id": self.resource_id,
+                "changes": [c.to_dict() for c in self.changes],
+                "before_state": self.before_state,
+                "after_state": self.after_state,
+                "success": self.success,
+                "error_code": self.error_code,
+                "error_message": self.error_message,
+                "metadata": self.metadata.to_dict(),
+                "prev_hash": self.prev_hash,
+            }
+
+        hash_string = json.dumps(hash_data, sort_keys=True, default=str).encode()
 
         secret = os.getenv("AUDIT_HMAC_SECRET", "")
         if secret:
@@ -408,6 +431,7 @@ class AuditEntry:
             "metadata": self.metadata.to_dict(),
             "prev_hash": self.prev_hash,
             "entry_hash": self.entry_hash,
+            "hash_version": self.hash_version,
             "retention_period": self.retention_period.value,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
         }

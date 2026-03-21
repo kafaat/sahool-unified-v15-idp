@@ -905,8 +905,8 @@ class AuditTrailLogger:
             if entry.prev_hash != prev_hash:
                 invalid_entries.append(entry.id)
 
-            # Recalculate hash and compare
-            expected_hash = entry._calculate_hash()
+            # Recalculate hash using the entry's own hash_version
+            expected_hash = entry._calculate_hash(version=entry.hash_version)
             if entry.entry_hash != expected_hash:
                 invalid_entries.append(entry.id)
 

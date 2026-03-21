@@ -73,8 +73,8 @@ class WebSocketClient {
 
   /**
    * Set JWT token for authenticated WebSocket connections.
-   * Token is passed via Sec-WebSocket-Protocol subprotocol header
-   * to avoid leaking credentials in URL query strings.
+   * Token is passed via query parameter (?token=) as ws-gateway
+   * reads it from Authorization header or ?token= query param.
    */
   setToken(token: string | null) {
     this.token = token;

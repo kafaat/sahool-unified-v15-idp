@@ -114,7 +114,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return FieldHealth.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -137,7 +137,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherSummary.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -156,7 +156,7 @@ class SatelliteApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> alerts = data['alerts'] ?? data;
+      final List<dynamic> alerts = (data['alerts'] ?? data) as List<dynamic>;
       return alerts.map((item) => WeatherAlertSummary.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(

@@ -636,11 +636,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeOutBack,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    return push(DialogPopTransition(
+    return push<T>(DialogPopTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 }
 

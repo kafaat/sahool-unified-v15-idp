@@ -213,8 +213,8 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['image_url'] ?? json['imageUrl'] ?? '';
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return (json['image_url'] ?? json['imageUrl'] ?? '') as String;
     } else {
       throw SatelliteApiException(
         'فشل جلب صورة القمر الصناعي',

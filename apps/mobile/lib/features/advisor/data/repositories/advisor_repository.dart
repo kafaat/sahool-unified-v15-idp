@@ -87,7 +87,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return FertilizerRecommendation.fromJson(json.decode(response.body));
+        return FertilizerRecommendation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get recommendation',
@@ -114,7 +114,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return SoilInterpretation.fromJson(json.decode(response.body));
+        return SoilInterpretation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to interpret soil',

@@ -6,6 +6,9 @@ Tests for quality level classification, issue severity,
 audit actions, and quality report generation.
 """
 
+import pytest
+
+pytest.importorskip("structlog")
 
 from shared.ai.quality_orchestrator import (
     AuditAction,

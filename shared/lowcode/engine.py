@@ -180,13 +180,18 @@ _MAX_REGEX_LENGTH = 500
 
 
 def _validate_regex_pattern(pattern: str) -> str:
-    """Validate regex pattern to prevent ReDoS attacks."""
+    """Validate regex pattern to mitigate ReDoS attacks.
+
+    Enforces length limits and syntax validation. For Python < 3.12,
+    time-bounded matching is not natively supported, so we rely on
+    pattern length restriction as the primary defense.
+    """
     import re
 
     if len(pattern) > _MAX_REGEX_LENGTH:
         raise ValueError(f"Regex pattern exceeds maximum length of {_MAX_REGEX_LENGTH}")
     try:
-        re.compile(pattern, re.TIMEOUT if hasattr(re, "TIMEOUT") else 0)
+        re.compile(pattern)
     except re.error as e:
         raise ValueError(f"Invalid regex pattern: {e}") from e
     return pattern

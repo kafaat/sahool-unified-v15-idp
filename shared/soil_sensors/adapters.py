@@ -80,7 +80,7 @@ class SensorAdapter(ABC):
         for callback in self._callbacks:
             try:
                 callback(reading)
-            except Exception as e:
+            except Exception:
                 logger.warning("Callback error during sensor reading emission", exc_info=True)
 
     @abstractmethod

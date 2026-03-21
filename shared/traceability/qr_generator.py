@@ -60,6 +60,16 @@ class QRGenerationConfig:
     # Base URL for verification endpoint
     base_url: str = "https://trace.sahool.app"
 
+    def __post_init__(self):
+        """Validate base_url to prevent SSRF."""
+        from urllib.parse import urlparse
+
+        parsed = urlparse(self.base_url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"base_url must use http/https, got: {parsed.scheme}")
+        if not parsed.hostname:
+            raise ValueError("base_url must have a valid hostname")
+
     # Output settings
     format: QRFormat = QRFormat.PNG
     size: QRSize = QRSize.MEDIUM

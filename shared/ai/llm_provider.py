@@ -61,6 +61,8 @@ def _validate_base_url(url: str | None) -> str | None:
     """Validate LLM base URL to prevent SSRF."""
     if url is None:
         return None
+    import ipaddress
+    import socket
     from urllib.parse import urlparse
 
     parsed = urlparse(url)
@@ -68,6 +70,30 @@ def _validate_base_url(url: str | None) -> str | None:
         raise ValueError(f"LLM base_url must use http/https, got: {parsed.scheme}")
     if not parsed.hostname:
         raise ValueError("LLM base_url must have a valid hostname")
+
+    # Block private/internal IPs to prevent SSRF (skip in dev/test for local LLM)
+    import os
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        _blocked_cidrs = [
+            ipaddress.ip_network("10.0.0.0/8"),
+            ipaddress.ip_network("172.16.0.0/12"),
+            ipaddress.ip_network("192.168.0.0/16"),
+            ipaddress.ip_network("127.0.0.0/8"),
+            ipaddress.ip_network("169.254.0.0/16"),
+            ipaddress.ip_network("::1/128"),
+            ipaddress.ip_network("fc00::/7"),
+        ]
+        try:
+            for info in socket.getaddrinfo(parsed.hostname, None):
+                addr = ipaddress.ip_address(info[4][0])
+                for cidr in _blocked_cidrs:
+                    if addr in cidr:
+                        raise ValueError(f"LLM base_url resolves to blocked internal network: {cidr}")
+        except socket.gaierror:
+            pass  # Allow unresolvable hostnames (may resolve at runtime in container)
+
     return url
 
 

@@ -392,6 +392,104 @@ if item.tenant_id != self.tenant_id:
 
 ---
 
+## المرحلة 6: إصلاحات AI/ML
+## Phase 6: AI/ML-Specific Fixes (NEW — from AI/ML audit)
+
+**الأولوية**: عالية — ثغرات SSRF وحقن في وحدات الذكاء الاصطناعي
+**عدد الملفات**: 3
+**التبعيات**: لا توجد — كل إصلاح مستقل
+
+| # | الملف | الإصلاح | النهج |
+|---|-------|---------|-------|
+| AI-01 | `shared/ai/llm_provider.py:60-71` | SSRF — عدم فحص IPs الداخلية | إضافة فحص `ipaddress` للشبكات المحجوبة (RFC 1918, link-local, loopback) |
+| AI-02 | `shared/mcp/server.py:244-252` | حقن اسم الأداة بدون تحقق | تحقق من `tool_name` ضد قائمة الأدوات المسجلة + تعقيم `arguments` |
+| AI-03 | `shared/ai/auto_fix/diagnostics.py:185-191` | MD5 ضعيف للتخزين المؤقت | استبدال `hashlib.md5` بـ `hashlib.sha256` |
+
+### 6.1 — AI-01: SSRF في LLM Provider
+
+**الملف**: `shared/ai/llm_provider.py`
+**الأسطر**: 60-71
+
+**أفضل طريقة للإصلاح**:
+```python
+import ipaddress
+import socket
+from urllib.parse import urlparse
+
+_BLOCKED_CIDRS = [
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+]
+
+def _validate_base_url(url: str | None) -> str | None:
+    if url is None:
+        return None
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(...)
+    if not parsed.hostname:
+        raise ValueError(...)
+    # Block private/internal IPs
+    try:
+        for info in socket.getaddrinfo(parsed.hostname, None):
+            addr = ipaddress.ip_address(info[4][0])
+            for cidr in _BLOCKED_CIDRS:
+                if addr in cidr:
+                    raise ValueError(f"LLM base_url resolves to blocked network: {cidr}")
+    except socket.gaierror:
+        pass  # Allow unresolvable hostnames (may resolve at runtime)
+    return url
+```
+
+### 6.2 — AI-02: MCP Tool Injection
+
+**الملف**: `shared/mcp/server.py`
+**الأسطر**: 244-252
+
+**أفضل طريقة للإصلاح**:
+```python
+async def handle_tools_call(self, params: dict[str, Any]) -> dict[str, Any]:
+    tool_name = params.get("name", "").strip()
+    arguments = params.get("arguments", {})
+    if not tool_name:
+        raise ValueError("Tool name is required")
+    # Validate against registered tools
+    registered = {t["name"] for t in self.tools.get_tool_definitions()}
+    if tool_name not in registered:
+        raise ValueError(f"Unknown tool: {tool_name}")
+    result = await self.tools.invoke_tool(tool_name, arguments)
+```
+
+### 6.3 — AI-03: MD5 → SHA-256
+
+**الملف**: `shared/ai/auto_fix/diagnostics.py`
+**السطر**: 189
+
+```python
+return hashlib.sha256(f.read()).hexdigest()
+```
+
+---
+
+## ملخص المراحل المحدّث | Updated Phase Summary
+
+| المرحلة | الملفات | الحرجة | العالية | المتوسطة | التبعيات |
+|---------|---------|--------|---------|----------|----------|
+| 1: حقن الأوامر | 3 | 4 (C-01,02,07,08) | 0 | 0 | لا توجد |
+| 2: التشفير | 2 | 1 (C-03) | 2 (H-07,H-10) | 1 (M-03) | داخل الملف |
+| 3: SSRF | 2 | 1 (C-04) | 2 (H-02,H-11) | 1 (M-07) | داخل الملف |
+| 4: المستأجرين | 9 | 2 (C-05,C-06) | 5 (H-03..13) | 0 | مجموعات |
+| 5: متنوعة | 8 | 0 | 3 (H-01,08,09) | 5 | لا توجد |
+| 6: AI/ML | 3 | 0 | 3 (AI-01..03) | 0 | لا توجد |
+| **الإجمالي** | **~27 ملف** | **8** | **15** | **7** | — |
+
+---
+
 ## اختبارات التحقق | Verification Tests
 
 لكل مرحلة، يجب إضافة اختبارات في `tests/unit/shared/test_security_fixes.py`:
@@ -421,8 +519,13 @@ def test_batch_operation_filters_by_tenant(): ...
 # المرحلة 5
 def test_regex_pattern_rejects_redos(): ...
 def test_harvest_pricing_handles_near_zero(): ...
+
+# المرحلة 6
+def test_llm_provider_blocks_internal_urls(): ...
+def test_mcp_rejects_unknown_tool(): ...
+def test_diagnostics_uses_sha256(): ...
 ```
 
 ---
 
-_آخر تحديث: 2026-03-20_
+_آخر تحديث: 2026-03-21_

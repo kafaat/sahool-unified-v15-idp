@@ -613,15 +613,17 @@ class RedisSentinelClient:
         except Exception as e:
             health["checks"]["master_ping"] = False
             health["status"] = "unhealthy"
-            health["error"] = str(e)
+            health["error"] = "Redis master connection failed"
+            logger.error(f"Health check master ping failed: {e}")
 
         # Check sentinel
         try:
             sentinel_info = self.get_sentinel_info()
             health["checks"]["sentinel"] = sentinel_info
         except Exception as e:
-            health["checks"]["sentinel"] = {"error": str(e)}
+            health["checks"]["sentinel"] = {"error": "Sentinel check failed"}
             health["status"] = "degraded"
+            logger.error(f"Health check sentinel failed: {e}")
 
         # Check circuit breaker
         health["checks"]["circuit_breaker"] = self._circuit_breaker.state

@@ -243,11 +243,16 @@ class SAHOOLMCPServer:
 
     async def handle_tools_call(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle tools/call request"""
-        tool_name = params.get("name")
+        tool_name = params.get("name", "").strip()
         arguments = params.get("arguments", {})
 
         if not tool_name:
             raise ValueError("Tool name is required | اسم الأداة مطلوب")
+
+        # Validate tool_name against registered tools to prevent injection
+        registered_tools = {t["name"] for t in self.tools.get_tool_definitions()}
+        if tool_name not in registered_tools:
+            raise ValueError(f"Unknown tool: {tool_name} | أداة غير معروفة: {tool_name}")
 
         result = await self.tools.invoke_tool(tool_name, arguments)
 

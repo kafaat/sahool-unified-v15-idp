@@ -186,7 +186,7 @@ class DiagnosticCache:
         """Compute hash of file content."""
         try:
             with open(file_path, "rb") as f:
-                return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
+                return hashlib.sha256(f.read()).hexdigest()
         except (FileNotFoundError, OSError):
             return ""
 

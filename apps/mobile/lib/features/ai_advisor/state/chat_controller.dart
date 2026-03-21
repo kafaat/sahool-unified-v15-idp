@@ -246,7 +246,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, userMessage],
+      messages: _trimMessages([...state.messages, userMessage]),
       inputText: '',
       pendingImagePath: null,
       isTyping: true,
@@ -260,7 +260,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
       );
 
       state = state.copyWith(
-        messages: [...state.messages, response],
+        messages: _trimMessages([...state.messages, response]),
         isTyping: false,
       );
     } catch (e) {
@@ -322,7 +322,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, systemMessage],
+      messages: _trimMessages([...state.messages, systemMessage]),
     );
   }
 
@@ -338,7 +338,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, errorMessage],
+      messages: _trimMessages([...state.messages, errorMessage]),
     );
   }
 

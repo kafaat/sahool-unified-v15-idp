@@ -61,7 +61,7 @@ class ActionSummaryWidget extends ConsumerWidget {
         }
 
         // Count by priority
-        final urgentCount = actions.where((t) => t.priority == TaskPriority.critical).length;
+        final urgentCount = actions.where((t) => t.priority == TaskPriority.urgent).length;
         final highCount = actions.where((t) => t.priority == TaskPriority.high).length;
         final mediumCount = actions.where((t) => t.priority == TaskPriority.medium || t.priority == TaskPriority.low).length;
 
@@ -226,7 +226,7 @@ class ActionSummaryWidget extends ConsumerWidget {
 
   Color _getPriorityColor(TaskPriority priority) {
     switch (priority) {
-      case TaskPriority.critical:
+      case TaskPriority.urgent:
         return Colors.red;
       case TaskPriority.high:
         return Colors.orange;
@@ -239,7 +239,7 @@ class ActionSummaryWidget extends ConsumerWidget {
 
   String _getPriorityLabel(TaskPriority priority) {
     switch (priority) {
-      case TaskPriority.critical:
+      case TaskPriority.urgent:
         return 'P0';
       case TaskPriority.high:
         return 'P1';

@@ -15,6 +15,7 @@ import { logger } from "../lib/logger";
 
 interface UseWebSocketOptions {
   url: string;
+  token?: string | null;
   onMessage?: (message: WSMessage) => void;
   reconnectInterval?: number;
   enabled?: boolean;
@@ -24,6 +25,7 @@ interface UseWebSocketOptions {
 
 export function useWebSocket({
   url,
+  token,
   onMessage,
   reconnectInterval = 5000,
   enabled = true,
@@ -133,7 +135,14 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      const ws = new WebSocket(url);
+      // Append token as query parameter when provided
+      let connectUrl = url;
+      if (token) {
+        const separator = url.includes("?") ? "&" : "?";
+        connectUrl = `${url}${separator}token=${encodeURIComponent(token)}`;
+      }
+
+      const ws = new WebSocket(connectUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -173,12 +182,20 @@ export function useWebSocket({
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         // Ignore close events from stale sockets
         if (ws !== wsRef.current) return;
         if (!isMountedRef.current) return;
         setIsConnected(false);
         stopHeartbeat();
+
+        // Authentication failure - don't reconnect
+        const code = (event as CloseEvent)?.code;
+        if (code === 4001 || code === 4003) {
+          setError("Authentication failed");
+          logger.log("WebSocket authentication failed, not reconnecting");
+          return;
+        }
 
         // Don't reconnect if manually disconnected or unmounting
         if (!shouldReconnectRef.current) {
@@ -214,13 +231,13 @@ export function useWebSocket({
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
         logger.error("WebSocket error:", event);
-        setError("Connection error");
+        setError("Connection unavailable");
       };
     } catch (err) {
       logger.error("Failed to connect WebSocket:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
-  }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
+  }, [url, token, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
 
   // Keep connectRef in sync with latest connect
   useEffect(() => {

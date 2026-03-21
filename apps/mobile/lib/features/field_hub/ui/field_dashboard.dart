@@ -75,7 +75,7 @@ class FieldDashboard extends StatelessWidget {
             const SizedBox(height: 20),
 
             // التنبيهات العاجلة
-            _buildAlertsSection(),
+            _buildAlertsSection(context),
 
             const SizedBox(height: 20),
 
@@ -449,7 +449,7 @@ class FieldDashboard extends StatelessWidget {
   }
 
   /// قسم التنبيهات
-  Widget _buildAlertsSection() {
+  Widget _buildAlertsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

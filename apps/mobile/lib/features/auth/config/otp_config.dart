@@ -704,10 +704,9 @@ class OTPConfigRepository {
 // =============================================================================
 
 /// SharedPreferences provider
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden in main.dart',
-  );
+/// Lazily initializes SharedPreferences via FutureProvider
+final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async {
+  return await SharedPreferences.getInstance();
 });
 
 /// OTP Config Repository provider

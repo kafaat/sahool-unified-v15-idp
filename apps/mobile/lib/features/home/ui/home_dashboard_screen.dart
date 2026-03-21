@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
 import '../../market/data/market_repository.dart';
+import '../../market/data/market_models.dart';
 import '../../../core/network/api_result.dart';
 import '../logic/home_providers.dart';
 

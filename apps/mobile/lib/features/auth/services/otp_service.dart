@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/http/api_client.dart';
@@ -194,11 +193,11 @@ class SendOTPResponse {
 
   factory SendOTPResponse.fromJson(Map<String, dynamic> json) {
     return SendOTPResponse(
-      success: json['success'] ?? json['status'] == 'success',
+      success: json['success'] == true || json['status'] == 'success',
       message: json['message'] as String?,
-      expiresInSeconds: json['expires_in'] ?? json['expiresIn'] ?? 300,
-      cooldownSeconds: json['cooldown'] ?? json['resend_cooldown'] ?? 60,
-      maskedDestination: json['masked_destination'] ?? json['maskedDestination'],
+      expiresInSeconds: (json['expires_in'] as int?) ?? (json['expiresIn'] as int?) ?? 300,
+      cooldownSeconds: (json['cooldown'] as int?) ?? (json['resend_cooldown'] as int?) ?? 60,
+      maskedDestination: (json['masked_destination'] as String?) ?? (json['maskedDestination'] as String?),
     );
   }
 }
@@ -219,10 +218,10 @@ class VerifyOTPResponse {
 
   factory VerifyOTPResponse.fromJson(Map<String, dynamic> json) {
     return VerifyOTPResponse(
-      success: json['success'] ?? json['status'] == 'success' ?? json['valid'] == true,
+      success: json['success'] == true || json['status'] == 'success' || json['valid'] == true,
       message: json['message'] as String?,
-      resetToken: json['reset_token'] ?? json['resetToken'] ?? json['token'],
-      remainingAttempts: json['remaining_attempts'] ?? json['remainingAttempts'],
+      resetToken: (json['reset_token'] as String?) ?? (json['resetToken'] as String?) ?? (json['token'] as String?),
+      remainingAttempts: (json['remaining_attempts'] as int?) ?? (json['remainingAttempts'] as int?),
     );
   }
 }
@@ -357,14 +356,14 @@ class OTPService {
       AppLogger.e('OTP send failed', tag: 'OTP', error: e);
       return _handleApiException<SendOTPResponse>(e);
     } on RateLimitException catch (e) {
-      AppLogger.w('OTP send rate limited', tag: 'OTP', error: e);
-      return Failure(
+      AppLogger.w('OTP send rate limited: $e', tag: 'OTP');
+      return const Failure(
         'تم تجاوز الحد المسموح. حاول مرة أخرى بعد قليل',
         statusCode: 429,
       );
     } catch (e, stackTrace) {
       AppLogger.e('OTP send error', tag: 'OTP', error: e, stackTrace: stackTrace);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -405,13 +404,13 @@ class OTPService {
     } on ApiException catch (e) {
       return _handleApiException<SendOTPResponse>(e);
     } on RateLimitException {
-      return Failure(
+      return const Failure(
         'انتظر قليلاً قبل إعادة الإرسال',
         statusCode: 429,
       );
     } catch (e) {
       AppLogger.e('OTP resend error', tag: 'OTP', error: e);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -478,13 +477,13 @@ class OTPService {
       AppLogger.e('OTP verification failed', tag: 'OTP', error: e);
       return _handleApiException<VerifyOTPResponse>(e);
     } on RateLimitException {
-      return Failure(
+      return const Failure(
         'تم تجاوز عدد المحاولات. حاول مرة أخرى لاحقاً',
         statusCode: 429,
       );
     } catch (e, stackTrace) {
       AppLogger.e('OTP verify error', tag: 'OTP', error: e, stackTrace: stackTrace);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -607,7 +606,7 @@ class OTPService {
   /// Handle API exceptions and convert to user-friendly messages
   ApiResult<T> _handleApiException<T>(ApiException e) {
     String message;
-    int? statusCode = e.statusCode;
+    final int? statusCode = e.statusCode;
 
     if (e.isNetworkError) {
       message = 'لا يوجد اتصال بالإنترنت. تحقق من اتصالك وحاول مرة أخرى';

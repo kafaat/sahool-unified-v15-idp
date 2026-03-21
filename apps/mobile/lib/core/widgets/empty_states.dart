@@ -604,7 +604,7 @@ class NoAlertsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.notifications_none_rounded,
       titleAr: 'لا توجد تنبيهات',
       titleEn: 'No alerts',
@@ -622,7 +622,7 @@ class NoNotificationsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.inbox_rounded,
       titleAr: 'صندوق الوارد فارغ',
       titleEn: 'Inbox is empty',
@@ -741,7 +741,7 @@ class NoTransactionsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.receipt_long_rounded,
       titleAr: 'لا توجد معاملات',
       titleEn: 'No transactions',

@@ -7,6 +7,7 @@
 /// - Notification list item
 /// - Grouped notifications
 /// - Action buttons
+library;
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -226,7 +227,7 @@ class _NotificationCard extends StatelessWidget {
     return Material(
       elevation: 8,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),

@@ -2,6 +2,7 @@
 /// مزودات التقويم الفلكي باستخدام Riverpod
 ///
 /// توفر هذه المزودات إدارة الحالة للتقويم الفلكي اليمني
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';

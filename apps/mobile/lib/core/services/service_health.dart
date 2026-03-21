@@ -7,12 +7,12 @@
 /// - Graceful degradation support
 /// - Automatic health checks
 /// - Health dashboard support
+library;
 
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../config/env_config.dart';
 import '../utils/app_logger.dart';
 import 'service_registry.dart';
 import 'event_bus.dart';

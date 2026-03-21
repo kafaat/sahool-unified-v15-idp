@@ -6,9 +6,9 @@ class SoilHealthChart extends StatelessWidget {
   final List<SoilHealth> soilHealthData;
 
   const SoilHealthChart({
-    Key? key,
+    super.key,
     required this.soilHealthData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -338,9 +338,9 @@ class RadarChart extends StatelessWidget {
   final SoilHealth data;
 
   const RadarChart({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -7,6 +7,7 @@
 /// - Satellite imagery
 /// - Field health monitoring
 /// - Phenology tracking
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';

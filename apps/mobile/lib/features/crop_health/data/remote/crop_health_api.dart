@@ -19,8 +19,9 @@ class CropHealthApi {
   /// قائمة المناطق في الحقل
   Future<List<Zone>> getZones(String fieldId) async {
     final response = await _client.get('$_baseUrl/fields/$fieldId/zones');
-    final zones = response['zones'] as List;
-    return zones.map((z) => Zone.fromJson(z)).toList();
+    final data = response as Map<String, dynamic>;
+    final zones = data['zones'] as List;
+    return zones.map((z) => Zone.fromJson(z as Map<String, dynamic>)).toList();
   }
 
   /// إنشاء منطقة جديدة
@@ -39,13 +40,13 @@ class CropHealthApi {
         'area_hectares': areaHectares,
         'geometry': geometry,
       },
-    );
+    ) as Map<String, dynamic>;
     return response['zone_id'] as String;
   }
 
   /// GeoJSON للمناطق
   Future<Map<String, dynamic>> getZonesGeoJson(String fieldId) async {
-    return await _client.get('$_baseUrl/fields/$fieldId/zones.geojson');
+    return await _client.get('$_baseUrl/fields/$fieldId/zones.geojson') as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -73,7 +74,7 @@ class CropHealthApi {
         'cloud_pct': cloudPct,
         'notes': notes,
       },
-    );
+    ) as Map<String, dynamic>;
     return response['observation_id'] as String;
   }
 
@@ -87,7 +88,8 @@ class CropHealthApi {
       '$_baseUrl/fields/$fieldId/zones/$zoneId/observations',
       queryParameters: {'limit': limit},
     );
-    return List<Map<String, dynamic>>.from(response['observations']);
+    final data = response as Map<String, dynamic>;
+    return List<Map<String, dynamic>>.from(data['observations'] as Iterable);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -106,7 +108,7 @@ class CropHealthApi {
       '$_baseUrl/fields/$fieldId/diagnosis',
       queryParameters: {'date': dateStr},
     );
-    return FieldDiagnosis.fromJson(response);
+    return FieldDiagnosis.fromJson(response as Map<String, dynamic>);
   }
 
   /// تشخيص سريع (بدون حفظ)
@@ -127,7 +129,7 @@ class CropHealthApi {
       },
       queryParameters: {'zone_id': zoneId},
     );
-    return response;
+    return response as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -153,7 +155,7 @@ class CropHealthApi {
         'to': toStr,
       },
     );
-    return ZoneTimeline.fromJson(response);
+    return ZoneTimeline.fromJson(response as Map<String, dynamic>);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -177,7 +179,7 @@ class CropHealthApi {
     return await _client.get(
       '$_baseUrl/fields/$fieldId/vrt',
       queryParameters: params,
-    );
+    ) as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════

@@ -2,8 +2,9 @@
 /// متحكم محادثة المستشار الذكي
 ///
 /// Manages chat session state and business logic for AI advisor
+library;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/remote/ai_advisor_api.dart';
 import '../data/repositories/ai_advisor_repository.dart';
@@ -106,7 +107,18 @@ class ChatController extends StateNotifier<ChatSessionState> {
   final AiAdvisorRepository _repository;
   final Ref _ref;
 
+  /// Maximum number of messages to keep in memory to prevent unbounded growth.
+  static const int _maxMessages = 500;
+
   ChatController(this._repository, this._ref) : super(const ChatSessionState());
+
+  /// Trim messages list if it exceeds [_maxMessages], keeping the most recent.
+  List<ChatMessage> _trimMessages(List<ChatMessage> messages) {
+    if (messages.length > _maxMessages) {
+      return messages.sublist(messages.length - _maxMessages);
+    }
+    return messages;
+  }
 
   // ============================================================================
   // Session Management
@@ -128,7 +140,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
       // Load context if field selected
       AdvisoryContext? context;
       if (fieldId != null) {
-        context = await _repository.getContext(fieldId);
+        context = await _repository.getContext(fieldId: fieldId);
       }
 
       state = state.copyWith(
@@ -155,7 +167,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     try {
       AdvisoryContext? context;
       if (fieldId != null) {
-        context = await _repository.getContext(fieldId);
+        context = await _repository.getContext(fieldId: fieldId);
       }
 
       state = state.copyWith(
@@ -198,7 +210,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
 
     // Create request
     final request = AdvisoryRequest.question(
-      message: text,
+      query: text,
       fieldId: state.fieldId,
     );
 
@@ -207,10 +219,10 @@ class ChatController extends StateNotifier<ChatSessionState> {
 
   /// Send quick question
   Future<void> sendQuickQuestion(QuickQuestion question) async {
-    final locale = 'ar'; // Default to Arabic, can be made dynamic
+    final locale = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
 
     final request = AdvisoryRequest(
-      message: question.getText(locale),
+      query: question.getText(locale),
       type: question.type,
       focusArea: question.focusArea,
       fieldId: state.fieldId,
@@ -234,21 +246,30 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, userMessage],
+      messages: _trimMessages([...state.messages, userMessage]),
       inputText: '',
       pendingImagePath: null,
       isTyping: true,
     );
 
     try {
-      final response = await _repository.diagnoseWithImage(
+      final diagnosisResult = await _repository.diagnose(
         imagePath: imagePath,
         fieldId: state.fieldId,
-        description: description,
+        symptoms: description,
+      );
+
+      final response = ChatMessage(
+        id: diagnosisResult.id,
+        role: 'assistant',
+        content: diagnosisResult.disease,
+        contentAr: diagnosisResult.diseaseAr,
+        timestamp: DateTime.now(),
+        fieldId: state.fieldId,
       );
 
       state = state.copyWith(
-        messages: [...state.messages, response],
+        messages: _trimMessages([...state.messages, response]),
         isTyping: false,
       );
     } catch (e) {
@@ -274,16 +295,16 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, userMessage],
+      messages: _trimMessages([...state.messages, userMessage]),
       inputText: '',
       isTyping: true,
     );
 
     try {
-      final response = await _repository.sendMessage(request);
+      final response = await _repository.sendMessage(content: request.query, fieldId: request.fieldId, cropType: request.cropType, language: request.language);
 
       state = state.copyWith(
-        messages: [...state.messages, response],
+        messages: _trimMessages([...state.messages, response]),
         isTyping: false,
       );
 
@@ -310,7 +331,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, systemMessage],
+      messages: _trimMessages([...state.messages, systemMessage]),
     );
   }
 
@@ -326,7 +347,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, errorMessage],
+      messages: _trimMessages([...state.messages, errorMessage]),
     );
   }
 
@@ -404,7 +425,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
   void markAdvisoryDeferred(String advisoryId) {
     _ref.read(advisoriesProvider.notifier).updateAdvisoryStatus(
       advisoryId,
-      AdvisoryStatus.deferred,
+      AdvisoryStatus.pending,
     );
   }
 
@@ -419,7 +440,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final context = await _repository.getContext(state.fieldId!);
+      final context = await _repository.getContext(fieldId: state.fieldId);
       state = state.copyWith(
         context: context,
         isLoading: false,
@@ -430,6 +451,45 @@ class ChatController extends StateNotifier<ChatSessionState> {
         error: e.toString(),
       );
     }
+  }
+
+  /// Set field context (alias for changeField + initSession)
+  Future<void> setFieldContext(String fieldId, String? fieldName) async {
+    await changeField(fieldId, fieldName);
+  }
+
+  /// Load chat history (alias for initSession)
+  Future<void> loadChatHistory() async {
+    await initSession(fieldId: state.fieldId, fieldName: state.fieldName);
+  }
+
+  /// Clear error from state
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
+
+  /// Diagnose image (delegates to sendDiagnosisImage)
+  Future<void> diagnose(String imagePath, {String? fieldId, String? description}) async {
+    if (fieldId != null && fieldId != state.fieldId) {
+      await changeField(fieldId, null);
+    }
+    await sendDiagnosisImage(imagePath, description: description);
+  }
+
+  /// Submit feedback (delegates to submitAdvisoryFeedback)
+  Future<void> submitFeedback(AdvisoryFeedback feedback) async {
+    await submitAdvisoryFeedback(feedback);
+  }
+
+  /// Start a new chat session
+  void startNewChat() {
+    clearSession();
+  }
+
+  /// Clear chat history
+  Future<void> clearChatHistory() async {
+    clearSession();
+    await _repository.clearChatHistory();
   }
 
   /// Get context summary for display
@@ -568,7 +628,7 @@ extension AnalysisTypeExtension on AnalysisType {
       case AnalysisType.yieldForecast:
         return AdvisoryType.harvest;
       case AnalysisType.weatherImpact:
-        return AdvisoryType.weatherAlert;
+        return AdvisoryType.weather;
     }
   }
 }

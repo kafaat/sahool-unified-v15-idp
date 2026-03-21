@@ -2,6 +2,7 @@
 /// نموذج ردود الفعل على التوصية
 ///
 /// Represents user feedback on AI advisories
+library;
 
 import 'package:flutter/foundation.dart';
 
@@ -490,7 +491,7 @@ Map<OutcomeStatus, int> _parseOutcomeCounts(dynamic data) {
   if (data == null || data is! Map) return {};
 
   final result = <OutcomeStatus, int>{};
-  for (final entry in (data as Map).entries) {
+  for (final entry in (data).entries) {
     try {
       final status = _parseOutcomeStatus(entry.key.toString());
       result[status] = entry.value as int? ?? 0;
@@ -505,7 +506,7 @@ Map<FeedbackType, int> _parseFeedbackByType(dynamic data) {
   if (data == null || data is! Map) return {};
 
   final result = <FeedbackType, int>{};
-  for (final entry in (data as Map).entries) {
+  for (final entry in (data).entries) {
     try {
       final type = _parseFeedbackType(entry.key.toString());
       result[type] = entry.value as int? ?? 0;

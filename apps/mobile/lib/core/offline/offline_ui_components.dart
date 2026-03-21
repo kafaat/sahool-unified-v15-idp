@@ -7,14 +7,19 @@
 /// - Conflict resolution dialog
 /// - Offline mode banner
 /// - Queue status widget
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../sync/network_status.dart';
-import '../utils/app_logger.dart';
 import 'offline_sync_engine.dart' as sync_engine;
+
+/// Provider for network status
+final networkStatusProvider = Provider<NetworkStatus>((ref) {
+  return NetworkStatus.instance;
+});
 
 // =============================================================================
 // Sync Status Indicator - مؤشر حالة المزامنة
@@ -41,9 +46,9 @@ class SyncStatusIndicator extends ConsumerWidget {
     );
     final networkStatus = ref.watch(networkStatusProvider);
 
-    final color = _getStatusColor(syncStatus, networkStatus.isConnected);
-    final icon = _getStatusIcon(syncStatus, networkStatus.isConnected);
-    final label = _getStatusLabel(syncStatus, networkStatus.isConnected);
+    final color = _getStatusColor(syncStatus, networkStatus.isOnline);
+    final icon = _getStatusIcon(syncStatus, networkStatus.isOnline);
+    final label = _getStatusLabel(syncStatus, networkStatus.isOnline);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -468,7 +473,7 @@ class OfflineModeBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final networkStatus = ref.watch(networkStatusProvider);
 
-    if (networkStatus.isConnected) return const SizedBox.shrink();
+    if (networkStatus.isOnline) return const SizedBox.shrink();
 
     return Material(
       color: Colors.grey[800],

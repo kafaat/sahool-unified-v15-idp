@@ -1,5 +1,6 @@
 /// SAHOOL Notification Domain Entities
 /// نماذج بيانات الإشعارات
+library;
 
 /// إشعار التطبيق
 class AppNotification {
@@ -34,11 +35,11 @@ class AppNotification {
       id: json['id'] as String,
       type: json['type'] as String,
       title: json['title'] as String,
-      titleAr: json['title_ar'] as String? ?? json['title'],
+      titleAr: json['title_ar'] as String? ?? json['title'] as String,
       body: json['body'] as String,
-      bodyAr: json['body_ar'] as String? ?? json['body'],
+      bodyAr: json['body_ar'] as String? ?? json['body'] as String,
       imageUrl: json['image_url'] as String?,
-      data: Map<String, dynamic>.from(json['data'] ?? {}),
+      data: Map<String, dynamic>.from((json['data'] as Map?) ?? {}),
       createdAt: DateTime.parse(json['created_at'] as String),
       isRead: json['is_read'] as bool? ?? false,
       actionUrl: json['action_url'] as String?,
@@ -236,7 +237,7 @@ class NotificationTopic {
     return NotificationTopic(
       id: json['id'] as String,
       name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'],
+      nameAr: json['name_ar'] as String? ?? json['name'] as String,
       description: json['description'] as String,
       isSubscribed: json['is_subscribed'] as bool? ?? false,
     );

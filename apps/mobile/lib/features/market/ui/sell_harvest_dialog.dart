@@ -6,6 +6,7 @@
 /// - AI yield prediction display
 /// - Animated loading state
 /// - Integration with MarketNotifier
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +94,7 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Container(
+      child: DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
@@ -126,8 +127,8 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            SahoolColors.forestGreen.withOpacity(0.1),
-                            SahoolColors.harvestGold.withOpacity(0.1),
+                            SahoolColors.forestGreen.withValues(alpha: 0.1),
+                            SahoolColors.harvestGold.withValues(alpha: 0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -184,37 +185,37 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                     children: [
                       _InvoiceRow(
                         label: 'المحصول',
-                        value: yieldData['crop_type_ar'] ?? yieldData['cropAr'] ?? 'قمح',
+                        value: (yieldData['crop_type_ar'] as String?) ?? (yieldData['cropAr'] as String?) ?? 'قمح',
                         icon: Icons.grass,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'الكمية المتوقعة',
-                        value: '${yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons']} طن',
+                        value: '${(yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons'] ?? 0) as num} طن',
                         icon: Icons.scale,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'سعر السوق الحالي',
-                        value: '${_formatNumber((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0).toDouble())} ر.ي/طن',
+                        value: '${_formatNumber(((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0) as num).toDouble())} ر.ي/طن',
                         icon: Icons.trending_up,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'المحافظة',
-                        value: yieldData['governorate'] ?? 'غير محدد',
+                        value: (yieldData['governorate'] as String?) ?? 'غير محدد',
                         icon: Icons.location_on,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'موعد الحصاد',
-                        value: yieldData['harvest_date'] ?? yieldData['harvestDate'] ?? 'قريباً',
+                        value: (yieldData['harvest_date'] as String?) ?? (yieldData['harvestDate'] as String?) ?? 'قريباً',
                         icon: Icons.calendar_today,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'درجة الجودة',
-                        value: yieldData['quality_grade'] ?? yieldData['qualityGrade'] ?? 'A',
+                        value: (yieldData['quality_grade'] as String?) ?? (yieldData['qualityGrade'] as String?) ?? 'A',
                         icon: Icons.star,
                         valueColor: SahoolColors.harvestGold,
                       ),
@@ -230,13 +231,13 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        SahoolColors.forestGreen.withOpacity(0.1),
-                        SahoolColors.harvestGold.withOpacity(0.1),
+                        SahoolColors.forestGreen.withValues(alpha: 0.1),
+                        SahoolColors.harvestGold.withValues(alpha: 0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: SahoolColors.forestGreen.withOpacity(0.3),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -279,9 +280,9 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.05),
+                    color: Colors.blue.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
                   ),
                   child: const Row(
                     children: [
@@ -366,8 +367,8 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
   }
 
   double _calculateTotal(Map<String, dynamic> data) {
-    final quantity = (data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0).toDouble();
-    final price = (data['price_per_ton'] ?? data['marketPrice'] ?? 0).toDouble();
+    final quantity = ((data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0) as num).toDouble();
+    final price = ((data['price_per_ton'] ?? data['marketPrice'] ?? 0) as num).toDouble();
     return quantity * price;
   }
 
@@ -399,13 +400,13 @@ class _AIConfidenceBadge extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            SahoolColors.forestGreen.withOpacity(0.05),
-            SahoolColors.harvestGold.withOpacity(0.05),
+            SahoolColors.forestGreen.withValues(alpha: 0.05),
+            SahoolColors.harvestGold.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.forestGreen.withOpacity(0.2),
+          color: SahoolColors.forestGreen.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -413,7 +414,7 @@ class _AIConfidenceBadge extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: SahoolColors.forestGreen.withOpacity(0.1),
+              color: SahoolColors.forestGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(

@@ -414,7 +414,7 @@ class _DownloadRegionScreenState extends ConsumerState<DownloadRegionScreen>
   }
 
   Widget _buildBottomSection() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

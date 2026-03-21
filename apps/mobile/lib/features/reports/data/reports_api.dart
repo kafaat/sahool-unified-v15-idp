@@ -44,7 +44,7 @@ class ReportsApi {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        if (_tenantId != null) 'X-Tenant-Id': _tenantId!,
+        if (_tenantId != null) 'X-Tenant-Id': _tenantId,
       };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -63,7 +63,7 @@ class ReportsApi {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => ReportTemplate.fromJson(e)).toList();
+        return data.map((e) => ReportTemplate.fromJson(e as Map<String, dynamic>)).toList();
       }
 
       // Fallback to predefined templates
@@ -84,7 +84,7 @@ class ReportsApi {
       );
 
       if (response.statusCode == 200) {
-        return ReportTemplate.fromJson(json.decode(response.body));
+        return ReportTemplate.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       return ReportTemplates.getById(templateId);
     } catch (e) {
@@ -116,7 +116,7 @@ class ReportsApi {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return ReportData.fromJson(json.decode(response.body));
+        return ReportData.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
 
       throw ReportsApiException(
@@ -143,7 +143,7 @@ class ReportsApi {
       );
 
       if (response.statusCode == 200) {
-        return ReportData.fromJson(json.decode(response.body));
+        return ReportData.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
 
       throw ReportsApiException(
@@ -178,7 +178,7 @@ class ReportsApi {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => ReportHistoryEntry.fromJson(e)).toList();
+        return data.map((e) => ReportHistoryEntry.fromJson(e as Map<String, dynamic>)).toList();
       }
 
       return [];

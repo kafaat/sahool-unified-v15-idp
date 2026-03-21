@@ -74,7 +74,9 @@ class _AlertsScreenState extends State<AlertsScreen>
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () {},
+            onPressed: () {
+              _showFilterSheet();
+            },
             tooltip: 'تصفية',
           ),
         ],
@@ -193,6 +195,61 @@ class _AlertsScreenState extends State<AlertsScreen>
     );
   }
 
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'تصفية التنبيهات',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.all_inclusive, color: SahoolColors.primary),
+              title: const Text('جميع التنبيهات'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _tabController.animateTo(0);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.warning.icon, color: AlertType.warning.color),
+              title: const Text('تحذيرات'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.danger.icon, color: AlertType.danger.color),
+              title: const Text('عاجلة'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _tabController.animateTo(2);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.info.icon, color: AlertType.info.color),
+              title: const Text('معلوماتية'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _markAllAsRead() {
     setState(() {
       for (var i = 0; i < _alerts.length; i++) {
@@ -234,10 +291,10 @@ class _AlertCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: alert.isRead ? Colors.white : alert.type.color.withOpacity(0.05),
+            color: alert.isRead ? Colors.white : alert.type.color.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: alert.isRead ? Colors.grey[200]! : alert.type.color.withOpacity(0.3),
+              color: alert.isRead ? Colors.grey[200]! : alert.type.color.withValues(alpha: 0.3),
             ),
             boxShadow: SahoolShadows.small,
           ),
@@ -246,7 +303,7 @@ class _AlertCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: alert.type.color.withOpacity(0.1),
+                  color: alert.type.color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(alert.type.icon, color: alert.type.color, size: 24),

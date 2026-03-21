@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'voice_service.dart';
 import 'voice_commands.dart';
-import 'voice_feedback.dart';
 import 'voice_command_handler.dart';
 
 /// SAHOOL Voice UI Components
@@ -186,7 +185,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
         return SizedBox(
           width: iconSize,
           height: iconSize,
-          child: CircularProgressIndicator(
+          child: const CircularProgressIndicator(
             strokeWidth: 2,
             valueColor: AlwaysStoppedAnimation(Colors.white),
           ),
@@ -421,7 +420,7 @@ class _VoiceWaveformState extends State<_VoiceWaveform>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Container(
+        return SizedBox(
           width: 200,
           height: 100,
           child: CustomPaint(
@@ -457,7 +456,7 @@ class _WaveformPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final centerY = size.height / 2;
-    final barCount = 9;
+    const barCount = 9;
     final barWidth = size.width / (barCount * 2);
 
     for (int i = 0; i < barCount; i++) {
@@ -760,7 +759,7 @@ class _PulsingDot extends StatefulWidget {
 
   const _PulsingDot({
     required this.color,
-    this.size = 12,
+    this.size = 12.0,
   });
 
   @override
@@ -823,7 +822,7 @@ class VoiceHelpSheet extends ConsumerWidget {
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
-        return Container(
+        return DecoratedBox(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

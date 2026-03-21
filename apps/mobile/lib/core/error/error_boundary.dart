@@ -3,6 +3,7 @@
 ///
 /// A comprehensive error boundary widget that catches errors in the widget tree
 /// and displays user-friendly fallback UI. Supports RTL layout for Arabic.
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

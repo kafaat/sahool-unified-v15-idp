@@ -338,7 +338,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             ? Stack(
                 children: [
                   // Placeholder image
-                  Container(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       color: SahoolColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(14),
@@ -411,11 +411,11 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.check_circle, color: SahoolColors.success),
-            const SizedBox(width: 12),
-            const Text('تم الإرسال'),
+            Icon(Icons.check_circle, color: SahoolColors.success),
+            SizedBox(width: 12),
+            Text('تم الإرسال'),
           ],
         ),
         content: Column(

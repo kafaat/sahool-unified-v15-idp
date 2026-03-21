@@ -3,6 +3,7 @@
 ///
 /// Combines API and local database for offline-first notifications
 /// with automatic sync and conflict resolution
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -154,10 +155,8 @@ class NotificationsRepository {
     if (notification == null && _isOnline) {
       try {
         notification = await _api.getNotification(id);
-        if (notification != null) {
-          await _localDb.upsertNotification(notification);
-        }
-      } catch (e) {
+        await _localDb.upsertNotification(notification);
+            } catch (e) {
         debugPrint('Failed to fetch notification from API: $e');
       }
     }
@@ -225,7 +224,7 @@ class NotificationsRepository {
       }
     }
 
-    return await _localDb.getNotification(id);
+    return _localDb.getNotification(id);
   }
 
   /// Mark notification as unread
@@ -250,7 +249,7 @@ class NotificationsRepository {
       }
     }
 
-    return await _localDb.getNotification(id);
+    return _localDb.getNotification(id);
   }
 
   /// Mark all as read
@@ -305,7 +304,7 @@ class NotificationsRepository {
       }
     }
 
-    return await _localDb.getNotification(id);
+    return _localDb.getNotification(id);
   }
 
   /// Delete notification
@@ -375,7 +374,7 @@ class NotificationsRepository {
       }
     }
 
-    return await _localDb.getNotification(id);
+    return _localDb.getNotification(id);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

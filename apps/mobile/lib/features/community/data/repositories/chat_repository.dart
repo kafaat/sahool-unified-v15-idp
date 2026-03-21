@@ -4,7 +4,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:socket_io_client/socket_io_client.dart' as IO;
-import '../../../../core/config/api_config.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../models/chat_models.dart';
 

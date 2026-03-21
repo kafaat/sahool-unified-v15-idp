@@ -2,6 +2,7 @@
 /// بطاقة التوصية
 ///
 /// Displays an advisory in a card format with actions
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

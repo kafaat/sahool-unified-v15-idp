@@ -2,7 +2,6 @@
 // This file demonstrates how to use the localization system
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n.dart';
 
 // ============================================================================
@@ -10,7 +9,7 @@ import 'l10n.dart';
 // ============================================================================
 
 class BasicLocalizationExample extends StatelessWidget {
-  const BasicLocalizationExample({Key? key}) : super(key: key);
+  const BasicLocalizationExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class BasicLocalizationExample extends StatelessWidget {
 // ============================================================================
 
 class LocalizedNavigationMenu extends StatelessWidget {
-  const LocalizedNavigationMenu({Key? key}) : super(key: key);
+  const LocalizedNavigationMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +114,7 @@ class LocalizedNavigationMenu extends StatelessWidget {
 // ============================================================================
 
 class RTLAwareLayout extends StatelessWidget {
-  const RTLAwareLayout({Key? key}) : super(key: key);
+  const RTLAwareLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +141,7 @@ class RTLAwareLayout extends StatelessWidget {
           // Row with directional icon
           Row(
             children: [
-              DirectionalIcon(
+              const DirectionalIcon(
                 Icons.arrow_forward, // Flips in RTL
                 color: Colors.blue,
               ),
@@ -161,7 +160,7 @@ class RTLAwareLayout extends StatelessWidget {
 // ============================================================================
 
 class NumberFormattingExample extends StatelessWidget {
-  const NumberFormattingExample({Key? key}) : super(key: key);
+  const NumberFormattingExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +199,7 @@ class NumberFormattingExample extends StatelessWidget {
 // ============================================================================
 
 class LanguageSwitcher extends StatefulWidget {
-  const LanguageSwitcher({Key? key}) : super(key: key);
+  const LanguageSwitcher({super.key});
 
   @override
   State<LanguageSwitcher> createState() => _LanguageSwitcherState();
@@ -262,7 +261,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
 // ============================================================================
 
 class LocalizedForm extends StatefulWidget {
-  const LocalizedForm({Key? key}) : super(key: key);
+  const LocalizedForm({super.key});
 
   @override
   State<LocalizedForm> createState() => _LocalizedFormState();
@@ -398,12 +397,12 @@ class WeatherWidget extends StatelessWidget {
   final String condition;
 
   const WeatherWidget({
-    Key? key,
+    super.key,
     required this.temperature,
     required this.humidity,
     required this.windSpeed,
     required this.condition,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +474,7 @@ class WeatherWidget extends StatelessWidget {
 // ============================================================================
 
 class YemenCropsList extends StatelessWidget {
-  const YemenCropsList({Key? key}) : super(key: key);
+  const YemenCropsList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -520,7 +519,7 @@ class YemenCropsList extends StatelessWidget {
 // ============================================================================
 
 class ErrorHandlingExample extends StatelessWidget {
-  const ErrorHandlingExample({Key? key}) : super(key: key);
+  const ErrorHandlingExample({super.key});
 
   void handleError(BuildContext context, Exception error) {
     final l10n = AppLocalizations.of(context)!;

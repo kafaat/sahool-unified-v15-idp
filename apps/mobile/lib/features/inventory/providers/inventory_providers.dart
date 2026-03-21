@@ -174,6 +174,26 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
   InventoryController(this._repo, this._ref) : super(const AsyncValue.data(null));
 
+  // ---------------------------------------------------------------------------
+  // Targeted invalidation helpers
+  // ---------------------------------------------------------------------------
+  // Only invalidate providers that are actually affected by each operation
+  // to avoid unnecessary network requests and rebuilds.
+
+  /// Invalidate providers affected by stock quantity changes on a specific item.
+  void _invalidateStockChange(String itemId) {
+    _ref.invalidate(inventoryItemsProvider);
+    _ref.invalidate(lowStockItemsProvider);
+    // stockMovementsProvider and inventoryItemDetailsProvider are .family
+    // providers keyed by itemId - they auto-refresh when watched again.
+  }
+
+  /// Invalidate providers affected by item metadata changes (create/update/delete).
+  void _invalidateItemChange() {
+    _ref.invalidate(inventoryItemsProvider);
+    _ref.invalidate(inventoryStatsProvider);
+  }
+
   /// إدخال مخزون
   Future<bool> stockIn({
     required String itemId,
@@ -200,12 +220,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      // Invalidate related providers
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryItemDetailsProvider);
-      _ref.invalidate(stockMovementsProvider);
-      _ref.invalidate(inventoryStatsProvider);
-      _ref.invalidate(lowStockItemsProvider);
+      _invalidateStockChange(itemId);
       return true;
     }
 
@@ -240,11 +255,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryItemDetailsProvider);
-      _ref.invalidate(stockMovementsProvider);
-      _ref.invalidate(inventoryStatsProvider);
-      _ref.invalidate(lowStockItemsProvider);
+      _invalidateStockChange(itemId);
       return true;
     }
 
@@ -277,11 +288,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryItemDetailsProvider);
-      _ref.invalidate(stockMovementsProvider);
-      _ref.invalidate(inventoryStatsProvider);
-      _ref.invalidate(lowStockItemsProvider);
+      _invalidateStockChange(itemId);
       return true;
     }
 
@@ -312,11 +319,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryItemDetailsProvider);
-      _ref.invalidate(stockMovementsProvider);
-      _ref.invalidate(inventoryStatsProvider);
-      _ref.invalidate(lowStockItemsProvider);
+      _invalidateStockChange(itemId);
       return true;
     }
 
@@ -375,8 +378,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryStatsProvider);
+      _invalidateItemChange();
       return true;
     }
 
@@ -398,9 +400,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryItemDetailsProvider);
-      _ref.invalidate(inventoryStatsProvider);
+      _invalidateItemChange();
       return true;
     }
 
@@ -419,8 +419,7 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
 
     if (result.isSuccess) {
       state = const AsyncValue.data(null);
-      _ref.invalidate(inventoryItemsProvider);
-      _ref.invalidate(inventoryStatsProvider);
+      _invalidateItemChange();
       _ref.invalidate(lowStockItemsProvider);
       return true;
     }

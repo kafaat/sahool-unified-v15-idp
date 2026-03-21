@@ -8,9 +8,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import 'inventory_models.dart';
 
+/// Shared Dio instance for inventory service to avoid creating new connections per request
+final _inventoryDioProvider = Provider<Dio>((ref) {
+  return Dio(BaseOptions(
+    baseUrl: ApiConfig.inventoryServiceUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    sendTimeout: ApiConfig.sendTimeout,
+    receiveTimeout: ApiConfig.receiveTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
+});
+
 /// Inventory Repository Provider
 final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
-  return InventoryRepository();
+  return InventoryRepository(dio: ref.watch(_inventoryDioProvider));
 });
 
 /// نتيجة API

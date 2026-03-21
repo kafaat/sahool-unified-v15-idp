@@ -8,6 +8,7 @@
 /// - Subscription management
 /// - Connection state monitoring
 /// - Heartbeat/ping-pong support
+library;
 
 import 'dart:async';
 import 'dart:convert';

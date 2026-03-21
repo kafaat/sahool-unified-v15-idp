@@ -1,6 +1,7 @@
 /// Plan Card Widget - بطاقة الخطة
 /// Displays subscription plan with name, price, features, and upgrade action.
 /// عرض خطة الاشتراك مع الاسم والسعر والميزات وزر الترقية
+library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
@@ -27,7 +28,7 @@ class PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(

@@ -691,7 +691,7 @@ class _PreviewOverlayState extends State<_PreviewOverlay>
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            return Container(
+            return ColoredBox(
               color: Colors.black.withOpacity(_fadeAnimation.value * 0.5),
               child: Center(
                 child: Transform.scale(
@@ -1040,7 +1040,7 @@ class _AnimatedReorderableListState<T> extends State<AnimatedReorderableList<T>>
           child: widget.itemBuilder(
             item,
             index,
-            AlwaysStoppedAnimation(1.0),
+            const AlwaysStoppedAnimation(1.0),
           ),
         );
       },

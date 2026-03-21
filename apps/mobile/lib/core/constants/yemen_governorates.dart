@@ -340,12 +340,12 @@ class YemenGovernorates {
 
   /// Get Map of id -> nameAr for forms
   static Map<String, String> get mapIdToNameAr {
-    return {for (var g in all) g.id: g.nameAr};
+    return {for (final g in all) g.id: g.nameAr};
   }
 
   /// Get Map of id -> nameEn for forms
   static Map<String, String> get mapIdToNameEn {
-    return {for (var g in all) g.id: g.nameEn};
+    return {for (final g in all) g.id: g.nameEn};
   }
 
   /// Find nearest governorate to a given coordinate

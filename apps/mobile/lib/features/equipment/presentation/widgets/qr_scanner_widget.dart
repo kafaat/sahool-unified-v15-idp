@@ -1,11 +1,11 @@
 /// QR Scanner Widget - ماسح رمز QR للمعدات
 /// Equipment-specific QR code scanner
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/widgets/barcode_scanner_widget.dart';
-import '../../domain/models/equipment.dart';
 import '../../state/equipment_providers.dart';
 
 /// Equipment QR Scanner Button
@@ -104,11 +104,11 @@ class EquipmentQRScannerButton extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.error_outline, color: SahoolColors.danger),
-            const SizedBox(width: 8),
-            const Text('المعدة غير موجودة'),
+            SizedBox(width: 8),
+            Text('المعدة غير موجودة'),
           ],
         ),
         content: Column(
@@ -184,10 +184,10 @@ class EquipmentQRFAB extends ConsumerWidget {
       final qrCode = result.value;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
@@ -195,11 +195,11 @@ class EquipmentQRFAB extends ConsumerWidget {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Text('جاري البحث عن المعدة...'),
+              SizedBox(width: 12),
+              Text('جاري البحث عن المعدة...'),
             ],
           ),
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
 
@@ -220,8 +220,8 @@ class EquipmentQRFAB extends ConsumerWidget {
             onEquipmentFound?.call(localEquipment);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('المعدة غير موجودة'),
+              const SnackBar(
+                content: Text('المعدة غير موجودة'),
                 backgroundColor: SahoolColors.danger,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -278,7 +278,7 @@ class EquipmentQRDisplay extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.qr_code_2,
                   size: 120,
                   color: SahoolColors.forestGreen,

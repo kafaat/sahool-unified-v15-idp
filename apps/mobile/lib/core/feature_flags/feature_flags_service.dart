@@ -7,6 +7,7 @@
 /// - Override flags for testing
 /// - Flag change listeners
 /// - Package-based defaults
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -256,7 +257,7 @@ class FeatureFlagsService extends ChangeNotifier {
     try {
       AppLogger.i('Fetching feature flags from remote', tag: 'FEATURE_FLAGS');
 
-      final remoteFlags = await _remoteConfig!.fetchFlags();
+      final remoteFlags = await _remoteConfig.fetchFlags();
 
       if (remoteFlags.isNotEmpty) {
         await _applyRemoteFlags(remoteFlags);

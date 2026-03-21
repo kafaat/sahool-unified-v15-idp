@@ -1,17 +1,32 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import '../models/rotation_models.dart';
 
-/// Service for managing crop rotation plans
+/// Service for managing crop rotation plans.
+///
+/// TODO: Replace local computation with API calls to the advisory-service
+/// (POST /api/v1/rotation/plan) with offline fallback to locally cached plans.
+///
+/// Architecture:
+/// 1. Try fetching from API: GET /api/v1/rotation/plans/{fieldId}
+/// 2. On network failure, fall back to locally stored plan (Drift DB)
+/// 3. On success, cache response locally for offline use
 class RotationService {
-  // Simulate API delay
-  Future<void> _simulateDelay() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
+  // TODO: Inject Dio/ApiClient for real API calls
+  // final ApiClient _apiClient;
+  // RotationService(this._apiClient);
 
-  /// Get rotation plan for a specific field
+  /// Get rotation plan for a specific field.
+  /// Falls back to local computation when API is unavailable.
   Future<RotationPlan> getRotationPlan(String fieldId) async {
-    await _simulateDelay();
+    // TODO: Try API first, fall back to local computation
+    // try {
+    //   final response = await _apiClient.get('/api/v1/rotation/plans/$fieldId');
+    //   if (response.statusCode == 200) {
+    //     return RotationPlan.fromJson(response.data);
+    //   }
+    // } catch (e) {
+    //   debugPrint('API unavailable, using local rotation computation: $e');
+    // }
 
     // Generate sample rotation plan
     final currentYear = DateTime.now().year;
@@ -129,7 +144,7 @@ class RotationService {
     int years,
     Map<String, dynamic> preferences,
   ) async {
-    await _simulateDelay();
+    // TODO: Replace with API call when rotation-service is available
 
     final currentYear = DateTime.now().year;
     final rotationYears = <RotationYear>[];
@@ -164,11 +179,9 @@ class RotationService {
       }
 
       // If no legume selected, pick best available crop
-      if (selectedCrop == null) {
-        selectedCrop = availableCrops
+      selectedCrop ??= availableCrops
             .where((c) => !usedFamilies.contains(c.family))
             .firstOrNull ?? availableCrops.first;
-      }
 
       // Update used families (keep last 3 years)
       usedFamilies.add(selectedCrop.family);
@@ -284,7 +297,7 @@ class RotationService {
 
   /// Get compatibility score between two crops
   Future<CompatibilityScore> getCropCompatibility(Crop crop1, Crop crop2) async {
-    await _simulateDelay();
+    // TODO: Replace with API call when rotation-service is available
 
     double score = 1.0; // Start with perfect score
     String level;
@@ -353,7 +366,7 @@ class RotationService {
 
   /// Get soil health trend over time for a field
   Future<List<SoilHealth>> getSoilHealthTrend(String fieldId) async {
-    await _simulateDelay();
+    // TODO: Replace with API call when rotation-service is available
 
     final currentYear = DateTime.now().year;
     final trend = <SoilHealth>[];
@@ -385,7 +398,7 @@ class RotationService {
     String fieldId,
     int year,
   ) async {
-    await _simulateDelay();
+    // TODO: Replace with API call when rotation-service is available
 
     // Get rotation plan to check history
     final plan = await getRotationPlan(fieldId);

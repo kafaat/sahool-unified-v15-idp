@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -145,7 +144,7 @@ class TileStorage {
   }) async {
     await initialize();
     final file = File('$_basePath/regions/$regionId/$z/${x}_$y.png');
-    return await file.exists();
+    return file.exists();
   }
 
   /// Check if tile exists in any region - التحقق من وجود بلاطة في أي منطقة
@@ -168,7 +167,7 @@ class TileStorage {
 
     final regionsDir = Directory('$_basePath/regions');
     if (!await regionsDir.exists()) {
-      return StorageStats(
+      return const StorageStats(
         totalSizeBytes: 0,
         totalTileCount: 0,
         zoomLevels: [],
@@ -303,7 +302,7 @@ class TileStorage {
 
     final regionsDir = Directory('$_basePath/regions');
     if (!await regionsDir.exists()) {
-      return CleanupResult(deletedCount: 0, freedBytes: 0);
+      return const CleanupResult(deletedCount: 0, freedBytes: 0);
     }
 
     await for (final regionDir in regionsDir.list()) {

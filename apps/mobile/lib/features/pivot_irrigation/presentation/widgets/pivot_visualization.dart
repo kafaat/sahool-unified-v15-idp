@@ -257,7 +257,7 @@ class _PivotPainter extends CustomPainter {
   void _drawDefaultSectors(Canvas canvas, Offset center, double radius) {
     // Draw 8 default sectors
     const sectorCount = 8;
-    final sectorAngle = 2 * math.pi / sectorCount;
+    const sectorAngle = 2 * math.pi / sectorCount;
 
     for (int i = 0; i < sectorCount; i++) {
       final startAngle = i * sectorAngle - math.pi / 2;

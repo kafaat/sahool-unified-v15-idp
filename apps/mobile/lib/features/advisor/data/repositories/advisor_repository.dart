@@ -39,7 +39,7 @@ class AdvisorRepository {
   Map<String, String> get _headers => {
         ...ApiConfig.defaultHeaders,
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        if (_tenantId != null) 'X-Tenant-Id': _tenantId!,
+        if (_tenantId != null) 'X-Tenant-Id': _tenantId,
       };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -58,7 +58,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => CropTypeOption.fromJson(e)).toList();
+        return data.map((e) => CropTypeOption.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch crops',
@@ -87,7 +87,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return FertilizerRecommendation.fromJson(json.decode(response.body));
+        return FertilizerRecommendation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get recommendation',
@@ -114,7 +114,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return SoilInterpretation.fromJson(json.decode(response.body));
+        return SoilInterpretation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to interpret soil',
@@ -148,7 +148,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => DeficiencySymptom.fromJson(e)).toList();
+        return data.map((e) => DeficiencySymptom.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch symptoms',
@@ -180,7 +180,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => CropWaterRequirement.fromJson(e)).toList();
+        return data.map((e) => CropWaterRequirement.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch irrigation crops',
@@ -207,7 +207,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => IrrigationMethodOption.fromJson(e)).toList();
+        return data.map((e) => IrrigationMethodOption.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch irrigation methods',
@@ -236,7 +236,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return IrrigationCalculation.fromJson(json.decode(response.body));
+        return IrrigationCalculation.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to calculate irrigation',
@@ -273,7 +273,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return WaterBalance.fromJson(json.decode(response.body));
+        return WaterBalance.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get water balance',
@@ -300,7 +300,7 @@ class AdvisorRepository {
       );
 
       if (response.statusCode == 200) {
-        return WaterBalance.fromJson(json.decode(response.body));
+        return WaterBalance.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to submit sensor reading',
@@ -333,7 +333,7 @@ class AdvisorRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        return IrrigationEfficiencyReport.fromJson(json.decode(response.body));
+        return IrrigationEfficiencyReport.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get efficiency report',
@@ -357,7 +357,7 @@ class AdvisorRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        return IrrigationSchedule.fromJson(json.decode(response.body));
+        return IrrigationSchedule.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get irrigation schedule',

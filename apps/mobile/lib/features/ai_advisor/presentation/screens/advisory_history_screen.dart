@@ -2,6 +2,7 @@
 /// شاشة سجل التوصيات
 ///
 /// Shows history of all AI-generated advisories with filtering
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,11 +98,13 @@ class _AdvisoryHistoryScreenState extends ConsumerState<AdvisoryHistoryScreen>
       ),
       body: RefreshIndicator(
         onRefresh: _refreshList,
-        child: state.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : state.advisories.isEmpty
-                ? _buildEmptyState()
-                : _buildAdvisoryList(state.advisories),
+        child: state.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text(error.toString())),
+          data: (advisories) => advisories.isEmpty
+              ? _buildEmptyState()
+              : _buildAdvisoryList(advisories),
+        ),
       ),
     );
   }
@@ -285,7 +288,7 @@ class _AdvisoryHistoryScreenState extends ConsumerState<AdvisoryHistoryScreen>
                           _selectedType = selected ? type : null;
                         });
                       },
-                      selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                      selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                       checkmarkColor: SahoolTheme.primary,
                     );
                   }).toList(),
@@ -334,16 +337,13 @@ class _AdvisoryHistoryScreenState extends ConsumerState<AdvisoryHistoryScreen>
   }
 
   Future<void> _refreshList() async {
-    await ref.read(advisoryHistoryProvider.notifier).loadHistory(
+    await ref.read(advisoryHistoryProvider.notifier).refresh(
       fieldId: widget.fieldId,
-      type: _selectedType,
-      status: _selectedStatus,
-      forceRefresh: true,
     );
   }
 
   void _markAsApplied(String advisoryId) {
-    ref.read(advisoryHistoryProvider.notifier).markAsApplied(advisoryId);
+    ref.read(advisoriesProvider.notifier).updateAdvisoryStatus(advisoryId, AdvisoryStatus.applied);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -367,7 +367,7 @@ class _AdvisoryHistoryScreenState extends ConsumerState<AdvisoryHistoryScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ref.read(advisoryHistoryProvider.notifier).dismiss(advisoryId);
+              ref.read(advisoriesProvider.notifier).updateAdvisoryStatus(advisoryId, AdvisoryStatus.dismissed);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

@@ -10,6 +10,7 @@
 /// - Usage patterns tracking
 /// - Privacy-first design
 /// - No PII collection
+library;
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -164,7 +165,9 @@ class AnalyticsUserProperties {
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfo.androidInfo;
       osVersion = 'Android ${androidInfo.version.release}';
-      deviceCategory = _getDeviceCategory(androidInfo.displayMetrics.widthPx);
+      final displayMetrics = androidInfo.data['displayMetrics'] as Map<String, dynamic>?;
+      final widthPx = (displayMetrics?['widthPx'] as num?)?.toDouble() ?? 1080;
+      deviceCategory = _getDeviceCategory(widthPx);
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfo.iosInfo;
       osVersion = 'iOS ${iosInfo.systemVersion}';
@@ -438,7 +441,8 @@ class AnalyticsUserProperties {
 
   /// Sanitize custom properties
   static Map<String, dynamic> _sanitizeCustomProperties(Map<String, dynamic> props) {
-    return PiiFilter.sanitize(props) as Map<String, dynamic>;
+    final sanitized = PiiFilter.sanitize(props);
+    return sanitized is Map<String, dynamic> ? sanitized : <String, dynamic>{};
   }
 
   /// Hash ID for privacy

@@ -42,7 +42,7 @@ class _RegionSelectorState extends State<RegionSelector> {
 
     // Initialize bounds
     _bounds = widget.initialBounds ??
-        RegionBounds(
+        const RegionBounds(
           south: 15.2,
           west: 44.0,
           north: 15.5,
@@ -159,7 +159,7 @@ class _RegionSelectorState extends State<RegionSelector> {
             onTap: (tapPosition, point) {
               if (!_isDragging) {
                 // Center selection on tap point
-                final size = 0.15; // Default size in degrees
+                const size = 0.15; // Default size in degrees
                 _updateBounds(RegionBounds(
                   south: point.latitude - size,
                   west: point.longitude - size,
@@ -186,7 +186,7 @@ class _RegionSelectorState extends State<RegionSelector> {
                     LatLng(_bounds.south, _bounds.east),
                     LatLng(_bounds.south, _bounds.west),
                   ],
-                  color: SahoolColors.primary.withOpacity(0.2),
+                  color: SahoolColors.primary.withValues(alpha: 0.2),
                   borderColor: SahoolColors.primary,
                   borderStrokeWidth: 2,
                 ),
@@ -208,20 +208,20 @@ class _RegionSelectorState extends State<RegionSelector> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.touch_app, size: 18, color: SahoolColors.primary),
-                const SizedBox(width: 8),
-                const Expanded(
+                Icon(Icons.touch_app, size: 18, color: SahoolColors.primary),
+                SizedBox(width: 8),
+                Expanded(
                   child: Text(
                     'اضغط على الخريطة لتحديد منطقة، أو اسحب المقابض لتعديل الحدود',
                     style: TextStyle(fontSize: 12),
@@ -341,10 +341,10 @@ class _RegionSelectorState extends State<RegionSelector> {
         onPanUpdate: (details) {
           // Convert screen position to map coordinates
           final screenPoint =
-              _mapController.camera.latLngToScreenPoint(position);
+              _mapController.camera.latLngToScreenOffset(position);
           final newScreenPoint = screenPoint + details.delta;
           final newLatLng =
-              _mapController.camera.screenPointToLatLng(newScreenPoint);
+              _mapController.camera.screenOffsetToLatLng(newScreenPoint);
           _onHandleDrag(handle, newLatLng);
         },
         onPanEnd: (_) {
@@ -353,7 +353,7 @@ class _RegionSelectorState extends State<RegionSelector> {
             _activeHandle = null;
           });
         },
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: isCenter
                 ? SahoolColors.primary
@@ -367,7 +367,7 @@ class _RegionSelectorState extends State<RegionSelector> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -442,7 +442,7 @@ class RegionPreview extends StatelessWidget {
                     LatLng(bounds.south, bounds.east),
                     LatLng(bounds.south, bounds.west),
                   ],
-                  color: SahoolColors.primary.withOpacity(0.2),
+                  color: SahoolColors.primary.withValues(alpha: 0.2),
                   borderColor: SahoolColors.primary,
                   borderStrokeWidth: 2,
                 ),

@@ -7,8 +7,8 @@
 /// - Mapbox (Requires API key)
 /// - Google Maps (Requires API key)
 /// - Custom Tile Server
+library;
 
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Map Provider Types

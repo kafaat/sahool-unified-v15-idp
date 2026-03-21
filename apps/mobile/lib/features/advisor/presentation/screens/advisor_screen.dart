@@ -217,7 +217,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
                   Text(
                     'Humidity: 45% | Wind: 12 km/h NW',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.8), fontSize: 12),
+                        color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
                   ),
                 ],
               ),
@@ -228,7 +228,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -240,7 +240,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
                   child: Text(
                     'Frost warning tomorrow night (2 C) | تحذير صقيع الليلة القادمة',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 11,
                     ),
                   ),
@@ -289,7 +289,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
                   border: Border.all(
                     color: isSelected
                         ? SahoolColors.forestGreen
-                        : Colors.grey.withOpacity(0.3),
+                        : Colors.grey.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -456,7 +456,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
               value: totalROI > 0
                   ? (netBenefit / totalROI).clamp(0.0, 1.0)
                   : 0.0,
-              backgroundColor: SahoolColors.danger.withOpacity(0.2),
+              backgroundColor: SahoolColors.danger.withValues(alpha: 0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(
                   SahoolColors.success),
               minHeight: 8,
@@ -464,7 +464,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            totalCost > 0
+            totalCost > 0 && totalROI > 0
                 ? 'ROI: ${((totalROI / totalCost) * 100).toStringAsFixed(0)}% | Invest to grow | استثمر لتنمو'
                 : 'No investments needed | لا توجد استثمارات مطلوبة',
             style: TextStyle(

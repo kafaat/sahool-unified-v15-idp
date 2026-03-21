@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -184,7 +183,7 @@ class LogSyncService {
       }
 
       if (attempt < _maxRetries - 1) {
-        await Future.delayed(Duration(seconds: _retryDelaySeconds));
+        await Future.delayed(const Duration(seconds: _retryDelaySeconds));
       }
     }
 
@@ -225,7 +224,7 @@ class LogSyncService {
     }
 
     try {
-      return await _syncCallback!(logs.map((e) => e.toJson()).toList());
+      return await _syncCallback(logs.map((e) => e.toJson()).toList());
     } catch (e) {
       debugPrint('LogSyncService sync error: $e');
       return false;

@@ -54,7 +54,7 @@ class _FeaturesTourScreenState extends ConsumerState<FeaturesTourScreen> {
   }
 
   void _nextPage() {
-    final features = OnboardingFeatures.features;
+    const features = OnboardingFeatures.features;
     final currentPage = ref.read(featuresTourPageProvider);
 
     if (currentPage < features.length - 1) {

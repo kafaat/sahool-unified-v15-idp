@@ -138,7 +138,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
           // مؤشر التحميل
           if (_isProcessing)
-            Container(
+            ColoredBox(
               color: Colors.black.withOpacity(0.5),
               child: const Center(
                 child: CircularProgressIndicator(),
@@ -286,7 +286,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         error: (error, stack) async {
           // إذا فشل البحث بالباركود، جرب SKU
           final itemBySku = ref.read(inventoryItemBySkuProvider(code));
-          await itemBySku.when(
+          itemBySku.when(
             data: (item) {
               if (mounted) {
                 Navigator.pop(context);

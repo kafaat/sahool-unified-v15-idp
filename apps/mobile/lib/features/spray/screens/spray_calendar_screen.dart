@@ -14,9 +14,9 @@ class SprayCalendarScreen extends ConsumerStatefulWidget {
   final String fieldId;
 
   const SprayCalendarScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayCalendarScreen> createState() => _SprayCalendarScreenState();

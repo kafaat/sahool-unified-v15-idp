@@ -6,6 +6,7 @@
 /// - Credit score gauge
 /// - Quick actions (deposit, withdraw, loan)
 /// - Transaction history
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,7 +93,7 @@ class WalletScreen extends ConsumerWidget {
                   Text(
                     'SAHOOL Digital Wallet',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 14,
                     ),
                   ),
@@ -182,7 +183,7 @@ class _WalletBalanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF667eea).withOpacity(0.4),
+            color: const Color(0xFF667eea).withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -204,7 +205,7 @@ class _WalletBalanceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -228,7 +229,7 @@ class _WalletBalanceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          const Row(
             children: [
               _BalanceInfoChip(
                 icon: Icons.arrow_upward,
@@ -236,7 +237,7 @@ class _WalletBalanceCard extends StatelessWidget {
                 value: '+15,000',
                 color: Colors.green,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               _BalanceInfoChip(
                 icon: Icons.arrow_downward,
                 label: 'المصروفات',
@@ -277,7 +278,7 @@ class _BalanceInfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -291,7 +292,7 @@ class _BalanceInfoChip extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 10,
                 ),
               ),
@@ -379,7 +380,7 @@ class _CreditScoreCard extends StatelessWidget {
                   Text(
                     'من 850',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -396,7 +397,7 @@ class _CreditScoreCard extends StatelessWidget {
                     CircularProgressIndicator(
                       value: percentage,
                       strokeWidth: 10,
-                      backgroundColor: Colors.white.withOpacity(0.1),
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
                       valueColor: AlwaysStoppedAnimation(_getScoreColor(score)),
                     ),
                     Text(
@@ -419,7 +420,7 @@ class _CreditScoreCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: Colors.white.withValues(alpha: 0.1),
               valueColor: AlwaysStoppedAnimation(_getScoreColor(score)),
             ),
           ),
@@ -427,11 +428,11 @@ class _CreditScoreCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('300', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('500', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('650', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('750', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('850', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('300', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 10)),
+              Text('500', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 10)),
+              Text('650', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 10)),
+              Text('750', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 10)),
+              Text('850', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 10)),
             ],
           ),
         ],
@@ -495,7 +496,7 @@ class _QuickActionsSection extends StatelessWidget {
             icon: Icons.swap_horiz,
             label: 'تحويل',
             color: Colors.purple,
-            onTap: () {},
+            onTap: () => _showTransferDialog(context),
           ),
         ],
       ),
@@ -536,6 +537,113 @@ class _QuickActionsSection extends StatelessWidget {
       builder: (context) => const _LoanBottomSheet(),
     );
   }
+
+  void _showTransferDialog(BuildContext context) {
+    final amountController = TextEditingController();
+    final recipientController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16213E),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'تحويل رصيد',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: recipientController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'رقم المستفيد أو اسمه',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(Icons.person_search, color: Colors.white70),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'المبلغ (ر.ي)',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(Icons.attach_money, color: Colors.white70),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (amountController.text.isNotEmpty &&
+                      recipientController.text.isNotEmpty) {
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'تم تحويل ${amountController.text} ر.ي إلى ${recipientController.text}'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('تأكيد التحويل',
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// زر إجراء سريع
@@ -565,7 +673,7 @@ class _QuickActionButton extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -624,7 +732,7 @@ class _AvailableCreditBanner extends StatelessWidget {
                 Text(
                   'يمكنك الحصول على تمويل يصل إلى ${wallet.availableCredit.toStringAsFixed(0)} ر.ي',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 12,
                   ),
                 ),
@@ -632,7 +740,7 @@ class _AvailableCreditBanner extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () => _showCreditApplicationDialog(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.green.shade700,
@@ -641,6 +749,56 @@ class _AvailableCreditBanner extends StatelessWidget {
               ),
             ),
             child: const Text('تقدم الآن'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreditApplicationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('طلب تمويل زراعي'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'المبلغ المتاح: ${wallet.availableCredit.toStringAsFixed(0)} ر.ي',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text('سيتم مراجعة طلبك والرد خلال 48 ساعة.'),
+            const SizedBox(height: 12),
+            const Text(
+              'الشروط:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const Text('- حساب نشط لمدة 3 أشهر على الأقل'),
+            const Text('- سجل معاملات إيجابي'),
+            const Text('- لا يوجد تمويل سابق متأخر'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تم إرسال طلب التمويل بنجاح. سيتم الرد خلال 48 ساعة.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            child: const Text('تقديم الطلب', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -670,8 +828,8 @@ class _TransactionTile extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               color: transaction.isPositive
-                  ? Colors.green.withOpacity(0.2)
-                  : Colors.red.withOpacity(0.2),
+                  ? Colors.green.withValues(alpha: 0.2)
+                  : Colors.red.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -698,7 +856,7 @@ class _TransactionTile extends StatelessWidget {
                 Text(
                   _formatDate(transaction.createdAt),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -736,13 +894,13 @@ class _EmptyTransactionsView extends StatelessWidget {
           Icon(
             Icons.receipt_long_outlined,
             size: 64,
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             'لا توجد معاملات بعد',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 16,
             ),
           ),
@@ -792,12 +950,12 @@ class _DepositBottomSheetState extends ConsumerState<_DepositBottomSheet> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'المبلغ',
-              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
               suffixText: 'ر.ي',
               suffixStyle: const TextStyle(color: Colors.white),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -896,7 +1054,7 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
           Text(
             'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? 0} ر.ي',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
             ),
           ),
@@ -907,12 +1065,12 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: 'المبلغ',
-              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
               suffixText: 'ر.ي',
               suffixStyle: const TextStyle(color: Colors.white),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -935,10 +1093,10 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: _selectedMethod == 'bank' ? 'رقم الحساب' : 'رقم الموبايل',
-              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -979,10 +1137,10 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
+            color: isSelected ? Colors.orange.withValues(alpha: 0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? Colors.orange : Colors.white.withOpacity(0.3),
+              color: isSelected ? Colors.orange : Colors.white.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -1085,7 +1243,7 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
             Text(
               'الحد المتاح: ${availableCredit.toStringAsFixed(0)} ر.ي',
               style: TextStyle(
-                color: Colors.green.withOpacity(0.9),
+                color: Colors.green.withValues(alpha: 0.9),
                 fontSize: 14,
               ),
             ),
@@ -1096,12 +1254,12 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'مبلغ التمويل',
-                labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
                 suffixText: 'ر.ي',
                 suffixStyle: const TextStyle(color: Colors.white),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1117,11 +1275,11 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
               decoration: InputDecoration(
                 labelText: 'الغرض من التمويل',
                 hintText: 'مثال: شراء بذور، معدات زراعية',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1134,7 +1292,7 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
             Text(
               'مدة السداد',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
@@ -1150,10 +1308,10 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+                          color: isSelected ? Colors.blue.withValues(alpha: 0.2) : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.white.withOpacity(0.3),
+                            color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Center(

@@ -7,6 +7,7 @@
 /// - Irrigation scheduling
 /// - Sensor readings
 /// - Efficiency analysis
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -334,7 +335,7 @@ class IrrigationServiceConnector extends ServiceConnector {
   /// الحصول على توازن المياه للحقل
   Future<ApiResult<WaterBalance>> getWaterBalance(String fieldId) async {
     return get(
-      '${getEndpoint('water-balance') ?? '/api/v1/irrigation/water-balance'}',
+      getEndpoint('water-balance') ?? '/api/v1/irrigation/water-balance',
       queryParameters: {'field_id': fieldId},
       parser: (data) => WaterBalance.fromJson(data as Map<String, dynamic>),
     );
@@ -464,7 +465,7 @@ class IrrigationServiceConnector extends ServiceConnector {
   /// الحصول على تحليل كفاءة الري
   Future<ApiResult<IrrigationEfficiency>> getEfficiency(String fieldId) async {
     return get(
-      '${getEndpoint('efficiency') ?? '/api/v1/irrigation/efficiency'}',
+      getEndpoint('efficiency') ?? '/api/v1/irrigation/efficiency',
       queryParameters: {'field_id': fieldId},
       parser: (data) => IrrigationEfficiency.fromJson(data as Map<String, dynamic>),
     );

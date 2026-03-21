@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/accessibility/semantics_helper.dart';
 import '../../../core/http/api_client.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../crops/data/models/crop_model.dart';
 import '../../crops/data/remote/crops_api.dart';
 import '../../crops/data/repositories/crops_repository.dart';
@@ -17,16 +19,16 @@ import '../../crops/data/repositories/crops_repository.dart';
 /// - Error announcements for screen readers
 /// - Focus management
 /// - Minimum touch targets
-class FieldFormScreen extends StatefulWidget {
+class FieldFormScreen extends ConsumerStatefulWidget {
   final String? fieldId; // null = إضافة جديد
 
   const FieldFormScreen({super.key, this.fieldId});
 
   @override
-  State<FieldFormScreen> createState() => _FieldFormScreenState();
+  ConsumerState<FieldFormScreen> createState() => _FieldFormScreenState();
 }
 
-class _FieldFormScreenState extends State<FieldFormScreen> {
+class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _areaController = TextEditingController();
@@ -35,6 +37,8 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
   String? _selectedIrrigation;
   DateTime? _plantingDate;
   bool _hasBoundary = false;
+
+  bool _isSaving = false;
 
   // Crops data
   List<Crop> _crops = [];
@@ -100,7 +104,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
       appBar: AppBar(
         title: Semantics(
           header: true,
-          child: Text(isEditing ? "تعديل الحقل" : "إضافة حقل جديد"),
+          child: Text(isEditing ? 'تعديل الحقل' : 'إضافة حقل جديد'),
         ),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
@@ -126,7 +130,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // القسم 1: البيانات الأساسية - Section 1: Basic data
-              _buildSectionHeader("بيانات الحقل الأساسية", Icons.info_outline),
+              _buildSectionHeader('بيانات الحقل الأساسية', Icons.info_outline),
               const SizedBox(height: 16),
 
               // اسم الحقل - Field name
@@ -135,10 +139,10 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 textField: true,
                 child: TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: "اسم الحقل",
-                    hintText: "مثال: المزرعة الشمالية",
-                    prefixIcon: ExcludeSemantics(child: const Icon(Icons.label_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'اسم الحقل',
+                    hintText: 'مثال: المزرعة الشمالية',
+                    prefixIcon: ExcludeSemantics(child: Icon(Icons.label_outline)),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -162,11 +166,11 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 child: TextFormField(
                   controller: _areaController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: "المساحة (هكتار)",
-                    hintText: "مثال: 2.5",
-                    prefixIcon: ExcludeSemantics(child: const Icon(Icons.aspect_ratio)),
-                    suffixText: "هكتار",
+                  decoration: const InputDecoration(
+                    labelText: 'المساحة (هكتار)',
+                    hintText: 'مثال: 2.5',
+                    prefixIcon: ExcludeSemantics(child: Icon(Icons.aspect_ratio)),
+                    suffixText: 'هكتار',
                   ),
                   textInputAction: TextInputAction.next,
                 ),
@@ -178,16 +182,16 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 label: SahoolSemantics.irrigationDropdown,
                 child: DropdownButtonFormField<String>(
                   value: _selectedIrrigation,
-                  decoration: InputDecoration(
-                    labelText: "نظام الري",
-                    prefixIcon: ExcludeSemantics(child: const Icon(Icons.water_drop)),
+                  decoration: const InputDecoration(
+                    labelText: 'نظام الري',
+                    prefixIcon: ExcludeSemantics(child: Icon(Icons.water_drop)),
                   ),
                   items: const [
-                    DropdownMenuItem(value: "drip", child: Text("تنقيط")),
-                    DropdownMenuItem(value: "sprinkler", child: Text("رشاشات")),
-                    DropdownMenuItem(value: "flood", child: Text("غمر")),
-                    DropdownMenuItem(value: "pivot", child: Text("محوري")),
-                    DropdownMenuItem(value: "none", child: Text("بدون ري (مطري)")),
+                    DropdownMenuItem(value: 'drip', child: Text('تنقيط')),
+                    DropdownMenuItem(value: 'sprinkler', child: Text('رشاشات')),
+                    DropdownMenuItem(value: 'flood', child: Text('غمر')),
+                    DropdownMenuItem(value: 'pivot', child: Text('محوري')),
+                    DropdownMenuItem(value: 'none', child: Text('بدون ري (مطري)')),
                   ],
                   onChanged: (v) => setState(() => _selectedIrrigation = v),
                 ),
@@ -204,15 +208,15 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 child: InkWell(
                   onTap: _selectPlantingDate,
                   child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: "تاريخ الزراعة",
-                      prefixIcon: ExcludeSemantics(child: const Icon(Icons.calendar_today)),
-                      suffixIcon: ExcludeSemantics(child: const Icon(Icons.arrow_drop_down)),
+                    decoration: const InputDecoration(
+                      labelText: 'تاريخ الزراعة',
+                      prefixIcon: ExcludeSemantics(child: Icon(Icons.calendar_today)),
+                      suffixIcon: ExcludeSemantics(child: Icon(Icons.arrow_drop_down)),
                     ),
                     child: Text(
                       _plantingDate != null
                           ? "${_plantingDate!.year}-${_plantingDate!.month.toString().padLeft(2, '0')}-${_plantingDate!.day.toString().padLeft(2, '0')}"
-                          : "اختر التاريخ",
+                          : 'اختر التاريخ',
                       style: TextStyle(
                         color: _plantingDate != null ? Colors.black : Colors.grey,
                       ),
@@ -224,7 +228,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
               const SizedBox(height: 32),
 
               // القسم 2: الموقع الجغرافي - Section 2: Geographic location
-              _buildSectionHeader("الموقع الجغرافي", Icons.map_outlined),
+              _buildSectionHeader('الموقع الجغرافي', Icons.map_outlined),
               const SizedBox(height: 16),
 
               // بطاقة الرسم على الخريطة - Map drawing card
@@ -233,7 +237,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
               const SizedBox(height: 32),
 
               // القسم 3: معلومات إضافية - Section 3: Additional info
-              _buildSectionHeader("معلومات إضافية (اختياري)", Icons.more_horiz),
+              _buildSectionHeader('معلومات إضافية (اختياري)', Icons.more_horiz),
               const SizedBox(height: 16),
 
               // ملاحظات - Notes
@@ -242,12 +246,12 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 textField: true,
                 child: TextFormField(
                   maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: "ملاحظات",
-                    hintText: "أي معلومات إضافية عن الحقل...",
+                  decoration: const InputDecoration(
+                    labelText: 'ملاحظات',
+                    hintText: 'أي معلومات إضافية عن الحقل...',
                     alignLabelWithHint: true,
                     prefixIcon: ExcludeSemantics(
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.only(bottom: 50),
                         child: Icon(Icons.notes),
                       ),
@@ -267,7 +271,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 child: SizedBox(
                   height: kMinTouchTargetSize,
                   child: ElevatedButton(
-                    onPressed: _saveField,
+                    onPressed: _isSaving ? null : _saveField,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SahoolColors.forestGreen,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -275,14 +279,23 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      isEditing ? "حفظ التغييرات" : "إضافة الحقل",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            isEditing ? 'حفظ التغييرات' : 'إضافة الحقل',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -303,7 +316,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text("إلغاء"),
+                    child: const Text('إلغاء'),
                   ),
                 ),
               ),
@@ -340,21 +353,21 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
     if (_isLoadingCrops) {
       return Semantics(
         label: 'جاري تحميل قائمة المحاصيل',
-        child: InputDecorator(
+        child: const InputDecorator(
           decoration: InputDecoration(
-            labelText: "نوع المحصول",
-            prefixIcon: ExcludeSemantics(child: const Icon(Icons.grass)),
+            labelText: 'نوع المحصول',
+            prefixIcon: ExcludeSemantics(child: Icon(Icons.grass)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
               SizedBox(width: 8),
-              Text("جاري التحميل...", style: TextStyle(fontSize: 12)),
+              Text('جاري التحميل...', style: TextStyle(fontSize: 12)),
             ],
           ),
         ),
@@ -368,9 +381,9 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             InputDecorator(
-              decoration: InputDecoration(
-                labelText: "نوع المحصول",
-                prefixIcon: ExcludeSemantics(child: const Icon(Icons.grass)),
+              decoration: const InputDecoration(
+                labelText: 'نوع المحصول',
+                prefixIcon: ExcludeSemantics(child: Icon(Icons.grass)),
               ),
               child: Text(
                 _cropsError!,
@@ -384,7 +397,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
               child: TextButton.icon(
                 onPressed: _loadCrops,
                 icon: const Icon(Icons.refresh),
-                label: const Text("إعادة المحاولة"),
+                label: const Text('إعادة المحاولة'),
               ),
             ),
           ],
@@ -395,13 +408,13 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
     if (_crops.isEmpty) {
       return Semantics(
         label: 'لا توجد محاصيل متاحة',
-        child: InputDecorator(
+        child: const InputDecorator(
           decoration: InputDecoration(
-            labelText: "نوع المحصول",
-            prefixIcon: ExcludeSemantics(child: const Icon(Icons.grass)),
+            labelText: 'نوع المحصول',
+            prefixIcon: ExcludeSemantics(child: Icon(Icons.grass)),
           ),
-          child: const Text(
-            "لا توجد محاصيل متاحة",
+          child: Text(
+            'لا توجد محاصيل متاحة',
             style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
         ),
@@ -413,8 +426,8 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
       child: DropdownButtonFormField<String>(
         value: _selectedCrop,
         decoration: InputDecoration(
-          labelText: "نوع المحصول",
-          prefixIcon: ExcludeSemantics(child: const Icon(Icons.grass)),
+          labelText: 'نوع المحصول',
+          prefixIcon: const ExcludeSemantics(child: Icon(Icons.grass)),
           suffixIcon: _crops.length > 10
               ? Semantics(
                   label: 'البحث عن محصول',
@@ -422,7 +435,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.search, size: 20),
                     onPressed: _showCropSearchDialog,
-                    tooltip: "البحث عن محصول",
+                    tooltip: 'البحث عن محصول',
                   ),
                 )
               : null,
@@ -481,7 +494,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 }).toList();
 
           return AlertDialog(
-            title: const Text("اختر المحصول"),
+            title: const Text('اختر المحصول'),
             content: SizedBox(
               width: double.maxFinite,
               child: Column(
@@ -489,7 +502,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 children: [
                   TextField(
                     decoration: const InputDecoration(
-                      labelText: "البحث",
+                      labelText: 'البحث',
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
@@ -524,7 +537,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("إلغاء"),
+                child: const Text('إلغاء'),
               ),
             ],
           );
@@ -545,7 +558,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
           ? 'تم تحديد حدود الحقل، المساحة 2.5 هكتار'
           : 'لم يتم تحديد حدود الحقل',
       child: OrganicCard(
-        color: _hasBoundary ? SahoolColors.sageGreen.withOpacity(0.1) : SahoolColors.paleOlive.withOpacity(0.5),
+        color: _hasBoundary ? SahoolColors.sageGreen.withValues(alpha: 0.1) : SahoolColors.paleOlive.withValues(alpha: 0.5),
         child: Column(
           children: [
             ExcludeSemantics(
@@ -557,7 +570,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _hasBoundary ? "تم تحديد الحدود" : "لم يتم تحديد الحدود",
+              _hasBoundary ? 'تم تحديد الحدود' : 'لم يتم تحديد الحدود',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: _hasBoundary ? SahoolColors.sageGreen : SahoolColors.forestGreen,
@@ -566,7 +579,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
             const SizedBox(height: 8),
             if (_hasBoundary)
               const Text(
-                "المساحة: 2.5 هكتار",
+                'المساحة: 2.5 هكتار',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             const SizedBox(height: 12),
@@ -581,11 +594,11 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                     final result = await Navigator.pushNamed(context, '/map', arguments: {'mode': 'draw'});
                     if (result == true) {
                       setState(() => _hasBoundary = true);
-                      AnnouncementHelper.announceComplete(context, 'تحديد الحدود');
+                      if (mounted) AnnouncementHelper.announceComplete(context, 'تحديد الحدود');
                     }
                   },
                   icon: Icon(_hasBoundary ? Icons.edit : Icons.draw),
-                  label: Text(_hasBoundary ? "تعديل الحدود" : "رسم الحدود على الخريطة"),
+                  label: Text(_hasBoundary ? 'تعديل الحدود' : 'رسم الحدود على الخريطة'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SahoolColors.forestGreen,
                   ),
@@ -621,10 +634,41 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
     }
   }
 
-  void _saveField() {
-    if (_formKey.currentState!.validate()) {
-      // حفظ البيانات - Save data
-      final message = isEditing ? "تم تحديث الحقل بنجاح" : "تم إضافة الحقل بنجاح";
+  Future<void> _saveField() async {
+    if (!_formKey.currentState!.validate()) {
+      // Announce validation errors
+      AnnouncementHelper.announceError(context, 'يرجى تصحيح الأخطاء في النموذج');
+      return;
+    }
+
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final repo = ref.read(fieldsRepoProvider);
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+
+      if (isEditing) {
+        // تحديث الحقل - Update existing field
+        await repo.updateFieldProperties(
+          fieldId: widget.fieldId!,
+          name: _nameController.text.trim(),
+          cropType: _selectedCrop,
+        );
+      } else {
+        // إنشاء حقل جديد - Create new field
+        await repo.createField(
+          tenantId: tenantId,
+          name: _nameController.text.trim(),
+          boundary: [], // الحدود ستُضاف من الخريطة لاحقاً
+          cropType: _selectedCrop,
+        );
+      }
+
+      if (!mounted) return;
+
+      final message = isEditing ? 'تم تحديث الحقل بنجاح' : 'تم إضافة الحقل بنجاح';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -634,9 +678,19 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
       // Announce success to screen readers
       AnnouncementHelper.announceComplete(context, isEditing ? 'تحديث الحقل' : 'إضافة الحقل');
       Navigator.pop(context, true);
-    } else {
-      // Announce validation errors
-      AnnouncementHelper.announceError(context, 'يرجى تصحيح الأخطاء في النموذج');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('فشل حفظ الحقل: $e'),
+          backgroundColor: SahoolColors.danger,
+        ),
+      );
+      AnnouncementHelper.announceError(context, 'فشل حفظ الحقل');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -646,31 +700,50 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
       builder: (context) => AlertDialog(
         title: Semantics(
           header: true,
-          child: const Text("حذف الحقل"),
+          child: const Text('حذف الحقل'),
         ),
-        content: const Text("هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء."),
+        content: const Text('هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء.'),
         actions: [
           Semantics(
             label: 'إلغاء الحذف',
             button: true,
             child: TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("إلغاء"),
+              child: const Text('إلغاء'),
             ),
           ),
           Semantics(
             label: 'تأكيد حذف الحقل',
             button: true,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context); // Close dialog
-                AnnouncementHelper.announceComplete(context, 'حذف الحقل');
-                Navigator.pop(context, 'deleted'); // Return to previous screen
+                try {
+                  final repo = ref.read(fieldsRepoProvider);
+                  await repo.deleteField(widget.fieldId!);
+                  if (!context.mounted) return;
+                  AnnouncementHelper.announceComplete(context, 'حذف الحقل');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تم حذف الحقل بنجاح'),
+                      backgroundColor: SahoolColors.forestGreen,
+                    ),
+                  );
+                  Navigator.pop(context, 'deleted'); // Return to previous screen
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('فشل حذف الحقل: $e'),
+                      backgroundColor: SahoolColors.danger,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: SahoolColors.danger,
               ),
-              child: const Text("حذف", style: TextStyle(color: Colors.white)),
+              child: const Text('حذف', style: TextStyle(color: Colors.white)),
             ),
           ),
         ],

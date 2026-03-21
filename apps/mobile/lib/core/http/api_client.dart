@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';
@@ -412,7 +411,7 @@ class ApiClient {
         String message = 'حدث خطأ غير متوقع';
 
         if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
+          message = (data['message'] ?? data['error'] ?? message) as String;
         }
 
         return ApiException(

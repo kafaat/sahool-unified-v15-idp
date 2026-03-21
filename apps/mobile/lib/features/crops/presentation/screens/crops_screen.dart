@@ -8,6 +8,8 @@
 /// - Arabic/English bilingual
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
@@ -213,21 +215,37 @@ class _CropsScreenState extends ConsumerState<CropsScreen> {
             icon: Icons.edit_note,
             label: 'Record Observation\nتسجيل ملاحظة',
             color: SahoolColors.info,
-            onTap: () {},
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تسجيل الملاحظات - قريباً'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 12),
           _QuickAction(
             icon: Icons.history,
             label: 'Crop History\nتاريخ المحاصيل',
             color: SahoolColors.harvestGold,
-            onTap: () {},
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تاريخ المحاصيل - قريباً'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 12),
           _QuickAction(
             icon: Icons.analytics,
             label: 'Analytics\nالتحليلات',
             color: SahoolColors.sageGreen,
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/analytics');
+            },
           ),
         ],
       ),
@@ -286,9 +304,9 @@ class _CropsScreenState extends ConsumerState<CropsScreen> {
     final recommendations =
         await ref.read(cropsProvider.notifier).getRecommendations(crop.id);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
-    showModalBottomSheet(
+    unawaited(showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -424,7 +442,7 @@ class _CropsScreenState extends ConsumerState<CropsScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   // ===========================================================================
@@ -627,9 +645,9 @@ class _QuickAction extends StatelessWidget {
         width: 100,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
@@ -694,11 +712,11 @@ class _CropOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: SahoolColors.paleOlive.withOpacity(0.5),
+          color: SahoolColors.paleOlive.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: SahoolColors.sageGreen.withOpacity(0.3)),
+          border: Border.all(color: SahoolColors.sageGreen.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

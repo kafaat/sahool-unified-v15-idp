@@ -7,11 +7,9 @@
 /// - Permission caching | تخزين مؤقت للصلاحيات
 /// - Role-based access control (RBAC) | التحكم بالوصول المبني على الأدوار
 /// - Attribute-based access control (ABAC) | التحكم بالوصول المبني على الخصائص
+library;
 
-import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../utils/app_logger.dart';
 import 'models/iam_models.dart';
@@ -483,7 +481,7 @@ class PermissionManager {
   /// Get current user role
   IAMRole get currentRole {
     if (_user == null) return IAMRole.viewer;
-    return IAMRole.fromCode(_user!.role);
+    return IAMRole.fromCode(_user.role);
   }
 
   /// Get all effective permissions | الحصول على جميع الصلاحيات الفعالة
@@ -498,7 +496,7 @@ class PermissionManager {
 
     // Add user's custom permissions
     if (_user != null) {
-      permissions.addAll(_user!.permissions);
+      permissions.addAll(_user.permissions);
     }
 
     // Add any additional custom permissions

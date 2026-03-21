@@ -8,6 +8,7 @@
 /// - HapticIconButton
 /// - HapticInkWell
 /// - Extension methods for adding haptics to any widget
+library;
 
 import 'package:flutter/material.dart';
 

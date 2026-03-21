@@ -3,6 +3,7 @@
 ///
 /// Core data models for Identity and Access Management system.
 /// Contains user identity, session, and audit models with bilingual support.
+library;
 
 import 'package:flutter/foundation.dart';
 

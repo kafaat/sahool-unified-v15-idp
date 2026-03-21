@@ -6,6 +6,7 @@
 /// - Optional update dialog with skip/remind later options
 /// - Update banner for non-intrusive notifications
 /// - Bilingual support (Arabic/English)
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

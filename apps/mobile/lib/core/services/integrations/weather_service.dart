@@ -6,6 +6,7 @@
 /// - Weather forecasts
 /// - Weather alerts
 /// - Agricultural calendar
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';

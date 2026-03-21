@@ -26,6 +26,7 @@
 /// // Record network request
 /// breadcrumbs.recordHttpRequest('GET', '/api/fields', statusCode: 200);
 /// ```
+library;
 
 import 'dart:collection';
 import 'package:flutter/foundation.dart';

@@ -12,11 +12,11 @@ class WeatherCardWidget extends StatelessWidget {
   final VoidCallback? onTap;
 
   const WeatherCardWidget({
-    Key? key,
+    super.key,
     required this.weather,
     this.locale = 'ar',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -262,10 +262,10 @@ class CompactWeatherCard extends StatelessWidget {
   final String locale;
 
   const CompactWeatherCard({
-    Key? key,
+    super.key,
     required this.weather,
     this.locale = 'ar',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

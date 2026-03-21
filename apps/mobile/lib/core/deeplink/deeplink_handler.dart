@@ -22,6 +22,7 @@
 /// - sahool://alert/{alertId} - Open alert details
 /// - sahool://reset-password?token=xxx - Password reset
 /// - sahool://verify-otp?identifier=xxx&purpose=xxx - OTP verification
+library;
 
 import 'dart:async';
 
@@ -300,7 +301,7 @@ class PasswordResetLinkData extends DeepLinkData {
 
   /// Check if the token is expired (tokens expire after 1 hour typically)
   bool get isExpired {
-    final expirationDuration = const Duration(hours: 1);
+    const expirationDuration = Duration(hours: 1);
     return DateTime.now().difference(receivedAt) > expirationDuration;
   }
 }
@@ -516,7 +517,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       // Listen for incoming links while app is running (warm start)
       _linkSubscription = _appLinks.uriLinkStream.listen(
         (uri) => _handleUri(uri, isColdStart: false),
-        onError: (error) {
+        onError: (Object error) {
           AppLogger.e(
             'Deep link stream error',
             tag: 'DEEPLINK',

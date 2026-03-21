@@ -234,7 +234,7 @@ class AuthService {
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
-        return await _loginWithMock(email, password);
+        return _loginWithMock(email, password);
       }
 
       rethrow;
@@ -259,7 +259,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
@@ -277,15 +282,15 @@ class AuthService {
       );
 
       // Extract user data
-      final userData = data['user'] ?? data;
+      final userData = (data['user'] ?? data) as Map<String, dynamic>;
       final user = User(
-        id: userData['id'] ?? userData['_id'] ?? 'unknown',
-        email: userData['email'] ?? email,
-        name: userData['name'] ?? userData['username'] ?? 'مستخدم',
-        role: userData['role'] ?? 'farmer',
-        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
-        phone: userData['phone'],
-        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+        id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
+        email: (userData['email'] ?? email) as String,
+        name: (userData['name'] ?? userData['username'] ?? 'مستخدم') as String,
+        role: (userData['role'] ?? 'farmer') as String,
+        tenantId: (userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId) as String,
+        phone: userData['phone'] as String?,
+        avatarUrl: (userData['avatar_url'] ?? userData['avatarUrl']) as String?,
       );
 
       // Set auth token in API client for subsequent requests
@@ -408,11 +413,16 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
-      final success = data['success'] ?? false;
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
+      final success = (data['success'] as bool?) ?? false;
 
       if (!success) {
-        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        final message = (data['message'] ?? 'فشل تغيير كلمة المرور') as String;
         throw AuthException(message);
       }
 
@@ -590,7 +600,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract new tokens
       final accessToken = data['access_token'] ?? data['accessToken'];

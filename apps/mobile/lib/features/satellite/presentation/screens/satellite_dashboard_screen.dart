@@ -7,6 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../providers/satellite_provider.dart';
+import '../../data/models/field_health.dart';
+import '../../data/models/ndvi_data.dart';
+import '../../data/models/phenology_data.dart';
 import '../../widgets/health_indicator.dart';
 import '../../widgets/weather_card.dart';
 import '../../widgets/ndvi_chart.dart';
@@ -184,7 +187,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -195,7 +198,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF367C2B).withOpacity(0.1),
+              color: const Color(0xFF367C2B).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -232,7 +235,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildHealthScoreCard(dynamic fieldHealth, BuildContext context, bool isArabic) {
+  Widget _buildHealthScoreCard(FieldHealth fieldHealth, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () {
         // Show health details dialog
@@ -244,7 +247,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -270,7 +273,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildNdviCard(dynamic ndviAnalysis, BuildContext context, bool isArabic) {
+  Widget _buildNdviCard(NdviAnalysis ndviAnalysis, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToNdviDetail(context),
       child: Container(
@@ -280,7 +283,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -356,7 +359,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildGrowthStageCard(dynamic phenologyData, BuildContext context, bool isArabic) {
+  Widget _buildGrowthStageCard(PhenologyData phenologyData, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToPhenology(context),
       child: Container(
@@ -366,7 +369,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -414,7 +417,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildAlertsSection(List<dynamic> alerts, bool isArabic) {
+  Widget _buildAlertsSection(List<HealthAlert> alerts, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -452,7 +455,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildRecommendationsSection(List<dynamic> recommendations, bool isArabic) {
+  Widget _buildRecommendationsSection(List<Recommendation> recommendations, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

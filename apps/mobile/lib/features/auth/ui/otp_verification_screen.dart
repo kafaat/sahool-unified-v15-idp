@@ -228,7 +228,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
     // Take only last digit if multiple pasted
     _otpControllers[index].text = digit.substring(digit.length - 1);
     _otpControllers[index].selection = TextSelection.fromPosition(
-      TextPosition(offset: 1),
+      const TextPosition(offset: 1),
     );
 
     // Auto-focus next input
@@ -547,12 +547,12 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: colorScheme.onBackground),
+          icon: Icon(Icons.arrow_back_ios, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -573,7 +573,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
                 'التحقق من الرمز',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                 ),
               ),
 
@@ -583,7 +583,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
               Text(
                 'أدخل رمز التحقق المكون من 6 أرقام',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -618,7 +618,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
                 child: Text(
                   _maskIdentifier(),
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onBackground.withOpacity(0.9),
+                    color: colorScheme.onSurface.withOpacity(0.9),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -740,7 +740,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: colorScheme.onBackground,
+                color: colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 counterText: '',
@@ -812,7 +812,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
               ? colorScheme.error
               : isWarning
                   ? Colors.orange
-                  : colorScheme.onBackground.withOpacity(0.6),
+                  : colorScheme.onSurface.withOpacity(0.6),
         ),
         const SizedBox(width: 8),
         Text(
@@ -822,7 +822,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
                 ? colorScheme.error
                 : isWarning
                     ? Colors.orange
-                    : colorScheme.onBackground.withOpacity(0.6),
+                    : colorScheme.onSurface.withOpacity(0.6),
             fontWeight: isWarning ? FontWeight.w600 : FontWeight.normal,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -846,15 +846,15 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: _state.isVerified ? Colors.green : colorScheme.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: colorScheme.onBackground.withOpacity(0.1),
-          disabledForegroundColor: colorScheme.onBackground.withOpacity(0.4),
+          disabledBackgroundColor: colorScheme.onSurface.withOpacity(0.1),
+          disabledForegroundColor: colorScheme.onSurface.withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 0,
         ),
         child: _state.isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
@@ -863,11 +863,11 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
                 ),
               )
             : _state.isVerified
-                ? Row(
+                ? const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.check_circle, size: 20),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text('تم التحقق بنجاح'),
                     ],
                   )
@@ -896,7 +896,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
             size: 18,
             color: canResend
                 ? colorScheme.primary
-                : colorScheme.onBackground.withOpacity(0.4),
+                : colorScheme.onSurface.withOpacity(0.4),
           ),
           const SizedBox(width: 8),
           Text(
@@ -906,7 +906,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
             style: theme.textTheme.bodyMedium?.copyWith(
               color: canResend
                   ? colorScheme.primary
-                  : colorScheme.onBackground.withOpacity(0.4),
+                  : colorScheme.onSurface.withOpacity(0.4),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -938,7 +938,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
             child: Text(
               'سيتم ملء الرمز تلقائياً عند وصول الرسالة',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onBackground.withOpacity(0.7),
+                color: colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
           ),

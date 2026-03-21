@@ -3,6 +3,7 @@
 ///
 /// توفر هذه الخدمة الوصول إلى بيانات التقويم الفلكي اليمني
 /// تشمل: المنازل القمرية، أطوار القمر، التاريخ الهجري، الأمثال الزراعية
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -28,7 +29,7 @@ class AstronomicalApi {
   Future<DailyAstronomicalData> getToday() async {
     try {
       final response = await _dio.get('$_baseUrl/today');
-      return DailyAstronomicalData.fromJson(response.data);
+      return DailyAstronomicalData.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب بيانات اليوم: $e');
       rethrow;
@@ -40,7 +41,7 @@ class AstronomicalApi {
   Future<DailyAstronomicalData> getDate(String date) async {
     try {
       final response = await _dio.get('$_baseUrl/date/$date');
-      return DailyAstronomicalData.fromJson(response.data);
+      return DailyAstronomicalData.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب بيانات التاريخ: $e');
       rethrow;
@@ -60,7 +61,7 @@ class AstronomicalApi {
         '$_baseUrl/week',
         queryParameters: queryParams,
       );
-      return WeeklyForecast.fromJson(response.data);
+      return WeeklyForecast.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب التوقعات الأسبوعية: $e');
       rethrow;
@@ -80,7 +81,7 @@ class AstronomicalApi {
         '$_baseUrl/moon-phase',
         queryParameters: queryParams,
       );
-      return MoonPhase.fromJson(response.data);
+      return MoonPhase.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب طور القمر: $e');
       rethrow;
@@ -100,7 +101,7 @@ class AstronomicalApi {
         '$_baseUrl/lunar-mansion',
         queryParameters: queryParams,
       );
-      return LunarMansion.fromJson(response.data);
+      return LunarMansion.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب المنزلة القمرية: $e');
       rethrow;
@@ -120,7 +121,7 @@ class AstronomicalApi {
         '$_baseUrl/hijri',
         queryParameters: queryParams,
       );
-      return HijriDate.fromJson(response.data);
+      return HijriDate.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب التاريخ الهجري: $e');
       rethrow;
@@ -138,7 +139,7 @@ class AstronomicalApi {
       final response = await _dio.get(
         '$_baseUrl/crop-calendar/${Uri.encodeComponent(crop)}',
       );
-      return CropCalendar.fromJson(response.data);
+      return CropCalendar.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب تقويم المحصول: $e');
       rethrow;
@@ -163,7 +164,7 @@ class AstronomicalApi {
           'days': days.toString(),
         },
       );
-      return BestDaysResult.fromJson(response.data);
+      return BestDaysResult.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب أفضل الأيام: $e');
       rethrow;
@@ -179,7 +180,7 @@ class AstronomicalApi {
   Future<AllProverbs> getProverbs() async {
     try {
       final response = await _dio.get('$_baseUrl/proverbs');
-      return AllProverbs.fromJson(response.data);
+      return AllProverbs.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب الأمثال: $e');
       rethrow;
@@ -191,7 +192,7 @@ class AstronomicalApi {
   Future<ProverbOfTheDay> getProverbOfTheDay() async {
     try {
       final response = await _dio.get('$_baseUrl/proverbs/today');
-      return ProverbOfTheDay.fromJson(response.data);
+      return ProverbOfTheDay.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب مثل اليوم: $e');
       rethrow;
@@ -203,7 +204,7 @@ class AstronomicalApi {
   Future<DailyWisdom> getWisdomToday() async {
     try {
       final response = await _dio.get('$_baseUrl/wisdom/today');
-      return DailyWisdom.fromJson(response.data);
+      return DailyWisdom.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       debugPrint('خطأ في جلب الحكمة اليومية: $e');
       rethrow;

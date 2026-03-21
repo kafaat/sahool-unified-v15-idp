@@ -8,9 +8,9 @@
 /// - Marker clustering
 /// - Yemen-optimized defaults
 /// - Accessibility support with semantic labels
+library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +93,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
   late MapController _mapController;
   late MapProviderConfig _currentProvider;
   bool _showSatellite = false;
-  List<LatLng> _drawnPoints = [];
+  final List<LatLng> _drawnPoints = [];
 
   @override
   void initState() {
@@ -192,10 +192,9 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                   PolygonLayer(
                     polygons: widget.fieldPolygons!.map((points) => Polygon(
                       points: points,
-                      color: Colors.green.withOpacity(0.3),
+                      color: Colors.green.withValues(alpha: 0.3),
                       borderColor: Colors.green,
                       borderStrokeWidth: 2,
-                      isFilled: true,
                     )).toList(),
                   ),
 
@@ -205,10 +204,9 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                     polygons: [
                       Polygon(
                         points: _drawnPoints,
-                        color: Colors.blue.withOpacity(0.2),
+                        color: Colors.blue.withValues(alpha: 0.2),
                         borderColor: Colors.blue,
                         borderStrokeWidth: 3,
-                        isFilled: true,
                       ),
                     ],
                   ),
@@ -220,7 +218,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                       point: entry.value,
                       width: 24,
                       height: 24,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.blue,
                           shape: BoxShape.circle,

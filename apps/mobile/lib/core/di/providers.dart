@@ -3,7 +3,6 @@ import '../storage/database.dart' hide Field;
 import '../../features/field/data/repo/fields_repo.dart';
 import '../../features/field/data/remote/fields_api.dart';
 import '../../features/field/domain/entities/field.dart';
-import '../sync/network_status.dart';
 import '../http/api_client.dart';
 import '../security/signing_key_service.dart';
 import '../auth/token_manager.dart';

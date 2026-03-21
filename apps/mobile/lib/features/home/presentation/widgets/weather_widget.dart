@@ -1,12 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../weather/presentation/providers/weather_provider.dart';
 
 /// ويدجت الطقس المصغر للصفحة الرئيسية
-class WeatherWidget extends StatelessWidget {
+/// Uses weatherProvider for live data with graceful fallback
+class WeatherWidget extends ConsumerWidget {
   const WeatherWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Demo data - في الإنتاج سيكون من Provider
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherState = ref.watch(weatherProvider);
+
+    // Extract live data or fall back to placeholders
+    final String city;
+    final String temp;
+    final String condition;
+    final String humidity;
+    final String wind;
+    final String uvIndex;
+
+    if (weatherState.data != null) {
+      final current = weatherState.data!.current;
+      city = 'الموقع الحالي';
+      temp = '${current.temperature.round()}';
+      condition = current.conditionAr;
+      humidity = '${current.humidity}%';
+      wind = '${current.windSpeed.toStringAsFixed(0)} km/h';
+      uvIndex = current.uvIndex != null ? '${current.uvIndex!.round()}' : '—';
+    } else if (weatherState.isLoading) {
+      return Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          height: 140,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF367C2B), Color(0xFF2D6623)],
+            ),
+          ),
+          child: const Center(
+            child: CircularProgressIndicator(color: Colors.white70),
+          ),
+        ),
+      );
+    } else {
+      // Fallback for error / no data -- clearly marked
+      city = '—';
+      temp = '—';
+      condition = weatherState.error ?? 'لا توجد بيانات';
+      humidity = '—';
+      wind = '—';
+      uvIndex = '—';
+    }
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -32,9 +81,9 @@ class WeatherWidget extends StatelessWidget {
                       const Icon(Icons.location_on, color: Colors.white70, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        'الرياض',
+                        city,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -44,21 +93,22 @@ class WeatherWidget extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '32',
-                        style: TextStyle(
+                      Text(
+                        temp,
+                        style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const Text(
-                        '°C',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white70,
+                      if (temp != '—')
+                        const Text(
+                          '°C',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white70,
+                          ),
                         ),
-                      ),
                       const Spacer(),
                       const Text(
                         '☀️',
@@ -67,9 +117,9 @@ class WeatherWidget extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'صافي',
-                    style: TextStyle(
+                  Text(
+                    condition,
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
                     ),
@@ -90,19 +140,19 @@ class WeatherWidget extends StatelessWidget {
               children: [
                 _buildWeatherDetail(
                   icon: Icons.water_drop,
-                  value: '25%',
+                  value: humidity,
                   label: 'رطوبة',
                 ),
                 const SizedBox(height: 12),
                 _buildWeatherDetail(
                   icon: Icons.air,
-                  value: '12 km/h',
+                  value: wind,
                   label: 'رياح',
                 ),
                 const SizedBox(height: 12),
                 _buildWeatherDetail(
                   icon: Icons.wb_sunny,
-                  value: '8',
+                  value: uvIndex,
                   label: 'UV',
                 ),
               ],

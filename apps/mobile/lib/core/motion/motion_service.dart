@@ -5,6 +5,7 @@
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -433,7 +434,7 @@ class MotionService extends ChangeNotifier {
 
     // Calculate tilt from accelerometer (gravity vector)
     // Normalize to -1.0 to 1.0 range
-    final gravity = 9.81;
+    const gravity = 9.81;
 
     // Tilt X: Roll (left-right tilt)
     final rawTiltX = (accel.x / gravity).clamp(-1.0, 1.0);

@@ -2,6 +2,7 @@
 /// شاشة ملف المزارع
 ///
 /// Displays detailed farmer profile with interactions and opportunities
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,7 @@ import '../../domain/models/opportunity.dart';
 import '../../state/crm_providers.dart';
 import '../widgets/contact_actions.dart';
 import '../widgets/interaction_timeline.dart';
-import 'interaction_history_screen.dart';
+import 'interaction_history_screen.dart' hide AddInteractionScreen;
 import 'add_interaction_screen.dart';
 import 'farmer_analytics_screen.dart';
 
@@ -137,14 +138,14 @@ class _FarmerProfileContent extends ConsumerWidget {
       expandedHeight: 200,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
+        background: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
                 const Color(0xFF367C2B),
-                const Color(0xFF367C2B).withOpacity(0.8),
+                const Color(0xFF367C2B).withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -156,7 +157,7 @@ class _FarmerProfileContent extends ConsumerWidget {
                 // Avatar
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   backgroundImage: farmer.avatarUrl != null
                       ? NetworkImage(farmer.avatarUrl!)
                       : null,
@@ -238,7 +239,7 @@ class _FarmerProfileContent extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -296,7 +297,7 @@ class _FarmerProfileContent extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -424,7 +425,7 @@ class _FarmerProfileContent extends ConsumerWidget {
                         children: farmer.mainCrops.map((crop) {
                           return Chip(
                             label: Text(crop),
-                            backgroundColor: Colors.green.withOpacity(0.1),
+                            backgroundColor: Colors.green.withValues(alpha: 0.1),
                             labelStyle: const TextStyle(
                               fontSize: 12,
                               color: Colors.green,
@@ -560,7 +561,7 @@ class _FarmerProfileContent extends ConsumerWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: _getStageColor(opportunity.stage).withOpacity(0.1),
+          color: _getStageColor(opportunity.stage).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(

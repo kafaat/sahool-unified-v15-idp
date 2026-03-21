@@ -47,34 +47,47 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
     _scrollToBottom();
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _isTyping = false;
-          _messages.add(_ChatMessage(
-            text: _generateResponse(text),
-            isUser: false,
-            time: DateTime.now(),
-            hasAction: text.contains('آفة') || text.contains('مرض'),
-          ));
-        });
-        _scrollToBottom();
-      }
-    });
+    // TODO: Wire to advisory-service POST /api/v1/advisory/chat
+    _fetchAdvisorResponse(text);
   }
 
-  String _generateResponse(String query) {
-    if (query.contains('ري') || query.contains('مياه')) {
-      return 'بناءً على بيانات رطوبة التربة الحالية (35%) وتوقعات الطقس، أنصح بالري غداً صباحاً لمدة ساعتين.\n\nدرجة الحرارة المتوقعة: 28°C\nنسبة الرطوبة: 45%';
+  /// Fetch response from advisory service API.
+  /// Falls back to offline message when API is unreachable.
+  Future<void> _fetchAdvisorResponse(String query) async {
+    try {
+      // TODO: Replace with actual API call:
+      // final response = await _apiClient.post('/api/v1/advisory/chat', data: {
+      //   'message': query,
+      //   'locale': 'ar',
+      // });
+      // final responseText = response.data['response'] as String;
+
+      // For now, show a "service unavailable" message instead of fake data
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: 'جاري الاتصال بخدمة المستشار الذكي...\n\n'
+              'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً أو التحقق من الاتصال بالإنترنت.',
+          isUser: false,
+          time: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: 'حدث خطأ في الاتصال بالمستشار الذكي. يرجى المحاولة لاحقاً.',
+          isUser: false,
+          time: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
     }
-    if (query.contains('سماد') || query.contains('تسميد')) {
-      return 'يحتاج حقل القمح إلى تسميد نيتروجيني. أنصح بإضافة:\n\n• يوريا: 50 كجم/هكتار\n• الوقت الأفضل: الصباح الباكر\n\nهل تريد إضافة هذه المهمة إلى قائمتك؟';
-    }
-    if (query.contains('آفة') || query.contains('مرض') || query.contains('حشرة')) {
-      return '🔬 بناءً على وصفك، قد يكون هذا:\n\n**صدأ القمح**\nالاحتمالية: 85%\n\n**العلاج المقترح:**\n• رش مبيد فطري (مانكوزيب)\n• الجرعة: 2.5 كجم/هكتار\n\n⚠️ يُنصح بالتصوير للتأكد';
-    }
-    return 'شكراً لسؤالك. يمكنني مساعدتك في:\n\n• توصيات الري والتسميد\n• تشخيص الآفات والأمراض\n• متابعة صحة المحاصيل\n\nما الذي تحتاج مساعدة فيه؟';
   }
 
   void _scrollToBottom() {
@@ -103,7 +116,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -180,7 +193,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),
                 backgroundColor: Colors.white,
-                side: BorderSide(color: SahoolColors.primary.withOpacity(0.3)),
+                side: BorderSide(color: SahoolColors.primary.withValues(alpha: 0.3)),
               ),
             );
           }).toList(),
@@ -223,7 +236,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: SahoolColors.primary.withOpacity(0.3 + (value * 0.7)),
+            color: SahoolColors.primary.withValues(alpha: 0.3 + (value * 0.7)),
             shape: BoxShape.circle,
           ),
         );
@@ -238,7 +251,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -259,7 +272,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withOpacity(0.1),
+                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -361,12 +374,26 @@ class _ChatBubble extends StatelessWidget {
             ),
             if (message.hasAction) ...[
               const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add_task, size: 18),
-                label: const Text('إضافة كمهمة'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              Builder(
+                builder: (innerContext) => OutlinedButton.icon(
+                  onPressed: () {
+                    GoRouter.of(innerContext).push('/tasks', extra: {
+                      'prefillTitle': 'علاج: ${message.text.split('\n').first}',
+                      'prefillDescription': message.text,
+                      'createNew': true,
+                    });
+                    ScaffoldMessenger.of(innerContext).showSnackBar(
+                      const SnackBar(
+                        content: Text('تمت إضافة التوصية كمهمة'),
+                        backgroundColor: SahoolColors.success,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add_task, size: 18),
+                  label: const Text('إضافة كمهمة'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ),
             ],

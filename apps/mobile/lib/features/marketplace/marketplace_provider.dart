@@ -6,12 +6,15 @@
 /// - Shopping cart management
 /// - Order creation
 /// - Smart harvest listing
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+
+import '../../core/config/api_config.dart';
 
 // =============================================================================
 // Models
@@ -333,18 +336,33 @@ class MarketplaceState {
 class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   final String _baseUrl;
   final String _userId;
+  final http.Client _httpClient;
 
   MarketplaceNotifier({
     required String baseUrl,
     required String userId,
+    http.Client? httpClient,
   })  : _baseUrl = baseUrl,
         _userId = userId,
-        super(const MarketplaceState()) {
-    loadProducts();
+        _httpClient = httpClient ?? http.Client(),
+        super(const MarketplaceState());
+
+  /// Initialize and load initial data. Call explicitly after construction
+  /// to avoid firing network requests in the constructor.
+  Future<void> init() async {
+    if (!mounted) return;
+    await loadProducts();
+  }
+
+  @override
+  void dispose() {
+    _httpClient.close();
+    super.dispose();
   }
 
   /// تحميل المنتجات
   Future<void> loadProducts({ProductCategory? category}) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -353,10 +371,12 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         url += '?category=${category.name.toUpperCase()}';
       }
 
-      final response = await http.get(Uri.parse(url));
+      final response = await _httpClient.get(Uri.parse(url));
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final products = await compute(_parseProductList, response.body);
+        if (!mounted) return;
 
         final featured = products.where((p) => p.featured).toList();
 
@@ -374,6 +394,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: 'خطأ في الاتصال: ${e.toString()}',
@@ -456,7 +477,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         'quantity': item.quantity,
       }).toList();
 
-      final response = await http.post(
+      final response = await _httpClient.post(
         Uri.parse('$_baseUrl/api/v1/market/orders'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -488,7 +509,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   /// تحميل طلبات المستخدم
   Future<void> loadOrders() async {
     try {
-      final response = await http.get(
+      final response = await _httpClient.get(
         Uri.parse('$_baseUrl/api/v1/market/orders/$_userId'),
       );
 
@@ -513,7 +534,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     String? governorate,
   }) async {
     try {
-      final response = await http.post(
+      final response = await _httpClient.post(
         Uri.parse('$_baseUrl/api/v1/market/list-harvest'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -570,9 +591,9 @@ List<Order> _parseOrderList(String jsonStr) {
 final marketUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API
+/// يستخدم ApiConfig.marketplaceServiceUrl بدلاً من URL ثابت
 final marketApiUrlProvider = Provider.autoDispose<String>((ref) {
-  const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
+  return ApiConfig.marketplaceServiceUrl;
 });
 
 /// مزود السوق الرئيسي
@@ -581,10 +602,15 @@ final marketplaceProvider =
   final baseUrl = ref.watch(marketApiUrlProvider);
   final userId = ref.watch(marketUserIdProvider);
 
-  return MarketplaceNotifier(
+  final notifier = MarketplaceNotifier(
     baseUrl: baseUrl,
     userId: userId,
   );
+
+  // Initialize asynchronously after construction to avoid constructor side effects
+  notifier.init();
+
+  return notifier;
 });
 
 /// عدد عناصر السلة

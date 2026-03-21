@@ -7,6 +7,7 @@
 /// - Subscription management
 /// - Event history (optional)
 /// - Priority-based delivery
+library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

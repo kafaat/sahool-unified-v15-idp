@@ -1,5 +1,6 @@
 /// SAHOOL Today Astronomical Card
 /// بطاقة البيانات الفلكية لليوم
+library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';

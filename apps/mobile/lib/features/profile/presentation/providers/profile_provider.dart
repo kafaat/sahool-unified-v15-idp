@@ -1,5 +1,6 @@
 /// Profile Provider - User Profile State Management
 /// موفر الملف الشخصي - إدارة حالة ملف المستخدم
+library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// User profile state

@@ -54,7 +54,7 @@ class SettingsSection extends StatelessWidget {
               ],
               Text(
                 titleAr, // Arabic takes priority in RTL
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: SahoolTheme.primary,
                   fontSize: 14,

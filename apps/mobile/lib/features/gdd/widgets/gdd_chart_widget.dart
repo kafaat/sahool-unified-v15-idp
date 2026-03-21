@@ -1,5 +1,4 @@
-/// GDD Chart Widget - ويدجت الرسم البياني لدرجات النمو الحراري
-library;
+// GDD Chart Widget - ويدجت الرسم البياني لدرجات النمو الحراري
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       height: widget.height,
       child: LineChart(
         _buildChartData(),
-        swapAnimationDuration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 250),
       ),
     );
   }
@@ -77,10 +76,10 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: AxisTitles(
+        rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles: AxisTitles(
+        topTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
         bottomTitles: AxisTitles(
@@ -119,7 +118,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.9),
+          getTooltipColor: (_) => Colors.blueGrey.withValues(alpha: 0.9),
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final record = widget.records[spot.x.toInt()];
@@ -186,8 +185,8 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
           show: true,
           gradient: LinearGradient(
             colors: [
-              Colors.blue.shade200.withOpacity(0.3),
-              Colors.blue.shade100.withOpacity(0.1),
+              Colors.blue.shade200.withValues(alpha: 0.3),
+              Colors.blue.shade100.withValues(alpha: 0.1),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -265,7 +264,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       Colors.red.shade300,
     ];
 
-    for (var stage in widget.stages) {
+    for (final stage in widget.stages) {
       // إيجاد السجل الذي يصل إلى بداية هذه المرحلة
       final stageStartRecord = widget.records.indexWhere(
         (r) => r.accumulatedGDD >= stage.gddStart,
@@ -275,7 +274,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
         lines.add(
           VerticalLine(
             x: stageStartRecord.toDouble(),
-            color: colors[stage.stageNumber % colors.length].withOpacity(0.5),
+            color: colors[stage.stageNumber % colors.length].withValues(alpha: 0.5),
             strokeWidth: 2,
             dashArray: [4, 4],
             label: VerticalLineLabel(

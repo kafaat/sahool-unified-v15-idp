@@ -2,6 +2,7 @@
 /// مؤشر السياق
 ///
 /// Shows what context data the AI advisor has access to
+library;
 
 import 'package:flutter/material.dart';
 import '../../../../core/config/theme.dart';
@@ -45,7 +46,7 @@ class ContextIndicator extends StatelessWidget {
                 color: SahoolTheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.psychology,
                 size: 18,
                 color: SahoolTheme.primary,
@@ -387,7 +388,7 @@ class ContextBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.dataset,
               size: 14,
               color: SahoolTheme.primary,
@@ -395,7 +396,7 @@ class ContextBadge extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               '$count',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: SahoolTheme.primary,

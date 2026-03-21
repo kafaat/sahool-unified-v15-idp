@@ -2,9 +2,9 @@
 /// طبقة الاتصال بخدمة المحادثات
 ///
 /// Handles REST API calls and WebSocket connections
+library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/config/api_config.dart';
@@ -227,7 +227,8 @@ class ChatApi {
   Future<int> getUnreadCount() async {
     try {
       final response = await _dio.get('/api/v1/conversations/unread-count');
-      return response.data['count'] as int? ?? 0;
+      final responseData = response.data as Map<String, dynamic>;
+      return responseData['count'] as int? ?? 0;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -482,7 +483,7 @@ class ChatApi {
         String message = 'حدث خطأ غير متوقع';
 
         if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
+          message = (data['message'] ?? data['error'] ?? message) as String;
           // Sanitize error message before returning
           message = InputSanitizer.sanitizeForDisplay(message);
         }

@@ -2,6 +2,7 @@
 /// إعدادات أعلام الميزات
 ///
 /// Environment-specific and package-based configuration for feature flags.
+library;
 
 import 'feature_flag.dart';
 
@@ -134,16 +135,16 @@ class FeatureFlagsConfig {
   /// Production configuration
   /// إعدادات الإنتاج
   factory FeatureFlagsConfig.production() {
-    return FeatureFlagsConfig(
+    return const FeatureFlagsConfig(
       environment: FeatureFlagEnvironment.production,
       remoteConfigUrl: 'https://api.sahool.app/api/v1/feature-flags',
       useFirebaseRemoteConfig: true,
-      fetchInterval: const Duration(hours: 1),
-      cacheExpiry: const Duration(days: 7),
+      fetchInterval: Duration(hours: 1),
+      cacheExpiry: Duration(days: 7),
       debugMode: false,
       analyticsEnabled: true,
       defaultPackage: SubscriptionPackage.free,
-      environmentOverrides: const {},
+      environmentOverrides: {},
     );
   }
 

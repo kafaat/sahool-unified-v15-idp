@@ -10,6 +10,7 @@
 /// - sahool://ndvi/{fieldId} - Open NDVI for field
 /// - sahool://task/{taskId} - Open specific task
 /// - sahool://alert/{alertId} - Open alert details
+library;
 
 import 'package:flutter/foundation.dart';
 

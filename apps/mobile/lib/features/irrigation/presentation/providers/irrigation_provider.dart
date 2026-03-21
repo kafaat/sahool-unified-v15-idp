@@ -87,7 +87,7 @@ final currentFieldScheduleProvider =
   final result = await repo.getSchedule(fieldId);
 
   if (result.isSuccess && result.data != null) {
-    return result.data!;
+    return result.data;
   }
   return null;
 });
@@ -156,7 +156,7 @@ final currentFieldWaterBalanceProvider =
   );
 
   if (result.isSuccess && result.data != null) {
-    return result.data!;
+    return result.data;
   }
   return null;
 });

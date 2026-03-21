@@ -7,6 +7,7 @@
 /// - Grouping and threading
 /// - Read/unread status
 /// - Offline support
+library;
 
 import 'notification_category.dart';
 import 'notification_action.dart';

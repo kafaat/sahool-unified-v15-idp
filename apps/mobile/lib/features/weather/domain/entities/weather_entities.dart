@@ -3,6 +3,7 @@
 ///
 /// Domain Layer - لا يعتمد على Flutter
 /// يستخدم WeatherColor بدلاً من dart:ui Color
+library;
 
 import '../value_objects/weather_color.dart';
 import '../value_objects/alert_severity.dart';
@@ -44,7 +45,7 @@ class CurrentWeather {
       windSpeed: (json['wind_speed'] as num).toDouble(),
       windDirection: json['wind_direction'] as String,
       condition: json['condition'] as String,
-      conditionAr: json['condition_ar'] as String? ?? json['condition'],
+      conditionAr: (json['condition_ar'] as String?) ?? json['condition'] as String,
       icon: json['icon'] as String? ?? '☀️',
       precipitation: (json['precipitation'] as num?)?.toDouble(),
       uvIndex: (json['uv_index'] as num?)?.toDouble(),
@@ -87,7 +88,7 @@ class DailyForecast {
       tempMin: (json['temp_min'] as num).toDouble(),
       tempMax: (json['temp_max'] as num).toDouble(),
       condition: json['condition'] as String,
-      conditionAr: json['condition_ar'] as String? ?? json['condition'],
+      conditionAr: (json['condition_ar'] as String?) ?? json['condition'] as String,
       icon: json['icon'] as String? ?? '☀️',
       precipitationChance: json['precipitation_chance'] as int? ?? 0,
       precipitationAmount: (json['precipitation_amount'] as num?)?.toDouble(),
@@ -162,7 +163,7 @@ class WeatherAlert {
       type: json['type'] as String,
       severity: json['severity'] as String,
       title: json['title'] as String,
-      titleAr: json['title_ar'] as String? ?? json['title'],
+      titleAr: (json['title_ar'] as String?) ?? json['title'] as String,
       description: json['description'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
@@ -196,9 +197,9 @@ class AgriculturalImpact {
     return AgriculturalImpact(
       category: json['category'] as String,
       recommendation: json['recommendation'] as String,
-      recommendationAr: json['recommendation_ar'] as String? ?? json['recommendation'],
+      recommendationAr: (json['recommendation_ar'] as String?) ?? json['recommendation'] as String,
       status: json['status'] as String,
-      reasons: List<String>.from(json['reasons'] ?? []),
+      reasons: List<String>.from((json['reasons'] as Iterable?) ?? []),
     );
   }
 
@@ -268,21 +269,21 @@ class WeatherData {
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
     return WeatherData(
-      current: CurrentWeather.fromJson(json['current']),
+      current: CurrentWeather.fromJson(json['current'] as Map<String, dynamic>),
       hourly: (json['hourly'] as List?)
-              ?.map((h) => HourlyForecast.fromJson(h))
+              ?.map((h) => HourlyForecast.fromJson(h as Map<String, dynamic>))
               .toList() ??
           [],
       daily: (json['daily'] as List?)
-              ?.map((d) => DailyForecast.fromJson(d))
+              ?.map((d) => DailyForecast.fromJson(d as Map<String, dynamic>))
               .toList() ??
           [],
       alerts: (json['alerts'] as List?)
-              ?.map((a) => WeatherAlert.fromJson(a))
+              ?.map((a) => WeatherAlert.fromJson(a as Map<String, dynamic>))
               .toList() ??
           [],
       impacts: (json['impacts'] as List?)
-              ?.map((i) => AgriculturalImpact.fromJson(i))
+              ?.map((i) => AgriculturalImpact.fromJson(i as Map<String, dynamic>))
               .toList() ??
           [],
     );

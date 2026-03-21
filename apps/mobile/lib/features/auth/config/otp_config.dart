@@ -704,16 +704,15 @@ class OTPConfigRepository {
 // =============================================================================
 
 /// SharedPreferences provider
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden in main.dart',
-  );
+/// Lazily initializes SharedPreferences via FutureProvider
+final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async {
+  return SharedPreferences.getInstance();
 });
 
 /// OTP Config Repository provider
-final otpConfigRepositoryProvider = Provider<OTPConfigRepository>((ref) {
+final otpConfigRepositoryProvider = FutureProvider<OTPConfigRepository>((ref) async {
   final apiClient = ref.watch(apiClientProvider);
-  final prefs = ref.watch(sharedPreferencesProvider);
+  final prefs = await ref.watch(sharedPreferencesProvider.future);
   return OTPConfigRepository(
     apiClient: apiClient,
     prefs: prefs,
@@ -726,7 +725,7 @@ final otpConfigRepositoryProvider = Provider<OTPConfigRepository>((ref) {
 class OTPConfigNotifier extends _$OTPConfigNotifier {
   @override
   Future<OTPConfig> build() async {
-    final repository = ref.watch(otpConfigRepositoryProvider);
+    final repository = await ref.watch(otpConfigRepositoryProvider.future);
     return repository.getConfig();
   }
 
@@ -734,7 +733,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
   Future<void> refresh() async {
     state = const AsyncLoading();
     try {
-      final repository = ref.read(otpConfigRepositoryProvider);
+      final repository = await ref.read(otpConfigRepositoryProvider.future);
       final config = await repository.getConfig(forceRefresh: true);
       state = AsyncData(config);
     } catch (e, st) {
@@ -744,7 +743,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
 
   /// Clear cache and reload
   Future<void> clearCacheAndReload() async {
-    final repository = ref.read(otpConfigRepositoryProvider);
+    final repository = await ref.read(otpConfigRepositoryProvider.future);
     await repository.clearCache();
     await refresh();
   }
@@ -753,7 +752,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
 /// Channel-specific configuration provider
 @riverpod
 OTPChannelConfig? otpChannelConfig(Ref ref, OTPChannel channel) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
     data: (config) => config.getChannelConfig(channel),
   );
@@ -762,7 +761,7 @@ OTPChannelConfig? otpChannelConfig(Ref ref, OTPChannel channel) {
 /// Enabled channels provider (sorted by priority)
 @riverpod
 List<MapEntry<String, OTPChannelConfig>> enabledOTPChannels(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.getEnabledChannels(),
       ) ??
@@ -772,7 +771,7 @@ List<MapEntry<String, OTPChannelConfig>> enabledOTPChannels(Ref ref) {
 /// Primary channels provider (for UI display)
 @riverpod
 List<MapEntry<String, OTPChannelConfig>> primaryOTPChannels(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.getPrimaryChannels(),
       ) ??
@@ -782,7 +781,7 @@ List<MapEntry<String, OTPChannelConfig>> primaryOTPChannels(Ref ref) {
 /// Rate limit configuration provider
 @riverpod
 OTPRateLimitConfig otpRateLimitConfig(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.rateLimit,
       ) ??
@@ -792,7 +791,7 @@ OTPRateLimitConfig otpRateLimitConfig(Ref ref) {
 /// Feature flag provider
 @riverpod
 bool otpFeatureFlag(Ref ref, String featureName) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.isFeatureEnabled(featureName),
       ) ??

@@ -3,6 +3,7 @@
 ///
 /// Defines the different steps in the onboarding flow
 /// يحدد الخطوات المختلفة في تدفق الإعداد الأولي
+library;
 
 /// Onboarding step types
 /// أنواع خطوات الإعداد

@@ -1,9 +1,11 @@
 /// Maintenance Timeline Widget - الجدول الزمني للصيانة
 /// Visual timeline of maintenance history and upcoming
+library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/models/maintenance_record.dart';
+import '../../domain/models/equipment_status.dart';
 
 /// Maintenance Timeline Widget
 class MaintenanceTimeline extends StatelessWidget {
@@ -35,7 +37,7 @@ class MaintenanceTimeline extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: SahoolColors.harvestGold.withOpacity(0.1),
+                color: SahoolColors.harvestGold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -127,7 +129,7 @@ class _MaintenanceTimelineItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _getTypeColor().withOpacity(0.1),
+                  color: _getTypeColor().withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
@@ -319,9 +321,9 @@ class UpcomingMaintenanceCard extends StatelessWidget {
     final isOverdue = schedule.isOverdue;
     final isDueSoon = schedule.isDueSoon;
     final cardColor = isOverdue
-        ? SahoolColors.danger.withOpacity(0.1)
+        ? SahoolColors.danger.withValues(alpha: 0.1)
         : isDueSoon
-            ? SahoolColors.harvestGold.withOpacity(0.1)
+            ? SahoolColors.harvestGold.withValues(alpha: 0.1)
             : Colors.white;
 
     return GestureDetector(
@@ -333,10 +335,10 @@ class UpcomingMaintenanceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isOverdue
-                ? SahoolColors.danger.withOpacity(0.3)
+                ? SahoolColors.danger.withValues(alpha: 0.3)
                 : isDueSoon
-                    ? SahoolColors.harvestGold.withOpacity(0.3)
-                    : Colors.grey.withOpacity(0.2),
+                    ? SahoolColors.harvestGold.withValues(alpha: 0.3)
+                    : Colors.grey.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -346,7 +348,7 @@ class UpcomingMaintenanceCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: _getPriorityColor().withOpacity(0.1),
+                color: _getPriorityColor().withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -437,7 +439,7 @@ class UpcomingMaintenanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

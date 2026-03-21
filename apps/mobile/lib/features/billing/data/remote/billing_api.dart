@@ -624,10 +624,10 @@ class WalletBalance {
 
   factory WalletBalance.fromJson(Map<String, dynamic> json) {
     return WalletBalance(
-      balance: (json['balance'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'YER',
-      pendingBalance: (json['pending_balance'] ?? 0).toDouble(),
-      lastUpdated: DateTime.tryParse(json['last_updated'] ?? '') ?? DateTime.now(),
+      balance: ((json['balance'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'YER',
+      pendingBalance: ((json['pending_balance'] ?? 0) as num).toDouble(),
+      lastUpdated: DateTime.tryParse((json['last_updated'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 }
@@ -655,13 +655,13 @@ class PaymentResult {
   factory PaymentResult.fromJson(Map<String, dynamic> json) {
     final payment = json['payment'] as Map<String, dynamic>?;
     return PaymentResult(
-      success: json['success'] ?? false,
-      paymentId: payment?['payment_id'] ?? json['payment_id'],
-      status: payment?['status'] ?? json['status'] ?? 'unknown',
-      message: json['message'],
-      messageAr: json['message_ar'],
-      tharwattResponse: json['tharwatt_response'],
-      stripeResponse: json['stripe_response'],
+      success: (json['success'] as bool?) ?? false,
+      paymentId: (payment?['payment_id'] ?? json['payment_id']) as String?,
+      status: (payment?['status'] ?? json['status'] ?? 'unknown') as String,
+      message: json['message'] as String?,
+      messageAr: json['message_ar'] as String?,
+      tharwattResponse: json['tharwatt_response'] as Map<String, dynamic>?,
+      stripeResponse: json['stripe_response'] as Map<String, dynamic>?,
     );
   }
 }
@@ -688,13 +688,13 @@ class WalletTransaction {
 
   factory WalletTransaction.fromJson(Map<String, dynamic> json) {
     return WalletTransaction(
-      id: json['id'] ?? json['transaction_id'] ?? '',
-      type: json['type'] ?? 'unknown',
-      amount: (json['amount'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'YER',
-      status: json['status'] ?? 'pending',
-      description: json['description'],
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      id: (json['id'] ?? json['transaction_id'] ?? '') as String,
+      type: (json['type'] as String?) ?? 'unknown',
+      amount: ((json['amount'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'YER',
+      status: (json['status'] as String?) ?? 'pending',
+      description: json['description'] as String?,
+      createdAt: DateTime.tryParse((json['created_at'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 }
@@ -725,14 +725,14 @@ class Plan {
 
   factory Plan.fromJson(Map<String, dynamic> json) {
     return Plan(
-      id: json['plan_id'] ?? json['id'] ?? '',
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['name'] ?? '',
-      tier: json['tier'] ?? 'starter',
-      priceMonthly: (json['price_monthly'] ?? 0).toDouble(),
-      priceYearly: (json['price_yearly'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'USD',
-      limits: Map<String, int>.from(json['limits'] ?? {}),
+      id: (json['plan_id'] ?? json['id'] ?? '') as String,
+      name: (json['name'] as String?) ?? '',
+      nameAr: (json['name_ar'] ?? json['name'] ?? '') as String,
+      tier: (json['tier'] as String?) ?? 'starter',
+      priceMonthly: ((json['price_monthly'] ?? 0) as num).toDouble(),
+      priceYearly: ((json['price_yearly'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'USD',
+      limits: Map<String, int>.from((json['limits'] as Map?) ?? {}),
       features: (json['features'] as List?)?.cast<String>() ?? [],
     );
   }
@@ -762,16 +762,16 @@ class Subscription {
 
   factory Subscription.fromJson(Map<String, dynamic> json) {
     return Subscription(
-      id: json['subscription_id'] ?? json['id'] ?? '',
-      planId: json['plan_id'] ?? '',
-      status: json['status'] ?? 'active',
-      billingCycle: json['billing_cycle'] ?? 'monthly',
-      startDate: DateTime.tryParse(json['start_date'] ?? '') ?? DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
+      id: (json['subscription_id'] ?? json['id'] ?? '') as String,
+      planId: (json['plan_id'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'active',
+      billingCycle: (json['billing_cycle'] as String?) ?? 'monthly',
+      startDate: DateTime.tryParse((json['start_date'] as String?) ?? '') ?? DateTime.now(),
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       nextBillingDate: json['next_billing_date'] != null
-          ? DateTime.tryParse(json['next_billing_date'])
+          ? DateTime.tryParse(json['next_billing_date'] as String)
           : null,
-      plan: json['plan'] != null ? Plan.fromJson(json['plan']) : null,
+      plan: json['plan'] != null ? Plan.fromJson(json['plan'] as Map<String, dynamic>) : null,
     );
   }
 }
@@ -804,16 +804,16 @@ class Invoice {
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
     return Invoice(
-      id: json['invoice_id'] ?? json['id'] ?? '',
-      invoiceNumber: json['invoice_number'] ?? '',
-      status: json['status'] ?? 'pending',
-      total: (json['total'] ?? 0).toDouble(),
-      amountPaid: (json['amount_paid'] ?? 0).toDouble(),
-      amountDue: (json['amount_due'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'USD',
-      issueDate: DateTime.tryParse(json['issue_date'] ?? '') ?? DateTime.now(),
-      dueDate: DateTime.tryParse(json['due_date'] ?? '') ?? DateTime.now(),
-      paidDate: json['paid_date'] != null ? DateTime.tryParse(json['paid_date']) : null,
+      id: (json['invoice_id'] ?? json['id'] ?? '') as String,
+      invoiceNumber: (json['invoice_number'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'pending',
+      total: ((json['total'] ?? 0) as num).toDouble(),
+      amountPaid: ((json['amount_paid'] ?? 0) as num).toDouble(),
+      amountDue: ((json['amount_due'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'USD',
+      issueDate: DateTime.tryParse((json['issue_date'] as String?) ?? '') ?? DateTime.now(),
+      dueDate: DateTime.tryParse((json['due_date'] as String?) ?? '') ?? DateTime.now(),
+      paidDate: json['paid_date'] != null ? DateTime.tryParse(json['paid_date'] as String) : null,
     );
   }
 }
@@ -841,16 +841,16 @@ class UsageStats {
   });
 
   factory UsageStats.fromJson(Map<String, dynamic> json) {
-    final usage = json['usage'] ?? json;
+    final usage = (json['usage'] ?? json) as Map<String, dynamic>;
     return UsageStats(
-      fieldsUsed: usage['fields_used'] ?? 0,
-      fieldsLimit: usage['fields_limit'] ?? 0,
-      usersUsed: usage['users_used'] ?? 0,
-      usersLimit: usage['users_limit'] ?? 0,
-      storageUsedMb: usage['storage_used_mb'] ?? 0,
-      storageLimitMb: usage['storage_limit_mb'] ?? 0,
-      apiCallsUsed: usage['api_calls_used'] ?? 0,
-      apiCallsLimit: usage['api_calls_limit'] ?? 0,
+      fieldsUsed: (usage['fields_used'] as int?) ?? 0,
+      fieldsLimit: (usage['fields_limit'] as int?) ?? 0,
+      usersUsed: (usage['users_used'] as int?) ?? 0,
+      usersLimit: (usage['users_limit'] as int?) ?? 0,
+      storageUsedMb: (usage['storage_used_mb'] as int?) ?? 0,
+      storageLimitMb: (usage['storage_limit_mb'] as int?) ?? 0,
+      apiCallsUsed: (usage['api_calls_used'] as int?) ?? 0,
+      apiCallsLimit: (usage['api_calls_limit'] as int?) ?? 0,
     );
   }
 
@@ -883,11 +883,11 @@ class StripeConfig {
 
   factory StripeConfig.fromJson(Map<String, dynamic> json) {
     return StripeConfig(
-      publishableKey: json['publishable_key'] ?? '',
-      merchantId: json['merchant_id'],
-      applePay: json['apple_pay'] ?? false,
-      googlePay: json['google_pay'] ?? false,
-      merchantCountry: json['merchant_country'] ?? 'YE',
+      publishableKey: (json['publishable_key'] as String?) ?? '',
+      merchantId: json['merchant_id'] as String?,
+      applePay: (json['apple_pay'] as bool?) ?? false,
+      googlePay: (json['google_pay'] as bool?) ?? false,
+      merchantCountry: (json['merchant_country'] as String?) ?? 'YE',
     );
   }
 }
@@ -934,13 +934,13 @@ class StripePaymentIntent {
 
   factory StripePaymentIntent.fromJson(Map<String, dynamic> json) {
     return StripePaymentIntent(
-      id: json['id'] ?? json['payment_intent_id'] ?? '',
-      clientSecret: json['client_secret'] ?? '',
-      amount: json['amount'] ?? 0,
-      currency: json['currency'] ?? 'usd',
-      status: json['status'] ?? 'requires_payment_method',
-      customerId: json['customer_id'],
-      ephemeralKey: json['ephemeral_key'],
+      id: (json['id'] ?? json['payment_intent_id'] ?? '') as String,
+      clientSecret: (json['client_secret'] as String?) ?? '',
+      amount: (json['amount'] as int?) ?? 0,
+      currency: (json['currency'] as String?) ?? 'usd',
+      status: (json['status'] as String?) ?? 'requires_payment_method',
+      customerId: json['customer_id'] as String?,
+      ephemeralKey: json['ephemeral_key'] as String?,
     );
   }
 
@@ -988,12 +988,12 @@ class StripeSetupIntent {
 
   factory StripeSetupIntent.fromJson(Map<String, dynamic> json) {
     return StripeSetupIntent(
-      id: json['id'] ?? json['setup_intent_id'] ?? '',
-      clientSecret: json['client_secret'] ?? '',
-      status: json['status'] ?? 'requires_payment_method',
-      customerId: json['customer_id'],
-      ephemeralKey: json['ephemeral_key'],
-      paymentMethodId: json['payment_method_id'],
+      id: (json['id'] ?? json['setup_intent_id'] ?? '') as String,
+      clientSecret: (json['client_secret'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'requires_payment_method',
+      customerId: json['customer_id'] as String?,
+      ephemeralKey: json['ephemeral_key'] as String?,
+      paymentMethodId: json['payment_method_id'] as String?,
     );
   }
 
@@ -1023,12 +1023,12 @@ class SetupIntentResult {
   factory SetupIntentResult.fromJson(Map<String, dynamic> json) {
     final paymentMethod = json['payment_method'] as Map<String, dynamic>?;
     return SetupIntentResult(
-      success: json['success'] ?? false,
-      paymentMethodId: paymentMethod?['id'] ?? json['payment_method_id'],
-      last4: paymentMethod?['last4'] ?? json['last4'],
-      brand: paymentMethod?['brand'] ?? json['brand'],
-      message: json['message'],
-      messageAr: json['message_ar'],
+      success: (json['success'] as bool?) ?? false,
+      paymentMethodId: (paymentMethod?['id'] ?? json['payment_method_id']) as String?,
+      last4: (paymentMethod?['last4'] ?? json['last4']) as String?,
+      brand: (paymentMethod?['brand'] ?? json['brand']) as String?,
+      message: json['message'] as String?,
+      messageAr: json['message_ar'] as String?,
     );
   }
 }
@@ -1059,14 +1059,14 @@ class SavedPaymentMethod {
   factory SavedPaymentMethod.fromJson(Map<String, dynamic> json) {
     final card = json['card'] as Map<String, dynamic>?;
     return SavedPaymentMethod(
-      id: json['id'] ?? '',
-      type: json['type'] ?? 'card',
-      last4: card?['last4'] ?? json['last4'],
-      brand: card?['brand'] ?? json['brand'],
-      expMonth: card?['exp_month'] ?? json['exp_month'],
-      expYear: card?['exp_year'] ?? json['exp_year'],
-      isDefault: json['is_default'] ?? false,
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      id: (json['id'] as String?) ?? '',
+      type: (json['type'] as String?) ?? 'card',
+      last4: (card?['last4'] ?? json['last4']) as String?,
+      brand: (card?['brand'] ?? json['brand']) as String?,
+      expMonth: (card?['exp_month'] ?? json['exp_month']) as int?,
+      expYear: (card?['exp_year'] ?? json['exp_year']) as int?,
+      isDefault: (json['is_default'] as bool?) ?? false,
+      createdAt: DateTime.tryParse((json['created_at'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 

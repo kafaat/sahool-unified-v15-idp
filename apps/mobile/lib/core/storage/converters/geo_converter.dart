@@ -5,7 +5,7 @@ import '../../utils/app_logger.dart';
 
 /// GeoPolygon TypeConverter for Drift
 ///
-/// Converts List<LatLng> <-> JSON String for SQLite storage
+/// Converts `List<LatLng>` to and from JSON String for SQLite storage
 /// Uses GeoJSON coordinate order: [longitude, latitude]
 ///
 /// Example:
@@ -19,7 +19,7 @@ class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
     if (fromDb.isEmpty) return [];
 
     try {
-      final List<dynamic> jsonList = jsonDecode(fromDb);
+      final List<dynamic> jsonList = jsonDecode(fromDb) as List<dynamic>;
       return jsonList.map((point) {
         if (point is List && point.length >= 2) {
           // GeoJSON format: [longitude, latitude]
@@ -59,7 +59,7 @@ class GeoPointConverter extends TypeConverter<LatLng?, String?> {
     if (fromDb == null || fromDb.isEmpty) return null;
 
     try {
-      final List<dynamic> point = jsonDecode(fromDb);
+      final List<dynamic> point = jsonDecode(fromDb) as List<dynamic>;
       if (point.length >= 2) {
         // GeoJSON format: [longitude, latitude]
         final lon = (point[0] as num).toDouble();

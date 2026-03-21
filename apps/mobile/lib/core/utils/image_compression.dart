@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,11 +121,8 @@ class ImageCompressionUtil {
       Uint8List? compressed;
 
       if (format == ImageFormat.webp) {
-        // ضغط WebP - WebP compression
-        compressed = img.encodeWebP(
-          image,
-          quality: (quality * 100).toInt(),
-        );
+        // WebP encoding not supported in image package v4.x, fallback to JPEG
+        compressed = img.encodeJpg(image, quality: (quality * 100).toInt());
       } else {
         // ضغط JPEG كبديل - JPEG compression as fallback
         compressed = img.encodeJpg(
@@ -133,19 +131,17 @@ class ImageCompressionUtil {
         );
       }
 
-      if (compressed != null) {
-        final originalSize = imageData.length / 1024; // KB
-        final compressedSize = compressed.length / 1024; // KB
-        final ratio = ((1 - (compressedSize / originalSize)) * 100);
+      final originalSize = imageData.length / 1024; // KB
+      final compressedSize = compressed.length / 1024; // KB
+      final ratio = ((1 - (compressedSize / originalSize)) * 100);
 
-        AppLogger.d(
-          'Compressed: ${originalSize.toStringAsFixed(1)} KB → '
-          '${compressedSize.toStringAsFixed(1)} KB '
-          '(${ratio.toStringAsFixed(1)}% reduction)',
-          tag: 'IMAGE_COMPRESSION',
-        );
-      }
-
+      AppLogger.d(
+        'Compressed: ${originalSize.toStringAsFixed(1)} KB → '
+        '${compressedSize.toStringAsFixed(1)} KB '
+        '(${ratio.toStringAsFixed(1)}% reduction)',
+        tag: 'IMAGE_COMPRESSION',
+      );
+    
       return compressed;
     } catch (e) {
       AppLogger.e(
@@ -207,7 +203,7 @@ class ImageCompressionUtil {
       );
 
       AppLogger.d(
-        'Resized: ${image.width}x${image.height} → ${newWidth}x${newHeight}',
+        'Resized: ${image.width}x${image.height} → ${newWidth}x$newHeight',
         tag: 'IMAGE_COMPRESSION',
       );
 

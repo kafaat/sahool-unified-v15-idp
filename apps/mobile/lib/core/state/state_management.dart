@@ -7,27 +7,27 @@
 /// - Retry logic with exponential backoff
 /// - State persistence utilities
 /// - Connectivity-aware providers
+library;
 
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_logger.dart';
-import '../sync/network_status.dart';
+import '../offline/offline_ui_components.dart' show networkStatusProvider;
 
 // =============================================================================
 // AsyncValue Extensions - إضافات القيم غير المتزامنة
 // =============================================================================
 
 /// Enhanced AsyncValue extensions for consistent state handling
-extension AsyncValueX<T> on AsyncValue<T> {
+extension SahoolAsyncValueX<T> on AsyncValue<T> {
   /// Returns true if loading or refreshing
   bool get isLoadingOrRefreshing => isLoading || isRefreshing;
 
-  /// Safely get value or null
-  T? get valueOrNull => when(
+  /// Safely get value or null (use built-in valueOrNull for simple cases)
+  T? get safeValueOrNull => when(
         data: (data) => data,
         loading: () => null,
         error: (_, __) => null,
@@ -327,15 +327,15 @@ abstract class ConnectivityAwareNotifier<T>
 
     // Listen to network changes
     ref.listen(networkStatusProvider, (previous, next) {
-      if (next.isConnected && !previous!.isConnected) {
+      if (next.isOnline && !(previous?.isOnline ?? false)) {
         // Just came online, refresh
         refresh();
       }
-      state = state.copyWith(isOnline: next.isConnected);
+      state = state.copyWith(isOnline: next.isOnline);
     });
 
     // Initial network check
-    final isOnline = ref.read(networkStatusProvider).isConnected;
+    final isOnline = ref.read(networkStatusProvider).isOnline;
     state = state.copyWith(isOnline: isOnline);
 
     if (isOnline) {

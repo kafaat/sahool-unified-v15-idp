@@ -3,6 +3,7 @@
 ///
 /// Defines actions that can be taken from notifications
 /// such as deep linking, quick actions, and responses
+library;
 
 import 'package:flutter/material.dart';
 

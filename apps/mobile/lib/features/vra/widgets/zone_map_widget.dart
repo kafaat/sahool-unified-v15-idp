@@ -1,5 +1,4 @@
-/// Zone Map Widget - خريطة المناطق
-library;
+// Zone Map Widget - خريطة المناطق
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -78,14 +77,14 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
 
     if (type == 'Polygon') {
       // Polygon coordinates are [[[lng, lat], [lng, lat], ...]]
-      final ring = coordinates[0] as List;
+      final ring = (coordinates as List)[0] as List;
       return ring.map((coord) {
         final c = coord as List;
         return LatLng(c[1] as double, c[0] as double);
       }).toList();
     } else if (type == 'MultiPolygon') {
       // MultiPolygon coordinates are [[[[lng, lat], [lng, lat], ...]]]
-      final firstPolygon = coordinates[0] as List;
+      final firstPolygon = (coordinates as List)[0] as List;
       final ring = firstPolygon[0] as List;
       return ring.map((coord) {
         final c = coord as List;
@@ -155,9 +154,9 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            initialCenter: const LatLng(24.7136, 46.6753), // Riyadh
+            initialCenter: const LatLng(24.7136, 46.6753),
             initialZoom: 13,
-            interactionOptions: const InteractionOptions(
+            interactionOptions: InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
           ),
@@ -187,7 +186,7 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                           ? Colors.black
                           : Colors.white,
                   borderStrokeWidth: isSelected ? 3 : isHovered ? 2 : 1,
-                  isFilled: true,
+                  // color is set above; polygon is filled when color is non-null
                 );
               }).toList(),
             ),
@@ -207,14 +206,12 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                   height: 40,
                   child: GestureDetector(
                     onTap: () {
-                      if (widget.onZoneSelected != null) {
-                        widget.onZoneSelected!(zone);
-                      }
+                      widget.onZoneSelected?.call(zone);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: Colors.black54),
                       ),

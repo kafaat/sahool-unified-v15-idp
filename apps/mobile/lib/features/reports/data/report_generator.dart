@@ -3,7 +3,6 @@
 library;
 
 import 'dart:io';
-import 'dart:convert';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
@@ -97,11 +96,11 @@ class ReportGenerator {
               dataPoints: _generateTimeSeriesData(filter.dateRange, 0.5, 0.9),
             ),
           ],
-          xAxis: AxisConfig(title: 'Date', titleAr: 'التاريخ'),
-          yAxis: AxisConfig(title: 'NDVI', titleAr: 'NDVI', min: 0, max: 1),
+          xAxis: const AxisConfig(title: 'Date', titleAr: 'التاريخ'),
+          yAxis: const AxisConfig(title: 'NDVI', titleAr: 'NDVI', min: 0, max: 1),
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'health_distribution',
         title: 'Health Distribution',
         titleAr: 'توزيع الصحة',
@@ -134,7 +133,7 @@ class ReportGenerator {
         type: 'table',
         order: 3,
         data: {
-          'table': ReportTableData(
+          'table': const ReportTableData(
             headers: ['Metric', 'Current', 'Previous', 'Change'],
             headersAr: ['المقياس', 'الحالي', 'السابق', 'التغيير'],
             rows: [
@@ -151,7 +150,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateFieldPerformanceStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Average NDVI',
         labelAr: 'متوسط NDVI',
         value: '0.72',
@@ -160,7 +159,7 @@ class ReportGenerator {
         iconName: 'eco',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Field Health',
         labelAr: 'صحة الحقل',
         value: '85%',
@@ -169,7 +168,7 @@ class ReportGenerator {
         iconName: 'favorite',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Water Efficiency',
         labelAr: 'كفاءة المياه',
         value: '92%',
@@ -178,7 +177,7 @@ class ReportGenerator {
         iconName: 'water_drop',
         colorHex: '#1976D2',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Tasks Done',
         labelAr: 'المهام المنجزة',
         value: '45',
@@ -225,11 +224,11 @@ class ReportGenerator {
               dataPoints: _generateConstantLine(filter.dateRange, 0.65),
             ),
           ],
-          xAxis: AxisConfig(title: 'Date', titleAr: 'التاريخ'),
-          yAxis: AxisConfig(title: 'NDVI Value', titleAr: 'قيمة NDVI', min: 0, max: 1),
+          xAxis: const AxisConfig(title: 'Date', titleAr: 'التاريخ'),
+          yAxis: const AxisConfig(title: 'NDVI Value', titleAr: 'قيمة NDVI', min: 0, max: 1),
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'ndvi_zone_comparison',
         title: 'Zone Comparison',
         titleAr: 'مقارنة المناطق',
@@ -260,7 +259,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateNdviTrendStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Current NDVI',
         labelAr: 'NDVI الحالي',
         value: '0.74',
@@ -269,21 +268,21 @@ class ReportGenerator {
         iconName: 'show_chart',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Period Average',
         labelAr: 'متوسط الفترة',
         value: '0.68',
         iconName: 'analytics',
         colorHex: '#1976D2',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Peak Value',
         labelAr: 'القيمة القصوى',
         value: '0.82',
         iconName: 'trending_up',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Variability',
         labelAr: 'التباين',
         value: '12%',
@@ -319,10 +318,10 @@ class ReportGenerator {
               dataPoints: _generateDailyData(filter.dateRange, 50, 150),
             ),
           ],
-          yAxis: AxisConfig(title: 'Volume (m\u00B3)', titleAr: 'الحجم (م\u00B3)'),
+          yAxis: const AxisConfig(title: 'Volume (m\u00B3)', titleAr: 'الحجم (م\u00B3)'),
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'irrigation_efficiency',
         title: 'Irrigation Efficiency',
         titleAr: 'كفاءة الري',
@@ -355,7 +354,7 @@ class ReportGenerator {
         type: 'table',
         order: 3,
         data: {
-          'table': ReportTableData(
+          'table': const ReportTableData(
             headers: ['Field', 'Method', 'Volume', 'Duration', 'Status'],
             headersAr: ['الحقل', 'الطريقة', 'الحجم', 'المدة', 'الحالة'],
             rows: [
@@ -371,7 +370,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateIrrigationStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Total Water Used',
         labelAr: 'إجمالي المياه',
         value: '2,450',
@@ -381,7 +380,7 @@ class ReportGenerator {
         iconName: 'water_drop',
         colorHex: '#1976D2',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Efficiency',
         labelAr: 'الكفاءة',
         value: '82%',
@@ -390,7 +389,7 @@ class ReportGenerator {
         iconName: 'speed',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Cost Savings',
         labelAr: 'التوفير',
         value: '1,200',
@@ -398,7 +397,7 @@ class ReportGenerator {
         iconName: 'savings',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Events',
         labelAr: 'عمليات الري',
         value: '28',
@@ -444,7 +443,7 @@ class ReportGenerator {
           ],
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'task_distribution',
         title: 'Task Distribution by Type',
         titleAr: 'توزيع المهام حسب النوع',
@@ -475,7 +474,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateTaskCompletionStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Completed',
         labelAr: 'مكتمل',
         value: '45',
@@ -484,7 +483,7 @@ class ReportGenerator {
         iconName: 'check_circle',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Completion Rate',
         labelAr: 'نسبة الإنجاز',
         value: '89%',
@@ -493,7 +492,7 @@ class ReportGenerator {
         iconName: 'trending_up',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Pending',
         labelAr: 'معلق',
         value: '8',
@@ -502,7 +501,7 @@ class ReportGenerator {
         iconName: 'pending',
         colorHex: '#FF8F00',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Overdue',
         labelAr: 'متأخر',
         value: '2',
@@ -549,7 +548,7 @@ class ReportGenerator {
               dataPoints: _generateTimeSeriesData(filter.dateRange, 15, 22),
             ),
           ],
-          yAxis: AxisConfig(title: 'Temperature (\u00B0C)', titleAr: 'الحرارة (\u00B0م)'),
+          yAxis: const AxisConfig(title: 'Temperature (\u00B0C)', titleAr: 'الحرارة (\u00B0م)'),
         ),
       ),
       ReportSection(
@@ -578,7 +577,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateWeatherStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Avg Temperature',
         labelAr: 'متوسط الحرارة',
         value: '28',
@@ -586,7 +585,7 @@ class ReportGenerator {
         iconName: 'thermostat',
         colorHex: '#FF8F00',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Total Rainfall',
         labelAr: 'إجمالي الأمطار',
         value: '45',
@@ -594,14 +593,14 @@ class ReportGenerator {
         iconName: 'water_drop',
         colorHex: '#1976D2',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Avg Humidity',
         labelAr: 'متوسط الرطوبة',
         value: '65%',
         iconName: 'opacity',
         colorHex: '#00BCD4',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Wind Speed',
         labelAr: 'سرعة الرياح',
         value: '12',
@@ -647,10 +646,10 @@ class ReportGenerator {
               dataPoints: _generateMonthlyData(25000, 45000),
             ),
           ],
-          yAxis: AxisConfig(title: 'Amount (SAR)', titleAr: 'المبلغ (ريال)'),
+          yAxis: const AxisConfig(title: 'Amount (SAR)', titleAr: 'المبلغ (ريال)'),
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'cost_breakdown',
         title: 'Cost Breakdown',
         titleAr: 'تفصيل التكاليف',
@@ -682,7 +681,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateCostProfitStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Total Revenue',
         labelAr: 'إجمالي الإيرادات',
         value: '185,000',
@@ -692,7 +691,7 @@ class ReportGenerator {
         iconName: 'trending_up',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Total Cost',
         labelAr: 'إجمالي التكاليف',
         value: '95,000',
@@ -702,7 +701,7 @@ class ReportGenerator {
         iconName: 'trending_down',
         colorHex: '#F44336',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Net Profit',
         labelAr: 'صافي الربح',
         value: '90,000',
@@ -712,7 +711,7 @@ class ReportGenerator {
         iconName: 'account_balance',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Profit Margin',
         labelAr: 'هامش الربح',
         value: '48.6%',
@@ -731,7 +730,7 @@ class ReportGenerator {
 
   List<ReportSection> _generateYieldPredictionSections(ReportFilter filter) {
     return [
-      ReportSection(
+      const ReportSection(
         id: 'yield_forecast_chart',
         title: 'Yield Forecast',
         titleAr: 'توقعات الإنتاج',
@@ -770,7 +769,7 @@ class ReportGenerator {
           yAxis: AxisConfig(title: 'Yield (ton/ha)', titleAr: 'الإنتاج (طن/هـ)'),
         ),
       ),
-      ReportSection(
+      const ReportSection(
         id: 'yield_factors',
         title: 'Yield Influencing Factors',
         titleAr: 'العوامل المؤثرة على الإنتاج',
@@ -801,7 +800,7 @@ class ReportGenerator {
 
   List<SummaryStat> _generateYieldPredictionStats() {
     return [
-      SummaryStat(
+      const SummaryStat(
         label: 'Predicted Yield',
         labelAr: 'الإنتاج المتوقع',
         value: '5.4',
@@ -811,14 +810,14 @@ class ReportGenerator {
         iconName: 'trending_up',
         colorHex: '#4CAF50',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Confidence',
         labelAr: 'الثقة',
         value: '87%',
         iconName: 'verified',
         colorHex: '#1976D2',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Est. Revenue',
         labelAr: 'الإيرادات المتوقعة',
         value: '185K',
@@ -826,7 +825,7 @@ class ReportGenerator {
         iconName: 'payments',
         colorHex: '#2E7D32',
       ),
-      SummaryStat(
+      const SummaryStat(
         label: 'Harvest Date',
         labelAr: 'تاريخ الحصاد',
         value: 'May 15',
@@ -1043,7 +1042,7 @@ class ReportGenerator {
       buffer.writeln('-' * 40);
 
       if (section.type == 'table' && section.data['table'] != null) {
-        final table = ReportTableData.fromJson(section.data['table']);
+        final table = ReportTableData.fromJson(section.data['table'] as Map<String, dynamic>);
         buffer.writeln(table.headers.join('\t'));
         for (final row in table.rows) {
           buffer.writeln(row.join('\t'));
@@ -1070,7 +1069,7 @@ class ReportGenerator {
     for (final section in report.tableSections) {
       if (section.data['table'] != null) {
         buffer.writeln(section.title);
-        final table = ReportTableData.fromJson(section.data['table']);
+        final table = ReportTableData.fromJson(section.data['table'] as Map<String, dynamic>);
         buffer.writeln(table.headers.join(','));
         for (final row in table.rows) {
           buffer.writeln(row.join(','));

@@ -2,6 +2,7 @@
 /// نموذج طلب التوصية من المستشار الذكي
 ///
 /// Represents a request to the AI Advisory system
+library;
 
 import 'package:flutter/foundation.dart';
 import 'advisory.dart';

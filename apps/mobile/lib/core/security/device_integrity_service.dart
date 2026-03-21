@@ -109,7 +109,7 @@ class DeviceIntegrityService {
       bool isDebugMode = false;
       bool isFridaDetected = false;
       bool isDeveloperModeEnabled = false;
-      List<String> threats = [];
+      final List<String> threats = [];
       Map<String, dynamic> deviceInfo = {};
 
       // Detect debug mode

@@ -1,5 +1,6 @@
 /// SAHOOL Lunar Mansion Card
 /// بطاقة المنزلة القمرية
+library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';
@@ -142,7 +143,7 @@ class LunarMansionCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 // المحاصيل المناسبة
                 if (mansion.crops.isNotEmpty) ...[
-                  _SectionTitle(
+                  const _SectionTitle(
                     icon: Icons.grass,
                     title: 'المحاصيل المناسبة',
                     color: Colors.green,
@@ -163,7 +164,7 @@ class LunarMansionCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 // الأنشطة المناسبة
                 if (mansion.activities.isNotEmpty) ...[
-                  _SectionTitle(
+                  const _SectionTitle(
                     icon: Icons.agriculture,
                     title: 'الأنشطة المناسبة',
                     color: Colors.blue,
@@ -183,7 +184,7 @@ class LunarMansionCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 // ما يجب تجنبه
                 if (mansion.avoid.isNotEmpty) ...[
-                  _SectionTitle(
+                  const _SectionTitle(
                     icon: Icons.do_not_disturb,
                     title: 'يُتجنب',
                     color: Colors.red,

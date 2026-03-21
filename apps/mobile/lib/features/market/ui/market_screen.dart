@@ -102,7 +102,7 @@ class _MarketScreenState extends State<MarketScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text("سوق سهول"),
+        title: const Text('سوق سهول'),
         backgroundColor: SahoolColors.forestGreen,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -186,7 +186,7 @@ class _MarketScreenState extends State<MarketScreen> {
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
         label: const Text(
-          "بيع محصولي",
+          'بيع محصولي',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -212,7 +212,7 @@ class _MarketScreenState extends State<MarketScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: "ابحث عن بذور، أسمدة، معدات...",
+              hintText: 'ابحث عن بذور، أسمدة، معدات...',
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.tune, color: Colors.grey),
@@ -291,7 +291,7 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -309,7 +309,7 @@ class _ProductCard extends StatelessWidget {
           // صورة المنتج
           Expanded(
             flex: 3,
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: const BorderRadius.vertical(

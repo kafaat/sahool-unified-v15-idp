@@ -654,24 +654,24 @@ class Logger {
 
     if (_piiFilteringEnabled) {
       if (PiiFilter.containsPii(message)) {
-        sanitizedMessage = PiiFilter.sanitize(message);
+        sanitizedMessage = PiiFilter.sanitize(message) as String;
         _piiFilteredCount++;
       }
       if (messageAr != null && PiiFilter.containsPii(messageAr)) {
-        sanitizedMessageAr = PiiFilter.sanitize(messageAr);
+        sanitizedMessageAr = PiiFilter.sanitize(messageAr) as String?;
         _piiFilteredCount++;
       }
       if (error != null) {
         final errorStr = error.toString();
         if (PiiFilter.containsPii(errorStr)) {
-          sanitizedError = PiiFilter.sanitize(errorStr);
+          sanitizedError = PiiFilter.sanitize(errorStr) as String?;
           _piiFilteredCount++;
         } else {
           sanitizedError = errorStr;
         }
       }
       if (extra != null) {
-        sanitizedExtra = PiiFilter.sanitize(extra);
+        sanitizedExtra = PiiFilter.sanitize(extra) as Map<String, dynamic>?;
       }
     } else {
       sanitizedError = error?.toString();

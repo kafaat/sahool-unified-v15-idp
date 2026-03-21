@@ -24,6 +24,7 @@
 /// - Fuzzy command matching
 /// - Visual and audio feedback
 /// - Wake word detection preparation
+library;
 
 // Core voice service (speech recognition)
 export 'voice_service.dart';
@@ -41,5 +42,5 @@ export 'voice_command_handler.dart';
 export 'voice_ui.dart';
 
 // Legacy exports (for backward compatibility)
-export 'voice_command_service.dart';
-export 'voice_button_widget.dart';
+export 'voice_command_service.dart' hide VoiceCommandType;
+export 'voice_button_widget.dart' hide FloatingVoiceButton, VoiceHelpSheet, VoiceStatusIndicator;

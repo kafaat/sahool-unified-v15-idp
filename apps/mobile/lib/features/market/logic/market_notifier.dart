@@ -2,6 +2,7 @@
 /// إدارة حالة السوق - Clean Architecture Pattern
 ///
 /// يفصل منطق البيع عن الواجهة ويوفر حالات واضحة للتتبع
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_result.dart';
@@ -176,14 +177,14 @@ class HarvestSaleData {
   /// إنشاء من بيانات yield-engine
   factory HarvestSaleData.fromYieldEngine(Map<String, dynamic> data) {
     return HarvestSaleData(
-      cropType: data['crop'] ?? data['crop_type'] ?? 'Unknown',
-      cropTypeAr: data['cropAr'] ?? data['crop_type_ar'] ?? 'غير معروف',
-      predictedYieldTons: (data['predictedYieldTons'] ?? data['predicted_yield_tons'] ?? 0).toDouble(),
-      pricePerTon: (data['marketPrice'] ?? data['price_per_ton'] ?? 0).toDouble(),
-      harvestDate: data['harvestDate'] ?? data['harvest_date'],
-      qualityGrade: data['qualityGrade'] ?? data['quality_grade'],
-      governorate: data['governorate'],
-      aiConfidence: (data['confidence'] ?? data['ai_confidence'])?.toDouble(),
+      cropType: (data['crop'] as String?) ?? (data['crop_type'] as String?) ?? 'Unknown',
+      cropTypeAr: (data['cropAr'] as String?) ?? (data['crop_type_ar'] as String?) ?? 'غير معروف',
+      predictedYieldTons: ((data['predictedYieldTons'] ?? data['predicted_yield_tons'] ?? 0) as num).toDouble(),
+      pricePerTon: ((data['marketPrice'] ?? data['price_per_ton'] ?? 0) as num).toDouble(),
+      harvestDate: (data['harvestDate'] as String?) ?? (data['harvest_date'] as String?),
+      qualityGrade: (data['qualityGrade'] as String?) ?? (data['quality_grade'] as String?),
+      governorate: data['governorate'] as String?,
+      aiConfidence: ((data['confidence'] ?? data['ai_confidence']) as num?)?.toDouble(),
     );
   }
 

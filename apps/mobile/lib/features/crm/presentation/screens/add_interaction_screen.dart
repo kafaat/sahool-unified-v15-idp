@@ -2,6 +2,7 @@
 /// شاشة إضافة تفاعل
 ///
 /// Form to add a new interaction with a farmer
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -223,7 +223,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.grey[900]
@@ -249,11 +249,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            _SoundOption(name: 'افتراضي', isSelected: true),
-            _SoundOption(name: 'نغمة 1'),
-            _SoundOption(name: 'نغمة 2'),
-            _SoundOption(name: 'نغمة 3'),
-            _SoundOption(name: 'صامت'),
+            const _SoundOption(name: 'افتراضي', isSelected: true),
+            const _SoundOption(name: 'نغمة 1'),
+            const _SoundOption(name: 'نغمة 2'),
+            const _SoundOption(name: 'نغمة 3'),
+            const _SoundOption(name: 'صامت'),
             SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
           ],
         ),

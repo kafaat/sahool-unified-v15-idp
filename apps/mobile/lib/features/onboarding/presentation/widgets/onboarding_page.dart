@@ -81,7 +81,7 @@ class OnboardingPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
+        body: DecoratedBox(
           decoration: BoxDecoration(
             gradient: gradientColors != null
                 ? LinearGradient(

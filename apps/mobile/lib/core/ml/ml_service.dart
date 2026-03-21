@@ -9,9 +9,8 @@
 /// - NDVI health prediction from sensor data
 /// - Irrigation timing prediction
 /// - Offline model caching
+library;
 
-import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -174,7 +173,7 @@ class MlService {
     required double cropKc,
     double? et0,
   }) {
-    final mad = 0.5; // Management Allowable Depletion
+    const mad = 0.5; // Management Allowable Depletion
     final threshold = wiltingPoint + (fieldCapacity - wiltingPoint) * (1 - mad);
     final shouldIrrigate = soilMoisture <= threshold;
 

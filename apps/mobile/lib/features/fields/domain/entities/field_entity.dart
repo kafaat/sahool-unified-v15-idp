@@ -1,3 +1,5 @@
+import '../../../field/domain/entities/field.dart' as field_domain;
+
 /// Field Entity - كيان الحقل
 class FieldEntity {
   final String id;
@@ -43,6 +45,38 @@ class FieldEntity {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  /// Create a FieldEntity from the GIS-enabled Field domain model.
+  /// يتيح تحويل كيان الحقل من نموذج Field الأساسي (GIS)
+  factory FieldEntity.fromField(field_domain.Field field) {
+    return FieldEntity(
+      id: field.id,
+      tenantId: field.tenantId,
+      name: field.name,
+      farmId: field.farmId,
+      areaHectares: field.areaHectares,
+      cropType: field.cropType ?? '',
+      healthScore: field.ndvi,
+      ndviValue: field.ndviCurrent,
+      status: FieldStatus.fromString(field.status ?? 'active'),
+      center: field.centroid != null
+          ? GeoLocation(
+              latitude: field.centroid!.latitude,
+              longitude: field.centroid!.longitude,
+            )
+          : null,
+      boundary: field.boundary.isNotEmpty
+          ? field.boundary
+              .map((p) => GeoLocation(
+                    latitude: p.latitude,
+                    longitude: p.longitude,
+                  ))
+              .toList()
+          : null,
+      createdAt: field.createdAt,
+      updatedAt: field.updatedAt,
+    );
+  }
 
   factory FieldEntity.fromJson(Map<String, dynamic> json) {
     return FieldEntity(

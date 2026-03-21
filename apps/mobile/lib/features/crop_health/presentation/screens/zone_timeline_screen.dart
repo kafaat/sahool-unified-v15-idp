@@ -246,8 +246,8 @@ class _ChartPainter extends CustomPainter {
     }).toList();
 
     // حساب الحدود
-    double minValue = -1;
-    double maxValue = 1;
+    const double minValue = -1;
+    const double maxValue = 1;
 
     // تحويل إلى نقاط
     final points = <Offset>[];

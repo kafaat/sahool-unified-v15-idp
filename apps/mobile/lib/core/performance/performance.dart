@@ -10,6 +10,7 @@
 /// - جمع المقاييس
 /// - تتبع API
 /// - لوحة الأداء (للتطوير)
+library;
 
 // Core performance utilities
 export 'image_cache_manager.dart';

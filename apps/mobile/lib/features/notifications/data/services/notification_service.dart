@@ -32,8 +32,8 @@ class NotificationService {
     if (json == null) return [];
 
     try {
-      final List<dynamic> list = jsonDecode(json);
-      return list.map((e) => AppNotification.fromJson(e)).toList();
+      final List<dynamic> list = jsonDecode(json) as List<dynamic>;
+      return list.map((e) => AppNotification.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       debugPrint('Error loading notifications: $e');
       return [];
@@ -103,7 +103,7 @@ class NotificationService {
     if (json == null) return const NotificationSettings();
 
     try {
-      return NotificationSettings.fromJson(jsonDecode(json));
+      return NotificationSettings.fromJson(jsonDecode(json) as Map<String, dynamic>);
     } catch (e) {
       debugPrint('Error loading notification settings: $e');
       return const NotificationSettings();
@@ -130,17 +130,23 @@ class NotificationService {
     final data = message['data'] as Map<String, dynamic>? ?? {};
 
     return AppNotification(
-      id: data['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      type: data['type'] ?? 'system',
-      title: notification?['title'] ?? data['title'] ?? 'إشعار',
-      titleAr: notification?['title'] ?? data['title_ar'] ?? 'إشعار',
-      body: notification?['body'] ?? data['body'] ?? '',
-      bodyAr: notification?['body'] ?? data['body_ar'] ?? '',
-      imageUrl: notification?['image'] ?? data['image_url'],
+      id: (data['id'] as String?) ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      type: (data['type'] as String?) ?? 'system',
+      title: (notification?['title'] as String?) ?? (data['title'] as String?) ?? 'إشعار',
+      titleAr: (notification?['title'] as String?) ?? (data['title_ar'] as String?) ?? 'إشعار',
+      body: (notification?['body'] as String?) ?? (data['body'] as String?) ?? '',
+      bodyAr: (notification?['body'] as String?) ?? (data['body_ar'] as String?) ?? '',
+      imageUrl: (notification?['image'] as String?) ?? (data['image_url'] as String?),
       data: data,
       createdAt: DateTime.now(),
       isRead: false,
-      actionUrl: data['action_url'],
+      actionUrl: data['action_url'] as String?,
     );
+  }
+
+  /// Clean up resources. Currently a no-op since SharedPreferences is a
+  /// singleton, but provides a hook for future resource cleanup.
+  void dispose() {
+    _prefs = null;
   }
 }

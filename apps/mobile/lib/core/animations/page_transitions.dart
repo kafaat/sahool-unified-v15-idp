@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// SAHOOL Page Transitions - انتقالات الصفحات المتقدمة
 /// Comprehensive page transition system for smooth navigation
@@ -497,13 +498,12 @@ class ModalBottomSheetTransition extends PageRouteBuilder {
   final Widget page;
   final Curve curve;
   final Duration duration;
-  final Color barrierColor;
 
   ModalBottomSheetTransition({
     required this.page,
     this.curve = Curves.easeOutCubic,
     this.duration = const Duration(milliseconds: 350),
-    this.barrierColor = Colors.black54,
+    Color barrierColor = Colors.black54,
   }) : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
           transitionDuration: duration,
@@ -533,13 +533,12 @@ class DialogPopTransition extends PageRouteBuilder {
   final Widget page;
   final Curve curve;
   final Duration duration;
-  final Color barrierColor;
 
   DialogPopTransition({
     required this.page,
     this.curve = Curves.easeOutBack,
     this.duration = const Duration(milliseconds: 300),
-    this.barrierColor = Colors.black54,
+    Color barrierColor = Colors.black54,
   }) : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
           transitionDuration: duration,
@@ -579,12 +578,12 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeInOutCubic,
     Duration duration = const Duration(milliseconds: 350),
   }) {
-    return push(SlidePageTransition(
+    return push<T>(SlidePageTransition(
       page: page,
       direction: direction,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push with fade transition - الانتقال بالتلاشي
@@ -593,11 +592,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    return push(FadePageTransition(
+    return push<T>(FadePageTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push with scale transition - الانتقال بالتكبير
@@ -608,13 +607,13 @@ extension NavigationExtension on NavigatorState {
     double beginScale = 0.8,
     Alignment alignment = Alignment.center,
   }) {
-    return push(ScalePageTransition(
+    return push<T>(ScalePageTransition(
       page: page,
       curve: curve,
       duration: duration,
       beginScale: beginScale,
       alignment: alignment,
-    ));
+    ) as Route<T>);
   }
 
   /// Push as modal bottom sheet - كنافذة سفلية
@@ -623,11 +622,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeOutCubic,
     Duration duration = const Duration(milliseconds: 350),
   }) {
-    return push(ModalBottomSheetTransition(
+    return push<T>(ModalBottomSheetTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push as dialog - كحوار
@@ -636,11 +635,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeOutBack,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    return push(DialogPopTransition(
+    return push<T>(DialogPopTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 }
 

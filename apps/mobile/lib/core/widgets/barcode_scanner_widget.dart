@@ -1,5 +1,5 @@
-/// SAHOOL Barcode/QR Scanner Widget
-/// ماسح الباركود والـ QR
+// SAHOOL Barcode/QR Scanner Widget
+// ماسح الباركود والـ QR
 
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -70,7 +70,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       detectionSpeed: DetectionSpeed.normal,
       facing: CameraFacing.back,
       torchEnabled: false,
-      formats: widget.formats,
+      formats: widget.formats ?? const [],
     );
   }
 
@@ -189,9 +189,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
 
           // Processing indicator
           if (_isProcessing)
-            Container(
+            const ColoredBox(
               color: Colors.black54,
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(color: Colors.white),
               ),
             ),

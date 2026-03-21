@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول
@@ -8,6 +7,7 @@ import 'package:flutter/foundation.dart';
 /// - نقطة التفتيش
 /// - الملاحظة
 /// - المسار
+library;
 
 /// جلسة مسح الحقل
 class ScoutSession {

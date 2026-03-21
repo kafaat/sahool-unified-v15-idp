@@ -75,7 +75,7 @@
 /// // Dispose at app shutdown
 /// await Logger.dispose();
 /// ```
-library logging;
+library;
 
 export 'log_models.dart';
 export 'file_logger.dart';

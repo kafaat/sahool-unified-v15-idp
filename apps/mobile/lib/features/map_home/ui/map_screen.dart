@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
@@ -28,8 +30,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _isSearchExpanded = false;
 
   // حالة الاتصال (للتجربة)
-  bool _isOnline = true;
-  int _pendingSync = 3;
+  final bool _isOnline = true;
+  final int _pendingSync = 3;
 
   late final MapController _mapController;
   String _searchQuery = '';
@@ -51,95 +53,39 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
-
-  @override
   void dispose() {
     _mapController.dispose();
     super.dispose();
   }
 
-  // بيانات وهمية للحقول (Mock Data)
-  final List<Field> _mockFields = [
-    Field(
-      id: '1',
-      name: 'القطعة الشمالية',
-      tenantId: 'mock',
-      cropType: 'قمح',
-      areaHectares: 2.4,
-      ndviCurrent: 0.78,
-      status: 'healthy',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '2',
-      name: 'حقل الذرة',
-      tenantId: 'mock',
-      cropType: 'ذرة',
-      areaHectares: 3.1,
-      ndviCurrent: 0.65,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '3',
-      name: 'البستان الغربي',
-      tenantId: 'mock',
-      cropType: 'عنب',
-      areaHectares: 1.8,
-      ndviCurrent: 0.52,
-      status: 'stressed',
-      pendingTasks: 2,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '4',
-      name: 'حقل الطماطم',
-      tenantId: 'mock',
-      cropType: 'طماطم',
-      areaHectares: 0.9,
-      ndviCurrent: 0.35,
-      status: 'critical',
-      pendingTasks: 4,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '5',
-      name: 'المنطقة الجنوبية',
-      tenantId: 'mock',
-      cropType: 'برسيم',
-      areaHectares: 4.2,
-      ndviCurrent: 0.71,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '6',
-      name: 'حقل البطاطا',
-      tenantId: 'mock',
-      cropType: 'بطاطا',
-      areaHectares: 1.5,
-      ndviCurrent: 0.48,
-      status: 'stressed',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-  ];
+  // Fields loaded from repository via provider
+  List<Field> _repoFields = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    _loadFields();
+  }
+
+  Future<void> _loadFields() async {
+    try {
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+      final repo = ref.read(fieldsRepoProvider);
+      final fields = await repo.getAllFields(tenantId);
+      if (mounted) {
+        setState(() {
+          _repoFields = fields;
+        });
+      }
+    } catch (e) {
+      // Silently fall back to empty list - fields will load on next refresh
+    }
+  }
 
   List<Field> get _filteredFields {
-    var fields = _mockFields;
+    var fields = _repoFields;
     // Apply status filter
     if (_activeFilter == 'نشط') {
       fields = fields.where((f) => f.healthStatus == FieldStatus.healthy).toList();
@@ -183,7 +129,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           _buildEmergencyButton(),
 
           // 7. لوحة المهام المنزلقة (تظهر فقط عندما لا يكون هناك حقل محدد)
-          if (_selectedField == null) DailyTasksSheet(),
+          if (_selectedField == null) const DailyTasksSheet(),
 
           // 8. لوحة تفاصيل الحقل (تغطي الشاشة عند تحديد حقل)
           if (_selectedField != null) _buildFieldContextPanel(),
@@ -227,15 +173,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  // إحداثيات وهمية للحقول (اليمن - صنعاء)
-  final List<LatLng> _fieldLocations = const [
-    LatLng(15.3694, 44.1910), // القطعة الشمالية
-    LatLng(15.3550, 44.2050), // حقل الذرة
-    LatLng(15.3800, 44.1750), // البستان الغربي
-    LatLng(15.3450, 44.1850), // حقل الطماطم
-    LatLng(15.3300, 44.2100), // المنطقة الجنوبية
-    LatLng(15.3600, 44.1600), // حقل البطاطا
-  ];
+  /// Field center locations derived from field data or default Sanaa region.
+  /// TODO: Use actual field polygon centroids from field.centerLatitude/centerLongitude
+  /// when the Field entity exposes geospatial coordinates.
+  List<LatLng> get _fieldLocations {
+    // Generate locations around default center for fields that lack coordinates.
+    // Once Field entity includes lat/lng, use those directly.
+    const defaultCenter = LatLng(15.3694, 44.1910);
+    if (_repoFields.isEmpty) return [defaultCenter];
+    return List.generate(_repoFields.length, (i) {
+      // Spread fields around the center with slight offsets
+      final latOffset = (i ~/ 2) * 0.015 * (i.isEven ? 1 : -1);
+      final lngOffset = (i % 3 - 1) * 0.015;
+      return LatLng(
+        defaultCenter.latitude + latOffset,
+        defaultCenter.longitude + lngOffset,
+      );
+    });
+  }
 
   /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
@@ -269,7 +224,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
+        initialCenter: _fieldLocations.isNotEmpty
+            ? _fieldLocations.first
+            : const LatLng(15.3694, 44.1910), // default: صنعاء
         initialZoom: 12,
         onTap: (tapPosition, point) {
           if (_selectedField != null) {
@@ -304,7 +261,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   LatLng(loc.latitude + offset, loc.longitude + offset),
                   LatLng(loc.latitude + offset, loc.longitude - offset),
                 ],
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 borderColor: color,
                 borderStrokeWidth: 2,
                 label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
@@ -449,7 +406,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       label: Text(label),
       selected: _activeFilter == label,
       onSelected: (_) => setState(() => _activeFilter = label),
-      selectedColor: SahoolColors.primary.withOpacity(0.2),
+      selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
       checkmarkColor: SahoolColors.primary,
     );
   }
@@ -472,7 +429,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           }),
           const SizedBox(height: 16),
           _buildMapControlButton(Icons.my_location, 'موقعي', () {
-            _mapController.move(const LatLng(15.3694, 44.1910), 14);
+            // TODO: Use geolocator package to get actual GPS position
+            // For now, center on the first field location or default
+            final center = _fieldLocations.isNotEmpty
+                ? _fieldLocations.first
+                : const LatLng(15.3694, 44.1910);
+            _mapController.move(center, 14);
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {
@@ -494,7 +456,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -543,7 +505,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isSelected ? SahoolColors.primary.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected ? SahoolColors.primary.withValues(alpha: 0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -591,7 +553,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               children: [
                 Expanded(child: _buildStatItem('مهام', '${_getTotalTasks()}', SahoolColors.info, Icons.task_alt)),
                 Expanded(child: _buildStatItem('تنبيهات', '${_getCriticalCount()}', SahoolColors.danger, Icons.warning_amber)),
-                Expanded(child: _buildStatItem('حقول', '${_mockFields.length}', SahoolColors.success, Icons.grass)),
+                Expanded(child: _buildStatItem('حقول', '${_repoFields.length}', SahoolColors.success, Icons.grass)),
               ],
             ),
             const SizedBox(height: 16),
@@ -621,13 +583,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  int _getTotalTasks() => _mockFields.fold(0, (sum, f) => sum + f.pendingTasks);
+  int _getTotalTasks() => _repoFields.fold(0, (sum, f) => sum + f.pendingTasks);
 
-  int _getCriticalCount() => _mockFields.where((f) => f.needsAttention).length;
+  int _getCriticalCount() => _repoFields.where((f) => f.needsAttention).length;
 
   double _getAverageHealth() {
-    if (_mockFields.isEmpty) return 0;
-    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _mockFields.length;
+    if (_repoFields.isEmpty) return 0;
+    return _repoFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _repoFields.length;
   }
 
   Widget _buildWeatherBadge() {
@@ -658,7 +620,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -710,11 +672,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.add_task, color: SahoolColors.primary),
-            const SizedBox(width: 8),
-            const Text('إضافة مهمة'),
+            Icon(Icons.add_task, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('إضافة مهمة'),
           ],
         ),
         content: Text('إضافة مهمة جديدة لحقل "${_selectedField?.name}"'),
@@ -736,11 +698,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning, color: SahoolColors.danger),
-            const SizedBox(width: 8),
-            const Text('طوارئ'),
+            SizedBox(width: 8),
+            Text('طوارئ'),
           ],
         ),
         content: const Text('هل تريد الإبلاغ عن حالة طوارئ في الحقل؟'),

@@ -5,6 +5,7 @@
 /// - Complete message content
 /// - Actions
 /// - Related entity navigation
+library;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models/notification.dart';
 import '../../domain/models/notification_action.dart';
+import '../../domain/models/notification_category.dart';
 import '../../state/notifications_providers.dart';
 import '../widgets/actionable_notification.dart';
 
@@ -48,7 +50,7 @@ class _NotificationDetailsScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(category.labelAr),
-        backgroundColor: category.color.withOpacity(0.1),
+        backgroundColor: category.color.withValues(alpha: 0.1),
         foregroundColor: category.color,
         actions: [
           // Mark read/unread toggle
@@ -216,7 +218,7 @@ class _NotificationDetailsScreenState
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: category.color.withOpacity(0.3),
+                  color: category.color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),

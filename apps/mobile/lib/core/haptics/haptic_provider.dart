@@ -5,6 +5,7 @@
 /// - HapticService provider
 /// - HapticConfig state management
 /// - Initialization provider
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

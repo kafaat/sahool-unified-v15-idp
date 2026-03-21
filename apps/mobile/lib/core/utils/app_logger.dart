@@ -135,7 +135,7 @@ class AppLogger {
         : body;
 
     final networkData = <String, dynamic>{
-      if (sanitizedData != null) ...sanitizedData,
+      if (sanitizedData != null) ...(sanitizedData as Map<String, dynamic>),
       if (sanitizedHeaders != null) 'headers': sanitizedHeaders,
       if (sanitizedBody != null) 'body': sanitizedBody,
     };
@@ -198,7 +198,7 @@ class AppLogger {
 
     // Apply additional PII filtering to exported logs
     final logs = _logBuffer.map((e) => e.toString()).join('\n');
-    return PiiFilter.sanitize(logs);
+    return PiiFilter.sanitize(logs) as String;
   }
 
   /// Export logs as JSON (for analytics/monitoring)
@@ -235,13 +235,13 @@ class AppLogger {
     if (_piiFilteringEnabled) {
       // Check if message contains PII
       if (PiiFilter.containsPii(message)) {
-        sanitizedMessage = PiiFilter.sanitize(message);
+        sanitizedMessage = PiiFilter.sanitize(message) as String;
         _piiFilteredCount++;
       }
 
       // Sanitize data map
       if (data != null) {
-        sanitizedData = PiiFilter.sanitize(data);
+        sanitizedData = PiiFilter.sanitize(data) as Map<String, dynamic>?;
       }
 
       // Sanitize error message

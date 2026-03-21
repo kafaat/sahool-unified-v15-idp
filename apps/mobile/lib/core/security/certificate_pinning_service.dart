@@ -190,7 +190,7 @@ class CertificatePinningService {
 
   CertificatePinningService({
     Map<String, List<CertificatePin>>? certificatePins,
-    this.allowDebugBypass = true,
+    this.allowDebugBypass = false,
     this.enforceStrict = true,
   }) : _certificatePins = certificatePins ?? _getDefaultPins() {
     // SECURITY CHECK: Reject placeholder values in release builds
@@ -340,7 +340,7 @@ class CertificatePinningService {
             if (kDebugMode) {
               if (!isValid) {
                 AppLogger.e('Certificate validation failed', tag: 'CertificatePinning', data: {'host': host, 'port': port});
-                AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {'pins': _getPinsForHost(host).map((p) => p.value.substring(0, 16)).join(", ")});
+                AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {'pins': _getPinsForHost(host).map((p) => p.value.substring(0, 16)).join(', ')});
               }
             }
 
@@ -352,7 +352,7 @@ class CertificatePinningService {
 
         if (kDebugMode) {
           AppLogger.i('Certificate pinning configured for Dio HTTP client', tag: 'CertificatePinning');
-          AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(", ")});
+          AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(', ')});
         }
       } else {
         if (kDebugMode) {
@@ -669,7 +669,7 @@ Certificate Info:
     if (errors.isEmpty) {
       if (kDebugMode) {
         AppLogger.i('Certificate pin configuration is valid', tag: 'CertificatePinning');
-        AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(", ")});
+        AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(', ')});
         for (final domain in getConfiguredDomains()) {
           final pins = _certificatePins[domain]!;
           AppLogger.d('Domain pins', tag: 'CertificatePinning', data: {'domain': domain, 'count': pins.length});
@@ -772,7 +772,7 @@ Future<String?> getCertificateFingerprintFromUrl(String url) async {
 
     final cert = socket.peerCertificate;
     if (cert == null) {
-      socket.close();
+      await socket.close();
       return null;
     }
 
@@ -780,7 +780,7 @@ Future<String?> getCertificateFingerprintFromUrl(String url) async {
     final digest = sha256.convert(certBytes);
     final fingerprint = digest.toString();
 
-    socket.close();
+    await socket.close();
     return fingerprint;
   } catch (e) {
     if (kDebugMode) {

@@ -83,7 +83,7 @@ class GlassContainer extends StatelessWidget {
           alignment: alignment,
           padding: padding,
           decoration: BoxDecoration(
-            color: effectiveBgColor.withOpacity(opacity),
+            color: effectiveBgColor.withValues(alpha: opacity),
             gradient: gradient,
             borderRadius: BorderRadius.circular(borderRadius),
             border: borderGradient != null
@@ -94,7 +94,7 @@ class GlassContainer extends StatelessWidget {
                   ),
             boxShadow: shadows ?? [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                 blurRadius: 20,
                 spreadRadius: 2,
                 offset: const Offset(0, 8),
@@ -218,7 +218,7 @@ class GlassCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        Colors.white.withOpacity(0.2),
+                        Colors.white.withValues(alpha: 0.2),
                         Colors.transparent,
                       ],
                     ),
@@ -295,11 +295,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           sigmaX: blurIntensity,
           sigmaY: blurIntensity,
         ),
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: (backgroundColor ??
                 (isDark ? glassColors.glassDark : glassColors.glassLight))
-                .withOpacity(opacity),
+                .withValues(alpha: opacity),
             border: Border(
               bottom: BorderSide(
                 color: isDark ? glassColors.borderDark : glassColors.borderLight,
@@ -384,7 +384,7 @@ class GlassBottomNav extends StatelessWidget {
           decoration: BoxDecoration(
             color: (backgroundColor ??
                 (isDark ? glassColors.glassDark : glassColors.glassLight))
-                .withOpacity(opacity),
+                .withValues(alpha: opacity),
             borderRadius: BorderRadius.circular(floatingStyle ? borderRadius : 0),
             border: floatingStyle
                 ? Border.all(
@@ -400,7 +400,7 @@ class GlassBottomNav extends StatelessWidget {
             boxShadow: floatingStyle
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.4 : 0.15),
+                      color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
                       blurRadius: 20,
                       offset: const Offset(0, -5),
                     ),
@@ -488,7 +488,7 @@ class _GlassNavButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: isSelected
               ? BoxDecoration(
-                  color: selectedColor.withOpacity(0.15),
+                  color: selectedColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 )
               : null,
@@ -576,7 +576,7 @@ class GlassButton extends StatefulWidget {
   });
 
   /// Icon-only glass button
-  const GlassButton.icon({
+  GlassButton.icon({
     super.key,
     required IconData icon,
     this.onPressed,
@@ -658,7 +658,7 @@ class _GlassButtonState extends State<GlassButton>
     final effectiveBgColor = widget.backgroundColor ??
         (isDark ? glassColors.glassDark : glassColors.glassLight);
 
-    Widget buttonContent = widget.isLoading
+    final Widget buttonContent = widget.isLoading
         ? SizedBox(
             width: widget.iconSize,
             height: widget.iconSize,
@@ -709,7 +709,7 @@ class _GlassButtonState extends State<GlassButton>
                 gradient: widget.gradient,
                 borderGradient: widget.borderGradient,
                 borderColor: widget.style == GlassButtonStyle.outlined
-                    ? effectiveFgColor.withOpacity(0.5)
+                    ? effectiveFgColor.withValues(alpha: 0.5)
                     : null,
                 shadows: _isPressed ? [] : null,
                 child: Center(child: buttonContent),
@@ -818,7 +818,7 @@ class GlassTextField extends StatelessWidget {
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: (isDark ? glassColors.glassDark : glassColors.glassLight)
-                .withOpacity(opacity),
+                .withValues(alpha: opacity),
             hintStyle: TextStyle(
               color: isDark ? Colors.white54 : Colors.black45,
             ),
@@ -899,10 +899,10 @@ Future<T?> showGlassBottomSheet<T>({
             sigmaX: blurIntensity,
             sigmaY: blurIntensity,
           ),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: (isDark ? glassColors.glassDark : glassColors.glassLight)
-                  .withOpacity(opacity),
+                  .withValues(alpha: opacity),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               border: Border(
                 top: BorderSide(
@@ -972,7 +972,7 @@ Future<T?> showGlassDialog<T>({
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: (isDark ? glassColors.glassDark : glassColors.glassLight)
-                    .withOpacity(opacity),
+                    .withValues(alpha: opacity),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: isDark ? glassColors.borderDark : glassColors.borderLight,
@@ -1043,9 +1043,9 @@ class GlassChip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? effectiveSelectedColor.withOpacity(0.2)
+                  ? effectiveSelectedColor.withValues(alpha: 0.2)
                   : (isDark ? glassColors.glassDark : glassColors.glassLight)
-                      .withOpacity(opacity),
+                      .withValues(alpha: opacity),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
@@ -1151,9 +1151,9 @@ class GlassSlider extends StatelessWidget {
           data: SliderThemeData(
             trackHeight: trackHeight,
             activeTrackColor: effectiveActiveColor,
-            inactiveTrackColor: effectiveInactiveColor.withOpacity(opacity),
+            inactiveTrackColor: effectiveInactiveColor.withValues(alpha: opacity),
             thumbColor: effectiveActiveColor,
-            overlayColor: effectiveActiveColor.withOpacity(0.2),
+            overlayColor: effectiveActiveColor.withValues(alpha: 0.2),
             thumbShape: RoundSliderThumbShape(
               enabledThumbRadius: thumbRadius,
             ),
@@ -1265,7 +1265,7 @@ class GlassProgressIndicator extends StatelessWidget {
             child: Container(
               height: height,
               decoration: BoxDecoration(
-                color: effectiveBgColor.withOpacity(opacity),
+                color: effectiveBgColor.withValues(alpha: opacity),
                 borderRadius: BorderRadius.circular(borderRadius),
                 border: Border.all(
                   color: isDark ? glassColors.borderDark : glassColors.borderLight,

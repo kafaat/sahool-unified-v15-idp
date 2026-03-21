@@ -6,6 +6,7 @@
 /// - Status (read/unread)
 /// - Priority
 /// - Date range
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

@@ -28,7 +28,10 @@ class SmartAlertsCenter extends ConsumerWidget {
 
     return alertsState.when(
       loading: () => const _AlertsLoading(),
-      error: (error, _) => _AlertsError(error: error.toString()),
+      error: (error, _) => _AlertsError(
+        error: error.toString(),
+        onRetry: () => ref.invalidate(smartAlertsProvider),
+      ),
       data: (alerts) => _AlertsList(
         alerts: alerts.take(maxAlerts).toList(),
         showViewAll: showViewAll && alerts.length > maxAlerts,
@@ -88,7 +91,7 @@ class _AlertsList extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: SahoolColors.danger.withOpacity(0.1),
+                        color: SahoolColors.danger.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -144,7 +147,7 @@ class _AlertCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -166,7 +169,7 @@ class _AlertCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getSeverityColor(alert.severity).withOpacity(0.1),
+                        color: _getSeverityColor(alert.severity).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -239,7 +242,7 @@ class _AlertCard extends StatelessWidget {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          backgroundColor: SahoolColors.primary.withOpacity(0.1),
+                          backgroundColor: SahoolColors.primary.withValues(alpha: 0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -322,7 +325,7 @@ class _NoAlertsWidget extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: SahoolColors.success.withOpacity(0.1),
+        color: SahoolColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -330,7 +333,7 @@ class _NoAlertsWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: SahoolColors.success.withOpacity(0.2),
+              color: SahoolColors.success.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -386,8 +389,9 @@ class _AlertsLoading extends StatelessWidget {
 /// Error State
 class _AlertsError extends StatelessWidget {
   final String error;
+  final VoidCallback? onRetry;
 
-  const _AlertsError({required this.error});
+  const _AlertsError({required this.error, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +399,7 @@ class _AlertsError extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -406,7 +410,15 @@ class _AlertsError extends StatelessWidget {
             child: Text('تعذر تحميل التنبيهات'),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              onRetry?.call();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('جاري إعادة تحميل التنبيهات...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
             child: const Text('إعادة'),
           ),
         ],

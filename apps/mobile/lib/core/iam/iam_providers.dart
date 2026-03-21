@@ -9,9 +9,9 @@
 ///
 /// These providers integrate all IAM components into the Flutter/Riverpod
 /// state management system for reactive UI updates.
+library;
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,7 +131,7 @@ class IAMStateNotifier extends StateNotifier<IAMState> {
       final provider = registry.getProvider(IdentityProviderType.sahool);
 
       if (provider == null) {
-        throw IAMException(
+        throw const IAMException(
           'SAHOOL identity provider not configured',
           'مزود هوية سهول غير مهيأ',
         );

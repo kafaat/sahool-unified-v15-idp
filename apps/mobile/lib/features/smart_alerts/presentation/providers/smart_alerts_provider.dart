@@ -9,7 +9,7 @@ final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) a
   await Future.delayed(const Duration(milliseconds: 300));
 
   return [
-    SmartAlert(
+    const SmartAlert(
       id: '1',
       title: 'رطوبة التربة منخفضة',
       message: 'مستوى الرطوبة في حقل الشمال وصل إلى 25% - يوصى بالري',
@@ -23,7 +23,7 @@ final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) a
         route: '/irrigation/schedule',
       ),
     ),
-    SmartAlert(
+    const SmartAlert(
       id: '2',
       title: 'تحذير: درجة حرارة مرتفعة',
       message: 'درجة الحرارة في البيت المحمي وصلت إلى 38°C',
@@ -37,7 +37,7 @@ final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) a
         route: '/iot/greenhouse/1',
       ),
     ),
-    SmartAlert(
+    const SmartAlert(
       id: '3',
       title: 'انخفاض مؤشر NDVI',
       message: 'لوحظ انخفاض في صحة المحصول بالمنطقة الشرقية',
@@ -51,7 +51,7 @@ final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) a
         route: '/scouting/start',
       ),
     ),
-    SmartAlert(
+    const SmartAlert(
       id: '4',
       title: 'توقعات أمطار',
       message: 'احتمال هطول أمطار غداً - قم بتأجيل عملية التسميد',
@@ -60,7 +60,7 @@ final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) a
       source: 'خدمة الطقس',
       timeAgo: 'منذ ساعتين',
     ),
-    SmartAlert(
+    const SmartAlert(
       id: '5',
       title: 'مهمة متأخرة',
       message: 'موعد حصاد القمح تجاوز الموعد المحدد',

@@ -82,7 +82,7 @@ class EnvConfig {
       }
     }
 
-    if (!loaded && kDebugMode) {
+    if (!loaded) {
       AppLogger.w('No .env file found. Using dart-define/defaults.', tag: 'EnvConfig');
       _loadedFrom = 'defaults (no .env file)';
     }

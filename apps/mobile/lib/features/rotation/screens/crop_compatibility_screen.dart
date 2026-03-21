@@ -4,7 +4,7 @@ import '../models/rotation_models.dart';
 import '../providers/rotation_provider.dart';
 
 class CropCompatibilityScreen extends ConsumerStatefulWidget {
-  const CropCompatibilityScreen({Key? key}) : super(key: key);
+  const CropCompatibilityScreen({super.key});
 
   @override
   ConsumerState<CropCompatibilityScreen> createState() =>
@@ -329,7 +329,7 @@ class _CropCompatibilityScreenState
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: DataTable(
-              headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
+              headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
               columnSpacing: 8,
               horizontalMargin: 8,
               dataRowHeight: 48,

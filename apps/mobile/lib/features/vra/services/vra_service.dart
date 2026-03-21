@@ -34,7 +34,7 @@ class VRAService {
   VRAService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: ApiConfig.vraServiceUrl,
+              baseUrl: ApiConfig.effectiveBaseUrl,
               connectTimeout: ApiConfig.connectTimeout,
               sendTimeout: ApiConfig.sendTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
@@ -67,7 +67,7 @@ class VRAService {
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
-        '/v1/vra/prescriptions',
+        '/api/v1/vra/prescriptions',
         queryParameters: queryParams,
       );
 
@@ -90,7 +90,7 @@ class VRAService {
   /// جلب وصفة محددة
   Future<ApiResult<VRAPrescription>> getPrescriptionById(String prescriptionId) async {
     try {
-      final response = await _dio.get('/v1/vra/prescriptions/$prescriptionId');
+      final response = await _dio.get('/api/v1/vra/prescriptions/$prescriptionId');
       return ApiResult.success(
         VRAPrescription.fromJson(response.data as Map<String, dynamic>),
       );
@@ -122,7 +122,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/prescriptions/generate',
+        '/api/v1/vra/prescriptions/generate',
         data: {
           'field_id': fieldId,
           'vra_type': vraType.value,
@@ -166,7 +166,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/prescriptions',
+        '/api/v1/vra/prescriptions',
         data: {
           'field_id': fieldId,
           'name': name,
@@ -202,7 +202,7 @@ class VRAService {
   ) async {
     try {
       final response = await _dio.put(
-        '/v1/vra/prescriptions/$prescriptionId',
+        '/api/v1/vra/prescriptions/$prescriptionId',
         data: updates,
       );
 
@@ -225,7 +225,7 @@ class VRAService {
   /// حذف وصفة
   Future<ApiResult<void>> deletePrescription(String prescriptionId) async {
     try {
-      await _dio.delete('/v1/vra/prescriptions/$prescriptionId');
+      await _dio.delete('/api/v1/vra/prescriptions/$prescriptionId');
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
@@ -252,7 +252,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/prescriptions/$prescriptionId/approve',
+        '/api/v1/vra/prescriptions/$prescriptionId/approve',
         data: {
           'notes': notes,
           'notes_ar': notesAr,
@@ -281,7 +281,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/prescriptions/$prescriptionId/apply',
+        '/api/v1/vra/prescriptions/$prescriptionId/apply',
         data: {
           'applied_date': appliedDate?.toIso8601String(),
           'notes': notes,
@@ -310,7 +310,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/prescriptions/$prescriptionId/cancel',
+        '/api/v1/vra/prescriptions/$prescriptionId/cancel',
         data: {
           'reason': reason,
           'reason_ar': reasonAr,
@@ -341,7 +341,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/vra/prescriptions/$prescriptionId/export',
+        '/api/v1/vra/prescriptions/$prescriptionId/export',
         queryParameters: {'format': format},
       );
 
@@ -364,7 +364,7 @@ class VRAService {
   }) async {
     try {
       await _dio.download(
-        '/v1/vra/prescriptions/$prescriptionId/download',
+        '/api/v1/vra/prescriptions/$prescriptionId/download',
         savePath,
         queryParameters: {'format': format},
       );
@@ -387,7 +387,7 @@ class VRAService {
   /// جلب إحصائيات VRA
   Future<ApiResult<VRAStats>> getStats() async {
     try {
-      final response = await _dio.get('/v1/vra/stats');
+      final response = await _dio.get('/api/v1/vra/stats');
       return ApiResult.success(
         VRAStats.fromJson(response.data as Map<String, dynamic>),
       );
@@ -417,7 +417,7 @@ class VRAService {
       if (zonesCount != null) queryParams['zones_count'] = zonesCount;
 
       final response = await _dio.get(
-        '/v1/vra/fields/$fieldId/zones',
+        '/api/v1/vra/fields/$fieldId/zones',
         queryParameters: queryParams,
       );
 
@@ -446,7 +446,7 @@ class VRAService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/vra/zones/generate',
+        '/api/v1/vra/zones/generate',
         data: {
           'field_id': fieldId,
           'zoning_method': zoningMethod.value,

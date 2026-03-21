@@ -1,11 +1,13 @@
 /// SAHOOL Notification Service
 /// خدمة الإشعارات
+library;
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'notification_types.dart';
 
@@ -98,17 +100,13 @@ class NotificationServiceImpl implements NotificationService {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
-    final darwinSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (older iOS versions)
-        debugPrint('iOS Notification: $title - $body');
-      },
     );
 
-    final initSettings = InitializationSettings(
+    const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: darwinSettings,
       macOS: darwinSettings,
@@ -286,9 +284,8 @@ class NotificationServiceImpl implements NotificationService {
     debugPrint('⏰ Scheduled notification: $title at $scheduledTime');
   }
 
-  TZDateTime _convertToTZDateTime(DateTime dateTime) {
-    // Simple conversion - in production, use timezone package
-    return TZDateTime.from(dateTime, local);
+  tz.TZDateTime _convertToTZDateTime(DateTime dateTime) {
+    return tz.TZDateTime.from(dateTime, tz.local);
   }
 
   @override
@@ -317,47 +314,8 @@ class NotificationServiceImpl implements NotificationService {
 
   @override
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 }
 
-/// Simple TZDateTime implementation for scheduling
-/// In production, use the timezone package for proper timezone handling
-class TZDateTime extends DateTime {
-  TZDateTime(super.year, [
-    super.month,
-    super.day,
-    super.hour,
-    super.minute,
-    super.second,
-    super.millisecond,
-    super.microsecond,
-  ]);
-
-  factory TZDateTime.from(DateTime dateTime, Location location) {
-    return TZDateTime(
-      dateTime.year,
-      dateTime.month,
-      dateTime.day,
-      dateTime.hour,
-      dateTime.minute,
-      dateTime.second,
-      dateTime.millisecond,
-      dateTime.microsecond,
-    );
-  }
-
-  factory TZDateTime.now(Location location) {
-    final now = DateTime.now();
-    return TZDateTime.from(now, location);
-  }
-}
-
-/// Simple Location class for timezone
-class Location {
-  final String name;
-  const Location(this.name);
-}
-
-/// Local timezone
-const local = Location('local');
+// Using timezone package for proper TZDateTime support

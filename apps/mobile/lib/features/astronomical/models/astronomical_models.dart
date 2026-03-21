@@ -3,349 +3,807 @@
 ///
 /// هذه النماذج تمثل البيانات الفلكية للتقويم الزراعي اليمني التقليدي
 /// تشمل: المنازل القمرية، أطوار القمر، التاريخ الهجري، الأمثال الزراعية
+library;
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'astronomical_models.freezed.dart';
-part 'astronomical_models.g.dart';
+import 'package:flutter/foundation.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // مرحلة القمر - Moon Phase
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class MoonPhase with _$MoonPhase {
-  const factory MoonPhase({
-    @JsonKey(name: 'phase_key') required String phaseKey,
-    required String name,
-    @JsonKey(name: 'name_en') required String nameEn,
-    required String icon,
-    required double illumination,
-    @JsonKey(name: 'age_days') required double ageDays,
-    @JsonKey(name: 'is_waxing') required bool isWaxing,
-    @JsonKey(name: 'farming_good') required bool farmingGood,
-  }) = _MoonPhase;
+@immutable
+class MoonPhase {
+  final String phaseKey;
+  final String name;
+  final String nameEn;
+  final String icon;
+  final double illumination;
+  final double ageDays;
+  final bool isWaxing;
+  final bool farmingGood;
 
-  factory MoonPhase.fromJson(Map<String, dynamic> json) =>
-      _$MoonPhaseFromJson(json);
+  const MoonPhase({
+    required this.phaseKey,
+    required this.name,
+    required this.nameEn,
+    required this.icon,
+    required this.illumination,
+    required this.ageDays,
+    required this.isWaxing,
+    required this.farmingGood,
+  });
+
+  factory MoonPhase.fromJson(Map<String, dynamic> json) {
+    return MoonPhase(
+      phaseKey: (json['phase_key'] ?? '') as String,
+      name: (json['name'] ?? '') as String,
+      nameEn: (json['name_en'] ?? '') as String,
+      icon: (json['icon'] ?? '') as String,
+      illumination: ((json['illumination'] ?? 0.0) as num).toDouble(),
+      ageDays: ((json['age_days'] ?? 0.0) as num).toDouble(),
+      isWaxing: (json['is_waxing'] ?? false) as bool,
+      farmingGood: (json['farming_good'] ?? false) as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'phase_key': phaseKey,
+    'name': name,
+    'name_en': nameEn,
+    'icon': icon,
+    'illumination': illumination,
+    'age_days': ageDays,
+    'is_waxing': isWaxing,
+    'farming_good': farmingGood,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // المنزلة القمرية - Lunar Mansion
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class LunarMansion with _$LunarMansion {
-  const factory LunarMansion({
-    required int number,
-    required String name,
-    @JsonKey(name: 'name_en') required String nameEn,
-    required String constellation,
-    @JsonKey(name: 'constellation_en') required String constellationEn,
-    required String element,
-    required String farming,
-    @JsonKey(name: 'farming_score') required int farmingScore,
-    required List<String> crops,
-    required List<String> activities,
-    required List<String> avoid,
-    required String description,
-  }) = _LunarMansion;
+@immutable
+class LunarMansion {
+  final int number;
+  final String name;
+  final String nameEn;
+  final String constellation;
+  final String constellationEn;
+  final String element;
+  final String farming;
+  final int farmingScore;
+  final List<String> crops;
+  final List<String> activities;
+  final List<String> avoid;
+  final String description;
 
-  factory LunarMansion.fromJson(Map<String, dynamic> json) =>
-      _$LunarMansionFromJson(json);
+  const LunarMansion({
+    required this.number,
+    required this.name,
+    required this.nameEn,
+    required this.constellation,
+    required this.constellationEn,
+    required this.element,
+    required this.farming,
+    required this.farmingScore,
+    required this.crops,
+    required this.activities,
+    required this.avoid,
+    required this.description,
+  });
+
+  factory LunarMansion.fromJson(Map<String, dynamic> json) {
+    return LunarMansion(
+      number: (json['number'] ?? 0) as int,
+      name: (json['name'] ?? '') as String,
+      nameEn: (json['name_en'] ?? '') as String,
+      constellation: (json['constellation'] ?? '') as String,
+      constellationEn: (json['constellation_en'] ?? '') as String,
+      element: (json['element'] ?? '') as String,
+      farming: (json['farming'] ?? '') as String,
+      farmingScore: (json['farming_score'] ?? 0) as int,
+      crops: (json['crops'] as List?)?.cast<String>() ?? [],
+      activities: (json['activities'] as List?)?.cast<String>() ?? [],
+      avoid: (json['avoid'] as List?)?.cast<String>() ?? [],
+      description: (json['description'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'number': number,
+    'name': name,
+    'name_en': nameEn,
+    'constellation': constellation,
+    'constellation_en': constellationEn,
+    'element': element,
+    'farming': farming,
+    'farming_score': farmingScore,
+    'crops': crops,
+    'activities': activities,
+    'avoid': avoid,
+    'description': description,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // التاريخ الهجري - Hijri Date
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class HijriDate with _$HijriDate {
-  const factory HijriDate({
-    required int year,
-    required int month,
-    required int day,
-    @JsonKey(name: 'month_name') required String monthName,
-    @JsonKey(name: 'month_name_en') required String monthNameEn,
-    required String weekday,
-  }) = _HijriDate;
+@immutable
+class HijriDate {
+  final int year;
+  final int month;
+  final int day;
+  final String monthName;
+  final String monthNameEn;
+  final String weekday;
 
-  factory HijriDate.fromJson(Map<String, dynamic> json) =>
-      _$HijriDateFromJson(json);
+  const HijriDate({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.monthName,
+    required this.monthNameEn,
+    required this.weekday,
+  });
+
+  factory HijriDate.fromJson(Map<String, dynamic> json) {
+    return HijriDate(
+      year: (json['year'] ?? 0) as int,
+      month: (json['month'] ?? 0) as int,
+      day: (json['day'] ?? 0) as int,
+      monthName: (json['month_name'] ?? '') as String,
+      monthNameEn: (json['month_name_en'] ?? '') as String,
+      weekday: (json['weekday'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'year': year,
+    'month': month,
+    'day': day,
+    'month_name': monthName,
+    'month_name_en': monthNameEn,
+    'weekday': weekday,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // معلومات البرج - Zodiac Info
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class ZodiacInfo with _$ZodiacInfo {
-  const factory ZodiacInfo({
-    required String name,
-    @JsonKey(name: 'name_en') required String nameEn,
-    required String element,
-    required String fertility,
-    required int score,
-  }) = _ZodiacInfo;
+@immutable
+class ZodiacInfo {
+  final String name;
+  final String nameEn;
+  final String element;
+  final String fertility;
+  final int score;
 
-  factory ZodiacInfo.fromJson(Map<String, dynamic> json) =>
-      _$ZodiacInfoFromJson(json);
+  const ZodiacInfo({
+    required this.name,
+    required this.nameEn,
+    required this.element,
+    required this.fertility,
+    required this.score,
+  });
+
+  factory ZodiacInfo.fromJson(Map<String, dynamic> json) {
+    return ZodiacInfo(
+      name: (json['name'] ?? '') as String,
+      nameEn: (json['name_en'] ?? '') as String,
+      element: (json['element'] ?? '') as String,
+      fertility: (json['fertility'] ?? '') as String,
+      score: (json['score'] ?? 0) as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'name_en': nameEn,
+    'element': element,
+    'fertility': fertility,
+    'score': score,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // معلومات الموسم - Season Info
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class SeasonInfo with _$SeasonInfo {
-  const factory SeasonInfo({
-    required String name,
-    @JsonKey(name: 'name_en') required String nameEn,
-    required String description,
-    @JsonKey(name: 'main_crops') required List<String> mainCrops,
-    required List<String> activities,
-  }) = _SeasonInfo;
+@immutable
+class SeasonInfo {
+  final String name;
+  final String nameEn;
+  final String description;
+  final List<String> mainCrops;
+  final List<String> activities;
 
-  factory SeasonInfo.fromJson(Map<String, dynamic> json) =>
-      _$SeasonInfoFromJson(json);
+  const SeasonInfo({
+    required this.name,
+    required this.nameEn,
+    required this.description,
+    required this.mainCrops,
+    required this.activities,
+  });
+
+  factory SeasonInfo.fromJson(Map<String, dynamic> json) {
+    return SeasonInfo(
+      name: (json['name'] ?? '') as String,
+      nameEn: (json['name_en'] ?? '') as String,
+      description: (json['description'] ?? '') as String,
+      mainCrops: (json['main_crops'] as List?)?.cast<String>() ?? [],
+      activities: (json['activities'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'name_en': nameEn,
+    'description': description,
+    'main_crops': mainCrops,
+    'activities': activities,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // توصية زراعية - Farming Recommendation
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class FarmingRecommendation with _$FarmingRecommendation {
-  const factory FarmingRecommendation({
-    required String activity,
-    required String suitability,
-    @JsonKey(name: 'suitability_score') required int suitabilityScore,
-    required String reason,
-    @JsonKey(name: 'best_time') String? bestTime,
-  }) = _FarmingRecommendation;
+@immutable
+class FarmingRecommendation {
+  final String activity;
+  final String suitability;
+  final int suitabilityScore;
+  final String reason;
+  final String? bestTime;
 
-  factory FarmingRecommendation.fromJson(Map<String, dynamic> json) =>
-      _$FarmingRecommendationFromJson(json);
+  const FarmingRecommendation({
+    required this.activity,
+    required this.suitability,
+    required this.suitabilityScore,
+    required this.reason,
+    this.bestTime,
+  });
+
+  factory FarmingRecommendation.fromJson(Map<String, dynamic> json) {
+    return FarmingRecommendation(
+      activity: (json['activity'] ?? '') as String,
+      suitability: (json['suitability'] ?? '') as String,
+      suitabilityScore: (json['suitability_score'] ?? 0) as int,
+      reason: (json['reason'] ?? '') as String,
+      bestTime: json['best_time'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'activity': activity,
+    'suitability': suitability,
+    'suitability_score': suitabilityScore,
+    'reason': reason,
+    'best_time': bestTime,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // البيانات الفلكية اليومية - Daily Astronomical Data
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class DailyAstronomicalData with _$DailyAstronomicalData {
-  const factory DailyAstronomicalData({
-    @JsonKey(name: 'date_gregorian') required String dateGregorian,
-    @JsonKey(name: 'date_hijri') required HijriDate dateHijri,
-    @JsonKey(name: 'moon_phase') required MoonPhase moonPhase,
-    @JsonKey(name: 'lunar_mansion') required LunarMansion lunarMansion,
-    required ZodiacInfo zodiac,
-    required SeasonInfo season,
-    @JsonKey(name: 'overall_farming_score') required int overallFarmingScore,
-    required List<FarmingRecommendation> recommendations,
-  }) = _DailyAstronomicalData;
+@immutable
+class DailyAstronomicalData {
+  final String dateGregorian;
+  final HijriDate dateHijri;
+  final MoonPhase moonPhase;
+  final LunarMansion lunarMansion;
+  final ZodiacInfo zodiac;
+  final SeasonInfo season;
+  final int overallFarmingScore;
+  final List<FarmingRecommendation> recommendations;
 
-  factory DailyAstronomicalData.fromJson(Map<String, dynamic> json) =>
-      _$DailyAstronomicalDataFromJson(json);
+  const DailyAstronomicalData({
+    required this.dateGregorian,
+    required this.dateHijri,
+    required this.moonPhase,
+    required this.lunarMansion,
+    required this.zodiac,
+    required this.season,
+    required this.overallFarmingScore,
+    required this.recommendations,
+  });
+
+  factory DailyAstronomicalData.fromJson(Map<String, dynamic> json) {
+    return DailyAstronomicalData(
+      dateGregorian: (json['date_gregorian'] ?? '') as String,
+      dateHijri: HijriDate.fromJson(json['date_hijri'] as Map<String, dynamic>? ?? {}),
+      moonPhase: MoonPhase.fromJson(json['moon_phase'] as Map<String, dynamic>? ?? {}),
+      lunarMansion: LunarMansion.fromJson(json['lunar_mansion'] as Map<String, dynamic>? ?? {}),
+      zodiac: ZodiacInfo.fromJson(json['zodiac'] as Map<String, dynamic>? ?? {}),
+      season: SeasonInfo.fromJson(json['season'] as Map<String, dynamic>? ?? {}),
+      overallFarmingScore: (json['overall_farming_score'] ?? 0) as int,
+      recommendations: (json['recommendations'] as List?)
+          ?.map((r) => FarmingRecommendation.fromJson(r as Map<String, dynamic>))
+          .toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'date_gregorian': dateGregorian,
+    'date_hijri': dateHijri.toJson(),
+    'moon_phase': moonPhase.toJson(),
+    'lunar_mansion': lunarMansion.toJson(),
+    'zodiac': zodiac.toJson(),
+    'season': season.toJson(),
+    'overall_farming_score': overallFarmingScore,
+    'recommendations': recommendations.map((r) => r.toJson()).toList(),
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // التوقعات الأسبوعية - Weekly Forecast
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class WeeklyForecast with _$WeeklyForecast {
-  const factory WeeklyForecast({
-    @JsonKey(name: 'start_date') required String startDate,
-    @JsonKey(name: 'end_date') required String endDate,
-    required List<DailyAstronomicalData> days,
-    @JsonKey(name: 'best_planting_days') required List<String> bestPlantingDays,
-    @JsonKey(name: 'best_harvesting_days') required List<String> bestHarvestingDays,
-    @JsonKey(name: 'avoid_days') required List<String> avoidDays,
-  }) = _WeeklyForecast;
+@immutable
+class WeeklyForecast {
+  final String startDate;
+  final String endDate;
+  final List<DailyAstronomicalData> days;
+  final List<String> bestPlantingDays;
+  final List<String> bestHarvestingDays;
+  final List<String> avoidDays;
 
-  factory WeeklyForecast.fromJson(Map<String, dynamic> json) =>
-      _$WeeklyForecastFromJson(json);
+  const WeeklyForecast({
+    required this.startDate,
+    required this.endDate,
+    required this.days,
+    required this.bestPlantingDays,
+    required this.bestHarvestingDays,
+    required this.avoidDays,
+  });
+
+  factory WeeklyForecast.fromJson(Map<String, dynamic> json) {
+    return WeeklyForecast(
+      startDate: (json['start_date'] ?? '') as String,
+      endDate: (json['end_date'] ?? '') as String,
+      days: (json['days'] as List?)
+          ?.map((d) => DailyAstronomicalData.fromJson(d as Map<String, dynamic>))
+          .toList() ?? [],
+      bestPlantingDays: (json['best_planting_days'] as List?)?.cast<String>() ?? [],
+      bestHarvestingDays: (json['best_harvesting_days'] as List?)?.cast<String>() ?? [],
+      avoidDays: (json['avoid_days'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'start_date': startDate,
+    'end_date': endDate,
+    'days': days.map((d) => d.toJson()).toList(),
+    'best_planting_days': bestPlantingDays,
+    'best_harvesting_days': bestHarvestingDays,
+    'avoid_days': avoidDays,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // تقويم المحصول - Crop Calendar
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class CropCalendar with _$CropCalendar {
-  const factory CropCalendar({
-    @JsonKey(name: 'crop_name') required String cropName,
-    @JsonKey(name: 'crop_name_en') required String cropNameEn,
-    @JsonKey(name: 'best_planting_mansions') required List<int> bestPlantingMansions,
-    @JsonKey(name: 'best_moon_phases') required List<String> bestMoonPhases,
-    @JsonKey(name: 'best_zodiac_signs') required List<String> bestZodiacSigns,
-    @JsonKey(name: 'optimal_months') required List<int> optimalMonths,
-    @JsonKey(name: 'planting_guide') required String plantingGuide,
-    @JsonKey(name: 'current_suitability') required int currentSuitability,
-  }) = _CropCalendar;
+@immutable
+class CropCalendar {
+  final String cropName;
+  final String cropNameEn;
+  final List<int> bestPlantingMansions;
+  final List<String> bestMoonPhases;
+  final List<String> bestZodiacSigns;
+  final List<int> optimalMonths;
+  final String plantingGuide;
+  final int currentSuitability;
 
-  factory CropCalendar.fromJson(Map<String, dynamic> json) =>
-      _$CropCalendarFromJson(json);
+  const CropCalendar({
+    required this.cropName,
+    required this.cropNameEn,
+    required this.bestPlantingMansions,
+    required this.bestMoonPhases,
+    required this.bestZodiacSigns,
+    required this.optimalMonths,
+    required this.plantingGuide,
+    required this.currentSuitability,
+  });
+
+  factory CropCalendar.fromJson(Map<String, dynamic> json) {
+    return CropCalendar(
+      cropName: (json['crop_name'] ?? '') as String,
+      cropNameEn: (json['crop_name_en'] ?? '') as String,
+      bestPlantingMansions: (json['best_planting_mansions'] as List?)?.cast<int>() ?? [],
+      bestMoonPhases: (json['best_moon_phases'] as List?)?.cast<String>() ?? [],
+      bestZodiacSigns: (json['best_zodiac_signs'] as List?)?.cast<String>() ?? [],
+      optimalMonths: (json['optimal_months'] as List?)?.cast<int>() ?? [],
+      plantingGuide: (json['planting_guide'] ?? '') as String,
+      currentSuitability: (json['current_suitability'] ?? 0) as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'crop_name': cropName,
+    'crop_name_en': cropNameEn,
+    'best_planting_mansions': bestPlantingMansions,
+    'best_moon_phases': bestMoonPhases,
+    'best_zodiac_signs': bestZodiacSigns,
+    'optimal_months': optimalMonths,
+    'planting_guide': plantingGuide,
+    'current_suitability': currentSuitability,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // أفضل يوم - Best Day
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class BestDay with _$BestDay {
-  const factory BestDay({
-    required String date,
-    @JsonKey(name: 'hijri_date') required String hijriDate,
-    @JsonKey(name: 'moon_phase') required String moonPhase,
-    @JsonKey(name: 'lunar_mansion') required String lunarMansion,
-    required int score,
-    required String reason,
-  }) = _BestDay;
+@immutable
+class BestDay {
+  final String date;
+  final String hijriDate;
+  final String moonPhase;
+  final String lunarMansion;
+  final int score;
+  final String reason;
 
-  factory BestDay.fromJson(Map<String, dynamic> json) =>
-      _$BestDayFromJson(json);
+  const BestDay({
+    required this.date,
+    required this.hijriDate,
+    required this.moonPhase,
+    required this.lunarMansion,
+    required this.score,
+    required this.reason,
+  });
+
+  factory BestDay.fromJson(Map<String, dynamic> json) {
+    return BestDay(
+      date: (json['date'] ?? '') as String,
+      hijriDate: (json['hijri_date'] ?? '') as String,
+      moonPhase: (json['moon_phase'] ?? '') as String,
+      lunarMansion: (json['lunar_mansion'] ?? '') as String,
+      score: (json['score'] ?? 0) as int,
+      reason: (json['reason'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'date': date,
+    'hijri_date': hijriDate,
+    'moon_phase': moonPhase,
+    'lunar_mansion': lunarMansion,
+    'score': score,
+    'reason': reason,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // نتيجة البحث عن أفضل الأيام - Best Days Result
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class BestDaysResult with _$BestDaysResult {
-  const factory BestDaysResult({
-    required String activity,
-    @JsonKey(name: 'search_period_days') required int searchPeriodDays,
-    @JsonKey(name: 'best_days') required List<BestDay> bestDays,
-    @JsonKey(name: 'total_found') required int totalFound,
-  }) = _BestDaysResult;
+@immutable
+class BestDaysResult {
+  final String activity;
+  final int searchPeriodDays;
+  final List<BestDay> bestDays;
+  final int totalFound;
 
-  factory BestDaysResult.fromJson(Map<String, dynamic> json) =>
-      _$BestDaysResultFromJson(json);
+  const BestDaysResult({
+    required this.activity,
+    required this.searchPeriodDays,
+    required this.bestDays,
+    required this.totalFound,
+  });
+
+  factory BestDaysResult.fromJson(Map<String, dynamic> json) {
+    return BestDaysResult(
+      activity: (json['activity'] ?? '') as String,
+      searchPeriodDays: (json['search_period_days'] ?? 0) as int,
+      bestDays: (json['best_days'] as List?)
+          ?.map((d) => BestDay.fromJson(d as Map<String, dynamic>))
+          .toList() ?? [],
+      totalFound: (json['total_found'] ?? 0) as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'activity': activity,
+    'search_period_days': searchPeriodDays,
+    'best_days': bestDays.map((d) => d.toJson()).toList(),
+    'total_found': totalFound,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // مثل زراعي - Proverb
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class Proverb with _$Proverb {
-  const factory Proverb({
-    required String proverb,
-    required String meaning,
-    required String application,
-    String? mansion,
-  }) = _Proverb;
+@immutable
+class Proverb {
+  final String proverb;
+  final String meaning;
+  final String application;
+  final String? mansion;
 
-  factory Proverb.fromJson(Map<String, dynamic> json) =>
-      _$ProverbFromJson(json);
+  const Proverb({
+    required this.proverb,
+    required this.meaning,
+    required this.application,
+    this.mansion,
+  });
+
+  factory Proverb.fromJson(Map<String, dynamic> json) {
+    return Proverb(
+      proverb: (json['proverb'] ?? '') as String,
+      meaning: (json['meaning'] ?? '') as String,
+      application: (json['application'] ?? '') as String,
+      mansion: json['mansion'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'proverb': proverb,
+    'meaning': meaning,
+    'application': application,
+    'mansion': mansion,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // مثل اليوم مع السياق - Proverb of the Day
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class ProverbOfTheDay with _$ProverbOfTheDay {
-  const factory ProverbOfTheDay({
-    required String date,
-    @JsonKey(name: 'proverb_of_the_day') required Proverb proverbOfTheDay,
-    @JsonKey(name: 'current_mansion') required String currentMansion,
-    @JsonKey(name: 'current_moon_phase') required String currentMoonPhase,
-    @JsonKey(name: 'current_season') required String currentSeason,
-    @JsonKey(name: 'season_proverbs') required List<Proverb> seasonProverbs,
-    required String context,
-  }) = _ProverbOfTheDay;
+@immutable
+class ProverbOfTheDay {
+  final String date;
+  final Proverb proverbOfTheDay;
+  final String currentMansion;
+  final String currentMoonPhase;
+  final String currentSeason;
+  final List<Proverb> seasonProverbs;
+  final String context;
 
-  factory ProverbOfTheDay.fromJson(Map<String, dynamic> json) =>
-      _$ProverbOfTheDayFromJson(json);
+  const ProverbOfTheDay({
+    required this.date,
+    required this.proverbOfTheDay,
+    required this.currentMansion,
+    required this.currentMoonPhase,
+    required this.currentSeason,
+    required this.seasonProverbs,
+    required this.context,
+  });
+
+  factory ProverbOfTheDay.fromJson(Map<String, dynamic> json) {
+    return ProverbOfTheDay(
+      date: (json['date'] ?? '') as String,
+      proverbOfTheDay: Proverb.fromJson(json['proverb_of_the_day'] as Map<String, dynamic>? ?? {}),
+      currentMansion: (json['current_mansion'] ?? '') as String,
+      currentMoonPhase: (json['current_moon_phase'] ?? '') as String,
+      currentSeason: (json['current_season'] ?? '') as String,
+      seasonProverbs: (json['season_proverbs'] as List?)
+          ?.map((p) => Proverb.fromJson(p as Map<String, dynamic>))
+          .toList() ?? [],
+      context: (json['context'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'date': date,
+    'proverb_of_the_day': proverbOfTheDay.toJson(),
+    'current_mansion': currentMansion,
+    'current_moon_phase': currentMoonPhase,
+    'current_season': currentSeason,
+    'season_proverbs': seasonProverbs.map((p) => p.toJson()).toList(),
+    'context': context,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // جميع الأمثال - All Proverbs
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class AllProverbs with _$AllProverbs {
-  const factory AllProverbs({
-    required List<Proverb> general,
-    @JsonKey(name: 'by_crop') required Map<String, List<Proverb>> byCrop,
-    @JsonKey(name: 'by_season') required Map<String, List<Proverb>> bySeason,
-    @JsonKey(name: 'total_proverbs') required int totalProverbs,
-  }) = _AllProverbs;
+@immutable
+class AllProverbs {
+  final List<Proverb> general;
+  final Map<String, List<Proverb>> byCrop;
+  final Map<String, List<Proverb>> bySeason;
+  final int totalProverbs;
 
-  factory AllProverbs.fromJson(Map<String, dynamic> json) =>
-      _$AllProverbsFromJson(json);
+  const AllProverbs({
+    required this.general,
+    required this.byCrop,
+    required this.bySeason,
+    required this.totalProverbs,
+  });
+
+  factory AllProverbs.fromJson(Map<String, dynamic> json) {
+    return AllProverbs(
+      general: (json['general'] as List?)
+          ?.map((p) => Proverb.fromJson(p as Map<String, dynamic>))
+          .toList() ?? [],
+      byCrop: (json['by_crop'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key,
+          (value as List).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
+      ) ?? {},
+      bySeason: (json['by_season'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key,
+          (value as List).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
+      ) ?? {},
+      totalProverbs: (json['total_proverbs'] ?? 0) as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'general': general.map((p) => p.toJson()).toList(),
+    'by_crop': byCrop.map((k, v) => MapEntry(k, v.map((p) => p.toJson()).toList())),
+    'by_season': bySeason.map((k, v) => MapEntry(k, v.map((p) => p.toJson()).toList())),
+    'total_proverbs': totalProverbs,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // الحكمة اليومية - Daily Wisdom
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@freezed
-class DailyWisdomProverb with _$DailyWisdomProverb {
-  const factory DailyWisdomProverb({
-    required String text,
-    required String meaning,
-    required String application,
-  }) = _DailyWisdomProverb;
+@immutable
+class DailyWisdomProverb {
+  final String text;
+  final String meaning;
+  final String application;
 
-  factory DailyWisdomProverb.fromJson(Map<String, dynamic> json) =>
-      _$DailyWisdomProverbFromJson(json);
+  const DailyWisdomProverb({
+    required this.text,
+    required this.meaning,
+    required this.application,
+  });
+
+  factory DailyWisdomProverb.fromJson(Map<String, dynamic> json) {
+    return DailyWisdomProverb(
+      text: (json['text'] ?? '') as String,
+      meaning: (json['meaning'] ?? '') as String,
+      application: (json['application'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'text': text,
+    'meaning': meaning,
+    'application': application,
+  };
 }
 
-@freezed
-class DailyWisdomMansion with _$DailyWisdomMansion {
-  const factory DailyWisdomMansion({
-    required String name,
-    required String description,
-    required List<String> tips,
-  }) = _DailyWisdomMansion;
+@immutable
+class DailyWisdomMansion {
+  final String name;
+  final String description;
+  final List<String> tips;
 
-  factory DailyWisdomMansion.fromJson(Map<String, dynamic> json) =>
-      _$DailyWisdomMansionFromJson(json);
+  const DailyWisdomMansion({
+    required this.name,
+    required this.description,
+    required this.tips,
+  });
+
+  factory DailyWisdomMansion.fromJson(Map<String, dynamic> json) {
+    return DailyWisdomMansion(
+      name: (json['name'] ?? '') as String,
+      description: (json['description'] ?? '') as String,
+      tips: (json['tips'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'description': description,
+    'tips': tips,
+  };
 }
 
-@freezed
-class DailyWisdomMoonPhase with _$DailyWisdomMoonPhase {
-  const factory DailyWisdomMoonPhase({
-    required String name,
-    required String icon,
-    required String illumination,
-    required List<String> tips,
-  }) = _DailyWisdomMoonPhase;
+@immutable
+class DailyWisdomMoonPhase {
+  final String name;
+  final String icon;
+  final String illumination;
+  final List<String> tips;
 
-  factory DailyWisdomMoonPhase.fromJson(Map<String, dynamic> json) =>
-      _$DailyWisdomMoonPhaseFromJson(json);
+  const DailyWisdomMoonPhase({
+    required this.name,
+    required this.icon,
+    required this.illumination,
+    required this.tips,
+  });
+
+  factory DailyWisdomMoonPhase.fromJson(Map<String, dynamic> json) {
+    return DailyWisdomMoonPhase(
+      name: (json['name'] ?? '') as String,
+      icon: (json['icon'] ?? '') as String,
+      illumination: (json['illumination'] ?? '') as String,
+      tips: (json['tips'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'icon': icon,
+    'illumination': illumination,
+    'tips': tips,
+  };
 }
 
-@freezed
-class DailyWisdomSeason with _$DailyWisdomSeason {
-  const factory DailyWisdomSeason({
-    required String name,
-    required List<String> crops,
-    required List<String> activities,
-  }) = _DailyWisdomSeason;
+@immutable
+class DailyWisdomSeason {
+  final String name;
+  final List<String> crops;
+  final List<String> activities;
 
-  factory DailyWisdomSeason.fromJson(Map<String, dynamic> json) =>
-      _$DailyWisdomSeasonFromJson(json);
+  const DailyWisdomSeason({
+    required this.name,
+    required this.crops,
+    required this.activities,
+  });
+
+  factory DailyWisdomSeason.fromJson(Map<String, dynamic> json) {
+    return DailyWisdomSeason(
+      name: (json['name'] ?? '') as String,
+      crops: (json['crops'] as List?)?.cast<String>() ?? [],
+      activities: (json['activities'] as List?)?.cast<String>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'crops': crops,
+    'activities': activities,
+  };
 }
 
-@freezed
-class DailyWisdom with _$DailyWisdom {
-  const factory DailyWisdom({
-    required String date,
-    @JsonKey(name: 'hijri_date') String? hijriDate,
-    @JsonKey(name: 'proverb_of_the_day') required DailyWisdomProverb proverbOfTheDay,
-    @JsonKey(name: 'current_mansion') required DailyWisdomMansion currentMansion,
-    @JsonKey(name: 'moon_phase') required DailyWisdomMoonPhase moonPhase,
-    @JsonKey(name: 'current_star') dynamic currentStar,
-    required DailyWisdomSeason season,
-    @JsonKey(name: 'overall_score') required int overallScore,
-    required String summary,
-  }) = _DailyWisdom;
+@immutable
+class DailyWisdom {
+  final String date;
+  final String? hijriDate;
+  final DailyWisdomProverb proverbOfTheDay;
+  final DailyWisdomMansion currentMansion;
+  final DailyWisdomMoonPhase moonPhase;
+  final dynamic currentStar;
+  final DailyWisdomSeason season;
+  final int overallScore;
+  final String summary;
 
-  factory DailyWisdom.fromJson(Map<String, dynamic> json) =>
-      _$DailyWisdomFromJson(json);
+  const DailyWisdom({
+    required this.date,
+    this.hijriDate,
+    required this.proverbOfTheDay,
+    required this.currentMansion,
+    required this.moonPhase,
+    this.currentStar,
+    required this.season,
+    required this.overallScore,
+    required this.summary,
+  });
+
+  factory DailyWisdom.fromJson(Map<String, dynamic> json) {
+    return DailyWisdom(
+      date: (json['date'] ?? '') as String,
+      hijriDate: json['hijri_date'] as String?,
+      proverbOfTheDay: DailyWisdomProverb.fromJson(json['proverb_of_the_day'] as Map<String, dynamic>? ?? {}),
+      currentMansion: DailyWisdomMansion.fromJson(json['current_mansion'] as Map<String, dynamic>? ?? {}),
+      moonPhase: DailyWisdomMoonPhase.fromJson(json['moon_phase'] as Map<String, dynamic>? ?? {}),
+      currentStar: json['current_star'],
+      season: DailyWisdomSeason.fromJson(json['season'] as Map<String, dynamic>? ?? {}),
+      overallScore: (json['overall_score'] ?? 0) as int,
+      summary: (json['summary'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'date': date,
+    'hijri_date': hijriDate,
+    'proverb_of_the_day': proverbOfTheDay.toJson(),
+    'current_mansion': currentMansion.toJson(),
+    'moon_phase': moonPhase.toJson(),
+    'current_star': currentStar,
+    'season': season.toJson(),
+    'overall_score': overallScore,
+    'summary': summary,
+  };
 }

@@ -9,7 +9,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'motion_service.dart';
-import 'parallax_controller.dart';
 import 'parallax_layer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -67,6 +66,26 @@ class FloatConfig {
     autoFloatAmplitude: 8.0,
     autoFloatSpeed: 1.5,
   );
+
+  FloatConfig copyWith({
+    double? maxVerticalFloat,
+    double? maxHorizontalFloat,
+    Duration? floatDuration,
+    bool? enableAutoFloat,
+    double? autoFloatAmplitude,
+    double? autoFloatSpeed,
+    bool? enabled,
+  }) {
+    return FloatConfig(
+      maxVerticalFloat: maxVerticalFloat ?? this.maxVerticalFloat,
+      maxHorizontalFloat: maxHorizontalFloat ?? this.maxHorizontalFloat,
+      floatDuration: floatDuration ?? this.floatDuration,
+      enableAutoFloat: enableAutoFloat ?? this.enableAutoFloat,
+      autoFloatAmplitude: autoFloatAmplitude ?? this.autoFloatAmplitude,
+      autoFloatSpeed: autoFloatSpeed ?? this.autoFloatSpeed,
+      enabled: enabled ?? this.enabled,
+    );
+  }
 }
 
 /// Widget that floats gently based on device motion
@@ -631,7 +650,7 @@ class RotationTracker extends StatelessWidget {
           duration: config.animationDuration,
           curve: Curves.easeOutCubic,
           builder: (context, angle, child) {
-            Matrix4 transform = Matrix4.identity();
+            final Matrix4 transform = Matrix4.identity();
 
             switch (axis) {
               case Axis3D.x:

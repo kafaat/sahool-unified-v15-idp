@@ -1,5 +1,6 @@
 /// Usage Chart Widget - مخطط الاستخدام
 /// Visual charts for equipment usage data
+library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
@@ -87,7 +88,7 @@ class UsageHoursChart extends StatelessWidget {
                       // Bar
                       Container(
                         height: barHeight > 0 ? barHeight : 4,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
@@ -96,7 +97,7 @@ class UsageHoursChart extends StatelessWidget {
                               SahoolColors.sageGreen,
                             ],
                           ),
-                          borderRadius: const BorderRadius.vertical(
+                          borderRadius: BorderRadius.vertical(
                             top: Radius.circular(4),
                           ),
                         ),
@@ -542,10 +543,10 @@ class HoursCounter extends StatelessWidget {
           ),
           if (hours / maxHours! > 0.9) ...[
             const SizedBox(height: 4),
-            Row(
+            const Row(
               children: [
                 Icon(Icons.warning, color: SahoolColors.danger, size: 14),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   'يقترب من موعد الصيانة',
                   style: TextStyle(

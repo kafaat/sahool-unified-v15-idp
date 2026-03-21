@@ -11,7 +11,7 @@
 /// - Index selector and layer control widgets
 /// - Time series trend analysis
 
-library ndvi;
+library;
 
 // Domain
 export 'domain/ndvi_value.dart';

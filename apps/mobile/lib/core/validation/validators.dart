@@ -10,6 +10,7 @@
 /// - Password strength
 ///
 /// All validation messages are bilingual (Arabic/English).
+library;
 
 /// Validation result model with bilingual support
 class ValidationResult {

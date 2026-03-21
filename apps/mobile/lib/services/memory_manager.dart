@@ -98,7 +98,7 @@ class MemoryManager {
   /// Automatic eviction based on memory and age
   Future<void> autoEvict() async {
     final now = DateTime.now();
-    final cutoff = now.subtract(Duration(days: maxCacheAgeDays));
+    final cutoff = now.subtract(const Duration(days: maxCacheAgeDays));
 
     // Remove stale entries
     final staleKeys = <String>[];

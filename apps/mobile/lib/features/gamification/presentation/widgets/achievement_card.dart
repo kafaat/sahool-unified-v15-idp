@@ -70,7 +70,7 @@ class AchievementCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: unlocked ? Colors.white : SahoolColors.warmCream,
           borderRadius: BorderRadius.circular(SahoolRadius.large),
@@ -131,7 +131,7 @@ class AchievementCard extends StatelessWidget {
                   // Progress text
                   Text(
                     '${achievement.progress.current}/${achievement.progress.target}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       color: SahoolColors.textSecondary,
                     ),

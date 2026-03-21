@@ -1,5 +1,6 @@
 /// Equipment Card Widget - بطاقة المعدة
 /// Displays equipment info in a card format
+library;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -185,7 +186,7 @@ class EquipmentCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            "${equipment.currentFuelPercent!.toInt()}%",
+            '${equipment.currentFuelPercent!.toInt()}%',
             style: TextStyle(
               fontSize: 12,
               color: equipment.isLowFuel ? Colors.orange : Colors.green,
@@ -333,7 +334,7 @@ class EquipmentLargeCard extends StatelessWidget {
                 ),
                 _buildStatItem(
                   Icons.timer,
-                  '${equipment.currentHours?.toStringAsFixed(0) ?? '-'}',
+                  equipment.currentHours?.toStringAsFixed(0) ?? '-',
                   'ساعات',
                   Colors.blue,
                 ),

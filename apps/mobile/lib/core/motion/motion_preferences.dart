@@ -3,9 +3,9 @@
 // تفضيلات الحركة - للإمكانية والوصول وتوفير البطارية
 // ═══════════════════════════════════════════════════════════════════════════
 
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -201,18 +201,18 @@ class MotionPreferences {
   /// Create from JSON
   factory MotionPreferences.fromJson(Map<String, dynamic> json) {
     return MotionPreferences(
-      motionEffectsEnabled: json['motionEffectsEnabled'] ?? true,
-      reduceMotion: json['reduceMotion'] ?? false,
-      batterySaverMode: json['batterySaverMode'] ?? false,
-      intensityMultiplier: (json['intensityMultiplier'] ?? 1.0).toDouble(),
-      enableParallax: json['enableParallax'] ?? true,
-      enableTilt: json['enableTilt'] ?? true,
-      enableFloat: json['enableFloat'] ?? true,
-      enableShakeDetection: json['enableShakeDetection'] ?? true,
-      enableWave: json['enableWave'] ?? true,
-      enableHaptics: json['enableHaptics'] ?? true,
-      maxSamplingRate: json['maxSamplingRate'] ?? 60,
-      respectSystemReducedMotion: json['respectSystemReducedMotion'] ?? true,
+      motionEffectsEnabled: (json['motionEffectsEnabled'] as bool?) ?? true,
+      reduceMotion: (json['reduceMotion'] as bool?) ?? false,
+      batterySaverMode: (json['batterySaverMode'] as bool?) ?? false,
+      intensityMultiplier: ((json['intensityMultiplier'] as num?) ?? 1.0).toDouble(),
+      enableParallax: (json['enableParallax'] as bool?) ?? true,
+      enableTilt: (json['enableTilt'] as bool?) ?? true,
+      enableFloat: (json['enableFloat'] as bool?) ?? true,
+      enableShakeDetection: (json['enableShakeDetection'] as bool?) ?? true,
+      enableWave: (json['enableWave'] as bool?) ?? true,
+      enableHaptics: (json['enableHaptics'] as bool?) ?? true,
+      maxSamplingRate: (json['maxSamplingRate'] as int?) ?? 60,
+      respectSystemReducedMotion: (json['respectSystemReducedMotion'] as bool?) ?? true,
     );
   }
 
@@ -454,7 +454,7 @@ class _MotionPreferencesScreenState extends State<MotionPreferencesScreen> {
     if (mounted) {
       // Provide haptic feedback if enabled
       if (_prefs.enableHaptics) {
-        HapticFeedback.lightImpact();
+        unawaited(HapticFeedback.lightImpact());
       }
     }
   }
@@ -523,7 +523,7 @@ class _MotionPreferencesScreenState extends State<MotionPreferencesScreen> {
           ListTile(
             title: const Text('شدة التأثيرات'),
             subtitle: Text('${(_prefs.intensityMultiplier * 100).round()}%'),
-            secondary: const Icon(Icons.tune),
+            leading: const Icon(Icons.tune),
             trailing: SizedBox(
               width: 150,
               child: Slider(

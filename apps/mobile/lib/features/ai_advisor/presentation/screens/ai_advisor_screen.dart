@@ -7,6 +7,7 @@
 /// - Context indicator
 /// - Image upload for diagnosis
 /// - Voice input support
+library;
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -203,10 +204,10 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.psychology,
               size: 60,
               color: SahoolTheme.primary,
@@ -264,7 +265,7 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.1),
+        color: SahoolTheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -274,7 +275,7 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
           const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: SahoolTheme.primary,
               fontWeight: FontWeight.w500,
             ),
@@ -399,7 +400,7 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -485,8 +486,8 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
     if (_selectedImage != null) {
       // Send diagnosis request with image
       ref.read(aiAdvisorProvider.notifier).diagnose(
-        imagePath: _selectedImage!.path,
-        symptoms: text.isNotEmpty ? text : null,
+        _selectedImage!.path,
+        description: text.isNotEmpty ? text : null,
         fieldId: widget.fieldId,
       );
       setState(() => _selectedImage = null);
@@ -503,10 +504,8 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
   }
 
   void _sendMessage(String message) {
-    ref.read(aiAdvisorProvider.notifier).sendMessage(
-      message,
-      fieldId: widget.fieldId,
-    );
+    ref.read(aiAdvisorProvider.notifier).updateInputText(message);
+    ref.read(aiAdvisorProvider.notifier).sendMessage();
   }
 
   void _handleQuickQuestion(QuickQuestion question) {
@@ -516,9 +515,9 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
   }
 
   void _handleFeedback(String messageId, bool isPositive) {
-    ref.read(aiAdvisorProvider.notifier).submitFeedback(
-      messageId: messageId,
-      thumbsUp: isPositive,
+    ref.read(aiAdvisorProvider.notifier).submitMessageFeedback(
+      messageId,
+      isPositive,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -693,7 +692,7 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: SahoolTheme.primary),

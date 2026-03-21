@@ -1,5 +1,6 @@
 /// SAHOOL Notification Provider
 /// مزود الإشعارات
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

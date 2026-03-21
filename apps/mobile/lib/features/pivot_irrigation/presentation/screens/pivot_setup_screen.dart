@@ -628,7 +628,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
     bool value,
     Function(bool) onChanged,
   ) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: value ? const Color(0xFF367C2B).withOpacity(0.1) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),

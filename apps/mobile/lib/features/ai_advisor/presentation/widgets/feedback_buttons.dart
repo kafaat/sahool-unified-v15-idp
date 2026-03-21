@@ -2,9 +2,9 @@
 /// أزرار ردود الفعل
 ///
 /// Allows users to provide feedback on AI advisories
+library;
 
 import 'package:flutter/material.dart';
-import '../../../../core/config/theme.dart';
 import '../../domain/models/advisory.dart';
 import '../../domain/models/advisory_feedback.dart';
 

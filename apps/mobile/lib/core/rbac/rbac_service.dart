@@ -54,8 +54,8 @@ class RbacUser {
       id: json['id'] as String,
       role: Role.fromString(json['role'] as String? ?? 'guest'),
       tenantId: json['tenant_id'] as String?,
-      assignedFieldIds: List<String>.from(json['assigned_field_ids'] ?? []),
-      assignedFarmIds: List<String>.from(json['assigned_farm_ids'] ?? []),
+      assignedFieldIds: List<String>.from((json['assigned_field_ids'] ?? []) as Iterable),
+      assignedFarmIds: List<String>.from((json['assigned_farm_ids'] ?? []) as Iterable),
       customPermissions: (json['custom_permissions'] as List?)
               ?.map((p) => Permissions.findById(p as String))
               .whereType<Permission>()
@@ -162,8 +162,8 @@ class CapabilityToken {
       tenantId: json['tenant_id'] as String,
       role: Role.fromString(json['role'] as String),
       capabilities: Set<String>.from(json['capabilities'] as List),
-      assignedFieldIds: List<String>.from(json['assigned_field_ids'] ?? []),
-      assignedFarmIds: List<String>.from(json['assigned_farm_ids'] ?? []),
+      assignedFieldIds: List<String>.from((json['assigned_field_ids'] ?? []) as Iterable),
+      assignedFarmIds: List<String>.from((json['assigned_farm_ids'] ?? []) as Iterable),
       expiresAt: DateTime.parse(json['expires_at'] as String),
       issuedAt: DateTime.parse(json['issued_at'] as String),
     );

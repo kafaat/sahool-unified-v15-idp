@@ -1,5 +1,6 @@
 /// Equipment Screen - شاشة إدارة المعدات
 /// متكاملة مع FastAPI Equipment Service
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,7 +34,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
-        title: const Text("المعدات والأصول"),
+        title: const Text('المعدات والأصول'),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
         elevation: 0,
@@ -41,12 +42,12 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showQrScanner(context),
-            tooltip: "مسح QR",
+            tooltip: 'مسح QR',
           ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showAddEquipment(context),
-            tooltip: "إضافة معدة",
+            tooltip: 'إضافة معدة',
           ),
         ],
       ),
@@ -71,7 +72,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
 
             // 3. قائمة المعدات
             const Text(
-              "أسطول المعدات",
+              'أسطول المعدات',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -103,7 +104,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
             child: _StatusBox(
               icon: Icons.agriculture,
               count: stats.total.toString(),
-              label: "معدات",
+              label: 'معدات',
               color: SahoolColors.forestGreen,
             ),
           ),
@@ -112,7 +113,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
             child: _StatusBox(
               icon: Icons.check_circle,
               count: stats.operational.toString(),
-              label: "جاهزة",
+              label: 'جاهزة',
               color: Colors.green,
             ),
           ),
@@ -121,22 +122,22 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
             child: _StatusBox(
               icon: Icons.build,
               count: stats.maintenance.toString(),
-              label: "صيانة",
+              label: 'صيانة',
               color: SahoolColors.harvestGold,
             ),
           ),
         ],
       ),
-      loading: () => Row(
+      loading: () => const Row(
         children: [
-          Expanded(child: _StatusBox(icon: Icons.agriculture, count: "-", label: "معدات", color: SahoolColors.forestGreen)),
-          const SizedBox(width: 12),
-          Expanded(child: _StatusBox(icon: Icons.check_circle, count: "-", label: "جاهزة", color: Colors.green)),
-          const SizedBox(width: 12),
-          Expanded(child: _StatusBox(icon: Icons.build, count: "-", label: "صيانة", color: SahoolColors.harvestGold)),
+          Expanded(child: _StatusBox(icon: Icons.agriculture, count: '-', label: 'معدات', color: SahoolColors.forestGreen)),
+          SizedBox(width: 12),
+          Expanded(child: _StatusBox(icon: Icons.check_circle, count: '-', label: 'جاهزة', color: Colors.green)),
+          SizedBox(width: 12),
+          Expanded(child: _StatusBox(icon: Icons.build, count: '-', label: 'صيانة', color: SahoolColors.harvestGold)),
         ],
       ),
-      error: (error, _) => Center(
+      error: (error, _) => const Center(
         child: Text('خطأ في تحميل الإحصائيات', style: TextStyle(color: SahoolColors.danger)),
       ),
     );
@@ -148,49 +149,49 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
       child: Row(
         children: [
           _CategoryChip(
-            label: "الكل",
+            label: 'الكل',
             icon: Icons.apps,
             isSelected: _selectedType == null,
             onTap: () => setState(() => _selectedType = null),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "جرارات",
+            label: 'جرارات',
             icon: Icons.agriculture,
             isSelected: _selectedType == EquipmentType.tractor,
             onTap: () => setState(() => _selectedType = EquipmentType.tractor),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "مضخات",
+            label: 'مضخات',
             icon: Icons.water,
             isSelected: _selectedType == EquipmentType.pump,
             onTap: () => setState(() => _selectedType = EquipmentType.pump),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "درونز",
+            label: 'درونز',
             icon: Icons.flight,
             isSelected: _selectedType == EquipmentType.drone,
             onTap: () => setState(() => _selectedType = EquipmentType.drone),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "حاصدات",
+            label: 'حاصدات',
             icon: Icons.grass,
             isSelected: _selectedType == EquipmentType.harvester,
             onTap: () => setState(() => _selectedType = EquipmentType.harvester),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "رشاشات",
+            label: 'رشاشات',
             icon: Icons.rotate_right,
             isSelected: _selectedType == EquipmentType.pivot,
             onTap: () => setState(() => _selectedType = EquipmentType.pivot),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "حساسات",
+            label: 'حساسات',
             icon: Icons.sensors,
             isSelected: _selectedType == EquipmentType.sensor,
             onTap: () => setState(() => _selectedType = EquipmentType.sensor),
@@ -250,11 +251,11 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
+              const Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
               const SizedBox(height: 16),
               Text(
                 error.toString(),
-                style: TextStyle(color: SahoolColors.danger),
+                style: const TextStyle(color: SahoolColors.danger),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -302,7 +303,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    "تنبيهات الصيانة (${alerts.length})",
+                    'تنبيهات الصيانة (${alerts.length})',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -461,8 +462,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                 Expanded(
                   child: _StatBox(
                     icon: Icons.local_gas_station,
-                    value: "${equipment.currentFuelPercent!.toInt()}%",
-                    label: "الوقود",
+                    value: '${equipment.currentFuelPercent!.toInt()}%',
+                    label: 'الوقود',
                     color: equipment.isLowFuel ? Colors.orange : Colors.green,
                   ),
                 ),
@@ -471,7 +472,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                 child: _StatBox(
                   icon: Icons.timer,
                   value: equipment.currentHours?.toStringAsFixed(0) ?? '-',
-                  label: "ساعات التشغيل",
+                  label: 'ساعات التشغيل',
                   color: Colors.blue,
                 ),
               ),
@@ -480,7 +481,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                 child: _StatBox(
                   icon: Icons.calendar_today,
                   value: equipment.year?.toString() ?? '-',
-                  label: "سنة الصنع",
+                  label: 'سنة الصنع',
                   color: Colors.purple,
                 ),
               ),
@@ -502,7 +503,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "الموقع الحالي",
+                          'الموقع الحالي',
                           style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                         Text(
@@ -533,7 +534,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                         );
                       }
                     },
-                    child: const Text("عرض على الخريطة"),
+                    child: const Text('عرض على الخريطة'),
                   ),
                 ],
               ),
@@ -553,7 +554,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "صيانة قادمة",
+                          'صيانة قادمة',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         if (equipment.nextMaintenanceAt != null)
@@ -588,7 +589,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                     );
                   },
                   icon: const Icon(Icons.history),
-                  label: const Text("السجل"),
+                  label: const Text('السجل'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: const BorderSide(color: SahoolColors.forestGreen),
@@ -604,7 +605,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                     _showAddMaintenanceRecord(context, ref, equipment.equipmentId);
                   },
                   icon: const Icon(Icons.build),
-                  label: const Text("صيانة"),
+                  label: const Text('صيانة'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: const BorderSide(color: SahoolColors.harvestGold),
@@ -627,8 +628,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                       ? Icons.stop
                       : Icons.play_arrow),
                   label: Text(equipment.status == EquipmentStatus.operational
-                      ? "إيقاف"
-                      : "تشغيل"),
+                      ? 'إيقاف'
+                      : 'تشغيل'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: equipment.status == EquipmentStatus.operational
@@ -706,15 +707,15 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
           ),
           const SizedBox(height: 24),
           const Text(
-            "إضافة معدة جديدة",
+            'إضافة معدة جديدة',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              labelText: "اسم المعدة",
-              hintText: "مثال: John Deere 8R",
+              labelText: 'اسم المعدة',
+              hintText: 'مثال: John Deere 8R',
               filled: true,
               fillColor: Colors.grey[100],
               border: OutlineInputBorder(
@@ -727,7 +728,7 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
           DropdownButtonFormField<EquipmentType>(
             value: _selectedType,
             decoration: InputDecoration(
-              labelText: "نوع المعدة",
+              labelText: 'نوع المعدة',
               filled: true,
               fillColor: Colors.grey[100],
               border: OutlineInputBorder(
@@ -751,7 +752,7 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
           TextField(
             controller: _serialController,
             decoration: InputDecoration(
-              labelText: "الرقم التسلسلي",
+              labelText: 'الرقم التسلسلي',
               filled: true,
               fillColor: Colors.grey[100],
               border: OutlineInputBorder(
@@ -809,7 +810,7 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
+              child: const Text('إضافة المعدة', style: TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -1034,7 +1035,7 @@ class _EquipmentItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "${equipment.currentFuelPercent!.toInt()}%",
+                          '${equipment.currentFuelPercent!.toInt()}%',
                           style: TextStyle(
                             fontSize: 12,
                             color: equipment.isLowFuel ? Colors.orange : Colors.green,
@@ -1096,8 +1097,8 @@ class _MaintenanceAlertWidget extends StatelessWidget {
             if (alert.dueAt != null)
               Text(
                 alert.isOverdue
-                    ? "متأخر ${DateTime.now().difference(alert.dueAt!).inDays} يوم"
-                    : "بعد ${alert.dueAt!.difference(DateTime.now()).inDays} يوم",
+                    ? 'متأخر ${DateTime.now().difference(alert.dueAt!).inDays} يوم'
+                    : 'بعد ${alert.dueAt!.difference(DateTime.now()).inDays} يوم',
                 style: TextStyle(
                   fontSize: 12,
                   color: alert.isOverdue ? SahoolColors.danger : Colors.grey,
@@ -1333,14 +1334,14 @@ class _AddMaintenanceRecordSheetState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "إضافة سجل صيانة",
+                        'إضافة سجل صيانة',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
                       ),
                       Text(
-                        "تسجيل عملية صيانة جديدة",
+                        'تسجيل عملية صيانة جديدة',
                         style: TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     ],
@@ -1365,7 +1366,7 @@ class _AddMaintenanceRecordSheetState
                 children: [
                   // نوع الصيانة
                   const Text(
-                    "نوع الصيانة",
+                    'نوع الصيانة',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 12),
@@ -1398,7 +1399,7 @@ class _AddMaintenanceRecordSheetState
 
                   // تاريخ الصيانة
                   const Text(
-                    "تاريخ الصيانة",
+                    'تاريخ الصيانة',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 12),
@@ -1417,7 +1418,7 @@ class _AddMaintenanceRecordSheetState
                               color: SahoolColors.forestGreen),
                           const SizedBox(width: 12),
                           Text(
-                            "${_maintenanceDate.day}/${_maintenanceDate.month}/${_maintenanceDate.year}",
+                            '${_maintenanceDate.day}/${_maintenanceDate.month}/${_maintenanceDate.year}',
                             style: const TextStyle(fontSize: 16),
                           ),
                           const Spacer(),
@@ -1434,8 +1435,8 @@ class _AddMaintenanceRecordSheetState
                     controller: _descriptionController,
                     maxLines: 2,
                     decoration: InputDecoration(
-                      labelText: "وصف الصيانة *",
-                      hintText: "مثال: تغيير زيت المحرك وفلتر الهواء",
+                      labelText: 'وصف الصيانة *',
+                      hintText: 'مثال: تغيير زيت المحرك وفلتر الهواء',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1449,8 +1450,8 @@ class _AddMaintenanceRecordSheetState
                   TextFormField(
                     controller: _technicianController,
                     decoration: InputDecoration(
-                      labelText: "اسم الفني",
-                      hintText: "اسم فني الصيانة",
+                      labelText: 'اسم الفني',
+                      hintText: 'اسم فني الصيانة',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1465,8 +1466,8 @@ class _AddMaintenanceRecordSheetState
                     controller: _costController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: "التكلفة (ريال)",
-                      hintText: "0.00",
+                      labelText: 'التكلفة (ريال)',
+                      hintText: '0.00',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1481,8 +1482,8 @@ class _AddMaintenanceRecordSheetState
                     controller: _notesController,
                     maxLines: 3,
                     decoration: InputDecoration(
-                      labelText: "ملاحظات إضافية",
-                      hintText: "أي ملاحظات أخرى...",
+                      labelText: 'ملاحظات إضافية',
+                      hintText: 'أي ملاحظات أخرى...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1515,7 +1516,7 @@ class _AddMaintenanceRecordSheetState
                       )
                     : const Icon(Icons.save),
                 label: Text(
-                  _isSubmitting ? "جاري الحفظ..." : "حفظ سجل الصيانة",
+                  _isSubmitting ? 'جاري الحفظ...' : 'حفظ سجل الصيانة',
                   style: const TextStyle(fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1594,7 +1595,7 @@ class _EquipmentHistorySheet extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "سجل الصيانة",
+                        'سجل الصيانة',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -1671,7 +1672,7 @@ class _EquipmentHistorySheet extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       size: 48,
                       color: SahoolColors.danger,
@@ -1679,7 +1680,7 @@ class _EquipmentHistorySheet extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       error.toString(),
-                      style: TextStyle(color: SahoolColors.danger),
+                      style: const TextStyle(color: SahoolColors.danger),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),

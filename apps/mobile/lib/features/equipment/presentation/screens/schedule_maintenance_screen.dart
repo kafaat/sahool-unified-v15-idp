@@ -1,11 +1,10 @@
 /// Schedule Maintenance Screen - شاشة جدولة الصيانة
 /// Screen to schedule maintenance for equipment
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
-import '../../domain/models/equipment_status.dart';
-import '../../domain/models/maintenance_record.dart';
 import '../../state/equipment_providers.dart';
 
 /// Schedule Maintenance Screen

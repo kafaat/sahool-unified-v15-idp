@@ -3,6 +3,7 @@
 ///
 /// بوابة المدفوعات المحلية اليمنية
 /// https://developers-test.tharwatt.com:5253/
+library;
 
 import 'package:dio/dio.dart';
 import '../../../core/network/api_result.dart';
@@ -53,7 +54,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -91,7 +92,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -127,7 +128,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -159,7 +160,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -180,7 +181,7 @@ class TharwattPaymentService {
         '/api/v1/payment/status/$transactionId',
       );
 
-      final transaction = PaymentTransaction.fromJson(response.data);
+      final transaction = PaymentTransaction.fromJson(response.data as Map<String, dynamic>);
       return Success(transaction);
     } on DioException catch (e) {
       return Failure(
@@ -212,9 +213,10 @@ class TharwattPaymentService {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
+      final responseData = response.data as Map<String, dynamic>;
+      final List<dynamic> data = (responseData['data'] ?? responseData) as List<dynamic>;
       final transactions =
-          data.map((json) => PaymentTransaction.fromJson(json)).toList();
+          data.map((json) => PaymentTransaction.fromJson(json as Map<String, dynamic>)).toList();
       return Success(transactions);
     } on DioException catch (e) {
       return Failure(
@@ -233,7 +235,8 @@ class TharwattPaymentService {
         '/api/v1/payment/balance/$walletId',
       );
 
-      final balance = (response.data['balance'] ?? 0).toDouble();
+      final responseData = response.data as Map<String, dynamic>;
+      final balance = ((responseData['balance'] ?? 0) as num).toDouble();
       return Success(balance);
     } on DioException catch (e) {
       return Failure(
@@ -253,7 +256,8 @@ class TharwattPaymentService {
         data: {'phoneNumber': phoneNumber},
       );
 
-      final isValid = response.data['valid'] == true;
+      final responseData = response.data as Map<String, dynamic>;
+      final isValid = responseData['valid'] == true;
       return Success(isValid);
     } on DioException catch (e) {
       return Failure(
@@ -270,9 +274,10 @@ class TharwattPaymentService {
     try {
       final response = await _dio.get('/api/v1/payment/operators');
 
-      final List<dynamic> data = response.data['operators'] ?? response.data;
+      final responseData = response.data as Map<String, dynamic>;
+      final List<dynamic> data = (responseData['operators'] ?? responseData) as List<dynamic>;
       final operators =
-          data.map((json) => MobileOperator.fromJson(json)).toList();
+          data.map((json) => MobileOperator.fromJson(json as Map<String, dynamic>)).toList();
       return Success(operators);
     } on DioException catch (e) {
       return Failure(
@@ -335,7 +340,7 @@ class TharwattPaymentService {
     // محاولة استخراج رسالة الخطأ من الاستجابة
     String? message;
     if (data is Map) {
-      message = data['message'] ?? data['error'] ?? data['msg'];
+      message = (data['message'] ?? data['error'] ?? data['msg']) as String?;
     }
 
     switch (statusCode) {
@@ -381,10 +386,10 @@ class MobileOperator {
 
   factory MobileOperator.fromJson(Map<String, dynamic> json) {
     return MobileOperator(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      nameAr: json['nameAr'] ?? json['name_ar'] ?? json['name'] ?? '',
-      logo: json['logo'],
+      id: (json['id'] as String?) ?? '',
+      name: (json['name'] as String?) ?? '',
+      nameAr: (json['nameAr'] ?? json['name_ar'] ?? json['name'] ?? '') as String,
+      logo: json['logo'] as String?,
       denominations: (json['denominations'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??

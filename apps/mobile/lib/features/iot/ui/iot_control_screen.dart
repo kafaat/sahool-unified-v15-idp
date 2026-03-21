@@ -6,6 +6,7 @@
 /// - Pump and valve control
 /// - Irrigation scheduling
 /// - Device status monitoring
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -189,7 +190,7 @@ class IoTControlScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               // Status Banner
-              _StatusBanner(
+              const _StatusBanner(
                 devicesOnline: 5,
                 devicesTotal: 6,
               ),

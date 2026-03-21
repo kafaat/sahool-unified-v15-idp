@@ -7,9 +7,9 @@ class RotationCalendarScreen extends ConsumerWidget {
   final String fieldId;
 
   const RotationCalendarScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

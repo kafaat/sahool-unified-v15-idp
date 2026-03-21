@@ -1,5 +1,6 @@
 /// Status Indicator Widget - مؤشر الحالة
 /// Visual status indicators for equipment
+library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';

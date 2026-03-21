@@ -2,6 +2,7 @@
 /// متحكم الإشعارات
 ///
 /// State management for notifications using Riverpod StateNotifier
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -41,7 +42,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
           isRefreshing: false,
         );
       },
-      onError: (error) {
+      onError: (Object error) {
         debugPrint('Notifications stream error: $error');
         state = state.copyWith(
           error: error.toString(),
@@ -167,7 +168,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
 
   /// Get single notification
   Future<AppNotification?> getNotification(String id) async {
-    return await _repository.getNotification(id);
+    return _repository.getNotification(id);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -401,7 +402,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
 
   /// Get notification settings
   Future<NotificationSettingsModel> getSettings() async {
-    return await _repository.getSettings();
+    return _repository.getSettings();
   }
 
   /// Save notification settings

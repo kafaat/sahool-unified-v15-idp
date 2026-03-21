@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../contracts/api_endpoints.dart';
 import '../http/api_client.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
@@ -129,20 +130,24 @@ class TokenManager {
 
   /// Refresh the access token (re-entrant safe via Completer lock)
   Future<void> refreshToken() async {
-    // If a refresh is already in progress, wait for it to complete
-    if (_refreshLock != null) {
+    // Atomically check and set the lock to prevent race conditions.
+    // Dart is single-threaded, so capturing the existing lock and
+    // assigning a new one in the same synchronous block is safe.
+    final existingLock = _refreshLock;
+    if (existingLock != null) {
       AppLogger.d('Refresh already in progress, waiting', tag: 'TOKEN_MANAGER');
-      return _refreshLock!.future;
+      return existingLock.future;
     }
 
-    _refreshLock = Completer<void>();
+    final lock = Completer<void>();
+    _refreshLock = lock;
     AppLogger.i('Refreshing token', tag: 'TOKEN_MANAGER');
 
     try {
       await _doRefreshToken();
-      _refreshLock?.complete();
+      lock.complete();
     } catch (e) {
-      _refreshLock?.completeError(e);
+      lock.completeError(e);
       rethrow;
     } finally {
       _refreshLock = null;
@@ -201,7 +206,7 @@ class TokenManager {
   Future<TokenRefreshResult> _refreshWithApiClient(String refreshToken) async {
     try {
       final response = await _apiClient!.post(
-        '/api/v1/auth/refresh',
+        AuthEndpoints.refresh,
         {'refresh_token': refreshToken},
       );
 
@@ -209,7 +214,12 @@ class TokenManager {
         return TokenRefreshResult.failure('Invalid response from server');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       final accessToken = data['access_token'] ?? data['accessToken'];
       final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;

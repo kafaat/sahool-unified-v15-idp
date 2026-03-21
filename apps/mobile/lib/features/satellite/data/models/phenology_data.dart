@@ -45,30 +45,30 @@ class PhenologyData extends Equatable {
     final tasksArData = json['current_tasks_ar'] ?? json['currentTasksAr'] ?? [];
 
     return PhenologyData(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      cropType: json['crop_type'] ?? json['cropType'] ?? '',
-      cropTypeAr: json['crop_type_ar'] ?? json['cropTypeAr'] ?? '',
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      cropType: (json['crop_type'] ?? json['cropType'] ?? '') as String,
+      cropTypeAr: (json['crop_type_ar'] ?? json['cropTypeAr'] ?? '') as String,
       currentStage: GrowthStage.fromString(
-        json['current_stage'] ?? json['currentStage'] ?? 'unknown',
+        (json['current_stage'] ?? json['currentStage'] ?? 'unknown') as String,
       ),
-      daysInCurrentStage: json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0,
-      daysToNextStage: json['days_to_next_stage'] ?? json['daysToNextStage'],
-      daysToHarvest: json['days_to_harvest'] ?? json['daysToHarvest'],
+      daysInCurrentStage: (json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0) as int,
+      daysToNextStage: (json['days_to_next_stage'] ?? json['daysToNextStage']) as int?,
+      daysToHarvest: (json['days_to_harvest'] ?? json['daysToHarvest']) as int?,
       plantingDate: DateTime.parse(
-        json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String(),
+        (json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String()) as String,
       ),
       expectedHarvestDate: json['expected_harvest_date'] != null
-          ? DateTime.parse(json['expected_harvest_date'])
+          ? DateTime.parse(json['expected_harvest_date'] as String)
           : null,
       stages: (stagesData as List)
           .map((item) => GrowthStageInfo.fromJson(item as Map<String, dynamic>))
           .toList(),
       currentTasks: (tasksData as List).map((task) => task.toString()).toList(),
       currentTasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
-      completionPercentage: (json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0)
+      completionPercentage: ((json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0) as num)
           .toDouble(),
       analyzedAt: DateTime.parse(
-        json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String(),
+        (json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
     );
   }
@@ -174,16 +174,16 @@ class GrowthStageInfo extends Equatable {
     final tasksArData = json['tasks_ar'] ?? json['tasksAr'] ?? [];
 
     return GrowthStageInfo(
-      stage: GrowthStage.fromString(json['stage'] ?? 'unknown'),
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['nameAr'] ?? '',
-      durationDays: json['duration_days'] ?? json['durationDays'] ?? 0,
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
-      isCompleted: json['is_completed'] ?? json['isCompleted'] ?? false,
-      isCurrent: json['is_current'] ?? json['isCurrent'] ?? false,
-      description: json['description'] ?? '',
-      descriptionAr: json['description_ar'] ?? json['descriptionAr'] ?? '',
+      stage: GrowthStage.fromString((json['stage'] ?? 'unknown') as String),
+      name: (json['name'] ?? '') as String,
+      nameAr: (json['name_ar'] ?? json['nameAr'] ?? '') as String,
+      durationDays: (json['duration_days'] ?? json['durationDays'] ?? 0) as int,
+      startDate: json['start_date'] != null ? DateTime.parse(json['start_date'] as String) : null,
+      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+      isCompleted: (json['is_completed'] ?? json['isCompleted'] ?? false) as bool,
+      isCurrent: (json['is_current'] ?? json['isCurrent'] ?? false) as bool,
+      description: (json['description'] ?? '') as String,
+      descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
       tasks: (tasksData as List).map((task) => task.toString()).toList(),
       tasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
     );

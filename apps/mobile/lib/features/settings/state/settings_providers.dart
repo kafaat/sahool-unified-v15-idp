@@ -304,62 +304,62 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     if (_prefs == null) return;
 
     state = state.copyWith(
-      themeMode: ThemeMode.values[_prefs!.getInt('themeMode') ?? 0],
-      languageCode: _prefs!.getString('languageCode') ?? 'ar',
-      fontSize: _prefs!.getDouble('fontSize') ?? 1.0,
-      reduceAnimations: _prefs!.getBool('reduceAnimations') ?? false,
-      notificationsEnabled: _prefs!.getBool('notificationsEnabled') ?? true,
-      alertsEnabled: _prefs!.getBool('alertsEnabled') ?? true,
-      weatherAlertsEnabled: _prefs!.getBool('weatherAlertsEnabled') ?? true,
-      taskRemindersEnabled: _prefs!.getBool('taskRemindersEnabled') ?? true,
-      soundEnabled: _prefs!.getBool('soundEnabled') ?? true,
-      vibrationEnabled: _prefs!.getBool('vibrationEnabled') ?? true,
-      analyticsEnabled: _prefs!.getBool('analyticsEnabled') ?? true,
-      crashReportingEnabled: _prefs!.getBool('crashReportingEnabled') ?? true,
-      locationSharingEnabled: _prefs!.getBool('locationSharingEnabled') ?? false,
-      dataCollectionEnabled: _prefs!.getBool('dataCollectionEnabled') ?? true,
-      autoSyncEnabled: _prefs!.getBool('autoSyncEnabled') ?? true,
-      wifiOnlySyncEnabled: _prefs!.getBool('wifiOnlySyncEnabled') ?? false,
-      syncIntervalMinutes: _prefs!.getInt('syncIntervalMinutes') ?? 15,
-      backgroundSyncEnabled: _prefs!.getBool('backgroundSyncEnabled') ?? true,
-      defaultMapView: _prefs!.getString('defaultMapView') ?? 'satellite',
-      offlineMapsEnabled: _prefs!.getBool('offlineMapsEnabled') ?? true,
-      defaultZoomLevel: _prefs!.getDouble('defaultZoomLevel') ?? 15.0,
-      measurementSystem: _prefs!.getString('measurementSystem') ?? 'metric',
-      dateFormat: _prefs!.getString('dateFormat') ?? 'dd/MM/yyyy',
-      timeFormat: _prefs!.getString('timeFormat') ?? '24h',
-      currencyCode: _prefs!.getString('currencyCode') ?? 'YER',
+      themeMode: ThemeMode.values[_prefs.getInt('themeMode') ?? 0],
+      languageCode: _prefs.getString('languageCode') ?? 'ar',
+      fontSize: _prefs.getDouble('fontSize') ?? 1.0,
+      reduceAnimations: _prefs.getBool('reduceAnimations') ?? false,
+      notificationsEnabled: _prefs.getBool('notificationsEnabled') ?? true,
+      alertsEnabled: _prefs.getBool('alertsEnabled') ?? true,
+      weatherAlertsEnabled: _prefs.getBool('weatherAlertsEnabled') ?? true,
+      taskRemindersEnabled: _prefs.getBool('taskRemindersEnabled') ?? true,
+      soundEnabled: _prefs.getBool('soundEnabled') ?? true,
+      vibrationEnabled: _prefs.getBool('vibrationEnabled') ?? true,
+      analyticsEnabled: _prefs.getBool('analyticsEnabled') ?? true,
+      crashReportingEnabled: _prefs.getBool('crashReportingEnabled') ?? true,
+      locationSharingEnabled: _prefs.getBool('locationSharingEnabled') ?? false,
+      dataCollectionEnabled: _prefs.getBool('dataCollectionEnabled') ?? true,
+      autoSyncEnabled: _prefs.getBool('autoSyncEnabled') ?? true,
+      wifiOnlySyncEnabled: _prefs.getBool('wifiOnlySyncEnabled') ?? false,
+      syncIntervalMinutes: _prefs.getInt('syncIntervalMinutes') ?? 15,
+      backgroundSyncEnabled: _prefs.getBool('backgroundSyncEnabled') ?? true,
+      defaultMapView: _prefs.getString('defaultMapView') ?? 'satellite',
+      offlineMapsEnabled: _prefs.getBool('offlineMapsEnabled') ?? true,
+      defaultZoomLevel: _prefs.getDouble('defaultZoomLevel') ?? 15.0,
+      measurementSystem: _prefs.getString('measurementSystem') ?? 'metric',
+      dateFormat: _prefs.getString('dateFormat') ?? 'dd/MM/yyyy',
+      timeFormat: _prefs.getString('timeFormat') ?? '24h',
+      currencyCode: _prefs.getString('currencyCode') ?? 'YER',
     );
   }
 
   Future<void> _saveSettings() async {
     if (_prefs == null) return;
 
-    await _prefs!.setInt('themeMode', state.themeMode.index);
-    await _prefs!.setString('languageCode', state.languageCode);
-    await _prefs!.setDouble('fontSize', state.fontSize);
-    await _prefs!.setBool('reduceAnimations', state.reduceAnimations);
-    await _prefs!.setBool('notificationsEnabled', state.notificationsEnabled);
-    await _prefs!.setBool('alertsEnabled', state.alertsEnabled);
-    await _prefs!.setBool('weatherAlertsEnabled', state.weatherAlertsEnabled);
-    await _prefs!.setBool('taskRemindersEnabled', state.taskRemindersEnabled);
-    await _prefs!.setBool('soundEnabled', state.soundEnabled);
-    await _prefs!.setBool('vibrationEnabled', state.vibrationEnabled);
-    await _prefs!.setBool('analyticsEnabled', state.analyticsEnabled);
-    await _prefs!.setBool('crashReportingEnabled', state.crashReportingEnabled);
-    await _prefs!.setBool('locationSharingEnabled', state.locationSharingEnabled);
-    await _prefs!.setBool('dataCollectionEnabled', state.dataCollectionEnabled);
-    await _prefs!.setBool('autoSyncEnabled', state.autoSyncEnabled);
-    await _prefs!.setBool('wifiOnlySyncEnabled', state.wifiOnlySyncEnabled);
-    await _prefs!.setInt('syncIntervalMinutes', state.syncIntervalMinutes);
-    await _prefs!.setBool('backgroundSyncEnabled', state.backgroundSyncEnabled);
-    await _prefs!.setString('defaultMapView', state.defaultMapView);
-    await _prefs!.setBool('offlineMapsEnabled', state.offlineMapsEnabled);
-    await _prefs!.setDouble('defaultZoomLevel', state.defaultZoomLevel);
-    await _prefs!.setString('measurementSystem', state.measurementSystem);
-    await _prefs!.setString('dateFormat', state.dateFormat);
-    await _prefs!.setString('timeFormat', state.timeFormat);
-    await _prefs!.setString('currencyCode', state.currencyCode);
+    await _prefs.setInt('themeMode', state.themeMode.index);
+    await _prefs.setString('languageCode', state.languageCode);
+    await _prefs.setDouble('fontSize', state.fontSize);
+    await _prefs.setBool('reduceAnimations', state.reduceAnimations);
+    await _prefs.setBool('notificationsEnabled', state.notificationsEnabled);
+    await _prefs.setBool('alertsEnabled', state.alertsEnabled);
+    await _prefs.setBool('weatherAlertsEnabled', state.weatherAlertsEnabled);
+    await _prefs.setBool('taskRemindersEnabled', state.taskRemindersEnabled);
+    await _prefs.setBool('soundEnabled', state.soundEnabled);
+    await _prefs.setBool('vibrationEnabled', state.vibrationEnabled);
+    await _prefs.setBool('analyticsEnabled', state.analyticsEnabled);
+    await _prefs.setBool('crashReportingEnabled', state.crashReportingEnabled);
+    await _prefs.setBool('locationSharingEnabled', state.locationSharingEnabled);
+    await _prefs.setBool('dataCollectionEnabled', state.dataCollectionEnabled);
+    await _prefs.setBool('autoSyncEnabled', state.autoSyncEnabled);
+    await _prefs.setBool('wifiOnlySyncEnabled', state.wifiOnlySyncEnabled);
+    await _prefs.setInt('syncIntervalMinutes', state.syncIntervalMinutes);
+    await _prefs.setBool('backgroundSyncEnabled', state.backgroundSyncEnabled);
+    await _prefs.setString('defaultMapView', state.defaultMapView);
+    await _prefs.setBool('offlineMapsEnabled', state.offlineMapsEnabled);
+    await _prefs.setDouble('defaultZoomLevel', state.defaultZoomLevel);
+    await _prefs.setString('measurementSystem', state.measurementSystem);
+    await _prefs.setString('dateFormat', state.dateFormat);
+    await _prefs.setString('timeFormat', state.timeFormat);
+    await _prefs.setString('currencyCode', state.currencyCode);
   }
 
   // Appearance methods

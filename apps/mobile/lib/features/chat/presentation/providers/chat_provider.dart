@@ -7,6 +7,7 @@
 /// - Real-time updates via WebSocket
 /// - Typing indicators
 /// - Online status
+library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

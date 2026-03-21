@@ -143,7 +143,7 @@ class CropsNotifier extends StateNotifier<CropsState> {
                     await _apiClient.get('/api/v1/crops/active');
                 final List<dynamic> data = response is List
                     ? response
-                    : (response['data'] as List? ?? []);
+                    : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
                 if (data.isNotEmpty) {
                   final crops = data
@@ -158,9 +158,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
                 }
               } catch (e) {
                 AppLogger.w(
-                  'Active crops API unavailable, building from catalog',
+                  'Active crops API unavailable, building from catalog: $e',
                   tag: 'CropsNotifier',
-                  error: e,
                 );
               }
             }
@@ -177,9 +176,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
           }
         } catch (e) {
           AppLogger.w(
-            'CropsRepository failed, trying direct API',
+            'CropsRepository failed, trying direct API: $e',
             tag: 'CropsNotifier',
-            error: e,
           );
         }
       }
@@ -189,7 +187,7 @@ class CropsNotifier extends StateNotifier<CropsState> {
         try {
           final response = await _apiClient.get('/api/v1/crops/active');
           final List<dynamic> data =
-              response is List ? response : (response['data'] as List? ?? []);
+              response is List ? response : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
           if (data.isNotEmpty) {
             final crops = data
@@ -203,9 +201,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
           }
         } catch (e) {
           AppLogger.w(
-            'Direct API call failed, falling back to mock data',
+            'Direct API call failed, falling back to mock data: $e',
             tag: 'CropsNotifier',
-            error: e,
           );
         }
       }
@@ -343,12 +340,12 @@ class CropsNotifier extends StateNotifier<CropsState> {
           queryParameters: {'crop_id': cropId},
         );
         final List<dynamic> data =
-            response is List ? response : (response['data'] as List? ?? []);
+            response is List ? response : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
         if (data.isNotEmpty) {
           final recommendations = data.map((item) {
             if (item is String) return item;
-            if (item is Map) {
+            if (item is Map<String, dynamic>) {
               final en = item['text'] ?? item['message'] ?? '';
               final ar = item['text_ar'] ?? item['message_ar'] ?? '';
               return ar.toString().isNotEmpty ? '$en | $ar' : en.toString();
@@ -363,9 +360,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
         }
       } catch (e) {
         AppLogger.w(
-          'Failed to fetch recommendations from advisory API, using defaults',
+          'Failed to fetch recommendations from advisory API, using defaults: $e',
           tag: 'CropsNotifier',
-          error: e,
         );
       }
     }

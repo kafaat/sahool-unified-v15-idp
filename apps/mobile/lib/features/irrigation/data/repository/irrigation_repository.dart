@@ -168,9 +168,17 @@ class IrrigationRepository {
     try {
       final response = await _dio.get('/api/v1/irrigation/crops');
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final crops = (data['data'] as List)
-          .map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>))
+      final rawList = data['data'];
+      if (rawList == null || rawList is! List) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final crops = rawList
+          .whereType<Map<String, dynamic>>()
+          .map((c) => IrrigationCrop.fromJson(c))
           .toList();
 
       // Cache the response
@@ -207,9 +215,17 @@ class IrrigationRepository {
     try {
       final response = await _dio.get('/api/v1/irrigation/methods');
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final methods = (data['data'] as List)
-          .map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>))
+      final rawList = data['data'];
+      if (rawList == null || rawList is! List) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final methods = rawList
+          .whereType<Map<String, dynamic>>()
+          .map((m) => IrrigationMethod.fromJson(m))
           .toList();
 
       // Cache the response
@@ -252,10 +268,15 @@ class IrrigationRepository {
         data: request.toJson(),
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final calculation = IrrigationCalculation.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final calculation = IrrigationCalculation.fromJson(rawData);
 
       // Cache calculation with composite key
       final cacheKey =
@@ -293,8 +314,14 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final rawData = data['data'] as Map<String, dynamic>;
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
       final waterBalance = WaterBalanceData.fromJson(rawData);
 
       // Cache water balance
@@ -337,10 +364,15 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final efficiency = IrrigationEfficiencyData.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final efficiency = IrrigationEfficiencyData.fromJson(rawData);
 
       return ApiResult.success(efficiency);
     } on DioException catch (e) {
@@ -366,15 +398,20 @@ class IrrigationRepository {
         queryParameters: {'field_id': fieldId},
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache schedule
       await _cacheData(
         _CacheKeys.schedule(fieldId),
-        data['data'],
+        rawData,
       );
 
       return ApiResult.success(schedule);
@@ -416,13 +453,18 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache new schedule
-      await _cacheData(_CacheKeys.schedule(fieldId), data['data']);
+      await _cacheData(_CacheKeys.schedule(fieldId), rawData);
 
       return ApiResult.success(schedule);
     } on DioException catch (e) {

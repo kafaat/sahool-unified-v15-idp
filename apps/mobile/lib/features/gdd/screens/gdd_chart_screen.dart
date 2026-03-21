@@ -374,7 +374,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -431,7 +431,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

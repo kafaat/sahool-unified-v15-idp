@@ -173,13 +173,13 @@ class PrivacySettingsScreen extends ConsumerWidget {
                   icon: Icons.bug_report_outlined,
                   isEnabled: settings.crashReportingEnabled,
                 ),
-                _ThirdPartyServiceTile(
+                const _ThirdPartyServiceTile(
                   name: 'Weather API',
                   description: 'بيانات الطقس والتنبؤات',
                   icon: Icons.cloud_outlined,
                   isEnabled: true,
                 ),
-                _ThirdPartyServiceTile(
+                const _ThirdPartyServiceTile(
                   name: 'Satellite Imagery',
                   description: 'صور الأقمار الصناعية',
                   icon: Icons.satellite_alt_outlined,
@@ -251,7 +251,7 @@ class PrivacySettingsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.grey[900]
@@ -277,17 +277,17 @@ class PrivacySettingsScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            _LocationAccuracyOption(
+            const _LocationAccuracyOption(
               title: 'عالية الدقة',
               subtitle: 'GPS + شبكات (الأفضل للحقول)',
               isSelected: true,
             ),
-            _LocationAccuracyOption(
+            const _LocationAccuracyOption(
               title: 'منخفضة الطاقة',
               subtitle: 'شبكات فقط (يوفر البطارية)',
               isSelected: false,
             ),
-            _LocationAccuracyOption(
+            const _LocationAccuracyOption(
               title: 'تقريبية',
               subtitle: 'دقة أقل لحماية الخصوصية',
               isSelected: false,
@@ -334,11 +334,11 @@ class PrivacySettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning_rounded, color: SahoolTheme.error),
-            const SizedBox(width: 8),
-            const Text('حذف جميع البيانات'),
+            Icon(Icons.warning_rounded, color: SahoolTheme.error),
+            SizedBox(width: 8),
+            Text('حذف جميع البيانات'),
           ],
         ),
         content: const Text(

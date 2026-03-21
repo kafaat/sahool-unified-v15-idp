@@ -248,34 +248,52 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     _locationSubscription = null;
   }
 
-  void _recordTrackPoint() {
+  Future<void> _recordTrackPoint() async {
     if (state.currentSession == null) return;
 
-    // In real implementation, get actual GPS coordinates
-    // For now, simulate with dummy data
-    final lastPoint = state.currentSession!.trackPoints.isNotEmpty
-        ? state.currentSession!.trackPoints.last
-        : const GeoPoint(latitude: 15.3694, longitude: 44.1910); // Sanaa default
+    try {
+      // Use geolocator to get real GPS coordinates
+      // Import: import 'package:geolocator/geolocator.dart';
+      // final position = await Geolocator.getCurrentPosition(
+      //   desiredAccuracy: LocationAccuracy.high,
+      // );
+      // final newPoint = GeoPoint(
+      //   latitude: position.latitude,
+      //   longitude: position.longitude,
+      //   accuracy: position.accuracy,
+      //   timestamp: DateTime.now(),
+      // );
 
-    // Simulate slight movement
-    final newPoint = GeoPoint(
-      latitude: lastPoint.latitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      longitude: lastPoint.longitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      accuracy: 5.0,
-      timestamp: DateTime.now(),
-    );
+      // TODO: Replace with Geolocator.getCurrentPosition() once geolocator
+      // permission flow is integrated. For now, skip recording if no real
+      // location is available.
+      final currentLocation = state.currentLocation;
+      if (currentLocation == null) {
+        AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+        return;
+      }
 
-    final updatedTrackPoints = [
-      ...state.currentSession!.trackPoints,
-      newPoint,
-    ];
+      final newPoint = GeoPoint(
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        accuracy: currentLocation.accuracy,
+        timestamp: DateTime.now(),
+      );
 
-    state = state.copyWith(
-      currentSession: state.currentSession!.copyWith(
-        trackPoints: updatedTrackPoints,
-      ),
-      currentLocation: newPoint,
-    );
+      final updatedTrackPoints = [
+        ...state.currentSession!.trackPoints,
+        newPoint,
+      ];
+
+      state = state.copyWith(
+        currentSession: state.currentSession!.copyWith(
+          trackPoints: updatedTrackPoints,
+        ),
+        currentLocation: newPoint,
+      );
+    } catch (e) {
+      AppLogger.w('Failed to record track point: $e', tag: 'SCOUT');
+    }
   }
 
   /// تحديث الموقع الحالي
@@ -288,23 +306,32 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// تحليل صورة بالذكاء الاصطناعي
+  /// TODO: Wire to yolo26-vision-service POST /api/v1/detect/disease
+  /// or crop-intelligence-service for real AI analysis.
   Future<AIAnalysis> analyzeImage(String imagePath) async {
     state = state.copyWith(isAnalyzing: true);
 
     try {
-      // In real implementation, call AI service
-      await Future.delayed(const Duration(seconds: 2));
+      // TODO: Replace with actual API call to vision service:
+      // final response = await _apiClient.post(
+      //   '/api/v1/detect/disease',
+      //   data: FormData.fromMap({
+      //     'image': await MultipartFile.fromFile(imagePath),
+      //     'field_id': state.currentSession?.fieldId,
+      //   }),
+      // );
+      // final analysis = AIAnalysis.fromJson(response.data);
 
+      // Placeholder: return a pending analysis indicating the service is not yet connected
       final analysis = AIAnalysis(
-        modelVersion: '1.0.0',
-        confidence: 0.85,
-        detectedIssue: 'Possible nutrient deficiency',
-        category: IssueCategory.nutrient,
-        severity: IssueSeverity.medium,
+        modelVersion: 'pending',
+        confidence: 0.0,
+        detectedIssue: 'تحليل غير متاح - خدمة الذكاء الاصطناعي غير متصلة',
+        category: IssueCategory.other,
+        severity: IssueSeverity.low,
         suggestions: [
-          'فحص مستوى النيتروجين في التربة',
-          'تطبيق سماد متوازن',
-          'مراقبة التحسن خلال أسبوع',
+          'سيتم تحليل الصورة عند الاتصال بالخادم',
+          'يمكنك إضافة ملاحظاتك يدوياً',
         ],
         analyzedAt: DateTime.now(),
       );
@@ -314,7 +341,7 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
         lastAnalysis: analysis,
       );
 
-      AppLogger.i('AI analysis completed: ${analysis.detectedIssue}', tag: 'SCOUT_AI');
+      AppLogger.i('AI analysis pending - service not connected', tag: 'SCOUT_AI');
       return analysis;
     } catch (e) {
       state = state.copyWith(

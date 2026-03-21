@@ -2,6 +2,7 @@
 /// عرض الجدول الزمني للتفاعلات
 ///
 /// Displays a timeline of farmer interactions
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

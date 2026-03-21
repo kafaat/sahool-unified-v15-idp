@@ -6,11 +6,11 @@
 /// - Field synchronization
 /// - Nearby fields discovery
 /// - Task management
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
 import '../service_connector.dart';
-import '../service_registry.dart';
 
 /// Field model
 class Field {

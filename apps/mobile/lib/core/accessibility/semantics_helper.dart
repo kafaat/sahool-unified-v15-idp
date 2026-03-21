@@ -10,6 +10,7 @@
 /// - Announcements for dynamic content | إعلانات للمحتوى الديناميكي
 /// - Minimum touch targets (48x48) | أهداف لمس بحد أدنى
 /// - Support for large text scaling | دعم تكبير النص
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -255,7 +256,7 @@ class AccessibleIconButton extends StatelessWidget {
 
     if (tooltip != null) {
       return Tooltip(
-        message: tooltip!,
+        message: tooltip,
         child: button,
       );
     }

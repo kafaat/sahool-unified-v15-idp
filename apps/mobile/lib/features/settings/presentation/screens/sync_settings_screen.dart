@@ -135,7 +135,7 @@ class SyncSettingsScreen extends ConsumerWidget {
             SettingsSection(
               title: 'Storage Breakdown',
               titleAr: 'تفاصيل التخزين',
-              icon: Icons.pie_chart_outlined,
+              icon: Icons.pie_chart_outline,
               showDividers: true,
               children: [
                 _StorageItemTile(
@@ -181,12 +181,12 @@ class SyncSettingsScreen extends ConsumerWidget {
                     ref.read(appSettingsProvider.notifier).setOfflineMapsEnabled(value);
                   },
                 ),
-                _OfflineMapTile(
+                const _OfflineMapTile(
                   regionName: 'صنعاء وضواحيها',
                   size: '150 MB',
                   isDownloaded: true,
                 ),
-                _OfflineMapTile(
+                const _OfflineMapTile(
                   regionName: 'إب وتعز',
                   size: '120 MB',
                   isDownloaded: false,
@@ -235,7 +235,7 @@ class SyncSettingsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.grey[900]
@@ -338,11 +338,11 @@ class SyncSettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning_rounded, color: SahoolTheme.warning),
-            const SizedBox(width: 8),
-            const Text('مسح البيانات'),
+            Icon(Icons.warning_rounded, color: SahoolTheme.warning),
+            SizedBox(width: 8),
+            Text('مسح البيانات'),
           ],
         ),
         content: const Text(
@@ -400,7 +400,7 @@ class _SyncStatusCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -417,7 +417,7 @@ class _SyncStatusCard extends StatelessWidget {
                   color: (syncStatus.isSyncing
                           ? SahoolTheme.warning
                           : SahoolTheme.success)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: syncStatus.isSyncing
@@ -425,7 +425,7 @@ class _SyncStatusCard extends StatelessWidget {
                         padding: EdgeInsets.all(14),
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(
+                    : const Icon(
                         Icons.check_circle_rounded,
                         color: SahoolTheme.success,
                         size: 32,
@@ -486,9 +486,9 @@ class _PendingOperationsTile extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolTheme.warning.withOpacity(0.1),
+        color: SahoolTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SahoolTheme.warning.withOpacity(0.3)),
+        border: Border.all(color: SahoolTheme.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -586,7 +586,7 @@ class _StorageItemTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(isDark ? 0.2 : 0.1),
+              color: color.withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -640,7 +640,7 @@ class _OfflineMapTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(isDark ? 0.2 : 0.1),
+              color: Colors.blue.withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.map, color: Colors.blue, size: 22),

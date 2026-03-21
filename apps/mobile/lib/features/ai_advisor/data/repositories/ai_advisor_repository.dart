@@ -2,6 +2,7 @@
 /// مستودع المستشار الذكي
 ///
 /// Manages data access for AI advisory features with offline support
+library;
 
 import 'dart:async';
 import '../remote/ai_advisor_api.dart';
@@ -212,7 +213,7 @@ class AiAdvisorRepository {
       return response.recommendations;
     } catch (e) {
       // Return cached on error
-      return await _cache.getAdvisories(fieldId: fieldId, type: focus);
+      return _cache.getAdvisories(fieldId: fieldId, type: focus);
     }
   }
 
@@ -355,7 +356,7 @@ class AiAdvisorRepository {
       return messages;
     } catch (e) {
       // Return cached on error
-      return await _cache.getMessages(limit: limit, offset: offset);
+      return _cache.getMessages(limit: limit, offset: offset);
     }
   }
 
@@ -399,7 +400,7 @@ class AiAdvisorRepository {
       return advisories;
     } catch (e) {
       // Return cached on error
-      return await _cache.getAdvisories(
+      return _cache.getAdvisories(
         fieldId: fieldId,
         type: type,
         status: status,

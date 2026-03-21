@@ -7,6 +7,7 @@
 /// - Subscriptions
 /// - Invoices
 /// - Usage tracking
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';

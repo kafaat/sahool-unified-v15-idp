@@ -72,13 +72,13 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return ET0Response(
           et0: (data['et0'] as num).toDouble(),
-          et0Ar: data['et0_ar'] ?? '',
-          method: data['method'] ?? 'FAO-56 Penman-Monteith',
-          weatherSummary: data['weather_summary'] ?? {},
-          calculationDate: DateTime.parse(data['calculation_date']),
+          et0Ar: (data['et0_ar'] as String?) ?? '',
+          method: (data['method'] as String?) ?? 'FAO-56 Penman-Monteith',
+          weatherSummary: (data['weather_summary'] as Map<String, dynamic>?) ?? {},
+          calculationDate: DateTime.parse(data['calculation_date'] as String),
         );
       }
 
@@ -111,18 +111,21 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List crops = data['crops'] ?? [];
-        return crops.map((e) => CropKcOption(
-          cropId: e['crop_id'] ?? '',
-          name: e['name'] ?? '',
-          nameAr: e['name_ar'] ?? '',
-          kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
-          kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
-          kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
-          rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
-          criticalPeriods: List<String>.from(e['critical_periods'] ?? []),
-        )).toList();
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> crops = (data['crops'] as List<dynamic>?) ?? [];
+        return crops.map((item) {
+          final e = item as Map<String, dynamic>;
+          return CropKcOption(
+            cropId: (e['crop_id'] as String?) ?? '',
+            name: (e['name'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
+            kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
+            kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
+            rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
+            criticalPeriods: List<String>.from((e['critical_periods'] as Iterable?) ?? []),
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -177,20 +180,20 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return CropETcResponse(
-          cropType: data['crop_type'] ?? '',
-          cropNameAr: data['crop_name_ar'] ?? '',
-          growthStage: data['growth_stage'] ?? '',
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
           kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
           et0: (data['et0'] as num?)?.toDouble() ?? 0.0,
           etc: (data['etc'] as num?)?.toDouble() ?? 0.0,
           dailyWaterNeedLiters: (data['daily_water_need_liters'] as num?)?.toDouble() ?? 0.0,
           dailyWaterNeedM3: (data['daily_water_need_m3'] as num?)?.toDouble() ?? 0.0,
           weeklyWaterNeedM3: (data['weekly_water_need_m3'] as num?)?.toDouble() ?? 0.0,
-          criticalPeriod: data['critical_period'] ?? false,
-          notes: data['notes'] ?? '',
-          notesAr: data['notes_ar'] ?? '',
+          criticalPeriod: (data['critical_period'] as bool?) ?? false,
+          notes: (data['notes'] as String?) ?? '',
+          notesAr: (data['notes_ar'] as String?) ?? '',
         );
       }
 
@@ -223,16 +226,19 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List soils = data['soils'] ?? [];
-        return soils.map((e) => SoilTypeInfo(
-          soilType: e['soil_type'] ?? '',
-          nameAr: e['name_ar'] ?? '',
-          fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
-          wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
-          availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
-          infiltrationRateMmHr: (e['infiltration_rate_mm_hr'] as num?)?.toDouble() ?? 13.0,
-        )).toList();
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> soils = (data['soils'] as List<dynamic>?) ?? [];
+        return soils.map((item) {
+          final e = item as Map<String, dynamic>;
+          return SoilTypeInfo(
+            soilType: (e['soil_type'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
+            wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
+            availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
+            infiltrationRateMmHr: (e['infiltration_rate_mm_hr'] as num?)?.toDouble() ?? 13.0,
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -264,13 +270,16 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List methods = data['methods'] ?? [];
-        return methods.map((e) => IrrigationMethodInfo(
-          method: e['method'] ?? '',
-          efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
-          efficiencyPercent: e['efficiency_percent'] ?? '70%',
-        )).toList();
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> methods = (data['methods'] as List<dynamic>?) ?? [];
+        return methods.map((item) {
+          final e = item as Map<String, dynamic>;
+          return IrrigationMethodInfo(
+            method: (e['method'] as String?) ?? '',
+            efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
+            efficiencyPercent: (e['efficiency_percent'] as String?) ?? '70%',
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -335,35 +344,35 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return IrrigationRecommendation(
-          recommendationId: data['recommendation_id'] ?? '',
-          timestamp: DateTime.parse(data['timestamp']),
-          cropType: data['crop_type'] ?? '',
-          cropNameAr: data['crop_name_ar'] ?? '',
-          growthStage: data['growth_stage'] ?? '',
+          recommendationId: (data['recommendation_id'] as String?) ?? '',
+          timestamp: DateTime.parse(data['timestamp'] as String),
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
           fieldAreaHectares: (data['field_area_hectares'] as num?)?.toDouble() ?? 1.0,
           et0: (data['et0'] as num?)?.toDouble() ?? 0.0,
           kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
           etc: (data['etc'] as num?)?.toDouble() ?? 0.0,
-          soilType: data['soil_type'] ?? '',
-          soilTypeAr: data['soil_type_ar'] ?? '',
+          soilType: (data['soil_type'] as String?) ?? '',
+          soilTypeAr: (data['soil_type_ar'] as String?) ?? '',
           estimatedMoisture: (data['estimated_moisture'] as num?)?.toDouble() ?? 0.0,
           moistureDepletionPercent: (data['moisture_depletion_percent'] as num?)?.toDouble() ?? 0.0,
-          irrigationNeeded: data['irrigation_needed'] ?? false,
-          urgency: _parseUrgency(data['urgency']),
-          urgencyAr: data['urgency_ar'] ?? '',
+          irrigationNeeded: (data['irrigation_needed'] as bool?) ?? false,
+          urgency: _parseUrgency(data['urgency'] as String?),
+          urgencyAr: (data['urgency_ar'] as String?) ?? '',
           recommendedAmountMm: (data['recommended_amount_mm'] as num?)?.toDouble() ?? 0.0,
           recommendedAmountLiters: (data['recommended_amount_liters'] as num?)?.toDouble() ?? 0.0,
           recommendedAmountM3: (data['recommended_amount_m3'] as num?)?.toDouble() ?? 0.0,
           grossIrrigationMm: (data['gross_irrigation_mm'] as num?)?.toDouble() ?? 0.0,
-          optimalTime: data['optimal_time'] ?? '',
-          optimalTimeAr: data['optimal_time_ar'] ?? '',
-          nextIrrigationDays: data['next_irrigation_days'] ?? 0,
-          advice: data['advice'] ?? '',
-          adviceAr: data['advice_ar'] ?? '',
-          warnings: List<String>.from(data['warnings'] ?? []),
-          warningsAr: List<String>.from(data['warnings_ar'] ?? []),
+          optimalTime: (data['optimal_time'] as String?) ?? '',
+          optimalTimeAr: (data['optimal_time_ar'] as String?) ?? '',
+          nextIrrigationDays: (data['next_irrigation_days'] as int?) ?? 0,
+          advice: (data['advice'] as String?) ?? '',
+          adviceAr: (data['advice_ar'] as String?) ?? '',
+          warnings: List<String>.from((data['warnings'] as Iterable?) ?? []),
+          warningsAr: List<String>.from((data['warnings_ar'] as Iterable?) ?? []),
         );
       }
 
@@ -406,22 +415,22 @@ class VirtualSensorsRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return QuickIrrigationCheck(
-          cropType: data['crop_type'] ?? '',
-          cropNameAr: data['crop_name_ar'] ?? '',
-          growthStage: data['growth_stage'] ?? '',
-          daysSinceIrrigation: data['days_since_irrigation'] ?? 0,
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
+          daysSinceIrrigation: (data['days_since_irrigation'] as int?) ?? 0,
           estimatedEt0: (data['estimated_et0'] as num?)?.toDouble() ?? 0.0,
           kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
           estimatedEtc: (data['estimated_etc'] as num?)?.toDouble() ?? 0.0,
           estimatedWaterLossMm: (data['estimated_water_loss_mm'] as num?)?.toDouble() ?? 0.0,
           estimatedDepletionPercent: (data['estimated_depletion_percent'] as num?)?.toDouble() ?? 0.0,
-          status: data['status'] ?? '',
-          statusAr: data['status_ar'] ?? '',
-          needsIrrigation: data['needs_irrigation'] ?? false,
-          recommendation: data['recommendation'] ?? '',
-          recommendationAr: data['recommendation_ar'] ?? '',
+          status: (data['status'] as String?) ?? '',
+          statusAr: (data['status_ar'] as String?) ?? '',
+          needsIrrigation: (data['needs_irrigation'] as bool?) ?? false,
+          recommendation: (data['recommendation'] as String?) ?? '',
+          recommendationAr: (data['recommendation_ar'] as String?) ?? '',
         );
       }
 

@@ -2,6 +2,7 @@
 /// نموذج الفرصة البيعية
 ///
 /// Represents a potential sale or service opportunity with a farmer
+library;
 
 /// Opportunity stage
 /// مرحلة الفرصة

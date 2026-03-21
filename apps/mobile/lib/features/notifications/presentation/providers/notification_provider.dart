@@ -3,9 +3,16 @@ import '../../data/services/notification_service.dart';
 import '../../domain/entities/notification_entities.dart';
 
 /// Notification Service Provider
+/// Lifecycle-managed: disposes resources when no longer watched.
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   final service = NotificationService();
   service.init();
+  ref.onDispose(() {
+    // Ensure any future resources (streams, listeners) are cleaned up.
+    // Currently NotificationService uses SharedPreferences which is safe,
+    // but this guard protects against future resource additions.
+    service.dispose();
+  });
   return service;
 });
 
@@ -31,7 +38,9 @@ class NotificationsState {
   }) {
     return NotificationsState(
       isLoading: isLoading ?? this.isLoading,
-      notifications: notifications ?? this.notifications,
+      notifications: notifications != null
+          ? List<AppNotification>.of(notifications)
+          : List<AppNotification>.of(this.notifications),
       unreadCount: unreadCount ?? this.unreadCount,
       error: error,
     );

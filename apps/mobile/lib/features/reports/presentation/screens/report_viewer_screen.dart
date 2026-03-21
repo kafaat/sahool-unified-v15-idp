@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/models/report_data.dart';
+import '../../domain/models/report_template.dart';
 import '../../domain/models/chart_config.dart';
 import '../widgets/chart_widget.dart';
 import '../widgets/report_data_table.dart';
@@ -217,7 +218,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
   Widget _buildReportHeader(ReportData report) {
     return Card(
       elevation: 0,
-      color: SahoolColors.primary.withOpacity(0.05),
+      color: SahoolColors.primary.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -229,7 +230,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.1),
+                    color: SahoolColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -245,7 +246,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
                     children: [
                       Text(
                         report.template.nameAr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: SahoolColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
@@ -264,7 +265,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -349,8 +350,8 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: (stat.isPositiveChange ?? true)
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -438,7 +439,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
         if (section.type == 'chart' && section.chartConfig != null)
           _buildChartSection(section.chartConfig!)
         else if (section.type == 'table' && section.data['table'] != null)
-          _buildTableSection(section.data['table'])
+          _buildTableSection(section.data['table'] as Map<String, dynamic>)
         else if (section.type == 'text')
           _buildTextSection(section.data)
         else
@@ -534,7 +535,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -565,7 +566,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
               onPressed: () => _shareReport(report),
               icon: const Icon(Icons.share),
               style: IconButton.styleFrom(
-                backgroundColor: SahoolColors.primary.withOpacity(0.1),
+                backgroundColor: SahoolColors.primary.withValues(alpha: 0.1),
                 foregroundColor: SahoolColors.primary,
               ),
             ),

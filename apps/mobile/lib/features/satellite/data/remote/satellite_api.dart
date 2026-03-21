@@ -40,7 +40,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return NdviAnalysis.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -63,8 +63,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> timeSeries = data['time_series'] ?? data['timeseries'] ?? data;
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> timeSeries;
+      if (decoded is List) {
+        timeSeries = decoded;
+      } else if (decoded is Map<String, dynamic>) {
+        timeSeries = (decoded['time_series'] ?? decoded['timeseries'] ?? []) as List<dynamic>;
+      } else {
+        timeSeries = [];
+      }
       return timeSeries.map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(
@@ -87,10 +94,14 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final indicesData = data['indices'] ?? data;
-
-      return (indicesData as Map<String, dynamic>).map(
+      final decoded = jsonDecode(response.body);
+      final Map<String, dynamic> indicesData;
+      if (decoded is Map<String, dynamic>) {
+        indicesData = (decoded['indices'] as Map<String, dynamic>?) ?? decoded;
+      } else {
+        indicesData = {};
+      }
+      return indicesData.map(
         (key, value) => MapEntry(key, (value as num).toDouble()),
       );
     } else {
@@ -114,7 +125,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return FieldHealth.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -137,7 +148,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherSummary.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -155,8 +166,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> alerts = data['alerts'] ?? data;
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> alerts;
+      if (decoded is List) {
+        alerts = decoded;
+      } else if (decoded is Map<String, dynamic>) {
+        alerts = (decoded['alerts'] ?? []) as List<dynamic>;
+      } else {
+        alerts = [];
+      }
       return alerts.map((item) => WeatherAlertSummary.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(
@@ -179,7 +197,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return PhenologyData.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -213,8 +231,8 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['image_url'] ?? json['imageUrl'] ?? '';
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return (json['image_url'] ?? json['imageUrl'] ?? '') as String;
     } else {
       throw SatelliteApiException(
         'فشل جلب صورة القمر الصناعي',

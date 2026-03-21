@@ -5,6 +5,7 @@
 /// - Per-category toggles
 /// - Quiet hours
 /// - Sound and vibration
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

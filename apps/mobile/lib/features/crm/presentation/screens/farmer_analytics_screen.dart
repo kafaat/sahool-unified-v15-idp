@@ -2,6 +2,7 @@
 /// شاشة تحليلات المزارع
 ///
 /// Displays analytics and insights for a specific farmer
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -521,7 +522,7 @@ class FarmerAnalyticsScreen extends ConsumerWidget {
       return _buildEmptyCard('لا توجد بيانات نشاط');
     }
 
-    final maxValue = monthlyActivity.values.reduce((a, b) => a > b ? a : b);
+    final maxValue = monthlyActivity.values.fold<num>(0, (a, b) => (b as num) > a ? b : a);
 
     return Card(
       child: Padding(
@@ -535,7 +536,7 @@ class FarmerAnalyticsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: monthlyActivity.entries.take(6).map((entry) {
-                  final heightFactor = maxValue > 0 ? entry.value / maxValue : 0.0;
+                  final heightFactor = maxValue > 0 ? (entry.value as num) / maxValue : 0.0;
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -549,7 +550,7 @@ class FarmerAnalyticsScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Container(
                         width: 30,
-                        height: 100 * heightFactor,
+                        height: (100 * heightFactor).toDouble(),
                         decoration: BoxDecoration(
                           color: const Color(0xFF367C2B),
                           borderRadius: BorderRadius.circular(4),
@@ -650,7 +651,7 @@ class FarmerAnalyticsScreen extends ConsumerWidget {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: rec.color.withOpacity(0.1),
+                color: rec.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(rec.icon, color: rec.color, size: 20),

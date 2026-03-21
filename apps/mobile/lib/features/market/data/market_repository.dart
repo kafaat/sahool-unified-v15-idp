@@ -3,6 +3,7 @@
 ///
 /// يوفر طبقة تجريد للوصول إلى بيانات السوق والمحفظة
 /// مع استخدام نمط ApiResult للتعامل الآمن مع الأخطاء
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,7 +79,7 @@ class MarketRepository {
   Future<ApiResult<WalletModel>> getWallet(String userId) async {
     try {
       final response = await _dio.get(ApiConfig.wallet(userId));
-      return Success(WalletModel.fromJson(response.data));
+      return Success(WalletModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل المحفظة'),
@@ -100,7 +101,8 @@ class MarketRepository {
           'description': description,
         },
       );
-      return Success(WalletModel.fromJson(response.data['wallet']));
+      final responseData = response.data as Map<String, dynamic>;
+      return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل الإيداع'),
@@ -122,7 +124,8 @@ class MarketRepository {
           'description': description,
         },
       );
-      return Success(WalletModel.fromJson(response.data['wallet']));
+      final responseData = response.data as Map<String, dynamic>;
+      return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل السحب'),
@@ -141,8 +144,8 @@ class MarketRepository {
         ApiConfig.walletTransactions(walletId),
         queryParameters: {'limit': limit},
       );
-      final List data = response.data;
-      return Success(data.map((e) => TransactionModel.fromJson(e)).toList());
+      final List data = response.data as List;
+      return Success(data.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList());
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل المعاملات'),
@@ -164,7 +167,7 @@ class MarketRepository {
           'farmData': farmData.toJson(),
         },
       );
-      return Success(CreditScoreResult.fromJson(response.data));
+      return Success(CreditScoreResult.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل حساب التصنيف'),
@@ -203,7 +206,7 @@ class MarketRepository {
           'collateralValue': collateralValue,
         },
       );
-      return Success(LoanRequestResult.fromJson(response.data));
+      return Success(LoanRequestResult.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل طلب القرض'),
@@ -219,8 +222,8 @@ class MarketRepository {
   Future<ApiResult<List<LoanModel>>> getUserLoans(String walletId) async {
     try {
       final response = await _dio.get(ApiConfig.userLoans(walletId));
-      final List data = response.data;
-      return Success(data.map((e) => LoanModel.fromJson(e)).toList());
+      final List data = response.data as List;
+      return Success(data.map((e) => LoanModel.fromJson(e as Map<String, dynamic>)).toList());
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل القروض'),
@@ -239,7 +242,7 @@ class MarketRepository {
         ApiConfig.repayLoan(loanId),
         data: {'amount': amount},
       );
-      return Success(LoanRepaymentResult.fromJson(response.data));
+      return Success(LoanRepaymentResult.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل السداد'),
@@ -273,8 +276,8 @@ class MarketRepository {
         ApiConfig.marketProducts,
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
-      final List data = response.data;
-      return Success(data.map((e) => ProductModel.fromJson(e)).toList());
+      final List data = response.data as List;
+      return Success(data.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList());
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل المنتجات'),
@@ -296,7 +299,7 @@ class MarketRepository {
   Future<ApiResult<ProductModel>> getProductById(String productId) async {
     try {
       final response = await _dio.get(ApiConfig.marketProductById(productId));
-      return Success(ProductModel.fromJson(response.data));
+      return Success(ProductModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل المنتج'),
@@ -335,7 +338,7 @@ class MarketRepository {
           },
         },
       );
-      return Success(ProductModel.fromJson(response.data));
+      return Success(ProductModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل عرض الحصاد'),
@@ -367,7 +370,7 @@ class MarketRepository {
           'paymentMethod': paymentMethod,
         },
       );
-      return Success(OrderModel.fromJson(response.data));
+      return Success(OrderModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل إنشاء الطلب'),
@@ -386,8 +389,8 @@ class MarketRepository {
         ApiConfig.userMarketOrders(userId),
         queryParameters: {'role': role},
       );
-      final List data = response.data;
-      return Success(data.map((e) => OrderModel.fromJson(e)).toList());
+      final List data = response.data as List;
+      return Success(data.map((e) => OrderModel.fromJson(e as Map<String, dynamic>)).toList());
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل الطلبات'),
@@ -403,7 +406,7 @@ class MarketRepository {
   Future<ApiResult<MarketStats>> getMarketStats() async {
     try {
       final response = await _dio.get(ApiConfig.marketStats);
-      return Success(MarketStats.fromJson(response.data));
+      return Success(MarketStats.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل تحميل الإحصائيات'),

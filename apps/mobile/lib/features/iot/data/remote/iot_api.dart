@@ -144,9 +144,9 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final devices = json['data'] as List;
-      return devices.map((d) => IoTDevice.fromJson(d)).toList();
+      return devices.map((d) => IoTDevice.fromJson(d as Map<String, dynamic>)).toList();
     } else {
       throw IoTApiException(
         'فشل جلب قائمة الأجهزة',
@@ -164,9 +164,9 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final devices = json['data'] as List;
-      return devices.map((d) => IoTDevice.fromJson(d)).toList();
+      return devices.map((d) => IoTDevice.fromJson(d as Map<String, dynamic>)).toList();
     } else {
       throw IoTApiException(
         'فشل جلب أجهزة الحقل',
@@ -184,8 +184,8 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return IoTDevice.fromJson(json['data']);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return IoTDevice.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IoTApiException(
         'فشل جلب الجهاز',
@@ -203,8 +203,8 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return List<Map<String, dynamic>>.from(json['data']);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return List<Map<String, dynamic>>.from(json['data'] as Iterable);
     } else {
       throw IoTApiException(
         'فشل جلب أنواع الأجهزة',
@@ -237,9 +237,9 @@ class IoTApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final readings = json['data'] as List;
-      return readings.map((r) => SensorReading.fromJson(r)).toList();
+      return readings.map((r) => SensorReading.fromJson(r as Map<String, dynamic>)).toList();
     } else {
       throw IoTApiException(
         'فشل جلب قراءات المستشعر',
@@ -273,7 +273,7 @@ class IoTApi {
     );
 
     if (response.statusCode == 200 || response.statusCode == 202) {
-      return jsonDecode(response.body);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
       throw IoTApiException(
         'فشل إرسال الأمر للجهاز',

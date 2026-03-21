@@ -896,7 +896,7 @@ class _SectorDrawingPainter extends CustomPainter {
     }
 
     final sector = sectors[selectedSectorIndex!];
-    final handleRadius = 12.0;
+    const handleRadius = 12.0;
 
     // Start handle
     final startAngle = _degreesToRadians(sector.startAngle - 90);

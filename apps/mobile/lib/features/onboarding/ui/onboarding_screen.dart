@@ -16,37 +16,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: "أهلاً بك في سهول",
-      subtitle: "منصتك الذكية لإدارة مزرعتك",
+      title: 'أهلاً بك في سهول',
+      subtitle: 'منصتك الذكية لإدارة مزرعتك',
       description:
-          "سهول يساعدك في مراقبة حقولك، تتبع صحة المحاصيل، وإدارة العمليات الزراعية بكفاءة عالية.",
+          'سهول يساعدك في مراقبة حقولك، تتبع صحة المحاصيل، وإدارة العمليات الزراعية بكفاءة عالية.',
       icon: Icons.agriculture,
       color: SahoolColors.forestGreen,
       illustration: _IllustrationType.farm,
     ),
     OnboardingPage(
-      title: "راقب حقولك بذكاء",
-      subtitle: "صور الأقمار الصناعية ومؤشرات NDVI",
+      title: 'راقب حقولك بذكاء',
+      subtitle: 'صور الأقمار الصناعية ومؤشرات NDVI',
       description:
-          "احصل على صور حية لحقولك من الأقمار الصناعية مع تحليل صحة المحاصيل باستخدام مؤشرات الغطاء النباتي.",
+          'احصل على صور حية لحقولك من الأقمار الصناعية مع تحليل صحة المحاصيل باستخدام مؤشرات الغطاء النباتي.',
       icon: Icons.satellite_alt,
       color: SahoolColors.sageGreen,
       illustration: _IllustrationType.satellite,
     ),
     OnboardingPage(
-      title: "توقعات الطقس الدقيقة",
-      subtitle: "تنبؤات محلية لحقلك",
+      title: 'توقعات الطقس الدقيقة',
+      subtitle: 'تنبؤات محلية لحقلك',
       description:
-          "توقعات طقس مخصصة لموقع مزرعتك مع تنبيهات الصقيع والأمطار وتوصيات زراعية يومية.",
+          'توقعات طقس مخصصة لموقع مزرعتك مع تنبيهات الصقيع والأمطار وتوصيات زراعية يومية.',
       icon: Icons.wb_sunny,
       color: SahoolColors.harvestGold,
       illustration: _IllustrationType.weather,
     ),
     OnboardingPage(
-      title: "مجتمع المزارعين",
-      subtitle: "تعلم من خبراء الزراعة",
+      title: 'مجتمع المزارعين',
+      subtitle: 'تعلم من خبراء الزراعة',
       description:
-          "تواصل مع مزارعين آخرين، اطرح أسئلتك، واحصل على إجابات من خبراء معتمدين في مختلف المجالات الزراعية.",
+          'تواصل مع مزارعين آخرين، اطرح أسئلتك، واحصل على إجابات من خبراء معتمدين في مختلف المجالات الزراعية.',
       icon: Icons.people,
       color: SahoolColors.earthBrown,
       illustration: _IllustrationType.community,
@@ -88,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: TextButton(
                 onPressed: _completeOnboarding,
                 child: Text(
-                  "تخطي",
+                  'تخطي',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 16,
@@ -141,7 +141,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        _currentPage == _pages.length - 1 ? "ابدأ الآن" : "التالي",
+                        _currentPage == _pages.length - 1 ? 'ابدأ الآن' : 'التالي',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -323,7 +323,7 @@ class _FarmIllustration extends StatelessWidget {
             child: Icon(Icons.grass, size: 28, color: color.withOpacity(0.5)),
           ),
           // Sun
-          Positioned(
+          const Positioned(
             top: 20,
             right: 40,
             child: Icon(Icons.wb_sunny, size: 40, color: SahoolColors.harvestGold),
@@ -505,7 +505,7 @@ class _WeatherIllustration extends StatelessWidget {
                   Icon(Icons.thermostat, color: color, size: 28),
                   const SizedBox(width: 8),
                   Text(
-                    "32°C",
+                    '32°C',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -570,7 +570,7 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 24,
               backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
-              child: Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
+              child: const Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
             ),
           ),
           Positioned(
@@ -579,10 +579,10 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 20,
               backgroundColor: SahoolColors.harvestGold.withOpacity(0.5),
-              child: Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
+              child: const Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
             ),
           ),
-          Positioned(
+          const Positioned(
             bottom: 30,
             left: 50,
             child: CircleAvatar(
@@ -597,7 +597,7 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 26,
               backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
-              child: Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
+              child: const Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
             ),
           ),
           // Connection lines

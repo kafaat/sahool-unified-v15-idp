@@ -14,7 +14,7 @@
 /// ```dart
 /// import 'package:sahool_field_app/core/animations/animations.dart';
 /// ```
-library sahool_animations;
+library;
 
 // Page Transitions - انتقالات الصفحات
 export 'page_transitions.dart';

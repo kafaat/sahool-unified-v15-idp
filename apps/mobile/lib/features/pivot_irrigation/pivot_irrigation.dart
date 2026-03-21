@@ -38,7 +38,7 @@
 ///   ),
 /// );
 /// ```
-library pivot_irrigation;
+library;
 
 // Domain Models
 export 'domain/models/pivot_models.dart';

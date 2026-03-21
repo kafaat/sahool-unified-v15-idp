@@ -2,6 +2,7 @@
 /// نموذج ملف المزارع
 ///
 /// Represents a farmer/customer profile with contact info and preferences
+library;
 
 /// Farmer status
 /// حالة المزارع

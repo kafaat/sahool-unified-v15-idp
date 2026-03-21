@@ -173,7 +173,7 @@ class SatelliteRepository {
   /// جلب توقعات الطقس مع التخزين المؤقت
   Future<WeatherSummary> getWeatherForecast(String fieldId, {bool forceRefresh = false}) async {
     final cacheKey = 'weather_forecast_$fieldId';
-    final weatherCacheDuration = const Duration(hours: 3); // Weather updates more frequently
+    const weatherCacheDuration = Duration(hours: 3); // Weather updates more frequently
 
     if (!forceRefresh) {
       final cached = _getCachedData<WeatherSummary>(

@@ -5,6 +5,7 @@
 /// - التبديل بين الخدمات القديمة والحديثة
 /// - مقارنة الأداء والنتائج
 /// - اختبار الخدمات قبل الترقية
+library;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -294,7 +295,7 @@ class ServiceSwitcher {
 
     if (stored != null) {
       try {
-        final Map<String, dynamic> parsed = jsonDecode(stored);
+        final Map<String, dynamic> parsed = jsonDecode(stored) as Map<String, dynamic>;
         for (final entry in parsed.entries) {
           final serviceType = ServiceType.values.firstWhere(
             (e) => e.name == entry.key,

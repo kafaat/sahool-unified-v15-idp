@@ -6,6 +6,7 @@
 /// - Intensity levels
 /// - Pattern customization
 /// - Battery saver mode support
+library;
 
 import 'dart:convert';
 

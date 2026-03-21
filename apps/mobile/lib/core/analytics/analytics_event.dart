@@ -10,6 +10,7 @@
 /// - PII filtering
 /// - Offline-first support
 /// - Arabic/English bilingual events
+library;
 
 import '../utils/pii_filter.dart';
 

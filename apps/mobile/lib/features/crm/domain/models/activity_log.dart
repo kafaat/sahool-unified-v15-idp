@@ -2,6 +2,7 @@
 /// نموذج سجل النشاط
 ///
 /// Represents all farmer interactions and activities in a unified log
+library;
 
 /// Activity type
 /// نوع النشاط
@@ -658,7 +659,7 @@ class FarmerAnalytics {
       avgOrderValue: (json['avg_order_value'] as num?)?.toDouble() ?? 0,
       interactionTrend:
           (json['interaction_trend'] as List?)?.cast<Map<String, dynamic>>() ?? [],
-      interactionByType: Map<String, int>.from(json['interaction_by_type'] ?? {}),
+      interactionByType: Map<String, int>.from((json['interaction_by_type'] as Map?) ?? {}),
     );
   }
 
@@ -681,6 +682,69 @@ class FarmerAnalytics {
   /// Win rate percentage
   double get winRate =>
       totalOpportunities > 0 ? (wonOpportunities / totalOpportunities) * 100 : 0;
+
+  /// Engagement score (0-100) computed from interaction frequency and types
+  double get engagementScore {
+    if (totalInteractions == 0) return 0;
+    final recency = daysSinceLastInteraction != null
+        ? (30 - (daysSinceLastInteraction! > 30 ? 30 : daysSinceLastInteraction!)) / 30 * 40
+        : 0.0;
+    final frequency = (totalInteractions > 20 ? 20 : totalInteractions) / 20 * 30;
+    final diversity = ((callCount > 0 ? 1 : 0) + (visitCount > 0 ? 1 : 0) + (messageCount > 0 ? 1 : 0)) / 3 * 30;
+    return recency + frequency + diversity;
+  }
+
+  /// Days since last interaction (null if no interaction)
+  int? get daysSinceLastInteraction {
+    if (lastInteractionAt == null) return null;
+    return DateTime.now().difference(lastInteractionAt!).inDays;
+  }
+
+  /// Average interaction duration (placeholder, derived from avgResponseDays)
+  double? get averageInteractionDuration => avgResponseDays > 0 ? avgResponseDays.toDouble() : null;
+
+  /// Success rate as fraction (0.0-1.0)
+  double get successRate =>
+      totalOpportunities > 0 ? wonOpportunities / totalOpportunities : 0;
+
+  /// Interactions grouped by type
+  Map<String, int> get interactionsByType => interactionByType;
+
+  /// Interactions grouped by outcome
+  Map<String, int> get interactionsByOutcome => {
+        'won': wonOpportunities,
+        'total': totalOpportunities,
+        'lost': totalOpportunities - wonOpportunities,
+      };
+
+  /// Monthly activity data from interaction trend as month -> count map
+  Map<String, dynamic> get monthlyActivity {
+    final result = <String, dynamic>{};
+    for (final entry in interactionTrend) {
+      final month = entry['month'] as String? ?? entry['date'] as String? ?? '';
+      final count = entry['count'] ?? entry['value'] ?? 0;
+      if (month.isNotEmpty) result[month] = count;
+    }
+    return result;
+  }
+
+  /// Preferred contact time (placeholder)
+  String? get preferredContactTime => null;
+
+  /// Preferred communication channel
+  String? get preferredChannel {
+    if (callCount >= visitCount && callCount >= messageCount) return 'اتصال';
+    if (visitCount >= callCount && visitCount >= messageCount) return 'زيارة';
+    if (messageCount > 0) return 'رسالة';
+    return null;
+  }
+
+  /// Response rate (fraction 0.0-1.0)
+  double get responseRate =>
+      totalInteractions > 0 ? (totalInteractions - avgResponseDays).clamp(0, totalInteractions) / totalInteractions : 0;
+
+  /// Average response time in days
+  int? get averageResponseTime => avgResponseDays > 0 ? avgResponseDays : null;
 }
 
 // Helper functions

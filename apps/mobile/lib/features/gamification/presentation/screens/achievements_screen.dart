@@ -299,7 +299,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                 const SizedBox(height: 2),
                 Text(
                   streak.description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: SahoolColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -327,7 +327,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
               ),
               Text(
                 'الأفضل: ${streak.bestDays}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: SahoolColors.textSecondary,
                   fontSize: 11,
                 ),
@@ -499,7 +499,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                 ),
                 Text(
                   'المستوى ${entry.level} | Level ${entry.level}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: SahoolColors.textSecondary,
                     fontSize: 11,
                   ),
@@ -553,7 +553,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
               const SizedBox(height: 4),
               Text(
                 achievement.titleEn,
-                style: TextStyle(fontSize: 14, color: SahoolColors.textSecondary),
+                style: const TextStyle(fontSize: 14, color: SahoolColors.textSecondary),
               ),
               const SizedBox(height: SahoolSpacing.md),
               Text(
@@ -577,12 +577,12 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
               const SizedBox(height: SahoolSpacing.sm),
               Text(
                 '${achievement.progress.current} / ${achievement.progress.target} ${achievement.progress.unit}',
-                style: TextStyle(color: SahoolColors.textSecondary, fontSize: 13),
+                style: const TextStyle(color: SahoolColors.textSecondary, fontSize: 13),
               ),
               const SizedBox(height: SahoolSpacing.md),
               Text(
                 '+${achievement.pointsValue} نقطة | Points',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: SahoolColors.success,

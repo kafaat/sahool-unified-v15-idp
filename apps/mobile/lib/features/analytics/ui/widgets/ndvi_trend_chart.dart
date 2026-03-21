@@ -49,7 +49,7 @@ class NdviTrendChart extends StatelessWidget {
       height: height,
       child: AspectRatio(
         aspectRatio: height != null ? 2.0 : 1.70,
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             color: Colors.white,

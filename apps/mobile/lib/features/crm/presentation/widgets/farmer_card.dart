@@ -2,6 +2,7 @@
 /// بطاقة المزارع
 ///
 /// Displays farmer summary information in a card format
+library;
 
 import 'package:flutter/material.dart';
 

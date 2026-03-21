@@ -396,7 +396,14 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('جدولة الري المحوري - قريباً'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('إضافة جدول جديد'),
             style: ElevatedButton.styleFrom(
@@ -438,7 +445,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           const SizedBox(height: 16),
 
           // Stats cards
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _BigStatCard(
@@ -449,7 +456,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                   color: Colors.blue,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _BigStatCard(
                   icon: Icons.bolt,
@@ -464,7 +471,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
 
           const SizedBox(height: 12),
 
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _BigStatCard(
@@ -475,7 +482,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                   color: Colors.green,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _BigStatCard(
                   icon: Icons.loop,
@@ -542,7 +549,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                           ],
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -551,13 +558,13 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                               value: 92,
                               color: Colors.blue,
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             _EfficiencyRow(
                               label: 'استهلاك الطاقة',
                               value: 85,
                               color: Colors.orange,
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             _EfficiencyRow(
                               label: 'وقت التشغيل',
                               value: 78,
@@ -753,7 +760,7 @@ class _BigStatCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -839,7 +846,7 @@ class _SectorTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _ndviColor(sector.ndviValue!).withOpacity(0.2),
+                  color: _ndviColor(sector.ndviValue!).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -1081,7 +1088,7 @@ class _SectorDetailsSheetState extends State<SectorDetailsSheet> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF367C2B).withOpacity(0.1),
+                        color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1127,7 +1134,7 @@ class _SectorDetailsSheetState extends State<SectorDetailsSheet> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1207,9 +1214,9 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [

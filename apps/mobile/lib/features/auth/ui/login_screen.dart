@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/auth_service.dart';
 import '../../../core/auth/biometric_service.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../core/utils/input_validator.dart';
+import '../services/otp_service.dart';
 import 'biometric_login_widget.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
@@ -20,10 +23,10 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isOtpSent = false;
   bool _isLoading = false;
@@ -110,20 +113,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _phoneErrorMessage = null;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // إرسال رمز التحقق عبر خدمة OTP الفعلية
+      final otpService = ref.read(otpServiceProvider);
+      final phoneWithCode = '+967${_phoneController.text}';
+      final result = await otpService.sendOTP(
+        identifier: phoneWithCode,
+        channel: OTPChannel.sms,
+        purpose: OTPPurpose.phoneVerification,
+      );
 
-    setState(() {
-      _isLoading = false;
-      _isOtpSent = true;
-      _resendTimer = 60;
-    });
+      result.when(
+        success: (response) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _isOtpSent = true;
+              _resendTimer = response.cooldownSeconds ?? 60;
+            });
 
-    // Start countdown
-    _startResendTimer();
+            // Start countdown
+            _startResendTimer();
 
-    // Focus first OTP field
-    _otpFocusNodes[0].requestFocus();
+            // Focus first OTP field
+            _otpFocusNodes[0].requestFocus();
+          }
+        },
+        failure: (message, statusCode) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _phoneErrorMessage = message;
+            });
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.e('OTP send failed', error: e, tag: 'LOGIN');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _phoneErrorMessage = 'حدث خطأ أثناء إرسال رمز التحقق';
+        });
+      }
+    }
   }
 
   void _startResendTimer() {

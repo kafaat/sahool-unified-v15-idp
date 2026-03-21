@@ -71,6 +71,12 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
+// Features - Settings, Reports, Help, Field Form
+import '../../features/settings/ui/settings_screen.dart';
+import '../../features/reports/presentation/screens/reports_dashboard_screen.dart';
+import '../../features/settings/presentation/screens/help_screen.dart';
+import '../../features/field/ui/field_form_screen.dart';
+
 // Features - Astronomical Calendar
 import '../../features/astronomical/presentation/screens/astronomical_screen.dart';
 
@@ -588,6 +594,43 @@ class AppRouter {
             },
           );
         },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Settings, Reports, Help & Field Form Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+
+      GoRoute(
+        path: '/reports',
+        name: 'reports',
+        builder: (context, state) => const ReportsDashboardScreen(),
+      ),
+
+      GoRoute(
+        path: '/help',
+        name: 'help',
+        builder: (context, state) => const HelpScreen(),
+      ),
+
+      GoRoute(
+        path: '/field-form',
+        name: 'field-form',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return FieldFormScreen(fieldId: args?['fieldId']);
+        },
+      ),
+
+      GoRoute(
+        path: '/irrigation',
+        name: 'irrigation',
+        builder: (context, state) => const SprayDashboardScreen(),
       ),
     ],
 

@@ -8,14 +8,11 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import ipaddress
 import json
 import logging
 import random
-import socket
 import time
 from abc import ABC, abstractmethod
-from urllib.parse import urlparse
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -276,37 +273,6 @@ class BaseScraper(ABC):
             self._page = await self._browser.new_page()
         return self._page
 
-    _BLOCKED_CIDRS = [
-        ipaddress.ip_network("10.0.0.0/8"),
-        ipaddress.ip_network("172.16.0.0/12"),
-        ipaddress.ip_network("192.168.0.0/16"),
-        ipaddress.ip_network("127.0.0.0/8"),
-        ipaddress.ip_network("169.254.0.0/16"),
-        ipaddress.ip_network("::1/128"),
-        ipaddress.ip_network("fc00::/7"),
-    ]
-
-    def _validate_url(self, url: str) -> None:
-        """Validate URL to prevent SSRF attacks."""
-        parsed = urlparse(url)
-        if parsed.scheme not in ("http", "https"):
-            raise NavigationError(f"Unsupported URL scheme: {parsed.scheme}", url=url)
-        if not parsed.hostname:
-            raise NavigationError("URL must have a hostname", url=url)
-
-        # Resolve hostname and check against blocked networks
-        try:
-            for info in socket.getaddrinfo(parsed.hostname, None):
-                addr = ipaddress.ip_address(info[4][0])
-                for cidr in self._BLOCKED_CIDRS:
-                    if addr in cidr:
-                        raise NavigationError(
-                            "URL resolves to blocked internal network",
-                            url=url,
-                        )
-        except socket.gaierror:
-            raise NavigationError(f"Cannot resolve hostname: {parsed.hostname}", url=url)
-
     async def navigate(
         self,
         url: str,
@@ -323,7 +289,6 @@ class BaseScraper(ABC):
         Raises:
             NavigationError: If navigation fails.
         """
-        self._validate_url(url)
         page = await self._ensure_page()
         await self._rate_limiter.wait()
 

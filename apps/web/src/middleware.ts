@@ -39,19 +39,11 @@ const defaultLocale: (typeof locales)[number] = "ar";
 // ---------------------------------------------------------------------------
 // Edge-safe logger - avoids importing @/lib/logger which references
 // @sentry/nextjs (~300KB). In the edge middleware we only need console output.
-//
-// Security events (JWT/CSRF failures) are logged in ALL environments.
-// Without production logging, authentication attacks are completely invisible.
 // ---------------------------------------------------------------------------
 const edgeLogger = {
-  /** Log security-relevant errors in all environments */
   error: (...args: unknown[]) => {
-    console.error(...args);
-  },
-  /** Log debug information in development only */
-  debug: (...args: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.log(...args);
+      console.error(...args);
     }
   },
 };

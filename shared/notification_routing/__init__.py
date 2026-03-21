@@ -267,14 +267,10 @@ class NotificationRouter:
                         "priority": payload.priority.value,
                     },
                 )
-                # Use only the service name for routing metadata.
-                # The actual endpoint URL is resolved by the service mesh / Kong gateway,
-                # not constructed here, to prevent SSRF if CHANNEL_SERVICES is ever
-                # made dynamic.
                 results[channel.value] = {
                     "status": "routed",
                     "service": service.get("service", "unknown"),
-                    "endpoint": service.get("endpoint", "/"),
+                    "endpoint": f"http://{service.get('service', 'localhost')}:{service.get('port', 8080)}{service.get('endpoint', '/')}",
                 }
                 self._sent_count += 1
             except Exception as e:

@@ -46,14 +46,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    // Reject refresh tokens used as access tokens
-    if (payload.type && payload.type !== "access") {
-      this.logger.warn(
-        `Non-access token used for authentication: type=${payload.type}, jti=${payload.jti?.substring(0, 8)}...`,
-      );
-      throw new UnauthorizedException("Invalid token type");
-    }
-
     // Check if token is revoked (fail-closed: deny on Redis errors)
     try {
       const revocationResult = await this.revocationStore.isRevoked({

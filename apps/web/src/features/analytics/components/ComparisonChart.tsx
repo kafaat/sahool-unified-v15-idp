@@ -54,9 +54,9 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
 
   if (!comparison || comparison.items.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-        <p className="text-gray-600 dark:text-gray-400">لا توجد بيانات مقارنة متاحة</p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+        <p className="text-gray-600">لا توجد بيانات مقارنة متاحة</p>
+        <p className="text-sm text-gray-500 mt-1">
           No comparison data available
         </p>
       </div>
@@ -81,11 +81,11 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
     });
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">المقارنة</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <h3 className="text-lg font-semibold text-gray-900">المقارنة</h3>
+          <p className="text-sm text-gray-600 mt-1">
             {type === "fields" && "مقارنة بين الحقول"}
             {type === "seasons" && "مقارنة بين المواسم"}
             {type === "crops" && "مقارنة بين المحاصيل"}
@@ -99,7 +99,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               chartType === "bar"
                 ? "bg-green-500 text-white"
-                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             أعمدة
@@ -110,7 +110,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               chartType === "line"
                 ? "bg-green-500 text-white"
-                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             خطوط
@@ -165,8 +165,8 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
             className="p-4 rounded-lg border-2"
             style={{ borderColor: COLORS[index % COLORS.length] }}
           >
-            <p className="text-sm text-gray-600 dark:text-gray-400">{item.nameAr}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            <p className="text-sm text-gray-600">{item.nameAr}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">
               {item.value.toLocaleString("ar-SA")}
             </p>
           </div>

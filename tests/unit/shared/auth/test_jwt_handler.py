@@ -23,8 +23,6 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("JWT_ISSUER", "sahool-idp")
 os.environ.setdefault("JWT_AUDIENCE", "sahool-platform")
 
-pytest.importorskip("_cffi_backend", reason="cffi backend not available")
-
 from shared.auth.jwt_handler import (
     create_access_token,
     create_refresh_token,

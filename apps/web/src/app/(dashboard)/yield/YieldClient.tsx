@@ -8,40 +8,106 @@ import {
   Wheat,
   Calendar,
   Target,
-  AlertTriangle,
-  Loader2,
 } from "lucide-react";
-import { useYieldAnalysis } from "@/features/analytics";
-import type { YieldData } from "@/features/analytics";
 
-type YieldStatus = "growing" | "harvested" | "predicted";
-
-function getYieldStatus(record: YieldData): YieldStatus {
-  if (record.harvestDate) return "harvested";
-  if (record.variance !== 0) return "predicted";
-  return "growing";
+interface YieldRecord {
+  id: string;
+  fieldId: string;
+  fieldName: string;
+  cropType: string;
+  cropTypeAr: string;
+  season: string;
+  seasonAr: string;
+  expectedYield: number;
+  actualYield?: number;
+  unit: string;
+  harvestDate?: string;
+  status: "growing" | "harvested" | "predicted";
 }
+
+const mockYields: YieldRecord[] = [
+  {
+    id: "1",
+    fieldId: "field-1",
+    fieldName: "الحقل الشمالي",
+    cropType: "Wheat",
+    cropTypeAr: "قمح",
+    season: "Winter 2024-25",
+    seasonAr: "شتاء 2024-25",
+    expectedYield: 4.5,
+    actualYield: 4.8,
+    unit: "طن/هكتار",
+    harvestDate: "2025-01-15",
+    status: "harvested",
+  },
+  {
+    id: "2",
+    fieldId: "field-2",
+    fieldName: "الحقل الجنوبي",
+    cropType: "Barley",
+    cropTypeAr: "شعير",
+    season: "Winter 2024-25",
+    seasonAr: "شتاء 2024-25",
+    expectedYield: 3.8,
+    unit: "طن/هكتار",
+    status: "growing",
+  },
+  {
+    id: "3",
+    fieldId: "field-3",
+    fieldName: "حقل القمح",
+    cropType: "Wheat",
+    cropTypeAr: "قمح",
+    season: "Winter 2024-25",
+    seasonAr: "شتاء 2024-25",
+    expectedYield: 5.2,
+    unit: "طن/هكتار",
+    status: "predicted",
+  },
+  {
+    id: "4",
+    fieldId: "field-4",
+    fieldName: "بستان النخيل",
+    cropType: "Date Palm",
+    cropTypeAr: "نخيل",
+    season: "2024",
+    seasonAr: "2024",
+    expectedYield: 80,
+    actualYield: 85,
+    unit: "كجم/شجرة",
+    harvestDate: "2024-10-20",
+    status: "harvested",
+  },
+  {
+    id: "5",
+    fieldId: "field-5",
+    fieldName: "الصوب الزراعية",
+    cropType: "Tomato",
+    cropTypeAr: "طماطم",
+    season: "Winter 2024-25",
+    seasonAr: "شتاء 2024-25",
+    expectedYield: 120,
+    unit: "طن/هكتار",
+    status: "growing",
+  },
+];
 
 export default function YieldClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const { data: yieldData = [], isLoading, error } = useYieldAnalysis();
-
   const filteredYields = useMemo(() => {
-    return yieldData.filter((record) => {
+    return mockYields.filter((record) => {
       const matchesSearch =
         !searchTerm ||
-        record.fieldNameAr.includes(searchTerm) ||
-        record.fieldName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.fieldName.includes(searchTerm) ||
         record.cropTypeAr.includes(searchTerm);
-      const status = getYieldStatus(record);
-      const matchesStatus = statusFilter === "all" || status === statusFilter;
+      const matchesStatus = statusFilter === "all" || record.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [yieldData, searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter]);
 
-  const getStatusBadge = (status: YieldStatus) => {
+  const getStatusBadge = (status: YieldRecord["status"]) => {
     const styles = {
       growing: "bg-green-100 text-green-800",
       harvested: "bg-blue-100 text-blue-800",
@@ -59,41 +125,19 @@ export default function YieldClient() {
     );
   };
 
-  const getYieldComparison = (variance: number) => {
-    if (variance === 0) return null;
-    const isPositive = variance >= 0;
+  const getYieldComparison = (expected: number, actual?: number) => {
+    if (!actual) return null;
+    const diff = ((actual - expected) / expected) * 100;
+    const isPositive = diff >= 0;
     return (
       <span className={`text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {isPositive ? "+" : ""}{variance.toFixed(1)}%
+        {isPositive ? "+" : ""}{diff.toFixed(1)}%
       </span>
     );
   };
 
-  const harvestedCount = yieldData.filter((r) => getYieldStatus(r) === "harvested").length;
-  const growingCount = yieldData.filter((r) => getYieldStatus(r) === "growing").length;
-  const avgVariance = yieldData.length > 0
-    ? yieldData.reduce((sum, r) => sum + r.variance, 0) / yieldData.length
-    : 0;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-sahool-green-600" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600">فشل في تحميل بيانات المحصول</p>
-          <p className="text-gray-500 text-sm">Failed to load yield data</p>
-        </div>
-      </div>
-    );
-  }
+  const harvestedCount = mockYields.filter((r) => r.status === "harvested").length;
+  const growingCount = mockYields.filter((r) => r.status === "growing").length;
 
   return (
     <div className="space-y-6">
@@ -114,7 +158,7 @@ export default function YieldClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي الحقول</div>
-              <div className="text-xl font-bold text-gray-900">{yieldData.length}</div>
+              <div className="text-xl font-bold text-gray-900">{mockYields.length}</div>
             </div>
           </div>
         </div>
@@ -147,9 +191,7 @@ export default function YieldClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">متوسط الأداء</div>
-              <div className="text-xl font-bold text-yellow-600">
-                {avgVariance >= 0 ? "+" : ""}{avgVariance.toFixed(1)}%
-              </div>
+              <div className="text-xl font-bold text-yellow-600">+8%</div>
             </div>
           </div>
         </div>
@@ -206,44 +248,30 @@ export default function YieldClient() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredYields.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                    لا توجد بيانات محصول
+              {filteredYields.map((record) => (
+                <tr key={record.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
+                        <Wheat className="w-5 h-5 text-sahool-green-600" />
+                      </div>
+                      <div className="font-medium text-gray-900">{record.fieldName}</div>
+                    </div>
                   </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{record.cropTypeAr}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{record.seasonAr}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {record.expectedYield} {record.unit}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {record.actualYield ? `${record.actualYield} ${record.unit}` : "-"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {getYieldComparison(record.expectedYield, record.actualYield) || "-"}
+                  </td>
+                  <td className="px-4 py-3">{getStatusBadge(record.status)}</td>
                 </tr>
-              ) : (
-                filteredYields.map((record) => {
-                  const status = getYieldStatus(record);
-                  return (
-                    <tr key={record.fieldId} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
-                            <Wheat className="w-5 h-5 text-sahool-green-600" />
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900">{record.fieldNameAr}</div>
-                            <div className="text-sm text-gray-500">{record.fieldName}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{record.cropTypeAr}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{record.season}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {record.expectedYield.toLocaleString()} كجم
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {record.totalYield > 0 ? `${record.totalYield.toLocaleString()} كجم` : "-"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {getYieldComparison(record.variance) || "-"}
-                      </td>
-                      <td className="px-4 py-3">{getStatusBadge(status)}</td>
-                    </tr>
-                  );
-                })
-              )}
+              ))}
             </tbody>
           </table>
         </div>

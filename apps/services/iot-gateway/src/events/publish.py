@@ -3,22 +3,12 @@ Event Publisher - SAHOOL IoT Gateway
 Publish IoT events to NATS JetStream
 """
 
-from __future__ import annotations
-
 import json
-import logging
 import os
 import uuid
 from datetime import UTC, datetime, timezone
 
-_nats_available = False
-try:
-    from nats.aio.client import Client as NATS
-
-    _nats_available = True
-except ImportError:
-    NATS = None  # type: ignore[assignment,misc]
-    logging.getLogger(__name__).warning("nats-py not available, event publishing disabled")
+from nats.aio.client import Client as NATS
 
 from .types import (
     DEVICE_ALERT,
@@ -65,7 +55,7 @@ class EventEnvelope:
         tenant_id: str,
         correlation_id: str,
         payload: dict,
-    ) -> EventEnvelope:
+    ) -> "EventEnvelope":
         return cls(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
@@ -107,8 +97,6 @@ class IoTPublisher:
         """Connect to NATS server"""
         if self._connected:
             return
-        if not _nats_available:
-            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
 
         self.nc = NATS()
         try:

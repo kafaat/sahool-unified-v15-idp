@@ -142,8 +142,6 @@ class SyncQueue:
         device_id: str = "",
     ):
         """Initialize the sync queue."""
-        if not tenant_id:
-            raise ValueError("tenant_id is required for SyncQueue")
         self.config = config or SyncQueueConfig()
         self.tenant_id = tenant_id
         self.device_id = device_id

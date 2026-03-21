@@ -16,12 +16,12 @@ part 'migration_integration_test.g.dart';
 
 /// Test database that mimics the structure of AppDatabase
 /// but without SQLCipher encryption for testing
-@DriftDatabase(tables: [TestTasks, TestOutbox, TestFields, TestSyncLogs, TestSyncEvents, TestCachedUsers, TestCachedUserProfiles])
+@DriftDatabase(tables: [TestTasks, TestOutbox, TestFields, TestSyncLogs, TestSyncEvents])
 class TestDatabase extends _$TestDatabase {
   TestDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -78,12 +78,6 @@ class TestDatabase extends _$TestDatabase {
             } catch (_) {
               // Column might already exist
             }
-          }
-
-          if (from < 6 && to >= 6) {
-            // v6: Add cached_users and cached_user_profiles tables
-            await m.createTable(testCachedUsers);
-            await m.createTable(testCachedUserProfiles);
           }
         },
       );
@@ -148,49 +142,6 @@ class TestSyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Test table mirroring CachedUsers from database.dart
-@TableIndex(name: 'test_cached_users_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'test_cached_users_email_idx', columns: {#email})
-class TestCachedUsers extends Table {
-  TextColumn get id => text()();
-  TextColumn get email => text()();
-  TextColumn get firstName => text().nullable()();
-  TextColumn get lastName => text().nullable()();
-  TextColumn get firstNameAr => text().nullable()();
-  TextColumn get lastNameAr => text().nullable()();
-  TextColumn get phone => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('FARMER'))();
-  TextColumn get status => text().withDefault(const Constant('ACTIVE'))();
-  BoolColumn get emailVerified => boolean().withDefault(const Constant(false))();
-  BoolColumn get phoneVerified => boolean().withDefault(const Constant(false))();
-  TextColumn get tenantId => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  IntColumn get failedLoginAttempts => integer().withDefault(const Constant(0))();
-  DateTimeColumn get lockoutUntil => dateTime().nullable()();
-  DateTimeColumn get lastLoginAt => dateTime().nullable()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-  BoolColumn get synced => boolean().withDefault(const Constant(false))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// Test table mirroring CachedUserProfiles from database.dart
-class TestCachedUserProfiles extends Table {
-  TextColumn get userId => text()();
-  TextColumn get nationalId => text().nullable()();
-  DateTimeColumn get dateOfBirth => dateTime().nullable()();
-  TextColumn get address => text().nullable()();
-  TextColumn get city => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get country => text().withDefault(const Constant('SA')).nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {userId};
-}
-
 void main() {
   late TestDatabase db;
 
@@ -221,7 +172,7 @@ void main() {
 
     test('should have correct schema version', () async {
       final result = await db.customSelect('PRAGMA user_version').getSingle();
-      expect(result.read<int>('user_version'), equals(6));
+      expect(result.read<int>('user_version'), equals(5));
     });
   });
 
@@ -414,84 +365,6 @@ void main() {
         "SELECT COUNT(*) as count FROM test_tasks WHERE id LIKE 'batch-task-%'",
       ).getSingle();
       expect(count.read<int>('count'), equals(100));
-    });
-  });
-
-  group('CachedUsers Table (v6)', () {
-    test('should insert and query cached users', () async {
-      await db.into(db.testCachedUsers).insert(TestCachedUsersCompanion.insert(
-        id: 'user-1',
-        email: 'farmer@sahool.app',
-        firstName: const Value('Ahmad'),
-        lastName: const Value('Al-Rashid'),
-        firstNameAr: const Value('أحمد'),
-        lastNameAr: const Value('الراشد'),
-        role: const Value('FARMER'),
-        status: const Value('ACTIVE'),
-        tenantId: const Value('tenant-1'),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ));
-
-      final users = await db.select(db.testCachedUsers).get();
-      expect(users.length, equals(1));
-      expect(users.first.email, equals('farmer@sahool.app'));
-      expect(users.first.firstNameAr, equals('أحمد'));
-      expect(users.first.role, equals('FARMER'));
-      expect(users.first.synced, isFalse);
-    });
-
-    test('should insert and query cached user profiles', () async {
-      // Insert user first (profiles reference users)
-      await db.into(db.testCachedUsers).insert(TestCachedUsersCompanion.insert(
-        id: 'user-profile-1',
-        email: 'farmer2@sahool.app',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ));
-
-      await db.into(db.testCachedUserProfiles).insert(TestCachedUserProfilesCompanion.insert(
-        userId: 'user-profile-1',
-        nationalId: const Value('1234567890'),
-        city: const Value('Riyadh'),
-        region: const Value('Central'),
-        country: const Value('SA'),
-        updatedAt: DateTime.now(),
-      ));
-
-      final profiles = await db.select(db.testCachedUserProfiles).get();
-      expect(profiles.length, equals(1));
-      expect(profiles.first.city, equals('Riyadh'));
-      expect(profiles.first.country, equals('SA'));
-    });
-
-    test('should have required columns in cached_users table', () async {
-      final columns = await db.customSelect(
-        "PRAGMA table_info(test_cached_users)",
-      ).get();
-
-      final columnNames = columns.map((c) => c.read<String>('name')).toList();
-      expect(columnNames, contains('id'));
-      expect(columnNames, contains('email'));
-      expect(columnNames, contains('first_name'));
-      expect(columnNames, contains('first_name_ar'));
-      expect(columnNames, contains('tenant_id'));
-      expect(columnNames, contains('role'));
-      expect(columnNames, contains('status'));
-      expect(columnNames, contains('synced'));
-    });
-
-    test('should have required columns in cached_user_profiles table', () async {
-      final columns = await db.customSelect(
-        "PRAGMA table_info(test_cached_user_profiles)",
-      ).get();
-
-      final columnNames = columns.map((c) => c.read<String>('name')).toList();
-      expect(columnNames, contains('user_id'));
-      expect(columnNames, contains('national_id'));
-      expect(columnNames, contains('city'));
-      expect(columnNames, contains('region'));
-      expect(columnNames, contains('country'));
     });
   });
 

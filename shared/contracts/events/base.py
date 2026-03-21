@@ -148,55 +148,21 @@ class BaseEvent:
         schema = self._load_schema(self.SCHEMA_PATH)
         event_data = self.to_dict()
 
-        # jsonschema >= 4.18.0 replaced RefResolver with a Registry-based API.
-        # The ``registry`` kwarg was added to Draft7Validator at that point.
-        # We detect support via inspect so the code works across all versions.
-        import inspect as _inspect
+        # Create a registry with local schemas for $ref resolution
+        from referencing import Registry, Resource
 
-        _supports_registry = "registry" in _inspect.signature(
-            jsonschema.Draft7Validator.__init__
-        ).parameters
+        registry = Registry()
 
-        if _supports_registry:
-            # Use the modern Registry API (jsonschema >= 4.18, requires
-            # the ``referencing`` package which ships as a dependency).
-            # If ``referencing`` is somehow absent (e.g. installed in a stripped
-            # container without it), fall back to the RefResolver path below.
-            try:
-                from referencing import Registry, Resource
-            except ImportError:
-                _supports_registry = False
-            else:
-                registry = Registry()
+        # Load all local schemas to resolve $ref references
+        for schema_file in _SCHEMA_DIR.glob("*.json"):
+            local_schema = self._load_schema(schema_file.name)
+            schema_id = local_schema.get("$id", f"file://{schema_file}")
+            # Also register by filename for relative refs
+            resource = Resource.from_contents(local_schema)
+            registry = registry.with_resource(schema_id, resource)
+            registry = registry.with_resource(schema_file.name, resource)
 
-                # Load all local schemas to resolve $ref references
-                for schema_file in _SCHEMA_DIR.glob("*.json"):
-                    local_schema = self._load_schema(schema_file.name)
-                    schema_id = local_schema.get("$id", f"file://{schema_file}")
-                    # Also register by filename for relative refs
-                    resource = Resource.from_contents(local_schema)
-                    registry = registry.with_resource(schema_id, resource)
-                    registry = registry.with_resource(schema_file.name, resource)
-
-                validator = jsonschema.Draft7Validator(schema, registry=registry)
-
-        if not _supports_registry:
-            # Fallback for jsonschema < 4.18 or when the optional
-            # ``referencing`` package is not installed.
-            store: dict[str, Any] = {}
-            for schema_file in _SCHEMA_DIR.glob("*.json"):
-                local_schema = self._load_schema(schema_file.name)
-                schema_id = local_schema.get("$id", f"file://{schema_file}")
-                store[schema_id] = local_schema
-                store[schema_file.name] = local_schema
-
-            resolver = jsonschema.RefResolver(
-                base_uri=schema.get("$id", ""),
-                referrer=schema,
-                store=store,
-            )
-            validator = jsonschema.Draft7Validator(schema, resolver=resolver)
-
+        validator = jsonschema.Draft7Validator(schema, registry=registry)
         validator.validate(event_data)
         return True
 

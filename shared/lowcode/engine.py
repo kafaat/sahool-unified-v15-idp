@@ -194,19 +194,7 @@ class FieldDefinition:
     max_value: float | None = None
     min_length: int | None = None
     max_length: int | None = None
-    pattern: str | None = None  # Regex (validated, max 256 chars)
-
-    def __post_init__(self):
-        """Validate regex pattern to prevent ReDoS."""
-        if self.pattern is not None:
-            if len(self.pattern) > 256:
-                raise ValueError(f"Regex pattern too long ({len(self.pattern)} > 256 chars)")
-            import re
-
-            try:
-                re.compile(self.pattern)
-            except re.error as e:
-                raise ValueError(f"Invalid regex pattern: {e}")
+    pattern: str | None = None  # Regex
 
     # Relations
     relation_model: str | None = None

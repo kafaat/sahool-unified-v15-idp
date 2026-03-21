@@ -15,8 +15,9 @@ Use this as a reference when enhancing existing services.
 """
 
 # Observability imports
-# NOTE: In production, install shared modules as a package.
-# Do NOT use sys.path manipulation — it enables path injection attacks.
+# NOTE: In production, install shared modules as a package instead of using sys.path
+# This is a temporary solution for the template example
+import sys
 import uuid
 from contextlib import asynccontextmanager
 
@@ -24,10 +25,12 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from shared.middleware.rate_limit import RateLimiter, TierConfig
+sys.path.insert(0, "../../../../shared")
+
+from middleware.rate_limit import RateLimiter, TierConfig
 
 # Security imports
-from shared.security.config import (
+from security.config import (
     get_config,
     get_cors_origins,
     get_environment,
@@ -35,7 +38,7 @@ from shared.security.config import (
     is_production,
 )
 
-from shared.observability import (
+from observability import (
     HealthChecker,
     MetricsCollector,
     clear_request_context,
@@ -160,13 +163,11 @@ app = FastAPI(
 # Middleware Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# CORS — disable credentials when wildcard origin is used (browser security)
-_cors_origins = get_cors_origins()
-_allow_creds = "*" not in _cors_origins
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_credentials=_allow_creds,
+    allow_origins=get_cors_origins(),
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -141,57 +141,7 @@ class SyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Cached User Table for offline-first user data access
-/// جدول المستخدم المخزن مؤقتاً للوصول بدون اتصال
-@TableIndex(name: 'cached_users_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'cached_users_email_idx', columns: {#email})
-class CachedUsers extends Table {
-  TextColumn get id => text()();
-  TextColumn get email => text()();
-  TextColumn get firstName => text().nullable()();
-  TextColumn get lastName => text().nullable()();
-  TextColumn get firstNameAr => text().nullable()();
-  TextColumn get lastNameAr => text().nullable()();
-  TextColumn get phone => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('FARMER'))();
-  TextColumn get status =>
-      text().withDefault(const Constant('ACTIVE'))(); // ACTIVE/INACTIVE/SUSPENDED/PENDING
-  BoolColumn get emailVerified =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get phoneVerified =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get tenantId => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  IntColumn get failedLoginAttempts =>
-      integer().withDefault(const Constant(0))();
-  DateTimeColumn get lockoutUntil => dateTime().nullable()();
-  DateTimeColumn get lastLoginAt => dateTime().nullable()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-  BoolColumn get synced => boolean().withDefault(const Constant(false))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// Cached User Profile Table for extended user data
-/// جدول الملف الشخصي المخزن مؤقتاً
-class CachedUserProfiles extends Table {
-  TextColumn get userId => text()();
-  TextColumn get nationalId => text().nullable()();
-  DateTimeColumn get dateOfBirth => dateTime().nullable()();
-  TextColumn get address => text().nullable()();
-  TextColumn get city => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get country =>
-      text().withDefault(const Constant('SA')).nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {userId};
-}
-
-@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents, CachedUsers, CachedUserProfiles])
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
   /// Callback for migration completion events
   void Function(MigrationResult)? onMigrationComplete;
@@ -202,7 +152,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor, {this.onMigrationComplete});
 
   @override
-  int get schemaVersion => currentSchemaVersion; // v6: CachedUsers + CachedUserProfiles
+  int get schemaVersion => currentSchemaVersion; // v5: Migration tracking + metadata
 
   @override
   MigrationStrategy get migration => SahoolMigrationStrategy.create(

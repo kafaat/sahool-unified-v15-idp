@@ -3,8 +3,6 @@ SAHOOL Alert Service - NATS Events
 أحداث NATS لخدمة التنبيهات
 """
 
-from __future__ import annotations
-
 import asyncio
 import json
 import logging
@@ -13,18 +11,10 @@ from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from uuid import uuid4
 
+import nats
+from nats.aio.client import Client as NatsClient
+
 logger = logging.getLogger(__name__)
-
-_nats_available = False
-try:
-    import nats
-    from nats.aio.client import Client as NatsClient
-
-    _nats_available = True
-except ImportError:
-    nats = None  # type: ignore[assignment]
-    NatsClient = None  # type: ignore[assignment,misc]
-    logger.warning("nats-py not available, event publishing disabled")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -65,9 +55,6 @@ class AlertEventPublisher:
 
     async def connect(self) -> bool:
         """الاتصال بـ NATS"""
-        if not _nats_available:
-            logger.warning("NATS library not installed, publisher disabled")
-            return False
         nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
         try:
             self._nc = await nats.connect(nats_url)
@@ -201,9 +188,6 @@ class AlertEventSubscriber:
 
     async def connect(self) -> bool:
         """الاتصال بـ NATS"""
-        if not _nats_available:
-            logger.warning("NATS library not installed, subscriber disabled")
-            return False
         nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
         try:
             self._nc = await nats.connect(nats_url)

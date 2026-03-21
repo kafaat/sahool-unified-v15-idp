@@ -509,10 +509,6 @@ class PredictiveMaintenanceEngine:
         Register equipment with the engine
         تسجيل المعدات مع المحرك
         """
-        if hasattr(equipment, "tenant_id") and equipment.tenant_id and equipment.tenant_id != self.tenant_id:
-            raise ValueError(
-                f"Equipment tenant_id '{equipment.tenant_id}' does not match engine tenant_id '{self.tenant_id}'"
-            )
         self._equipment[equipment.id] = equipment
 
     def add_service_record(self, record: ServiceRecord) -> None:
@@ -592,11 +588,8 @@ class PredictiveMaintenanceEngine:
                 confidence=0,
             )
 
-        # Get expected life for this component (guard against zero/negative)
-        expected_life = max(
-            COMPONENT_LIFE_HOURS.get(equipment.equipment_type, {}).get(component, 5000),
-            1,
-        )
+        # Get expected life for this component
+        expected_life = COMPONENT_LIFE_HOURS.get(equipment.equipment_type, {}).get(component, 5000)
 
         # Calculate wear based on operating hours
         total_hours = equipment.total_hours

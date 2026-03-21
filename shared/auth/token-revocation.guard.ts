@@ -138,16 +138,9 @@ export class TokenRevocationGuard implements CanActivate {
         throw error;
       }
 
-      // SECURITY: Fail closed - deny access if Redis is unavailable
-      // أمان: رفض الوصول إذا كان Redis غير متاح
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      this.logger.error(
-        `Token revocation check failed (fail-closed): ${errorMessage}`,
-      );
-      throw new UnauthorizedException(
-        "Token validation service temporarily unavailable",
-      );
+      // Log error but allow access (fail open)
+      this.logger.error(`Error checking token revocation: ${error.message}`);
+      return true;
     }
   }
 
@@ -248,15 +241,8 @@ export class TokenRevocationInterceptor implements NestInterceptor {
           throw error;
         }
 
-        // SECURITY: Fail closed - deny access if Redis is unavailable
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        this.logger.error(
-          `Token revocation check failed (fail-closed): ${errorMessage}`,
-        );
-        throw new UnauthorizedException(
-          "Token validation service temporarily unavailable",
-        );
+        // Log error but continue (fail open)
+        this.logger.error(`Error checking token revocation: ${error.message}`);
       }
     }
 

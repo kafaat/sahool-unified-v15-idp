@@ -582,11 +582,7 @@ jobs:
       - name: Create empty SARIF on timeout
         if: always() && (steps.checkov.outcome == 'failure' || steps.checkov.outcome == 'cancelled')
         run: |
-          if [ -d checkov-results.sarif ]; then
-            # Checkov created a directory; write the fallback SARIF inside it
-            echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Checkov","version":"3.0.0"}},"results":[]}]}' > checkov-results.sarif/results_sarif.sarif
-            echo "⚠️ Checkov created a directory – empty SARIF written inside it"
-          elif [ ! -f checkov-results.sarif ]; then
+          if [ ! -f checkov-results.sarif ]; then
             echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Checkov","version":"3.0.0"}},"results":[]}]}' > checkov-results.sarif
             echo "⚠️ Checkov timed out or failed - empty SARIF created"
           fi

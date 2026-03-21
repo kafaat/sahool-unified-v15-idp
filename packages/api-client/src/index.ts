@@ -29,16 +29,6 @@ import type {
   Severity,
   DiagnosisStatus,
   LogLevel,
-  SatelliteTimeseries,
-  SatelliteAnalysisResult,
-  SatelliteIndices,
-  SatelliteInfo,
-  AdvisoryResponse,
-  YieldPrediction,
-  FieldIntelligenceReport,
-  BillingSubscription,
-  AstronomicalData,
-  Alert,
 } from "./types";
 import { ApiError, parseAxiosError } from "./errors";
 
@@ -158,10 +148,9 @@ export class SahoolApiClient {
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      // Add tenant ID header for multi-tenant isolation.
-      // Use AxiosHeaders .set() for case-insensitive consistency (Axios v1+).
+      // Add tenant ID header for multi-tenant isolation
       if (this.tenantId) {
-        config.headers.set(CUSTOM_HEADERS.TENANT_ID, this.tenantId);
+        config.headers[CUSTOM_HEADERS.TENANT_ID] = this.tenantId;
       }
 
       return config;
@@ -1020,10 +1009,10 @@ export class SahoolApiClient {
   async getSatelliteTimeseries(
     fieldId: string,
     options?: { from?: string; to?: string },
-  ): Promise<SatelliteTimeseries[]> {
+  ): Promise<unknown[]> {
     const endpoint = `${this.urls.satellite}/api/v1/timeseries/${fieldId}`;
     return this.safeExecute(
-      () => this.request<SatelliteTimeseries[]>(endpoint, { params: options }),
+      () => this.request<unknown[]>(endpoint, { params: options }),
       [],
       { endpoint, method: "GET" },
     );
@@ -1032,7 +1021,7 @@ export class SahoolApiClient {
   async requestSatelliteAnalysis(
     fieldId: string,
     analysisType: "ndvi" | "moisture" | "thermal",
-  ): Promise<SatelliteAnalysisResult | null> {
+  ): Promise<unknown | null> {
     const endpoint = `${this.urls.satellite}/api/v1/analyze`;
     return this.safeExecute(
       () =>
@@ -1045,7 +1034,7 @@ export class SahoolApiClient {
     );
   }
 
-  async getSatelliteIndices(fieldId: string): Promise<SatelliteIndices | null> {
+  async getSatelliteIndices(fieldId: string): Promise<unknown | null> {
     const endpoint = `${this.urls.satellite}/api/v1/indices/${fieldId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
@@ -1053,7 +1042,7 @@ export class SahoolApiClient {
     });
   }
 
-  async getAvailableSatellites(): Promise<{ satellites: SatelliteInfo[] }> {
+  async getAvailableSatellites(): Promise<{ satellites: unknown[] }> {
     const endpoint = `${this.urls.satellite}/api/v1/satellites`;
     return this.safeExecute(
       () => this.request(endpoint),
@@ -1174,7 +1163,7 @@ export class SahoolApiClient {
   async getAdvisoryRecommendations(
     fieldId: string,
     cropType?: string,
-  ): Promise<AdvisoryResponse> {
+  ): Promise<{ recommendations: unknown[]; sources: unknown[] }> {
     const endpoint = `${this.urls.advisory}/api/v1/advisory/recommendations`;
     return this.safeExecute(
       () =>
@@ -1190,7 +1179,7 @@ export class SahoolApiClient {
   async getYieldPrediction(
     fieldId: string,
     cropType: string,
-  ): Promise<YieldPrediction | null> {
+  ): Promise<unknown | null> {
     const endpoint = `${this.urls.yieldPrediction}/api/v1/yield/predict`;
     return this.safeExecute(
       () =>
@@ -1203,7 +1192,7 @@ export class SahoolApiClient {
     );
   }
 
-  async getFieldIntelligence(fieldId: string): Promise<FieldIntelligenceReport | null> {
+  async getFieldIntelligence(fieldId: string): Promise<unknown | null> {
     const endpoint = `${this.urls.fieldIntelligence}/api/v1/field-intelligence/${fieldId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
@@ -1220,7 +1209,7 @@ export class SahoolApiClient {
     type?: string;
     acknowledged?: boolean;
     limit?: number;
-  }): Promise<{ data: Alert[]; meta: { total: number; page: number; limit: number } }> {
+  }): Promise<{ data: unknown[]; meta: { total: number; page: number; limit: number } }> {
     const endpoint = `${this.urls.alerts}/api/v1/alerts`;
     return this.safeExecute(
       () => this.request(endpoint, { params }),
@@ -1233,7 +1222,7 @@ export class SahoolApiClient {
   // Billing API
   // ─────────────────────────────────────────────────────────────────────────
 
-  async getBillingSubscription(): Promise<BillingSubscription | null> {
+  async getBillingSubscription(): Promise<unknown | null> {
     const endpoint = `${this.urls.billing}/api/v1/billing/subscription`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
@@ -1248,7 +1237,7 @@ export class SahoolApiClient {
   async getAstronomicalToday(
     lat?: number,
     lon?: number,
-  ): Promise<AstronomicalData | null> {
+  ): Promise<unknown | null> {
     const endpoint = `${this.urls.astronomicalCalendar}/api/v1/astronomical/today`;
     return this.safeExecute(
       () => this.request(endpoint, { params: { lat, lon } }),
@@ -1266,7 +1255,7 @@ export class SahoolApiClient {
     url: string,
     formData: FormData,
     timeout?: number,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<unknown> {
     return this.client.post(url, formData, {
       headers: { "Content-Type": "multipart/form-data" },
       timeout: timeout || 120000,
@@ -1303,7 +1292,7 @@ export class SahoolApiClient {
   // Weather by Location API (direct service access)
   // ─────────────────────────────────────────────────────────────────────────
 
-  async getWeatherByLocation(locationId: string): Promise<WeatherData | null> {
+  async getWeatherByLocation(locationId: string): Promise<unknown | null> {
     const endpoint = `${this.urls.weather}/api/v1/current/${locationId}`;
     return this.safeExecute(() => this.request(endpoint), null, {
       endpoint,
@@ -1314,7 +1303,7 @@ export class SahoolApiClient {
   async getWeatherForecastByLocation(
     locationId: string,
     days = 7,
-  ): Promise<WeatherForecast | null> {
+  ): Promise<unknown | null> {
     const endpoint = `${this.urls.weather}/api/v1/forecast/${locationId}`;
     return this.safeExecute(
       () => this.request(endpoint, { params: { days } }),
@@ -1323,7 +1312,7 @@ export class SahoolApiClient {
     );
   }
 
-  async getWeatherLocations(): Promise<{ locations: Array<{ id: string; name: string; name_ar?: string }> }> {
+  async getWeatherLocations(): Promise<{ locations: unknown[] }> {
     const endpoint = `${this.urls.weather}/api/v1/locations`;
     return this.safeExecute(
       () => this.request(endpoint),

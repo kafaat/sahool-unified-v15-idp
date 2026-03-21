@@ -8,7 +8,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 .PHONY: help dev build up down restart logs clean test health
-.PHONY: test-all test-contract test-infrastructure test-e2e coverage-report
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
@@ -289,40 +288,6 @@ test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in D
 	docker compose -f $(COMPOSE_TEST) up --build --abort-on-container-exit
 	docker compose -f $(COMPOSE_TEST) down
 	@echo "$(GREEN)✅ اكتملت اختبارات Docker - Docker tests complete!$(RESET)"
-
-test-all: ## تشغيل كل الاختبارات مع Docker - Run all tests with Docker stack
-	@echo "$(BLUE)🧪 تشغيل كل الاختبارات - Running all tests...$(RESET)"
-	docker compose -f $(COMPOSE_TEST) up -d --wait
-	$(PYTHON) -m pytest tests/ -v --tb=short \
-		--cov=apps/services \
-		--cov=shared \
-		--cov-report=html \
-		--cov-report=term-missing \
-		-n auto; \
-	STATUS=$$?; \
-	docker compose -f $(COMPOSE_TEST) down; \
-	exit $$STATUS
-	@echo "$(GREEN)✅ اكتملت جميع الاختبارات - All tests complete!$(RESET)"
-
-test-contract: ## تشغيل اختبارات العقود - Run contract tests
-	@echo "$(BLUE)📋 تشغيل اختبارات العقود - Running contract tests...$(RESET)"
-	$(PYTHON) -m pytest tests/contract/ -v
-	@echo "$(GREEN)✅ اكتملت اختبارات العقود - Contract tests complete!$(RESET)"
-
-test-infrastructure: ## تشغيل اختبارات البنية التحتية - Run infrastructure tests
-	@echo "$(BLUE)🏗️ تشغيل اختبارات البنية التحتية - Running infrastructure tests...$(RESET)"
-	$(PYTHON) -m pytest tests/infrastructure/ -v
-	@echo "$(GREEN)✅ اكتملت اختبارات البنية التحتية - Infrastructure tests complete!$(RESET)"
-
-test-e2e: ## تشغيل اختبارات E2E - Run end-to-end tests (opens browser)
-	@echo "$(BLUE)🌐 تشغيل اختبارات E2E - Running E2E tests...$(RESET)"
-	$(PYTHON) -m pytest tests/e2e/ -v
-	@echo "$(GREEN)✅ اكتملت اختبارات E2E - E2E tests complete!$(RESET)"
-
-coverage-report: ## إنشاء تقرير التغطية - Generate HTML coverage report
-	@echo "$(BLUE)📊 إنشاء تقرير التغطية - Generating coverage report...$(RESET)"
-	coverage html
-	@echo "$(GREEN)✅ تقرير التغطية: htmlcov/index.html - Coverage report: htmlcov/index.html$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Utilities - الأدوات المساعدة

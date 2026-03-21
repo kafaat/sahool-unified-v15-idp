@@ -56,35 +56,25 @@ _URL_CREDENTIAL_RE = re.compile(
     r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@"
 )
 
-# Matches sensitive query parameters (case-insensitive):
-#   ?password=secret&token=abc  ->  ?password=***&token=***
-_SENSITIVE_QUERY_PARAM_RE = re.compile(
-    r"(?i)((?:password|passwd|secret|token|api[_-]?key|access[_-]?key|auth|credential|private[_-]?key)"
-    r")\s*=\s*([^&\s]+)",
-)
-
 
 def sanitize_url(url: str) -> str:
     """
     Mask credentials embedded in a connection URL before logging.
 
     Handles common patterns:
-      nats://user:password@host:4222          ->  nats://***@host:4222
-      redis://:password@host:6379/0           ->  redis://***@host:6379/0
-      postgresql://user:pass@host/db          ->  postgresql://***@host/db
-      http://host/path?password=secret&x=1    ->  http://host/path?password=***&x=1
+      nats://user:password@host:4222  ->  nats://***@host:4222
+      redis://:password@host:6379/0   ->  redis://***@host:6379/0
+      postgresql://user:pass@host/db  ->  postgresql://***@host/db
 
     Args:
         url: A connection URL that may contain embedded credentials.
 
     Returns:
-        The URL with credentials replaced by '***'.
+        The URL with the userinfo portion replaced by '***'.
     """
     if not isinstance(url, str):
         return str(url)
-    result = _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
-    result = _SENSITIVE_QUERY_PARAM_RE.sub(r"\1=***", result)
-    return result
+    return _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
 
 
 def sanitize_urls(urls: list[str] | str) -> list[str] | str:
@@ -303,15 +293,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 userId=user_id,
             )
 
-        # Log incoming request — sanitize query params to avoid leaking credentials
-        raw_qs = str(request.query_params) if request.query_params else None
-        safe_qs = sanitize_url(raw_qs) if raw_qs else None
-
+        # Log incoming request
         self.logger.info(
             "http_request_started",
             method=request.method,
             path=request.url.path,
-            query_params=safe_qs,
+            query_params=str(request.query_params) if request.query_params else None,
             client_ip=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent"),
         )
@@ -348,15 +335,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
 
-            # Log error — sanitize error message to avoid leaking credentials
-            safe_error = sanitize_url(str(e))
+            # Log error
             self.logger.error(
                 "http_request_failed",
                 method=request.method,
                 path=request.url.path,
                 duration_ms=round(duration_ms, 2),
                 error_type=type(e).__name__,
-                error_message=safe_error,
+                error_message=str(e),
                 exc_info=True,
             )
             raise

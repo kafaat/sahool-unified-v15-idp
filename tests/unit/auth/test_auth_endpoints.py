@@ -42,7 +42,7 @@ try:
         refresh_access_token,
     )
     from shared.auth.models import User
-except (ImportError, RuntimeError) as e:
+except ImportError as e:
     pytest.skip(f"Auth dependencies not available: {e}", allow_module_level=True)
 
 

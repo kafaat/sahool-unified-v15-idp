@@ -502,12 +502,6 @@ class BatchExecutor:
         self._cancel_requested = False
         self._pause_requested = False
 
-        if not batch.tenant_id:
-            raise BatchExecutionError(
-                "tenant_id is required for batch execution",
-                "معرف المستأجر مطلوب لتنفيذ الدفعة",
-            )
-
         start_time = time.time()
         items = batch.get_items()
         total_items = len(items)

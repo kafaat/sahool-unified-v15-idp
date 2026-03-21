@@ -58,7 +58,6 @@ DIFFICULTY_AR = {
 class LearningModule:
     """A learning module | وحدة تعليمية"""
 
-    tenant_id: str = ""
     module_id: str = ""
     title: str = ""
     title_ar: str = ""
@@ -81,7 +80,6 @@ class LearningModule:
 class LearningPath:
     """A structured learning path | مسار تعليمي"""
 
-    tenant_id: str = ""
     path_id: str = ""
     title: str = ""
     title_ar: str = ""
@@ -117,7 +115,6 @@ class FarmerProgress:
 class DigitalCertificate:
     """Digital certificate | شهادة رقمية"""
 
-    tenant_id: str = ""
     certificate_id: str = ""
     farmer_id: str = ""
     path_id: str = ""
@@ -360,12 +357,9 @@ class EducationPlatform:
     منصة تعليم وتدريب المزارعين.
     """
 
-    def __init__(self, tenant_id: str = ""):
-        if not tenant_id:
-            raise ValueError("tenant_id is required for EducationPlatform")
-        self.tenant_id = tenant_id
+    def __init__(self):
         self._paths = self._load_paths()
-        self._progress: dict[tuple[str, str], FarmerProgress] = {}
+        self._progress: dict[str, FarmerProgress] = {}
 
     def _load_paths(self) -> list[LearningPath]:
         paths = []
@@ -427,11 +421,10 @@ class EducationPlatform:
 
     def complete_module(self, farmer_id: str, module_id: str, score_percent: float = 100.0) -> FarmerProgress:
         """Record module completion."""
-        key = (self.tenant_id, farmer_id)
-        if key not in self._progress:
-            self._progress[key] = FarmerProgress(farmer_id=farmer_id, tenant_id=self.tenant_id)
+        if farmer_id not in self._progress:
+            self._progress[farmer_id] = FarmerProgress(farmer_id=farmer_id)
 
-        progress = self._progress[key]
+        progress = self._progress[farmer_id]
 
         # Find module points
         points = 10

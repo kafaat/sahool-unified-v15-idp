@@ -66,8 +66,7 @@ def point_in_polygon(lat: float, lng: float, boundary: list[LatLng]) -> bool:
         if lng > min(p1_lng, p2_lng):
             if lng <= max(p1_lng, p2_lng):
                 if lat <= max(p1_lat, p2_lat):
-                    lat_intersect = p1_lat  # Default for vertical edges
-                    if abs(p2_lng - p1_lng) > 1e-10:
+                    if p1_lng != p2_lng:
                         lat_intersect = (lng - p1_lng) * (p2_lat - p1_lat) / (p2_lng - p1_lng) + p1_lat
 
                     if p1_lat == p2_lat or lat <= lat_intersect:
@@ -231,12 +230,9 @@ class GeofenceEngine:
             return True
         return False
 
-    def get_geofence(self, geofence_id: str, tenant_id: str | None = None) -> Geofence | None:
-        """Get a geofence by ID, optionally validating tenant ownership."""
-        geofence = self.geofences.get(geofence_id)
-        if geofence and tenant_id and geofence.tenant_id != tenant_id:
-            return None
-        return geofence
+    def get_geofence(self, geofence_id: str) -> Geofence | None:
+        """Get a geofence by ID"""
+        return self.geofences.get(geofence_id)
 
     def get_geofences_for_equipment(self, equipment_id: str) -> list[Geofence]:
         """Get all geofences associated with an equipment"""
@@ -573,13 +569,10 @@ class GeofenceEngine:
         self,
         alert_id: str,
         acknowledged_by: str,
-        tenant_id: str | None = None,
     ) -> bool:
-        """Acknowledge an alert, optionally validating tenant ownership."""
+        """Acknowledge an alert"""
         for alert in self.alerts:
             if alert.alert_id == alert_id:
-                if tenant_id and alert.tenant_id != tenant_id:
-                    return False
                 alert.acknowledged = True
                 alert.acknowledged_by = acknowledged_by
                 alert.acknowledged_at = datetime.now(UTC)

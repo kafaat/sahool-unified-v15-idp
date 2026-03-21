@@ -541,13 +541,9 @@ def assess_threshold(
         adj_economic *= 0.5
         modifiers_applied["virus_present"] = 0.5
 
-    # Calculate percentages — guard against zero/negative thresholds after modifiers
-    if adj_action <= 0:
-        adj_action = threshold.action_threshold  # Reset to unmodified value
-    if adj_economic <= 0:
-        adj_economic = threshold.economic_threshold
-    pct_action = (observed_value / adj_action * 100) if adj_action > 0 else 999.9
-    pct_economic = (observed_value / adj_economic * 100) if adj_economic > 0 else 999.9
+    # Calculate percentages
+    pct_action = (observed_value / adj_action * 100) if adj_action > 0 else float("inf")
+    pct_economic = (observed_value / adj_economic * 100) if adj_economic > 0 else float("inf")
 
     # Determine if thresholds exceeded
     exceeds_action = observed_value >= adj_action

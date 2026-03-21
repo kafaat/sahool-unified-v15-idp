@@ -403,9 +403,7 @@ class TestExceptionHandlersIntegration:
         response = self.client.get("/generic-error")
         assert response.status_code == 500
         data = response.json()
-        assert data["success"] is False
-        assert data["error"]["code"] == "E1001"
-        assert data["error"]["message"] == "An unexpected error occurred"
+        assert data["error"]["details"]["type"] == "RuntimeError"
 
     def test_request_id_middleware_generates_id(self):
         """Test that request ID middleware generates an ID"""

@@ -216,36 +216,11 @@ class FixedWindowLimiter(RateLimitStrategy):
 
         except (ConnectionError, TimeoutError, OSError) as e:
             logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
-            # SECURITY: Use in-memory fallback instead of failing open
-            return self._in_memory_check(client_id, endpoint, config)
+            # السماح بالطلب عند الفشل - Allow request on failure
+            return True, config.requests, config.period
         except ValueError as e:
             logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
-            return self._in_memory_check(client_id, endpoint, config)
-
-    # In-memory fallback counters when Redis is unavailable
-    _mem_counters: dict[str, tuple[int, float]] = {}
-
-    def _in_memory_check(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
-        """Fallback rate limiting using in-memory counters when Redis is down."""
-        now = time.time()
-        window_start = int(now / config.period) * config.period
-        key = f"{client_id}:{endpoint}:{window_start}"
-
-        count, _ = self._mem_counters.get(key, (0, window_start))
-        count += 1
-        self._mem_counters[key] = (count, window_start)
-
-        # Evict stale entries (older than 2 windows)
-        stale = [k for k, (_, ts) in self._mem_counters.items() if now - ts > config.period * 2]
-        for k in stale:
-            self._mem_counters.pop(k, None)
-
-        allowed = count <= config.requests
-        remaining = max(0, config.requests - count)
-        reset_time = int(window_start + config.period - now)
-        return allowed, remaining, reset_time
+            return True, config.requests, config.period
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
         """إعادة تعيين حدود المعدل"""
@@ -735,8 +710,7 @@ class ClientIdentifier:
         if api_key:
             # تجزئة مفتاح API للأمان
             # Hash API key for security
-            # SECURITY: Use full hash to prevent collision attacks
-            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()[:16]
             return f"apikey:{api_key_hash}"
 
         # 2. محاولة الحصول على معرف المستخدم من المصادقة

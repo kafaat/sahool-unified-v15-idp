@@ -109,21 +109,6 @@ class InputSanitizationMiddleware(BaseHTTPMiddleware):
                 body = await request.json()
                 sanitized_body = sanitize_value(body)
 
-                # Tenant isolation: detect tenant_id mismatch between JWT and request body
-                if isinstance(sanitized_body, dict) and "tenant_id" in sanitized_body:
-                    jwt_tenant_id = getattr(request.state, "tenant_id", None)
-                    if jwt_tenant_id and sanitized_body["tenant_id"] != jwt_tenant_id:
-                        logger.warning(
-                            "Tenant ID mismatch: JWT tid=%s, body tenant_id=%s",
-                            jwt_tenant_id,
-                            sanitized_body["tenant_id"],
-                        )
-                        return Response(
-                            content='{"detail":"Tenant ID mismatch"}',
-                            status_code=403,
-                            media_type="application/json",
-                        )
-
                 # Store sanitized body in request state for downstream access
                 request.state.sanitized_body = sanitized_body
             except Exception:

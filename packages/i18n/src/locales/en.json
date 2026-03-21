@@ -24,8 +24,7 @@
     "newNotifications": "New notifications",
     "profile": "Profile",
     "settings": "Settings",
-    "logout": "Logout",
-    "openMenu": "Open menu"
+    "logout": "Logout"
   },
   "auth": {
     "login": "Login",
@@ -57,31 +56,8 @@
     "logistics": "Logistics",
     "compliance": "Compliance & Quality",
     "disasterAssessment": "Disaster Assessment",
-    "irrigation": "Irrigation",
-    "cropHealth": "Crop Health",
-    "yield": "Yield Prediction",
-    "precisionAgriculture": "Precision Agriculture",
-    "iot": "IoT Devices",
-    "sensors": "Sensors",
-    "equipment": "Equipment",
-    "marketplace": "Marketplace",
-    "wallet": "Wallet",
-    "community": "Community",
-    "copilot": "AI Copilot",
-    "support": "Support",
-    "notifications": "Notifications",
-    "overview": "Overview",
-    "farmManagement": "Farm Management",
-    "waterAndIrrigation": "Water & Irrigation",
-    "cropIntelligence": "Crop Intelligence",
-    "iotAndEquipment": "IoT & Equipment",
-    "businessAndCommunity": "Business & Community",
-    "reportsAndDocs": "Reports & Docs",
-    "alertsAndNotifications": "Alerts & Notifications",
-    "tools": "Tools",
     "mainNav": "Main Navigation",
-    "version": "Version",
-    "closeMenu": "Close menu"
+    "version": "Version"
   },
   "pivotIrrigation": {
     "title": "Pivot Irrigation",

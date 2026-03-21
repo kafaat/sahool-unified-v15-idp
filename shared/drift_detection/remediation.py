@@ -314,24 +314,11 @@ class AutoRemediationEngine:
             output=f"Issue created: {issue_body['title']}",
         )
 
-    # SECURITY: Only allow known-safe executables for auto-remediation.
-    _ALLOWED_COMMANDS = frozenset({
-        "git", "ruff", "eslint", "mypy", "npx", "npm", "dart",
-        "prisma", "kubectl", "helm", "docker",
-    })
-
     async def _execute_auto_fix(self, action: RemediationAction) -> RemediationResult:
         """Apply automatic fix."""
         if action.command:
             try:
                 argv = shlex.split(action.command)
-                # SECURITY: Validate the executable against an allowlist
-                if not argv or argv[0] not in self._ALLOWED_COMMANDS:
-                    return RemediationResult(
-                        action_id=action.id,
-                        success=False,
-                        error=f"Command '{argv[0] if argv else ''}' not in allowed commands",
-                    )
                 result = subprocess.run(
                     argv,
                     shell=False,

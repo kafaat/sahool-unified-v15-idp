@@ -292,8 +292,6 @@ jobs:
           pip install numpy pillow aiofiles --quiet
           # 2FA, NATS, and additional unit test dependencies
           pip install pyotp qrcode nats-py --quiet
-          # Cryptography dependencies for bcrypt hashing (2FA backup codes)
-          pip install bcrypt cffi --quiet
 
       - name: Run unified tests with coverage (parallel)
         run: |

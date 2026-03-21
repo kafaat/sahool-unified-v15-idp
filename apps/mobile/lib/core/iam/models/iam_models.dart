@@ -13,14 +13,6 @@ import 'package:flutter/foundation.dart';
 
 /// Complete user identity with all attributes
 /// الهوية الكاملة للمستخدم مع جميع الخصائص
-///
-/// NOTE: This model has field name differences from the backend User model
-/// (Prisma schema). When possible, prefer using `User` from `auth_service.dart`
-/// for data synced from the backend. Field mapping:
-///   - displayName → name (backend)
-///   - displayNameAr → nameAr (backend)
-///   - username → not in backend User model
-///   - tenantIds → single tenantId in backend
 @immutable
 class UserIdentity {
   /// Unique user identifier | المعرف الفريد للمستخدم
@@ -65,10 +57,6 @@ class UserIdentity {
   /// Whether phone is verified | هل رقم الهاتف مُتحقق منه
   final bool phoneVerified;
 
-  /// Account status (matches Prisma UserStatus: active, inactive, suspended, pending)
-  /// حالة الحساب
-  final String status;
-
   /// Whether account is active | هل الحساب نشط
   final bool isActive;
 
@@ -102,7 +90,6 @@ class UserIdentity {
     this.attributes = const {},
     this.emailVerified = false,
     this.phoneVerified = false,
-    this.status = 'active',
     this.isActive = true,
     this.mfaEnabled = false,
     this.preferredLanguage = 'ar',
@@ -141,7 +128,6 @@ class UserIdentity {
     Map<String, dynamic>? attributes,
     bool? emailVerified,
     bool? phoneVerified,
-    String? status,
     bool? isActive,
     bool? mfaEnabled,
     String? preferredLanguage,
@@ -164,7 +150,6 @@ class UserIdentity {
       attributes: attributes ?? this.attributes,
       emailVerified: emailVerified ?? this.emailVerified,
       phoneVerified: phoneVerified ?? this.phoneVerified,
-      status: status ?? this.status,
       isActive: isActive ?? this.isActive,
       mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
@@ -186,13 +171,12 @@ class UserIdentity {
       avatarUrl: json['avatar_url'] as String?,
       role: json['role'] as String? ?? 'viewer',
       tenantId: json['tenant_id'] as String? ?? '',
-      tenantIds: (json['tenant_ids'] as List<dynamic>?)?.whereType<String>().toList() ?? [],
-      permissions: (json['permissions'] as List<dynamic>?)?.whereType<String>().toSet() ?? {},
+      tenantIds: (json['tenant_ids'] as List<dynamic>?)?.cast<String>() ?? [],
+      permissions: (json['permissions'] as List<dynamic>?)?.cast<String>().toSet() ?? {},
       attributes: (json['attributes'] as Map<String, dynamic>?) ?? {},
       emailVerified: json['email_verified'] as bool? ?? false,
       phoneVerified: json['phone_verified'] as bool? ?? false,
-      status: (json['status'] as String? ?? 'active').toLowerCase(),
-      isActive: json['is_active'] as bool? ?? ((json['status'] as String? ?? 'active').toLowerCase() == 'active'),
+      isActive: json['is_active'] as bool? ?? true,
       mfaEnabled: json['mfa_enabled'] as bool? ?? false,
       preferredLanguage: json['preferred_language'] as String? ?? 'ar',
       createdAt: json['created_at'] != null
@@ -224,7 +208,6 @@ class UserIdentity {
       'attributes': attributes,
       'email_verified': emailVerified,
       'phone_verified': phoneVerified,
-      'status': status,
       'is_active': isActive,
       'mfa_enabled': mfaEnabled,
       'preferred_language': preferredLanguage,

@@ -209,26 +209,12 @@ class DistributedLock:
         Returns:
             True إذا تم التحرير بنجاح
         """
-        # Atomic compare-and-delete via Lua script to prevent race condition
-        # where another client acquires the lock between GET and DELETE.
-        lua_script = """
-        if redis.call("get", KEYS[1]) == ARGV[1] then
-            return redis.call("del", KEYS[1])
-        else
-            return 0
-        end
-        """
-        try:
-            master = self.redis._get_master()
-            result = master.eval(lua_script, 1, self.lock_name, self.identifier)
-            return bool(result)
-        except Exception:
-            # Fallback for environments without Lua support (e.g., mocks)
-            value = self.redis.get(self.lock_name, use_slave=False)
-            if value == self.identifier:
-                self.redis.delete(self.lock_name)
-                return True
-            return False
+        # التحقق من الملكية قبل الحذف
+        value = self.redis.get(self.lock_name, use_slave=False)
+        if value == self.identifier:
+            self.redis.delete(self.lock_name)
+            return True
+        return False
 
     def __enter__(self):
         """Context manager support"""

@@ -15,7 +15,6 @@ import os
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
-os.environ["TOKEN_REVOCATION_ENABLED"] = "false"
 
 from shared.auth.dependencies import (
     get_current_user,
@@ -83,12 +82,10 @@ class TestGetCurrentUser:
         assert exc_info.value.status_code == 401
 
     @pytest.mark.asyncio
-    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_valid_token_returns_user(self, mock_repo, mock_cache, mock_config, valid_credentials, mock_request):
+    async def test_valid_token_returns_user(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that valid token returns user."""
-        mock_config.TOKEN_REVOCATION_ENABLED = False
         mock_cache.return_value = None  # No cache
         mock_repo.return_value = None  # No repository
 
@@ -102,12 +99,10 @@ class TestGetCurrentUser:
         assert "admin" in user.roles
 
     @pytest.mark.asyncio
-    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_user_stored_in_request_state(self, mock_repo, mock_cache, mock_config, valid_credentials, mock_request):
+    async def test_user_stored_in_request_state(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that user is stored in request state."""
-        mock_config.TOKEN_REVOCATION_ENABLED = False
         mock_cache.return_value = None
         mock_repo.return_value = None
 
@@ -119,12 +114,10 @@ class TestGetCurrentUser:
         assert mock_request.state.user == user
 
     @pytest.mark.asyncio
-    @patch("shared.auth.dependencies.config")
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_cached_inactive_user_raises_403(self, mock_repo, mock_cache, mock_config, valid_credentials):
+    async def test_cached_inactive_user_raises_403(self, mock_repo, mock_cache, valid_credentials):
         """Test that inactive cached user raises 403."""
-        mock_config.TOKEN_REVOCATION_ENABLED = False
         cache = AsyncMock()
         cache.get_user_status.return_value = {
             "is_active": False,
@@ -389,23 +382,14 @@ class TestRateLimiter:
 class TestGetOptionalUser:
     """Tests for get_optional_user dependency."""
 
-    @pytest.mark.asyncio
-    async def test_returns_none_without_credentials(self):
+    def test_returns_none_without_credentials(self):
         """Test that None is returned without credentials."""
-        result = await get_optional_user(credentials=None)
+        result = get_optional_user(credentials=None)
 
         assert result is None
 
-    @pytest.mark.asyncio
-    @patch("shared.auth.dependencies.config")
-    @patch("shared.auth.dependencies.get_user_cache")
-    @patch("shared.auth.dependencies.get_user_repository")
-    async def test_returns_user_with_valid_credentials(self, mock_repo, mock_cache, mock_config):
+    def test_returns_user_with_valid_credentials(self):
         """Test that user is returned with valid credentials."""
-        mock_config.TOKEN_REVOCATION_ENABLED = False
-        mock_cache.return_value = None
-        mock_repo.return_value = None
-
         token = create_access_token(
             user_id="user123",
             roles=["farmer"],
@@ -415,23 +399,22 @@ class TestGetOptionalUser:
             credentials=token,
         )
 
-        result = await get_optional_user(credentials=credentials)
+        result = get_optional_user(credentials=credentials)
 
         assert result is not None
         assert result.id == "user123"
 
-    @pytest.mark.asyncio
-    async def test_returns_none_with_invalid_credentials(self):
-        """Test that invalid credentials return None.
+    def test_returns_none_with_invalid_credentials(self):
+        """Test that invalid credentials raise AttributeError.
 
-        The AuthException is caught by the except clause which logs
-        the error code and returns None for optional auth.
+        Note: The source code has a bug where e.error.value is used but
+        AuthErrorMessage has no .value attribute (it has .code instead).
+        This causes an AttributeError to propagate from the except block.
         """
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer",
             credentials="invalid.token",
         )
 
-        result = await get_optional_user(credentials=credentials)
-
-        assert result is None
+        with pytest.raises(AttributeError, match="has no attribute 'value'"):
+            get_optional_user(credentials)

@@ -107,7 +107,7 @@ class KnowledgeSerializer:
                 import yaml  # type: ignore[import-untyped]
 
                 with open(output_path, "w", encoding="utf-8") as f:
-                    yaml.safe_dump(
+                    yaml.dump(
                         export_payload,
                         f,
                         allow_unicode=True,

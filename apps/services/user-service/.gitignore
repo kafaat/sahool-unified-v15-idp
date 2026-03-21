@@ -40,8 +40,9 @@ lerna-debug.log*
 coverage/
 .nyc_output/
 
-# Prisma generated client
-prisma/generated/
+# Prisma
+prisma/migrations/
+!prisma/migrations/.gitkeep
 
 # Temporary files
 *.tmp

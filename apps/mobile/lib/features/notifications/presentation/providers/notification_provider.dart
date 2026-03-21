@@ -31,7 +31,9 @@ class NotificationsState {
   }) {
     return NotificationsState(
       isLoading: isLoading ?? this.isLoading,
-      notifications: notifications ?? this.notifications,
+      notifications: notifications != null
+          ? List<AppNotification>.of(notifications)
+          : List<AppNotification>.of(this.notifications),
       unreadCount: unreadCount ?? this.unreadCount,
       error: error,
     );

@@ -406,6 +406,22 @@ class VRAController extends StateNotifier<AsyncValue<void>> {
     required int zonesCount,
     Map<String, dynamic>? parameters,
   }) async {
+    // Validate parameters
+    if (zonesCount <= 0) {
+      state = AsyncValue.error(
+        'عدد المناطق يجب أن يكون أكبر من صفر',
+        StackTrace.current,
+      );
+      return null;
+    }
+    if (fieldId.isEmpty) {
+      state = AsyncValue.error(
+        'معرف الحقل مطلوب',
+        StackTrace.current,
+      );
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     final result = await _service.generateZones(

@@ -171,8 +171,17 @@ def verify_temp_token(temp_token: str) -> dict | None:
             )
             return None
 
+        email = raw_payload.get("email")
+        if not email:
+            logger.warning(
+                "Temp token missing 'email' claim",
+                extra={"user_id": payload.user_id},
+            )
+            return None
+
         return {
             "user_id": payload.user_id,
+            "email": email,
             "temp": True,
         }
     except AuthException:

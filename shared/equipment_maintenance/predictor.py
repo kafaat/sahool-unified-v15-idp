@@ -511,7 +511,10 @@ class PredictiveMaintenanceEngine:
         Register equipment with the engine
         تسجيل المعدات مع المحرك
         """
-        if hasattr(equipment, "tenant_id") and equipment.tenant_id and equipment.tenant_id != self.tenant_id:
+        equipment_tenant_id = getattr(equipment, "tenant_id", None)
+        if not equipment_tenant_id:
+            raise ValueError("Equipment tenant_id is required and must be non-empty")
+        if equipment_tenant_id != self.tenant_id:
             raise ValueError("Equipment does not belong to this tenant")
         self._equipment[equipment.id] = equipment
 

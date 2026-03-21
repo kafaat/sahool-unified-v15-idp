@@ -126,8 +126,8 @@ export class AuditMiddleware implements NestMiddleware {
       return ActorType.API_KEY;
     }
 
-    // Check for service-to-service (prefer verified state over raw header)
-    if ((req as any).state?.is_service_request || req.headers["x-service-auth"]) {
+    // Check for service-to-service using verified state only
+    if ((req as any).state?.is_service_request) {
       return ActorType.SERVICE;
     }
 

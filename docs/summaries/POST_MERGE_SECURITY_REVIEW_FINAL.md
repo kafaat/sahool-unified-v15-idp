@@ -266,13 +266,13 @@ Only **7 architectural items** remain, requiring separate design efforts.
 
 ### فوري (خلال أسبوع) | Immediate (1 week)
 
-1. معالجة المشاكل الحرجة الـ 8 المتبقية (Command Injection، SSRF، Race Conditions)
+1. تنفيذ مراجعة post-deploy للإصلاحات الحرجة (Command Injection، SSRF، Race Conditions) مع إضافة حماية regression ومراقبة تشغيلية
 2. إضافة اختبارات تكامل لـ tenant isolation عبر جميع الوحدات
 3. تفعيل Bandit في CI pipeline لجميع خدمات Python
 
 ### قصير المدى (شهر) | Short-term (1 month)
 
-4. معالجة المشاكل العالية الـ 13 (ReDoS، Redis leak، tenant gaps)
+4. مراجعة وتحسين المناطق عالية الخطورة المُصلحة (ReDoS، Redis leak، tenant gaps) لضمان تغطيتها باختبارات SAST/DAST
 5. إضافة `AuditMiddleware` كـ Interceptor في جميع خدمات NestJS
 6. تطبيق `ServiceAuthMiddleware` بشكل موحد عبر جميع الخدمات
 

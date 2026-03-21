@@ -32,7 +32,7 @@ from .models import (
 )
 
 # Guard against division by near-zero in price comparison calculations
-_PRICE_EPSILON = 1e-6
+_PRICE_EPSILON = Decimal("0.000001")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Predefined Price Matrices - مصفوفات الأسعار المحددة مسبقاً

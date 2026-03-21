@@ -13,7 +13,7 @@ import '../../domain/models/opportunity.dart';
 import '../../state/crm_providers.dart';
 import '../widgets/contact_actions.dart';
 import '../widgets/interaction_timeline.dart';
-import 'interaction_history_screen.dart';
+import 'interaction_history_screen.dart' hide AddInteractionScreen;
 import 'add_interaction_screen.dart';
 import 'farmer_analytics_screen.dart';
 

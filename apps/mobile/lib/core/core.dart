@@ -43,10 +43,10 @@ export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart' hide NotificationBadge;
+export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction;
 
 // Offline Sync
-export 'offline/offline.dart' hide SyncStatus;
+export 'offline/offline.dart' hide SyncStatus, SyncResult;
 export 'offline/offline_ui_components.dart' hide SyncStatus;
 
 // Voice Commands
@@ -59,7 +59,7 @@ export 'deeplink/deeplink_handler.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة المحسنة
-export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem;
+export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';

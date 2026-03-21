@@ -335,14 +335,27 @@ class MarketplaceState {
 class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   final String _baseUrl;
   final String _userId;
+  final http.Client _httpClient;
 
   MarketplaceNotifier({
     required String baseUrl,
     required String userId,
+    http.Client? httpClient,
   })  : _baseUrl = baseUrl,
         _userId = userId,
-        super(const MarketplaceState()) {
-    loadProducts();
+        _httpClient = httpClient ?? http.Client(),
+        super(const MarketplaceState());
+
+  /// Initialize and load initial data. Call explicitly after construction
+  /// to avoid firing network requests in the constructor.
+  Future<void> init() async {
+    await loadProducts();
+  }
+
+  @override
+  void dispose() {
+    _httpClient.close();
+    super.dispose();
   }
 
   /// تحميل المنتجات
@@ -355,7 +368,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         url += '?category=${category.name.toUpperCase()}';
       }
 
-      final response = await http.get(Uri.parse(url));
+      final response = await _httpClient.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final products = await compute(_parseProductList, response.body);
@@ -458,7 +471,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         'quantity': item.quantity,
       }).toList();
 
-      final response = await http.post(
+      final response = await _httpClient.post(
         Uri.parse('$_baseUrl/api/v1/market/orders'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -490,7 +503,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   /// تحميل طلبات المستخدم
   Future<void> loadOrders() async {
     try {
-      final response = await http.get(
+      final response = await _httpClient.get(
         Uri.parse('$_baseUrl/api/v1/market/orders/$_userId'),
       );
 
@@ -515,7 +528,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     String? governorate,
   }) async {
     try {
-      final response = await http.post(
+      final response = await _httpClient.post(
         Uri.parse('$_baseUrl/api/v1/market/list-harvest'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -583,10 +596,15 @@ final marketplaceProvider =
   final baseUrl = ref.watch(marketApiUrlProvider);
   final userId = ref.watch(marketUserIdProvider);
 
-  return MarketplaceNotifier(
+  final notifier = MarketplaceNotifier(
     baseUrl: baseUrl,
     userId: userId,
   );
+
+  // Initialize asynchronously after construction to avoid constructor side effects
+  notifier.init();
+
+  return notifier;
 });
 
 /// عدد عناصر السلة

@@ -143,4 +143,10 @@ class NotificationService {
       actionUrl: data['action_url'],
     );
   }
+
+  /// Clean up resources. Currently a no-op since SharedPreferences is a
+  /// singleton, but provides a hook for future resource cleanup.
+  void dispose() {
+    _prefs = null;
+  }
 }

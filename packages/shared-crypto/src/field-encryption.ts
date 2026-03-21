@@ -395,9 +395,7 @@ export function decryptSearchable(
   }
 
   // Legacy format (no prefix): compare encrypted values
-  const encrypted = encryptSearchable(hint);
-  // Strip the "s2:" prefix for comparison since legacy data has none
-  // Re-encrypt with legacy function won't match — use hint comparison only
+  // Re-encrypt with legacy function and compare against stored data
   if (encryptedData === encryptLegacySearchable(hint)) {
     return hint;
   }

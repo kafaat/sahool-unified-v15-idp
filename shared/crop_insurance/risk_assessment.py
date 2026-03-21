@@ -309,7 +309,7 @@ class WeatherRiskAnalyzer:
         base_score = deficit_ratio * 100
 
         # Adjust for rainfall variability
-        if weather.annual_rainfall_avg > 1e-6:
+        if weather.annual_rainfall_avg > 0:
             cv = weather.annual_rainfall_std / weather.annual_rainfall_avg
             variability_adjustment = min(cv * 30, 30)
         else:
@@ -330,7 +330,7 @@ class WeatherRiskAnalyzer:
         storm_score = min(weather.storm_events_per_year * 10, 30)
 
         # High rainfall variability increases flood risk
-        if weather.annual_rainfall_avg > 1e-6:
+        if weather.annual_rainfall_avg > 0:
             cv = weather.annual_rainfall_std / weather.annual_rainfall_avg
             variability_score = min(cv * 20, 20)
         else:

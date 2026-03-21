@@ -93,7 +93,7 @@ enum UserRole {
   const UserRole(this.value, this.arabicLabel);
 
   static UserRole fromString(String value) {
-    final normalized = value.toLowerCase();
+    final normalized = value.toLowerCase().trim();
     return UserRole.values.firstWhere(
       (r) => r.value == normalized,
       orElse: () => UserRole.viewer,

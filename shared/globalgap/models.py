@@ -185,16 +185,22 @@ class AuditFinding(BaseModel):
     model_config = ConfigDict()
 
     def calculate_data_hash(self) -> str:
-        """Calculate HMAC-SHA256 hash of core data fields for integrity verification."""
+        """Calculate HMAC-SHA256 hash of all integrity-relevant fields."""
         hash_data = {
             "id": self.id,
             "audit_id": self.audit_id,
             "checklist_item_id": self.checklist_item_id,
             "is_compliant": self.is_compliant,
             "is_not_applicable": self.is_not_applicable,
+            "evidence_collected": self.evidence_collected,
+            "notes_en": self.notes_en,
+            "notes_ar": self.notes_ar,
+            "photos": self.photos,
+            "documents": self.documents,
             "auditor_id": self.auditor_id,
             "audit_date": self.audit_date.isoformat(),
             "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
         return _compute_integrity_hash(hash_data)
 
@@ -258,7 +264,7 @@ class NonConformance(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     def calculate_data_hash(self) -> str:
-        """Calculate HMAC-SHA256 hash of core data fields for integrity verification."""
+        """Calculate HMAC-SHA256 hash of all integrity-relevant fields."""
         hash_data = {
             "id": self.id,
             "nc_number": self.nc_number,
@@ -266,10 +272,17 @@ class NonConformance(BaseModel):
             "finding_id": self.finding_id,
             "checklist_item_id": self.checklist_item_id,
             "severity": self.severity if isinstance(self.severity, str) else self.severity.value,
+            "description_en": self.description_en,
+            "description_ar": self.description_ar,
+            "root_cause_en": self.root_cause_en,
+            "root_cause_ar": self.root_cause_ar,
+            "identified_date": self.identified_date.isoformat(),
+            "due_date": self.due_date.isoformat(),
+            "status": self.status,
             "auditor_id": self.auditor_id,
             "farm_id": self.farm_id,
-            "identified_date": self.identified_date.isoformat(),
             "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
         return _compute_integrity_hash(hash_data)
 
@@ -334,15 +347,25 @@ class CorrectiveAction(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     def calculate_data_hash(self) -> str:
-        """Calculate HMAC-SHA256 hash of core data fields for integrity verification."""
+        """Calculate HMAC-SHA256 hash of all integrity-relevant fields."""
         hash_data = {
             "id": self.id,
             "non_conformance_id": self.non_conformance_id,
-            "status": self.status if isinstance(self.status, str) else self.status.value,
+            "action_description_en": self.action_description_en,
+            "action_description_ar": self.action_description_ar,
             "responsible_person": self.responsible_person,
+            "responsible_email": self.responsible_email,
             "planned_date": self.planned_date.isoformat(),
+            "actual_date": self.actual_date.isoformat() if self.actual_date else None,
+            "status": self.status if isinstance(self.status, str) else self.status.value,
             "effectiveness_verified": self.effectiveness_verified,
+            "verification_date": self.verification_date.isoformat() if self.verification_date else None,
+            "verification_notes_en": self.verification_notes_en,
+            "verification_notes_ar": self.verification_notes_ar,
+            "evidence_documents": list(self.evidence_documents),
+            "evidence_photos": list(self.evidence_photos),
             "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
         return _compute_integrity_hash(hash_data)
 
@@ -493,13 +516,28 @@ class FarmRegistration(BaseModel):
     model_config = ConfigDict()
 
     def calculate_data_hash(self) -> str:
-        """Calculate HMAC-SHA256 hash of core data fields for integrity verification."""
+        """Calculate HMAC-SHA256 hash of all integrity-relevant fields."""
         hash_data = {
             "id": self.id,
             "ggn": self.ggn,
             "producer_id": self.producer_id,
+            "farm_name_en": self.farm_name_en,
+            "farm_name_ar": self.farm_name_ar,
+            "farm_size_hectares": self.farm_size_hectares,
+            "certified_area_hectares": self.certified_area_hectares,
+            "country_code": self.country_code,
+            "region": self.region,
+            "certification_scope": self.certification_scope,
+            "product_types_en": self.product_types_en,
+            "product_types_ar": self.product_types_ar,
+            "certification_body": self.certification_body,
+            "cb_code": self.cb_code,
             "certificate_number": self.certificate_number,
+            "certificate_issue_date": self.certificate_issue_date.isoformat() if self.certificate_issue_date else None,
+            "certificate_expiry_date": self.certificate_expiry_date.isoformat() if self.certificate_expiry_date else None,
             "certificate_status": self.certificate_status,
+            "parallel_production": self.parallel_production,
+            "parallel_ownership": self.parallel_ownership,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
         }
@@ -574,18 +612,8 @@ class AuditSession(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     def calculate_data_hash(self) -> str:
-        """Calculate HMAC-SHA256 hash of core data fields for integrity verification."""
-        hash_data = {
-            "id": self.id,
-            "audit_number": self.audit_number,
-            "farm_id": self.farm_id,
-            "ggn": self.ggn,
-            "audit_type": self.audit_type if isinstance(self.audit_type, str) else self.audit_type.value,
-            "lead_auditor_id": self.lead_auditor_id,
-            "status": self.status,
-            "recommendation": self.recommendation,
-            "created_at": self.created_at.isoformat(),
-        }
+        """Calculate HMAC-SHA256 hash of the full session payload for integrity verification."""
+        hash_data = self.model_dump(mode="json", exclude={"data_hash"})
         return _compute_integrity_hash(hash_data)
 
     def seal(self) -> None:

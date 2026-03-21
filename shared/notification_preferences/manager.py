@@ -470,7 +470,7 @@ class NotificationPreferencesManager:
         Disable notifications for a specific alert type
         تعطيل الإشعارات لنوع تنبيه معين
         """
-        return await self.set_alert_preference(user_id, alert_type, enabled=False, tenant_id=tenant_id)
+        return await self.set_alert_preference(user_id, tenant_id, alert_type, enabled=False)
 
     async def enable_alert_type(
         self,
@@ -482,7 +482,7 @@ class NotificationPreferencesManager:
         Enable notifications for a specific alert type
         تفعيل الإشعارات لنوع تنبيه معين
         """
-        return await self.set_alert_preference(user_id, alert_type, enabled=True, tenant_id=tenant_id)
+        return await self.set_alert_preference(user_id, tenant_id, alert_type, enabled=True)
 
     # =========================================================================
     # Quiet Hours Operations

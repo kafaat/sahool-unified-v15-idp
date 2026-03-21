@@ -586,7 +586,9 @@ class TestIslamicEvents:
     def test_get_upcoming_islamic_events(self):
         """Test getting upcoming Islamic events"""
         manager = IslamicEventsManager()
-        upcoming = manager.get_upcoming_events(days_ahead=60)
+        # Use a 365-day window to guarantee at least one event is found
+        # regardless of when the test runs
+        upcoming = manager.get_upcoming_events(days_ahead=365)
 
         assert len(upcoming) > 0
 

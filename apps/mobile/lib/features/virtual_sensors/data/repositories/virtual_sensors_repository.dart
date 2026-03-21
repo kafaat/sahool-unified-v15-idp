@@ -121,7 +121,7 @@ class VirtualSensorsRepository {
           kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
           kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
           rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
-          criticalPeriods: List<String>.from(e['critical_periods'] ?? []),
+          criticalPeriods: List<String>.from((e['critical_periods'] as Iterable?) ?? []),
         )).toList();
       }
 
@@ -179,9 +179,9 @@ class VirtualSensorsRepository {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return CropETcResponse(
-          cropType: data['crop_type'] ?? '',
-          cropNameAr: data['crop_name_ar'] ?? '',
-          growthStage: data['growth_stage'] ?? '',
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
           kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
           et0: (data['et0'] as num?)?.toDouble() ?? 0.0,
           etc: (data['etc'] as num?)?.toDouble() ?? 0.0,

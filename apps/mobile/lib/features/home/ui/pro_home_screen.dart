@@ -85,7 +85,6 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                   TileLayer(
                     urlTemplate: 'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.kafaat.sahool',
-                    backgroundColor: Colors.transparent,
                   ),
 
                 // طبقة الحقول من قاعدة البيانات
@@ -108,7 +107,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                                 ? SahoolProColors.johnGreen
                                 : SahoolProColors.warningOrange),
                         borderStrokeWidth: isSelected ? 4 : 2,
-                        isDotted: !isSynced,
+                        pattern: !isSynced ? const StrokePattern.dotted() : const StrokePattern.solid(),
                         label: f.name,
                         labelStyle: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -139,7 +138,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                           ],
                           color: SahoolProColors.tractorYellow,
                           strokeWidth: 3,
-                          isDotted: true,
+                          pattern: const StrokePattern.dotted(),
                         ),
                     ],
                   ),

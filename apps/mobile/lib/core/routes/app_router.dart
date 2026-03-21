@@ -448,7 +448,8 @@ class AppRouter {
         name: 'satellite-weather',
         builder: (context, state) {
           final fieldId = state.pathParameters['fieldId'] ?? '';
-          return sat_weather.WeatherScreen(fieldId: fieldId);
+          final fieldName = (state.extra as Map<String, dynamic>?)?['fieldName'] as String? ?? '';
+          return sat_weather.WeatherScreen(fieldId: fieldId, fieldName: fieldName);
         },
       ),
 
@@ -493,7 +494,7 @@ class AppRouter {
         name: 'weather',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return WeatherScreen(fieldId: args?['fieldId'] ?? '');
+          return WeatherScreen(fieldId: (args?['fieldId'] as String?) ?? '');
         },
       ),
 
@@ -502,7 +503,7 @@ class AppRouter {
         name: 'tasks',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return TasksListScreen(fieldId: args?['fieldId']);
+          return TasksListScreen(fieldId: args?['fieldId'] as String?);
         },
       ),
 
@@ -520,7 +521,7 @@ class AppRouter {
         name: 'crop-health',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return CropHealthDashboard(fieldId: args?['fieldId'] ?? '');
+          return CropHealthDashboard(fieldId: (args?['fieldId'] as String?) ?? '');
         },
       ),
 
@@ -707,7 +708,7 @@ class AppRouter {
         name: 'field-form',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return FieldFormScreen(fieldId: args?['fieldId']);
+          return FieldFormScreen(fieldId: args?['fieldId'] as String?);
         },
       ),
 

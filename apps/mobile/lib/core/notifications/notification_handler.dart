@@ -3,6 +3,7 @@
 ///
 /// Handles notification taps and routes to appropriate screens
 /// Manages notification badge counts and read status
+library;
 
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,7 @@ class NotificationHandler {
   int get unreadCount => _unreadCount;
 
   /// Notification count stream
-  final _countController = Stream<int>.empty();
+  final _countController = const Stream<int>.empty();
   Stream<int> get onCountChanged => _countController;
 
   /// Initialize with navigator key

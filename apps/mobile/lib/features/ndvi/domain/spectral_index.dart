@@ -6,7 +6,6 @@
 /// Each index has its own colormap, health categories, and bilingual labels.
 library;
 
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'ndvi_colormap.dart';
 

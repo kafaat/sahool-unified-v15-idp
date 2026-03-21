@@ -1,4 +1,3 @@
-import 'package:latlong2/latlong.dart';
 import '../../../field/domain/entities/field.dart' as field_domain;
 
 /// Field Entity - كيان الحقل

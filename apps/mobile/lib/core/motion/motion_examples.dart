@@ -723,10 +723,10 @@ class MotionEffectsDemoScreen extends StatelessWidget {
             _buildSectionTitle(context, 'بطاقات مع تأثير الميلان'),
             const SizedBox(height: 12),
 
-            TiltCard(
+            const TiltCard(
               config: TiltConfig.card,
-              padding: const EdgeInsets.all(16),
-              child: const ListTile(
+              padding: EdgeInsets.all(16),
+              child: ListTile(
                 leading: Icon(Icons.agriculture, size: 40),
                 title: Text('القمح'),
                 subtitle: Text('12.5 هكتار - صحة ممتازة'),

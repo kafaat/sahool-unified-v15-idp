@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../widgets/animated_illustration.dart';
-import '../../state/onboarding_providers.dart';
 
 /// SAHOOL Welcome Screen
 /// شاشة الترحيب
@@ -28,7 +27,7 @@ class WelcomeScreen extends ConsumerWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
+        body: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,

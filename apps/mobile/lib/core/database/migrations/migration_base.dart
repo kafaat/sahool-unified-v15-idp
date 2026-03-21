@@ -14,7 +14,6 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 
-import '../schema_version.dart';
 import '../../utils/app_logger.dart';
 
 /// Base class for all database migrations
@@ -196,7 +195,7 @@ mixin MigrationHelpers on Migration {
     String columnName,
   ) async {
     final result = await db.customSelect(
-      "PRAGMA table_info($tableName)",
+      'PRAGMA table_info($tableName)',
     ).get();
 
     for (final row in result) {
@@ -230,7 +229,7 @@ mixin MigrationHelpers on Migration {
     String tableName,
   ) async {
     final result = await db.customSelect(
-      "PRAGMA table_info($tableName)",
+      'PRAGMA table_info($tableName)',
     ).get();
 
     return result.map((row) => row.read<String>('name')).toList();

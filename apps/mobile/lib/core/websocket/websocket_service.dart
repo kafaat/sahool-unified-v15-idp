@@ -63,6 +63,7 @@ class WebSocketService {
   final String Function() getTenantId;
 
   WebSocketChannel? _channel;
+  WebSocket? _rawSocket;
   final StreamController<WebSocketEvent> _eventController =
       StreamController<WebSocketEvent>.broadcast();
   final StreamController<ConnectionState> _stateController =
@@ -122,14 +123,14 @@ class WebSocketService {
       AppLogger.i('Connecting to WebSocket: $uri');
 
       // Connect with Authorization header for security
-      final socket = await WebSocket.connect(
+      _rawSocket = await WebSocket.connect(
         uri.toString(),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
 
-      _channel = IOWebSocketChannel(socket);
+      _channel = IOWebSocketChannel(_rawSocket!);
 
       // Listen to messages
       _channel!.stream.listen(
@@ -380,6 +381,8 @@ class WebSocketService {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
     _channel?.sink.close();
+    _rawSocket?.close();
+    _rawSocket = null;
     _eventController.close();
     _stateController.close();
   }

@@ -155,7 +155,7 @@ class ChartWidget extends StatelessWidget {
                   },
                 ),
               )
-            : LineTouchData(enabled: false),
+            : const LineTouchData(enabled: false),
       ),
       duration: config.enableAnimations
           ? Duration(milliseconds: config.animationDuration)

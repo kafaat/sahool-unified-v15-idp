@@ -6,6 +6,7 @@
 /// - Endpoint-specific configurations
 /// - Network quality awareness
 /// - Offline request queueing support
+library;
 
 import 'dart:math';
 

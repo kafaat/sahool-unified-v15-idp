@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/accessibility/semantics_helper.dart';
 import '../../../core/di/providers.dart';
+import '../../field/domain/entities/field.dart';
 import '../logic/sync_provider.dart';
 import '../logic/home_providers.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
@@ -28,7 +28,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // مراقبة البيانات
     final apiClient = ref.watch(apiClientProvider);
-    final fieldsAsync = ref.watch(fieldsStreamProvider(apiClient.tenantId as String));
+    final fieldsAsync = ref.watch(fieldsStreamProvider(apiClient.tenantId));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
 
@@ -140,7 +140,7 @@ class HomeScreen extends ConsumerWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -153,7 +153,7 @@ class HomeScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "$taskCount مهام",
+                                    '$taskCount مهام',
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -161,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   const Text(
-                                    "تنتظر التنفيذ اليوم",
+                                    'تنتظر التنفيذ اليوم',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.white70,
@@ -205,7 +205,7 @@ class HomeScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    "الري",
+                                    'الري',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 12,
@@ -277,8 +277,8 @@ class HomeScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  ExcludeSemantics(
-                                    child: const Icon(
+                                  const ExcludeSemantics(
+                                    child: Icon(
                                       Icons.eco,
                                       color: SahoolColors.sageGreen,
                                     ),
@@ -289,11 +289,11 @@ class HomeScreen extends ConsumerWidget {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: SahoolColors.sageGreen.withOpacity(0.2),
+                                      color: SahoolColors.sageGreen.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: const Text(
-                                      "NDVI",
+                                      'NDVI',
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: SahoolColors.sageGreen,
@@ -348,14 +348,14 @@ class HomeScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  ExcludeSemantics(
-                                    child: const Icon(
+                                  const ExcludeSemantics(
+                                    child: Icon(
                                       Icons.wb_sunny,
                                       color: SahoolColors.harvestGold,
                                     ),
                                   ),
                                   Text(
-                                    "اليوم",
+                                    'اليوم',
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: Colors.grey[600],
@@ -367,7 +367,7 @@ class HomeScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    weatherTemp != null ? "$weatherTemp°C" : "—",
+                                    weatherTemp != null ? '$weatherTemp°C' : '—',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -428,11 +428,11 @@ class HomeScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                "المحادثات والخبراء",
+                                'المحادثات والخبراء',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "تواصل مع الخبراء الزراعيين",
+                                'تواصل مع الخبراء الزراعيين',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 12,
@@ -442,8 +442,8 @@ class HomeScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        ExcludeSemantics(
-                          child: const Icon(
+                        const ExcludeSemantics(
+                          child: Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
                             color: SahoolColors.sageGreen,
@@ -521,7 +521,7 @@ class HomeScreen extends ConsumerWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  "المزارع",
+                  'المزارع',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: SahoolColors.forestGreen,
@@ -540,7 +540,7 @@ class HomeScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.grey.withOpacity(0.1)),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
             ),
             child: Row(
               children: [
@@ -580,8 +580,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
 
                 // الطقس - Weather
-                ExcludeSemantics(
-                  child: const Icon(
+                const ExcludeSemantics(
+                  child: Icon(
                     Icons.wb_sunny_rounded,
                     color: SahoolColors.harvestGold,
                     size: 20,
@@ -589,7 +589,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  weatherTemp != null ? "$weatherTemp°" : "—",
+                  weatherTemp != null ? '$weatherTemp°' : '—',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
@@ -607,18 +607,18 @@ class HomeScreen extends ConsumerWidget {
     return 'مساء النور،';
   }
 
-  Widget _buildMapOverlay(AsyncValue<List<dynamic>> fieldsData) {
+  Widget _buildMapOverlay(AsyncValue<List<Field>> fieldsData) {
     return fieldsData.when(
       data: (fields) {
         if (fields.isEmpty) {
           return Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
-              "لا توجد حقول مسجلة",
+              'لا توجد حقول مسجلة',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           );
@@ -629,13 +629,13 @@ class HomeScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
-                ExcludeSemantics(
-                  child: const CircleAvatar(
+                const ExcludeSemantics(
+                  child: CircleAvatar(
                     radius: 4,
                     backgroundColor: SahoolColors.forestGreen,
                   ),
@@ -650,7 +650,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
                 StatusBadge(
-                  label: (first.status as String?) ?? "نشط",
+                  label: first.status ?? 'نشط',
                   color: SahoolColors.forestGreen,
                   icon: Icons.sensors,
                 ),
@@ -664,7 +664,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMap(AsyncValue<List<dynamic>> fieldsAsync) {
+  Widget _buildMap(AsyncValue<List<Field>> fieldsAsync) {
     return FlutterMap(
       options: const MapOptions(
         initialCenter: LatLng(15.3694, 44.1910),
@@ -681,8 +681,8 @@ class HomeScreen extends ConsumerWidget {
             polygons: fields
                 .map(
                   (f) => Polygon(
-                    points: (f.boundary as List).cast<LatLng>(),
-                    color: SahoolColors.harvestGold.withOpacity(0.4),
+                    points: f.boundary,
+                    color: SahoolColors.harvestGold.withValues(alpha: 0.4),
                     borderColor: Colors.white,
                     borderStrokeWidth: 2,
                   ),

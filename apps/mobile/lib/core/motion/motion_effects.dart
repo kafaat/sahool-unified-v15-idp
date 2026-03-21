@@ -9,7 +9,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'motion_service.dart';
-import 'parallax_controller.dart';
 import 'parallax_layer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -651,7 +650,7 @@ class RotationTracker extends StatelessWidget {
           duration: config.animationDuration,
           curve: Curves.easeOutCubic,
           builder: (context, angle, child) {
-            Matrix4 transform = Matrix4.identity();
+            final Matrix4 transform = Matrix4.identity();
 
             switch (axis) {
               case Axis3D.x:

@@ -12,6 +12,7 @@
 /// - Screen view tracking
 /// - Custom event tracking
 /// - Performance monitoring
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';

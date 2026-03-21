@@ -5,7 +5,6 @@ import '../../../../core/maps/offline/region_manager.dart';
 import '../../../../core/maps/offline/tile_downloader.dart';
 import '../../../../core/maps/offline/tile_storage.dart';
 import '../../../../core/theme/sahool_theme.dart';
-import '../widgets/region_card.dart';
 import '../widgets/storage_usage_bar.dart';
 import 'download_region_screen.dart';
 
@@ -305,7 +304,7 @@ class _OfflineRegionsScreenState extends ConsumerState<OfflineRegionsScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: SahoolColors.primary.withOpacity(0.1),
+              color: SahoolColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -413,7 +412,7 @@ class DownloadedRegionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final categoryIcon = _getCategoryIcon(region.bounds);
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -427,7 +426,7 @@ class DownloadedRegionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: SahoolColors.primary.withOpacity(0.1),
+                color: SahoolColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -536,7 +535,7 @@ class DownloadedRegionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -585,7 +584,7 @@ class RecommendedRegionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -596,7 +595,7 @@ class RecommendedRegionCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: SahoolColors.secondary.withOpacity(0.1),
+            color: SahoolColors.secondary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

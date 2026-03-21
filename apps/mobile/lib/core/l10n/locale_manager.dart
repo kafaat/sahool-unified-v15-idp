@@ -7,8 +7,8 @@
 /// - Number and date formatting
 /// - Pluralization helpers
 /// - Islamic calendar support
+library;
 
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;

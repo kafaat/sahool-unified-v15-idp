@@ -81,7 +81,7 @@
 /// - Warning dialogs
 /// - Status messages
 ///
-library security;
+library;
 
 // Core configuration
 export 'security_config.dart';

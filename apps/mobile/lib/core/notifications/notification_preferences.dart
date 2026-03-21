@@ -6,6 +6,7 @@
 /// - Quiet hours settings
 /// - Sound and vibration preferences
 /// - Priority filtering
+library;
 
 import 'dart:convert';
 
@@ -535,7 +536,7 @@ class NotificationPreferencesScreen extends ConsumerWidget {
                   initialTime: prefs.quietHoursStart,
                 );
                 if (time != null) {
-                  notifier.update((p) => p.copyWith(quietHoursStart: time));
+                  await notifier.update((p) => p.copyWith(quietHoursStart: time));
                 }
               },
             ),
@@ -549,7 +550,7 @@ class NotificationPreferencesScreen extends ConsumerWidget {
                   initialTime: prefs.quietHoursEnd,
                 );
                 if (time != null) {
-                  notifier.update((p) => p.copyWith(quietHoursEnd: time));
+                  await notifier.update((p) => p.copyWith(quietHoursEnd: time));
                 }
               },
             ),

@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'tile_storage.dart';
 
@@ -215,7 +212,7 @@ class OfflineCachedTileImage extends ImageProvider<OfflineCachedTileImage> {
 
     // Fallback to network
     onCacheMiss?.call();
-    return await _loadFromNetwork();
+    return _loadFromNetwork();
   }
 
   /// Load online first, fallback to local - التحميل من الشبكة أولاً
@@ -228,7 +225,7 @@ class OfflineCachedTileImage extends ImageProvider<OfflineCachedTileImage> {
 
     // Fallback to local storage
     onCacheMiss?.call();
-    return await storage.getTileFromAnyRegion(z: z, x: x, y: y);
+    return storage.getTileFromAnyRegion(z: z, x: x, y: y);
   }
 
   /// Load offline only - التحميل من المحلي فقط
@@ -244,7 +241,7 @@ class OfflineCachedTileImage extends ImageProvider<OfflineCachedTileImage> {
 
   /// Load online only - التحميل من الشبكة فقط
   Future<Uint8List?> _loadOnlineOnly() async {
-    return await _loadFromNetwork();
+    return _loadFromNetwork();
   }
 
   /// Load tile from network - تحميل البلاطة من الشبكة
@@ -311,7 +308,7 @@ class OfflineCachedTileImage extends ImageProvider<OfflineCachedTileImage> {
       0x42, 0x60, 0x82,
     ]);
     final buffer = await ui.ImmutableBuffer.fromUint8List(transparent);
-    return await decode(buffer);
+    return decode(buffer);
   }
 
   @override
@@ -398,7 +395,7 @@ class OfflineTileLayerOptions {
     bool cacheNetworkTiles = true,
     int minZoom = 1,
     int maxZoom = 18,
-    double tileSize = 256,
+    int tileSize = 256,
     int keepBuffer = 2,
   }) {
     return TileLayer(
@@ -411,7 +408,7 @@ class OfflineTileLayerOptions {
       ),
       minZoom: minZoom.toDouble(),
       maxZoom: maxZoom.toDouble(),
-      tileSize: tileSize,
+      tileDimension: tileSize,
       keepBuffer: keepBuffer,
     );
   }

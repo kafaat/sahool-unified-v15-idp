@@ -364,7 +364,7 @@ class SyncStatusCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                ConnectivityIndicator(size: 32),
+                const ConnectivityIndicator(size: 32),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

@@ -8,6 +8,7 @@
 /// ```dart
 /// import 'package:sahool_field_app/core/services/services.dart';
 /// ```
+library;
 
 // Core Service Infrastructure
 export 'service_registry.dart';

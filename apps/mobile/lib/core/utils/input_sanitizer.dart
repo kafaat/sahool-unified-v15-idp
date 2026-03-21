@@ -7,6 +7,7 @@
 /// - Special character escaping
 /// - Log-safe string conversion
 /// - Sensitive data filtering
+library;
 
 /// Input Sanitizer Class
 class InputSanitizer {

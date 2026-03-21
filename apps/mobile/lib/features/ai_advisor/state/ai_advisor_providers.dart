@@ -2,6 +2,7 @@
 /// مزودات حالة المستشار الذكي
 ///
 /// Riverpod providers for AI advisor feature state management
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/remote/ai_advisor_api.dart';

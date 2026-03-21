@@ -37,7 +37,7 @@ class RegionCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: isSelected
               ? SahoolColors.primary.withOpacity(0.08)
@@ -90,7 +90,7 @@ class RegionCard extends StatelessWidget {
                               color: SahoolColors.success.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
@@ -98,7 +98,7 @@ class RegionCard extends StatelessWidget {
                                   size: 14,
                                   color: SahoolColors.success,
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   'محمّل',
                                   style: TextStyle(

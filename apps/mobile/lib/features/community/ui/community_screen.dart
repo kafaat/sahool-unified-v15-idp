@@ -399,21 +399,21 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.comment,
               title: 'New reply | رد جديد على سؤالك',
               subtitle: 'المهندس سالم رد على سؤال البقع الصفراء',
               time: '5 min | منذ 5 دقائق',
               isNew: true,
             ),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.thumb_up,
               title: 'New likes | اعجاب جديد',
               subtitle: '15 people liked your post | 15 شخص اعجبوا بمنشورك',
               time: '1h | منذ ساعة',
               isNew: true,
             ),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.person_add,
               title: 'New follower | متابع جديد',
               subtitle: 'محمد الفلاح بدا متابعتك',
@@ -575,7 +575,7 @@ class _FeedTab extends ConsumerWidget {
                   border: Border.all(
                     color: isSelected
                         ? SahoolColors.forestGreen
-                        : Colors.grey.withOpacity(0.3),
+                        : Colors.grey.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -648,12 +648,12 @@ class _FeedTab extends ConsumerWidget {
                   ),
                 ),
                 // Linear progress indicator for story
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: LinearProgressIndicator(
                     value: 1.0,
                     backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation(Colors.white),
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
                     minHeight: 2,
                   ),
                 ),
@@ -745,7 +745,7 @@ class _FeedTab extends ConsumerWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: comment.isExpert
-                                ? SahoolColors.forestGreen.withOpacity(0.05)
+                                ? SahoolColors.forestGreen.withValues(alpha: 0.05)
                                 : Colors.grey[50],
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -782,7 +782,7 @@ class _FeedTab extends ConsumerWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -1073,7 +1073,7 @@ class _KnowledgeBaseTab extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: color.withOpacity(0.1),
+                        backgroundColor: color.withValues(alpha: 0.1),
                         child: Text('${index + 1}',
                             style: TextStyle(color: color)),
                       ),
@@ -1148,7 +1148,7 @@ class _StoryItem extends StatelessWidget {
                     ? Border.all(color: Colors.grey[300]!, width: 2)
                     : null,
               ),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isAdd ? Colors.white : SahoolColors.paleOlive,
@@ -1291,7 +1291,7 @@ class _KnowledgeCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color),
@@ -1353,7 +1353,7 @@ class _NotificationItem extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: isNew
-                  ? SahoolColors.forestGreen.withOpacity(0.1)
+                  ? SahoolColors.forestGreen.withValues(alpha: 0.1)
                   : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),

@@ -7,6 +7,7 @@
 /// - Message content
 /// - Timestamp
 /// - Status indicator (sent/delivered/read)
+library;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class MessageBubble extends StatelessWidget {
       backgroundImage:
           message.senderAvatar != null ? NetworkImage(message.senderAvatar!) : null,
       child: message.senderAvatar == null
-          ? Icon(
+          ? const Icon(
               Icons.person,
               size: 16,
               color: SahoolTheme.primary,

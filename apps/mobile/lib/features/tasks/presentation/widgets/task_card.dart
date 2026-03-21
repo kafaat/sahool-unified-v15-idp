@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/config/theme.dart';
 import '../../domain/entities/task.dart';
 
 /// Task Card Widget

@@ -2,13 +2,11 @@
 /// Data layer for managing reports with offline support
 library;
 
-import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import '../../../core/sync/network_status.dart';
 import '../domain/models/report_template.dart';
 import '../domain/models/report_data.dart';
 import '../domain/models/report_filter.dart';
-import '../domain/models/chart_config.dart';
 import 'reports_api.dart';
 import 'report_generator.dart';
 
@@ -305,7 +303,7 @@ class ReportsRepository {
     _cachedHistory.removeWhere((e) => e.reportId == reportId);
 
     if (await _networkStatus.isConnected) {
-      return await _api.deleteReport(reportId);
+      return _api.deleteReport(reportId);
     }
 
     return true;
@@ -334,7 +332,7 @@ class ReportsRepository {
     if (await _networkStatus.isConnected) {
       final bytes = await _api.exportToPdf(report.id);
       if (bytes != null) {
-        return await _generator.saveExportedFile(
+        return _generator.saveExportedFile(
           bytes,
           '${report.title}_${_formatDateForFile(report.generatedAt)}.pdf',
         );
@@ -342,7 +340,7 @@ class ReportsRepository {
     }
 
     // Use local generator
-    return await _generator.generatePdf(
+    return _generator.generatePdf(
       report,
       includeArabic: includeArabic,
     );
@@ -355,7 +353,7 @@ class ReportsRepository {
     if (await _networkStatus.isConnected) {
       final bytes = await _api.exportToExcel(report.id);
       if (bytes != null) {
-        return await _generator.saveExportedFile(
+        return _generator.saveExportedFile(
           bytes,
           '${report.title}_${_formatDateForFile(report.generatedAt)}.xlsx',
         );
@@ -363,13 +361,13 @@ class ReportsRepository {
     }
 
     // Use local generator
-    return await _generator.generateExcel(report);
+    return _generator.generateExcel(report);
   }
 
   /// Export report to CSV
   /// تصدير التقرير إلى CSV
   Future<String?> exportToCsv(ReportData report) async {
-    return await _generator.generateCsv(report);
+    return _generator.generateCsv(report);
   }
 
   /// Format date for file name

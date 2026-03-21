@@ -73,7 +73,7 @@ class CropCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${activeCrop.growthStageAr} (${activeCrop.growthStage})',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: SahoolColors.forestGreen,
                         fontWeight: FontWeight.w500,

@@ -11,6 +11,7 @@
 ///   - Location picker
 ///   - Product picker (marketplace)
 ///   - Order picker (user orders)
+library;
 
 import 'dart:async';
 import 'dart:io';
@@ -547,7 +548,7 @@ class _ChatInputState extends State<ChatInput> {
           onPressed: () {
             _showAttachmentOptions(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.add_circle_outline,
             color: SahoolTheme.primary,
           ),
@@ -556,7 +557,7 @@ class _ChatInputState extends State<ChatInput> {
 
         // Text input
         Expanded(
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(24),
@@ -603,7 +604,7 @@ class _ChatInputState extends State<ChatInput> {
                       onPressed: _handleSend,
                       icon: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: SahoolTheme.primary,
                           shape: BoxShape.circle,
                         ),
@@ -617,7 +618,7 @@ class _ChatInputState extends State<ChatInput> {
                     )
                   : IconButton(
                       onPressed: _startRecording,
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.mic,
                         color: SahoolTheme.primary,
                       ),
@@ -716,7 +717,7 @@ class _ChatInputState extends State<ChatInput> {
           onPressed: _stopRecordingAndSend,
           icon: Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: SahoolTheme.primary,
               shape: BoxShape.circle,
             ),
@@ -983,7 +984,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
-      builder: (context, scrollController) => Container(
+      builder: (context, scrollController) => DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1002,13 +1003,13 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
             ),
 
             // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(Icons.shopping_bag, color: SahoolTheme.primary),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'اختر منتج للمشاركة',
                     style: TextStyle(
                       fontSize: 18,
@@ -1260,7 +1261,7 @@ class _ProductListTile extends StatelessWidget {
                       children: [
                         Text(
                           '${product.price.toStringAsFixed(0)} ريال',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: SahoolTheme.primary,
                             fontWeight: FontWeight.bold,
@@ -1386,7 +1387,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
       minChildSize: 0.4,
       maxChildSize: 0.9,
       expand: false,
-      builder: (context, scrollController) => Container(
+      builder: (context, scrollController) => DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1405,13 +1406,13 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
             ),
 
             // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(Icons.receipt_long, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'اختر طلب للمشاركة',
                     style: TextStyle(
                       fontSize: 18,
@@ -1636,7 +1637,7 @@ class _OrderListTile extends StatelessWidget {
                         const Spacer(),
                         Text(
                           '${order.totalAmount.toStringAsFixed(0)} ريال',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: SahoolTheme.primary,
                             fontWeight: FontWeight.bold,

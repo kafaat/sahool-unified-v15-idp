@@ -197,7 +197,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: SahoolColors.warning.withOpacity(0.2),
+              color: SahoolColors.warning.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(greetingIcon, color: Colors.orange[700], size: 28),
@@ -228,7 +228,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: SahoolColors.success.withOpacity(0.1),
+              color: SahoolColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -280,7 +280,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                     const SizedBox(width: 8),
                     Text(
                       'صحة المحصول',
-                      style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
                     ),
                   ],
                 ),
@@ -297,7 +297,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -318,7 +318,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                 const SizedBox(height: 8),
                 Text(
                   'آخر تحديث: الآن',
-                  style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
                 ),
               ],
             ),
@@ -335,7 +335,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                   width: 100,
                   child: CircularProgressIndicator(
                     value: avgNdvi.clamp(0.0, 1.0),
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     valueColor: const AlwaysStoppedAnimation(Colors.white),
                     strokeWidth: 10,
                   ),
@@ -435,7 +435,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -444,7 +444,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: SahoolColors.warning.withOpacity(0.2),
+                    color: SahoolColors.warning.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -458,8 +458,8 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: trend > 0
-                        ? SahoolColors.success.withOpacity(0.1)
-                        : SahoolColors.danger.withOpacity(0.1),
+                        ? SahoolColors.success.withValues(alpha: 0.1)
+                        : SahoolColors.danger.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -556,14 +556,14 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: SahoolColors.success.withOpacity(0.05),
+              color: SahoolColors.success.withValues(alpha: 0.05),
               borderRadius: SahoolRadius.mediumRadius,
             ),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(Icons.check_circle, color: SahoolColors.success),
-                const SizedBox(width: 12),
-                const Text('لا توجد تنبيهات حالياً'),
+                SizedBox(width: 12),
+                Text('لا توجد تنبيهات حالياً'),
               ],
             ),
           )
@@ -588,7 +588,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: SahoolRadius.mediumRadius,
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: SahoolShadows.small,
       ),
       child: Row(
@@ -596,7 +596,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 24),
@@ -648,7 +648,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: completed ? SahoolColors.success.withOpacity(0.05) : Colors.white,
+        color: completed ? SahoolColors.success.withValues(alpha: 0.05) : Colors.white,
         borderRadius: SahoolRadius.mediumRadius,
         boxShadow: SahoolShadows.small,
       ),

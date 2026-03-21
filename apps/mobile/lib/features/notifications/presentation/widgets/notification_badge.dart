@@ -5,6 +5,7 @@
 /// - Size (regular/small)
 /// - Color
 /// - Maximum display count
+library;
 
 import 'package:flutter/material.dart';
 

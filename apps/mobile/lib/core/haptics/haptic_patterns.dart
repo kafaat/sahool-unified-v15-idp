@@ -3,8 +3,8 @@
 ///
 /// Defines various haptic feedback patterns for different interactions.
 /// يحدد أنماط اهتزاز مختلفة للتفاعلات المتنوعة
+library;
 
-import 'package:flutter/services.dart';
 
 /// Haptic feedback pattern types
 /// أنواع أنماط الاهتزاز

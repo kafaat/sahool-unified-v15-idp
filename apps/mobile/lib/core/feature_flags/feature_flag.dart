@@ -3,6 +3,7 @@
 ///
 /// This file defines all feature flags available in the SAHOOL mobile app.
 /// Each flag has English and Arabic names, descriptions, and default values.
+library;
 
 /// Feature flag categories for organization
 /// فئات أعلام الميزات للتنظيم

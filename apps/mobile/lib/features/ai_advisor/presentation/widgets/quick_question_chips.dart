@@ -2,6 +2,7 @@
 /// شرائح الأسئلة السريعة
 ///
 /// Displays quick question templates for common agricultural queries
+library;
 
 import 'package:flutter/material.dart';
 import '../../../../core/config/theme.dart';
@@ -67,9 +68,9 @@ class QuickQuestionChips extends StatelessWidget {
         fontSize: 13,
         color: Colors.grey[800],
       ),
-      backgroundColor: SahoolTheme.primary.withOpacity(0.08),
+      backgroundColor: SahoolTheme.primary.withValues(alpha: 0.08),
       side: BorderSide(
-        color: SahoolTheme.primary.withOpacity(0.2),
+        color: SahoolTheme.primary.withValues(alpha: 0.2),
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -260,7 +261,7 @@ class _CategoryQuickQuestionsState extends State<CategoryQuickQuestions> {
             });
           }
         },
-        selectedColor: SahoolTheme.primary.withOpacity(0.2),
+        selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
         labelStyle: TextStyle(
           color: isSelected ? SahoolTheme.primary : Colors.grey[700],
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -293,20 +294,20 @@ class SuggestedQuestions extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.05),
+        color: SahoolTheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolTheme.primary.withOpacity(0.1),
+          color: SahoolTheme.primary.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.lightbulb_outline,
                   size: 18, color: SahoolTheme.primary),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'أسئلة مقترحة',
                 style: TextStyle(

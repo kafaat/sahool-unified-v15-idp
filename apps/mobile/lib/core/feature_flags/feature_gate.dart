@@ -20,12 +20,14 @@
 ///   showVoiceControls();
 /// }
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'feature_flag.dart';
 import 'feature_flags_providers.dart';
+import 'feature_flags_service.dart';
 
 /// FeatureGate Widget
 /// ودجت بوابة الميزات
@@ -83,9 +85,9 @@ class FeatureGate extends ConsumerWidget {
     return FeatureGate(
       key: key,
       allFlags: flags,
-      child: child,
       fallback: fallback,
       hideCompletely: hideCompletely,
+      child: child,
     );
   }
 
@@ -100,9 +102,9 @@ class FeatureGate extends ConsumerWidget {
     return FeatureGate(
       key: key,
       anyFlags: flags,
-      child: child,
       fallback: fallback,
       hideCompletely: hideCompletely,
+      child: child,
     );
   }
 
@@ -134,19 +136,19 @@ class FeatureGate extends ConsumerWidget {
     return fallback ?? const SizedBox.shrink();
   }
 
-  bool _checkEnabled(dynamic service) {
+  bool _checkEnabled(FeatureFlagsService service) {
     // Check single flag
-    if (flag != null && !(service.isEnabled(flag!) as bool)) {
+    if (flag != null && !service.isEnabled(flag!)) {
       return false;
     }
 
     // Check all flags
-    if (allFlags != null && !(service.allEnabled(allFlags!) as bool)) {
+    if (allFlags != null && !service.allEnabled(allFlags!)) {
       return false;
     }
 
     // Check any flags
-    if (anyFlags != null && !(service.anyEnabled(anyFlags!) as bool)) {
+    if (anyFlags != null && !service.anyEnabled(anyFlags!)) {
       return false;
     }
 

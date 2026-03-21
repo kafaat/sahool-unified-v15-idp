@@ -230,7 +230,7 @@ class VoiceCommandHandler {
     final command = VoiceCommandParser.parse(result.recognizedText);
 
     // Handle the parsed command
-    return await handleCommand(command);
+    return handleCommand(command);
   }
 
   /// Handle parsed command
@@ -307,7 +307,7 @@ class VoiceCommandHandler {
     }
 
     // Use default handler
-    return await _defaultCommandHandler(command);
+    return _defaultCommandHandler(command);
   }
 
   /// Default command handler implementation
@@ -740,7 +740,7 @@ class VoiceCommandHandler {
     final command = _pendingCommand!;
     _pendingCommand = null;
 
-    return await _executeCommand(command);
+    return _executeCommand(command);
   }
 
   /// Cancel pending command

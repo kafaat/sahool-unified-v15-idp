@@ -29,7 +29,7 @@
 /// interceptor.getCircuitBreakerHealth();
 /// ```
 
-library network;
+library;
 
 // API Result types
 export 'api_result.dart';

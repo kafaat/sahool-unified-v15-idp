@@ -10,7 +10,7 @@
 /// - GeoJSON / WKT export
 /// - Arabic UI labels
 
-library polygon_editor;
+library;
 
 export 'domain/polygon_editor_state.dart';
 export 'ui/polygon_editor_widget.dart';

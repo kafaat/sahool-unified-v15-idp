@@ -8,8 +8,8 @@
 /// - Rollback support (where possible)
 /// - Audit logging
 /// - Encrypted database support
+library;
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -319,7 +319,7 @@ class SahoolMigrationStrategy {
     try {
       // Check if column exists
       final columns = await db.customSelect(
-        "PRAGMA table_info($tableName)",
+        'PRAGMA table_info($tableName)',
       ).get();
 
       final columnExists = columns.any(

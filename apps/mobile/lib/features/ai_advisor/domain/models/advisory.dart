@@ -2,6 +2,7 @@
 /// نموذج التوصية من المستشار الذكي
 ///
 /// Represents an AI-generated agricultural advisory/recommendation
+library;
 
 import 'package:flutter/foundation.dart';
 

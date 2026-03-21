@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_service.dart';
@@ -59,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       // Auto-trigger biometric if available and enabled
       if (available && enabled) {
-        _authenticateWithBiometric();
+        unawaited(_authenticateWithBiometric());
       }
     }
   }
@@ -104,10 +103,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _resendCountdownTimer?.cancel();
     _resendCountdownTimer = null;
     _phoneController.dispose();
-    for (var controller in _otpControllers) {
+    for (final controller in _otpControllers) {
       controller.dispose();
     }
-    for (var node in _otpFocusNodes) {
+    for (final node in _otpFocusNodes) {
       node.dispose();
     }
     super.dispose();
@@ -217,7 +216,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         purpose: OTPPurpose.phoneVerification,
       );
 
-      result.when(
+      await result.when(
         success: (response) async {
           // تسجيل الدخول باستخدام AuthService وتخزين التوكن
           try {
@@ -317,7 +316,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: SahoolColors.primary.withOpacity(0.1),
+                        color: SahoolColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -417,11 +416,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     try {
                       final authService = ref.read(authServiceProvider);
                       await authService.loginWithBiometric();
-                      if (mounted) {
+                      if (context.mounted) {
                         context.go('/map');
                       }
                     } on AuthException catch (e) {
-                      if (mounted) {
+                      if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(e.message),
@@ -517,7 +516,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),

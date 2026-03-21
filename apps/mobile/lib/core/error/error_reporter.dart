@@ -3,6 +3,7 @@
 ///
 /// Provides unified error reporting to Sentry, analytics, and crash reporting services.
 /// Integrates with the existing CrashReportingService for comprehensive error tracking.
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';

@@ -1,13 +1,13 @@
 /// Irrigation Schedule Screen - شاشة جدول الري
 /// Calendar view of irrigation events with add/edit and smart recommendations
 /// عرض تقويمي لأحداث الري مع إضافة/تعديل وتوصيات ذكية
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
 import '../providers/irrigation_provider.dart';
-import '../widgets/irrigation_method_selector.dart';
 
 /// Irrigation Schedule Screen
 /// شاشة جدول الري
@@ -128,11 +128,11 @@ class _IrrigationScheduleScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
+            const Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
             const SizedBox(height: 16),
             Text(
               error.toString(),
-              style: TextStyle(color: SahoolColors.danger),
+              style: const TextStyle(color: SahoolColors.danger),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),

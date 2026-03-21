@@ -10,13 +10,11 @@
 /// - Caching with TTL
 /// - Graceful fallback on failure
 /// - User/tenant-specific flags
+library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
-import 'feature_flag.dart';
 import 'feature_flags_config.dart';
 import '../utils/app_logger.dart';
 

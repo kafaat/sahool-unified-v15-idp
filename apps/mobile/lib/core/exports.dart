@@ -3,6 +3,7 @@
 ///
 /// This file exports all core modules for easy import.
 /// Use: import 'package:sahool_field_app/core/exports.dart';
+library;
 
 // Animations - التحريكات
 export 'animations/animations.dart';

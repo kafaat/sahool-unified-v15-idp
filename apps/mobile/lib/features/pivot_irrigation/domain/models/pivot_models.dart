@@ -1,5 +1,6 @@
 /// Pivot Irrigation Models - Valley Style
 /// نماذج الري المحوري - بأسلوب فالي
+library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:latlong2/latlong.dart';

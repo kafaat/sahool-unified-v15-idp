@@ -9,6 +9,7 @@
 /// This module provides a unified interface for authentication
 /// across different identity providers while maintaining security
 /// and supporting offline-first architecture.
+library;
 
 import 'dart:async';
 import 'dart:convert';

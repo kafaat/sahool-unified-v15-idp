@@ -2,6 +2,7 @@
 /// Main irrigation management screen with field selector, water balance,
 /// scheduling overview, and quick action buttons.
 /// الشاشة الرئيسية لإدارة الري مع اختيار الحقل وتوازن المياه والجدولة
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -135,7 +136,7 @@ class _IrrigationDashboardScreenState
         color: SahoolColors.paleOlive.withOpacity(0.5),
         child: Row(
           children: [
-            Icon(Icons.info_outline, color: SahoolColors.sageGreen),
+            const Icon(Icons.info_outline, color: SahoolColors.sageGreen),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -291,7 +292,7 @@ class _IrrigationDashboardScreenState
       error: (_, __) => Center(
         child: Text(
           isArabic ? 'خطأ في تحميل البيانات' : 'Error loading data',
-          style: TextStyle(color: SahoolColors.danger),
+          style: const TextStyle(color: SahoolColors.danger),
         ),
       ),
     );
@@ -343,8 +344,8 @@ class _IrrigationDashboardScreenState
           isArabic: isArabic,
         );
       },
-      loading: () => OrganicCard(
-        child: const Padding(
+      loading: () => const OrganicCard(
+        child: Padding(
           padding: EdgeInsets.all(32),
           child: Center(
             child: CircularProgressIndicator(
@@ -359,14 +360,14 @@ class _IrrigationDashboardScreenState
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(Icons.error_outline, color: SahoolColors.danger),
+              const Icon(Icons.error_outline, color: SahoolColors.danger),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   isArabic
                       ? 'فشل في تحميل توازن المياه'
                       : 'Failed to load water balance',
-                  style: TextStyle(color: SahoolColors.danger),
+                  style: const TextStyle(color: SahoolColors.danger),
                 ),
               ),
               TextButton(

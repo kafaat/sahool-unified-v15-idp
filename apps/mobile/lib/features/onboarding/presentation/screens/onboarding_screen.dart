@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../widgets/animated_illustration.dart';
-import '../widgets/onboarding_page.dart';
 import '../../domain/onboarding_step.dart';
 import '../../state/onboarding_providers.dart';
 import 'welcome_screen.dart';
@@ -116,7 +115,7 @@ class _CompletionScreen extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
+        body: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,

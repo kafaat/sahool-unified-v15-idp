@@ -2,6 +2,7 @@
 /// نموذج التفاعل
 ///
 /// Represents an interaction with a farmer (call, visit, message, note)
+library;
 
 /// Interaction type
 /// نوع التفاعل

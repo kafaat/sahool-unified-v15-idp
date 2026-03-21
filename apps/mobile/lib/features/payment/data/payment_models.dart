@@ -1,5 +1,6 @@
 /// نماذج بوابة المدفوعات
 /// Payment Gateway Models
+library;
 
 import 'package:equatable/equatable.dart';
 

@@ -44,7 +44,7 @@ class DatabaseEncryption {
   Future<String> getOrCreateKey() async {
     try {
       // Check if key already exists
-      String? existingKey = await _secureStorage.read(key: _keyStorageKey);
+      final String? existingKey = await _secureStorage.read(key: _keyStorageKey);
 
       if (existingKey != null && existingKey.isNotEmpty) {
         // Validate key format
@@ -98,7 +98,7 @@ class DatabaseEncryption {
   Future<String> rotateKey() async {
     try {
       final newKey = _generateKey();
-      final newVersion = _currentKeyVersion + 1;
+      const newVersion = _currentKeyVersion + 1;
 
       // Store new key with incremented version
       await _secureStorage.write(key: _keyStorageKey, value: newKey);
@@ -193,7 +193,7 @@ class DatabaseEncryption {
     // This would require opening the database and testing
     // Implementation depends on specific database testing needs
     // For now, we just check if key exists
-    return await hasKey();
+    return hasKey();
   }
 }
 

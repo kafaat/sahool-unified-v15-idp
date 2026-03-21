@@ -3,6 +3,7 @@
 ///
 /// This barrel file exports all service integration classes
 /// and their providers for easy import throughout the app.
+library;
 
 // Field Service - خدمة الحقول
 export 'field_service.dart';

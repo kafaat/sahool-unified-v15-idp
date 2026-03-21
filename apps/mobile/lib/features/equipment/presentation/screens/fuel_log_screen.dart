@@ -1,11 +1,10 @@
 /// Fuel Log Screen - شاشة سجل الوقود
 /// Screen to add fuel log entries
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
-import '../../domain/models/equipment.dart';
-import '../../domain/models/fuel_log.dart';
 import '../../state/equipment_providers.dart';
 import '../widgets/fuel_gauge.dart';
 

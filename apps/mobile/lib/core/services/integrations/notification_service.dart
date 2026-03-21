@@ -7,6 +7,7 @@
 /// - Subscribe/unsubscribe
 /// - Mark as read
 /// - Push notification registration
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -253,7 +254,7 @@ class NotificationServiceConnector extends ServiceConnector {
   /// تحديد الإشعار كمقروء
   Future<ApiResult<bool>> markAsRead(String notificationId) async {
     return post(
-      '${getEndpoint('mark-read') ?? '/api/v1/notifications/mark-read'}',
+      getEndpoint('mark-read') ?? '/api/v1/notifications/mark-read',
       data: {'notification_id': notificationId},
       parser: (_) => true,
     );
@@ -263,7 +264,7 @@ class NotificationServiceConnector extends ServiceConnector {
   /// تحديد جميع الإشعارات كمقروءة
   Future<ApiResult<bool>> markAllAsRead() async {
     return post(
-      '${getEndpoint('mark-read') ?? '/api/v1/notifications/mark-read'}',
+      getEndpoint('mark-read') ?? '/api/v1/notifications/mark-read',
       data: {'all': true},
       parser: (_) => true,
     );

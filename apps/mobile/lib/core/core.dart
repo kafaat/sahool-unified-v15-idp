@@ -2,6 +2,7 @@
 /// الوحدة الأساسية للتطبيق
 ///
 /// تصدير جميع مكونات النواة في مكان واحد
+library;
 
 // Configuration
 export 'config/env_config.dart';

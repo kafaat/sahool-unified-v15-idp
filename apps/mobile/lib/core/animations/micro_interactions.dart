@@ -1072,7 +1072,7 @@ class _GlowPulseState extends State<GlowPulse>
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(

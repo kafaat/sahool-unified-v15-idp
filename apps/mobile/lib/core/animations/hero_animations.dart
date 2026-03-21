@@ -196,7 +196,7 @@ class ImageZoomHero extends StatelessWidget {
       animation: animation,
       builder: (context, child) {
         final fromBorderRadius = borderRadius ?? BorderRadius.zero;
-        final toBorderRadius = BorderRadius.zero;
+        const toBorderRadius = BorderRadius.zero;
 
         final borderRadiusTween = BorderRadiusTween(
           begin: isForward ? fromBorderRadius : toBorderRadius,
@@ -292,7 +292,7 @@ class _ZoomableImageViewState extends State<ZoomableImageView>
     return GestureDetector(
       onDoubleTap: _onDoubleTap,
       onTap: widget.onTap ?? () => Navigator.of(context).pop(),
-      child: Container(
+      child: ColoredBox(
         color: widget.backgroundColor,
         child: Center(
           child: Hero(

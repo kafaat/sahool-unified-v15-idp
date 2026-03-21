@@ -3,6 +3,7 @@
 ///
 /// Comprehensive onboarding flow for new users
 /// تدفق إعداد شامل للمستخدمين الجدد
+library;
 
 // Domain Models
 export 'domain/onboarding_step.dart';

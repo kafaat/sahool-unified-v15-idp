@@ -2,6 +2,7 @@
 /// شاشة قائمة المزارعين
 ///
 /// Displays all farmers with search and filter capabilities
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -706,7 +706,7 @@ class OTPConfigRepository {
 /// SharedPreferences provider
 /// Lazily initializes SharedPreferences via FutureProvider
 final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async {
-  return await SharedPreferences.getInstance();
+  return SharedPreferences.getInstance();
 });
 
 /// OTP Config Repository provider

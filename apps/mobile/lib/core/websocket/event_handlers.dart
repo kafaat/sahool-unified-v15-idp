@@ -368,9 +368,9 @@ class WebSocketEventListener extends ConsumerWidget {
   final Widget child;
 
   const WebSocketEventListener({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

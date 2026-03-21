@@ -69,7 +69,7 @@ class ActionSummaryWidget extends ConsumerWidget {
           children: [
             // شريط الملخص
             Card(
-              color: const Color(0xFF367C2B).withOpacity(0.1),
+              color: const Color(0xFF367C2B).withValues(alpha: 0.1),
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
@@ -139,7 +139,7 @@ class ActionSummaryWidget extends ConsumerWidget {
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: priorityColor.withOpacity(0.3)),
+        side: BorderSide(color: priorityColor.withValues(alpha: 0.3)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -147,7 +147,7 @@ class ActionSummaryWidget extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: priorityColor.withOpacity(0.1),
+            color: priorityColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(

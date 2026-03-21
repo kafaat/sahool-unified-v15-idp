@@ -715,8 +715,8 @@ class AppRouter {
       GoRoute(
         path: '/irrigation',
         name: 'irrigation',
-        builder: (context, state) => IrrigationDashboardScreen(
-          fields: const [],
+        builder: (context, state) => const IrrigationDashboardScreen(
+          fields: [],
         ),
       ),
     ],

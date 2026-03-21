@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/auth_service.dart';
-import '../providers/profile_provider.dart';
 
 /// شاشة الملف الشخصي والإعدادات
 /// Profile & Settings Screen
@@ -89,10 +88,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           // صورة الملف الشخصي
           Stack(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
-                child: const Icon(
+                child: Icon(
                   Icons.person,
                   size: 50,
                   color: Color(0xFF367C2B),

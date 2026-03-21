@@ -258,7 +258,7 @@ class _CompressedMapExampleState extends State<CompressedMapExample> {
           // الخريطة - Map
           FlutterMap(
             mapController: _mapController,
-            options: MapOptions(
+            options: const MapOptions(
               initialCenter: sanaa,
               initialZoom: 12.0,
               minZoom: 5.0,

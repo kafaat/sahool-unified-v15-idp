@@ -23,7 +23,7 @@ class ProfileScreen extends ConsumerWidget {
             expandedHeight: 200,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
+              background: DecoratedBox(
                 decoration: const BoxDecoration(
                   gradient: SahoolColors.primaryGradient,
                 ),
@@ -65,7 +65,7 @@ class ProfileScreen extends ConsumerWidget {
                             ? profile.location
                             : (profile.farmNameAr.isNotEmpty ? profile.farmNameAr : 'مزارع'),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -315,7 +315,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -344,7 +344,7 @@ class ProfileScreen extends ConsumerWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: SahoolColors.primary.withOpacity(0.1),
+          color: SahoolColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(item.icon, color: SahoolColors.primary, size: 22),
@@ -445,7 +445,7 @@ class ProfileScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: SahoolColors.primary.withOpacity(0.1),
+                color: SahoolColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.eco, color: SahoolColors.primary),

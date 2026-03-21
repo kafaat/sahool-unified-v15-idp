@@ -1,5 +1,6 @@
 /// Sahool Dio Error Handler
 /// معالج أخطاء Dio لتحويلها لرسائل عربية مفهومة
+library;
 
 import 'package:dio/dio.dart';
 import 'api_result.dart';

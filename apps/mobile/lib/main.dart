@@ -16,8 +16,6 @@ import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
 import 'core/error/error.dart';
 import 'core/crash/crash_reporter.dart';
-import 'core/crash/crash_config.dart';
-import 'core/crash/breadcrumb_service.dart';
 import 'core/persistence/app_state_manager.dart';
 import 'core/persistence/preferences_manager.dart';
 import 'core/persistence/draft_manager.dart';

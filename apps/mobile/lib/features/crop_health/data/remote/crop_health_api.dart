@@ -40,7 +40,7 @@ class CropHealthApi {
         'area_hectares': areaHectares,
         'geometry': geometry,
       },
-    );
+    ) as Map<String, dynamic>;
     return response['zone_id'] as String;
   }
 
@@ -74,7 +74,7 @@ class CropHealthApi {
         'cloud_pct': cloudPct,
         'notes': notes,
       },
-    );
+    ) as Map<String, dynamic>;
     return response['observation_id'] as String;
   }
 

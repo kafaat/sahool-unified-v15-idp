@@ -24,6 +24,7 @@
 /// - Fuzzy command matching
 /// - Visual and audio feedback
 /// - Wake word detection preparation
+library;
 
 // Core voice service (speech recognition)
 export 'voice_service.dart';

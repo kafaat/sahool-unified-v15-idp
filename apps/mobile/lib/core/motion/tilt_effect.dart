@@ -7,8 +7,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'motion_service.dart';
-import 'parallax_controller.dart';
 import 'parallax_layer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -622,7 +620,7 @@ class _TiltInteractiveCardState extends State<TiltInteractiveCard> {
     final controller = ParallaxContainer.of(context);
     final theme = Theme.of(context);
 
-    Widget card = TiltCard(
+    final Widget card = TiltCard(
       config: widget.config,
       width: widget.width,
       height: widget.height,
@@ -765,7 +763,7 @@ class TiltWidget extends StatelessWidget {
           final shadowX = -tilt.normalizedX * config.maxShadowOffset;
           final shadowY = -tilt.normalizedY * config.maxShadowOffset;
 
-          result = Container(
+          result = DecoratedBox(
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(

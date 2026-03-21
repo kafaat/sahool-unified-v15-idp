@@ -8,6 +8,7 @@
 /// - Optional update for minor versions
 /// - Store "remind me later" preference
 /// - Deep link to app store
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -339,7 +340,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
   void _startPeriodicCheck() {
     _periodicCheckTimer?.cancel();
     _periodicCheckTimer = Timer.periodic(
-      Duration(hours: checkIntervalHours),
+      const Duration(hours: checkIntervalHours),
       (_) => checkForUpdates(),
     );
   }
@@ -542,7 +543,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
   /// التذكير لاحقًا (سيتم التحقق مرة أخرى بعد remindLaterHours)
   Future<void> remindLater() async {
     final prefs = await SharedPreferences.getInstance();
-    final remindTime = DateTime.now().add(Duration(hours: remindLaterHours));
+    final remindTime = DateTime.now().add(const Duration(hours: remindLaterHours));
     await prefs.setInt(
       UpdateStorageKeys.remindLaterTime,
       remindTime.millisecondsSinceEpoch,

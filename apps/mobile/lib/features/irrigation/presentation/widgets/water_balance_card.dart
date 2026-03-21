@@ -2,6 +2,7 @@
 /// Visual card showing soil moisture gauge, ET0/ETc values,
 /// water deficit/surplus, and next irrigation countdown.
 /// بطاقة مرئية تعرض مقياس رطوبة التربة والتبخر-نتح والعجز المائي
+library;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -345,7 +346,7 @@ class _SoilMoistureGauge extends StatelessWidget {
   const _SoilMoistureGauge({
     required this.percent,
     this.isArabic = true,
-    this.size = 140,
+    this.size = 120.0,
   });
 
   @override

@@ -2,6 +2,7 @@
 /// شاشة سجل التوصيات
 ///
 /// Shows history of all AI-generated advisories with filtering
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -287,7 +288,7 @@ class _AdvisoryHistoryScreenState extends ConsumerState<AdvisoryHistoryScreen>
                           _selectedType = selected ? type : null;
                         });
                       },
-                      selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                      selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                       checkmarkColor: SahoolTheme.primary,
                     );
                   }).toList(),

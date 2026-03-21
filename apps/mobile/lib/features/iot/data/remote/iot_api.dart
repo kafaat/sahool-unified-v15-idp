@@ -144,7 +144,7 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final devices = json['data'] as List;
       return devices.map((d) => IoTDevice.fromJson(d as Map<String, dynamic>)).toList();
     } else {
@@ -164,7 +164,7 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final devices = json['data'] as List;
       return devices.map((d) => IoTDevice.fromJson(d as Map<String, dynamic>)).toList();
     } else {
@@ -184,7 +184,7 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return IoTDevice.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IoTApiException(
@@ -203,7 +203,7 @@ class IoTApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return List<Map<String, dynamic>>.from(json['data'] as Iterable);
     } else {
       throw IoTApiException(
@@ -237,7 +237,7 @@ class IoTApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final readings = json['data'] as List;
       return readings.map((r) => SensorReading.fromJson(r as Map<String, dynamic>)).toList();
     } else {

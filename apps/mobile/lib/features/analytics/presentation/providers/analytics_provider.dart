@@ -1,5 +1,6 @@
 /// Analytics Provider - Dashboard Data Provider
 /// موفر التحليلات - موفر بيانات لوحة القيادة
+library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Field performance data

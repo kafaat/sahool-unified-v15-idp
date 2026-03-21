@@ -5,9 +5,7 @@ import '../../../core/theme/sahool_theme.dart';
 import '../../../core/map/offline_map_manager.dart';
 import '../../../core/map/widgets/map_download_dialog.dart';
 import '../../../core/ui/sync_indicator.dart';
-import '../../../core/sync/queue_manager.dart';
 import '../../../core/storage/database.dart';
-import '../../../main.dart';
 import '../providers/sync_events_provider.dart';
 import 'conflict_resolution_dialog.dart';
 
@@ -247,7 +245,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.check_circle, size: 48, color: SahoolColors.success),
+                  const Icon(Icons.check_circle, size: 48, color: SahoolColors.success),
                   const SizedBox(height: 12),
                   const Text('لا توجد عمليات معلقة'),
                   const SizedBox(height: 4),
@@ -368,10 +366,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           _buildStorageItem('بيانات NDVI', '23 MB', Icons.satellite_alt),
           _buildStorageItem('قاعدة البيانات', '12 MB', Icons.table_chart),
           const Divider(height: 24),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('الإجمالي'),
+              Text('الإجمالي'),
               Text(
                 '208 MB',
                 style: TextStyle(

@@ -11,7 +11,6 @@ library;
 import 'package:drift/drift.dart';
 
 import '../schema_version.dart';
-import 'migration_base.dart';
 import '../../utils/app_logger.dart';
 
 /// Database verification utilities
@@ -336,7 +335,7 @@ class MigrationVerifier {
   /// Get column names for a table
   Future<List<String>> _getTableColumns(String tableName) async {
     final result = await _db.customSelect(
-      "PRAGMA table_info($tableName)",
+      'PRAGMA table_info($tableName)',
     ).get();
     return result.map((row) => row.read<String>('name')).toList();
   }

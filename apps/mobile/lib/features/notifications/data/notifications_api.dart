@@ -3,6 +3,7 @@
 ///
 /// Handles API communication for notifications
 /// including fetching, updating status, and actions
+library;
 
 import 'dart:convert';
 import 'package:dio/dio.dart';

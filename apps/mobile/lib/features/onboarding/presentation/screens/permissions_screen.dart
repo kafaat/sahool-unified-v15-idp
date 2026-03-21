@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../widgets/onboarding_page.dart';
 import '../widgets/permission_item.dart';
-import '../widgets/animated_illustration.dart';
 import '../../state/onboarding_providers.dart';
 
 /// SAHOOL Permissions Screen

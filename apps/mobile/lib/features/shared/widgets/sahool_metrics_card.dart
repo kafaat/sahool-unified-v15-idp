@@ -72,7 +72,7 @@ class SahoolMetricsCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: SahoolProColors.textDark,
@@ -81,7 +81,7 @@ class SahoolMetricsCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: SahoolProColors.textMedium,
                 fontWeight: FontWeight.w500,
@@ -212,7 +212,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '$cropType • ${areaHa.toStringAsFixed(1)} هكتار',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: SahoolProColors.textMedium,
                             fontSize: 14,
                           ),
@@ -338,7 +338,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
         ),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: SahoolProColors.textLight,
           ),
@@ -358,7 +358,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: SahoolProColors.textMedium,
           ),

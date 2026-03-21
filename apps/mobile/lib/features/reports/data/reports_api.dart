@@ -44,7 +44,7 @@ class ReportsApi {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        if (_tenantId != null) 'X-Tenant-Id': _tenantId!,
+        if (_tenantId != null) 'X-Tenant-Id': _tenantId,
       };
 
   // ═══════════════════════════════════════════════════════════════════════════

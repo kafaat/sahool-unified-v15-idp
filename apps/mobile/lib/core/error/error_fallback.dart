@@ -3,6 +3,7 @@
 ///
 /// Provides user-friendly fallback UI components when errors occur.
 /// Supports RTL layout for Arabic language and bilingual text.
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

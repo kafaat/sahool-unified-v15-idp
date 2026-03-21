@@ -3,6 +3,7 @@
 ///
 /// بوابة المدفوعات المحلية اليمنية
 /// https://developers-test.tharwatt.com:5253/
+library;
 
 import 'package:dio/dio.dart';
 import '../../../core/network/api_result.dart';
@@ -212,7 +213,8 @@ class TharwattPaymentService {
         },
       );
 
-      final List<dynamic> data = (response.data['data'] ?? response.data) as List<dynamic>;
+      final responseData = response.data as Map<String, dynamic>;
+      final List<dynamic> data = (responseData['data'] ?? responseData) as List<dynamic>;
       final transactions =
           data.map((json) => PaymentTransaction.fromJson(json as Map<String, dynamic>)).toList();
       return Success(transactions);
@@ -233,7 +235,8 @@ class TharwattPaymentService {
         '/api/v1/payment/balance/$walletId',
       );
 
-      final balance = ((response.data['balance'] ?? 0) as num).toDouble();
+      final responseData = response.data as Map<String, dynamic>;
+      final balance = ((responseData['balance'] ?? 0) as num).toDouble();
       return Success(balance);
     } on DioException catch (e) {
       return Failure(
@@ -253,7 +256,8 @@ class TharwattPaymentService {
         data: {'phoneNumber': phoneNumber},
       );
 
-      final isValid = response.data['valid'] == true;
+      final responseData = response.data as Map<String, dynamic>;
+      final isValid = responseData['valid'] == true;
       return Success(isValid);
     } on DioException catch (e) {
       return Failure(
@@ -270,7 +274,8 @@ class TharwattPaymentService {
     try {
       final response = await _dio.get('/api/v1/payment/operators');
 
-      final List<dynamic> data = (response.data['operators'] ?? response.data) as List<dynamic>;
+      final responseData = response.data as Map<String, dynamic>;
+      final List<dynamic> data = (responseData['operators'] ?? responseData) as List<dynamic>;
       final operators =
           data.map((json) => MobileOperator.fromJson(json as Map<String, dynamic>)).toList();
       return Success(operators);

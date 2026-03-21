@@ -1,5 +1,6 @@
 /// SAHOOL Notification Service
 /// خدمة الإشعارات
+library;
 
 import 'dart:convert';
 import 'dart:io';
@@ -99,13 +100,13 @@ class NotificationServiceImpl implements NotificationService {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
-    final darwinSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
 
-    final initSettings = InitializationSettings(
+    const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: darwinSettings,
       macOS: darwinSettings,
@@ -313,7 +314,7 @@ class NotificationServiceImpl implements NotificationService {
 
   @override
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 }
 

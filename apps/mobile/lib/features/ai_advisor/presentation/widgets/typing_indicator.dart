@@ -2,6 +2,7 @@
 /// مؤشر الكتابة
 ///
 /// Shows animated typing indicator when AI is processing
+library;
 
 import 'package:flutter/material.dart';
 import '../../../../core/config/theme.dart';
@@ -190,7 +191,7 @@ class ProcessingIndicator extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showSpinner)
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
@@ -201,7 +202,7 @@ class ProcessingIndicator extends StatelessWidget {
           if (showSpinner) const SizedBox(width: 12),
           Text(
             message ?? 'جاري المعالجة...',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: SahoolTheme.primary,
             ),
@@ -266,7 +267,7 @@ class _AiThinkingIndicatorState extends State<AiThinkingIndicator>
                   color: SahoolTheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.psychology,
                   color: SahoolTheme.primary,
                   size: 24,

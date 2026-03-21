@@ -47,7 +47,7 @@ class AboutScreen extends StatelessWidget {
             _AppLogoSection(),
 
             // Version Info
-            SettingsSection(
+            const SettingsSection(
               title: 'Version',
               titleAr: 'معلومات الإصدار',
               icon: Icons.info_outline,
@@ -233,7 +233,7 @@ class AboutScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.grey[900]
@@ -295,12 +295,12 @@ class AboutScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('الإبلاغ عن مشكلة'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('صف المشكلة التي واجهتها:'),
-            const SizedBox(height: 16),
-            const TextField(
+            Text('صف المشكلة التي واجهتها:'),
+            SizedBox(height: 16),
+            TextField(
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'اكتب وصفاً تفصيلياً...',
@@ -336,12 +336,12 @@ class AboutScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('اقتراح ميزة'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('ما الميزة التي تود رؤيتها في التطبيق؟'),
-            const SizedBox(height: 16),
-            const TextField(
+            Text('ما الميزة التي تود رؤيتها في التطبيق؟'),
+            SizedBox(height: 16),
+            TextField(
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'اكتب اقتراحك...',
@@ -400,7 +400,7 @@ class _AppLogoSection extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
                 colors: [
@@ -457,9 +457,9 @@ class _AppLogoSection extends StatelessWidget {
               color: SahoolTheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(
+            child: const Text(
               'الإصدار ${AboutScreen.appVersion}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: SahoolTheme.primary,
@@ -528,17 +528,17 @@ class _InfoTile extends StatelessWidget {
 class _SocialMediaRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return const Padding(
+      padding: EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _SocialButton(icon: Icons.language, label: 'الموقع'),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           _SocialButton(icon: Icons.facebook, label: 'فيسبوك', color: Colors.blue),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           _SocialButton(icon: Icons.camera_alt, label: 'إنستغرام', color: Colors.pink),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           _SocialButton(icon: Icons.code, label: 'يوتيوب', color: Colors.red),
         ],
       ),
@@ -605,7 +605,7 @@ class _CreditsTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Wrap(
+          const Wrap(
             alignment: WrapAlignment.center,
             spacing: 8,
             runSpacing: 8,

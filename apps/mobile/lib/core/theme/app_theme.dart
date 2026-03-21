@@ -417,7 +417,7 @@ class AppTheme {
 
   /// Build glassmorphism dark theme
   static ThemeData _buildGlassDarkTheme(AppThemeConfig config) {
-    final glassColors = GlassColors.dark;
+    const glassColors = GlassColors.dark;
 
     return ThemeData(
       useMaterial3: true,

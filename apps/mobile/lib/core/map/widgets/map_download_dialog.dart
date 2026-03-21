@@ -108,7 +108,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
   }
 
   Widget _buildRegionSelector() {
-    final regions = OfflineMapManager.predefinedRegions;
+    const regions = OfflineMapManager.predefinedRegions;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

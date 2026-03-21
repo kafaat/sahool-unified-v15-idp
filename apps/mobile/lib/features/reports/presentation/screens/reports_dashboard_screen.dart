@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/models/report_template.dart';
 import '../../domain/models/report_data.dart';
-import '../widgets/report_card.dart';
 import '../../state/reports_providers.dart';
 import 'report_builder_screen.dart';
 import 'report_viewer_screen.dart';
@@ -427,7 +426,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
                             color: SahoolColors.harvestGold.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
+                          child: const Text(
                             'PRO',
                             style: TextStyle(
                               color: SahoolColors.harvestGold,
@@ -530,7 +529,7 @@ class ReportTemplateCard extends StatelessWidget {
                               color: SahoolColors.harvestGold.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
+                            child: const Text(
                               'PRO',
                               style: TextStyle(
                                 color: SahoolColors.harvestGold,

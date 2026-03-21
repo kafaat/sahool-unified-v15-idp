@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/accessibility/semantics_helper.dart';
 import '../../../../core/di/providers.dart';
@@ -97,7 +98,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   List<FieldEntity> get _filteredFields {
-    var fields = _fields.where((f) {
+    final fields = _fields.where((f) {
       if (_searchQuery.isNotEmpty &&
           !f.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
@@ -322,7 +323,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -337,7 +338,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'ابحث عن حقل...',
-                prefixIcon: ExcludeSemantics(child: const Icon(Icons.search)),
+                prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? Semantics(
                         label: SahoolSemantics.clearFilter,
@@ -454,7 +455,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         label: Text(label),
         selected: selected,
         onSelected: onSelected,
-        selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+        selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
         checkmarkColor: const Color(0xFF367C2B),
       ),
     );
@@ -621,7 +622,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  void _openFieldDetails(FieldEntity field) async {
+  Future<void> _openFieldDetails(FieldEntity field) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -630,15 +631,15 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
     // Reload fields if a field was deleted or modified
     if (result == 'deleted' && mounted) {
-      _loadFields();
+      unawaited(_loadFields());
     }
   }
 
-  void _addField() async {
+  Future<void> _addField() async {
     final result = await Navigator.pushNamed(context, '/field-form');
     // Reload fields if a field was created
     if (result == true && mounted) {
-      _loadFields();
+      unawaited(_loadFields());
     }
   }
 

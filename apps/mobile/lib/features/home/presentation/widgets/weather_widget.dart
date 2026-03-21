@@ -21,7 +21,7 @@ class WeatherWidget extends ConsumerWidget {
 
     if (weatherState.data != null) {
       final current = weatherState.data!.current;
-      city = current.conditionAr.isNotEmpty ? 'الموقع الحالي' : 'الموقع الحالي';
+      city = 'الموقع الحالي';
       temp = '${current.temperature.round()}';
       condition = current.conditionAr;
       humidity = '${current.humidity}%';
@@ -83,7 +83,7 @@ class WeatherWidget extends ConsumerWidget {
                       Text(
                         city,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),

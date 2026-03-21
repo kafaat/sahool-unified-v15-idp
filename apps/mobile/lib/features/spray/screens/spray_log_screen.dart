@@ -16,10 +16,10 @@ class SprayLogScreen extends ConsumerStatefulWidget {
   final String? recommendationId;
 
   const SprayLogScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
     this.recommendationId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayLogScreen> createState() => _SprayLogScreenState();
@@ -310,7 +310,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
           child: Text(
             isArabic ? 'اختر نوع الرش أولاً' : 'Select spray type first',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -330,7 +330,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               child: Text(
                 isArabic ? 'لا توجد منتجات متاحة' : 'No products available',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),

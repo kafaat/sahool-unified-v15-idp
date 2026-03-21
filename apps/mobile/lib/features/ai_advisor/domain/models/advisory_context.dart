@@ -2,6 +2,7 @@
 /// نموذج سياق التوصية
 ///
 /// Contains field, weather, crop, and soil data for AI context
+library;
 
 import 'package:flutter/foundation.dart';
 
@@ -93,7 +94,7 @@ class AdvisoryContext {
 
   /// Get context completeness percentage
   double get completeness {
-    int total = 5;
+    const int total = 5;
     int available = 0;
     if (hasFieldData) available++;
     if (hasWeatherData) available++;
@@ -303,7 +304,7 @@ class WeatherContext {
     if (currentTemperature == null) return 'غير متوفر';
     final min = minTemperature?.toStringAsFixed(0) ?? '-';
     final max = maxTemperature?.toStringAsFixed(0) ?? '-';
-    return '${currentTemperature!.toStringAsFixed(0)}° (${min}°-${max}°)';
+    return '${currentTemperature!.toStringAsFixed(0)}° ($min°-$max°)';
   }
 
   /// Check if rain is expected

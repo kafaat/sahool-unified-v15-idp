@@ -221,7 +221,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
               Positioned(
                 top: 12,
                 left: 12,
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,

@@ -11,7 +11,6 @@ import '../../domain/models/report_filter.dart';
 import '../widgets/filter_chips_widget.dart';
 import '../widgets/date_range_picker_widget.dart';
 import '../../state/reports_providers.dart';
-import '../../state/report_builder_controller.dart';
 import 'report_viewer_screen.dart';
 
 /// Report Builder Screen
@@ -340,7 +339,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
         ),
         items: taskTypes
             .map((type) => DropdownMenuItem<String?>(
-                  value: type['id'] as String?,
+                  value: type['id'],
                   child: Text(type['name'] as String),
                 ))
             .toList(),
@@ -376,7 +375,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
         ),
         items: cropTypes
             .map((type) => DropdownMenuItem<String?>(
-                  value: type['id'] as String?,
+                  value: type['id'],
                   child: Text(type['name'] as String),
                 ))
             .toList(),
@@ -463,12 +462,12 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
                   color: Colors.white,
                 ),
               )
-            : Row(
+            : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.play_arrow),
-                  const SizedBox(width: 8),
-                  const Text(
+                  Icon(Icons.play_arrow),
+                  SizedBox(width: 8),
+                  Text(
                     'توليد التقرير',
                     style: TextStyle(
                       fontSize: 16,

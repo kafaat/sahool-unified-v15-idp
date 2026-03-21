@@ -14,6 +14,7 @@
 /// - إعدادات الإشعارات
 /// - أنواع الإشعارات
 /// - معالج الإشعارات
+library;
 
 export 'fcm_service.dart';
 export 'push_notification_service.dart';

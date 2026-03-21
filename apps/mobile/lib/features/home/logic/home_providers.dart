@@ -6,10 +6,10 @@
 /// - Weather from weatherProvider
 /// - Tasks from tasksProvider / pendingTasksProvider
 /// - Alerts from alertsProvider
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
-import '../../../core/http/api_client.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
 import '../../tasks/providers/tasks_provider.dart' hide apiClientProvider;
 import '../../field/domain/entities/field.dart';
@@ -22,7 +22,7 @@ import '../../field/domain/entities/field.dart';
 final dashboardFieldsProvider = FutureProvider<List<Field>>((ref) async {
   final repo = ref.watch(fieldsRepoProvider);
   final apiClient = ref.watch(apiClientProvider);
-  return repo.getAllFields(apiClient.tenantId as String);
+  return repo.getAllFields(apiClient.tenantId);
 });
 
 /// Active fields count

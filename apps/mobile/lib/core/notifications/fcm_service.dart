@@ -14,6 +14,7 @@
 /// await fcm.initialize();
 /// final token = await fcm.getToken();
 /// ```
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -50,8 +51,9 @@ Future<bool> _checkFirebaseAvailable() async {
 /// Initialize Firebase Core
 Future<void> _initializeFirebaseCore() async {
   // Import firebase_core dynamically
-  final firebaseCore = await _getFirebaseCore();
+  final dynamic firebaseCore = await _getFirebaseCore();
   if (firebaseCore != null) {
+    // ignore: avoid_dynamic_calls
     await firebaseCore.initializeApp();
   }
 }
@@ -374,13 +376,13 @@ class FCMService {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization settings
-    final darwinSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false, // Request permission separately
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
 
-    final initSettings = InitializationSettings(
+    const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: darwinSettings,
       macOS: darwinSettings,
@@ -505,7 +507,7 @@ class FCMService {
   /// Get FCM token
   Future<String?> getToken() async {
     if (_fcmToken != null) return _fcmToken;
-    return await _getToken();
+    return _getToken();
   }
 
   /// Internal token retrieval
@@ -718,20 +720,25 @@ class FCMService {
     try {
       if (message != null) {
         // RemoteMessage.notification contains title/body
-        final notification = message.notification;
-        if (notification != null) {
-          title = notification.title as String? ?? title;
-          body = notification.body as String? ?? body;
-        }
+        // message is dynamic (Firebase RemoteMessage when available)
+        // Use Map-based access to avoid dynamic calls
+        if (message is Map) {
+          final msgMap = Map<String, dynamic>.from(message);
+          final notification = msgMap['notification'];
+          if (notification is Map) {
+            title = (notification['title'] as String?) ?? title;
+            body = (notification['body'] as String?) ?? body;
+          }
 
-        // RemoteMessage.data contains the data payload
-        if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data as Map);
-          // Data-only messages may have title/body in the data payload
-          title = data['title']?.toString() ?? title;
-          body = data['body']?.toString() ?? body;
-          type = data['type']?.toString();
-          priority = data['priority']?.toString();
+          // RemoteMessage.data contains the data payload
+          final msgData = msgMap['data'];
+          if (msgData is Map) {
+            data = Map<String, dynamic>.from(msgData);
+            title = data['title']?.toString() ?? title;
+            body = data['body']?.toString() ?? body;
+            type = data['type']?.toString();
+            priority = data['priority']?.toString();
+          }
         }
       }
     } catch (e) {
@@ -758,15 +765,21 @@ class FCMService {
 
     try {
       if (message != null) {
-        final notification = message.notification;
-        if (notification != null) {
-          title = notification.title as String? ?? '';
-          body = notification.body as String? ?? '';
-        }
-        if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data as Map);
-          title = data['title']?.toString() ?? title;
-          body = data['body']?.toString() ?? body;
+        // message is dynamic (Firebase RemoteMessage when available)
+        // Use Map-based access to avoid dynamic calls
+        if (message is Map) {
+          final msgMap = Map<String, dynamic>.from(message);
+          final notification = msgMap['notification'];
+          if (notification is Map) {
+            title = (notification['title'] as String?) ?? '';
+            body = (notification['body'] as String?) ?? '';
+          }
+          final msgData = msgMap['data'];
+          if (msgData is Map) {
+            data = Map<String, dynamic>.from(msgData);
+            title = data['title']?.toString() ?? title;
+            body = data['body']?.toString() ?? body;
+          }
         }
       }
     } catch (e) {
@@ -852,7 +865,7 @@ class FCMService {
       icon: '@mipmap/ic_launcher',
     );
 
-    final iosDetails = const DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -882,7 +895,7 @@ class FCMService {
 
   /// Get pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -917,7 +930,7 @@ final fcmInitializationProvider = FutureProvider<void>((ref) async {
 final fcmTokenProvider = FutureProvider<String?>((ref) async {
   await ref.watch(fcmInitializationProvider.future);
   final fcm = ref.watch(fcmServiceProvider);
-  return await fcm.getToken();
+  return fcm.getToken();
 });
 
 /// Notification stream provider

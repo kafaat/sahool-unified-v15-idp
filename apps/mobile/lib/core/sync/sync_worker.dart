@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart';
 
 import '../storage/database.dart';
 import '../sync/network_status.dart';
@@ -105,7 +104,7 @@ class SyncWorker {
         if (fieldId != null) {
           final field = await _db.getFieldById(fieldId);
           if (field?.etag != null && field!.etag!.isNotEmpty) {
-            headers['If-Match'] = field.etag!;
+            headers['If-Match'] = field.etag;
           }
         }
       }

@@ -6,6 +6,7 @@
 /// - Shopping cart management
 /// - Order creation
 /// - Smart harvest listing
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -349,6 +350,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   /// Initialize and load initial data. Call explicitly after construction
   /// to avoid firing network requests in the constructor.
   Future<void> init() async {
+    if (!mounted) return;
     await loadProducts();
   }
 
@@ -360,6 +362,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
 
   /// تحميل المنتجات
   Future<void> loadProducts({ProductCategory? category}) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -369,9 +372,11 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       }
 
       final response = await _httpClient.get(Uri.parse(url));
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final products = await compute(_parseProductList, response.body);
+        if (!mounted) return;
 
         final featured = products.where((p) => p.featured).toList();
 
@@ -389,6 +394,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: 'خطأ في الاتصال: ${e.toString()}',

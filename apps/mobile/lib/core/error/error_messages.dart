@@ -3,6 +3,7 @@
 ///
 /// Provides localized error messages for the SAHOOL mobile application.
 /// Supports RTL layout for Arabic language.
+library;
 
 import 'package:flutter/material.dart';
 

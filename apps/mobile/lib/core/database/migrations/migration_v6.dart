@@ -8,7 +8,6 @@ library;
 
 import 'package:drift/drift.dart';
 
-import '../schema_version.dart';
 import 'migration_base.dart';
 
 /// Migration from schema version 5 to 6

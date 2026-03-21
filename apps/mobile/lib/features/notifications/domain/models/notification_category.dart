@@ -3,6 +3,7 @@
 ///
 /// Defines all notification categories with bilingual labels
 /// and associated icons and colors
+library;
 
 import 'package:flutter/material.dart';
 

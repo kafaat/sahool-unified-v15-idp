@@ -8,6 +8,7 @@
 /// - Polygon validation for field boundaries
 ///
 /// All validation messages are bilingual (Arabic/English).
+library;
 
 import 'validators.dart';
 

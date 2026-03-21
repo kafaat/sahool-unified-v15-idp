@@ -50,7 +50,7 @@ class ItemDetailScreen extends ConsumerWidget {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
               const SizedBox(height: 16),
-              Text('فشل في تحميل التفاصيل'),
+              const Text('فشل في تحميل التفاصيل'),
               const SizedBox(height: 8),
               Text(error.toString()),
               const SizedBox(height: 16),

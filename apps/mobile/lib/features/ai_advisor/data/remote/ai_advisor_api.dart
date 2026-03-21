@@ -2,6 +2,7 @@
 /// خدمة المستشار الذكي - الذكاء الاصطناعي المتعدد الوكلاء
 ///
 /// Provides communication with the AI advisory backend services
+library;
 
 import '../../../../core/http/api_client.dart';
 import '../../domain/models/advisory.dart';

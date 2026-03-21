@@ -498,13 +498,12 @@ class ModalBottomSheetTransition extends PageRouteBuilder {
   final Widget page;
   final Curve curve;
   final Duration duration;
-  final Color barrierColor;
 
   ModalBottomSheetTransition({
     required this.page,
     this.curve = Curves.easeOutCubic,
     this.duration = const Duration(milliseconds: 350),
-    this.barrierColor = Colors.black54,
+    Color barrierColor = Colors.black54,
   }) : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
           transitionDuration: duration,
@@ -534,13 +533,12 @@ class DialogPopTransition extends PageRouteBuilder {
   final Widget page;
   final Curve curve;
   final Duration duration;
-  final Color barrierColor;
 
   DialogPopTransition({
     required this.page,
     this.curve = Curves.easeOutBack,
     this.duration = const Duration(milliseconds: 300),
-    this.barrierColor = Colors.black54,
+    Color barrierColor = Colors.black54,
   }) : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
           transitionDuration: duration,

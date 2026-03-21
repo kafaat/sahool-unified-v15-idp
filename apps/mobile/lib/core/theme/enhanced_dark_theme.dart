@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'glass_colors.dart';
 
 /// SAHOOL Enhanced Dark Theme System
 /// نظام الثيم الداكن المحسن لسهول
@@ -315,7 +314,7 @@ class EnhancedDarkTheme {
               color: accentColors.primary,
             );
           }
-          return TextStyle(
+          return const TextStyle(
             fontFamily: _fontFamily,
             fontSize: 12,
             color: EnhancedDarkColors.textSecondary,
@@ -440,7 +439,7 @@ class EnhancedDarkTheme {
           borderSide: const BorderSide(color: EnhancedDarkColors.error, width: 2),
         ),
         labelStyle: const TextStyle(color: EnhancedDarkColors.textSecondary),
-        hintStyle: TextStyle(color: EnhancedDarkColors.textDisabled),
+        hintStyle: const TextStyle(color: EnhancedDarkColors.textDisabled),
         errorStyle: const TextStyle(color: EnhancedDarkColors.error),
         prefixIconColor: EnhancedDarkColors.textSecondary,
         suffixIconColor: EnhancedDarkColors.textSecondary,
@@ -479,7 +478,7 @@ class EnhancedDarkTheme {
           fontWeight: FontWeight.bold,
           color: colors.onSurface,
         ),
-        contentTextStyle: TextStyle(
+        contentTextStyle: const TextStyle(
           fontFamily: _fontFamily,
           fontSize: 16,
           color: EnhancedDarkColors.textSecondary,
@@ -655,7 +654,7 @@ class EnhancedDarkTheme {
   static _DarkColorConfig _getColors(DarkThemeVariant variant) {
     switch (variant) {
       case DarkThemeVariant.standard:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundStandard,
           surface: EnhancedDarkColors.surfaceStandard,
           surfaceElevated: EnhancedDarkColors.surfaceElevated1,
@@ -665,7 +664,7 @@ class EnhancedDarkTheme {
           divider: EnhancedDarkColors.divider,
         );
       case DarkThemeVariant.deep:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundDeep,
           surface: EnhancedDarkColors.surfaceDeep,
           surfaceElevated: EnhancedDarkColors.surfaceStandard,
@@ -675,17 +674,17 @@ class EnhancedDarkTheme {
           divider: EnhancedDarkColors.borderSubtle,
         );
       case DarkThemeVariant.amoled:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundAmoled,
           surface: EnhancedDarkColors.surfaceAmoled,
           surfaceElevated: EnhancedDarkColors.surfaceDeep,
           onSurface: EnhancedDarkColors.textPrimary,
-          border: const Color(0xFF2A2A2A),
-          borderSubtle: const Color(0xFF1A1A1A),
-          divider: const Color(0xFF2A2A2A),
+          border: Color(0xFF2A2A2A),
+          borderSubtle: Color(0xFF1A1A1A),
+          divider: Color(0xFF2A2A2A),
         );
       case DarkThemeVariant.charcoal:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundCharcoal,
           surface: EnhancedDarkColors.surfaceCharcoal,
           surfaceElevated: EnhancedDarkColors.surfaceElevated2,
@@ -695,24 +694,24 @@ class EnhancedDarkTheme {
           divider: EnhancedDarkColors.divider,
         );
       case DarkThemeVariant.highContrast:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundHighContrast,
           surface: EnhancedDarkColors.surfaceHighContrast,
           surfaceElevated: EnhancedDarkColors.surfaceDeep,
           onSurface: EnhancedDarkColors.textPrimaryHighContrast,
-          border: const Color(0xFF666666),
-          borderSubtle: const Color(0xFF444444),
-          divider: const Color(0xFF666666),
+          border: Color(0xFF666666),
+          borderSubtle: Color(0xFF444444),
+          divider: Color(0xFF666666),
         );
       case DarkThemeVariant.sahoolGreen:
-        return _DarkColorConfig(
+        return const _DarkColorConfig(
           background: EnhancedDarkColors.backgroundSahoolGreen,
-          surface: const Color(0xFF0F1F0F),
-          surfaceElevated: const Color(0xFF152515),
+          surface: Color(0xFF0F1F0F),
+          surfaceElevated: Color(0xFF152515),
           onSurface: EnhancedDarkColors.textPrimary,
-          border: const Color(0xFF1A3A1A),
-          borderSubtle: const Color(0xFF0F2A0F),
-          divider: const Color(0xFF1A3A1A),
+          border: Color(0xFF1A3A1A),
+          borderSubtle: Color(0xFF0F2A0F),
+          divider: Color(0xFF1A3A1A),
         );
     }
   }
@@ -721,7 +720,7 @@ class EnhancedDarkTheme {
   static _AccentColorConfig _getAccentColors(DarkThemeAccent accent) {
     switch (accent) {
       case DarkThemeAccent.green:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentGreen,
           secondary: EnhancedDarkColors.accentGreenLight,
           dark: EnhancedDarkColors.accentGreenDark,
@@ -729,7 +728,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.blue:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentBlue,
           secondary: EnhancedDarkColors.accentBlueLight,
           dark: EnhancedDarkColors.accentBlueDark,
@@ -737,7 +736,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.gold:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentGold,
           secondary: EnhancedDarkColors.accentGoldLight,
           dark: EnhancedDarkColors.accentGoldDark,
@@ -745,7 +744,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.orange:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentOrange,
           secondary: EnhancedDarkColors.accentOrangeLight,
           dark: EnhancedDarkColors.accentOrangeDark,
@@ -753,7 +752,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.purple:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentPurple,
           secondary: EnhancedDarkColors.accentPurpleLight,
           dark: EnhancedDarkColors.accentPurpleDark,
@@ -761,7 +760,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.cyan:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentCyan,
           secondary: EnhancedDarkColors.accentCyanLight,
           dark: EnhancedDarkColors.accentCyanDark,
@@ -769,7 +768,7 @@ class EnhancedDarkTheme {
           onSecondary: Colors.black,
         );
       case DarkThemeAccent.rose:
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentRose,
           secondary: EnhancedDarkColors.accentRoseLight,
           dark: EnhancedDarkColors.accentRoseDark,
@@ -778,7 +777,7 @@ class EnhancedDarkTheme {
         );
       case DarkThemeAccent.system:
         // Default to green for system
-        return _AccentColorConfig(
+        return const _AccentColorConfig(
           primary: EnhancedDarkColors.accentGreen,
           secondary: EnhancedDarkColors.accentGreenLight,
           dark: EnhancedDarkColors.accentGreenDark,
@@ -857,7 +856,7 @@ class EnhancedDarkTheme {
         fontWeight: FontWeight.w400,
         color: colors.onSurface,
       ),
-      bodySmall: TextStyle(
+      bodySmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w400,
@@ -875,7 +874,7 @@ class EnhancedDarkTheme {
         fontWeight: FontWeight.w500,
         color: colors.onSurface,
       ),
-      labelSmall: TextStyle(
+      labelSmall: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: 11,
         fontWeight: FontWeight.w500,

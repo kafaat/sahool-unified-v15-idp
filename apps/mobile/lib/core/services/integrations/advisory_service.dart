@@ -7,6 +7,7 @@
 /// - Soil interpretation
 /// - Deficiency symptoms
 /// - AI-powered advice
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';

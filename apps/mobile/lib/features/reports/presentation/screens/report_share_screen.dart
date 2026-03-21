@@ -115,7 +115,7 @@ class _ReportShareScreenState extends ConsumerState<ReportShareScreen> {
                 color: SahoolColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.description,
                 color: SahoolColors.primary,
                 size: 28,

@@ -2,13 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:safe_device/safe_device.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:secure_application/secure_application.dart';
 import '../utils/app_logger.dart';
-import 'security_config.dart';
 
 /// Device Security Service Provider
 /// مزود خدمة أمان الجهاز
@@ -652,9 +650,9 @@ class _ScreenshotPreventionWrapperState extends State<ScreenshotPreventionWrappe
             opacity: 0.6,
             lockedBuilder: (context, controller) {
               // This is shown when app is in background
-              return Container(
-                color: const Color(0xFF2E7D32), // SAHOOL green
-                child: const Center(
+              return const ColoredBox(
+                color: Color(0xFF2E7D32), // SAHOOL green
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

@@ -5,7 +5,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
-import '../../domain/models/report_filter.dart';
 
 /// Filter type enum
 enum FilterType {
@@ -46,32 +45,32 @@ class _FilterChipsWidgetState extends ConsumerState<FilterChipsWidget> {
     switch (widget.filterType) {
       case FilterType.field:
         return [
-          FilterItem(id: 'field_1', name: 'Field 1', nameAr: 'حقل القمح الشمالي'),
-          FilterItem(id: 'field_2', name: 'Field 2', nameAr: 'حقل الذرة الغربي'),
-          FilterItem(id: 'field_3', name: 'Field 3', nameAr: 'حقل الشعير'),
-          FilterItem(id: 'field_4', name: 'Field 4', nameAr: 'حقل البرسيم'),
-          FilterItem(id: 'field_5', name: 'Field 5', nameAr: 'حقل الخضار'),
+          const FilterItem(id: 'field_1', name: 'Field 1', nameAr: 'حقل القمح الشمالي'),
+          const FilterItem(id: 'field_2', name: 'Field 2', nameAr: 'حقل الذرة الغربي'),
+          const FilterItem(id: 'field_3', name: 'Field 3', nameAr: 'حقل الشعير'),
+          const FilterItem(id: 'field_4', name: 'Field 4', nameAr: 'حقل البرسيم'),
+          const FilterItem(id: 'field_5', name: 'Field 5', nameAr: 'حقل الخضار'),
         ];
       case FilterType.farm:
         return [
-          FilterItem(id: 'farm_1', name: 'Farm 1', nameAr: 'مزرعة الراشدي'),
-          FilterItem(id: 'farm_2', name: 'Farm 2', nameAr: 'مزرعة الخضراء'),
+          const FilterItem(id: 'farm_1', name: 'Farm 1', nameAr: 'مزرعة الراشدي'),
+          const FilterItem(id: 'farm_2', name: 'Farm 2', nameAr: 'مزرعة الخضراء'),
         ];
       case FilterType.crop:
         return [
-          FilterItem(id: 'wheat', name: 'Wheat', nameAr: 'قمح'),
-          FilterItem(id: 'barley', name: 'Barley', nameAr: 'شعير'),
-          FilterItem(id: 'corn', name: 'Corn', nameAr: 'ذرة'),
-          FilterItem(id: 'alfalfa', name: 'Alfalfa', nameAr: 'برسيم'),
-          FilterItem(id: 'tomato', name: 'Tomato', nameAr: 'طماطم'),
+          const FilterItem(id: 'wheat', name: 'Wheat', nameAr: 'قمح'),
+          const FilterItem(id: 'barley', name: 'Barley', nameAr: 'شعير'),
+          const FilterItem(id: 'corn', name: 'Corn', nameAr: 'ذرة'),
+          const FilterItem(id: 'alfalfa', name: 'Alfalfa', nameAr: 'برسيم'),
+          const FilterItem(id: 'tomato', name: 'Tomato', nameAr: 'طماطم'),
         ];
       case FilterType.task:
         return [
-          FilterItem(id: 'irrigation', name: 'Irrigation', nameAr: 'الري'),
-          FilterItem(id: 'fertilization', name: 'Fertilization', nameAr: 'التسميد'),
-          FilterItem(id: 'spraying', name: 'Spraying', nameAr: 'الرش'),
-          FilterItem(id: 'inspection', name: 'Inspection', nameAr: 'التفقد'),
-          FilterItem(id: 'harvest', name: 'Harvest', nameAr: 'الحصاد'),
+          const FilterItem(id: 'irrigation', name: 'Irrigation', nameAr: 'الري'),
+          const FilterItem(id: 'fertilization', name: 'Fertilization', nameAr: 'التسميد'),
+          const FilterItem(id: 'spraying', name: 'Spraying', nameAr: 'الرش'),
+          const FilterItem(id: 'inspection', name: 'Inspection', nameAr: 'التفقد'),
+          const FilterItem(id: 'harvest', name: 'Harvest', nameAr: 'الحصاد'),
         ];
     }
   }

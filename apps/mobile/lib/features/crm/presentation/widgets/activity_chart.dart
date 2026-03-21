@@ -2,6 +2,7 @@
 /// مخطط النشاط
 ///
 /// Displays activity analytics in chart format
+library;
 
 import 'package:flutter/material.dart';
 

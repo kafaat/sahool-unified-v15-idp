@@ -234,7 +234,7 @@ class AuthService {
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
-        return await _loginWithMock(email, password);
+        return _loginWithMock(email, password);
       }
 
       rethrow;
@@ -259,7 +259,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
@@ -277,7 +282,7 @@ class AuthService {
       );
 
       // Extract user data
-      final userData = data['user'] ?? data;
+      final userData = (data['user'] ?? data) as Map<String, dynamic>;
       final user = User(
         id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
         email: (userData['email'] ?? email) as String,
@@ -408,7 +413,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
       final success = (data['success'] as bool?) ?? false;
 
       if (!success) {
@@ -590,7 +600,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract new tokens
       final accessToken = data['access_token'] ?? data['accessToken'];

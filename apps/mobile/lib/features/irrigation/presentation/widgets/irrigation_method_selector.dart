@@ -2,6 +2,7 @@
 /// Dropdown/card selector for irrigation methods with efficiency display
 /// and icons for drip, sprinkler, flood, pivot.
 /// أداة اختيار طرق الري مع عرض الكفاءة وأيقونات لكل طريقة
+library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';

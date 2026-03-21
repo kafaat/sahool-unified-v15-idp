@@ -2,6 +2,7 @@
 /// إدارة حالة السوق - Clean Architecture Pattern
 ///
 /// يفصل منطق البيع عن الواجهة ويوفر حالات واضحة للتتبع
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_result.dart';

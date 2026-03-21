@@ -1,5 +1,6 @@
 /// SAHOOL Notification Types
 /// أنواع الإشعارات
+library;
 
 enum NotificationType {
   alertHigh,

@@ -108,7 +108,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> forecasts = (data['forecasts'] ?? data) as List<dynamic>;
       return forecasts.map((d) => DailyForecast.fromJson(d as Map<String, dynamic>)).toList();
     } else {
@@ -135,7 +135,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> hourly = (data['hourly'] as List<dynamic>?) ?? [];
       return hourly.map((h) => HourlyForecast.fromJson(h as Map<String, dynamic>)).toList();
     } else {
@@ -163,7 +163,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> forecasts = (data['forecasts'] ?? data) as List<dynamic>;
       return forecasts.map((d) => DailyForecast.fromJson(d as Map<String, dynamic>)).toList();
     } else {
@@ -188,7 +188,7 @@ class WeatherApi {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> alerts = (data['alerts'] ?? data) as List<dynamic>;
       return alerts.map((a) => WeatherAlert.fromJson(a as Map<String, dynamic>)).toList();
     } else {
@@ -209,7 +209,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> alerts = (data['alerts'] ?? data) as List<dynamic>;
       return alerts.map((a) => WeatherAlert.fromJson(a as Map<String, dynamic>)).toList();
     } else {
@@ -242,7 +242,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> impacts = (data['impacts'] ?? data) as List<dynamic>;
       return impacts.map((i) => AgriculturalImpact.fromJson(i as Map<String, dynamic>)).toList();
     } else {
@@ -263,7 +263,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> impacts = (data['impacts'] ?? data) as List<dynamic>;
       return impacts.map((i) => AgriculturalImpact.fromJson(i as Map<String, dynamic>)).toList();
     } else {
@@ -288,7 +288,7 @@ class WeatherApi {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final List<dynamic> locations = (data['locations'] ?? data) as List<dynamic>;
       return locations.map((l) => WeatherLocation.fromJson(l as Map<String, dynamic>)).toList();
     } else {

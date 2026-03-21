@@ -3,6 +3,7 @@
 ///
 /// يحتوي على جميع نماذج البيانات للسوق والمحفظة والقروض
 /// متوافقة مع API الخلفية (marketplace-service)
+library;
 
 import 'package:flutter/material.dart';
 

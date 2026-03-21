@@ -2,8 +2,8 @@
 /// متحكم محادثة المستشار الذكي
 ///
 /// Manages chat session state and business logic for AI advisor
+library;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/remote/ai_advisor_api.dart';
@@ -440,7 +440,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final context = await _repository.getContext(fieldId: state.fieldId!);
+      final context = await _repository.getContext(fieldId: state.fieldId);
       state = state.copyWith(
         context: context,
         isLoading: false,

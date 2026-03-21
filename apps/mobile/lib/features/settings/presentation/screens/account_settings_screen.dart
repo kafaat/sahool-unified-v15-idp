@@ -205,7 +205,7 @@ class AccountSettingsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.grey[900]
@@ -390,7 +390,7 @@ class AccountSettingsScreen extends ConsumerWidget {
         initialChildSize: 0.5,
         minChildSize: 0.3,
         maxChildSize: 0.9,
-        builder: (context, scrollController) => Container(
+        builder: (context, scrollController) => DecoratedBox(
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.grey[900]
@@ -418,7 +418,7 @@ class AccountSettingsScreen extends ConsumerWidget {
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  children: [
+                  children: const [
                     _SessionTile(
                       device: 'هذا الجهاز',
                       location: 'صنعاء، اليمن',
@@ -469,7 +469,7 @@ class AccountSettingsScreen extends ConsumerWidget {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16),
-                children: [
+                children: const [
                   _PlanCard(
                     name: 'مبتدئ',
                     price: 'مجاني',
@@ -500,11 +500,11 @@ class AccountSettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.warning_rounded, color: SahoolTheme.error),
-            const SizedBox(width: 8),
-            const Text('حذف الحساب'),
+            Icon(Icons.warning_rounded, color: SahoolTheme.error),
+            SizedBox(width: 8),
+            Text('حذف الحساب'),
           ],
         ),
         content: const Text(
@@ -826,7 +826,7 @@ class _PlanCard extends StatelessWidget {
                     ),
                     Text(
                       price,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: SahoolTheme.primary,
@@ -853,9 +853,9 @@ class _PlanCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: isCurrentPlan
-                      ? OutlinedButton(
+                      ? const OutlinedButton(
                           onPressed: null,
-                          child: const Text('الباقة الحالية'),
+                          child: Text('الباقة الحالية'),
                         )
                       : ElevatedButton(
                           onPressed: () {},

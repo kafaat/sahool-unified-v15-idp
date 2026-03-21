@@ -7,6 +7,7 @@
 /// - Deferred initialization
 /// - Memory management utilities
 /// - Widget caching
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';

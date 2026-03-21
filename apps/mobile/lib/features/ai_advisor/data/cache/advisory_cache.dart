@@ -2,6 +2,7 @@
 /// ذاكرة التخزين المؤقت للتوصيات
 ///
 /// Provides offline-first caching for AI advisory data
+library;
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';

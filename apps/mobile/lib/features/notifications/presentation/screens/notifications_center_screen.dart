@@ -6,6 +6,7 @@
 /// - Group by date/category
 /// - Bulk actions
 /// - Pull to refresh
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,6 @@ import '../../domain/models/notification.dart';
 import '../../domain/models/notification_category.dart';
 import '../../state/notifications_providers.dart';
 import '../widgets/notification_card.dart';
-import '../widgets/notification_filter.dart';
 import '../widgets/notification_badge.dart';
 import 'notification_settings_screen.dart';
 import 'notification_details_screen.dart';

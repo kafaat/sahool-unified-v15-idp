@@ -523,7 +523,7 @@ class ApiService {
   }) async {
     // Check if offline and queue the request
     if (!_isOnline && queueIfOffline && method != 'GET') {
-      return await _queueRequest<T>(
+      return _queueRequest<T>(
         method: method,
         endpoint: endpoint,
         data: data,
@@ -982,7 +982,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = response.data as Map<String, dynamic>;
         _accessToken = data['access_token'] as String?;
         _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
 

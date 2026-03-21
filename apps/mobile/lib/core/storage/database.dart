@@ -518,9 +518,10 @@ class AppDatabase extends _$AppDatabase {
           List<LatLng> boundary = [];
           LatLng? centroid;
 
-          final geometry = item['geometry'];
+          final geometry = item['geometry'] as Map<String, dynamic>?;
           if (geometry != null && geometry['type'] == 'Polygon') {
-            final coords = geometry['coordinates'][0] as List;
+            final coordinates = geometry['coordinates'] as List;
+            final coords = coordinates[0] as List;
             boundary = coords.map((c) {
               final coord = c as List;
               return LatLng(
@@ -758,7 +759,7 @@ Future<void> _migrateToEncryptedDatabase(
     try {
       // Attach new encrypted database
       final pragma = encryption.getSqlCipherPragma(encryptionKey);
-      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('\"')[1]}\";");
+      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('"')[1]}\";");
 
       // Configure SQLCipher settings for the attached database
       oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');
@@ -789,7 +790,7 @@ Future<void> _migrateToEncryptedDatabase(
 
           if (schema.isNotEmpty) {
             final createSql = schema.first['sql'] as String;
-            oldDb.execute('$createSql'.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
+            oldDb.execute(createSql.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
           }
 
           // Copy data

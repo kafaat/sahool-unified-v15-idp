@@ -135,11 +135,11 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.info_outline, size: 18, color: SahoolColors.warning),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.info_outline, size: 18, color: SahoolColors.warning),
+              SizedBox(width: 8),
+              Text(
                 'ماذا حدث؟',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),

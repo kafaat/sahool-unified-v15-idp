@@ -1,5 +1,6 @@
 /// Fuel Gauge Widget - مقياس الوقود
 /// Visual fuel level indicator
+library;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
@@ -296,8 +297,8 @@ class FuelBar extends StatelessWidget {
           ),
         ),
         if (fuelPercent < 20)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
             child: Row(
               children: [
                 Icon(
@@ -305,7 +306,7 @@ class FuelBar extends StatelessWidget {
                   color: SahoolColors.danger,
                   size: 14,
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   'الوقود منخفض!',
                   style: TextStyle(
@@ -364,7 +365,7 @@ class MiniFuelIndicator extends StatelessWidget {
         ),
         if (showWarning && isLow) ...[
           const SizedBox(width: 4),
-          Icon(
+          const Icon(
             Icons.warning,
             color: SahoolColors.danger,
             size: 14,

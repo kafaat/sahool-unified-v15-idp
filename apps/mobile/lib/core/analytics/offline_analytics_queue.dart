@@ -11,11 +11,11 @@
 /// - Event deduplication
 /// - Size limits to prevent storage overflow
 /// - Priority queue support
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../sync/network_status.dart';
 import '../utils/app_logger.dart';

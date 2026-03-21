@@ -11,6 +11,7 @@
 /// - Date ranges (planting, harvest)
 ///
 /// All validation messages are bilingual (Arabic/English).
+library;
 
 import 'validators.dart';
 

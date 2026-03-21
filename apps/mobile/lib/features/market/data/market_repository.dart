@@ -3,6 +3,7 @@
 ///
 /// يوفر طبقة تجريد للوصول إلى بيانات السوق والمحفظة
 /// مع استخدام نمط ApiResult للتعامل الآمن مع الأخطاء
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,7 +101,8 @@ class MarketRepository {
           'description': description,
         },
       );
-      return Success(WalletModel.fromJson(response.data['wallet'] as Map<String, dynamic>));
+      final responseData = response.data as Map<String, dynamic>;
+      return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل الإيداع'),
@@ -122,7 +124,8 @@ class MarketRepository {
           'description': description,
         },
       );
-      return Success(WalletModel.fromJson(response.data['wallet'] as Map<String, dynamic>));
+      final responseData = response.data as Map<String, dynamic>;
+      return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
       return Failure(
         _getErrorMessage(e, 'فشل السحب'),

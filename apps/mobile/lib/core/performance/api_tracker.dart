@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../utils/app_logger.dart';
@@ -248,7 +247,7 @@ class ApiTimingEvent {
 
   @override
   String toString() =>
-      '$method $endpoint: ${duration.inMilliseconds}ms (${statusCode})';
+      '$method $endpoint: ${duration.inMilliseconds}ms ($statusCode)';
 }
 
 /// Real-time API timing tracker with callback support

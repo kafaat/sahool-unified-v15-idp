@@ -365,7 +365,7 @@ class MiniReportCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${report.filter.dateRange.formattedAr}',
+                      report.filter.dateRange.formattedAr,
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.grey[600],

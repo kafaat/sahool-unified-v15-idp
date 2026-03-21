@@ -3,6 +3,7 @@
 ///
 /// SQLite-based local storage for notifications
 /// enabling offline-first functionality
+library;
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -370,7 +371,7 @@ class NotificationsLocalDb {
       whereArgs.add(category.name);
     }
 
-    return await _db.update(
+    return _db.update(
       _notificationsTable,
       {
         'status': NotificationStatus.read.name,
@@ -417,7 +418,7 @@ class NotificationsLocalDb {
     final cutoff =
         DateTime.now().subtract(Duration(days: daysOld)).toIso8601String();
 
-    return await _db.delete(
+    return _db.delete(
       _notificationsTable,
       where: 'created_at < ? AND status = ?',
       whereArgs: [cutoff, NotificationStatus.deleted.name],

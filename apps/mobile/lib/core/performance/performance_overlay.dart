@@ -249,7 +249,7 @@ class _PerformanceOverlayState extends State<PerformanceOverlay> {
         Row(
           children: [
             _buildMetricBox(
-              '${_fps.toStringAsFixed(0)}',
+              _fps.toStringAsFixed(0),
               'FPS',
               fpsColor,
             ),

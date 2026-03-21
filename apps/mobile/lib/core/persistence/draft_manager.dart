@@ -866,7 +866,7 @@ class DraftFormNotifier extends StateNotifier<Draft?> {
   /// Load existing draft for entity
   Future<void> loadDraft() async {
     if (_entityId != null) {
-      state = await _manager.getDraftByEntity(_type, _entityId!);
+      state = await _manager.getDraftByEntity(_type, _entityId);
     }
   }
 
@@ -900,7 +900,7 @@ class DraftFormNotifier extends StateNotifier<Draft?> {
       await _manager.deleteDraft(state!.metadata.id);
       state = null;
     } else if (_entityId != null) {
-      await _manager.deleteDraftByEntity(_type, _entityId!);
+      await _manager.deleteDraftByEntity(_type, _entityId);
     }
   }
 }

@@ -33,13 +33,13 @@
 /// // Set user context
 /// CrashReporter.instance.setUserContext(userId: 'anonymized_id');
 /// ```
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -853,9 +853,9 @@ class CrashReporter {
     final severity = report.severity.name.toUpperCase();
 
     debugPrint('');
-    debugPrint('${'=' * 60}');
+    debugPrint('=' * 60);
     debugPrint('CRASH REPORT [$severity]');
-    debugPrint('${'=' * 60}');
+    debugPrint('=' * 60);
     debugPrint('Time: ${report.timestamp.toIso8601String()}');
     debugPrint('Type: ${report.errorType}');
     debugPrint('Message: ${report.errorMessage}');
@@ -875,7 +875,7 @@ class CrashReporter {
         debugPrint('  ... (${lines.length - 15} more lines)');
       }
     }
-    debugPrint('${'=' * 60}');
+    debugPrint('=' * 60);
     debugPrint('');
   }
 

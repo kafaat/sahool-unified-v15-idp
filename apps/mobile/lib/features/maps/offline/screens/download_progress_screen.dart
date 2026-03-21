@@ -563,11 +563,11 @@ class _DownloadProgressScreenState extends State<DownloadProgressScreen>
     final seconds = duration.inSeconds.remainder(60);
 
     if (hours > 0) {
-      return '${hours}س ${minutes}د ${seconds}ث';
+      return '$hoursس $minutesد $secondsث';
     } else if (minutes > 0) {
-      return '${minutes}د ${seconds}ث';
+      return '$minutesد $secondsث';
     } else {
-      return '${seconds}ث';
+      return '$secondsث';
     }
   }
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -713,7 +712,7 @@ class KongGatewayClient {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = response.data as Map<String, dynamic>;
         _accessToken = data['access_token'] as String?;
         _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
         return true;

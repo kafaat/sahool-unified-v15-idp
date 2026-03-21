@@ -89,7 +89,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
           textDirection: TextDirection.rtl,
           child: Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: SahoolColors.primary,
                 onPrimary: Colors.white,
                 surface: Colors.white,
@@ -246,13 +246,13 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
               children: [
                 Text(
                   '${_dateRange.days}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: SahoolColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
-                Text(
+                const Text(
                   'يوم',
                   style: TextStyle(
                     color: SahoolColors.primary,
@@ -290,7 +290,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.calendar_today,
                   size: 14,
                   color: SahoolColors.primary,
@@ -323,7 +323,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
           textDirection: TextDirection.rtl,
           child: Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: SahoolColors.primary,
                 onPrimary: Colors.white,
               ),

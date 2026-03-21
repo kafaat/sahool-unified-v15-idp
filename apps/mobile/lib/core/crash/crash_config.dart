@@ -9,6 +9,7 @@
 /// final config = CrashConfig.fromEnvironment();
 /// await crashReporter.initialize(config);
 /// ```
+library;
 
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';

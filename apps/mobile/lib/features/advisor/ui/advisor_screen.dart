@@ -116,7 +116,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -193,7 +193,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),
                 backgroundColor: Colors.white,
-                side: BorderSide(color: SahoolColors.primary.withOpacity(0.3)),
+                side: BorderSide(color: SahoolColors.primary.withValues(alpha: 0.3)),
               ),
             );
           }).toList(),
@@ -236,7 +236,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: SahoolColors.primary.withOpacity(0.3 + (value * 0.7)),
+            color: SahoolColors.primary.withValues(alpha: 0.3 + (value * 0.7)),
             shape: BoxShape.circle,
           ),
         );
@@ -251,7 +251,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -272,7 +272,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withOpacity(0.1),
+                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

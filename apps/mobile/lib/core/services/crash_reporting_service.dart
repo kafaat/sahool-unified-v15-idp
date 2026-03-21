@@ -3,6 +3,7 @@
 ///
 /// Handles error reporting, crash tracking, and debugging support
 /// Sanitizes PII, tracks breadcrumbs, and supports multiple providers
+library;
 
 import 'dart:async';
 import 'dart:io';

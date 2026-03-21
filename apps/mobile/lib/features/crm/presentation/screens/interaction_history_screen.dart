@@ -2,6 +2,7 @@
 /// شاشة سجل التفاعلات
 ///
 /// Displays full interaction history for a farmer
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

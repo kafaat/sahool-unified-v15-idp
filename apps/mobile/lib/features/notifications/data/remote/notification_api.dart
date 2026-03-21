@@ -143,7 +143,7 @@ class NotificationApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final notifications = json['data'] as List;
       return notifications.map((n) => ApiNotification.fromJson(n as Map<String, dynamic>)).toList();
     } else {
@@ -163,7 +163,7 @@ class NotificationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return ApiNotification.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(
@@ -292,7 +292,7 @@ class NotificationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return NotificationPreferences.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(
@@ -314,7 +314,7 @@ class NotificationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return NotificationPreferences.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(

@@ -592,7 +592,7 @@ class SkeletonGrid extends StatelessWidget {
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -604,13 +604,13 @@ class SkeletonGrid extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 3,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
                   child: SkeletonWithShimmer(
@@ -623,7 +623,7 @@ class SkeletonGrid extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1176,7 +1176,7 @@ class LoadingOverlay extends StatelessWidget {
               child: AnimatedOpacity(
                 opacity: isLoading ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Container(
+                child: ColoredBox(
                   color: overlayColor ?? Colors.black.withOpacity(0.3),
                   child: Center(
                     child: loadingWidget ?? const SahoolLoader(),

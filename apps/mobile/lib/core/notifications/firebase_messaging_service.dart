@@ -3,6 +3,7 @@
 ///
 /// Enhanced Firebase Cloud Messaging integration for SAHOOL platform
 /// Complements the existing push_notification_service.dart with additional features
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -298,13 +299,13 @@ class FirebaseMessagingService {
   Future<void> _initializeLocalNotifications() async {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final iosSettings = DarwinInitializationSettings(
+    const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    final settings = InitializationSettings(
+    const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
@@ -497,7 +498,7 @@ class FirebaseMessagingService {
   /// Get FCM token
   Future<String?> getToken() async {
     if (_fcmToken != null) return _fcmToken;
-    return await _getToken();
+    return _getToken();
   }
 
   Future<String?> _getToken() async {

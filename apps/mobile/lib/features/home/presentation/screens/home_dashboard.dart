@@ -111,7 +111,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.agriculture, color: Colors.white, size: 24),
@@ -237,16 +237,16 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             padding: EdgeInsets.all(32),
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (err, _) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          error: (err, _) => const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                      const SizedBox(height: 12),
+                      Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      SizedBox(height: 12),
                       Text('خطأ في تحميل الحقول'),
                     ],
                   ),
@@ -256,10 +256,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           ),
           data: (fields) {
             if (fields.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(24),
                     child: Center(
                       child: Column(

@@ -18,7 +18,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("الإعدادات"),
+        title: const Text('الإعدادات'),
         backgroundColor: Colors.white,
         foregroundColor: SahoolProColors.deepJungle,
         elevation: 1,
@@ -26,74 +26,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // قسم المزامنة
-          _buildSectionHeader("المزامنة والشبكة"),
+          _buildSectionHeader('المزامنة والشبكة'),
           _SyncSettingTile(
             icon: Icons.sync,
             iconColor: SahoolProColors.johnGreen,
-            title: "المزامنة في الخلفية",
-            subtitle: _backgroundSync ? "مفعل - كل 15 دقيقة" : "معطل",
+            title: 'المزامنة في الخلفية',
+            subtitle: _backgroundSync ? 'مفعل - كل 15 دقيقة' : 'معطل',
             value: _backgroundSync,
             onChanged: (v) => setState(() => _backgroundSync = v),
           ),
           _SyncSettingTile(
             icon: Icons.wifi_off,
             iconColor: SahoolProColors.tractorYellow,
-            title: "وضع توفير البيانات",
-            subtitle: "مزامنة الصور عبر WiFi فقط",
+            title: 'وضع توفير البيانات',
+            subtitle: 'مزامنة الصور عبر WiFi فقط',
             value: _dataSaverMode,
             onChanged: (v) => setState(() => _dataSaverMode = v),
           ),
 
           // قسم حالة المزامنة
-          _buildSectionHeader("حالة البيانات"),
+          _buildSectionHeader('حالة البيانات'),
           const _SyncStatusTile(
-            title: "آخر مزامنة",
-            value: "منذ 5 دقائق",
+            title: 'آخر مزامنة',
+            value: 'منذ 5 دقائق',
             icon: Icons.check_circle,
             iconColor: SahoolProColors.johnGreen,
           ),
           const _SyncStatusTile(
-            title: "عمليات معلقة",
-            value: "0 عمليات",
+            title: 'عمليات معلقة',
+            value: '0 عمليات',
             icon: Icons.pending,
             iconColor: Colors.grey,
           ),
 
           // قسم الخرائط
-          _buildSectionHeader("الخرائط (Offline)"),
+          _buildSectionHeader('الخرائط (Offline)'),
           const _MapDownloadTile(
-            regionName: "صنعاء وضواحيها",
-            size: "150 MB",
+            regionName: 'صنعاء وضواحيها',
+            size: '150 MB',
             isDownloaded: true,
           ),
           const _MapDownloadTile(
-            regionName: "إب وتعز",
-            size: "120 MB",
+            regionName: 'إب وتعز',
+            size: '120 MB',
             isDownloaded: false,
           ),
           ListTile(
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: SahoolProColors.johnGreen.withOpacity(0.1),
+                color: SahoolProColors.johnGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.download, color: SahoolProColors.johnGreen),
             ),
-            title: const Text("تنزيل منطقة جديدة"),
+            title: const Text('تنزيل منطقة جديدة'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showRegionDownloadSheet(context),
           ),
 
           // قسم التخزين
-          _buildSectionHeader("التخزين"),
+          _buildSectionHeader('التخزين'),
           const _StorageInfoTile(),
 
           // قسم الحساب
-          _buildSectionHeader("الحساب"),
+          _buildSectionHeader('الحساب'),
           ListTile(
             leading: const Icon(Icons.language),
-            title: const Text("اللغة / Language"),
+            title: const Text('اللغة / Language'),
             trailing: Text(
               _selectedLanguage,
               style: const TextStyle(color: Colors.grey),
@@ -102,15 +102,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
-            title: const Text("حول التطبيق"),
-            subtitle: const Text("الإصدار 16.0.0"),
+            title: const Text('حول التطبيق'),
+            subtitle: const Text('الإصدار 16.0.0'),
             onTap: () {},
           ),
           const SizedBox(height: 16),
           ListTile(
             leading: const Icon(Icons.logout, color: SahoolProColors.alertRed),
             title: const Text(
-              "تسجيل الخروج",
+              'تسجيل الخروج',
               style: TextStyle(color: SahoolProColors.alertRed),
             ),
             onTap: () => _showLogoutConfirmation(context),
@@ -149,12 +149,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("اختر اللغة"),
+        title: const Text('اختر اللغة'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _LanguageOption(
-              language: "العربية",
+              language: 'العربية',
               isSelected: _selectedLanguage == 'العربية',
               onTap: () {
                 setState(() => _selectedLanguage = 'العربية');
@@ -162,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             _LanguageOption(
-              language: "English",
+              language: 'English',
               isSelected: _selectedLanguage == 'English',
               onTap: () {
                 setState(() => _selectedLanguage = 'English');
@@ -179,14 +179,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("تسجيل الخروج"),
+        title: const Text('تسجيل الخروج'),
         content: const Text(
-          "هل أنت متأكد من تسجيل الخروج؟\nسيتم حذف البيانات غير المتزامنة.",
+          'هل أنت متأكد من تسجيل الخروج؟\nسيتم حذف البيانات غير المتزامنة.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("إلغاء"),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -196,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: SahoolProColors.alertRed,
             ),
-            child: const Text("تسجيل الخروج"),
+            child: const Text('تسجيل الخروج'),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _SyncSettingTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: iconColor),
@@ -289,7 +289,7 @@ class _MapDownloadTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.blue.withOpacity(0.1),
+          color: Colors.blue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.map, color: Colors.blue),
@@ -300,7 +300,7 @@ class _MapDownloadTile extends StatelessWidget {
           ? const Icon(Icons.check_circle, color: SahoolProColors.johnGreen)
           : OutlinedButton(
               onPressed: () {},
-              child: const Text("تنزيل"),
+              child: const Text('تنزيل'),
             ),
     );
   }
@@ -319,9 +319,9 @@ class _StorageInfoTile extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("المستخدم: 320 MB"),
+              const Text('المستخدم: 320 MB'),
               Text(
-                "المتاح: 2.1 GB",
+                'المتاح: 2.1 GB',
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ],
@@ -339,13 +339,13 @@ class _StorageInfoTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
+          const Row(
             children: [
-              _StorageChip(label: "خرائط", size: "150 MB", color: Colors.blue),
-              const SizedBox(width: 8),
-              _StorageChip(label: "صور", size: "100 MB", color: Colors.orange),
-              const SizedBox(width: 8),
-              _StorageChip(label: "بيانات", size: "70 MB", color: Colors.green),
+              _StorageChip(label: 'خرائط', size: '150 MB', color: Colors.blue),
+              SizedBox(width: 8),
+              _StorageChip(label: 'صور', size: '100 MB', color: Colors.orange),
+              SizedBox(width: 8),
+              _StorageChip(label: 'بيانات', size: '70 MB', color: Colors.green),
             ],
           ),
         ],
@@ -370,7 +370,7 @@ class _StorageChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -383,7 +383,7 @@ class _StorageChip extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            "$label: $size",
+            '$label: $size',
             style: TextStyle(fontSize: 12, color: color),
           ),
         ],
@@ -404,31 +404,31 @@ class _RegionDownloadSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "تنزيل منطقة جديدة",
+            'تنزيل منطقة جديدة',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           const Text(
-            "حدد المنطقة على الخريطة أو اختر من القائمة:",
+            'حدد المنطقة على الخريطة أو اختر من القائمة:',
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 16),
           ListTile(
             leading: const Icon(Icons.location_on),
-            title: const Text("الحديدة"),
-            subtitle: const Text("~80 MB"),
+            title: const Text('الحديدة'),
+            subtitle: const Text('~80 MB'),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.location_on),
-            title: const Text("عدن"),
-            subtitle: const Text("~90 MB"),
+            title: const Text('عدن'),
+            subtitle: const Text('~90 MB'),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.location_on),
-            title: const Text("مأرب"),
-            subtitle: const Text("~60 MB"),
+            title: const Text('مأرب'),
+            subtitle: const Text('~60 MB'),
             onTap: () => Navigator.pop(context),
           ),
           const SizedBox(height: 16),
@@ -437,7 +437,7 @@ class _RegionDownloadSheet extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.map),
-              label: const Text("تحديد على الخريطة"),
+              label: const Text('تحديد على الخريطة'),
             ),
           ),
         ],

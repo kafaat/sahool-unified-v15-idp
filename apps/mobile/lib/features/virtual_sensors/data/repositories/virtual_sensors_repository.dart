@@ -72,7 +72,7 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return ET0Response(
           et0: (data['et0'] as num).toDouble(),
           et0Ar: (data['et0_ar'] as String?) ?? '',
@@ -111,18 +111,21 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         final List<dynamic> crops = (data['crops'] as List<dynamic>?) ?? [];
-        return crops.map((e) => CropKcOption(
-          cropId: (e['crop_id'] as String?) ?? '',
-          name: (e['name'] as String?) ?? '',
-          nameAr: (e['name_ar'] as String?) ?? '',
-          kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
-          kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
-          kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
-          rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
-          criticalPeriods: List<String>.from((e['critical_periods'] as Iterable?) ?? []),
-        )).toList();
+        return crops.map((item) {
+          final e = item as Map<String, dynamic>;
+          return CropKcOption(
+            cropId: (e['crop_id'] as String?) ?? '',
+            name: (e['name'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
+            kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
+            kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
+            rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
+            criticalPeriods: List<String>.from((e['critical_periods'] as Iterable?) ?? []),
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -177,7 +180,7 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return CropETcResponse(
           cropType: (data['crop_type'] as String?) ?? '',
           cropNameAr: (data['crop_name_ar'] as String?) ?? '',
@@ -223,16 +226,19 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         final List<dynamic> soils = (data['soils'] as List<dynamic>?) ?? [];
-        return soils.map((e) => SoilTypeInfo(
-          soilType: (e['soil_type'] as String?) ?? '',
-          nameAr: (e['name_ar'] as String?) ?? '',
-          fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
-          wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
-          availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
-          infiltrationRateMmHr: (e['infiltration_rate_mm_hr'] as num?)?.toDouble() ?? 13.0,
-        )).toList();
+        return soils.map((item) {
+          final e = item as Map<String, dynamic>;
+          return SoilTypeInfo(
+            soilType: (e['soil_type'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
+            wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
+            availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
+            infiltrationRateMmHr: (e['infiltration_rate_mm_hr'] as num?)?.toDouble() ?? 13.0,
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -264,13 +270,16 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         final List<dynamic> methods = (data['methods'] as List<dynamic>?) ?? [];
-        return methods.map((e) => IrrigationMethodInfo(
-          method: (e['method'] as String?) ?? '',
-          efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
-          efficiencyPercent: (e['efficiency_percent'] as String?) ?? '70%',
-        )).toList();
+        return methods.map((item) {
+          final e = item as Map<String, dynamic>;
+          return IrrigationMethodInfo(
+            method: (e['method'] as String?) ?? '',
+            efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
+            efficiencyPercent: (e['efficiency_percent'] as String?) ?? '70%',
+          );
+        }).toList();
       }
 
       throw VirtualSensorsException(
@@ -335,7 +344,7 @@ class VirtualSensorsRepository {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return IrrigationRecommendation(
           recommendationId: (data['recommendation_id'] as String?) ?? '',
           timestamp: DateTime.parse(data['timestamp'] as String),
@@ -406,7 +415,7 @@ class VirtualSensorsRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
         return QuickIrrigationCheck(
           cropType: (data['crop_type'] as String?) ?? '',
           cropNameAr: (data['crop_name_ar'] as String?) ?? '',

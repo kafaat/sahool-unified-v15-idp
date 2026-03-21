@@ -2,6 +2,7 @@
 /// أزرار التواصل السريع
 ///
 /// Quick action buttons for contacting farmers (call, WhatsApp, SMS, etc.)
+library;
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';

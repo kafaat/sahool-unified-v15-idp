@@ -2,6 +2,7 @@
 /// شاشة تفاصيل التوصية
 ///
 /// Shows detailed information about a specific advisory
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/config/theme.dart';
 import '../../domain/models/advisory.dart';
-import '../../domain/models/advisory_feedback.dart';
 import '../../state/ai_advisor_providers.dart';
 import '../widgets/feedback_buttons.dart';
 
@@ -221,9 +221,9 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: priorityColor.withOpacity(0.1),
+        color: priorityColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: priorityColor.withOpacity(0.3)),
+        border: Border.all(color: priorityColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,7 +303,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -385,13 +385,13 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Text(
               '$number',
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: SahoolTheme.primary,
               ),
@@ -699,7 +699,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -757,11 +757,9 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
         buffer.writeln();
         buffer.writeln('النوع | Type: ${advisory.type.name}');
         buffer.writeln('الأولوية | Priority: ${advisory.priority.name}');
-        if (advisory.confidence != null) {
-          buffer.writeln(
-              'الثقة | Confidence: ${(advisory.confidence! * 100).toStringAsFixed(0)}%');
-        }
-        buffer.writeln();
+        buffer.writeln(
+            'الثقة | Confidence: ${(advisory.confidence * 100).toStringAsFixed(0)}%');
+              buffer.writeln();
         if (advisory.fieldName != null) {
           buffer.writeln('الحقل | Field: ${advisory.fieldName}');
         }
@@ -771,26 +769,22 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
         }
         buffer.writeln();
         buffer.writeln('--- الوصف | Description ---');
-        if (advisory.descriptionAr != null) {
-          buffer.writeln(advisory.descriptionAr);
-        }
-        if (advisory.description != null) {
-          buffer.writeln(advisory.description);
-        }
-        if (advisory.actionsAr != null && advisory.actionsAr!.isNotEmpty) {
+        buffer.writeln(advisory.descriptionAr);
+              buffer.writeln(advisory.description);
+              if (advisory.actionsAr.isNotEmpty) {
           buffer.writeln();
           buffer.writeln('--- الإجراءات | Actions ---');
-          for (var i = 0; i < advisory.actionsAr!.length; i++) {
-            buffer.writeln('${i + 1}. ${advisory.actionsAr![i]}');
+          for (var i = 0; i < advisory.actionsAr.length; i++) {
+            buffer.writeln('${i + 1}. ${advisory.actionsAr[i]}');
           }
         }
-        if (advisory.actions != null && advisory.actions!.isNotEmpty) {
-          if (advisory.actionsAr == null || advisory.actionsAr!.isEmpty) {
+        if (advisory.actions.isNotEmpty) {
+          if (advisory.actionsAr.isEmpty) {
             buffer.writeln();
             buffer.writeln('--- Actions ---');
           }
-          for (var i = 0; i < advisory.actions!.length; i++) {
-            buffer.writeln('${i + 1}. ${advisory.actions![i]}');
+          for (var i = 0; i < advisory.actions.length; i++) {
+            buffer.writeln('${i + 1}. ${advisory.actions[i]}');
           }
         }
         if (advisory.timing != null) {

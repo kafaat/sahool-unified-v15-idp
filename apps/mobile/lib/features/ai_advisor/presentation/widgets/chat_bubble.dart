@@ -2,6 +2,7 @@
 /// فقاعة محادثة المستشار الذكي
 ///
 /// Displays chat messages from user and AI assistant
+library;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,7 @@ class AiChatBubble extends StatelessWidget {
         color: SahoolTheme.primary.withOpacity(0.1),
         shape: BoxShape.circle,
       ),
-      child: Icon(
+      child: const Icon(
         Icons.psychology,
         size: 24,
         color: SahoolTheme.primary,

@@ -30,8 +30,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _isSearchExpanded = false;
 
   // حالة الاتصال (للتجربة)
-  bool _isOnline = true;
-  int _pendingSync = 3;
+  final bool _isOnline = true;
+  final int _pendingSync = 3;
 
   late final MapController _mapController;
   String _searchQuery = '';
@@ -129,7 +129,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           _buildEmergencyButton(),
 
           // 7. لوحة المهام المنزلقة (تظهر فقط عندما لا يكون هناك حقل محدد)
-          if (_selectedField == null) DailyTasksSheet(),
+          if (_selectedField == null) const DailyTasksSheet(),
 
           // 8. لوحة تفاصيل الحقل (تغطي الشاشة عند تحديد حقل)
           if (_selectedField != null) _buildFieldContextPanel(),
@@ -261,7 +261,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   LatLng(loc.latitude + offset, loc.longitude + offset),
                   LatLng(loc.latitude + offset, loc.longitude - offset),
                 ],
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 borderColor: color,
                 borderStrokeWidth: 2,
                 label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
@@ -406,7 +406,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       label: Text(label),
       selected: _activeFilter == label,
       onSelected: (_) => setState(() => _activeFilter = label),
-      selectedColor: SahoolColors.primary.withOpacity(0.2),
+      selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
       checkmarkColor: SahoolColors.primary,
     );
   }
@@ -456,7 +456,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -505,7 +505,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isSelected ? SahoolColors.primary.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected ? SahoolColors.primary.withValues(alpha: 0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -620,7 +620,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -672,11 +672,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.add_task, color: SahoolColors.primary),
-            const SizedBox(width: 8),
-            const Text('إضافة مهمة'),
+            Icon(Icons.add_task, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('إضافة مهمة'),
           ],
         ),
         content: Text('إضافة مهمة جديدة لحقل "${_selectedField?.name}"'),
@@ -698,11 +698,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning, color: SahoolColors.danger),
-            const SizedBox(width: 8),
-            const Text('طوارئ'),
+            SizedBox(width: 8),
+            Text('طوارئ'),
           ],
         ),
         content: const Text('هل تريد الإبلاغ عن حالة طوارئ في الحقل؟'),

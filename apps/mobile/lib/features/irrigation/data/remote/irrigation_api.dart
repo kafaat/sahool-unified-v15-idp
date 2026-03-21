@@ -243,7 +243,7 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final crops = json['data'] as List;
       return crops.map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>)).toList();
     } else {
@@ -263,7 +263,7 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final methods = json['data'] as List;
       return methods.map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>)).toList();
     } else {
@@ -291,7 +291,7 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return IrrigationCalculation.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(
@@ -319,7 +319,7 @@ class IrrigationApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return json['data'] as Map<String, dynamic>;
     } else {
       throw IrrigationApiException(
@@ -347,7 +347,7 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return json['data'] as Map<String, dynamic>;
     } else {
       throw IrrigationApiException(
@@ -372,7 +372,7 @@ class IrrigationApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return IrrigationSchedule.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(
@@ -402,7 +402,7 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return IrrigationSchedule.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(

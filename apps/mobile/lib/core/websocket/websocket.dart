@@ -1,6 +1,6 @@
 /// WebSocket module for real-time communication
 /// وحدة WebSocket للاتصال في الوقت الفعلي
-library websocket;
+library;
 
 export 'websocket_service.dart';
 export 'websocket_provider.dart';

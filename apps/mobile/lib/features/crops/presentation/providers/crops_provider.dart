@@ -143,7 +143,7 @@ class CropsNotifier extends StateNotifier<CropsState> {
                     await _apiClient.get('/api/v1/crops/active');
                 final List<dynamic> data = response is List
                     ? response
-                    : (response['data'] as List? ?? []);
+                    : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
                 if (data.isNotEmpty) {
                   final crops = data
@@ -187,7 +187,7 @@ class CropsNotifier extends StateNotifier<CropsState> {
         try {
           final response = await _apiClient.get('/api/v1/crops/active');
           final List<dynamic> data =
-              response is List ? response : (response['data'] as List? ?? []);
+              response is List ? response : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
           if (data.isNotEmpty) {
             final crops = data
@@ -340,12 +340,12 @@ class CropsNotifier extends StateNotifier<CropsState> {
           queryParameters: {'crop_id': cropId},
         );
         final List<dynamic> data =
-            response is List ? response : (response['data'] as List? ?? []);
+            response is List ? response : ((response as Map<String, dynamic>)['data'] as List? ?? []);
 
         if (data.isNotEmpty) {
           final recommendations = data.map((item) {
             if (item is String) return item;
-            if (item is Map) {
+            if (item is Map<String, dynamic>) {
               final en = item['text'] ?? item['message'] ?? '';
               final ar = item['text_ar'] ?? item['message_ar'] ?? '';
               return ar.toString().isNotEmpty ? '$en | $ar' : en.toString();

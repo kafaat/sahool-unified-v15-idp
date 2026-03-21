@@ -5,7 +5,7 @@ import '../../utils/app_logger.dart';
 
 /// GeoPolygon TypeConverter for Drift
 ///
-/// Converts List<LatLng> <-> JSON String for SQLite storage
+/// Converts `List<LatLng>` to and from JSON String for SQLite storage
 /// Uses GeoJSON coordinate order: [longitude, latitude]
 ///
 /// Example:

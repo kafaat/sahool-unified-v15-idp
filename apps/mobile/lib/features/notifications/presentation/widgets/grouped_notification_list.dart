@@ -5,9 +5,9 @@
 /// - Date (Today, Yesterday, This Week, etc.)
 /// - Category
 /// - Custom grouping
+library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../domain/models/notification.dart';
 import '../../domain/models/notification_category.dart';

@@ -8,9 +8,9 @@
 /// - Retry logic
 /// - Offline support
 /// - Rate limiting awareness
+library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/secure_storage_service.dart';
@@ -19,7 +19,6 @@ import '../config/env_config.dart';
 import '../http/auth_interceptor.dart';
 import '../http/logging_interceptor.dart';
 import '../http/retry_interceptor.dart';
-import '../http/rate_limiter.dart';
 import '../network/api_result.dart';
 import '../network/dio_error_handler.dart';
 import '../utils/app_logger.dart';

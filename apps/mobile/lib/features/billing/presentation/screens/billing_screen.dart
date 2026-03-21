@@ -123,12 +123,12 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [SahoolColors.forestGreen, SahoolColors.forestGreen.withOpacity(0.8)],
+          colors: [SahoolColors.forestGreen, SahoolColors.forestGreen.withValues(alpha: 0.8)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.forestGreen.withOpacity(0.3),
+            color: SahoolColors.forestGreen.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -147,7 +147,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -172,7 +172,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
           const SizedBox(height: 8),
           Text(
             'التجديد: 15 مارس 2026',
-            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
           ),
         ],
       ),
@@ -273,7 +273,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(Icons.receipt, color: statusColor),
@@ -291,7 +291,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -328,7 +328,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.credit_card, color: Colors.blue),
@@ -442,7 +442,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color),

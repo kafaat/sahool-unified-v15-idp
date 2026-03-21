@@ -10,6 +10,7 @@
 ///   validator: FormValidators.required(fieldName: 'Email'),
 /// )
 /// ```
+library;
 
 import 'validators.dart';
 import 'coordinate_validator.dart';

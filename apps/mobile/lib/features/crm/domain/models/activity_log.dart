@@ -2,6 +2,7 @@
 /// نموذج سجل النشاط
 ///
 /// Represents all farmer interactions and activities in a unified log
+library;
 
 /// Activity type
 /// نوع النشاط

@@ -277,12 +277,12 @@ class FieldCardSkeleton extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 // Title and subtitle
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ShimmerContainer(width: 120, height: 16),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       ShimmerContainer(width: 80, height: 12),
                     ],
                   ),
@@ -304,10 +304,10 @@ class FieldCardSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(
                 3,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 40, height: 10),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     ShimmerContainer(width: 50, height: 14),
                   ],
                 ),
@@ -355,9 +355,9 @@ class FieldsListSkeleton extends StatelessWidget {
       shrinkWrap: true,
       padding: const EdgeInsets.all(16),
       itemCount: count,
-      itemBuilder: (_, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: const FieldCardSkeleton(),
+      itemBuilder: (_, index) => const Padding(
+        padding: EdgeInsets.only(bottom: 12),
+        child: FieldCardSkeleton(),
       ),
     );
   }
@@ -385,7 +385,7 @@ class WeatherCardSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Location and date
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 14),
@@ -407,11 +407,11 @@ class WeatherCardSkeleton extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Column(
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerContainer(width: 100, height: 48),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     ShimmerContainer(width: 80, height: 16),
                   ],
                 ),
@@ -423,10 +423,10 @@ class WeatherCardSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
                 4,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 24, height: 24),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     ShimmerContainer(width: 40, height: 12),
                   ],
                 ),
@@ -455,7 +455,7 @@ class WeatherScreenSkeleton extends StatelessWidget {
           const WeatherCardSkeleton(),
           const SizedBox(height: 24),
           // Hourly section title
-          SahoolShimmer(child: ShimmerContainer(width: 120, height: 18)),
+          const SahoolShimmer(child: ShimmerContainer(width: 120, height: 18)),
           const SizedBox(height: 12),
           // Hourly forecast
           SizedBox(
@@ -478,7 +478,7 @@ class WeatherScreenSkeleton extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           // Daily section title
-          SahoolShimmer(child: ShimmerContainer(width: 140, height: 18)),
+          const SahoolShimmer(child: ShimmerContainer(width: 140, height: 18)),
           const SizedBox(height: 12),
           // Daily forecast
           ...List.generate(
@@ -616,7 +616,7 @@ class NdviSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 18),
@@ -660,10 +660,10 @@ class NdviSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
                 4,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 50, height: 12),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     ShimmerContainer(width: 40, height: 20),
                   ],
                 ),
@@ -700,7 +700,7 @@ class ChartSkeleton extends StatelessWidget {
         child: Column(
           children: [
             // Title
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 16),
@@ -734,7 +734,7 @@ class ChartSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(
                 7,
-                (_) => ShimmerContainer(width: 24, height: 10),
+                (_) => const ShimmerContainer(width: 24, height: 10),
               ),
             ),
           ],
@@ -898,7 +898,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
         if (isLoading)
           GestureDetector(
             onTap: dismissible ? () {} : null,
-            child: Container(
+            child: ColoredBox(
               color: Colors.black.withOpacity(0.3),
               child: Center(
                 child: Container(

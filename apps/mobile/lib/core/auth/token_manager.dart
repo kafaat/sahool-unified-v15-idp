@@ -214,7 +214,12 @@ class TokenManager {
         return TokenRefreshResult.failure('Invalid response from server');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       final accessToken = data['access_token'] ?? data['accessToken'];
       final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;

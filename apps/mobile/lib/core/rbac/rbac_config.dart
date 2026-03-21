@@ -415,92 +415,92 @@ class DefaultRbacConfig {
 class RbacRoutes {
   /// Route configurations
   static final Map<String, RouteConfig> routes = {
-    '/': RouteConfig(
+    '/': const RouteConfig(
       screen: AppScreen.home,
       requiredRole: null,
       requiredPermissions: [],
     ),
-    '/fields': RouteConfig(
+    '/fields': const RouteConfig(
       screen: AppScreen.fields,
       requiredRole: null,
       requiredPermissions: [Permissions.fieldsView],
     ),
-    '/fields/:id': RouteConfig(
+    '/fields/:id': const RouteConfig(
       screen: AppScreen.fieldDetails,
       requiredRole: null,
       requiredPermissions: [Permissions.fieldsView],
     ),
-    '/tasks': RouteConfig(
+    '/tasks': const RouteConfig(
       screen: AppScreen.tasks,
       requiredRole: null,
       requiredPermissions: [Permissions.tasksView],
     ),
-    '/tasks/:id': RouteConfig(
+    '/tasks/:id': const RouteConfig(
       screen: AppScreen.taskDetails,
       requiredRole: null,
       requiredPermissions: [Permissions.tasksView],
     ),
-    '/weather': RouteConfig(
+    '/weather': const RouteConfig(
       screen: AppScreen.weather,
       requiredRole: null,
       requiredPermissions: [Permissions.weatherView],
     ),
-    '/irrigation': RouteConfig(
+    '/irrigation': const RouteConfig(
       screen: AppScreen.irrigation,
       requiredRole: null,
       requiredPermissions: [Permissions.irrigationView],
     ),
-    '/ndvi': RouteConfig(
+    '/ndvi': const RouteConfig(
       screen: AppScreen.ndvi,
       requiredRole: null,
       requiredPermissions: [Permissions.ndviView],
     ),
-    '/reports': RouteConfig(
+    '/reports': const RouteConfig(
       screen: AppScreen.reports,
       requiredRole: null,
       requiredPermissions: [Permissions.reportsView],
     ),
-    '/iot': RouteConfig(
+    '/iot': const RouteConfig(
       screen: AppScreen.iot,
       requiredRole: null,
       requiredPermissions: [Permissions.iotView],
     ),
-    '/advisory': RouteConfig(
+    '/advisory': const RouteConfig(
       screen: AppScreen.advisory,
       requiredRole: null,
       requiredPermissions: [Permissions.advisoryView],
     ),
-    '/chat': RouteConfig(
+    '/chat': const RouteConfig(
       screen: AppScreen.chat,
       requiredRole: null,
       requiredPermissions: [Permissions.chatView],
     ),
-    '/equipment': RouteConfig(
+    '/equipment': const RouteConfig(
       screen: AppScreen.equipment,
       requiredRole: null,
       requiredPermissions: [Permissions.equipmentView],
     ),
-    '/inventory': RouteConfig(
+    '/inventory': const RouteConfig(
       screen: AppScreen.inventory,
       requiredRole: null,
       requiredPermissions: [Permissions.inventoryView],
     ),
-    '/users': RouteConfig(
+    '/users': const RouteConfig(
       screen: AppScreen.users,
       requiredRole: Role.manager,
       requiredPermissions: [Permissions.usersView],
     ),
-    '/settings': RouteConfig(
+    '/settings': const RouteConfig(
       screen: AppScreen.settings,
       requiredRole: null,
       requiredPermissions: [Permissions.settingsView],
     ),
-    '/billing': RouteConfig(
+    '/billing': const RouteConfig(
       screen: AppScreen.billing,
       requiredRole: Role.admin,
       requiredPermissions: [Permissions.billingView],
     ),
-    '/audit': RouteConfig(
+    '/audit': const RouteConfig(
       screen: AppScreen.audit,
       requiredRole: Role.admin,
       requiredPermissions: [Permissions.auditView],

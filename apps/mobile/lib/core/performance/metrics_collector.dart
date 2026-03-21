@@ -146,9 +146,9 @@ class MetricsCollector {
     _initialized = true;
 
     // Start periodic flush timer (every 30 seconds in debug, 5 minutes in profile)
-    final flushInterval = kDebugMode
-        ? const Duration(seconds: 30)
-        : const Duration(minutes: 5);
+    const flushInterval = kDebugMode
+        ? Duration(seconds: 30)
+        : Duration(minutes: 5);
 
     _flushTimer = Timer.periodic(flushInterval, (_) => flush());
 

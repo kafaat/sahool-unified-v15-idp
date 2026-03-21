@@ -6,6 +6,7 @@
 /// - Auto-recovers after 30 seconds
 /// - Half-open state for testing recovery
 /// - Per-endpoint tracking
+library;
 
 import 'dart:async';
 import '../utils/app_logger.dart';
@@ -616,7 +617,7 @@ class CircuitBreakerManager {
 
   /// Get health summary
   CircuitBreakerHealthSummary getHealthSummary() {
-    int total = _breakers.length;
+    final int total = _breakers.length;
     int closed = 0;
     int open = 0;
     int halfOpen = 0;

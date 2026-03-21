@@ -7,13 +7,13 @@
 /// - Conflict resolution dialog
 /// - Offline mode banner
 /// - Queue status widget
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../sync/network_status.dart';
-import '../utils/app_logger.dart';
 import 'offline_sync_engine.dart' as sync_engine;
 
 /// Provider for network status

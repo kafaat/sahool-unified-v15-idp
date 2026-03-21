@@ -5,6 +5,7 @@
 /// - Icon and label
 /// - Loading state
 /// - Confirmation dialogs
+library;
 
 import 'package:flutter/material.dart';
 
@@ -376,7 +377,7 @@ class SnoozeOptionsSheet extends StatelessWidget {
 
   Duration _getNextMorning() {
     final now = DateTime.now();
-    var tomorrow = DateTime(now.year, now.month, now.day + 1, 8, 0);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1, 8, 0);
     return tomorrow.difference(now);
   }
 }

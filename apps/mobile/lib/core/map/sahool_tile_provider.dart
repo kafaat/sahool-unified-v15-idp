@@ -147,7 +147,7 @@ class SahoolCachedTileImage extends ImageProvider<SahoolCachedTileImage> {
       0x42, 0x60, 0x82,
     ]);
     final buffer = await ui.ImmutableBuffer.fromUint8List(transparent);
-    return await decode(buffer);
+    return decode(buffer);
   }
 
   @override

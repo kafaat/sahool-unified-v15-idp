@@ -9,9 +9,9 @@
 /// - Accessible text styles with proper scaling | أنماط نصية قابلة للوصول مع تكبير مناسب
 /// - Focus indicators | مؤشرات التركيز
 /// - Touch target sizing | حجم أهداف اللمس
+library;
 
 import 'package:flutter/material.dart';
-import 'sahool_theme.dart';
 
 /// Minimum touch target size per WCAG 2.1 (48x48 dp)
 const double kAccessibleTouchTarget = 48.0;
@@ -579,7 +579,7 @@ class SahoolAccessibleTheme {
       ),
 
       // Tab Bar
-      tabBarTheme: TabBarThemeData(
+      tabBarTheme: const TabBarThemeData(
         labelColor: SahoolAccessibleColors.primary,
         unselectedLabelColor: SahoolAccessibleColors.textSecondaryLight,
         indicatorColor: SahoolAccessibleColors.primary,

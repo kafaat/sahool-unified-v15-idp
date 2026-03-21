@@ -60,14 +60,14 @@ final reportsRepositoryProvider = Provider<ReportsRepository>((ref) {
 /// All report templates provider
 final reportTemplatesProvider = FutureProvider<List<ReportTemplate>>((ref) async {
   final repository = ref.watch(reportsRepositoryProvider);
-  return await repository.getTemplates();
+  return repository.getTemplates();
 });
 
 /// Template by ID provider
 final templateByIdProvider =
     FutureProvider.family<ReportTemplate?, String>((ref, id) async {
   final repository = ref.watch(reportsRepositoryProvider);
-  return await repository.getTemplate(id);
+  return repository.getTemplate(id);
 });
 
 /// Template by type provider
@@ -98,13 +98,13 @@ final premiumTemplatesProvider = FutureProvider<List<ReportTemplate>>((ref) asyn
 final reportByIdProvider =
     FutureProvider.family<ReportData?, String>((ref, id) async {
   final repository = ref.watch(reportsRepositoryProvider);
-  return await repository.getReport(id);
+  return repository.getReport(id);
 });
 
 /// Report history provider
 final reportHistoryProvider = FutureProvider<List<ReportHistoryEntry>>((ref) async {
   final repository = ref.watch(reportsRepositoryProvider);
-  return await repository.getReportHistory();
+  return repository.getReportHistory();
 });
 
 /// Paginated report history provider
@@ -112,7 +112,7 @@ final paginatedReportHistoryProvider = FutureProvider.family<
     List<ReportHistoryEntry>,
     ({int limit, int offset})>((ref, params) async {
   final repository = ref.watch(reportsRepositoryProvider);
-  return await repository.getReportHistory(
+  return repository.getReportHistory(
     limit: params.limit,
     offset: params.offset,
   );

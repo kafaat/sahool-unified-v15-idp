@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -362,7 +361,7 @@ class VoiceFeedbackService {
       }
     }
 
-    _processQueue();
+    unawaited(_processQueue());
   }
 
   /// Process speech queue

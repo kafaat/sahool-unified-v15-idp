@@ -3,6 +3,7 @@
 ///
 /// Domain Layer - لا يعتمد على Flutter
 /// يستخدم WeatherColor بدلاً من dart:ui Color
+library;
 
 import '../value_objects/weather_color.dart';
 import '../value_objects/alert_severity.dart';

@@ -24,7 +24,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   String? _selectedFieldId;
   int _selectedLayerIndex = 0;
-  bool _isDrawingMode = false;
+  final bool _isDrawingMode = false;
 
   // Tenant ID (في التطبيق الحقيقي يأتي من Auth)
   static const String _tenantId = 'tenant_001';
@@ -97,10 +97,10 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                       return Polygon(
                         points: f.boundary,
                         color: isSelected
-                            ? SahoolProColors.tractorYellow.withOpacity(0.4)
+                            ? SahoolProColors.tractorYellow.withValues(alpha: 0.4)
                             : (isSynced
-                                ? SahoolProColors.johnGreen.withOpacity(0.3)
-                                : SahoolProColors.warningOrange.withOpacity(0.3)),
+                                ? SahoolProColors.johnGreen.withValues(alpha: 0.3)
+                                : SahoolProColors.warningOrange.withValues(alpha: 0.3)),
                         borderColor: isSelected
                             ? Colors.white
                             : (isSynced
@@ -151,7 +151,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                         point: point,
                         width: 24,
                         height: 24,
-                        child: Container(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -161,7 +161,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -303,7 +303,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
           const Spacer(),
 
           // شعار التطبيق
-          Text(
+          const Text(
             'SAHOOL OPS',
             style: TextStyle(
               color: SahoolProColors.textLight,
@@ -344,9 +344,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -405,7 +405,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   Widget _buildMapTool(IconData icon, String tooltip, VoidCallback onPressed,
       {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolProColors.johnGreen : Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -452,7 +452,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? SahoolProColors.johnGreen.withOpacity(0.1)
+                      ? SahoolProColors.johnGreen.withValues(alpha: 0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -476,7 +476,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           child: SahoolMetricsCard(
             label: 'المهام',
             value: '3',
@@ -485,7 +485,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        Expanded(
+        const Expanded(
           child: SahoolMetricsCard(
             label: 'تنبيهات',
             value: '1',
@@ -593,7 +593,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
             drawingState.isValid
                 ? 'اضغط حفظ لإنشاء الحقل'
                 : 'انقر على الخريطة لإضافة ${3 - drawingState.pointCount} نقاط',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: SahoolProColors.textLight,
             ),
@@ -611,7 +611,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -651,7 +651,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
             Container(
               padding: EdgeInsets.all(isPrimary ? 14 : 10),
               decoration: BoxDecoration(
-                color: isPrimary && isEnabled ? color : color.withOpacity(0.1),
+                color: isPrimary && isEnabled ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -756,11 +756,11 @@ class _FieldNameDialogState extends State<_FieldNameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
           Icon(Icons.grass, color: SahoolProColors.johnGreen),
-          const SizedBox(width: 8),
-          const Text('اسم الحقل'),
+          SizedBox(width: 8),
+          Text('اسم الحقل'),
         ],
       ),
       content: TextField(

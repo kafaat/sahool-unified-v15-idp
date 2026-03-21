@@ -730,8 +730,8 @@ class _SecureOtpFieldState extends State<SecureOtpField> {
     }
   }
 
-  void _onKeyDown(int index, RawKeyEvent event) {
-    if (event is RawKeyDownEvent) {
+  void _onKeyDown(int index, KeyEvent event) {
+    if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.backspace) {
         if (_controllers[index].text.isEmpty && index > 0) {
           _focusNodes[index - 1].requestFocus();
@@ -756,9 +756,9 @@ class _SecureOtpFieldState extends State<SecureOtpField> {
               width: 48,
               height: 56,
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: RawKeyboardListener(
+              child: KeyboardListener(
                 focusNode: FocusNode(),
-                onKey: (event) => _onKeyDown(index, event),
+                onKeyEvent: (event) => _onKeyDown(index, event),
                 child: TextField(
                   controller: _controllers[index],
                   focusNode: _focusNodes[index],

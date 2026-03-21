@@ -356,12 +356,12 @@ class VoiceStatusIndicator extends ConsumerWidget {
           if (status == VoiceStatus.listening)
             const _PulsingDot(color: Colors.white)
           else
-            SizedBox(
+            const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: const AlwaysStoppedAnimation(Colors.white),
+                valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             ),
           const SizedBox(width: 8),

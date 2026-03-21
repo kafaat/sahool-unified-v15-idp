@@ -48,7 +48,7 @@ class VRIZoneGridEditor extends StatefulWidget {
 
 class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
   late VRIZoneGrid _grid;
-  Set<String> _selectedZones = {};
+  final Set<String> _selectedZones = {};
   double _currentRate = 100;
   bool _isMultiSelectMode = false;
 

@@ -5,6 +5,7 @@
 /// - Per-category toggles
 /// - Quiet hours
 /// - Sound and vibration settings
+library;
 
 import 'notification_category.dart';
 

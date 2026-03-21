@@ -688,9 +688,10 @@ class ConflictResolutionManager:
     مدير لكشف وحل التعارضات.
     """
 
-    def __init__(self, config: ResolutionConfig | None = None):
+    def __init__(self, config: ResolutionConfig | None = None, tenant_id: str = ""):
         """Initialize the manager."""
         self.config = config or ResolutionConfig()
+        self.tenant_id = tenant_id
 
         # Pending conflicts requiring manual resolution
         self._pending_conflicts: dict[str, SyncConflict] = {}
@@ -711,6 +712,11 @@ class ConflictResolutionManager:
 
         كشف ما إذا كان هناك تعارض.
         """
+        if self.tenant_id and local_item.tenant_id and local_item.tenant_id != self.tenant_id:
+            raise ValueError(
+                f"Tenant mismatch: manager tenant_id='{self.tenant_id}', "
+                f"item tenant_id='{local_item.tenant_id}'"
+            )
         return detect_conflict(
             local_item=local_item,
             server_data=server_data,

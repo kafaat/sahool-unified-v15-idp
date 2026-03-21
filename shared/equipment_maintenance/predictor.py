@@ -509,6 +509,10 @@ class PredictiveMaintenanceEngine:
         Register equipment with the engine
         تسجيل المعدات مع المحرك
         """
+        if hasattr(equipment, "tenant_id") and equipment.tenant_id and equipment.tenant_id != self.tenant_id:
+            raise ValueError(
+                f"Equipment tenant_id '{equipment.tenant_id}' does not match engine tenant_id '{self.tenant_id}'"
+            )
         self._equipment[equipment.id] = equipment
 
     def add_service_record(self, record: ServiceRecord) -> None:

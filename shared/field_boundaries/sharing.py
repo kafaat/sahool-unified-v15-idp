@@ -81,6 +81,7 @@ class SharePermission:
     """
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    tenant_id: str = ""
     boundary_id: str = ""
     user_id: str = ""
     granted_by: str = ""
@@ -104,6 +105,7 @@ class ApprovalRequest:
     """
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    tenant_id: str = ""
     boundary_id: str = ""
     requester_id: str = ""
     approver_id: str = ""
@@ -134,6 +136,7 @@ class ConflictResolution:
     """
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    tenant_id: str = ""
     conflict_id: str = ""
 
     # Resolution details | تفاصيل الحل
@@ -167,8 +170,11 @@ class BoundarySharingManager:
     between field boundaries and their neighbors.
     """
 
-    def __init__(self):
+    def __init__(self, tenant_id: str = ""):
         """Initialize the sharing manager."""
+        if not tenant_id:
+            raise ValueError("tenant_id is required for BoundarySharingManager")
+        self.tenant_id = tenant_id
         # In-memory storage for demo; replace with database in production
         self._permissions: dict[str, list[SharePermission]] = {}
         self._share_requests: dict[str, BoundaryShareRequest] = {}
@@ -331,6 +337,7 @@ class BoundarySharingManager:
     ) -> SharePermission:
         """Grant permission to user."""
         permission = SharePermission(
+            tenant_id=self.tenant_id,
             boundary_id=boundary_id,
             user_id=user_id,
             granted_by=granted_by,

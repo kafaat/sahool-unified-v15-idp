@@ -108,7 +108,7 @@ class CropHealthApi {
       '$_baseUrl/fields/$fieldId/diagnosis',
       queryParameters: {'date': dateStr},
     );
-    return FieldDiagnosis.fromJson(response);
+    return FieldDiagnosis.fromJson(response as Map<String, dynamic>);
   }
 
   /// تشخيص سريع (بدون حفظ)
@@ -129,7 +129,7 @@ class CropHealthApi {
       },
       queryParameters: {'zone_id': zoneId},
     );
-    return response;
+    return response as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -155,7 +155,7 @@ class CropHealthApi {
         'to': toStr,
       },
     );
-    return ZoneTimeline.fromJson(response);
+    return ZoneTimeline.fromJson(response as Map<String, dynamic>);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -179,7 +179,7 @@ class CropHealthApi {
     return await _client.get(
       '$_baseUrl/fields/$fieldId/vrt',
       queryParameters: params,
-    );
+    ) as Map<String, dynamic>;
   }
 
   // ═══════════════════════════════════════════════════════════════

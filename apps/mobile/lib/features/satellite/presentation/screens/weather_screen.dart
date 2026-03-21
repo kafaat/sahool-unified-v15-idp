@@ -93,7 +93,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildWeatherContent(dynamic weather, bool isArabic) {
+  Widget _buildWeatherContent(WeatherSummary weather, bool isArabic) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -119,7 +119,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildCurrentWeather(dynamic weather, bool isArabic) {
+  Widget _buildCurrentWeather(WeatherSummary weather, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildTemperatureChart(List<dynamic> forecast, bool isArabic) {
+  Widget _buildTemperatureChart(List<DailyForecastSummary> forecast, bool isArabic) {
     if (forecast.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -289,7 +289,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildPrecipitationChart(List<dynamic> forecast, bool isArabic) {
+  Widget _buildPrecipitationChart(List<DailyForecastSummary> forecast, bool isArabic) {
     if (forecast.isEmpty) return const SizedBox.shrink();
 
     return Container(

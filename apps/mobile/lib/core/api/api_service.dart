@@ -168,18 +168,18 @@ class QueuedRequest {
       };
 
   factory QueuedRequest.fromJson(Map<String, dynamic> json) => QueuedRequest(
-        id: json['id'],
-        method: json['method'],
-        endpoint: json['endpoint'],
+        id: json['id'] as String,
+        method: json['method'] as String,
+        endpoint: json['endpoint'] as String,
         data: json['data'],
         headers: json['headers'] != null
-            ? Map<String, String>.from(json['headers'])
+            ? Map<String, String>.from(json['headers'] as Map)
             : null,
-        priority: RequestPriority.values[json['priority'] ?? 2],
-        createdAt: DateTime.parse(json['createdAt']),
-        status: SyncStatus.values[json['status'] ?? 0],
-        retryCount: json['retryCount'] ?? 0,
-        errorMessage: json['errorMessage'],
+        priority: RequestPriority.values[(json['priority'] as int?) ?? 2],
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        status: SyncStatus.values[(json['status'] as int?) ?? 0],
+        retryCount: (json['retryCount'] as int?) ?? 0,
+        errorMessage: json['errorMessage'] as String?,
       );
 }
 

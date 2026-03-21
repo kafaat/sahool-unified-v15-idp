@@ -333,7 +333,7 @@ class AdvisorRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        return IrrigationEfficiencyReport.fromJson(json.decode(response.body));
+        return IrrigationEfficiencyReport.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get efficiency report',
@@ -357,7 +357,7 @@ class AdvisorRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        return IrrigationSchedule.fromJson(json.decode(response.body));
+        return IrrigationSchedule.fromJson(json.decode(response.body) as Map<String, dynamic>);
       }
       throw AdvisorException(
         'Failed to get irrigation schedule',

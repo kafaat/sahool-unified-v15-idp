@@ -293,7 +293,7 @@ void main() {
     test('should count issues by severity', () {
       final report = DatabaseVerificationReport(
         passed: false,
-        schemaVersion: 5,
+        schemaVersion: 6,
         verificationTime: const Duration(milliseconds: 100),
         issues: [
           VerificationIssue(
@@ -329,14 +329,14 @@ void main() {
     test('toDetailedReport should generate formatted string', () {
       final report = DatabaseVerificationReport(
         passed: true,
-        schemaVersion: 5,
+        schemaVersion: 6,
         verificationTime: const Duration(milliseconds: 50),
         issues: [],
       );
 
       final detailed = report.toDetailedReport();
       expect(detailed, contains('PASSED'));
-      expect(detailed, contains('Schema Version: 5'));
+      expect(detailed, contains('Schema Version: 6'));
       expect(detailed, contains('No issues found'));
     });
   });

@@ -804,16 +804,16 @@ class Invoice {
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
     return Invoice(
-      id: json['invoice_id'] ?? json['id'] ?? '',
-      invoiceNumber: json['invoice_number'] ?? '',
-      status: json['status'] ?? 'pending',
-      total: (json['total'] ?? 0).toDouble(),
-      amountPaid: (json['amount_paid'] ?? 0).toDouble(),
-      amountDue: (json['amount_due'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'USD',
-      issueDate: DateTime.tryParse(json['issue_date'] ?? '') ?? DateTime.now(),
-      dueDate: DateTime.tryParse(json['due_date'] ?? '') ?? DateTime.now(),
-      paidDate: json['paid_date'] != null ? DateTime.tryParse(json['paid_date']) : null,
+      id: (json['invoice_id'] ?? json['id'] ?? '') as String,
+      invoiceNumber: (json['invoice_number'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'pending',
+      total: ((json['total'] ?? 0) as num).toDouble(),
+      amountPaid: ((json['amount_paid'] ?? 0) as num).toDouble(),
+      amountDue: ((json['amount_due'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'USD',
+      issueDate: DateTime.tryParse((json['issue_date'] as String?) ?? '') ?? DateTime.now(),
+      dueDate: DateTime.tryParse((json['due_date'] as String?) ?? '') ?? DateTime.now(),
+      paidDate: json['paid_date'] != null ? DateTime.tryParse(json['paid_date'] as String) : null,
     );
   }
 }
@@ -841,16 +841,16 @@ class UsageStats {
   });
 
   factory UsageStats.fromJson(Map<String, dynamic> json) {
-    final usage = json['usage'] ?? json;
+    final usage = (json['usage'] ?? json) as Map<String, dynamic>;
     return UsageStats(
-      fieldsUsed: usage['fields_used'] ?? 0,
-      fieldsLimit: usage['fields_limit'] ?? 0,
-      usersUsed: usage['users_used'] ?? 0,
-      usersLimit: usage['users_limit'] ?? 0,
-      storageUsedMb: usage['storage_used_mb'] ?? 0,
-      storageLimitMb: usage['storage_limit_mb'] ?? 0,
-      apiCallsUsed: usage['api_calls_used'] ?? 0,
-      apiCallsLimit: usage['api_calls_limit'] ?? 0,
+      fieldsUsed: (usage['fields_used'] as int?) ?? 0,
+      fieldsLimit: (usage['fields_limit'] as int?) ?? 0,
+      usersUsed: (usage['users_used'] as int?) ?? 0,
+      usersLimit: (usage['users_limit'] as int?) ?? 0,
+      storageUsedMb: (usage['storage_used_mb'] as int?) ?? 0,
+      storageLimitMb: (usage['storage_limit_mb'] as int?) ?? 0,
+      apiCallsUsed: (usage['api_calls_used'] as int?) ?? 0,
+      apiCallsLimit: (usage['api_calls_limit'] as int?) ?? 0,
     );
   }
 
@@ -883,11 +883,11 @@ class StripeConfig {
 
   factory StripeConfig.fromJson(Map<String, dynamic> json) {
     return StripeConfig(
-      publishableKey: json['publishable_key'] ?? '',
-      merchantId: json['merchant_id'],
-      applePay: json['apple_pay'] ?? false,
-      googlePay: json['google_pay'] ?? false,
-      merchantCountry: json['merchant_country'] ?? 'YE',
+      publishableKey: (json['publishable_key'] as String?) ?? '',
+      merchantId: json['merchant_id'] as String?,
+      applePay: (json['apple_pay'] as bool?) ?? false,
+      googlePay: (json['google_pay'] as bool?) ?? false,
+      merchantCountry: (json['merchant_country'] as String?) ?? 'YE',
     );
   }
 }

@@ -14,7 +14,7 @@ export 'theme/sahool_theme.dart';
 export 'utils/app_logger.dart';
 
 // Logging (Structured Logging System)
-export 'logging/logging.dart';
+export 'logging/logging.dart' hide LogLevel;
 
 // Widgets
 export 'widgets/widgets.dart';
@@ -36,18 +36,18 @@ export 'auth/biometric_service.dart';
 
 // Performance
 export 'performance/performance.dart';
-export 'performance/performance_utils.dart';
+export 'performance/performance_utils.dart' hide MemoryInfo;
 
 // Map
-export 'map/map.dart';
+export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart';
+export 'notifications/notification_ui_components.dart' hide NotificationBadge;
 
 // Offline Sync
-export 'offline/offline.dart';
-export 'offline/offline_ui_components.dart';
+export 'offline/offline.dart' hide SyncStatus;
+export 'offline/offline_ui_components.dart' hide SyncStatus;
 
 // Voice Commands
 export 'voice/voice.dart';

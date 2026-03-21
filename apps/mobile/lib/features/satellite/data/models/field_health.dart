@@ -40,14 +40,14 @@ class FieldHealth extends Equatable {
     final zoneScoresData = json['zone_scores'] ?? json['zoneScores'];
 
     return FieldHealth(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      healthScore: (json['health_score'] ?? json['healthScore'] ?? 0.0).toDouble(),
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      healthScore: ((json['health_score'] ?? json['healthScore'] ?? 0.0) as num).toDouble(),
       status: HealthStatus.fromString(
-        json['status'] ?? json['health_status'] ?? 'unknown',
+        (json['status'] ?? json['health_status'] ?? 'unknown') as String,
       ),
-      ndvi: (json['ndvi'] ?? 0.0).toDouble(),
-      ndwi: (json['ndwi'] ?? 0.0).toDouble(),
-      evi: (json['evi'] ?? 0.0).toDouble(),
+      ndvi: ((json['ndvi'] ?? 0.0) as num).toDouble(),
+      ndwi: ((json['ndwi'] ?? 0.0) as num).toDouble(),
+      evi: ((json['evi'] ?? 0.0) as num).toDouble(),
       soilMoisture: json['soil_moisture'] != null
           ? (json['soil_moisture'] as num).toDouble()
           : null,

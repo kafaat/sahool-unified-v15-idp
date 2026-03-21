@@ -222,9 +222,22 @@ class OutboxRepository {
   // التنظيف والصيانة
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// تنظيف العناصر المكتملة
-  Future<void> clearCompleted() async {
-    _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+  /// تنظيف العناصر المكتملة مع حد أقصى اختياري
+  /// [limit] - الحد الأقصى لعدد العناصر المحذوفة (null = حذف الكل)
+  Future<void> clearCompleted({int? limit}) async {
+    if (limit == null) {
+      _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+    } else {
+      int removed = 0;
+      _entries.removeWhere((e) {
+        if (removed >= limit) return false;
+        if (e.status == OutboxStatus.completed) {
+          removed++;
+          return true;
+        }
+        return false;
+      });
+    }
     await _save();
     AppLogger.d('Cleared completed items', tag: 'OUTBOX');
   }

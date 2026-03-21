@@ -215,7 +215,10 @@ class OfflineSyncEngine {
         }
       }
 
-      _retryCount = 0;
+      // Only reset retry count on full success (no failures)
+      if (failCount == 0) {
+        _retryCount = 0;
+      }
       _updateStatus(failCount > 0 ? SyncStatus.partialSuccess : SyncStatus.success);
 
       final result = SyncResult(
@@ -380,9 +383,12 @@ class OfflineSyncEngine {
     _triggerSync();
   }
 
-  /// تنظيف العناصر المكتملة
+  /// تنظيف العناصر المكتملة (بحد أقصى لمنع حذف عدد كبير دفعة واحدة)
+  /// Limit batch size to prevent excessive deletions in one pass
+  static const int _clearBatchSize = 100;
+
   Future<void> clearCompleted() async {
-    await _outbox.clearCompleted();
+    await _outbox.clearCompleted(limit: _clearBatchSize);
   }
 }
 

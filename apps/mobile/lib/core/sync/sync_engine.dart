@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
@@ -211,8 +212,8 @@ class SyncEngine {
             data: {'itemId': item.id, 'error': e.toString()});
 
         // Check if it's a rate limit error
-        final isRateLimitError = e.toString().contains('RateLimitException') ||
-            e.toString().contains('429');
+        final isRateLimitError = (e is DioException && e.response?.statusCode == 429) ||
+            e is RateLimitException;
 
         if (isRateLimitError) {
           // For rate limit errors, add longer delay and retry later
@@ -269,7 +270,13 @@ class SyncEngine {
 
   /// Process single outbox item with ETag support
   Future<_ItemResult> _processOutboxItem(OutboxData item) async {
-    final payload = jsonDecode(item.payload) as Map<String, dynamic>;
+    final decoded = jsonDecode(item.payload);
+    if (decoded is! Map<String, dynamic>) {
+      AppLogger.w('Invalid outbox payload format, skipping',
+          tag: 'SyncEngine', data: {'itemId': item.id});
+      return _ItemResult.failed;
+    }
+    final payload = decoded;
 
     // Build headers with If-Match for optimistic locking
     Map<String, String>? headers;
@@ -295,7 +302,7 @@ class SyncEngine {
       return _ItemResult.success;
     } catch (e) {
       // Check for 409 Conflict
-      if (e.toString().contains('409') || e.toString().contains('Conflict')) {
+      if (e is DioException && e.response?.statusCode == 409) {
         await _handleConflict(item);
         return _ItemResult.conflict;
       }
@@ -376,8 +383,8 @@ class SyncEngine {
       _retryTracker.recordFailure(tasksEndpoint, currentRetry + 1);
 
       // If rate limited, rethrow to trigger backoff
-      if (e.toString().contains('RateLimitException') ||
-          e.toString().contains('429')) {
+      if ((e is DioException && e.response?.statusCode == 429) ||
+          e is RateLimitException) {
         rethrow;
       }
     }

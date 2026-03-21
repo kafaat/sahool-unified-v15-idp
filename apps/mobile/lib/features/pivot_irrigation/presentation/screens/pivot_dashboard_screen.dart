@@ -396,7 +396,14 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('جدولة الري المحوري - قريباً'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('إضافة جدول جديد'),
             style: ElevatedButton.styleFrom(

@@ -74,7 +74,9 @@ class _AlertsScreenState extends State<AlertsScreen>
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () {},
+            onPressed: () {
+              _showFilterSheet();
+            },
             tooltip: 'تصفية',
           ),
         ],
@@ -188,6 +190,61 @@ class _AlertsScreenState extends State<AlertsScreen>
               _alerts.add(alert);
             });
           },
+        ),
+      ),
+    );
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'تصفية التنبيهات',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.all_inclusive, color: SahoolColors.primary),
+              title: const Text('جميع التنبيهات'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _tabController.animateTo(0);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.warning.icon, color: AlertType.warning.color),
+              title: const Text('تحذيرات'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.danger.icon, color: AlertType.danger.color),
+              title: const Text('عاجلة'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _tabController.animateTo(2);
+              },
+            ),
+            ListTile(
+              leading: Icon(AlertType.info.icon, color: AlertType.info.color),
+              title: const Text('معلوماتية'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );

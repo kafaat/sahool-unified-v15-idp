@@ -103,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text("حول التطبيق"),
-            subtitle: const Text("الإصدار 15.3.3"),
+            subtitle: const Text("الإصدار 16.0.0"),
             onTap: () {},
           ),
           const SizedBox(height: 16),

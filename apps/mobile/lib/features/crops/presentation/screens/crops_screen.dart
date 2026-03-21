@@ -213,21 +213,37 @@ class _CropsScreenState extends ConsumerState<CropsScreen> {
             icon: Icons.edit_note,
             label: 'Record Observation\nتسجيل ملاحظة',
             color: SahoolColors.info,
-            onTap: () {},
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تسجيل الملاحظات - قريباً'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 12),
           _QuickAction(
             icon: Icons.history,
             label: 'Crop History\nتاريخ المحاصيل',
             color: SahoolColors.harvestGold,
-            onTap: () {},
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تاريخ المحاصيل - قريباً'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
           const SizedBox(width: 12),
           _QuickAction(
             icon: Icons.analytics,
             label: 'Analytics\nالتحليلات',
             color: SahoolColors.sageGreen,
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/analytics');
+            },
           ),
         ],
       ),

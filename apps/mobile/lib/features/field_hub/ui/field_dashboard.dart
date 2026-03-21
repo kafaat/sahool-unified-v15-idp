@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../field/domain/entities/field.dart';
 
 /// SAHOOL Field Dashboard - لوحة القيادة الزراعية
 /// تعرض المؤشرات الحيوية بأسلوب عدادات السيارة
-class FieldDashboard extends StatelessWidget {
+class FieldDashboard extends ConsumerStatefulWidget {
   const FieldDashboard({super.key});
 
+  @override
+  ConsumerState<FieldDashboard> createState() => _FieldDashboardState();
+}
+
+class _FieldDashboardState extends ConsumerState<FieldDashboard> {
   void _navigateTo(BuildContext context, String route, {Map<String, dynamic>? arguments}) {
     Navigator.pushNamed(context, route, arguments: arguments);
   }
 
   @override
   Widget build(BuildContext context) {
+    final tenant = ref.watch(currentTenantProvider);
+    final tenantId = tenant?.id ?? 'default';
+    final fieldsAsync = ref.watch(fieldsStreamProvider(tenantId));
+
     return Scaffold(
       backgroundColor: SahoolColors.background,
       appBar: AppBar(
@@ -24,6 +37,7 @@ class FieldDashboard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
+              ref.invalidate(fieldsStreamProvider(tenantId));
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('جاري تحديث البيانات...'),
@@ -34,62 +48,25 @@ class FieldDashboard extends StatelessWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // بطاقة الترحيب
-            _buildWelcomeCard(),
-
-            const SizedBox(height: 20),
-
-            // بطاقة الحالة الرئيسية (NDVI)
-            _buildHealthCard(),
-
-            const SizedBox(height: 20),
-
-            // عنوان المؤشرات
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'المؤشرات الحيوية',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                TextButton.icon(
-                  onPressed: () => _navigateTo(context, '/fields'),
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: const Text('عرض الكل'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // شبكة العدادات
-            _buildMetricsGrid(),
-
-            const SizedBox(height: 20),
-
-            // التنبيهات العاجلة
-            _buildAlertsSection(context),
-
-            const SizedBox(height: 20),
-
-            // المهام القادمة
-            _buildTasksSection(),
-
-            const SizedBox(height: 20),
-
-            // الطقس الأسبوعي
-            _buildWeatherForecast(),
-
-            const SizedBox(height: 100), // مسافة للـ FAB
-          ],
+      body: fieldsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text('فشل تحميل البيانات', style: TextStyle(color: Colors.grey[600])),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(fieldsStreamProvider(tenantId)),
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+              ),
+            ],
+          ),
         ),
+        data: (fields) => _buildDashboardContent(fields),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateTo(context, '/task-create'),
@@ -99,8 +76,100 @@ class FieldDashboard extends StatelessWidget {
     );
   }
 
+  Widget _buildDashboardContent(List<Field> fields) {
+    // Compute aggregate metrics from real field data
+    final avgNdvi = fields.isEmpty
+        ? 0.0
+        : fields.map((f) => f.ndviCurrent ?? 0.0).reduce((a, b) => a + b) / fields.length;
+    final avgSoilMoisture = fields.isEmpty ? 0.0 : _estimateAvgSoilMoisture(fields);
+    final nitrogenStatus = _getNitrogenStatus(avgNdvi);
+    final healthLabel = _getHealthLabel(avgNdvi);
+    final healthPercent = (avgNdvi * 100).round();
+    final tasksCount = fields.fold<int>(0, (sum, f) => sum + f.pendingTasks);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        final tenant = ref.read(currentTenantProvider);
+        final tenantId = tenant?.id ?? 'default';
+        ref.invalidate(fieldsStreamProvider(tenantId));
+      },
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // بطاقة الترحيب
+          _buildWelcomeCard(tasksCount),
+
+          const SizedBox(height: 20),
+
+          // بطاقة الحالة الرئيسية (NDVI)
+          _buildHealthCard(avgNdvi, healthLabel, healthPercent),
+
+          const SizedBox(height: 20),
+
+          // عنوان المؤشرات
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'المؤشرات الحيوية',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              TextButton.icon(
+                onPressed: () => _navigateTo(context, '/fields'),
+                icon: const Icon(Icons.arrow_forward, size: 18),
+                label: const Text('عرض الكل'),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // شبكة العدادات
+          _buildMetricsGrid(avgSoilMoisture, nitrogenStatus),
+
+          const SizedBox(height: 20),
+
+          // التنبيهات العاجلة
+          _buildAlertsSection(context, fields),
+
+          const SizedBox(height: 20),
+
+          // المهام القادمة
+          _buildTasksSection(),
+
+          const SizedBox(height: 20),
+
+          // الطقس الأسبوعي
+          _buildWeatherForecast(),
+
+          const SizedBox(height: 100), // مسافة للـ FAB
+        ],
+      ),
+    );
+  }
+
+  /// Estimate average soil moisture from NDVI (proxy when no sensor data)
+  double _estimateAvgSoilMoisture(List<Field> fields) {
+    // Use NDVI as a proxy for soil moisture when direct sensor data is unavailable
+    final avgNdvi = fields.map((f) => f.ndviCurrent ?? 0.0).reduce((a, b) => a + b) / fields.length;
+    return (avgNdvi * 60).clamp(0, 100); // rough proxy
+  }
+
+  String _getNitrogenStatus(double avgNdvi) {
+    if (avgNdvi >= 0.6) return 'جيد';
+    if (avgNdvi >= 0.4) return 'متوسط';
+    return 'منخفض';
+  }
+
+  String _getHealthLabel(double avgNdvi) {
+    if (avgNdvi >= 0.7) return 'ممتازة';
+    if (avgNdvi >= 0.5) return 'جيدة';
+    if (avgNdvi >= 0.3) return 'متوسطة';
+    return 'ضعيفة';
+  }
+
   /// بطاقة الترحيب
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(int tasksCount) {
     final hour = DateTime.now().hour;
     String greeting;
     IconData greetingIcon;
@@ -147,7 +216,7 @@ class FieldDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'لديك 3 مهام اليوم',
+                  tasksCount > 0 ? 'لديك $tasksCount مهام اليوم' : 'لا توجد مهام اليوم',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -191,7 +260,7 @@ class FieldDashboard extends StatelessWidget {
   }
 
   /// بطاقة صحة المحصول الرئيسية
-  Widget _buildHealthCard() {
+  Widget _buildHealthCard(double avgNdvi, String healthLabel, int healthPercent) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -216,9 +285,9 @@ class FieldDashboard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'ممتازة',
-                  style: TextStyle(
+                Text(
+                  healthLabel,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -236,9 +305,9 @@ class FieldDashboard extends StatelessWidget {
                     children: [
                       const Icon(Icons.satellite_alt, color: Colors.white, size: 16),
                       const SizedBox(width: 6),
-                      const Text(
-                        'NDVI: 0.78',
-                        style: TextStyle(
+                      Text(
+                        'NDVI: ${avgNdvi.toStringAsFixed(2)}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -248,7 +317,7 @@ class FieldDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'آخر تحديث: منذ ساعتين',
+                  'آخر تحديث: الآن',
                   style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
                 ),
               ],
@@ -265,24 +334,24 @@ class FieldDashboard extends StatelessWidget {
                   height: 100,
                   width: 100,
                   child: CircularProgressIndicator(
-                    value: 0.78,
+                    value: avgNdvi.clamp(0.0, 1.0),
                     backgroundColor: Colors.white.withOpacity(0.2),
                     valueColor: const AlwaysStoppedAnimation(Colors.white),
                     strokeWidth: 10,
                   ),
                 ),
-                const Column(
+                Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '78%',
-                      style: TextStyle(
+                      '$healthPercent%',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
+                    const Text(
                       'الصحة',
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
@@ -297,7 +366,9 @@ class FieldDashboard extends StatelessWidget {
   }
 
   /// شبكة المؤشرات
-  Widget _buildMetricsGrid() {
+  Widget _buildMetricsGrid(double soilMoisture, String nitrogenStatus) {
+    final showNitrogenWarning = nitrogenStatus == 'منخفض';
+
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -308,29 +379,28 @@ class FieldDashboard extends StatelessWidget {
       children: [
         _buildMetricCard(
           'رطوبة التربة',
-          '35%',
+          '${soilMoisture.round()}%',
           Icons.water_drop,
           SahoolColors.info,
-          trend: -5,
           unit: '%',
         ),
         _buildMetricCard(
           'النيتروجين',
-          'منخفض',
+          nitrogenStatus,
           Icons.grass,
-          SahoolColors.warning,
-          showWarning: true,
+          showNitrogenWarning ? SahoolColors.warning : SahoolColors.success,
+          showWarning: showNitrogenWarning,
         ),
         _buildMetricCard(
           'الطقس',
-          '32°',
+          '--',
           Icons.wb_sunny,
           Colors.amber,
-          subtitle: 'مشمس',
+          subtitle: 'جاري التحميل',
         ),
         _buildMetricCard(
           'التراكم الحراري',
-          '1,200',
+          '--',
           Icons.thermostat,
           SahoolColors.danger,
           unit: 'GDD',
@@ -449,7 +519,9 @@ class FieldDashboard extends StatelessWidget {
   }
 
   /// قسم التنبيهات
-  Widget _buildAlertsSection(BuildContext context) {
+  Widget _buildAlertsSection(BuildContext context, List<Field> fields) {
+    final criticalFields = fields.where((f) => f.needsAttention).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -469,9 +541,9 @@ class FieldDashboard extends StatelessWidget {
                     color: SahoolColors.danger,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text(
-                    '2',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  child: Text(
+                    '${criticalFields.length}',
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -480,21 +552,32 @@ class FieldDashboard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        _buildAlertItem(
-          'نقص النيتروجين',
-          'حقل القمح الشمالي يحتاج تسميد',
-          Icons.eco,
-          SahoolColors.warning,
-          'منذ 3 ساعات',
-        ),
-        const SizedBox(height: 8),
-        _buildAlertItem(
-          'موعد الري',
-          'حقل الذرة يحتاج ري خلال 6 ساعات',
-          Icons.water_drop,
-          SahoolColors.info,
-          'منذ ساعة',
-        ),
+        if (criticalFields.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: SahoolColors.success.withOpacity(0.05),
+              borderRadius: SahoolRadius.mediumRadius,
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: SahoolColors.success),
+                const SizedBox(width: 12),
+                const Text('لا توجد تنبيهات حالياً'),
+              ],
+            ),
+          )
+        else
+          ...criticalFields.take(3).map((field) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _buildAlertItem(
+                  field.name,
+                  'NDVI: ${(field.ndviCurrent ?? 0).toStringAsFixed(2)} - يحتاج اهتمام',
+                  Icons.eco,
+                  field.healthStatus == FieldStatus.critical ? SahoolColors.danger : SahoolColors.warning,
+                  'الآن',
+                ),
+              )),
       ],
     );
   }
@@ -552,6 +635,7 @@ class FieldDashboard extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 12),
+        // TODO: Wire to task provider for real tasks
         _buildTaskItem('ري حقل الذرة', 'اليوم 2:00 م', Icons.water_drop, false),
         _buildTaskItem('فحص الآفات', 'غداً 8:00 ص', Icons.bug_report, false),
         _buildTaskItem('تسميد القمح', 'تم', Icons.eco, true),
@@ -624,14 +708,15 @@ class FieldDashboard extends StatelessWidget {
             borderRadius: SahoolRadius.largeRadius,
             boxShadow: SahoolShadows.small,
           ),
+          // TODO: Wire to weather service for real forecast data
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildWeatherDay('اليوم', Icons.wb_sunny, '32°', '22°'),
-              _buildWeatherDay('غداً', Icons.wb_cloudy, '28°', '20°'),
-              _buildWeatherDay('الأربعاء', Icons.grain, '25°', '18°'),
-              _buildWeatherDay('الخميس', Icons.wb_sunny, '30°', '21°'),
-              _buildWeatherDay('الجمعة', Icons.wb_sunny, '33°', '23°'),
+              _buildWeatherDay('اليوم', Icons.wb_sunny, '--', '--'),
+              _buildWeatherDay('غداً', Icons.wb_cloudy, '--', '--'),
+              _buildWeatherDay('الأربعاء', Icons.grain, '--', '--'),
+              _buildWeatherDay('الخميس', Icons.wb_sunny, '--', '--'),
+              _buildWeatherDay('الجمعة', Icons.wb_sunny, '--', '--'),
             ],
           ),
         ),

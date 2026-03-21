@@ -190,7 +190,7 @@ class CertificatePinningService {
 
   CertificatePinningService({
     Map<String, List<CertificatePin>>? certificatePins,
-    this.allowDebugBypass = true,
+    this.allowDebugBypass = false,
     this.enforceStrict = true,
   }) : _certificatePins = certificatePins ?? _getDefaultPins() {
     // SECURITY CHECK: Reject placeholder values in release builds

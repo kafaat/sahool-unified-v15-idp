@@ -501,7 +501,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/satellite', extra: {
+                        'fieldId': widget.fieldId,
+                        'fieldName': widget.fieldName,
+                      });
+                    },
                     icon: const Icon(Icons.timeline),
                     label: const Text('السلسلة الزمنية'),
                   ),
@@ -509,7 +514,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/crop-health', extra: {
+                        'fieldId': widget.fieldId,
+                        'fieldName': widget.fieldName,
+                      });
+                    },
                     icon: const Icon(Icons.medical_services),
                     label: const Text('تشخيص'),
                     style: ElevatedButton.styleFrom(

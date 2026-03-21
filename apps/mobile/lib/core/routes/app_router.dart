@@ -71,6 +71,12 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
+// Features - AI Advisor, Billing, Equipment, Community
+import '../../features/ai_advisor/presentation/screens/ai_advisor_screen.dart';
+import '../../features/billing/presentation/screens/billing_screen.dart';
+import '../../features/equipment/ui/equipment_screen.dart';
+import '../../features/community/ui/community_screen.dart';
+
 // Features - Settings, Reports, Help, Field Form, Irrigation
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/reports/presentation/screens/reports_dashboard_screen.dart';
@@ -512,6 +518,44 @@ class AppRouter {
         path: '/map',
         name: 'map',
         builder: (context, state) => const MapScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // AI Advisor Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/ai-advisor',
+        name: 'ai-advisor',
+        builder: (context, state) => const AiAdvisorScreen(),
+      ),
+
+      GoRoute(
+        path: '/ai-advisor/history',
+        name: 'ai-advisor-history',
+        builder: (context, state) => const AiAdvisorScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Billing, Equipment, Community Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/billing',
+        name: 'billing',
+        builder: (context, state) => const BillingScreen(),
+      ),
+
+      GoRoute(
+        path: '/equipment',
+        name: 'equipment',
+        builder: (context, state) => const EquipmentScreen(),
+      ),
+
+      GoRoute(
+        path: '/community',
+        name: 'community',
+        builder: (context, state) => const CommunityScreen(),
       ),
 
       // ═══════════════════════════════════════════════════════════════════════

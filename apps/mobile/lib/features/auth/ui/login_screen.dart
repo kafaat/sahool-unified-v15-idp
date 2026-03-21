@@ -31,6 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isOtpSent = false;
   bool _isLoading = false;
   int _resendTimer = 0;
+  Timer? _resendCountdownTimer;
   String? _phoneErrorMessage;
   String? _otpErrorMessage;
 

@@ -406,7 +406,14 @@ class _AlertsError extends StatelessWidget {
             child: Text('تعذر تحميل التنبيهات'),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('جاري إعادة تحميل التنبيهات...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
             child: const Text('إعادة'),
           ),
         ],

@@ -235,7 +235,9 @@ class _DailyBriefContent extends StatelessWidget {
             child: _QuickActionButton(
               icon: Icons.water_drop_rounded,
               label: 'الري',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/irrigation');
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -244,7 +246,9 @@ class _DailyBriefContent extends StatelessWidget {
               icon: Icons.task_alt_rounded,
               label: 'المهام',
               badge: brief.pendingTasksCount > 0 ? '${brief.pendingTasksCount}' : null,
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/tasks');
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -252,7 +256,9 @@ class _DailyBriefContent extends StatelessWidget {
             child: _QuickActionButton(
               icon: Icons.camera_alt_rounded,
               label: 'فحص',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/scanner');
+              },
             ),
           ),
         ],

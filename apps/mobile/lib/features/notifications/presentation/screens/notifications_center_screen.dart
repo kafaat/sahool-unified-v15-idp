@@ -70,10 +70,11 @@ class _NotificationsCenterScreenState
     if (_tabController.indexIsChanging) return;
 
     setState(() {
-      if (_tabController.index == 0) {
+      final categoryIndex = _tabController.index - 1;
+      if (_tabController.index <= 0 || categoryIndex >= NotificationCategory.values.length) {
         _selectedCategory = null;
       } else {
-        _selectedCategory = NotificationCategory.values[_tabController.index - 1];
+        _selectedCategory = NotificationCategory.values[categoryIndex];
       }
       _selectedIds.clear();
       _isSelectionMode = false;

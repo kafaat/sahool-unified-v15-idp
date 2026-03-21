@@ -710,9 +710,9 @@ final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async 
 });
 
 /// OTP Config Repository provider
-final otpConfigRepositoryProvider = Provider<OTPConfigRepository>((ref) {
+final otpConfigRepositoryProvider = FutureProvider<OTPConfigRepository>((ref) async {
   final apiClient = ref.watch(apiClientProvider);
-  final prefs = ref.watch(sharedPreferencesProvider);
+  final prefs = await ref.watch(sharedPreferencesProvider.future);
   return OTPConfigRepository(
     apiClient: apiClient,
     prefs: prefs,
@@ -725,7 +725,7 @@ final otpConfigRepositoryProvider = Provider<OTPConfigRepository>((ref) {
 class OTPConfigNotifier extends _$OTPConfigNotifier {
   @override
   Future<OTPConfig> build() async {
-    final repository = ref.watch(otpConfigRepositoryProvider);
+    final repository = await ref.watch(otpConfigRepositoryProvider.future);
     return repository.getConfig();
   }
 
@@ -733,7 +733,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
   Future<void> refresh() async {
     state = const AsyncLoading();
     try {
-      final repository = ref.read(otpConfigRepositoryProvider);
+      final repository = await ref.read(otpConfigRepositoryProvider.future);
       final config = await repository.getConfig(forceRefresh: true);
       state = AsyncData(config);
     } catch (e, st) {
@@ -743,7 +743,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
 
   /// Clear cache and reload
   Future<void> clearCacheAndReload() async {
-    final repository = ref.read(otpConfigRepositoryProvider);
+    final repository = await ref.read(otpConfigRepositoryProvider.future);
     await repository.clearCache();
     await refresh();
   }

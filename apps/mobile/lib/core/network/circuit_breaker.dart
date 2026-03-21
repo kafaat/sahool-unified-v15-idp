@@ -76,7 +76,9 @@ class CircuitBreakerConfig {
     this.halfOpenMaxRequests = 3,
     this.perEndpointTracking = true,
     this.slidingWindowDuration,
-  });
+  })  : assert(failureThreshold > 0, 'failureThreshold must be > 0'),
+        assert(successThreshold > 0, 'successThreshold must be > 0'),
+        assert(halfOpenMaxRequests > 0, 'halfOpenMaxRequests must be > 0');
 
   /// Default configuration
   static const CircuitBreakerConfig standard = CircuitBreakerConfig(

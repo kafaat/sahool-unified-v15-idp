@@ -556,6 +556,16 @@ class ApiService {
         );
       }
 
+      // Safely cast responseData, returning null data if responseData is null
+      if (responseData == null) {
+        return ApiResponse<T>(
+          success: true,
+          data: null,
+          requestId: requestId,
+          timestamp: DateTime.now(),
+        );
+      }
+
       return ApiResponse.success(
         responseData as T,
         requestId: requestId,

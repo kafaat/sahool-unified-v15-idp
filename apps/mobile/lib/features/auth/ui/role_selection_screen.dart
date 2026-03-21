@@ -125,7 +125,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'v15.3.0',
+                  'v16.0.0',
                   style: TextStyle(color: Colors.grey[400], fontSize: 12),
                 ),
               ),

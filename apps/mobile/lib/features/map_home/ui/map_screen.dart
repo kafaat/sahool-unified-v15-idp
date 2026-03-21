@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
@@ -51,95 +53,39 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
-
-  @override
   void dispose() {
     _mapController.dispose();
     super.dispose();
   }
 
-  // بيانات وهمية للحقول (Mock Data)
-  final List<Field> _mockFields = [
-    Field(
-      id: '1',
-      name: 'القطعة الشمالية',
-      tenantId: 'mock',
-      cropType: 'قمح',
-      areaHectares: 2.4,
-      ndviCurrent: 0.78,
-      status: 'healthy',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '2',
-      name: 'حقل الذرة',
-      tenantId: 'mock',
-      cropType: 'ذرة',
-      areaHectares: 3.1,
-      ndviCurrent: 0.65,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '3',
-      name: 'البستان الغربي',
-      tenantId: 'mock',
-      cropType: 'عنب',
-      areaHectares: 1.8,
-      ndviCurrent: 0.52,
-      status: 'stressed',
-      pendingTasks: 2,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '4',
-      name: 'حقل الطماطم',
-      tenantId: 'mock',
-      cropType: 'طماطم',
-      areaHectares: 0.9,
-      ndviCurrent: 0.35,
-      status: 'critical',
-      pendingTasks: 4,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '5',
-      name: 'المنطقة الجنوبية',
-      tenantId: 'mock',
-      cropType: 'برسيم',
-      areaHectares: 4.2,
-      ndviCurrent: 0.71,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '6',
-      name: 'حقل البطاطا',
-      tenantId: 'mock',
-      cropType: 'بطاطا',
-      areaHectares: 1.5,
-      ndviCurrent: 0.48,
-      status: 'stressed',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-  ];
+  // Fields loaded from repository via provider
+  List<Field> _repoFields = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    _loadFields();
+  }
+
+  Future<void> _loadFields() async {
+    try {
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+      final repo = ref.read(fieldsRepoProvider);
+      final fields = await repo.getAllFields(tenantId);
+      if (mounted) {
+        setState(() {
+          _repoFields = fields;
+        });
+      }
+    } catch (e) {
+      // Silently fall back to empty list - fields will load on next refresh
+    }
+  }
 
   List<Field> get _filteredFields {
-    var fields = _mockFields;
+    var fields = _repoFields;
     // Apply status filter
     if (_activeFilter == 'نشط') {
       fields = fields.where((f) => f.healthStatus == FieldStatus.healthy).toList();

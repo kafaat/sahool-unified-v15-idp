@@ -464,7 +464,7 @@ class AdvisorDashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            totalCost > 0
+            totalCost > 0 && totalROI > 0
                 ? 'ROI: ${((totalROI / totalCost) * 100).toStringAsFixed(0)}% | Invest to grow | استثمر لتنمو'
                 : 'No investments needed | لا توجد استثمارات مطلوبة',
             style: TextStyle(

@@ -247,7 +247,9 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
             _buildFieldRow('حقل البرسيم', '50 هكتار', 0.90, 'برسيم'),
             const SizedBox(height: 12),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/fields');
+              },
               icon: const Icon(Icons.visibility),
               label: const Text('عرض كل الحقول'),
             ),

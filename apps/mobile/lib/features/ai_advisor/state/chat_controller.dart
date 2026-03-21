@@ -4,6 +4,7 @@
 /// Manages chat session state and business logic for AI advisor
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/remote/ai_advisor_api.dart';
 import '../data/repositories/ai_advisor_repository.dart';
@@ -207,7 +208,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
 
   /// Send quick question
   Future<void> sendQuickQuestion(QuickQuestion question) async {
-    final locale = 'ar'; // Default to Arabic, can be made dynamic
+    final locale = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
 
     final request = AdvisoryRequest(
       message: question.getText(locale),

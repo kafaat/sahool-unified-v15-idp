@@ -126,15 +126,20 @@ class MigrationV6 extends Migration with MigrationHelpers {
     }
 
     if (issues.isEmpty) {
+      log('Verification passed: All v6 migration changes verified');
       return MigrationVerificationResult.success(
         version: targetVersion,
         message: 'All v6 migration changes verified',
         details: details,
       );
     } else {
+      for (final issue in issues) {
+        log('WARNING: Verification issue - $issue');
+      }
+      log('Verification FAILED for v$targetVersion with ${issues.length} issue(s)');
       return MigrationVerificationResult.failure(
         version: targetVersion,
-        message: 'Migration verification failed',
+        message: 'Migration verification failed with ${issues.length} issue(s): ${issues.join(', ')}',
         issues: issues,
         details: details,
       );

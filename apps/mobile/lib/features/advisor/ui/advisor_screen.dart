@@ -361,12 +361,26 @@ class _ChatBubble extends StatelessWidget {
             ),
             if (message.hasAction) ...[
               const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add_task, size: 18),
-                label: const Text('إضافة كمهمة'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              Builder(
+                builder: (innerContext) => OutlinedButton.icon(
+                  onPressed: () {
+                    GoRouter.of(innerContext).push('/tasks', extra: {
+                      'prefillTitle': 'علاج: ${message.text.split('\n').first}',
+                      'prefillDescription': message.text,
+                      'createNew': true,
+                    });
+                    ScaffoldMessenger.of(innerContext).showSnackBar(
+                      const SnackBar(
+                        content: Text('تمت إضافة التوصية كمهمة'),
+                        backgroundColor: SahoolColors.success,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add_task, size: 18),
+                  label: const Text('إضافة كمهمة'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ),
             ],

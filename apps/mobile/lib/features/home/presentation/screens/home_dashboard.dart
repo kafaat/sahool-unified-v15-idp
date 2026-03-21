@@ -32,10 +32,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
 
   void _loadInitialData() {
     Logger.debug('Loading home dashboard data', tag: 'HOME');
-    Future.microtask(() {
-      ref.read(notificationsProvider.notifier).loadNotifications();
+    Future.microtask(() async {
+      await ref.read(notificationsProvider.notifier).loadNotifications();
       // Load weather data
-      ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
+      await ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
       Logger.info(
         'Home data loaded',
         messageAr: 'تم تحميل بيانات الرئيسية',

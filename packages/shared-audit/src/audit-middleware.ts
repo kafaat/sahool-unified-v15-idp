@@ -151,14 +151,38 @@ export class AuditMiddleware implements NestMiddleware {
   ]);
 
   /**
+   * Allowed characters for query parameter keys.
+   * SECURITY: Prevents prototype pollution via property injection.
+   */
+  private static readonly SAFE_KEY_PATTERN = /^[a-zA-Z0-9_\-.\[\]]+$/;
+
+  /**
+   * Dangerous property names that must never be used as object keys.
+   * SECURITY: Prevents prototype pollution attacks.
+   */
+  private static readonly DANGEROUS_KEYS: ReadonlySet<string> = new Set([
+    "__proto__",
+    "constructor",
+    "prototype",
+  ]);
+
+  /**
    * Sanitize query parameters by redacting sensitive values.
-   * SECURITY: Prevents credential leakage in audit logs.
+   * SECURITY: Prevents credential leakage in audit logs and prototype pollution.
    */
   private sanitizeQuery(
     query: Record<string, any>,
   ): Record<string, any> {
-    const sanitized: Record<string, any> = {};
+    const sanitized = Object.create(null) as Record<string, any>;
     for (const [key, value] of Object.entries(query)) {
+      // SECURITY: Skip dangerous property names to prevent prototype pollution
+      if (AuditMiddleware.DANGEROUS_KEYS.has(key)) {
+        continue;
+      }
+      // SECURITY: Only allow safe key patterns
+      if (!AuditMiddleware.SAFE_KEY_PATTERN.test(key)) {
+        continue;
+      }
       if (AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())) {
         sanitized[key] = "[REDACTED]";
       } else {

@@ -82,7 +82,7 @@ class TokenInterceptor extends Interceptor {
     } catch (e) {
       // Proactive refresh failed - log but continue with existing token
       // The server will return 401 if it's expired, and onError will handle it
-      AppLogger.w('Proactive token refresh failed, continuing with current token', tag: 'TOKEN', error: e);
+      AppLogger.w('Proactive token refresh failed, continuing with current token: $e', tag: 'TOKEN');
     }
 
     // Get current access token
@@ -233,9 +233,8 @@ class TokenInterceptor extends Interceptor {
       } catch (e) {
         retryCount++;
         AppLogger.w(
-          'Token refresh attempt $retryCount failed',
+          'Token refresh attempt $retryCount failed: $e',
           tag: 'TOKEN',
-          error: e,
         );
 
         // Calculate next delay with exponential backoff

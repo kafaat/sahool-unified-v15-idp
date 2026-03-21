@@ -752,7 +752,7 @@ class OTPConfigNotifier extends _$OTPConfigNotifier {
 /// Channel-specific configuration provider
 @riverpod
 OTPChannelConfig? otpChannelConfig(Ref ref, OTPChannel channel) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
     data: (config) => config.getChannelConfig(channel),
   );
@@ -761,7 +761,7 @@ OTPChannelConfig? otpChannelConfig(Ref ref, OTPChannel channel) {
 /// Enabled channels provider (sorted by priority)
 @riverpod
 List<MapEntry<String, OTPChannelConfig>> enabledOTPChannels(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.getEnabledChannels(),
       ) ??
@@ -771,7 +771,7 @@ List<MapEntry<String, OTPChannelConfig>> enabledOTPChannels(Ref ref) {
 /// Primary channels provider (for UI display)
 @riverpod
 List<MapEntry<String, OTPChannelConfig>> primaryOTPChannels(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.getPrimaryChannels(),
       ) ??
@@ -781,7 +781,7 @@ List<MapEntry<String, OTPChannelConfig>> primaryOTPChannels(Ref ref) {
 /// Rate limit configuration provider
 @riverpod
 OTPRateLimitConfig otpRateLimitConfig(Ref ref) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.rateLimit,
       ) ??
@@ -791,7 +791,7 @@ OTPRateLimitConfig otpRateLimitConfig(Ref ref) {
 /// Feature flag provider
 @riverpod
 bool otpFeatureFlag(Ref ref, String featureName) {
-  final configAsync = ref.watch(otpConfigNotifierProvider);
+  final configAsync = ref.watch(oTPConfigNotifierProvider);
   return configAsync.whenOrNull(
         data: (config) => config.isFeatureEnabled(featureName),
       ) ??

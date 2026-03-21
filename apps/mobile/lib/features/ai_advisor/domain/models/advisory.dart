@@ -167,7 +167,7 @@ class Advisory {
       actions: (json['actions'] as List?)?.cast<String>() ?? [],
       actionsAr: (json['actions_ar'] as List?)?.cast<String>() ??
                  (json['actions'] as List?)?.cast<String>() ?? [],
-      confidence: (json['confidence'] ?? 0.8).toDouble(),
+      confidence: ((json['confidence'] ?? 0.8) as num).toDouble(),
       sources: (json['sources'] as List?)?.cast<String>() ?? [],
       fieldId: json['field_id'] as String?,
       fieldName: json['field_name'] as String?,

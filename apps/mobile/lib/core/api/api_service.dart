@@ -820,9 +820,9 @@ class ApiService {
     try {
       final data = await _storage.getQueuedRequests();
       if (data != null) {
-        final List<dynamic> list = jsonDecode(data);
+        final List<dynamic> list = jsonDecode(data) as List<dynamic>;
         for (final item in list) {
-          _requestQueue.add(QueuedRequest.fromJson(item));
+          _requestQueue.add(QueuedRequest.fromJson(item as Map<String, dynamic>));
         }
         AppLogger.i(
           'Loaded ${_requestQueue.length} queued requests',
@@ -983,8 +983,8 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _accessToken = data['access_token'];
-        _refreshToken = data['refresh_token'] ?? _refreshToken;
+        _accessToken = data['access_token'] as String?;
+        _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
 
         await _storage.setAccessToken(_accessToken!);
         if (_refreshToken != null) {

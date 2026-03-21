@@ -190,35 +190,35 @@ class NotificationPreferences {
     }
 
     return NotificationPreferences(
-      weatherAlerts: json['weatherAlerts'] ?? true,
-      diseaseDetection: json['diseaseDetection'] ?? true,
-      pestOutbreak: json['pestOutbreak'] ?? true,
-      sprayWindow: json['sprayWindow'] ?? true,
-      harvestReminders: json['harvestReminders'] ?? true,
-      irrigationReminders: json['irrigationReminders'] ?? true,
-      taskReminders: json['taskReminders'] ?? true,
-      fieldUpdates: json['fieldUpdates'] ?? true,
-      satelliteImages: json['satelliteImages'] ?? true,
-      cropHealth: json['cropHealth'] ?? true,
-      marketPrices: json['marketPrices'] ?? true,
-      paymentDue: json['paymentDue'] ?? true,
-      lowStock: json['lowStock'] ?? false,
-      systemNotifications: json['systemNotifications'] ?? true,
-      enableQuietHours: json['enableQuietHours'] ?? false,
+      weatherAlerts: (json['weatherAlerts'] as bool?) ?? true,
+      diseaseDetection: (json['diseaseDetection'] as bool?) ?? true,
+      pestOutbreak: (json['pestOutbreak'] as bool?) ?? true,
+      sprayWindow: (json['sprayWindow'] as bool?) ?? true,
+      harvestReminders: (json['harvestReminders'] as bool?) ?? true,
+      irrigationReminders: (json['irrigationReminders'] as bool?) ?? true,
+      taskReminders: (json['taskReminders'] as bool?) ?? true,
+      fieldUpdates: (json['fieldUpdates'] as bool?) ?? true,
+      satelliteImages: (json['satelliteImages'] as bool?) ?? true,
+      cropHealth: (json['cropHealth'] as bool?) ?? true,
+      marketPrices: (json['marketPrices'] as bool?) ?? true,
+      paymentDue: (json['paymentDue'] as bool?) ?? true,
+      lowStock: (json['lowStock'] as bool?) ?? false,
+      systemNotifications: (json['systemNotifications'] as bool?) ?? true,
+      enableQuietHours: (json['enableQuietHours'] as bool?) ?? false,
       quietHoursStart: json['quietHoursStart'] != null
-          ? parseTime(json['quietHoursStart'])
+          ? parseTime(json['quietHoursStart'] as String)
           : const TimeOfDay(hour: 22, minute: 0),
       quietHoursEnd: json['quietHoursEnd'] != null
-          ? parseTime(json['quietHoursEnd'])
+          ? parseTime(json['quietHoursEnd'] as String)
           : const TimeOfDay(hour: 6, minute: 0),
-      enableSound: json['enableSound'] ?? true,
-      enableVibration: json['enableVibration'] ?? true,
+      enableSound: (json['enableSound'] as bool?) ?? true,
+      enableVibration: (json['enableVibration'] as bool?) ?? true,
       minimumPriority: NotificationPriority.values.firstWhere(
         (p) => p.name == json['minimumPriority'],
         orElse: () => NotificationPriority.low,
       ),
-      showBadge: json['showBadge'] ?? true,
-      showPreview: json['showPreview'] ?? true,
+      showBadge: (json['showBadge'] as bool?) ?? true,
+      showPreview: (json['showPreview'] as bool?) ?? true,
     );
   }
 

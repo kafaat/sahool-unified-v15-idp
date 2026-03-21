@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/satellite_provider.dart';
+import '../../data/models/phenology_data.dart';
 import '../../widgets/phenology_timeline.dart';
 
 class PhenologyScreen extends ConsumerStatefulWidget {
@@ -92,7 +93,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
     );
   }
 
-  Widget _buildPhenologyContent(dynamic phenology, bool isArabic) {
+  Widget _buildPhenologyContent(PhenologyData phenology, bool isArabic) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -123,7 +124,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
     );
   }
 
-  Widget _buildCurrentStageCard(dynamic phenology, bool isArabic) {
+  Widget _buildCurrentStageCard(PhenologyData phenology, bool isArabic) {
     final progress = phenology.completionPercentage;
 
     return Container(
@@ -345,7 +346,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
     );
   }
 
-  Widget _buildCropInfo(dynamic phenology, bool isArabic) {
+  Widget _buildCropInfo(PhenologyData phenology, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

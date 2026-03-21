@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/satellite_provider.dart';
+import '../../data/models/weather_data.dart';
 import '../../widgets/weather_card.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
@@ -369,7 +370,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildIrrigationInfo(dynamic weather, bool isArabic) {
+  Widget _buildIrrigationInfo(WeatherSummary weather, bool isArabic) {
     final irrigationNeed = weather.getIrrigationNeed();
 
     return Container(
@@ -420,7 +421,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildForecastCards(List<dynamic> forecast, bool isArabic) {
+  Widget _buildForecastCards(List<DailyForecastSummary> forecast, bool isArabic) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -440,7 +441,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildDayCard(dynamic day, bool isArabic) {
+  Widget _buildDayCard(DailyForecastSummary day, bool isArabic) {
     final dayName = _getDayName(day.date, isArabic);
 
     return Container(

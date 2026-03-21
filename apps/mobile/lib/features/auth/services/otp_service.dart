@@ -194,11 +194,11 @@ class SendOTPResponse {
 
   factory SendOTPResponse.fromJson(Map<String, dynamic> json) {
     return SendOTPResponse(
-      success: json['success'] ?? json['status'] == 'success',
+      success: (json['success'] as bool?) ?? json['status'] == 'success',
       message: json['message'] as String?,
-      expiresInSeconds: json['expires_in'] ?? json['expiresIn'] ?? 300,
-      cooldownSeconds: json['cooldown'] ?? json['resend_cooldown'] ?? 60,
-      maskedDestination: json['masked_destination'] ?? json['maskedDestination'],
+      expiresInSeconds: (json['expires_in'] as int?) ?? (json['expiresIn'] as int?) ?? 300,
+      cooldownSeconds: (json['cooldown'] as int?) ?? (json['resend_cooldown'] as int?) ?? 60,
+      maskedDestination: (json['masked_destination'] as String?) ?? (json['maskedDestination'] as String?),
     );
   }
 }
@@ -219,10 +219,10 @@ class VerifyOTPResponse {
 
   factory VerifyOTPResponse.fromJson(Map<String, dynamic> json) {
     return VerifyOTPResponse(
-      success: json['success'] ?? json['status'] == 'success' ?? json['valid'] == true,
+      success: (json['success'] as bool?) ?? json['status'] == 'success' || json['valid'] == true,
       message: json['message'] as String?,
-      resetToken: json['reset_token'] ?? json['resetToken'] ?? json['token'],
-      remainingAttempts: json['remaining_attempts'] ?? json['remainingAttempts'],
+      resetToken: (json['reset_token'] as String?) ?? (json['resetToken'] as String?) ?? (json['token'] as String?),
+      remainingAttempts: (json['remaining_attempts'] as int?) ?? (json['remainingAttempts'] as int?),
     );
   }
 }
@@ -357,7 +357,7 @@ class OTPService {
       AppLogger.e('OTP send failed', tag: 'OTP', error: e);
       return _handleApiException<SendOTPResponse>(e);
     } on RateLimitException catch (e) {
-      AppLogger.w('OTP send rate limited', tag: 'OTP', error: e);
+      AppLogger.w('OTP send rate limited: $e', tag: 'OTP');
       return Failure(
         'تم تجاوز الحد المسموح. حاول مرة أخرى بعد قليل',
         statusCode: 429,

@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/satellite_provider.dart';
+import '../../data/models/ndvi_data.dart';
 import '../../widgets/ndvi_chart.dart';
 
 class NdviDetailScreen extends ConsumerStatefulWidget {
@@ -95,7 +96,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
     );
   }
 
-  Widget _buildContent(dynamic state, bool isArabic) {
+  Widget _buildContent(NdviDetailState state, bool isArabic) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -108,7 +109,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
         const SizedBox(height: 16),
 
         // Current values
-        if (state.analysis != null) _buildCurrentValues(state.analysis, isArabic),
+        if (state.analysis != null) _buildCurrentValues(state.analysis!, isArabic),
         const SizedBox(height: 16),
 
         // Vegetation Indices Grid
@@ -116,7 +117,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
         const SizedBox(height: 16),
 
         // Health Status & Recommendations
-        if (state.analysis != null) _buildHealthStatus(state.analysis, isArabic),
+        if (state.analysis != null) _buildHealthStatus(state.analysis!, isArabic),
       ],
     );
   }
@@ -175,7 +176,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
     );
   }
 
-  Widget _buildChartCard(dynamic state, bool isArabic) {
+  Widget _buildChartCard(NdviDetailState state, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -212,7 +213,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
     );
   }
 
-  Widget _buildCurrentValues(dynamic analysis, bool isArabic) {
+  Widget _buildCurrentValues(NdviAnalysis analysis, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -371,7 +372,7 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
     );
   }
 
-  Widget _buildHealthStatus(dynamic analysis, bool isArabic) {
+  Widget _buildHealthStatus(NdviAnalysis analysis, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

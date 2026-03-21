@@ -32,8 +32,8 @@ class NotificationService {
     if (json == null) return [];
 
     try {
-      final List<dynamic> list = jsonDecode(json);
-      return list.map((e) => AppNotification.fromJson(e)).toList();
+      final List<dynamic> list = jsonDecode(json) as List<dynamic>;
+      return list.map((e) => AppNotification.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       debugPrint('Error loading notifications: $e');
       return [];

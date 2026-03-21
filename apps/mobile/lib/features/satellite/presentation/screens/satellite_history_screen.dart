@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/satellite_provider.dart';
+import '../../data/models/ndvi_data.dart';
 import '../../widgets/ndvi_chart.dart';
 
 class SatelliteHistoryScreen extends ConsumerStatefulWidget {
@@ -329,9 +330,9 @@ class _SatelliteHistoryScreenState extends ConsumerState<SatelliteHistoryScreen>
     );
   }
 
-  Widget _buildHistoryItem(dynamic dataPoint, bool isArabic) {
+  Widget _buildHistoryItem(NdviDataPoint dataPoint, bool isArabic) {
     final date = dataPoint.date;
-    final ndvi = dataPoint.ndvi;
+    final ndvi = dataPoint.value;
 
     // Determine health status based on NDVI value
     final (String status, Color color) = _getNdviStatus(ndvi, isArabic);

@@ -104,7 +104,7 @@ class CropHealthRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return Success(DiagnosisResult.fromJson(data));
+        return Success(DiagnosisResult.fromJson(data as Map<String, dynamic>));
       }
 
       return Failure(
@@ -142,7 +142,7 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Success(DiagnosisResult.fromJson(json.decode(response.body)));
+        return Success(DiagnosisResult.fromJson(json.decode(response.body) as Map<String, dynamic>));
       }
 
       return Failure(
@@ -180,7 +180,7 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Success(BatchDiagnosisResult.fromJson(json.decode(response.body)));
+        return Success(BatchDiagnosisResult.fromJson(json.decode(response.body) as Map<String, dynamic>));
       }
 
       return Failure(
@@ -210,8 +210,8 @@ class CropHealthRepository {
       final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
-        return Success(data.map((e) => DiseaseInfo.fromJson(e)).toList());
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+        return Success(data.map((e) => DiseaseInfo.fromJson(e as Map<String, dynamic>)).toList());
       }
 
       return Failure(
@@ -233,8 +233,8 @@ class CropHealthRepository {
       );
 
       if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
-        return Success(data.map((e) => CropOption.fromJson(e)).toList());
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+        return Success(data.map((e) => CropOption.fromJson(e as Map<String, dynamic>)).toList());
       }
 
       return Failure(
@@ -256,7 +256,7 @@ class CropHealthRepository {
       );
 
       if (response.statusCode == 200) {
-        return Success(json.decode(response.body));
+        return Success(json.decode(response.body) as Map<String, dynamic>);
       }
 
       return Failure(
@@ -300,7 +300,7 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Success(ExpertReviewResponse.fromJson(json.decode(response.body)));
+        return Success(ExpertReviewResponse.fromJson(json.decode(response.body) as Map<String, dynamic>));
       }
 
       return Failure(

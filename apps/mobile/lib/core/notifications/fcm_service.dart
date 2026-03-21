@@ -91,7 +91,7 @@ class NotificationChannels {
     enableVibration: true,
     playSound: true,
     enableLights: true,
-    ledColor: Color.fromARGB(255, 255, 0, 0),
+    ledColor: const Color(0xFFFF0000),
   );
 
   /// Irrigation channel - medium priority for irrigation reminders
@@ -378,14 +378,6 @@ class FCMService {
       requestAlertPermission: false, // Request permission separately
       requestBadgePermission: false,
       requestSoundPermission: false,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (iOS < 10)
-        AppLogger.d(
-          'iOS local notification received',
-          tag: 'FCM',
-          data: {'id': id, 'title': title},
-        );
-      },
     );
 
     final initSettings = InitializationSettings(

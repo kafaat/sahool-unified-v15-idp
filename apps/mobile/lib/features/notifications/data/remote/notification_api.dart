@@ -76,7 +76,7 @@ class NotificationPreferences {
       pushEnabled: json['push_enabled'] as bool? ?? true,
       emailEnabled: json['email_enabled'] as bool? ?? true,
       smsEnabled: json['sms_enabled'] as bool? ?? false,
-      categories: Map<String, bool>.from(json['categories'] ?? {}),
+      categories: Map<String, bool>.from((json['categories'] as Map?) ?? {}),
     );
   }
 
@@ -145,7 +145,7 @@ class NotificationApi {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final notifications = json['data'] as List;
-      return notifications.map((n) => ApiNotification.fromJson(n)).toList();
+      return notifications.map((n) => ApiNotification.fromJson(n as Map<String, dynamic>)).toList();
     } else {
       throw NotificationApiException(
         'فشل جلب الإشعارات',
@@ -164,7 +164,7 @@ class NotificationApi {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      return ApiNotification.fromJson(json['data']);
+      return ApiNotification.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(
         'فشل جلب الإشعار',
@@ -293,7 +293,7 @@ class NotificationApi {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      return NotificationPreferences.fromJson(json['data']);
+      return NotificationPreferences.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(
         'فشل جلب تفضيلات الإشعارات',
@@ -315,7 +315,7 @@ class NotificationApi {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      return NotificationPreferences.fromJson(json['data']);
+      return NotificationPreferences.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw NotificationApiException(
         'فشل تحديث تفضيلات الإشعارات',

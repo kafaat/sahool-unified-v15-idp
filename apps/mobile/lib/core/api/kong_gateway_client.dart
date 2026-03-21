@@ -714,8 +714,8 @@ class KongGatewayClient {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _accessToken = data['access_token'];
-        _refreshToken = data['refresh_token'] ?? _refreshToken;
+        _accessToken = data['access_token'] as String?;
+        _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
         return true;
       }
     } catch (e) {

@@ -279,13 +279,13 @@ class AuthService {
       // Extract user data
       final userData = data['user'] ?? data;
       final user = User(
-        id: userData['id'] ?? userData['_id'] ?? 'unknown',
-        email: userData['email'] ?? email,
-        name: userData['name'] ?? userData['username'] ?? 'مستخدم',
-        role: userData['role'] ?? 'farmer',
-        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
-        phone: userData['phone'],
-        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+        id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
+        email: (userData['email'] ?? email) as String,
+        name: (userData['name'] ?? userData['username'] ?? 'مستخدم') as String,
+        role: (userData['role'] ?? 'farmer') as String,
+        tenantId: (userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId) as String,
+        phone: userData['phone'] as String?,
+        avatarUrl: (userData['avatar_url'] ?? userData['avatarUrl']) as String?,
       );
 
       // Set auth token in API client for subsequent requests
@@ -409,10 +409,10 @@ class AuthService {
       }
 
       final data = response is Map<String, dynamic> ? response : response['data'];
-      final success = data['success'] ?? false;
+      final success = (data['success'] as bool?) ?? false;
 
       if (!success) {
-        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        final message = (data['message'] ?? 'فشل تغيير كلمة المرور') as String;
         throw AuthException(message);
       }
 

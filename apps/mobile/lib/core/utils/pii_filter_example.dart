@@ -50,7 +50,7 @@ void exampleNetworkLogging() {
 /// مثال 3: التنظيف اليدوي
 void exampleManualSanitization() {
   // Sanitize a string
-  final sanitizedText = PiiFilter.sanitize('Contact: +966501234567');
+  final sanitizedText = PiiFilter.sanitize('Contact: +966501234567') as String?;
   debugPrint(sanitizedText); // 'Contact: +966****4567'
 
   // Sanitize a map
@@ -133,7 +133,7 @@ void exampleRequestResponseSanitization() {
     'phone': '+966501234567',
   };
 
-  final sanitizedRequest = PiiFilter.sanitizeRequestBody(requestBody);
+  final sanitizedRequest = PiiFilter.sanitizeRequestBody(requestBody) as Map<String, dynamic>?;
   AppLogger.d('Request', data: sanitizedRequest);
 
   // Sanitize response body
@@ -146,7 +146,7 @@ void exampleRequestResponseSanitization() {
     },
   };
 
-  final sanitizedResponse = PiiFilter.sanitizeResponseBody(responseBody);
+  final sanitizedResponse = PiiFilter.sanitizeResponseBody(responseBody) as Map<String, dynamic>?;
   AppLogger.d('Response', data: sanitizedResponse);
 
   // Sanitize headers

@@ -149,7 +149,7 @@ class WebSocketService {
 
       AppLogger.i('WebSocket connected successfully');
     } catch (e) {
-      AppLogger.e('WebSocket connection failed', e);
+      AppLogger.e('WebSocket connection failed', error: e);
       _updateState(ConnectionState.error);
       _scheduleReconnect();
     }
@@ -292,13 +292,13 @@ class WebSocketService {
         AppLogger.i('WebSocket event: ${event.eventType ?? event.type}');
       }
     } catch (e) {
-      AppLogger.e('Error parsing WebSocket message', e);
+      AppLogger.e('Error parsing WebSocket message', error: e);
     }
   }
 
   /// Handle connection error
   void _handleError(dynamic error) {
-    AppLogger.e('WebSocket error', error);
+    AppLogger.e('WebSocket error', error: error);
     _updateState(ConnectionState.error);
     _scheduleReconnect();
   }

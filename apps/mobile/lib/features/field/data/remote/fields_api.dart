@@ -26,7 +26,7 @@ class FieldsApi {
 
       // Handle FeatureCollection response
       if (response is Map && response['type'] == 'FeatureCollection') {
-        return List<Map<String, dynamic>>.from(response['features'] ?? []);
+        return List<Map<String, dynamic>>.from((response['features'] ?? []) as Iterable);
       }
 
       // Handle array of features

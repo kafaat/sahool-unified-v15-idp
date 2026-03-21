@@ -171,7 +171,7 @@ class MemoryInfo {
 
 /// Mixin لإدارة الذاكرة في StatefulWidget
 mixin MemoryAwareMixin<T extends StatefulWidget> on State<T> {
-  late final void Function(MemoryPressureLevel) _memoryCallback;
+  late final MemoryPressureCallback _memoryCallback;
 
   @override
   void initState() {

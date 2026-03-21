@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'role_model.dart';
 import 'permission_model.dart';
 import 'rbac_service.dart';
-import 'rbac_providers.dart' hide RouteGuardResult, RouteGuardService;
+import 'rbac_providers.dart' hide RouteGuardService;
 import 'rbac_config.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -518,38 +518,7 @@ class GuardedIconButton extends ConsumerWidget {
 
 /// Route guard result
 /// نتيجة حارس المسار
-class RouteGuardResult {
-  final bool allowed;
-  final String? redirectRoute;
-  final String? denialMessage;
-  final String? denialMessageAr;
-
-  const RouteGuardResult({
-    required this.allowed,
-    this.redirectRoute,
-    this.denialMessage,
-    this.denialMessageAr,
-  });
-
-  static const RouteGuardResult success = RouteGuardResult(allowed: true);
-
-  factory RouteGuardResult.denied({
-    String? redirectRoute,
-    String? message,
-    String? messageAr,
-  }) {
-    return RouteGuardResult(
-      allowed: false,
-      redirectRoute: redirectRoute,
-      denialMessage: message,
-      denialMessageAr: messageAr,
-    );
-  }
-
-  String? getMessage(Locale locale) {
-    return locale.languageCode == 'ar' ? denialMessageAr : denialMessage;
-  }
-}
+// RouteGuardResult is imported from rbac_providers.dart
 
 /// Route guard for checking navigation permissions
 /// حارس المسار للتحقق من صلاحيات التنقل
@@ -673,7 +642,9 @@ class _AccessDeniedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
-    final message = result.getMessage(locale) ??
+    final message = (locale.languageCode == 'ar'
+            ? result.denialMessageAr
+            : result.denialMessage) ??
         (locale.languageCode == 'ar' ? 'الوصول مرفوض' : 'Access Denied');
 
     return Scaffold(

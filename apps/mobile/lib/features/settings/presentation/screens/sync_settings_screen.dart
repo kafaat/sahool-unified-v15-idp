@@ -135,7 +135,7 @@ class SyncSettingsScreen extends ConsumerWidget {
             SettingsSection(
               title: 'Storage Breakdown',
               titleAr: 'تفاصيل التخزين',
-              icon: Icons.pie_chart_outlined,
+              icon: Icons.pie_chart_outline,
               showDividers: true,
               children: [
                 _StorageItemTile(

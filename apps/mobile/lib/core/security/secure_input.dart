@@ -209,7 +209,7 @@ class _SecureTextFieldState extends State<SecureTextField> {
       await Clipboard.setData(const ClipboardData(text: ''));
       AppLogger.d('Clipboard cleared for security', tag: 'SecureInput');
     } catch (e) {
-      AppLogger.w('Failed to clear clipboard', tag: 'SecureInput', error: e);
+      AppLogger.w('Failed to clear clipboard: $e', tag: 'SecureInput');
     }
   }
 
@@ -548,7 +548,7 @@ class ClipboardSecurityManager {
       _clearTimer = null;
       AppLogger.d('Clipboard cleared', tag: 'ClipboardSecurity');
     } catch (e) {
-      AppLogger.w('Failed to clear clipboard', tag: 'ClipboardSecurity', error: e);
+      AppLogger.w('Failed to clear clipboard: $e', tag: 'ClipboardSecurity');
     }
   }
 

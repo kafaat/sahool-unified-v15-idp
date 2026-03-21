@@ -78,7 +78,7 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                 color: widget.polygonColor.withOpacity(0.3),
                 borderColor: widget.polygonColor,
                 borderStrokeWidth: 3,
-                isFilled: true,
+                // color is set above; polygon is filled when color is non-null
               ),
             ],
           ),
@@ -252,16 +252,16 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
     final currentPoint = points[index];
 
     // Project current point to screen coordinates
-    final screenPoint = widget.mapController.camera.latLngToScreenPoint(currentPoint);
+    final screenPoint = widget.mapController.camera.latLngToScreenOffset(currentPoint);
 
     // Apply delta
-    final newScreenPoint = Point<double>(
-      screenPoint.x + details.delta.dx,
-      screenPoint.y + details.delta.dy,
+    final newScreenPoint = Offset(
+      screenPoint.dx + details.delta.dx,
+      screenPoint.dy + details.delta.dy,
     );
 
     // Unproject back to LatLng
-    var newLatLng = widget.mapController.camera.pointToLatLng(newScreenPoint);
+    var newLatLng = widget.mapController.camera.screenOffsetToLatLng(newScreenPoint);
 
     // Snap to vertex if enabled
     if (widget.enableSnap) {

@@ -341,10 +341,10 @@ class _RegionSelectorState extends State<RegionSelector> {
         onPanUpdate: (details) {
           // Convert screen position to map coordinates
           final screenPoint =
-              _mapController.camera.latLngToScreenPoint(position);
+              _mapController.camera.latLngToScreenOffset(position);
           final newScreenPoint = screenPoint + details.delta;
           final newLatLng =
-              _mapController.camera.screenPointToLatLng(newScreenPoint);
+              _mapController.camera.screenOffsetToLatLng(newScreenPoint);
           _onHandleDrag(handle, newLatLng);
         },
         onPanEnd: (_) {

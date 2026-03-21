@@ -83,7 +83,7 @@ Future<void> firebaseMessagingBackgroundHandler(dynamic message) async {
 class NotificationChannels {
   /// Alerts channel - high priority for urgent notifications
   /// (pest outbreaks, disease detection, weather warnings)
-  static const alerts = AndroidNotificationChannel(
+  static final alerts = AndroidNotificationChannel(
     'sahool_alerts',
     'Alerts',
     description: 'Critical alerts requiring immediate attention',
@@ -726,7 +726,7 @@ class FCMService {
 
         // RemoteMessage.data contains the data payload
         if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data);
+          data = Map<String, dynamic>.from(message.data as Map);
           // Data-only messages may have title/body in the data payload
           title = data['title']?.toString() ?? title;
           body = data['body']?.toString() ?? body;
@@ -764,7 +764,7 @@ class FCMService {
           body = notification.body as String? ?? '';
         }
         if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data);
+          data = Map<String, dynamic>.from(message.data as Map);
           title = data['title']?.toString() ?? title;
           body = data['body']?.toString() ?? body;
         }

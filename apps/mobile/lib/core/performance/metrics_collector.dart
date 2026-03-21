@@ -171,7 +171,7 @@ class MetricsCollector {
       final jsonStr = _prefs.getString(_storageKey);
       if (jsonStr == null || jsonStr.isEmpty) return;
 
-      final List<dynamic> jsonList = json.decode(jsonStr);
+      final List<dynamic> jsonList = json.decode(jsonStr) as List<dynamic>;
       for (final item in jsonList) {
         try {
           _buffer.add(MetricEntry.fromJson(item as Map<String, dynamic>));

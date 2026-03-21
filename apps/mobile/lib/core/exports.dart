@@ -15,7 +15,7 @@ export 'config/env_config.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة
-export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn, StaggeredAnimationList, HapticFeedbackType, SlideDirection, FadeIn, SlideIn;
+export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn, StaggeredAnimationList, HapticFeedbackType, SlideDirection, FadeIn, SlideIn, HapticButton, ConnectivityBanner;
 
 // Offline Support - دعم عدم الاتصال
 export 'offline/offline.dart';
@@ -44,4 +44,4 @@ export 'sync/network_status.dart';
 export 'haptics/haptics.dart';
 
 // Widgets - المكونات
-export 'widgets/widgets.dart' hide SkeletonCard, SkeletonList, SkeletonGrid;
+export 'widgets/widgets.dart' hide SkeletonCard, SkeletonList, SkeletonGrid, SahoolRefreshIndicator;

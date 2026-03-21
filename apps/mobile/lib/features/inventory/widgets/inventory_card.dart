@@ -292,7 +292,7 @@ class InventoryCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,
-          color: color.shade800,
+          color: Color.lerp(color, Colors.black, 0.3),
         ),
       ),
     );

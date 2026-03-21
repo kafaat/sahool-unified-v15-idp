@@ -187,7 +187,7 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                           ? Colors.black
                           : Colors.white,
                   borderStrokeWidth: isSelected ? 3 : isHovered ? 2 : 1,
-                  isFilled: true,
+                  // color is set above; polygon is filled when color is non-null
                 );
               }).toList(),
             ),

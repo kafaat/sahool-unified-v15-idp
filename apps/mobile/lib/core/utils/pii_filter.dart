@@ -340,7 +340,7 @@ class PiiFilter {
       try {
         // Try to parse as JSON
         final jsonBody = jsonDecode(body);
-        return jsonEncode(_sanitizeMap(jsonBody));
+        return jsonEncode(_sanitizeMap(jsonBody as Map));
       } catch (e) {
         // Not JSON, sanitize as string
         return _sanitizeString(body);
@@ -394,7 +394,7 @@ class PiiFilter {
 /// Extension methods for easier PII filtering
 extension StringPiiExtension on String {
   /// Sanitize this string
-  String sanitizePii() => PiiFilter.sanitize(this);
+  String sanitizePii() => PiiFilter.sanitize(this) as String;
 
   /// Check if contains PII
   bool containsPii() => PiiFilter.containsPii(this);
@@ -402,5 +402,5 @@ extension StringPiiExtension on String {
 
 extension MapPiiExtension on Map<String, dynamic> {
   /// Sanitize this map
-  Map<String, dynamic> sanitizePii() => PiiFilter.sanitize(this);
+  Map<String, dynamic> sanitizePii() => PiiFilter.sanitize(this) as Map<String, dynamic>;
 }

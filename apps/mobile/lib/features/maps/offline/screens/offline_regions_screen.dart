@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/maps/offline/region_manager.dart';
+import '../../../../core/maps/offline/tile_downloader.dart';
 import '../../../../core/maps/offline/tile_storage.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../widgets/region_card.dart';

@@ -95,7 +95,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       setState(() {
         _expertJoined = true;
       });
-      _showExpertJoinedSnackbar(data['expertName'] ?? 'خبير');
+      _showExpertJoinedSnackbar((data['expertName'] ?? 'خبير') as String);
     });
 
     // Add welcome message

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
 import 'websocket_provider.dart';
-import '../../features/notifications/presentation/providers/notification_provider.dart';
 import '../notifications/notification_service.dart';
 import '../utils/app_logger.dart';
 
@@ -352,6 +351,11 @@ class WebSocketEventHandler {
     );
   }
 }
+
+/// Provider for notification service used by WebSocket
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  return NotificationServiceImpl();
+});
 
 /// Event handler provider
 final webSocketEventHandlerProvider = Provider<WebSocketEventHandler>((ref) {

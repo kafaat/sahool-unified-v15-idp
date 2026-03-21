@@ -42,4 +42,4 @@ export 'voice_ui.dart';
 
 // Legacy exports (for backward compatibility)
 export 'voice_command_service.dart' hide VoiceCommandType;
-export 'voice_button_widget.dart' hide FloatingVoiceButton, VoiceHelpSheet;
+export 'voice_button_widget.dart' hide FloatingVoiceButton, VoiceHelpSheet, VoiceStatusIndicator;

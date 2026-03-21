@@ -423,7 +423,7 @@ class FirebaseMessagingService {
     final notification = message.notification;
     if (notification == null) return;
 
-    final type = SAHOOLNotificationType.fromString(message.data['type'] as String?);
+    final type = SAHOOLNotificationType.fromString((message.data['type'] as String?) ?? '');
     final priority = NotificationPriority.fromString(message.data['priority'] as String?);
 
     final androidDetails = AndroidNotificationDetails(
@@ -474,7 +474,7 @@ class FirebaseMessagingService {
 
     try {
       final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final type = SAHOOLNotificationType.fromString(data['type'] as String?);
+      final type = SAHOOLNotificationType.fromString((data['type'] as String?) ?? '');
       final priority = NotificationPriority.fromString(data['priority'] as String?);
 
       final payload = SAHOOLNotificationPayload(

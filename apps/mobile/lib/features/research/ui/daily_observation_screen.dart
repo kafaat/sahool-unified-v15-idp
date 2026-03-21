@@ -335,7 +335,7 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
           children: _categories.map((cat) {
             final isSelected = cat['id'] == _selectedCategory;
             return GestureDetector(
-              onTap: () => setState(() => _selectedCategory = cat['id']),
+              onTap: () => setState(() => _selectedCategory = cat['id'] as String),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
@@ -348,10 +348,10 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(cat['icon']),
+                    Text(cat['icon'] as String),
                     const SizedBox(width: 6),
                     Text(
-                      cat['label'],
+                      cat['label'] as String,
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

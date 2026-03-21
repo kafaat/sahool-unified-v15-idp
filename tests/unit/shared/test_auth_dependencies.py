@@ -384,7 +384,7 @@ class TestGetOptionalUser:
 
     def test_returns_none_without_credentials(self):
         """Test that None is returned without credentials."""
-        result = get_optional_user(credentials=None)
+        result = get_optional_user(None)
 
         assert result is None
 
@@ -399,7 +399,7 @@ class TestGetOptionalUser:
             credentials=token,
         )
 
-        result = get_optional_user(credentials=credentials)
+        result = get_optional_user(credentials)
 
         assert result is not None
         assert result.id == "user123"

@@ -239,16 +239,21 @@ class DatabaseManager:
 
                 if attempt < self.config.max_retries - 1:
                     logger.warning(
-                        f"Database operation failed (attempt {attempt + 1}/{self.config.max_retries}): {e}",
-                        exc_info=True,
+                        "Database operation failed (attempt %d/%d): %s",
+                        attempt + 1,
+                        self.config.max_retries,
+                        type(e).__name__,
                     )
+                    logger.debug("Database retry error details", exc_info=True)
                     await asyncio.sleep(delay)
                     delay *= self.config.retry_backoff_factor
                 else:
                     logger.error(
-                        f"Database operation failed after {self.config.max_retries} attempts: {e}",
-                        exc_info=True,
+                        "Database operation failed after %d attempts: %s",
+                        self.config.max_retries,
+                        type(e).__name__,
                     )
+                    logger.debug("Database final error details", exc_info=True)
 
         raise last_exception
 
@@ -265,7 +270,8 @@ class DatabaseManager:
                 await session.execute(text("SELECT 1"))
             return True
         except Exception as e:
-            logger.error(f"Database health check failed: {e}")
+            logger.error("Database health check failed: %s", type(e).__name__)
+            logger.debug("Database health check error details", exc_info=True)
             return False
 
     async def get_pool_status(self) -> dict:

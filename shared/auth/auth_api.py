@@ -139,12 +139,32 @@ def create_temp_token(user_id: str, email: str) -> str:
 
 
 def verify_temp_token(temp_token: str) -> dict | None:
-    """Verify and decode temporary token using JWT signature verification."""
+    """Verify and decode temporary token using JWT signature verification.
+
+    SECURITY: Validates the 'temp' claim to prevent regular access tokens
+    from being used to bypass 2FA challenges.
+    """
     try:
+        # First verify signature and standard claims via verify_token
         payload = verify_token(temp_token)
 
-        # Ensure this is a temp token, not a regular access token
-        if payload.token_type != "access" or not hasattr(payload, "user_id"):
+        if not hasattr(payload, "user_id") or not payload.user_id:
+            return None
+
+        # SECURITY: Decode raw JWT to verify the 'temp' extra claim.
+        # verify_token already validated the signature, so this is safe.
+        import jwt as pyjwt
+
+        raw_payload = pyjwt.decode(
+            temp_token,
+            options={"verify_signature": False},
+        )
+
+        if not raw_payload.get("temp"):
+            logger.warning(
+                "Temp token verification failed: missing 'temp' claim",
+                extra={"user_id": payload.user_id},
+            )
             return None
 
         return {
@@ -154,7 +174,7 @@ def verify_temp_token(temp_token: str) -> dict | None:
     except AuthException:
         return None
     except Exception as e:
-        logger.error(f"Error verifying temp token: {e}")
+        logger.error(f"Error verifying temp token: {type(e).__name__}")
         return None
 
 

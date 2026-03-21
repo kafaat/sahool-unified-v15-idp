@@ -248,8 +248,15 @@ export class TokenRevocationInterceptor implements NestInterceptor {
           throw error;
         }
 
-        // Log error but continue (fail open)
-        this.logger.error(`Error checking token revocation: ${error.message}`);
+        // SECURITY: Fail closed - deny access if Redis is unavailable
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        this.logger.error(
+          `Token revocation check failed (fail-closed): ${errorMessage}`,
+        );
+        throw new UnauthorizedException(
+          "Token validation service temporarily unavailable",
+        );
       }
     }
 

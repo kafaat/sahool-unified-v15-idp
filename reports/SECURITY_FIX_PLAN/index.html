@@ -1,0 +1,1851 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>خطة الإصلاح الأمني التفصيلية — المراحل والتبعيات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة الإصلاح الأمني التفصيلية — المراحل والتبعيات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">خطة الإصلاح الأمني التفصيلية — المراحل والتبعيات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="security-fix-execution-plan-phases-dependencies-best-approaches">Security Fix Execution Plan — Phases, Dependencies &amp; Best Approaches<a class="headerlink" href="#security-fix-execution-plan-phases-dependencies-best-approaches" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ | Date</strong>: 2026-03-20
+<strong>الإصدار | Version</strong>: 16.0.0
+<strong>المرجع | Reference</strong>: <a href="../SECURITY_REVIEW_REMAINING_ISSUES/">SECURITY_REVIEW_REMAINING_ISSUES.md</a></p>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>هذه الخطة تغطي إصلاح <strong>28 مشكلة أمنية متبقية</strong> (8 حرجة + 13 عالية + 7 متوسطة) مقسمة إلى <strong>5 مراحل</strong> مرتبة حسب الأولوية والتبعيات. كل مرحلة مستقلة عن التالية ويمكن اختبارها بشكل منفصل.</p>
+<p>This plan covers fixing <strong>28 remaining security issues</strong> (8 CRITICAL + 13 HIGH + 7 MEDIUM) organized into <strong>5 phases</strong> ordered by priority and dependencies. Each phase is independently testable.</p>
+<hr />
+<h2 id="dependency-graph">مخطط التبعيات | Dependency Graph<a class="headerlink" href="#dependency-graph" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">المرحلة</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="err">حقن</span><span class="w"> </span><span class="err">الأوامر</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="err">اجتياز</span><span class="w"> </span><span class="err">المسار</span><span class="w"> </span><span class="p">(</span><span class="err">مستقلة</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">لا</span><span class="w"> </span><span class="err">تبعيات</span><span class="p">)</span>
+<span class="n">Phase</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">Command</span><span class="w"> </span><span class="n">Injection</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Path</span><span class="w"> </span><span class="n">Traversal</span><span class="w"> </span><span class="p">(</span><span class="n">Independent</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">deps</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="w"> </span><span class="n">frontend_diagnostics</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">ESLint</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">02</span><span class="p">:</span><span class="w"> </span><span class="n">frontend_diagnostics</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">Biome</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">07</span><span class="p">:</span><span class="w"> </span><span class="n">market_prices</span><span class="o">/</span><span class="n">tracker</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="w"> </span><span class="n">traversal</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="w"> </span><span class="n">geofencing</span><span class="o">/</span><span class="n">engine</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">division</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span>
+
+<span class="err">المرحلة</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="err">التشفير</span><span class="w"> </span><span class="err">والمصادقة</span><span class="w"> </span><span class="p">(</span><span class="err">تبعيات</span><span class="w"> </span><span class="err">داخلية</span><span class="w"> </span><span class="err">بين</span><span class="w"> </span><span class="err">الملفات</span><span class="p">)</span>
+<span class="n">Phase</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">Crypto</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Auth</span><span class="w"> </span><span class="p">(</span><span class="n">internal</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">deps</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">03</span><span class="p">:</span><span class="w"> </span><span class="n">auth</span><span class="o">/</span><span class="n">twofa_service</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="err">يتطلب</span><span class="w"> </span><span class="err">تحديث</span><span class="w"> </span><span class="n">verify_backup_code</span><span class="p">()</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">10</span><span class="p">:</span><span class="w"> </span><span class="n">auth</span><span class="o">/</span><span class="n">twofa_service</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">race</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="n">file</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">07</span><span class="p">:</span><span class="w"> </span><span class="n">ai</span><span class="o">/</span><span class="n">knowledge</span><span class="o">/</span><span class="n">serialization</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">)</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">03</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">same</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="k">export</span><span class="w"> </span><span class="n">fallback</span><span class="p">)</span>
+
+<span class="err">المرحلة</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">SSRF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="err">حماية</span><span class="w"> </span><span class="err">الشبكة</span><span class="w"> </span><span class="p">(</span><span class="err">تبعيات</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="n">scrapers</span><span class="w"> </span><span class="err">فرعية</span><span class="p">)</span>
+<span class="n">Phase</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">SSRF</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Network</span><span class="w"> </span><span class="n">Protection</span><span class="w"> </span><span class="p">(</span><span class="n">deps</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="n">scrapers</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">04</span><span class="p">:</span><span class="w"> </span><span class="n">scraping</span><span class="o">/</span><span class="n">scrapers</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="err">الفئة</span><span class="w"> </span><span class="err">الأساسية</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">11</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">same</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">rate</span><span class="w"> </span><span class="n">limiting</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">02</span><span class="p">:</span><span class="w"> </span><span class="n">cache</span><span class="o">/</span><span class="n">redis_sentinel</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">password</span><span class="w"> </span><span class="n">leak</span><span class="p">)</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">07</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">same</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">URL</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stats</span><span class="p">)</span>
+
+<span class="err">المرحلة</span><span class="w"> </span><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="err">عزل</span><span class="w"> </span><span class="err">المستأجرين</span><span class="w"> </span><span class="p">(</span><span class="err">أكبر</span><span class="w"> </span><span class="err">مرحلة</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="err">ملفات</span><span class="w"> </span><span class="err">مترابطة</span><span class="p">)</span>
+<span class="n">Phase</span><span class="w"> </span><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">Tenant</span><span class="w"> </span><span class="n">Isolation</span><span class="w"> </span><span class="p">(</span><span class="n">largest</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="n">interrelated</span><span class="w"> </span><span class="n">files</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">مجموعة</span><span class="w"> </span><span class="err">المزامنة</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Sync</span><span class="w"> </span><span class="n">Group</span><span class="p">:</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">06</span><span class="p">:</span><span class="w"> </span><span class="n">mobile_sync</span><span class="o">/</span><span class="n">queue</span><span class="o">.</span><span class="n">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">05</span><span class="p">:</span><span class="w"> </span><span class="n">mobile_sync</span><span class="o">/</span><span class="n">resolver</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">depends</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">06</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">مجموعة</span><span class="w"> </span><span class="err">الجغرافيا</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Geo</span><span class="w"> </span><span class="n">Group</span><span class="p">:</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">03</span><span class="p">:</span><span class="w"> </span><span class="n">field_boundaries</span><span class="o">/</span><span class="n">sharing</span><span class="o">.</span><span class="n">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">04</span><span class="p">:</span><span class="w"> </span><span class="n">geofencing</span><span class="o">/</span><span class="n">engine</span><span class="o">.</span><span class="n">py</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">مجموعة</span><span class="w"> </span><span class="err">الأعمال</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Business</span><span class="w"> </span><span class="n">Group</span><span class="p">:</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="mi">05</span><span class="p">:</span><span class="w"> </span><span class="n">cooperatives</span><span class="o">/</span><span class="n">resource_pool</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">race</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tenant</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">06</span><span class="p">:</span><span class="w"> </span><span class="n">batch_operations</span><span class="o">/</span><span class="n">executor</span><span class="o">.</span><span class="n">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">12</span><span class="p">:</span><span class="w"> </span><span class="n">equipment_maintenance</span><span class="o">/</span><span class="n">predictor</span><span class="o">.</span><span class="n">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">13</span><span class="p">:</span><span class="w"> </span><span class="n">middleware</span><span class="o">/</span><span class="n">input_sanitizer</span><span class="o">.</span><span class="n">py</span>
+<span class="err">└──</span><span class="w"> </span><span class="err">مجموعة</span><span class="w"> </span><span class="err">التعلم</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Learning</span><span class="w"> </span><span class="n">Group</span><span class="p">:</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">learning_marketplace</span><span class="o">/</span><span class="n">education_platform</span><span class="o">.</span><span class="n">py</span>
+
+<span class="err">المرحلة</span><span class="w"> </span><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="err">تحسينات</span><span class="w"> </span><span class="err">متنوعة</span><span class="w"> </span><span class="p">(</span><span class="err">مستقلة</span><span class="p">)</span>
+<span class="n">Phase</span><span class="w"> </span><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">Misc</span><span class="w"> </span><span class="n">Improvements</span><span class="w"> </span><span class="p">(</span><span class="n">independent</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="w"> </span><span class="n">lowcode</span><span class="o">/</span><span class="n">engine</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">ReDoS</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="w"> </span><span class="n">harvest_quality</span><span class="o">/</span><span class="n">pricing</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">div</span><span class="o">/</span><span class="mi">0</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">H</span><span class="o">-</span><span class="mi">09</span><span class="p">:</span><span class="w"> </span><span class="n">crop_insurance</span><span class="o">/</span><span class="n">risk_assessment</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">div</span><span class="o">/</span><span class="mi">0</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="w"> </span><span class="n">auth</span><span class="o">/</span><span class="n">jwt_handler</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">multi</span><span class="o">-</span><span class="n">algorithm</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">02</span><span class="p">:</span><span class="w"> </span><span class="n">soil_sensors</span><span class="o">/</span><span class="n">adapters</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">info</span><span class="w"> </span><span class="n">leak</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">04</span><span class="p">:</span><span class="w"> </span><span class="n">traceability</span><span class="o">/</span><span class="n">qr_generator</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">URL</span><span class="w"> </span><span class="n">validation</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">05</span><span class="p">:</span><span class="w"> </span><span class="n">lowcode</span><span class="o">/</span><span class="n">engine</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">CSRF</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">M</span><span class="o">-</span><span class="mi">06</span><span class="p">:</span><span class="w"> </span><span class="n">security</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="p">(</span><span class="n">YAML</span><span class="w"> </span><span class="n">loading</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="1">المرحلة 1: حقن الأوامر واجتياز المسار<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h2 id="phase-1-command-injection-path-traversal">Phase 1: Command Injection &amp; Path Traversal<a class="headerlink" href="#phase-1-command-injection-path-traversal" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: حرجة — خطر تنفيذ أوامر عشوائية
+<strong>المدة المتوقعة</strong>: ملف واحد + 2 ملفات مستقلة
+<strong>عدد الملفات</strong>: 3
+<strong>التبعيات الخارجية</strong>: لا توجد</p>
+<h3 id="11-c-01-c-02-frontend_diagnosticspy">1.1 — C-01 + C-02: حقن أوامر في frontend_diagnostics.py<a class="headerlink" href="#11-c-01-c-02-frontend_diagnosticspy" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/auto_fix/frontend_diagnostics.py</code>
+<strong>الأسطر المتأثرة</strong>: 118-121 (ESLint), 215-220 (Biome)
+<strong>الملفات المستوردة منه</strong>:
+- <code>shared/ai/auto_fix/__init__.py</code>
+- <code>apps/services/code-fix-agent/src/agent/code_fix_agent.py</code>
+- <code>tests/unit/ai/test_auto_fix.py</code>
+- <code>tests/smoke/test_fixops_smoke.py</code></p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># بدلاً من:</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;npx eslint </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --format json </span><span class="si">{</span><span class="n">fix_flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># استخدم قائمة وسائط مباشرة:</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span> <span class="s2">&quot;eslint&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">auto_fix</span><span class="p">:</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--fix&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># نفس النمط لـ Biome:</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span> <span class="s2">&quot;@biomejs/biome&quot;</span><span class="p">,</span> <span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;--reporter&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">auto_fix</span><span class="p">:</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--write&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>اختبار التحقق</strong>: تمرير مسار يحتوي على <code>; rm -rf /</code> والتأكد من فشله بأمان.</p>
+<h3 id="12-c-07-trackerpy">1.2 — C-07: اجتياز المسار في tracker.py<a class="headerlink" href="#12-c-07-trackerpy" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/market_prices/tracker.py</code>
+<strong>الأسطر المتأثرة</strong>: 52-58 (PriceStorage.<strong>init</strong>), 65 (save_price)
+<strong>الملفات المستوردة منه</strong>: لا يوجد استيراد مباشر خارج الوحدة</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PriceStorage</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;sahool_market_prices&quot;</span><span class="p">)</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MARKET_PRICES_STORAGE_PATH&quot;</span><span class="p">,</span> <span class="n">_default</span><span class="p">))</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">_allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;/var/lib/sahool&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_allowed</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;storage_path must be under </span><span class="si">{</span><span class="n">_allowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">=</span> <span class="n">resolved</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_price</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">price</span><span class="p">:</span> <span class="n">CropPrice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># تعقيم market_id لمنع اجتياز المسار</span>
+        <span class="n">safe_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9_-]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">market_id</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;prices_</span><span class="si">{</span><span class="n">safe_id</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+</code></pre></div>
+
+<h3 id="13-c-08-enginepy">1.3 — C-08: قسمة على صفر في engine.py<a class="headerlink" href="#13-c-08-enginepy" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/geofencing/engine.py</code>
+<strong>الأسطر المتأثرة</strong>: 69-72 (point_in_polygon)</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">lat_intersect</span> <span class="o">=</span> <span class="n">p1_lat</span>  <span class="c1"># قيمة افتراضية عندما يكون الخط عمودي</span>
+<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p2_lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-10</span><span class="p">:</span>
+    <span class="n">lat_intersect</span> <span class="o">=</span> <span class="p">(</span><span class="n">lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p2_lat</span> <span class="o">-</span> <span class="n">p1_lat</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">p2_lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">+</span> <span class="n">p1_lat</span>
+</code></pre></div>
+
+<hr />
+<h2 id="2">المرحلة 2: التشفير والمصادقة<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h2 id="phase-2-cryptography-authentication">Phase 2: Cryptography &amp; Authentication<a class="headerlink" href="#phase-2-cryptography-authentication" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: حرجة — ضعف في تخزين بيانات المصادقة
+<strong>عدد الملفات</strong>: 2
+<strong>التبعيات</strong>: C-03 ← H-10 (نفس الملف), H-07 ← M-03 (نفس الملف)</p>
+<h3 id="21-c-03-h-10">2.1 — C-03 + H-10: تشفير أكواد النسخ الاحتياطي<a class="headerlink" href="#21-c-03-h-10" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/auth/twofa_service.py</code>
+<strong>الأسطر المتأثرة</strong>: 196-212 (hash_backup_code), 242-283 (verify + race)
+<strong>الملفات المتأثرة</strong>:
+- <code>shared/auth/twofa_api.py</code> — يستدعي <code>hash_backup_code()</code> و <code>verify_backup_code()</code>
+- <code>shared/auth/auth_api.py</code> — يستورد خدمة 2FA
+- <code>tests/unit/shared/test_twofa_service.py</code></p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">bcrypt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_backup_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hash a backup code with bcrypt for secure storage.&quot;&quot;&quot;</span>
+    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">gensalt</span><span class="p">(</span><span class="n">rounds</span><span class="o">=</span><span class="mi">12</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_backup_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stored_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify a backup code against its bcrypt hash.&quot;&quot;&quot;</span>
+    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c1"># دعم الترحيل: تحقق من النوع القديم (sha256 hex = 64 chars) والجديد (bcrypt)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stored_hash</span><span class="p">)</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">==</span> <span class="n">stored_hash</span>
+    <span class="k">return</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">checkpw</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">stored_hash</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+</code></pre></div>
+
+<p><strong>إصلاح سباق الشروط (H-10)</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_backup_code_with_remaining</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hashed_codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="c1"># استخدام قفل asyncio لمنع الاستخدام المتزامن</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backup_code_lock</span><span class="p">:</span>
+        <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stored_hash</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hashed_codes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_backup_code</span><span class="p">(</span><span class="n">clean_code</span><span class="p">,</span> <span class="n">stored_hash</span><span class="p">):</span>
+                <span class="n">remaining</span> <span class="o">=</span> <span class="n">hashed_codes</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">hashed_codes</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">remaining</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">hashed_codes</span>
+</code></pre></div>
+
+<p><strong>تبعية</strong>: إضافة <code>bcrypt</code> إلى <code>requirements/auth.txt</code> إن لم يكن موجوداً.
+<strong>ترحيل</strong>: الأكواد القديمة (SHA256) ستُقبل مؤقتاً عبر فحص الطول (64 chars = SHA256 hex).</p>
+<h3 id="22-h-07-m-03-yaml-serialization">2.2 — H-07 + M-03: YAML serialization<a class="headerlink" href="#22-h-07-m-03-yaml-serialization" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/knowledge/serialization.py</code>
+<strong>الأسطر</strong>: 110-116</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># بدلاً من yaml.dump()</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="3-ssrf">المرحلة 3: SSRF وحماية الشبكة<a class="headerlink" href="#3-ssrf" title="Permanent link">&para;</a></h2>
+<h2 id="phase-3-ssrf-network-protection">Phase 3: SSRF &amp; Network Protection<a class="headerlink" href="#phase-3-ssrf-network-protection" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: حرجة/عالية — إمكانية الوصول لخدمات داخلية
+<strong>عدد الملفات</strong>: 2
+<strong>التبعيات</strong>: C-04 ← H-11 (نفس الملف), H-02 ← M-07 (نفس الملف)</p>
+<h3 id="31-c-04-h-11-ssrf-base-scraper">3.1 — C-04 + H-11: SSRF في base scraper<a class="headerlink" href="#31-c-04-h-11-ssrf-base-scraper" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/scraping/scrapers/base.py</code>
+<strong>الأسطر</strong>: 276-317 (navigate), RateLimiter class
+<strong>المتأثرون</strong>: جميع scrapers الفرعية (market, weather, etc.)</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ipaddress</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="n">_BLOCKED_CIDRS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;10.0.0.0/8&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;172.16.0.0/12&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;192.168.0.0/16&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;127.0.0.0/8&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;169.254.0.0/16&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;::1/128&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;fc00::/7&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate URL to prevent SSRF attacks.&quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported URL scheme: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must have a hostname&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Resolve hostname and check against blocked networks</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_address</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">_BLOCKED_CIDRS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">cidr</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;URL resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+    <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">gaierror</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot resolve hostname: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">navigate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_validate_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># ← إضافة هذا السطر</span>
+    <span class="c1"># ... بقية الكود الحالي</span>
+</code></pre></div>
+
+<h3 id="32-h-02-m-07-redis">3.2 — H-02 + M-07: تسريب كلمة مرور Redis<a class="headerlink" href="#32-h-02-m-07-redis" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/cache/redis_sentinel.py</code>
+<strong>السطر</strong>: 564</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove credentials from Redis URL for logging.&quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">safe</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+            <span class="n">netloc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;***:***@</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">port</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">6379</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">urlunparse</span><span class="p">(</span><span class="n">safe</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">url</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4">المرحلة 4: عزل المستأجرين<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h2 id="phase-4-tenant-isolation">Phase 4: Tenant Isolation<a class="headerlink" href="#phase-4-tenant-isolation" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: حرجة/عالية — خطر تسرب بيانات بين المستأجرين
+<strong>عدد الملفات</strong>: 9
+<strong>التبعيات</strong>: مجموعات مترابطة (انظر المخطط أعلاه)</p>
+<h3 id="common-fix-pattern">النمط المشترك للإصلاح | Common Fix Pattern<a class="headerlink" href="#common-fix-pattern" title="Permanent link">&para;</a></h3>
+<p>جميع ملفات عزل المستأجرين تتبع نفس النمط:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. التحقق من وجود tenant_id</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">tenant_id</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tenant_id is required&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. تصفية جميع الاستعلامات بـ tenant_id</span>
+<span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">]</span>
+
+<span class="c1"># 3. التحقق من الملكية قبل التعديل</span>
+<span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">ForbiddenException</span><span class="p">(</span><span class="s2">&quot;Cannot access resource from another tenant&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="41-c-06-h-05">4.1 — مجموعة المزامنة (C-06 + H-05)<a class="headerlink" href="#41-c-06-h-05" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات</strong>:
+- <code>shared/mobile_sync/queue.py</code> — إضافة تحقق إلزامي من tenant_id
+- <code>shared/mobile_sync/resolver.py</code> — تحقق من تطابق tenant_id مع الجلسة</p>
+<p><strong>ترتيب الإصلاح</strong>: queue.py أولاً (C-06) ثم resolver.py (H-05)</p>
+<h3 id="42-h-03-h-04">4.2 — مجموعة الجغرافيا (H-03 + H-04)<a class="headerlink" href="#42-h-03-h-04" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات</strong>:
+- <code>shared/field_boundaries/sharing.py</code> — إضافة tenant_id لجميع دوال المشاركة
+- <code>shared/geofencing/engine.py</code> — تصفية المناطق بـ tenant_id</p>
+<h3 id="43-c-05-h-06-h-12-h-13">4.3 — مجموعة الأعمال (C-05 + H-06 + H-12 + H-13)<a class="headerlink" href="#43-c-05-h-06-h-12-h-13" title="Permanent link">&para;</a></h3>
+<p><strong>الملفات</strong>:
+- <code>shared/cooperatives/resource_pool.py</code> — قفل ذري + tenant check
+- <code>shared/batch_operations/executor.py</code> — tenant validation في execute()
+- <code>shared/equipment_maintenance/predictor.py</code> — tenant filtering
+- <code>shared/middleware/input_sanitizer.py</code> — تحذير log عند عدم تطابق tenant_id</p>
+<h3 id="44">4.4 — مجموعة التعلم<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/learning_marketplace/education_platform.py</code>
+- إضافة <code>tenant_id</code> إلى <code>DigitalCertificate</code>, <code>LearningModule</code>, <code>LearningPath</code></p>
+<hr />
+<h2 id="5">المرحلة 5: تحسينات متنوعة<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h2 id="phase-5-miscellaneous-improvements">Phase 5: Miscellaneous Improvements<a class="headerlink" href="#phase-5-miscellaneous-improvements" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: عالية/متوسطة
+<strong>عدد الملفات</strong>: 8
+<strong>التبعيات</strong>: كل إصلاح مستقل</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الملف</th>
+<th>الإصلاح</th>
+<th>النهج</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H-01</td>
+<td><code>shared/lowcode/engine.py:197</code></td>
+<td>ReDoS</td>
+<td><code>re.compile(pattern)</code> داخل <code>try/except</code> مع timeout + حد أقصى لطول النمط (256 char)</td>
+</tr>
+<tr>
+<td>H-08</td>
+<td><code>shared/harvest_quality/pricing.py:603</code></td>
+<td>div/0</td>
+<td><code>if base_price &gt; 1e-6:</code> بدلاً من <code>&gt; 0</code></td>
+</tr>
+<tr>
+<td>H-09</td>
+<td><code>shared/crop_insurance/risk_assessment.py:313,334</code></td>
+<td>div/0</td>
+<td>epsilon threshold <code>&gt; 1e-6</code></td>
+</tr>
+<tr>
+<td>M-01</td>
+<td><code>shared/auth/jwt_handler.py:250</code></td>
+<td>multi-algo</td>
+<td>تقييد <code>algorithms=["HS256"]</code> فقط في decode_token_unsafe</td>
+</tr>
+<tr>
+<td>M-02</td>
+<td><code>shared/soil_sensors/adapters.py:81</code></td>
+<td>info leak</td>
+<td><code>logger.warning("Callback error", exc_info=True)</code> بدلاً من <code>print()</code></td>
+</tr>
+<tr>
+<td>M-04</td>
+<td><code>shared/traceability/qr_generator.py:61</code></td>
+<td>URL valid</td>
+<td><code>urlparse(base_url).scheme in ("http", "https")</code></td>
+</tr>
+<tr>
+<td>M-05</td>
+<td><code>shared/lowcode/engine.py</code></td>
+<td>CSRF</td>
+<td>إضافة CSRF token validation في form handlers</td>
+</tr>
+<tr>
+<td>M-06</td>
+<td><code>shared/security/config.py</code></td>
+<td>YAML</td>
+<td>التأكد من <code>yaml.safe_load()</code> في كل مكان</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="phase-summary">ملخص المراحل | Phase Summary<a class="headerlink" href="#phase-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>الملفات</th>
+<th>الحرجة</th>
+<th>العالية</th>
+<th>المتوسطة</th>
+<th>التبعيات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1: حقن الأوامر</td>
+<td>3</td>
+<td>4 (C-01,02,07,08)</td>
+<td>0</td>
+<td>0</td>
+<td>لا توجد</td>
+</tr>
+<tr>
+<td>2: التشفير</td>
+<td>2</td>
+<td>1 (C-03)</td>
+<td>2 (H-07,H-10)</td>
+<td>1 (M-03)</td>
+<td>داخل الملف</td>
+</tr>
+<tr>
+<td>3: SSRF</td>
+<td>2</td>
+<td>1 (C-04)</td>
+<td>2 (H-02,H-11)</td>
+<td>1 (M-07)</td>
+<td>داخل الملف</td>
+</tr>
+<tr>
+<td>4: المستأجرين</td>
+<td>9</td>
+<td>2 (C-05,C-06)</td>
+<td>5 (H-03,04,05,06,12,13)</td>
+<td>0</td>
+<td>مجموعات</td>
+</tr>
+<tr>
+<td>5: متنوعة</td>
+<td>8</td>
+<td>0</td>
+<td>3 (H-01,08,09)</td>
+<td>5</td>
+<td>لا توجد</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>~20 ملف</strong></td>
+<td><strong>8</strong></td>
+<td><strong>13</strong></td>
+<td><strong>7</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="excluded-architectural-issues">المشاكل المعمارية المستبعدة | Excluded Architectural Issues<a class="headerlink" href="#excluded-architectural-issues" title="Permanent link">&para;</a></h2>
+<p>هذه المشاكل <strong>خارج نطاق</strong> هذه الخطة لأنها تتطلب تغييرات معمارية كبيرة:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>السبب</th>
+<th>التوصية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-01</td>
+<td>ملح تشفير ثابت</td>
+<td>يتطلب ترحيل بيانات</td>
+<td>ADR + migration plan</td>
+</tr>
+<tr>
+<td>A-02</td>
+<td>decryptDeterministic</td>
+<td>مرتبط بـ A-01</td>
+<td>نفس الخطة</td>
+</tr>
+<tr>
+<td>A-03</td>
+<td>DDL f-strings</td>
+<td>يتطلب إعادة هيكلة DB</td>
+<td>Sprint مخصص</td>
+</tr>
+<tr>
+<td>A-04</td>
+<td>Prompt injection</td>
+<td>يتطلب guardrails معمارية</td>
+<td>مشروع منفصل</td>
+</tr>
+<tr>
+<td>A-05</td>
+<td>توقيع التدقيق</td>
+<td>يتطلب PKI</td>
+<td>بنية تحتية</td>
+</tr>
+<tr>
+<td>A-06</td>
+<td>سلامة GlobalGAP</td>
+<td>blockchain/Merkle</td>
+<td>بحث + POC</td>
+</tr>
+<tr>
+<td>A-07</td>
+<td>PII regex</td>
+<td>يتطلب NER</td>
+<td>تكامل NLP</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-aiml">المرحلة 6: إصلاحات AI/ML<a class="headerlink" href="#6-aiml" title="Permanent link">&para;</a></h2>
+<h2 id="phase-6-aiml-specific-fixes-new-from-aiml-audit">Phase 6: AI/ML-Specific Fixes (NEW — from AI/ML audit)<a class="headerlink" href="#phase-6-aiml-specific-fixes-new-from-aiml-audit" title="Permanent link">&para;</a></h2>
+<p><strong>الأولوية</strong>: عالية — ثغرات SSRF وحقن في وحدات الذكاء الاصطناعي
+<strong>عدد الملفات</strong>: 3
+<strong>التبعيات</strong>: لا توجد — كل إصلاح مستقل</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الملف</th>
+<th>الإصلاح</th>
+<th>النهج</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-01</td>
+<td><code>shared/ai/llm_provider.py:60-71</code></td>
+<td>SSRF — عدم فحص IPs الداخلية</td>
+<td>إضافة فحص <code>ipaddress</code> للشبكات المحجوبة (RFC 1918, link-local, loopback)</td>
+</tr>
+<tr>
+<td>AI-02</td>
+<td><code>shared/mcp/server.py:244-252</code></td>
+<td>حقن اسم الأداة بدون تحقق</td>
+<td>تحقق من <code>tool_name</code> ضد قائمة الأدوات المسجلة + تعقيم <code>arguments</code></td>
+</tr>
+<tr>
+<td>AI-03</td>
+<td><code>shared/ai/auto_fix/diagnostics.py:185-191</code></td>
+<td>MD5 ضعيف للتخزين المؤقت</td>
+<td>استبدال <code>hashlib.md5</code> بـ <code>hashlib.sha256</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="61-ai-01-ssrf-llm-provider">6.1 — AI-01: SSRF في LLM Provider<a class="headerlink" href="#61-ai-01-ssrf-llm-provider" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/llm_provider.py</code>
+<strong>الأسطر</strong>: 60-71</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ipaddress</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="n">_BLOCKED_CIDRS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;10.0.0.0/8&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;172.16.0.0/12&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;192.168.0.0/16&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;127.0.0.0/8&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;169.254.0.0/16&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;::1/128&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;fc00::/7&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_base_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="c1"># Block private/internal IPs</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_address</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">_BLOCKED_CIDRS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">cidr</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM base_url resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">gaierror</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># Allow unresolvable hostnames (may resolve at runtime)</span>
+    <span class="k">return</span> <span class="n">url</span>
+</code></pre></div>
+
+<h3 id="62-ai-02-mcp-tool-injection">6.2 — AI-02: MCP Tool Injection<a class="headerlink" href="#62-ai-02-mcp-tool-injection" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/mcp/server.py</code>
+<strong>الأسطر</strong>: 244-252</p>
+<p><strong>أفضل طريقة للإصلاح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_tools_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">tool_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;arguments&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tool_name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tool name is required&quot;</span><span class="p">)</span>
+    <span class="c1"># Validate against registered tools</span>
+    <span class="n">registered</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">get_tool_definitions</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">registered</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown tool: </span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">invoke_tool</span><span class="p">(</span><span class="n">tool_name</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="63-ai-03-md5-sha-256">6.3 — AI-03: MD5 → SHA-256<a class="headerlink" href="#63-ai-03-md5-sha-256" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/auto_fix/diagnostics.py</code>
+<strong>السطر</strong>: 189</p>
+<div class="codehilite"><pre><span></span><code><span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</code></pre></div>
+
+<hr />
+<h2 id="updated-phase-summary">ملخص المراحل المحدّث | Updated Phase Summary<a class="headerlink" href="#updated-phase-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>الملفات</th>
+<th>الحرجة</th>
+<th>العالية</th>
+<th>المتوسطة</th>
+<th>التبعيات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1: حقن الأوامر</td>
+<td>3</td>
+<td>4 (C-01,02,07,08)</td>
+<td>0</td>
+<td>0</td>
+<td>لا توجد</td>
+</tr>
+<tr>
+<td>2: التشفير</td>
+<td>2</td>
+<td>1 (C-03)</td>
+<td>2 (H-07,H-10)</td>
+<td>1 (M-03)</td>
+<td>داخل الملف</td>
+</tr>
+<tr>
+<td>3: SSRF</td>
+<td>2</td>
+<td>1 (C-04)</td>
+<td>2 (H-02,H-11)</td>
+<td>1 (M-07)</td>
+<td>داخل الملف</td>
+</tr>
+<tr>
+<td>4: المستأجرين</td>
+<td>9</td>
+<td>2 (C-05,C-06)</td>
+<td>5 (H-03..13)</td>
+<td>0</td>
+<td>مجموعات</td>
+</tr>
+<tr>
+<td>5: متنوعة</td>
+<td>8</td>
+<td>0</td>
+<td>3 (H-01,08,09)</td>
+<td>5</td>
+<td>لا توجد</td>
+</tr>
+<tr>
+<td>6: AI/ML</td>
+<td>3</td>
+<td>0</td>
+<td>3 (AI-01..03)</td>
+<td>0</td>
+<td>لا توجد</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>~27 ملف</strong></td>
+<td><strong>8</strong></td>
+<td><strong>15</strong></td>
+<td><strong>7</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="verification-tests">اختبارات التحقق | Verification Tests<a class="headerlink" href="#verification-tests" title="Permanent link">&para;</a></h2>
+<p>لكل مرحلة، يجب إضافة اختبارات في <code>tests/unit/shared/test_security_fixes.py</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># المرحلة 1</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_eslint_runner_rejects_path_injection</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_biome_runner_rejects_path_injection</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_price_storage_rejects_path_traversal</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_point_in_polygon_handles_vertical_line</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># المرحلة 2</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backup_code_uses_bcrypt</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backup_code_legacy_sha256_migration</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_yaml_export_uses_safe_dump</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># المرحلة 3</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scraper_blocks_internal_urls</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scraper_blocks_metadata_endpoint</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_redis_url_hides_password</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># المرحلة 4</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sync_queue_requires_tenant_id</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resource_booking_validates_tenant</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_batch_operation_filters_by_tenant</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># المرحلة 5</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_regex_pattern_rejects_redos</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_harvest_pricing_handles_near_zero</span><span class="p">():</span> <span class="o">...</span>
+
+<span class="c1"># المرحلة 6</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_llm_provider_blocks_internal_urls</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mcp_rejects_unknown_tool</span><span class="p">():</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_diagnostics_uses_sha256</span><span class="p">():</span> <span class="o">...</span>
+</code></pre></div>
+
+<hr />
+<p><em>آخر تحديث: 2026-03-21</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1617 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير المراجعة الأمنية — المشاكل المتبقية - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المراجعة الأمنية — المشاكل المتبقية
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تقرير المراجعة الأمنية — المشاكل المتبقية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="security-review-report-remaining-issues">Security Review Report — Remaining Issues<a class="headerlink" href="#security-review-report-remaining-issues" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ | Date</strong>: 2026-03-20
+<strong>الإصدار | Version</strong>: 16.0.0
+<strong>الفرع | Branch</strong>: <code>claude/review-user-migration-7CihF</code>
+<strong>المراجع | Reviewer</strong>: Security Audit (Automated + Manual)</p>
+<hr />
+<h2 id="executive-summary">ملخص تنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تمت مراجعة <strong>84 وحدة مشتركة</strong> عبر المنصة. تم إصلاح <strong>41 ملف</strong> في 8 عمليات commit سابقة.
+يوضح هذا التقرير <strong>جميع المشاكل المتبقية</strong> التي لم يتم إصلاحها بعد.</p>
+<p>A comprehensive security review of <strong>84 shared modules</strong> was conducted. <strong>41 files</strong> were fixed across 8 previous commits.
+This report documents <strong>all remaining unfixed issues</strong> requiring attention.</p>
+<hr />
+<h2 id="review-statistics">إحصائيات المراجعة | Review Statistics<a class="headerlink" href="#review-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إجمالي الوحدات المفحوصة</td>
+<td>84</td>
+</tr>
+<tr>
+<td>الملفات المُصلحة سابقاً</td>
+<td>41</td>
+</tr>
+<tr>
+<td>المشاكل الحرجة المتبقية (CRITICAL)</td>
+<td><strong>8</strong></td>
+</tr>
+<tr>
+<td>المشاكل العالية المتبقية (HIGH)</td>
+<td><strong>13</strong></td>
+</tr>
+<tr>
+<td>المشاكل المتوسطة المتبقية (MEDIUM)</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td><strong>الإجمالي المتبقي</strong></td>
+<td><strong>28</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical">الفئة الأولى: حرجة (CRITICAL) — تتطلب إصلاح فوري<a class="headerlink" href="#critical" title="Permanent link">&para;</a></h2>
+<h3 id="c-01-eslint-runner">C-01: حقن أوامر في ESLint Runner<a class="headerlink" href="#c-01-eslint-runner" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/auto_fix/frontend_diagnostics.py:118-121</code>
+<strong>التصنيف</strong>: Command Injection
+<strong>الوصف</strong>: استخدام <code>cmd.split()</code> لتفكيك أمر shell بدلاً من قائمة وسائط آمنة. المسار يمكن أن يحتوي على محارف خاصة تؤدي لتنفيذ أوامر غير مقصودة.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الكود الحالي (غير آمن)</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;npx eslint </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --format json </span><span class="si">{</span><span class="n">fix_flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># الإصلاح المقترح</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span> <span class="s2">&quot;eslint&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">auto_fix</span><span class="p">:</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--fix&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: لا توجد — إصلاح محلي
+<strong>الخطورة</strong>: يمكن لمسار ملف مصنوع بعناية تنفيذ أوامر عشوائية</p>
+<hr />
+<h3 id="c-02-biomecheck-runner">C-02: حقن أوامر في BiomeCheck Runner<a class="headerlink" href="#c-02-biomecheck-runner" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/auto_fix/frontend_diagnostics.py:217-220</code>
+<strong>التصنيف</strong>: Command Injection
+<strong>الوصف</strong>: نفس نمط C-01 مع BiomeCheck — استخدام f-string + <code>.split()</code>.</p>
+<p><strong>الإصلاح</strong>: تحويل لقائمة وسائط <code>["npx", "biome", "check", str(path), "--reporter", "json"]</code>
+<strong>التبعيات</strong>: لا توجد — إصلاح محلي</p>
+<hr />
+<h3 id="c-03-2fa">C-03: تخزين غير آمن لأكواد النسخ الاحتياطي (2FA)<a class="headerlink" href="#c-03-2fa" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/auth/twofa_service.py:196-212</code>
+<strong>التصنيف</strong>: Weak Cryptography
+<strong>الوصف</strong>: أكواد النسخ الاحتياطي مُشفرة بـ SHA256 بدون ملح (salt). هذا يجعلها عرضة لهجمات Rainbow Table. أكواد النسخ الاحتياطي تعادل كلمات المرور ويجب معاملتها بنفس المستوى.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الكود الحالي (ضعيف)</span>
+<span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="c1"># الإصلاح المقترح</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bcrypt</span>
+<span class="n">salt</span> <span class="o">=</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">gensalt</span><span class="p">(</span><span class="n">rounds</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: يتطلب تحديث <code>verify_backup_code()</code> و <code>verify_backup_code_with_remaining()</code> لاستخدام <code>bcrypt.checkpw()</code>
+<strong>ملاحظة</strong>: يجب ترحيل الأكواد المخزنة الحالية أو إعادة توليدها</p>
+<hr />
+<h3 id="c-04-ssrf-web-scraping">C-04: SSRF في Web Scraping<a class="headerlink" href="#c-04-ssrf-web-scraping" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/scraping/scrapers/base.py</code>
+<strong>التصنيف</strong>: Server-Side Request Forgery (SSRF)
+<strong>الوصف</strong>: لا يوجد تحقق من URL الهدف. يمكن الوصول إلى خدمات داخلية (localhost, AWS metadata 169.254.169.254).</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الإصلاح المقترح — إضافة في __init__ أو navigate()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ipaddress</span><span class="w"> </span><span class="kn">import</span> <span class="n">ip_address</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="n">_BLOCKED_NETWORKS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;10.0.0.0/8&quot;</span><span class="p">,</span> <span class="s2">&quot;172.16.0.0/12&quot;</span><span class="p">,</span> <span class="s2">&quot;192.168.0.0/16&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;127.0.0.0/8&quot;</span><span class="p">,</span> <span class="s2">&quot;169.254.0.0/16&quot;</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported scheme: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Resolve and check against blocked networks</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: يؤثر على جميع scrapers الفرعية (market_scraper, weather_scraper)</p>
+<hr />
+<h3 id="c-05">C-05: سباق الشروط في حجز الموارد<a class="headerlink" href="#c-05" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/cooperatives/resource_pool.py:429-452</code>
+<strong>التصنيف</strong>: Race Condition
+<strong>الوصف</strong>: التحقق من التعارض وإنشاء الحجز ليسا عملية ذرية. طلبان متزامنان يمكنهما حجز نفس المورد.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الكود الحالي — غير ذري</span>
+<span class="n">conflicts</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_booking_conflicts</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span> <span class="k">raise</span> <span class="n">BookingConflictError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="c1"># ← فجوة زمنية هنا — طلب آخر يمكنه الدخول</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">_bookings</span><span class="p">[</span><span class="n">booking</span><span class="o">.</span><span class="n">booking_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">booking</span>
+
+<span class="c1"># الإصلاح المقترح</span>
+<span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_booking_lock</span><span class="p">:</span>  <span class="c1"># قفل على مستوى المورد</span>
+    <span class="n">conflicts</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_booking_conflicts</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span> <span class="k">raise</span> <span class="n">BookingConflictError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_bookings</span><span class="p">[</span><span class="n">booking</span><span class="o">.</span><span class="n">booking_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">booking</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: يحتاج <code>_booking_lock = asyncio.Lock()</code> في <code>__init__</code></p>
+<hr />
+<h3 id="c-06">C-06: عدم عزل المستأجرين في قائمة المزامنة<a class="headerlink" href="#c-06" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/mobile_sync/queue.py:141-147</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: <code>SyncQueue</code> يقبل <code>tenant_id</code> بدون تحقق. الجهاز يمكنه طلب مزامنة بيانات أي مستأجر.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الإصلاح المقترح</span>
+<span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">device_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tenant_id</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tenant_id is required for SyncQueue&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">=</span> <span class="n">tenant_id</span>
+    <span class="c1"># + تحقق لاحق من صلاحية الجهاز للمستأجر</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: يؤثر على <code>resolver.py</code>, <code>delta_sync.py</code></p>
+<hr />
+<h3 id="c-07">C-07: اجتياز المسار في تخزين الأسعار<a class="headerlink" href="#c-07" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/market_prices/tracker.py:52-58</code>
+<strong>التصنيف</strong>: Path Traversal
+<strong>الوصف</strong>: <code>storage_path</code> من المستخدم بدون تحقق. يمكن أن يكون <code>../../../etc/</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الإصلاح المقترح</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="n">_ALLOWED_BASES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;/var/lib/sahool/&quot;</span><span class="p">,</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span>
+<span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_path</span> <span class="ow">or</span> <span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">_ALLOWED_BASES</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;storage_path must be under allowed directories&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: لا توجد — إصلاح محلي</p>
+<hr />
+<h3 id="c-08">C-08: قسمة على صفر في محرك السياج الجغرافي<a class="headerlink" href="#c-08" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/geofencing/engine.py:69-72</code>
+<strong>التصنيف</strong>: Division by Zero / Undefined Variable
+<strong>الوصف</strong>: <code>lat_intersect</code> غير معرف عندما <code>p1_lng == p2_lng</code>، لكنه مُستخدم في السطر 72.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الإصلاح المقترح</span>
+<span class="n">lat_intersect</span> <span class="o">=</span> <span class="n">p1_lat</span>  <span class="c1"># قيمة افتراضية</span>
+<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p2_lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-10</span><span class="p">:</span>
+    <span class="n">lat_intersect</span> <span class="o">=</span> <span class="p">(</span><span class="n">lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p2_lat</span> <span class="o">-</span> <span class="n">p1_lat</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">p2_lng</span> <span class="o">-</span> <span class="n">p1_lng</span><span class="p">)</span> <span class="o">+</span> <span class="n">p1_lat</span>
+<span class="k">if</span> <span class="n">p1_lat</span> <span class="o">==</span> <span class="n">p2_lat</span> <span class="ow">or</span> <span class="n">lat</span> <span class="o">&lt;=</span> <span class="n">lat_intersect</span><span class="p">:</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">inside</span>
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: لا توجد — إصلاح محلي</p>
+<hr />
+<h2 id="high">الفئة الثانية: عالية (HIGH) — تتطلب إصلاح قريب<a class="headerlink" href="#high" title="Permanent link">&para;</a></h2>
+<h3 id="h-01-redos-low-code">H-01: ReDoS في محرك Low-Code<a class="headerlink" href="#h-01-redos-low-code" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/lowcode/engine.py:197</code>
+<strong>التصنيف</strong>: Regular Expression Denial of Service
+<strong>الوصف</strong>: <code>FieldDefinition.pattern</code> يقبل regex من المستخدم بدون تحقق من التعقيد. يمكن أن يسبب تعليق التطبيق.</p>
+<p><strong>الإصلاح</strong>: تحقق من الـ regex مع timeout + تحديد تعقيد أقصى
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-02-redis">H-02: تسريب كلمة مرور Redis في السجلات<a class="headerlink" href="#h-02-redis" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/cache/redis_sentinel.py:564</code>
+<strong>التصنيف</strong>: Information Disclosure
+<strong>الوصف</strong>: URL الاتصال بـ Redis قد يظهر في السجلات. الطريقة الحالية <code>split("@")[-1]</code> هشة.</p>
+<p><strong>الإصلاح</strong>: استخدام <code>urllib.parse.urlparse</code> لإزالة بيانات الاعتماد بشكل آمن
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-03">H-03: عدم عزل المستأجرين في مشاركة الحدود<a class="headerlink" href="#h-03" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/field_boundaries/sharing.py</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: عمليات المشاركة لا تتحقق من ملكية المستأجر.</p>
+<p><strong>الإصلاح</strong>: إضافة <code>tenant_id</code> لجميع دوال المشاركة + تحقق قبل العمليات
+<strong>التبعيات</strong>: يؤثر على واجهة API المشاركة</p>
+<hr />
+<h3 id="h-04">H-04: عدم عزل المستأجرين في السياج الجغرافي<a class="headerlink" href="#h-04" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/geofencing/engine.py</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: محرك السياج الجغرافي لا يتحقق من ملكية المستأجر عند الاستعلام.</p>
+<p><strong>الإصلاح</strong>: تصفية جميع العمليات بـ <code>tenant_id</code>
+<strong>التبعيات</strong>: يؤثر على alerts وposition tracking</p>
+<hr />
+<h3 id="h-05">H-05: عدم عزل المستأجرين في حل التعارضات<a class="headerlink" href="#h-05" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/mobile_sync/resolver.py:92,129</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: <code>tenant_id</code> يؤخذ من <code>local_item</code> بدون تحقق.</p>
+<p><strong>الإصلاح</strong>: تحقق من <code>tenant_id</code> ضد الجلسة المصادق عليها
+<strong>التبعيات</strong>: مرتبط بـ C-06 (mobile_sync/queue.py)</p>
+<hr />
+<h3 id="h-06">H-06: عدم عزل المستأجرين في عمليات الدُفعات<a class="headerlink" href="#h-06" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/batch_operations/__init__.py</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: لا تحقق من ملكية العناصر في الدُفعة.</p>
+<p><strong>الإصلاح</strong>: تحقق من ملكية جميع عناصر الدُفعة قبل التنفيذ
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-07-yaml-export">H-07: YAML export غير آمن<a class="headerlink" href="#h-07-yaml-export" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/ai/knowledge/serialization.py:110-116</code>
+<strong>التصنيف</strong>: Unsafe Serialization
+<strong>الوصف</strong>: <code>yaml.dump()</code> يمكن أن يصدر كائنات Python قابلة للتنفيذ.</p>
+<p><strong>الإصلاح</strong>: استخدام <code>yaml.safe_dump()</code> بدلاً من <code>yaml.dump()</code>
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-08">H-08: قسمة على صفر في تسعير الحصاد<a class="headerlink" href="#h-08" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/harvest_quality/pricing.py:603</code>
+<strong>التصنيف</strong>: Division by Zero
+<strong>الوصف</strong>: حماية <code>base_price &gt; 0</code> غير كافية للقيم العشرية القريبة من الصفر.</p>
+<p><strong>الإصلاح</strong>: <code>if base_price is not None and base_price &gt; 1e-6:</code>
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-09">H-09: قسمة على صفر في تأمين المحاصيل<a class="headerlink" href="#h-09" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/crop_insurance/risk_assessment.py:313,334</code>
+<strong>التصنيف</strong>: Division by Zero
+<strong>الوصف</strong>: حماية <code>annual_rainfall_avg &gt; 0</code> غير كافية.</p>
+<p><strong>الإصلاح</strong>: epsilon threshold + bounds checking
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-10">H-10: سباق الشروط في أكواد النسخ الاحتياطي<a class="headerlink" href="#h-10" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/auth/twofa_service.py:242-283</code>
+<strong>التصنيف</strong>: Race Condition
+<strong>الوصف</strong>: التحقق والتحديث ليسا عملية ذرية. طلبان متزامنان يمكنهما استخدام نفس الكود.</p>
+<p><strong>الإصلاح</strong>: تحديث ذري على مستوى قاعدة البيانات
+<strong>التبعيات</strong>: يتطلب تعديل طبقة قاعدة البيانات</p>
+<hr />
+<h3 id="h-11-scraper">H-11: عدم وجود حد معدل في Scraper<a class="headerlink" href="#h-11-scraper" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/scraping/scrapers/base.py</code>
+<strong>التصنيف</strong>: Denial of Service
+<strong>الوصف</strong>: <code>RateLimitConfig</code> موجود لكن غير مطبق بشكل صارم.</p>
+<p><strong>الإصلاح</strong>: تطبيق حد معدل إلزامي مع backoff
+<strong>التبعيات</strong>: يؤثر على جميع scrapers</p>
+<hr />
+<h3 id="h-12">H-12: عدم عزل المستأجرين في معدات الصيانة<a class="headerlink" href="#h-12" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/equipment_maintenance/predictor.py</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: لا يتحقق من ملكية المعدات.</p>
+<p><strong>الإصلاح</strong>: إضافة <code>tenant_id</code> لجميع عمليات الاستعلام
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h3 id="h-13-middleware">H-13: عدم عزل المستأجرين في middleware الإدخال<a class="headerlink" href="#h-13-middleware" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>shared/middleware/input_sanitizer.py:103-118</code>
+<strong>التصنيف</strong>: Missing Tenant Isolation
+<strong>الوصف</strong>: لا يتحقق من تطابق <code>tenant_id</code> في الجسم مع JWT.</p>
+<p><strong>الإصلاح</strong>: توثيق أن handlers يجب أن تستخدم JWT tid + تحذير log
+<strong>التبعيات</strong>: لا توجد</p>
+<hr />
+<h2 id="medium">الفئة الثالثة: متوسطة (MEDIUM) — تحسينات أمنية<a class="headerlink" href="#medium" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الملف</th>
+<th>التصنيف</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M-01</td>
+<td><code>shared/auth/jwt_handler.py:250</code></td>
+<td>خوارزميات متعددة</td>
+<td><code>decode_token_unsafe()</code> يقبل HS256/384/512</td>
+</tr>
+<tr>
+<td>M-02</td>
+<td><code>shared/soil_sensors/adapters.py:81</code></td>
+<td>تسريب معلومات</td>
+<td><code>print(f"Callback error: {e}")</code> بدلاً من structured logging</td>
+</tr>
+<tr>
+<td>M-03</td>
+<td><code>shared/ai/knowledge/serialization.py</code></td>
+<td>YAML export</td>
+<td>يجب استخدام JSON للتصدير الآمن</td>
+</tr>
+<tr>
+<td>M-04</td>
+<td><code>shared/traceability/qr_generator.py:61</code></td>
+<td>URL validation</td>
+<td><code>base_url</code> قابل للتعديل بدون تحقق</td>
+</tr>
+<tr>
+<td>M-05</td>
+<td><code>shared/lowcode/engine.py</code></td>
+<td>CSRF</td>
+<td>نماذج Low-code بدون حماية CSRF</td>
+</tr>
+<tr>
+<td>M-06</td>
+<td><code>shared/security/config.py</code></td>
+<td>YAML loading</td>
+<td>تحقق من استخدام <code>yaml.safe_load()</code></td>
+</tr>
+<tr>
+<td>M-07</td>
+<td><code>shared/cache/redis_sentinel.py</code></td>
+<td>URL in stats</td>
+<td>حماية هشة لإخفاء كلمة المرور</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">المشاكل التي لا يمكن إصلاحها بدون تغييرات معمارية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>هذه المشاكل تتطلب تغييرات كبيرة في البنية ولا يمكن حلها بإصلاحات بسيطة:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-01</td>
+<td>ملح تشفير ثابت في <code>shared/libs/encryption.py</code></td>
+<td>يتطلب ترحيل جميع البيانات المشفرة</td>
+</tr>
+<tr>
+<td>A-02</td>
+<td><code>decryptDeterministic</code> معطل</td>
+<td>مرتبط بتغيير الملح — يتطلب إعادة تشفير</td>
+</tr>
+<tr>
+<td>A-03</td>
+<td>DDL queries مع f-strings في <code>shared/db/</code></td>
+<td>يتطلب إعادة هيكلة كاملة للترحيل</td>
+</tr>
+<tr>
+<td>A-04</td>
+<td>حقن Prompt في نماذج ML</td>
+<td>يتطلب guardrails على مستوى البنية</td>
+</tr>
+<tr>
+<td>A-05</td>
+<td>توقيع سجلات التدقيق</td>
+<td>يتطلب بنية تحتية PKI</td>
+</tr>
+<tr>
+<td>A-06</td>
+<td>سلامة سجلات GlobalGAP</td>
+<td>يتطلب blockchain أو Merkle tree</td>
+</tr>
+<tr>
+<td>A-07</td>
+<td>PII regex ضعيف</td>
+<td>يتطلب محرك NER متخصص</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="41-8-commits">الملفات المُصلحة سابقاً (41 ملف في 8 commits)<a class="headerlink" href="#41-8-commits" title="Permanent link">&para;</a></h2>
+<details>
+<summary>انقر للعرض | Click to expand</summary>
+
+### Commit 1: `c785874` — shared/events/ (5 ملفات)
+- `shared/events/models.py`
+- `shared/events/subjects.py`
+- `shared/events/catalog.py`
+- `shared/events/__init__.py`
+- `shared/events/publisher.py`
+
+### Commit 2: `2f6f9e1` — auth, rate limiting, logging (8 ملفات)
+- `shared/auth/dependencies.py`
+- `shared/auth/jwt_handler.py`
+- `shared/auth/token_revocation.py`
+- `shared/middleware/rate_limit.py`
+- `shared/libs/outbox.py`
+- `shared/logging_config.py`
+- `shared/monitoring/sli.py`
+- `shared/observability/tracing.py`
+
+### Commit 3: `4b5be53` — DB, Redis, file validation (7 ملفات)
+- `shared/db/tenant_connection.py`
+- `shared/cache/redis_client.py`
+- `shared/file_validation/validator.py`
+- `shared/stability/circuit_breaker.py`
+- `shared/auth/jwt_handler.py`
+- `shared/security/policy_engine.py`
+- `shared/domain/user_model.py`
+
+### Commit 4: `6d8d8d3` — errors, CORS, SQL injection (7 ملفات)
+- `shared/errors_py.py`
+- `shared/cors_config.py`
+- `shared/field_boundaries/models.py`
+- `shared/field_boundaries/geometry.py`
+- `shared/mcp/client.py`
+- `shared/notification_routing/__init__.py`
+- `shared/notification_preferences/manager.py`
+
+### Commit 5: `cfcd2b3` — templates, WeChat, drift, audit (4 ملفات)
+- `shared/templates/service_template.py`
+- `shared/integrations/wechat/config.py`
+- `shared/drift_detection/remediation.py`
+- `packages/shared-audit/src/audit-middleware.ts`
+
+### Commit 6: `1e97b3f` — HMAC, API key hash (2 ملفات)
+- `packages/shared-crypto/src/hash-utils.ts`
+- `apps/kernel/common/middleware/rate_limiter.py`
+
+### Commit 7: `2f09eda` — cooperative isolation, equipment div/0 (2 ملفات)
+- `shared/cooperatives/revenue.py`
+- `shared/equipment_maintenance/predictor.py`
+
+### Commit 8: `e4dffad` — pest, salinity, sensors, AgML, LLM (6 ملفات)
+- `shared/pest_scouting/thresholds.py`
+- `shared/salinity/module.py`
+- `shared/soil_sensors/processor.py`
+- `shared/ml/agml_integration.py`
+- `apps/kernel/common/middleware/rate_limiter.py`
+- `shared/ai/llm_provider.py`
+
+### Commits 9-11: Lint fixes, tests, Bandit (3 ملفات)
+- `shared/stability/remediation.py`
+- `shared/events/models.py`
+- `shared/errors_py.py`
+- `shared/auth/dependencies.py`
+- `shared/ml/agml_integration.py`
+- `tests/unit/shared/test_security_fixes.py`
+
+</details>
+
+<hr />
+<p><em>آخر تحديث: 2026-03-20</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

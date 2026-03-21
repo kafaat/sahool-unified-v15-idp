@@ -34,7 +34,7 @@ class VRAService {
   VRAService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: ApiConfig.vraServiceUrl,
+              baseUrl: '${ApiConfig.baseUrl}/api/v1/vra',
               connectTimeout: ApiConfig.connectTimeout,
               sendTimeout: ApiConfig.sendTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,

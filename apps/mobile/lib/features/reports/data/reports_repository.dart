@@ -45,7 +45,7 @@ class ReportsRepository {
       return _cachedTemplates;
     }
 
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       try {
         final templates = await _api.getTemplates();
         _cachedTemplates.clear();
@@ -72,7 +72,7 @@ class ReportsRepository {
         .firstOrNull;
     if (cached != null) return cached;
 
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       final template = await _api.getTemplate(templateId);
       if (template != null) {
         _cachedTemplates.add(template);
@@ -111,7 +111,7 @@ class ReportsRepository {
     final titleAr = customTitle ?? template.nameAr;
 
     // Try online generation first
-    if (_networkStatus.isConnected && !_shouldGenerateOffline(template, filter)) {
+    if (await _networkStatus.isConnected && !(await _shouldGenerateOffline(template, filter))) {
       try {
         final report = await _api.generateReport(
           templateId: template.id,
@@ -144,9 +144,9 @@ class ReportsRepository {
   }
 
   /// Check if should generate offline
-  bool _shouldGenerateOffline(ReportTemplate template, ReportFilter filter) {
+  Future<bool> _shouldGenerateOffline(ReportTemplate template, ReportFilter filter) async {
     // Always generate offline if template supports it and we're offline
-    if (!_networkStatus.isConnected && template.supportsOffline) {
+    if (!(await _networkStatus.isConnected) && template.supportsOffline) {
       return true;
     }
     return false;
@@ -204,7 +204,7 @@ class ReportsRepository {
       return _cachedReports[reportId];
     }
 
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       try {
         final report = await _api.getReport(reportId);
         _cachedReports[reportId] = report;
@@ -237,7 +237,7 @@ class ReportsRepository {
       return _cachedHistory.sublist(start, end);
     }
 
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       try {
         final history = await _api.getReportHistory(
           limit: limit,
@@ -304,7 +304,7 @@ class ReportsRepository {
     _cachedReports.remove(reportId);
     _cachedHistory.removeWhere((e) => e.reportId == reportId);
 
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       return await _api.deleteReport(reportId);
     }
 
@@ -331,7 +331,7 @@ class ReportsRepository {
     bool includeArabic = true,
   }) async {
     // Try server-side export first
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       final bytes = await _api.exportToPdf(report.id);
       if (bytes != null) {
         return await _generator.saveExportedFile(
@@ -352,7 +352,7 @@ class ReportsRepository {
   /// تصدير التقرير إلى Excel
   Future<String?> exportToExcel(ReportData report) async {
     // Try server-side export first
-    if (_networkStatus.isConnected) {
+    if (await _networkStatus.isConnected) {
       final bytes = await _api.exportToExcel(report.id);
       if (bytes != null) {
         return await _generator.saveExportedFile(

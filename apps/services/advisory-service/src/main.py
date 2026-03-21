@@ -141,6 +141,20 @@ if REVOCATION_AVAILABLE:
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
 
+# Add service-to-service authentication middleware
+# Sets request.state.is_service_request for rate limiter bypass
+try:
+    from shared.auth.service_middleware import ServiceAuthMiddleware
+
+    app.add_middleware(
+        ServiceAuthMiddleware,
+        current_service="advisory-service",
+        exclude_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json"],
+        require_service_auth=False,
+    )
+except ImportError:
+    pass
+
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware

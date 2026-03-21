@@ -72,7 +72,17 @@ A comprehensive security review of **84 shared modules** was conducted. **195+ f
 
 ---
 
-## الفئة الأولى: حرجة (CRITICAL) — تتطلب إصلاح فوري
+## سجل تاريخي — المشاكل المُصلحة | Historical Record — Resolved Issues
+
+> **ملاحظة توضيحية**: الأقسام التالية تمثل **سجلاً تاريخياً** للمشاكل التي تم اكتشافها وإصلاحها.
+> جميع المشاكل الحرجة والعالية والمتوسطة تم إغلاقها. يبقى فقط المشاكل المعمارية (القسم الأخير).
+>
+> **Clarification**: The sections below are a **historical record** of issues discovered and resolved.
+> All CRITICAL, HIGH, and MEDIUM issues are closed. Only architectural items (last section) remain active.
+
+---
+
+## ~~الفئة الأولى: حرجة (CRITICAL) — تتطلب إصلاح فوري~~ ✅ RESOLVED
 
 ### C-01: حقن أوامر في ESLint Runner
 **الملف**: `shared/ai/auto_fix/frontend_diagnostics.py:118-121`

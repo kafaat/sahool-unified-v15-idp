@@ -37,18 +37,17 @@ export class AuditMiddleware implements NestMiddleware {
   constructor(private readonly auditLogger?: AuditLogger) {}
 
   use(req: RequestWithAudit, res: Response, next: NextFunction): void {
-    // SECURITY: Prefer JWT-verified identity from request.user (set by JWT guard)
-    // over raw client-supplied headers to prevent audit log poisoning.
+    // SECURITY: Only trust identity from verified JWT context (set by JWT guard).
+    // Do not fall back to client-supplied headers to prevent audit log poisoning.
     const user = (req as any).user;
     const tenantId =
       user?.tenantId ||
       (req as any).tenantId ||
-      (req.headers["x-tenant-id"] as string) ||
-      "default";
+      "unknown";
     const actorId =
       user?.id ||
       user?.sub ||
-      (req.headers["x-user-id"] as string);
+      undefined;
     const sessionId = req.headers["x-session-id"] as string;
 
     // Generate or extract correlation ID

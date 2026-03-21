@@ -261,8 +261,9 @@ class ResourcePoolService:
         self._maintenance: dict[str, MaintenanceRecord] = {}
         self._members: dict[str, CooperativeMember] = {}
 
-        # Booking lock to prevent race conditions (C-05)
-        self._booking_lock = asyncio.Lock()
+        # Per-resource booking locks to prevent double-booking while
+        # allowing concurrent bookings on different resources (C-05)
+        self._booking_locks: dict[str, asyncio.Lock] = {}
 
         # Configuration
         self._default_operating_hours = list(range(6, 20))  # 6 AM to 8 PM
@@ -397,8 +398,10 @@ class ResourcePoolService:
         if resource.max_booking_hours and duration_hours > resource.max_booking_hours:
             raise ValueError(f"Maximum booking duration is {resource.max_booking_hours} hours")
 
-        # Atomic check-and-book to prevent race conditions (C-05)
-        async with self._booking_lock:
+        # Atomic check-and-book with per-resource lock (C-05)
+        if resource_id not in self._booking_locks:
+            self._booking_locks[resource_id] = asyncio.Lock()
+        async with self._booking_locks[resource_id]:
             # Check for conflicts
             if check_conflicts:
                 end_time = start_time + timedelta(hours=duration_hours)

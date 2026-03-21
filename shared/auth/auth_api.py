@@ -151,13 +151,17 @@ def verify_temp_token(temp_token: str) -> dict | None:
         if not hasattr(payload, "user_id") or not payload.user_id:
             return None
 
-        # SECURITY: Decode raw JWT to verify the 'temp' extra claim.
-        # verify_token already validated the signature, so this is safe.
+        # SECURITY: Decode raw JWT with full signature verification to
+        # access the 'temp' extra claim not in the TokenPayload model.
         import jwt as pyjwt
+
+        from .config import config
+        from .jwt_handler import ALLOWED_ALGORITHMS
 
         raw_payload = pyjwt.decode(
             temp_token,
-            options={"verify_signature": False},
+            config.get_verification_key(),
+            algorithms=ALLOWED_ALGORITHMS,
         )
 
         if not raw_payload.get("temp"):

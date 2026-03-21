@@ -11,11 +11,11 @@
 
 ## ملخص تنفيذي | Executive Summary
 
-تم إجراء مراجعة أمنية شاملة بعد دمج PR #1291. أسفرت المراجعة عن **20 commit** على الفرع،
-تم فيها إصلاح **185 ملف** عبر جميع طبقات المنصة (Backend, Frontend, Mobile, Infrastructure).
+تم إجراء مراجعة أمنية شاملة بعد دمج PR #1291. أسفرت المراجعة عن **22 commit** على الفرع،
+تم فيها إصلاح **195+ ملف** عبر جميع طبقات المنصة (Backend, Frontend, Mobile, Infrastructure).
 
 A comprehensive post-merge security review of PR #1291 was conducted. The review produced
-**20 commits** on the branch, fixing **185 files** across all platform layers.
+**22 commits** on the branch, fixing **195+ files** across all platform layers.
 
 ---
 
@@ -23,8 +23,8 @@ A comprehensive post-merge security review of PR #1291 was conducted. The review
 
 | المقياس | Metric | القيمة | Value |
 |---------|--------|--------|-------|
-| إجمالي الـ commits | Total commits | 20 | |
-| إجمالي الملفات المعدلة | Total files modified | 185 | |
+| إجمالي الـ commits | Total commits | 22 | |
+| إجمالي الملفات المعدلة | Total files modified | 195+ | |
 | الأسطر المضافة | Lines added | ~2,514 | |
 | الأسطر المحذوفة | Lines deleted | ~5,095 | |
 | الوحدات المفحوصة | Modules audited | 84+ | |
@@ -214,17 +214,25 @@ A comprehensive post-merge security review of PR #1291 was conducted. The review
 
 ## المشاكل المتبقية | Remaining Issues
 
-تم توثيق **28 مشكلة متبقية** في تقرير منفصل:
+تم إغلاق جميع المشاكل ذات الشدة **CRITICAL / HIGH / MEDIUM** ضمن هذا الـ PR.
+يبقى فقط **7 مشاكل معمارية** تتطلب تصميم منفصل.
+راجع التقرير المفصل:
 **[SECURITY_REVIEW_REMAINING_ISSUES.md](../reports/SECURITY_REVIEW_REMAINING_ISSUES.md)**
 
-### ملخص المتبقي | Remaining Summary
+All **CRITICAL (8/8)**, **HIGH (13/13)**, and **MEDIUM (7/7)** issues have been resolved in this PR.
+Only **7 architectural items** remain, requiring separate design efforts.
 
-| الشدة | العدد | أمثلة |
-|-------|-------|-------|
-| **CRITICAL** | 8 | Command injection في ESLint/Biome runners، SSRF في scraping، race condition في booking |
-| **HIGH** | 13 | ReDoS في low-code، Redis password leak، tenant isolation gaps |
-| **MEDIUM** | 7 | YAML unsafe export، URL validation، CSRF |
-| **Architectural** | 7 | ملح تشفير ثابت، DDL f-strings، audit signing |
+### ملخص المتبقي | Remaining Summary (Historical)
+
+> **ملاحظة**: الجدول التالي يوثق المشاكل التي تم **إصلاحها** خلال هذه المراجعة.
+> **Note**: The table below documents issues that were **resolved** during this review.
+
+| الشدة | العدد | الحالة |
+|-------|-------|--------|
+| **CRITICAL** | 8 | ✅ Resolved |
+| **HIGH** | 13 | ✅ Resolved |
+| **MEDIUM** | 7 | ✅ Resolved |
+| **Architectural** | 7 | ⏳ Requires separate design |
 
 ### المشاكل المعمارية (تتطلب تصميم)
 

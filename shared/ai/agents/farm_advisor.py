@@ -29,6 +29,7 @@ from typing import Any
 import structlog
 
 from ..llm_provider import LLMProviderManager
+from ..validation import escape_prompt_input
 from .base import (
     AgentCapability,
     AgentMode,
@@ -1305,7 +1306,9 @@ For EXECUTE mode, add: create_task or schedule_irrigation at the end.
 
 Return JSON array of steps with: description, description_ar, tool_name, tool_input"""
 
-        prompt = f"""Question: {task}
+        safe_task = escape_prompt_input(task)
+
+        prompt = f"""Question: {safe_task}
 Farm ID: {farm_id}
 Field ID: {field_id}
 Crop: {crop_type}

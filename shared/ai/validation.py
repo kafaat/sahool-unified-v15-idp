@@ -504,6 +504,50 @@ class AIValidator:
         return redacted
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Prompt Sanitizer — تنظيف مدخلات الـ Prompt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Patterns that could break out of prompt structure
+_DELIMITER_ESCAPE_PATTERNS = [
+    (re.compile(r"```\s*(system|assistant|user|python|javascript|sql)\s*\n", re.IGNORECASE), "`` `"),
+    (re.compile(r"\[INST\]", re.IGNORECASE), "[inst]"),
+    (re.compile(r"\[/INST\]", re.IGNORECASE), "[/inst]"),
+    (re.compile(r"<\|?(system|user|assistant)\|?>", re.IGNORECASE), r"<\1>"),
+    (re.compile(r"<<SYS>>", re.IGNORECASE), "<<sys>>"),
+    (re.compile(r"<</SYS>>", re.IGNORECASE), "<</sys>>"),
+]
+
+
+def escape_prompt_input(text: str, max_length: int = 10000) -> str:
+    """
+    Escape user input before embedding in LLM prompts.
+
+    تنظيف مدخلات المستخدم قبل إدراجها في prompts الـ LLM
+
+    This neutralizes delimiter injection attacks while preserving
+    the semantic content of the input.
+
+    Args:
+        text: Raw user input to escape
+        max_length: Maximum allowed length (truncate if exceeded)
+
+    Returns:
+        Escaped text safe for embedding in prompts
+    """
+    if not text:
+        return text
+
+    # Truncate to prevent token exhaustion
+    escaped = text[:max_length]
+
+    # Neutralize prompt delimiter patterns
+    for pattern, replacement in _DELIMITER_ESCAPE_PATTERNS:
+        escaped = pattern.sub(replacement, escaped)
+
+    return escaped
+
+
 # Global validator instance
 _global_validator: AIValidator | None = None
 

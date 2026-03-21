@@ -45,8 +45,10 @@ class PiiFilter {
     r'[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)',
   );
 
+  // Arabic names: require at least two words with Arabic letter prefix
+  // (avoids matching common single-word Arabic text like الحقل)
   static final RegExp _arabicNamePattern = RegExp(
-    r'[\u0600-\u06FF\s]{3,}', // Arabic characters, 3 or more
+    r'[\u0621-\u064A][\u0600-\u06FF]{1,20}\s[\u0621-\u064A][\u0600-\u06FF]{1,20}',
   );
 
   // Sensitive field names (case-insensitive)

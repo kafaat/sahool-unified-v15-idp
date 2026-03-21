@@ -20,14 +20,15 @@
 /// ```
 
 class PiiFilter {
-  // Patterns for PII detection
+  // Patterns for PII detection — require recognisable prefixes to avoid
+  // matching timestamps, GPS coordinates, or other numeric sequences.
   static final RegExp _phonePattern = RegExp(
-    r'(\+?966|0)?[5][0-9]{8}|'
-    r'\+?\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}',
+    r'(\+?966|0)?5[0-9]{8}|'
+    r'\+\d{1,3}[-.\s]?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}',
   );
 
   static final RegExp _emailPattern = RegExp(
-    r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+    r'\b[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\.[A-Za-z]{2,63}\b',
   );
 
   static final RegExp _nationalIdPattern = RegExp(
@@ -42,8 +43,9 @@ class PiiFilter {
     r'[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)',
   );
 
+  // Arabic names: require at least two words with Arabic letter prefix
   static final RegExp _arabicNamePattern = RegExp(
-    r'[\u0600-\u06FF\s]{3,}', // Arabic characters, 3 or more
+    r'[\u0621-\u064A][\u0600-\u06FF]{1,20}\s[\u0621-\u064A][\u0600-\u06FF]{1,20}',
   );
 
   // Sensitive field names (case-insensitive)

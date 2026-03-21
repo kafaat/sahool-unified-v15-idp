@@ -188,7 +188,62 @@ The original report stated "14+ services missing tini." Deep verification reveal
 | High | ~134 | 21 | **~113** |
 | Medium | ~221 | (not yet verified) | ~221 |
 | Low | ~97 | (not yet verified) | ~97 |
-| **Total** | **~573** | **38** | **~535** |
+| **Total** | **~573** | **49** | **~524** |
+
+---
+
+## Gap Closure — Final Verification Round (25 remaining issues)
+
+### Batch 1: 13 Previously Unverified Critical Issues
+
+| # | Issue | Verdict |
+|---|-------|---------|
+| G1 | Conflicting React Query deps | **CONFIRMED** — redundant @tanstack/query-core |
+| G2 | noImplicitAny disabled despite strict | **CONFIRMED** |
+| G3 | api-client path alias to dist/ | **FALSE POSITIVE** — standard sibling package reference |
+| G4 | Inconsistent path alias strategy | **CONFIRMED** — api-client→dist vs shared-ui→src |
+| G5 | Token revocation Redis init race | **FALSE POSITIVE** — lazy init safe in asyncio |
+| G6 | Missing FK constraints research | **CONFIRMED** — promised migration doesn't exist |
+| G7 | PgBouncer pool exhaustion | **FALSE POSITIVE** — DEFAULT_POOL_SIZE is per-db not per-service |
+| G8 | DLQ ACK before verification | **FALSE POSITIVE** — DLQ publish confirmed before ACK |
+| G9 | Publisher reconnection race | **CONFIRMED** — messages dropped during disconnect window |
+| G10 | Subscriber reconnection loses subs | **CONFIRMED** — callback doesn't re-establish subscriptions |
+| G11 | Dedup LRU eviction bug | **CONFIRMED** — evicts by insertion order (FIFO) not timestamp |
+| G12 | HEALTHCHECK PORT not expanded | **FALSE POSITIVE** — ENV PORT set, shell expands correctly |
+| G13 | Missing httpx for HEALTHCHECK | **FALSE POSITIVE** — httpx==0.28.1 is in requirements.txt |
+
+**Result: 7 CONFIRMED, 6 FALSE POSITIVE**
+
+### Batch 2: 12 Previously Unverified Critical Issues
+
+| # | Issue | Verdict |
+|---|-------|---------|
+| G14 | HEALTHCHECK syntax errors NestJS | **FALSE POSITIVE** — single-line valid Docker syntax |
+| G15 | iot-service dependency resolution | **FALSE POSITIVE** — deliberate 3-step build pattern |
+| G16 | code-review-agent missing entry point | **FALSE POSITIVE** — production-agent.ts compiled by tsc |
+| G17 | Missing type validation (UUID=None) | **CONFIRMED** — type annotations lie about nullability |
+| G18 | Missing API versioning /v1/ not /api/v1/ | **CONFIRMED** — 10 routes use /v1/ instead of /api/v1/ |
+| G19 | Pagination 3 different shapes | **CONFIRMED** — flat vs pagination{} vs meta{} |
+| G20 | Middleware ordering inconsistent | **CONFIRMED** — different security stacks per service |
+| G21 | Pydantic validation not bilingual | **CONFIRMED** — no RequestValidationError handler at all |
+| G22 | Missing KongServices.copilot | **FALSE POSITIVE** — named KongServices.ai, valid choice |
+| G23 | FCM StreamControllers not safe | **CONFIRMED** — no isClosed check before close() |
+| G24 | Unsealed nested findings | **FALSE POSITIVE** — model_dump hashes full content |
+| G25 | Email masking off-by-one | **CONFIRMED** — `< 2` vs `<= 2` inconsistency |
+
+**Result: 7 CONFIRMED, 5 FALSE POSITIVE**
+
+### Gap Closure Summary
+
+| | Verified | Confirmed | False Positive |
+|--|---------|-----------|----------------|
+| Round 1 (Critical) | 76 | 57 | 17 |
+| Round 2 (Critical) | 46 | 36 | 7 |
+| Round 3 (High) | 112 | 80 | 21 |
+| **Round 4 (Gap closure)** | **25** | **14** | **11** |
+| **GRAND TOTAL** | **213** | **151** | **49** |
+
+**Final false positive rate: 23%** (49 out of 213 verified)
 
 ---
 

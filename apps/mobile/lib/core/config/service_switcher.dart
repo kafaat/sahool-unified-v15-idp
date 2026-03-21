@@ -294,7 +294,7 @@ class ServiceSwitcher {
 
     if (stored != null) {
       try {
-        final Map<String, dynamic> parsed = jsonDecode(stored);
+        final Map<String, dynamic> parsed = jsonDecode(stored) as Map<String, dynamic>;
         for (final entry in parsed.entries) {
           final serviceType = ServiceType.values.firstWhere(
             (e) => e.name == entry.key,

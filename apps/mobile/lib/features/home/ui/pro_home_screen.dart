@@ -120,8 +120,8 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                       );
                     }).toList(),
                   ),
-                  loading: () => const PolygonLayer(polygons: []) as Widget,
-                  error: (_, __) => const PolygonLayer(polygons: []) as Widget,
+                  loading: () => const MarkerLayer(markers: []),
+                  error: (_, __) => const MarkerLayer(markers: []),
                 ),
 
                 // طبقة الرسم الحالي (عند تفعيل وضع الرسم)

@@ -164,7 +164,7 @@ class AnalyticsUserProperties {
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfo.androidInfo;
       osVersion = 'Android ${androidInfo.version.release}';
-      deviceCategory = _getDeviceCategory(androidInfo.data['displayMetrics']?['widthPx']?.toDouble() ?? 1080);
+      deviceCategory = _getDeviceCategory((androidInfo.data['displayMetrics']?['widthPx']?.toDouble() ?? 1080) as double);
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfo.iosInfo;
       osVersion = 'iOS ${iosInfo.systemVersion}';

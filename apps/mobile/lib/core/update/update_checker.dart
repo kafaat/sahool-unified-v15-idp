@@ -321,7 +321,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
       try {
         final packageInfo = await PackageInfo.fromPlatform();
         final currentVersion = packageInfo.version;
-        final updateInfo = UpdateInfo.fromJson(json.decode(cachedJson));
+        final updateInfo = UpdateInfo.fromJson(json.decode(cachedJson) as Map<String, dynamic>);
 
         final result = await _evaluateUpdate(currentVersion, updateInfo);
         state = state.copyWith(
@@ -329,7 +329,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
           lastCheckTime: DateTime.fromMillisecondsSinceEpoch(lastCheckMs),
         );
       } catch (e) {
-        AppLogger.warning('Failed to load cached update info', error: e);
+        AppLogger.w('Failed to load cached update info', error: e);
       }
     }
   }
@@ -365,7 +365,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
 
-      AppLogger.info(
+      AppLogger.i(
         'Checking for updates',
         data: {'current_version': currentVersion},
       );
@@ -404,7 +404,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
         throw Exception('Invalid response from update server');
       }
     } on DioException catch (e) {
-      AppLogger.error(
+      AppLogger.e(
         'Failed to check for updates',
         error: e,
         data: {'type': e.type.toString()},
@@ -419,7 +419,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
       state = state.copyWith(isChecking: false, lastResult: result);
       return result;
     } catch (e) {
-      AppLogger.error('Unexpected error checking for updates', error: e);
+      AppLogger.e('Unexpected error checking for updates', error: e);
 
       final packageInfo = await PackageInfo.fromPlatform();
       final result = UpdateCheckResult.error(
@@ -598,11 +598,11 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         return true;
       } else {
-        AppLogger.warning('Cannot launch app store URL: $storeUrl');
+        AppLogger.w('Cannot launch app store URL: $storeUrl');
         return false;
       }
     } catch (e) {
-      AppLogger.error('Error opening app store', error: e);
+      AppLogger.e('Error opening app store', error: e);
       return false;
     }
   }

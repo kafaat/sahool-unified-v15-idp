@@ -412,7 +412,7 @@ class ApiClient {
         String message = 'حدث خطأ غير متوقع';
 
         if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
+          message = (data['message'] ?? data['error'] ?? message) as String;
         }
 
         return ApiException(

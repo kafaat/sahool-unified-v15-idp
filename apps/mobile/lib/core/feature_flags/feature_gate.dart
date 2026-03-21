@@ -136,17 +136,17 @@ class FeatureGate extends ConsumerWidget {
 
   bool _checkEnabled(dynamic service) {
     // Check single flag
-    if (flag != null && !service.isEnabled(flag!)) {
+    if (flag != null && !(service.isEnabled(flag!) as bool)) {
       return false;
     }
 
     // Check all flags
-    if (allFlags != null && !service.allEnabled(allFlags!)) {
+    if (allFlags != null && !(service.allEnabled(allFlags!) as bool)) {
       return false;
     }
 
     // Check any flags
-    if (anyFlags != null && !service.anyEnabled(anyFlags!)) {
+    if (anyFlags != null && !(service.anyEnabled(anyFlags!) as bool)) {
       return false;
     }
 

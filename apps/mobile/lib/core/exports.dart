@@ -15,7 +15,7 @@ export 'config/env_config.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة
-export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn, StaggeredAnimationList, HapticFeedbackType, SlideDirection;
+export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn, StaggeredAnimationList, HapticFeedbackType, SlideDirection, FadeIn, SlideIn;
 
 // Offline Support - دعم عدم الاتصال
 export 'offline/offline.dart';

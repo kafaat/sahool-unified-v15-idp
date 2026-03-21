@@ -40,10 +40,10 @@ class ConnectivityBanner extends ConsumerWidget {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          height: networkStatus.isConnected ? (showOnline ? 28 : 0) : 28,
+          height: networkStatus.isOnline ? (showOnline ? 28 : 0) : 28,
           curve: Curves.easeInOut,
           child: Material(
-            color: networkStatus.isConnected
+            color: networkStatus.isOnline
                 ? SahoolTheme.success
                 : SahoolTheme.error,
             child: Center(
@@ -53,7 +53,7 @@ class ConnectivityBanner extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      networkStatus.isConnected
+                      networkStatus.isOnline
                           ? Icons.wifi
                           : Icons.wifi_off,
                       color: Colors.white,
@@ -61,7 +61,7 @@ class ConnectivityBanner extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      networkStatus.isConnected
+                      networkStatus.isOnline
                           ? 'متصل بالإنترنت'
                           : 'غير متصل - وضع عدم الاتصال',
                       style: const TextStyle(
@@ -108,7 +108,7 @@ class SahoolRefreshIndicator extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
-        if (!networkStatus.isConnected && showOfflineMessage) {
+        if (!networkStatus.isOnline && showOfflineMessage) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Directionality(

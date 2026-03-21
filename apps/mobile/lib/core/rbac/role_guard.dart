@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'role_model.dart';
 import 'permission_model.dart';
 import 'rbac_service.dart';
-import 'rbac_providers.dart';
+import 'rbac_providers.dart' hide RouteGuardResult, RouteGuardService;
 import 'rbac_config.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════

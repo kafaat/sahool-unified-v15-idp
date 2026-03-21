@@ -178,9 +178,11 @@ class FirebaseRemoteConfigWrapper implements RemoteConfigService {
 
   FirebaseRemoteConfigWrapper({
     required dynamic firebaseRemoteConfig,
-    this.fetchTimeout = const Duration(seconds: 10),
-    this.minimumFetchInterval = const Duration(hours: 1),
-  }) : _firebaseRemoteConfig = firebaseRemoteConfig;
+    Duration fetchTimeout = const Duration(seconds: 10),
+    Duration minimumFetchInterval = const Duration(hours: 1),
+  })  : _firebaseRemoteConfig = firebaseRemoteConfig,
+        _fetchTimeout = fetchTimeout,
+        _minimumFetchInterval = minimumFetchInterval;
 
   @override
   Future<Map<String, bool>> fetchFlags() async {

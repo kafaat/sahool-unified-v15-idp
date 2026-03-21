@@ -482,7 +482,7 @@ class ChatApi {
         String message = 'حدث خطأ غير متوقع';
 
         if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
+          message = (data['message'] ?? data['error'] ?? message) as String;
           // Sanitize error message before returning
           message = InputSanitizer.sanitizeForDisplay(message);
         }

@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -33,8 +33,8 @@ final astronomicalCacheProvider = FutureProvider.family<BestDaysResult?, String>
   try {
     // محاولة جلب من الخادم أولاً
     final result = await ref.watch(
-      bestDaysProvider(BestDaysParams(activity: activity, days: 30)),
-    ).future;
+      bestDaysProvider(BestDaysParams(activity: activity, days: 30)).future,
+    );
 
     // حفظ في التخزين المؤقت
     await _saveToCache(activity, result);

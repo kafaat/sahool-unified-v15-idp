@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -195,7 +196,7 @@ class VoiceFeedbackService {
       _setupEventHandlers();
 
       // Get available voices
-      _availableVoices = await _tts.getVoices;
+      _availableVoices = (await _tts.getVoices) as List<dynamic>;
       AppLogger.d('Available voices: ${_availableVoices.length}', tag: 'VOICE_TTS');
 
       // Set default language
@@ -290,7 +291,7 @@ class VoiceFeedbackService {
   Future<void> setLanguage(FeedbackLanguage language) async {
     try {
       // Check if language is available
-      final isAvailable = await _tts.isLanguageAvailable(language.locale);
+      final isAvailable = (await _tts.isLanguageAvailable(language.locale)) as bool? ?? false;
 
       if (isAvailable) {
         await _tts.setLanguage(language.locale);
@@ -299,7 +300,7 @@ class VoiceFeedbackService {
       } else {
         // Fallback to alternative
         final fallback = language.isArabic ? 'ar' : 'en-US';
-        final fallbackAvailable = await _tts.isLanguageAvailable(fallback);
+        final fallbackAvailable = (await _tts.isLanguageAvailable(fallback)) as bool? ?? false;
         if (fallbackAvailable) {
           await _tts.setLanguage(fallback);
           AppLogger.w('Language ${language.locale} not available, using $fallback', tag: 'VOICE_TTS');
@@ -314,7 +315,7 @@ class VoiceFeedbackService {
   Future<List<String>> getAvailableLanguages() async {
     try {
       final languages = await _tts.getLanguages;
-      return List<String>.from(languages);
+      return List<String>.from(languages as Iterable);
     } catch (e) {
       return [];
     }

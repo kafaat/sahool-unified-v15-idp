@@ -44,6 +44,17 @@ class SyncWorker {
     ));
   }
 
+  /// Derive a legacy "type" string from OutboxData fields
+  /// e.g., 'field_update', 'task_create'
+  String _itemType(OutboxData item) {
+    final op = switch (item.method) {
+      'PUT' => 'update',
+      'DELETE' => 'delete',
+      _ => 'create',
+    };
+    return '${item.entityType}_$op';
+  }
+
   /// تشغيل المزامنة
   Future<SyncResult> run() async {
     if (!_net.isOnline) {
@@ -88,7 +99,7 @@ class SyncWorker {
       };
 
       // Add If-Match for field updates if we have an ETag
-      if (item.type.startsWith('field_') && item.type.contains('update')) {
+      if (_itemType(item).startsWith('field_') && _itemType(item).contains('update')) {
         final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
@@ -100,8 +111,8 @@ class SyncWorker {
       }
 
       // Determine endpoint and method
-      final endpoint = _getEndpoint(item.type);
-      final method = _getMethod(item.type);
+      final endpoint = _getEndpoint(_itemType(item));
+      final method = _getMethod(_itemType(item));
 
       final resp = await _dio.request(
         '$_baseUrl$endpoint',
@@ -111,7 +122,7 @@ class SyncWorker {
 
       // Handle ETag from response
       final newEtag = resp.headers.value('etag') ?? resp.headers.value('ETag');
-      if (newEtag != null && item.type.startsWith('field_')) {
+      if (newEtag != null && _itemType(item).startsWith('field_')) {
         final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
@@ -156,7 +167,7 @@ class SyncWorker {
       if (sd is Map<String, dynamic>) serverData = sd;
     }
 
-    if (item.type.startsWith('field_') && serverData != null) {
+    if (_itemType(item).startsWith('field_') && serverData != null) {
       // Apply server version (Last-Write-Wins from server)
       final fieldId = serverData['id']?.toString();
       if (fieldId != null) {
@@ -174,13 +185,13 @@ class SyncWorker {
       tenantId: tenantId,
       type: 'CONFLICT',
       message:
-          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.type)}',
-      entityType: _getEntityType(item.type),
+          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(_itemType(item))}',
+      entityType: _getEntityType(_itemType(item)),
       entityId: _extractEntityId(item.payload),
     );
 
     await _log('INFO',
-        'Conflict resolved by applying server version for: ${item.type}');
+        'Conflict resolved by applying server version for: ${_itemType(item)}');
   }
 
   String _getEndpoint(String type) {

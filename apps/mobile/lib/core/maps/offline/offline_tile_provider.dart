@@ -399,7 +399,7 @@ class OfflineTileLayerOptions {
     int minZoom = 1,
     int maxZoom = 18,
     double tileSize = 256,
-    bool keepBuffer = true,
+    int keepBuffer = 2,
   }) {
     return TileLayer(
       urlTemplate: urlTemplate,

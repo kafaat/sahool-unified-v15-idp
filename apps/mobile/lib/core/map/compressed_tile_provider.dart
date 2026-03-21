@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../services/tile_service.dart';
 import '../utils/image_compression.dart';
 import '../utils/app_logger.dart';
@@ -97,7 +98,11 @@ class CompressedTileImage extends ImageProvider<CompressedTileImage> {
   ) async {
     try {
       // بناء رابط البلاطة - Build tile URL
-      final url = getTileUrl(coordinates, options);
+      final url = options.urlTemplate!
+          .replaceAll('{z}', coordinates.z.toString())
+          .replaceAll('{x}', coordinates.x.toString())
+          .replaceAll('{y}', coordinates.y.toString())
+          .replaceAll('{s}', (options.subdomains.isNotEmpty ? options.subdomains[0] : ''));
 
       // جلب البلاطة مع الضغط - Fetch tile with compression
       final tile = await tileService.fetchAndCompressTile(

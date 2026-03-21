@@ -59,10 +59,10 @@ export 'deeplink/deeplink_handler.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة المحسنة
-export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn, SlideIn;
+export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn, SlideIn, SlideDirection;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';
 
 // Animations - التحريكات
-export 'animations/animations.dart' hide SkeletonCard, SkeletonList, SkeletonGrid;
+export 'animations/animations.dart' hide SkeletonCard, SkeletonList, SkeletonGrid, StaggeredAnimationList;

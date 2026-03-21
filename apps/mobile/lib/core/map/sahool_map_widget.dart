@@ -195,7 +195,6 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                       color: Colors.green.withOpacity(0.3),
                       borderColor: Colors.green,
                       borderStrokeWidth: 2,
-                      isFilled: true,
                     )).toList(),
                   ),
 
@@ -208,7 +207,6 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                         color: Colors.blue.withOpacity(0.2),
                         borderColor: Colors.blue,
                         borderStrokeWidth: 3,
-                        isFilled: true,
                       ),
                     ],
                   ),

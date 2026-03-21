@@ -85,8 +85,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Listen for typing indicators
     _typingSubscription = chatRepo.typingStream.listen((data) {
       setState(() {
-        _isTyping = data['isTyping'] ?? false;
-        _typingUser = data['userName'];
+        _isTyping = (data['isTyping'] ?? false) as bool;
+        _typingUser = data['userName'] as String?;
       });
     });
 

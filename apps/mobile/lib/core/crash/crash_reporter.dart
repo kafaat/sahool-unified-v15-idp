@@ -597,9 +597,9 @@ class CrashReporter {
       if (await _offlineStorageFile!.exists()) {
         final content = await _offlineStorageFile!.readAsString();
         if (content.isNotEmpty) {
-          final List<dynamic> jsonList = jsonDecode(content);
+          final List<dynamic> jsonList = jsonDecode(content) as List<dynamic>;
           _pendingReports.addAll(
-            jsonList.map((e) => OfflineCrashReport.fromJson(e)),
+            jsonList.map((e) => OfflineCrashReport.fromJson(e as Map<String, dynamic>)),
           );
           AppLogger.i(
             'Loaded ${_pendingReports.length} pending crash reports',

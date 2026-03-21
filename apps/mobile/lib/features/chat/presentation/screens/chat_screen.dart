@@ -562,7 +562,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
               // Call block user API
               final success = await ref.read(chatProvider.notifier).blockUser(
-                    otherParticipant.userId,
+                    otherParticipant.userId as String,
                     conversation.id as String,
                   );
 

@@ -1,9 +1,7 @@
-/// Inventory Card Widget - بطاقة عنصر المخزون
-library;
+// Inventory Card Widget - بطاقة عنصر المخزون
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../data/inventory_models.dart';
 import 'stock_level_indicator.dart';
@@ -236,7 +234,7 @@ class InventoryCard extends StatelessWidget {
       child: Icon(
         _getCategoryIcon(item.category),
         size: isGridView ? 48 : 40,
-        color: Theme.of(context).primaryColor.withOpacity(0.3),
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
       ),
     );
   }

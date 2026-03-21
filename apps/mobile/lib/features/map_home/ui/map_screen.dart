@@ -224,7 +224,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
+        initialCenter: _fieldLocations.isNotEmpty
+            ? _fieldLocations.first
+            : const LatLng(15.3694, 44.1910), // default: صنعاء
         initialZoom: 12,
         onTap: (tapPosition, point) {
           if (_selectedField != null) {

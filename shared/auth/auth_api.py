@@ -187,7 +187,7 @@ def verify_temp_token(temp_token: str) -> dict | None:
     except AuthException:
         return None
     except Exception as e:
-        logger.error(f"Error verifying temp token: {type(e).__name__}")
+        logger.error(f"Error verifying temp token: {type(e).__name__}", exc_info=True)
         return None
 
 

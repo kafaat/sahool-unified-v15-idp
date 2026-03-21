@@ -58,7 +58,7 @@ class FieldHealth extends Equatable {
           .map((item) => Recommendation.fromJson(item as Map<String, dynamic>))
           .toList(),
       assessedAt: DateTime.parse(
-        json['assessed_at'] ?? json['assessedAt'] ?? DateTime.now().toIso8601String(),
+        (json['assessed_at'] ?? json['assessedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
       zoneScores: zoneScoresData != null
           ? (zoneScoresData as Map<String, dynamic>).map(
@@ -155,15 +155,15 @@ class HealthAlert extends Equatable {
 
   factory HealthAlert.fromJson(Map<String, dynamic> json) {
     return HealthAlert(
-      id: json['id'] ?? '',
-      type: AlertType.fromString(json['type'] ?? 'other'),
-      severity: AlertSeverity.fromString(json['severity'] ?? 'info'),
-      message: json['message'] ?? '',
-      messageAr: json['message_ar'] ?? json['messageAr'] ?? '',
+      id: (json['id'] ?? '') as String,
+      type: AlertType.fromString((json['type'] ?? 'other') as String),
+      severity: AlertSeverity.fromString((json['severity'] ?? 'info') as String),
+      message: (json['message'] ?? '') as String,
+      messageAr: (json['message_ar'] ?? json['messageAr'] ?? '') as String,
       detectedAt: DateTime.parse(
-        json['detected_at'] ?? json['detectedAt'] ?? DateTime.now().toIso8601String(),
+        (json['detected_at'] ?? json['detectedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      affectedZone: json['affected_zone'] ?? json['affectedZone'],
+      affectedZone: (json['affected_zone'] ?? json['affectedZone']) as String?,
     );
   }
 
@@ -256,14 +256,14 @@ class Recommendation extends Equatable {
 
   factory Recommendation.fromJson(Map<String, dynamic> json) {
     return Recommendation(
-      id: json['id'] ?? '',
-      type: RecommendationType.fromString(json['type'] ?? 'general'),
-      title: json['title'] ?? '',
-      titleAr: json['title_ar'] ?? json['titleAr'] ?? '',
-      description: json['description'] ?? '',
-      descriptionAr: json['description_ar'] ?? json['descriptionAr'] ?? '',
-      priority: RecommendationPriority.fromString(json['priority'] ?? 'medium'),
-      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date']) : null,
+      id: (json['id'] ?? '') as String,
+      type: RecommendationType.fromString((json['type'] ?? 'general') as String),
+      title: (json['title'] ?? '') as String,
+      titleAr: (json['title_ar'] ?? json['titleAr'] ?? '') as String,
+      description: (json['description'] ?? '') as String,
+      descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
+      priority: RecommendationPriority.fromString((json['priority'] ?? 'medium') as String),
+      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date'] as String) : null,
     );
   }
 

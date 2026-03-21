@@ -15,18 +15,18 @@ export 'config/env_config.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة
-export 'ui/enhanced_widgets.dart';
+export 'ui/enhanced_widgets.dart' hide AnimatedListItem;
 
 // Offline Support - دعم عدم الاتصال
 export 'offline/offline.dart';
-export 'offline/offline_ui_components.dart';
+export 'offline/offline_ui_components.dart' hide SyncStatus;
 
 // Performance - الأداء
 export 'performance/performance_utils.dart';
 
 // Notifications - الإشعارات
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart';
+export 'notifications/notification_ui_components.dart' hide NotificationBadge;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';
@@ -44,4 +44,4 @@ export 'sync/network_status.dart';
 export 'haptics/haptics.dart';
 
 // Widgets - المكونات
-export 'widgets/widgets.dart';
+export 'widgets/widgets.dart' hide SkeletonCard;

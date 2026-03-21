@@ -934,13 +934,13 @@ class StripePaymentIntent {
 
   factory StripePaymentIntent.fromJson(Map<String, dynamic> json) {
     return StripePaymentIntent(
-      id: json['id'] ?? json['payment_intent_id'] ?? '',
-      clientSecret: json['client_secret'] ?? '',
-      amount: json['amount'] ?? 0,
-      currency: json['currency'] ?? 'usd',
-      status: json['status'] ?? 'requires_payment_method',
-      customerId: json['customer_id'],
-      ephemeralKey: json['ephemeral_key'],
+      id: (json['id'] ?? json['payment_intent_id'] ?? '') as String,
+      clientSecret: (json['client_secret'] as String?) ?? '',
+      amount: (json['amount'] as int?) ?? 0,
+      currency: (json['currency'] as String?) ?? 'usd',
+      status: (json['status'] as String?) ?? 'requires_payment_method',
+      customerId: json['customer_id'] as String?,
+      ephemeralKey: json['ephemeral_key'] as String?,
     );
   }
 
@@ -988,12 +988,12 @@ class StripeSetupIntent {
 
   factory StripeSetupIntent.fromJson(Map<String, dynamic> json) {
     return StripeSetupIntent(
-      id: json['id'] ?? json['setup_intent_id'] ?? '',
-      clientSecret: json['client_secret'] ?? '',
-      status: json['status'] ?? 'requires_payment_method',
-      customerId: json['customer_id'],
-      ephemeralKey: json['ephemeral_key'],
-      paymentMethodId: json['payment_method_id'],
+      id: (json['id'] ?? json['setup_intent_id'] ?? '') as String,
+      clientSecret: (json['client_secret'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'requires_payment_method',
+      customerId: json['customer_id'] as String?,
+      ephemeralKey: json['ephemeral_key'] as String?,
+      paymentMethodId: json['payment_method_id'] as String?,
     );
   }
 
@@ -1023,12 +1023,12 @@ class SetupIntentResult {
   factory SetupIntentResult.fromJson(Map<String, dynamic> json) {
     final paymentMethod = json['payment_method'] as Map<String, dynamic>?;
     return SetupIntentResult(
-      success: json['success'] ?? false,
-      paymentMethodId: paymentMethod?['id'] ?? json['payment_method_id'],
-      last4: paymentMethod?['last4'] ?? json['last4'],
-      brand: paymentMethod?['brand'] ?? json['brand'],
-      message: json['message'],
-      messageAr: json['message_ar'],
+      success: (json['success'] as bool?) ?? false,
+      paymentMethodId: (paymentMethod?['id'] ?? json['payment_method_id']) as String?,
+      last4: (paymentMethod?['last4'] ?? json['last4']) as String?,
+      brand: (paymentMethod?['brand'] ?? json['brand']) as String?,
+      message: json['message'] as String?,
+      messageAr: json['message_ar'] as String?,
     );
   }
 }
@@ -1059,14 +1059,14 @@ class SavedPaymentMethod {
   factory SavedPaymentMethod.fromJson(Map<String, dynamic> json) {
     final card = json['card'] as Map<String, dynamic>?;
     return SavedPaymentMethod(
-      id: json['id'] ?? '',
-      type: json['type'] ?? 'card',
-      last4: card?['last4'] ?? json['last4'],
-      brand: card?['brand'] ?? json['brand'],
-      expMonth: card?['exp_month'] ?? json['exp_month'],
-      expYear: card?['exp_year'] ?? json['exp_year'],
-      isDefault: json['is_default'] ?? false,
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      id: (json['id'] as String?) ?? '',
+      type: (json['type'] as String?) ?? 'card',
+      last4: (card?['last4'] ?? json['last4']) as String?,
+      brand: (card?['brand'] ?? json['brand']) as String?,
+      expMonth: (card?['exp_month'] ?? json['exp_month']) as int?,
+      expYear: (card?['exp_year'] ?? json['exp_year']) as int?,
+      isDefault: (json['is_default'] as bool?) ?? false,
+      createdAt: DateTime.tryParse((json['created_at'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 

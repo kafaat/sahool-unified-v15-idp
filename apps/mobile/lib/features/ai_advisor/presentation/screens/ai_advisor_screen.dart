@@ -485,8 +485,8 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
     if (_selectedImage != null) {
       // Send diagnosis request with image
       ref.read(aiAdvisorProvider.notifier).diagnose(
-        imagePath: _selectedImage!.path,
-        symptoms: text.isNotEmpty ? text : null,
+        _selectedImage!.path,
+        description: text.isNotEmpty ? text : null,
         fieldId: widget.fieldId,
       );
       setState(() => _selectedImage = null);
@@ -503,10 +503,8 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
   }
 
   void _sendMessage(String message) {
-    ref.read(aiAdvisorProvider.notifier).sendMessage(
-      message,
-      fieldId: widget.fieldId,
-    );
+    ref.read(aiAdvisorProvider.notifier).updateInputText(message);
+    ref.read(aiAdvisorProvider.notifier).sendMessage();
   }
 
   void _handleQuickQuestion(QuickQuestion question) {
@@ -516,9 +514,9 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
   }
 
   void _handleFeedback(String messageId, bool isPositive) {
-    ref.read(aiAdvisorProvider.notifier).submitFeedback(
-      messageId: messageId,
-      thumbsUp: isPositive,
+    ref.read(aiAdvisorProvider.notifier).submitMessageFeedback(
+      messageId,
+      isPositive,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(

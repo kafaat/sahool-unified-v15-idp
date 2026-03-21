@@ -453,6 +453,45 @@ class ChatController extends StateNotifier<ChatSessionState> {
     }
   }
 
+  /// Set field context (alias for changeField + initSession)
+  Future<void> setFieldContext(String fieldId, String? fieldName) async {
+    await changeField(fieldId, fieldName);
+  }
+
+  /// Load chat history (alias for initSession)
+  Future<void> loadChatHistory() async {
+    await initSession(fieldId: state.fieldId, fieldName: state.fieldName);
+  }
+
+  /// Clear error from state
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
+
+  /// Diagnose image (delegates to sendDiagnosisImage)
+  Future<void> diagnose(String imagePath, {String? fieldId, String? description}) async {
+    if (fieldId != null && fieldId != state.fieldId) {
+      await changeField(fieldId, null);
+    }
+    await sendDiagnosisImage(imagePath, description: description);
+  }
+
+  /// Submit feedback (delegates to submitAdvisoryFeedback)
+  Future<void> submitFeedback(AdvisoryFeedback feedback) async {
+    await submitAdvisoryFeedback(feedback);
+  }
+
+  /// Start a new chat session
+  void startNewChat() {
+    clearSession();
+  }
+
+  /// Clear chat history
+  Future<void> clearChatHistory() async {
+    clearSession();
+    await _repository.clearChatHistory();
+  }
+
   /// Get context summary for display
   String getContextSummary(String locale) {
     if (state.context == null) {

@@ -219,7 +219,7 @@ final exportErrorProvider = StateProvider<String?>((ref) {
 /// Is online provider
 final isOnlineProvider = Provider<bool>((ref) {
   final networkStatus = ref.watch(networkStatusProvider);
-  return networkStatus.isConnected;
+  return networkStatus.isOnline;
 });
 
 /// Report count provider

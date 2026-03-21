@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/models/report_data.dart';
+import '../../domain/models/report_template.dart';
 import '../../domain/models/chart_config.dart';
 import '../widgets/chart_widget.dart';
 import '../widgets/report_data_table.dart';
@@ -438,7 +439,7 @@ class _ReportViewerScreenState extends ConsumerState<ReportViewerScreen> {
         if (section.type == 'chart' && section.chartConfig != null)
           _buildChartSection(section.chartConfig!)
         else if (section.type == 'table' && section.data['table'] != null)
-          _buildTableSection(section.data['table'])
+          _buildTableSection(section.data['table'] as Map<String, dynamic>)
         else if (section.type == 'text')
           _buildTextSection(section.data)
         else

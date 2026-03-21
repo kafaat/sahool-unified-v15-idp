@@ -578,7 +578,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
             _buildContextRow(
               Icons.cloud,
               'الطقس',
-              advisory.weatherContext!['condition_ar'] ?? 'متاح',
+              (advisory.weatherContext!['condition_ar'] ?? 'متاح') as String,
             ),
           if (advisory.soilContext != null && advisory.soilContext!.isNotEmpty)
             _buildContextRow(

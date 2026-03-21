@@ -26,6 +26,7 @@ class SprayLogScreen extends ConsumerStatefulWidget {
 }
 
 class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
+  String get locale => Localizations.localeOf(context).languageCode;
   final _formKey = GlobalKey<FormState>();
 
   // Form fields
@@ -136,7 +137,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
                       hintText: _selectedProduct != null
                           ? '${_selectedProduct!.recommendedRate}'
                           : '',
-                      suffixText: _selectedProduct?.getUnit(_locale) ?? '',
+                      suffixText: _selectedProduct?.getUnit(locale) ?? '',
                       border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -284,7 +285,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
         final isSelected = _selectedSprayType == type;
         return FilterChip(
           selected: isSelected,
-          label: Text(type.getName(_locale)),
+          label: Text(type.getName(locale)),
           onSelected: (selected) {
             setState(() {
               _selectedSprayType = selected ? type : null;
@@ -350,11 +351,11 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    product.getDisplayName(_locale),
+                    product.getDisplayName(locale),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    product.getActiveIngredient(_locale),
+                    product.getActiveIngredient(locale),
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

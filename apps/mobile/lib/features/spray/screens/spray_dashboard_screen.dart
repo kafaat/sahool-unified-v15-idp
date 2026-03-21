@@ -24,10 +24,12 @@ class SprayDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
+  String get locale => Localizations.localeOf(context).languageCode;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = this.locale;
     final isArabic = locale == 'ar';
 
     return Scaffold(
@@ -112,7 +114,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
           weatherAsync.when(
             data: (weather) => WeatherCardWidget(
               weather: weather,
-              locale: _locale,
+              locale: locale,
               onTap: () {
                 // Show weather details
                 _showWeatherDetailsDialog(weather);
@@ -218,7 +220,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               children: nextWindows.map((window) {
                 return SprayWindowCard(
                   window: window,
-                  locale: _locale,
+                  locale: locale,
                   onTap: () => _showWindowDetailsDialog(window),
                 );
               }).toList(),
@@ -393,7 +395,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      recommendation.sprayType.getName(_locale),
+                      recommendation.sprayType.getName(locale),
                       style: TextStyle(
                         color: _getSprayTypeColor(recommendation.sprayType),
                         fontSize: 12,
@@ -408,14 +410,14 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                recommendation.getTitle(_locale),
+                recommendation.getTitle(locale),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                recommendation.getDescription(_locale),
+                recommendation.getDescription(locale),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withOpacity(0.7),
                 ),
@@ -432,7 +434,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        recommendation.recommendedProduct!.getDisplayName(_locale),
+                        recommendation.recommendedProduct!.getDisplayName(locale),
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
@@ -591,38 +593,38 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(_locale == 'ar' ? 'تفاصيل الطقس' : 'Weather Details'),
+        title: Text(locale == 'ar' ? 'تفاصيل الطقس' : 'Weather Details'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow(
-              _locale == 'ar' ? 'الحالة' : 'Condition',
-              weather.getCondition(_locale),
+              locale == 'ar' ? 'الحالة' : 'Condition',
+              weather.getCondition(locale),
             ),
             _buildDetailRow(
-              _locale == 'ar' ? 'درجة الحرارة' : 'Temperature',
+              locale == 'ar' ? 'درجة الحرارة' : 'Temperature',
               '${weather.temperature}°C',
             ),
             _buildDetailRow(
-              _locale == 'ar' ? 'الرطوبة' : 'Humidity',
+              locale == 'ar' ? 'الرطوبة' : 'Humidity',
               '${weather.humidity}%',
             ),
             _buildDetailRow(
-              _locale == 'ar' ? 'سرعة الرياح' : 'Wind Speed',
+              locale == 'ar' ? 'سرعة الرياح' : 'Wind Speed',
               '${weather.windSpeed} km/h',
             ),
             _buildDetailRow(
-              _locale == 'ar' ? 'اتجاه الرياح' : 'Wind Direction',
-              weather.getWindDirection(_locale),
+              locale == 'ar' ? 'اتجاه الرياح' : 'Wind Direction',
+              weather.getWindDirection(locale),
             ),
             _buildDetailRow(
-              _locale == 'ar' ? 'احتمالية المطر' : 'Rain Probability',
+              locale == 'ar' ? 'احتمالية المطر' : 'Rain Probability',
               '${weather.rainProbability}%',
             ),
             if (weather.pressure != null)
               _buildDetailRow(
-                _locale == 'ar' ? 'الضغط الجوي' : 'Pressure',
+                locale == 'ar' ? 'الضغط الجوي' : 'Pressure',
                 '${weather.pressure} hPa',
               ),
           ],
@@ -630,7 +632,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(_locale == 'ar' ? 'إغلاق' : 'Close'),
+            child: Text(locale == 'ar' ? 'إغلاق' : 'Close'),
           ),
         ],
       ),
@@ -641,20 +643,20 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(_locale == 'ar' ? 'تفاصيل نافذة الرش' : 'Spray Window Details'),
+        title: Text(locale == 'ar' ? 'تفاصيل نافذة الرش' : 'Spray Window Details'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SprayWindowCard(window: window, locale: _locale),
+              SprayWindowCard(window: window, locale: locale),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(_locale == 'ar' ? 'إغلاق' : 'Close'),
+            child: Text(locale == 'ar' ? 'إغلاق' : 'Close'),
           ),
         ],
       ),

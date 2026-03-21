@@ -11,7 +11,7 @@ import '../../../core/di/providers.dart';
 import '../logic/sync_provider.dart';
 import '../logic/home_providers.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
-import '../../tasks/providers/tasks_provider.dart';
+import '../../tasks/providers/tasks_provider.dart' hide apiClientProvider;
 
 /// شاشة سهول الرئيسية - تصميم Bento Grid العضوي
 /// Organic Dashboard with Bento Grid Layout
@@ -28,7 +28,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // مراقبة البيانات
     final apiClient = ref.watch(apiClientProvider);
-    final fieldsAsync = ref.watch(fieldsStreamProvider(apiClient.tenantId));
+    final fieldsAsync = ref.watch(fieldsStreamProvider(apiClient.tenantId as String));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
 
@@ -650,7 +650,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
                 StatusBadge(
-                  label: first.status ?? "نشط",
+                  label: (first.status as String?) ?? "نشط",
                   color: SahoolColors.forestGreen,
                   icon: Icons.sensors,
                 ),
@@ -681,11 +681,10 @@ class HomeScreen extends ConsumerWidget {
             polygons: fields
                 .map(
                   (f) => Polygon(
-                    points: f.boundary,
+                    points: (f.boundary as List).cast<LatLng>(),
                     color: SahoolColors.harvestGold.withOpacity(0.4),
                     borderColor: Colors.white,
                     borderStrokeWidth: 2,
-                    isFilled: true,
                   ),
                 )
                 .toList(),

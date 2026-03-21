@@ -1043,7 +1043,7 @@ class ReportGenerator {
       buffer.writeln('-' * 40);
 
       if (section.type == 'table' && section.data['table'] != null) {
-        final table = ReportTableData.fromJson(section.data['table']);
+        final table = ReportTableData.fromJson(section.data['table'] as Map<String, dynamic>);
         buffer.writeln(table.headers.join('\t'));
         for (final row in table.rows) {
           buffer.writeln(row.join('\t'));
@@ -1070,7 +1070,7 @@ class ReportGenerator {
     for (final section in report.tableSections) {
       if (section.data['table'] != null) {
         buffer.writeln(section.title);
-        final table = ReportTableData.fromJson(section.data['table']);
+        final table = ReportTableData.fromJson(section.data['table'] as Map<String, dynamic>);
         buffer.writeln(table.headers.join(','));
         for (final row in table.rows) {
           buffer.writeln(row.join(','));

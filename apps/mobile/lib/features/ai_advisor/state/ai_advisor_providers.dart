@@ -271,7 +271,7 @@ class AdvisoryContextNotifier extends StateNotifier<AsyncValue<AdvisoryContext?>
   Future<void> loadContext(String fieldId) async {
     state = const AsyncValue.loading();
     try {
-      final context = await _repository.getContext(fieldId);
+      final context = await _repository.getContext(fieldId: fieldId);
       state = AsyncValue.data(context);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

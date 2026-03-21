@@ -65,4 +65,4 @@ export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, Sah
 export 'l10n/locale_manager.dart';
 
 // Animations - التحريكات
-export 'animations/animations.dart' hide SkeletonCard;
+export 'animations/animations.dart' hide SkeletonCard, SkeletonList;

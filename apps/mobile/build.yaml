@@ -11,8 +11,11 @@ targets:
           - "lib/services/**/*.dart"
           - "lib/core/models/**/*.dart"
           - "lib/core/storage/**/*.dart"
+          - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
+          - "lib/features/**/domain/*.dart"
           - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/data/*.dart"
           - "lib/features/**/data/**/*.dart"
         options:
           explicit_to_json: true
@@ -23,8 +26,11 @@ targets:
         generate_for:
           - "lib/models/**/*.dart"
           - "lib/core/models/**/*.dart"
+          - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
+          - "lib/features/**/domain/*.dart"
           - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/data/*.dart"
           - "lib/features/**/data/**/*.dart"
 
       # Drift database configuration

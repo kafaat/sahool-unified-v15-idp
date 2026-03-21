@@ -174,16 +174,16 @@ class GrowthStageInfo extends Equatable {
     final tasksArData = json['tasks_ar'] ?? json['tasksAr'] ?? [];
 
     return GrowthStageInfo(
-      stage: GrowthStage.fromString(json['stage'] ?? 'unknown'),
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['nameAr'] ?? '',
-      durationDays: json['duration_days'] ?? json['durationDays'] ?? 0,
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
-      isCompleted: json['is_completed'] ?? json['isCompleted'] ?? false,
-      isCurrent: json['is_current'] ?? json['isCurrent'] ?? false,
-      description: json['description'] ?? '',
-      descriptionAr: json['description_ar'] ?? json['descriptionAr'] ?? '',
+      stage: GrowthStage.fromString((json['stage'] ?? 'unknown') as String),
+      name: (json['name'] ?? '') as String,
+      nameAr: (json['name_ar'] ?? json['nameAr'] ?? '') as String,
+      durationDays: (json['duration_days'] ?? json['durationDays'] ?? 0) as int,
+      startDate: json['start_date'] != null ? DateTime.parse(json['start_date'] as String) : null,
+      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+      isCompleted: (json['is_completed'] ?? json['isCompleted'] ?? false) as bool,
+      isCurrent: (json['is_current'] ?? json['isCurrent'] ?? false) as bool,
+      description: (json['description'] ?? '') as String,
+      descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
       tasks: (tasksData as List).map((task) => task.toString()).toList(),
       tasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
     );

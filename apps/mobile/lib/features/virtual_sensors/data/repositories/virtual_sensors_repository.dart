@@ -75,10 +75,10 @@ class VirtualSensorsRepository {
         final data = json.decode(response.body);
         return ET0Response(
           et0: (data['et0'] as num).toDouble(),
-          et0Ar: data['et0_ar'] ?? '',
-          method: data['method'] ?? 'FAO-56 Penman-Monteith',
-          weatherSummary: data['weather_summary'] ?? {},
-          calculationDate: DateTime.parse(data['calculation_date']),
+          et0Ar: (data['et0_ar'] as String?) ?? '',
+          method: (data['method'] as String?) ?? 'FAO-56 Penman-Monteith',
+          weatherSummary: (data['weather_summary'] as Map<String, dynamic>?) ?? {},
+          calculationDate: DateTime.parse(data['calculation_date'] as String),
         );
       }
 
@@ -112,11 +112,11 @@ class VirtualSensorsRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List crops = data['crops'] ?? [];
+        final List<dynamic> crops = (data['crops'] as List<dynamic>?) ?? [];
         return crops.map((e) => CropKcOption(
-          cropId: e['crop_id'] ?? '',
-          name: e['name'] ?? '',
-          nameAr: e['name_ar'] ?? '',
+          cropId: (e['crop_id'] as String?) ?? '',
+          name: (e['name'] as String?) ?? '',
+          nameAr: (e['name_ar'] as String?) ?? '',
           kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
           kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
           kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,

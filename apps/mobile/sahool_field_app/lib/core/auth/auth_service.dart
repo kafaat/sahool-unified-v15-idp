@@ -1267,11 +1267,12 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final email = json['email'] as String;
     return User(
       id: json['id'] as String,
-      email: json['email'] as String,
-      name: json['name'] as String,
-      role: json['role'] as String,
+      email: email,
+      name: (json['name'] as String?) ?? email,
+      role: (json['role'] as String?) ?? 'viewer',
       tenantId: json['tenant_id'] as String,
       phone: json['phone'] as String?,
       avatarUrl: json['avatar_url'] as String?,

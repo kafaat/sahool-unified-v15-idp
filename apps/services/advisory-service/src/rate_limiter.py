@@ -108,9 +108,12 @@ class AdvisoryRateLimiter:
         return f"{tier}:{tenant_id}:{client_ip}"
 
     def _is_internal_request(self, request: Request) -> bool:
-        """Check if request is from an internal service."""
-        internal_header = request.headers.get("X-Internal-Service")
-        return internal_header is not None
+        """Check if request is from an internal service.
+
+        SECURITY: Uses request.state.is_service_request set by
+        ServiceAuthMiddleware (validated service token), not raw headers.
+        """
+        return getattr(request.state, "is_service_request", False)
 
     def _clean_window(self, window: list[float], max_age: float) -> list[float]:
         """Remove entries older than max_age seconds."""

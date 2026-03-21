@@ -42,6 +42,7 @@ from .circuit_breaker import (
     get_circuit_breaker,
 )
 from .metrics import get_metrics_collector
+from .validation import ValidationLevel, validate_prompt, validate_response
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +178,13 @@ class LLMProviderError(Exception):
     def __init__(self, message: str, provider: LLMProvider | None = None):
         super().__init__(message)
         self.provider = provider
+
+
+class PromptValidationError(LLMProviderError):
+    """Exception raised when a prompt fails safety validation."""
+
+    def __init__(self, message: str):
+        super().__init__(message, provider=None)
 
 
 class AllProvidersFailedError(LLMProviderError):
@@ -325,6 +333,25 @@ class LLMProviderManager:
         """
         errors: list[tuple[LLMProvider, str]] = []
 
+        # SECURITY: Validate prompt for injection/jailbreak before sending to any provider
+        input_validation = validate_prompt(prompt, ValidationLevel.MODERATE)
+        if not input_validation.is_valid:
+            issue_summary = "; ".join(
+                f"{i.category.value}: {i.message}" for i in input_validation.issues
+                if i.severity.value in ("critical", "high")
+            )
+            logger.warning(
+                "Prompt validation failed — blocking LLM call",
+                extra={
+                    "issues": [i.to_dict() for i in input_validation.issues],
+                    "score": input_validation.score,
+                    "correlation_id": correlation_id,
+                },
+            )
+            raise PromptValidationError(
+                f"Prompt blocked by safety validation: {issue_summary}"
+            )
+
         # Build provider order
         providers = list(self._provider_order)
         if preferred_provider and preferred_provider in providers:
@@ -359,6 +386,19 @@ class LLMProviderManager:
                         from_provider=errors[-1][0].value,
                         to_provider=provider.value,
                         reason=errors[-1][1],
+                    )
+
+                # SECURITY: Validate output for unsafe content
+                output_validation = validate_response(response.text, level=ValidationLevel.LENIENT)
+                if not output_validation.is_valid:
+                    logger.warning(
+                        "LLM response flagged by safety validation",
+                        extra={
+                            "issues": [i.to_dict() for i in output_validation.issues],
+                            "score": output_validation.score,
+                            "provider": provider.value,
+                            "correlation_id": correlation_id,
+                        },
                     )
 
                 return response

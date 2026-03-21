@@ -81,6 +81,7 @@ class Permission {
 enum UserRole {
   viewer('viewer', 'مشاهد'),
   worker('worker', 'عامل ميداني'),
+  farmer('farmer', 'مزارع'),
   supervisor('supervisor', 'مشرف'),
   manager('manager', 'مدير'),
   admin('admin', 'مسؤول'),
@@ -92,8 +93,9 @@ enum UserRole {
   const UserRole(this.value, this.arabicLabel);
 
   static UserRole fromString(String value) {
+    final normalized = value.toLowerCase().trim();
     return UserRole.values.firstWhere(
-      (r) => r.value == value,
+      (r) => r.value == normalized,
       orElse: () => UserRole.viewer,
     );
   }
@@ -127,6 +129,25 @@ final Map<UserRole, Set<String>> rolePermissions = {
     Permission.reportView,
     Permission.chatRead,
     // Worker-specific
+    Permission.taskEdit,
+    Permission.taskExecute,
+    Permission.taskComplete,
+    Permission.chatWrite,
+    Permission.offlineSync,
+    Permission.offlinePhotoUpload,
+  },
+
+  // Farmer - مزارع (same permissions as worker)
+  UserRole.farmer: {
+    Permission.fieldView,
+    Permission.taskView,
+    Permission.ndviView,
+    Permission.weatherView,
+    Permission.iotView,
+    Permission.sensorView,
+    Permission.irrigationView,
+    Permission.reportView,
+    Permission.chatRead,
     Permission.taskEdit,
     Permission.taskExecute,
     Permission.taskComplete,

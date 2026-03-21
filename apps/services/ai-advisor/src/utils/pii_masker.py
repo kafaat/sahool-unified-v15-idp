@@ -11,20 +11,31 @@ from typing import Any
 class PIIMasker:
     """Masks personally identifiable information in text and objects"""
 
-    # PII patterns
+    # PII patterns — require recognisable prefixes/structure to reduce
+    # false positives from timestamps, coordinates, and numeric IDs.
     PATTERNS = {
-        "email": (r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", "[EMAIL]"),
-        "phone": (r"(\+?[\d\s\-\(\)]{10,})", "[PHONE]"),
-        "ip_address": (r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", "[IP]"),
+        "email": (
+            r"[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,63}",
+            "[EMAIL]",
+        ),
+        "phone": (
+            r"(?:\+966|00966|05)\d{8,9}"  # Saudi format
+            r"|(?:\+\d{1,3}[-.\s])\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}",  # Intl with prefix
+            "[PHONE]",
+        ),
+        "ip_address": (
+            r"\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b",
+            "[IP]",
+        ),
         "credit_card": (r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b", "[CARD]"),
-        "ssn": (r"\b\d{3}[\s\-]?\d{2}[\s\-]?\d{4}\b", "[SSN]"),
+        "ssn": (r"\b(?!000|666|9\d\d)\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b", "[SSN]"),
         "api_key": (
             r'(sk-[a-zA-Z0-9]{20,}|api[_-]?key["\s:=]+["\']?[a-zA-Z0-9]{20,})',
             "[API_KEY]",
         ),
         "jwt": (r"eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*", "[JWT]"),
         "password": (r'(password|passwd|pwd)["\s:=]+["\']?[^\s"\']+', "[PASSWORD]"),
-        # Arabic phone numbers
+        # Arabic phone numbers (Arabic-Indic digits with Saudi prefix)
         "arabic_phone": (r"[\u0660-\u0669]{10,}", "[PHONE]"),
     }
 

@@ -37,9 +37,17 @@ export class AuditMiddleware implements NestMiddleware {
   constructor(private readonly auditLogger?: AuditLogger) {}
 
   use(req: RequestWithAudit, res: Response, next: NextFunction): void {
-    // Extract tenant and actor from headers (adjust based on your auth system)
-    const tenantId = (req.headers["x-tenant-id"] as string) || "default";
-    const actorId = req.headers["x-user-id"] as string;
+    // SECURITY: Only trust identity from verified JWT context (set by JWT guard).
+    // Do not fall back to client-supplied headers to prevent audit log poisoning.
+    const user = (req as any).user;
+    const tenantId =
+      user?.tenantId ||
+      (req as any).tenantId ||
+      "unknown";
+    const actorId =
+      user?.id ||
+      user?.sub ||
+      undefined;
     const sessionId = req.headers["x-session-id"] as string;
 
     // Generate or extract correlation ID
@@ -108,7 +116,8 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   /**
-   * Determine actor type based on request
+   * Determine actor type based on request.
+   * SECURITY: Prefers JWT-verified roles from request.user over raw headers.
    */
   private determineActorType(req: Request, actorId?: string): ActorType {
     // Check for API key
@@ -117,16 +126,19 @@ export class AuditMiddleware implements NestMiddleware {
       return ActorType.API_KEY;
     }
 
-    // Check for service-to-service
-    const serviceAuth = req.headers["x-service-auth"];
-    if (serviceAuth) {
+    // Check for service-to-service using verified state only
+    if ((req as any).state?.is_service_request) {
       return ActorType.SERVICE;
     }
 
     // Check if user is authenticated
     if (actorId) {
-      // Check if admin (you can customize this logic)
-      const isAdmin = req.headers["x-user-role"] === "admin";
+      // SECURITY: Derive admin status from JWT-verified roles, not raw headers
+      const user = (req as any).user;
+      const roles: string[] = user?.roles || [];
+      const isAdmin = roles.some(
+        (r: string) => r.toLowerCase() === "admin" || r.toLowerCase() === "super_admin",
+      );
       return isAdmin ? ActorType.ADMIN : ActorType.USER;
     }
 

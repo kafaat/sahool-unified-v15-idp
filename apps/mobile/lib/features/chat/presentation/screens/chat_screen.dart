@@ -32,6 +32,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
@@ -59,9 +60,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onScroll() {
     // Load more when scrolling near the end (older messages)
+    // Guard against duplicate calls while a load is in progress
+    if (_isLoadingMore) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(chatProvider.notifier).loadMoreMessages(widget.conversationId);
+      _isLoadingMore = true;
+      ref
+          .read(chatProvider.notifier)
+          .loadMoreMessages(widget.conversationId)
+          .whenComplete(() {
+        _isLoadingMore = false;
+      });
     }
   }
 

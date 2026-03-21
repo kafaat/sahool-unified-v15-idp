@@ -107,7 +107,18 @@ class ChatController extends StateNotifier<ChatSessionState> {
   final AiAdvisorRepository _repository;
   final Ref _ref;
 
+  /// Maximum number of messages to keep in memory to prevent unbounded growth.
+  static const int _maxMessages = 500;
+
   ChatController(this._repository, this._ref) : super(const ChatSessionState());
+
+  /// Trim messages list if it exceeds [_maxMessages], keeping the most recent.
+  List<ChatMessage> _trimMessages(List<ChatMessage> messages) {
+    if (messages.length > _maxMessages) {
+      return messages.sublist(messages.length - _maxMessages);
+    }
+    return messages;
+  }
 
   // ============================================================================
   // Session Management
@@ -275,7 +286,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     state = state.copyWith(
-      messages: [...state.messages, userMessage],
+      messages: _trimMessages([...state.messages, userMessage]),
       inputText: '',
       isTyping: true,
     );
@@ -284,7 +295,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
       final response = await _repository.sendMessage(request);
 
       state = state.copyWith(
-        messages: [...state.messages, response],
+        messages: _trimMessages([...state.messages, response]),
         isTyping: false,
       );
 

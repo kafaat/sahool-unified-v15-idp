@@ -306,23 +306,32 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// تحليل صورة بالذكاء الاصطناعي
+  /// TODO: Wire to yolo26-vision-service POST /api/v1/detect/disease
+  /// or crop-intelligence-service for real AI analysis.
   Future<AIAnalysis> analyzeImage(String imagePath) async {
     state = state.copyWith(isAnalyzing: true);
 
     try {
-      // In real implementation, call AI service
-      await Future.delayed(const Duration(seconds: 2));
+      // TODO: Replace with actual API call to vision service:
+      // final response = await _apiClient.post(
+      //   '/api/v1/detect/disease',
+      //   data: FormData.fromMap({
+      //     'image': await MultipartFile.fromFile(imagePath),
+      //     'field_id': state.currentSession?.fieldId,
+      //   }),
+      // );
+      // final analysis = AIAnalysis.fromJson(response.data);
 
+      // Placeholder: return a pending analysis indicating the service is not yet connected
       final analysis = AIAnalysis(
-        modelVersion: '1.0.0',
-        confidence: 0.85,
-        detectedIssue: 'Possible nutrient deficiency',
-        category: IssueCategory.nutrient,
-        severity: IssueSeverity.medium,
+        modelVersion: 'pending',
+        confidence: 0.0,
+        detectedIssue: 'تحليل غير متاح - خدمة الذكاء الاصطناعي غير متصلة',
+        category: IssueCategory.other,
+        severity: IssueSeverity.low,
         suggestions: [
-          'فحص مستوى النيتروجين في التربة',
-          'تطبيق سماد متوازن',
-          'مراقبة التحسن خلال أسبوع',
+          'سيتم تحليل الصورة عند الاتصال بالخادم',
+          'يمكنك إضافة ملاحظاتك يدوياً',
         ],
         analyzedAt: DateTime.now(),
       );
@@ -332,7 +341,7 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
         lastAnalysis: analysis,
       );
 
-      AppLogger.i('AI analysis completed: ${analysis.detectedIssue}', tag: 'SCOUT_AI');
+      AppLogger.i('AI analysis pending - service not connected', tag: 'SCOUT_AI');
       return analysis;
     } catch (e) {
       state = state.copyWith(

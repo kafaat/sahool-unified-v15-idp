@@ -453,13 +453,18 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache new schedule
-      await _cacheData(_CacheKeys.schedule(fieldId), data['data']);
+      await _cacheData(_CacheKeys.schedule(fieldId), rawData);
 
       return ApiResult.success(schedule);
     } on DioException catch (e) {

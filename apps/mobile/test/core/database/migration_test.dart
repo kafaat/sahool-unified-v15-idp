@@ -16,8 +16,8 @@ import 'package:sahool_field_app/core/database/migrations/migration_verification
 
 void main() {
   group('SchemaVersion', () {
-    test('currentSchemaVersion should be 5', () {
-      expect(currentSchemaVersion, equals(5));
+    test('currentSchemaVersion should be 6', () {
+      expect(currentSchemaVersion, equals(6));
     });
 
     test('minimumSupportedVersion should be 1', () {
@@ -25,15 +25,15 @@ void main() {
     });
 
     test('SchemaVersionRegistry should have all versions', () {
-      expect(SchemaVersionRegistry.versions.length, equals(5));
+      expect(SchemaVersionRegistry.versions.length, equals(6));
       expect(SchemaVersionRegistry.versions.first.version, equals(1));
-      expect(SchemaVersionRegistry.versions.last.version, equals(5));
+      expect(SchemaVersionRegistry.versions.last.version, equals(6));
     });
 
     test('SchemaVersionRegistry.current should return latest version', () {
       final current = SchemaVersionRegistry.current;
-      expect(current.version, equals(5));
-      expect(current.description, contains('migration tracking'));
+      expect(current.version, equals(6));
+      expect(current.description, contains('CachedUsers'));
     });
 
     test('SchemaVersionRegistry.getVersion should return correct version', () {
@@ -51,8 +51,8 @@ void main() {
     test('SchemaVersionRegistry.isSupported should check version bounds', () {
       expect(SchemaVersionRegistry.isSupported(0), isFalse);
       expect(SchemaVersionRegistry.isSupported(1), isTrue);
-      expect(SchemaVersionRegistry.isSupported(5), isTrue);
-      expect(SchemaVersionRegistry.isSupported(6), isFalse);
+      expect(SchemaVersionRegistry.isSupported(6), isTrue);
+      expect(SchemaVersionRegistry.isSupported(7), isFalse);
     });
 
     test('SchemaVersionRegistry.getVersionsBetween should return correct versions', () {

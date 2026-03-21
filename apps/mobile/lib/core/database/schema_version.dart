@@ -10,12 +10,13 @@
 /// - v3: Added ETag support + SyncEvents table
 /// - v4: Unified Outbox schema with ETag support
 /// - v5: Added migration tracking + metadata columns
+/// - v6: Added CachedUsers and CachedUserProfiles tables
 library;
 
 import 'package:drift/drift.dart';
 
 /// Current schema version of the database
-const int currentSchemaVersion = 5;
+const int currentSchemaVersion = 6;
 
 /// Minimum supported schema version for migration
 const int minimumSupportedVersion = 1;
@@ -64,6 +65,7 @@ final DateTime _v2ReleaseDate = DateTime(2024, 6, 1);
 final DateTime _v3ReleaseDate = DateTime(2024, 9, 1);
 final DateTime _v4ReleaseDate = DateTime(2025, 1, 1);
 final DateTime _v5ReleaseDate = DateTime(2025, 6, 1);
+final DateTime _v6ReleaseDate = DateTime(2026, 3, 1);
 
 /// Registry of all schema versions
 class SchemaVersionRegistry {
@@ -102,6 +104,12 @@ class SchemaVersionRegistry {
       description: 'Added migration tracking and metadata columns',
       descriptionAr: 'اضافة تتبع الترحيل واعمدة البيانات الوصفية',
       releaseDate: _v5ReleaseDate,
+    ),
+    SchemaVersion(
+      version: 6,
+      description: 'Added CachedUsers and CachedUserProfiles tables',
+      descriptionAr: 'اضافة جداول المستخدمين والملفات الشخصية المخزنة مؤقتاً',
+      releaseDate: _v6ReleaseDate,
     ),
   ];
 

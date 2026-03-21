@@ -172,7 +172,7 @@ void main() {
 
     test('should have correct schema version', () async {
       final result = await db.customSelect('PRAGMA user_version').getSingle();
-      expect(result.read<int>('user_version'), equals(5));
+      expect(result.read<int>('user_version'), equals(6));
     });
   });
 

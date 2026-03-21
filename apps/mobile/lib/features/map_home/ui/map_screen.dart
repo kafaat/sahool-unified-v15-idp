@@ -173,15 +173,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  // إحداثيات وهمية للحقول (اليمن - صنعاء)
-  final List<LatLng> _fieldLocations = const [
-    LatLng(15.3694, 44.1910), // القطعة الشمالية
-    LatLng(15.3550, 44.2050), // حقل الذرة
-    LatLng(15.3800, 44.1750), // البستان الغربي
-    LatLng(15.3450, 44.1850), // حقل الطماطم
-    LatLng(15.3300, 44.2100), // المنطقة الجنوبية
-    LatLng(15.3600, 44.1600), // حقل البطاطا
-  ];
+  /// Field center locations derived from field data or default Sanaa region.
+  /// TODO: Use actual field polygon centroids from field.centerLatitude/centerLongitude
+  /// when the Field entity exposes geospatial coordinates.
+  List<LatLng> get _fieldLocations {
+    // Generate locations around default center for fields that lack coordinates.
+    // Once Field entity includes lat/lng, use those directly.
+    const defaultCenter = LatLng(15.3694, 44.1910);
+    if (_repoFields.isEmpty) return [defaultCenter];
+    return List.generate(_repoFields.length, (i) {
+      // Spread fields around the center with slight offsets
+      final latOffset = (i ~/ 2) * 0.015 * (i.isEven ? 1 : -1);
+      final lngOffset = (i % 3 - 1) * 0.015;
+      return LatLng(
+        defaultCenter.latitude + latOffset,
+        defaultCenter.longitude + lngOffset,
+      );
+    });
+  }
 
   /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
@@ -418,7 +427,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           }),
           const SizedBox(height: 16),
           _buildMapControlButton(Icons.my_location, 'موقعي', () {
-            _mapController.move(const LatLng(15.3694, 44.1910), 14);
+            // TODO: Use geolocator package to get actual GPS position
+            // For now, center on the first field location or default
+            final center = _fieldLocations.isNotEmpty
+                ? _fieldLocations.first
+                : const LatLng(15.3694, 44.1910);
+            _mapController.move(center, 14);
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {
@@ -537,7 +551,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               children: [
                 Expanded(child: _buildStatItem('مهام', '${_getTotalTasks()}', SahoolColors.info, Icons.task_alt)),
                 Expanded(child: _buildStatItem('تنبيهات', '${_getCriticalCount()}', SahoolColors.danger, Icons.warning_amber)),
-                Expanded(child: _buildStatItem('حقول', '${_mockFields.length}', SahoolColors.success, Icons.grass)),
+                Expanded(child: _buildStatItem('حقول', '${_repoFields.length}', SahoolColors.success, Icons.grass)),
               ],
             ),
             const SizedBox(height: 16),
@@ -567,13 +581,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  int _getTotalTasks() => _mockFields.fold(0, (sum, f) => sum + f.pendingTasks);
+  int _getTotalTasks() => _repoFields.fold(0, (sum, f) => sum + f.pendingTasks);
 
-  int _getCriticalCount() => _mockFields.where((f) => f.needsAttention).length;
+  int _getCriticalCount() => _repoFields.where((f) => f.needsAttention).length;
 
   double _getAverageHealth() {
-    if (_mockFields.isEmpty) return 0;
-    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _mockFields.length;
+    if (_repoFields.isEmpty) return 0;
+    return _repoFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _repoFields.length;
   }
 
   Widget _buildWeatherBadge() {

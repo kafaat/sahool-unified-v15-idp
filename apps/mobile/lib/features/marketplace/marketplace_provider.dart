@@ -13,6 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+import '../../core/config/api_config.dart';
+
 // =============================================================================
 // Models
 // =============================================================================
@@ -570,9 +572,9 @@ List<Order> _parseOrderList(String jsonStr) {
 final marketUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API
+/// يستخدم ApiConfig.marketplaceServiceUrl بدلاً من URL ثابت
 final marketApiUrlProvider = Provider.autoDispose<String>((ref) {
-  const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
+  return ApiConfig.marketplaceServiceUrl;
 });
 
 /// مزود السوق الرئيسي

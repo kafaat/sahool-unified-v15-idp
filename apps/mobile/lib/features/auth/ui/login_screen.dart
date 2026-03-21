@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,6 +101,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
+    _resendCountdownTimer?.cancel();
+    _resendCountdownTimer = null;
     _phoneController.dispose();
     for (var controller in _otpControllers) {
       controller.dispose();
@@ -173,13 +176,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _startResendTimer() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted && _resendTimer > 0) {
-        setState(() => _resendTimer--);
-        return true;
+    _resendCountdownTimer?.cancel();
+    _resendCountdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _resendTimer <= 0) {
+        timer.cancel();
+        return;
       }
-      return false;
+      setState(() => _resendTimer--);
+      if (_resendTimer <= 0) {
+        timer.cancel();
+      }
     });
   }
 

@@ -64,24 +64,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _authenticateWithBiometric() async {
     try {
-      final biometricService = ref.read(biometricServiceProvider);
-      final authenticated = await biometricService.authenticate(
-        reason: 'قم بالتحقق لتسجيل الدخول إلى سهول',
-      );
+      // تسجيل الدخول بالبصمة مع استرجاع التوكن عبر AuthService
+      final authService = ref.read(authServiceProvider);
+      final user = await authService.loginWithBiometric();
 
-      if (authenticated && mounted) {
+      if (user != null && mounted) {
         context.go('/map');
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } on BiometricException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } catch (e) {
       // Silent fail - user can use phone/OTP
+      AppLogger.w('Biometric auto-login failed', tag: 'LOGIN');
     }
   }
 
@@ -173,8 +185,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
-    // Validate OTP
-    final validation = InputValidator.validateOtp(otp, length: 4);
+    // Validate OTP - 6 أرقام
+    final validation = InputValidator.validateOtp(otp, length: 6);
 
     if (!validation.isValid) {
       setState(() {
@@ -188,11 +200,61 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _otpErrorMessage = null;
     });
 
-    // Simulate verification
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // التحقق من رمز OTP عبر الخدمة الفعلية
+      final otpService = ref.read(otpServiceProvider);
+      final phoneWithCode = '+967${_phoneController.text}';
+      final result = await otpService.verifyOTP(
+        identifier: phoneWithCode,
+        otp: otp,
+        purpose: OTPPurpose.phoneVerification,
+      );
 
-    if (mounted) {
-      context.go('/map');
+      result.when(
+        success: (response) async {
+          // تسجيل الدخول باستخدام AuthService وتخزين التوكن
+          try {
+            final authService = ref.read(authServiceProvider);
+            // Use phone login - the backend issues tokens after OTP verification
+            final user = await authService.login(phoneWithCode, otp);
+            AppLogger.i('Login successful', tag: 'LOGIN', data: {'userId': user.id});
+
+            if (mounted) {
+              setState(() => _isLoading = false);
+              context.go('/map');
+            }
+          } on AuthException catch (e) {
+            AppLogger.e('Auth after OTP failed', error: e, tag: 'LOGIN');
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _otpErrorMessage = e.message;
+              });
+            }
+          }
+        },
+        failure: (message, statusCode) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _otpErrorMessage = message;
+            });
+            // مسح حقول OTP عند الخطأ
+            for (final controller in _otpControllers) {
+              controller.clear();
+            }
+            _otpFocusNodes[0].requestFocus();
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.e('OTP verification failed', error: e, tag: 'LOGIN');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _otpErrorMessage = 'حدث خطأ أثناء التحقق من الرمز';
+        });
+      }
     }
   }
 
@@ -204,16 +266,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     }
 
-    if (value.isNotEmpty && index < 3) {
+    if (value.isNotEmpty && index < 5) {
       _otpFocusNodes[index + 1].requestFocus();
     }
     if (value.isEmpty && index > 0) {
       _otpFocusNodes[index - 1].requestFocus();
     }
 
-    // Auto verify when all digits entered
+    // Auto verify when all 6 digits entered
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length == 4) {
+    if (otp.length == 6) {
       _verifyOtp();
     }
   }
@@ -268,7 +330,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _isOtpSent
-                          ? 'تم إرسال رمز مكون من 4 أرقام إلى\n${_phoneController.text}'
+                          ? 'تم إرسال رمز مكون من 6 أرقام إلى\n${_phoneController.text}'
                           : 'أدخل رقم هاتفك للمتابعة',
                       style: TextStyle(
                         fontSize: 16,
@@ -343,19 +405,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               // Biometric login option
               if (_isBiometricAvailable && _isBiometricEnabled && !_isOtpSent)
                 BiometricLoginWidget(
-                  onAuthenticated: () {
-                    if (mounted) {
-                      context.go('/map');
+                  onSuccess: () async {
+                    // تسجيل الدخول بالبصمة مع استرجاع التوكن
+                    try {
+                      final authService = ref.read(authServiceProvider);
+                      await authService.loginWithBiometric();
+                      if (mounted) {
+                        context.go('/map');
+                      }
+                    } on AuthException catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.message),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      AppLogger.e('Biometric login failed', error: e, tag: 'LOGIN');
                     }
                   },
                 ),
 
               const SizedBox(height: 24),
 
-              // Help text
+              // Help text - نص المساعدة
               Center(
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showHelpDialog(),
                   icon: const Icon(Icons.help_outline, size: 20),
                   label: const Text('تحتاج مساعدة؟'),
                 ),

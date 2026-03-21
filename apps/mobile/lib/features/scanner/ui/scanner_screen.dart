@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/sahool_theme.dart';
 
 /// Disease Scanner Screen - الماسح الضوئي للأمراض
@@ -14,9 +16,12 @@ class ScannerScreen extends StatefulWidget {
 class _ScannerScreenState extends State<ScannerScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final ImagePicker _imagePicker = ImagePicker();
   bool _isScanning = false;
   bool _hasResult = false;
   _ScanResult? _result;
+  File? _capturedImage;
+  final List<_ScanResult> _scanHistory = [];
 
   @override
   void initState() {

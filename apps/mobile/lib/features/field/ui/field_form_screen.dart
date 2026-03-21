@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/accessibility/semantics_helper.dart';
 import '../../../core/http/api_client.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../crops/data/models/crop_model.dart';
 import '../../crops/data/remote/crops_api.dart';
 import '../../crops/data/repositories/crops_repository.dart';
@@ -17,16 +20,16 @@ import '../../crops/data/repositories/crops_repository.dart';
 /// - Error announcements for screen readers
 /// - Focus management
 /// - Minimum touch targets
-class FieldFormScreen extends StatefulWidget {
+class FieldFormScreen extends ConsumerStatefulWidget {
   final String? fieldId; // null = إضافة جديد
 
   const FieldFormScreen({super.key, this.fieldId});
 
   @override
-  State<FieldFormScreen> createState() => _FieldFormScreenState();
+  ConsumerState<FieldFormScreen> createState() => _FieldFormScreenState();
 }
 
-class _FieldFormScreenState extends State<FieldFormScreen> {
+class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _areaController = TextEditingController();
@@ -35,6 +38,8 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
   String? _selectedIrrigation;
   DateTime? _plantingDate;
   bool _hasBoundary = false;
+
+  bool _isSaving = false;
 
   // Crops data
   List<Crop> _crops = [];
@@ -267,7 +272,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                 child: SizedBox(
                   height: kMinTouchTargetSize,
                   child: ElevatedButton(
-                    onPressed: _saveField,
+                    onPressed: _isSaving ? null : _saveField,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SahoolColors.forestGreen,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -275,14 +280,23 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      isEditing ? "حفظ التغييرات" : "إضافة الحقل",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            isEditing ? "حفظ التغييرات" : "إضافة الحقل",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -621,9 +635,40 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
     }
   }
 
-  void _saveField() {
-    if (_formKey.currentState!.validate()) {
-      // حفظ البيانات - Save data
+  Future<void> _saveField() async {
+    if (!_formKey.currentState!.validate()) {
+      // Announce validation errors
+      AnnouncementHelper.announceError(context, 'يرجى تصحيح الأخطاء في النموذج');
+      return;
+    }
+
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final repo = ref.read(fieldsRepoProvider);
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+
+      if (isEditing) {
+        // تحديث الحقل - Update existing field
+        await repo.updateFieldProperties(
+          fieldId: widget.fieldId!,
+          name: _nameController.text.trim(),
+          cropType: _selectedCrop,
+        );
+      } else {
+        // إنشاء حقل جديد - Create new field
+        await repo.createField(
+          tenantId: tenantId,
+          name: _nameController.text.trim(),
+          boundary: [], // الحدود ستُضاف من الخريطة لاحقاً
+          cropType: _selectedCrop,
+        );
+      }
+
+      if (!mounted) return;
+
       final message = isEditing ? "تم تحديث الحقل بنجاح" : "تم إضافة الحقل بنجاح";
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -634,9 +679,19 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
       // Announce success to screen readers
       AnnouncementHelper.announceComplete(context, isEditing ? 'تحديث الحقل' : 'إضافة الحقل');
       Navigator.pop(context, true);
-    } else {
-      // Announce validation errors
-      AnnouncementHelper.announceError(context, 'يرجى تصحيح الأخطاء في النموذج');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('فشل حفظ الحقل: $e'),
+          backgroundColor: SahoolColors.danger,
+        ),
+      );
+      AnnouncementHelper.announceError(context, 'فشل حفظ الحقل');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 

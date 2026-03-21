@@ -71,11 +71,12 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
-// Features - Settings, Reports, Help, Field Form
+// Features - Settings, Reports, Help, Field Form, Irrigation
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/reports/presentation/screens/reports_dashboard_screen.dart';
 import '../../features/settings/presentation/screens/help_screen.dart';
 import '../../features/field/ui/field_form_screen.dart';
+import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
 
 // Features - Astronomical Calendar
 import '../../features/astronomical/presentation/screens/astronomical_screen.dart';
@@ -630,7 +631,9 @@ class AppRouter {
       GoRoute(
         path: '/irrigation',
         name: 'irrigation',
-        builder: (context, state) => const SprayDashboardScreen(),
+        builder: (context, state) => IrrigationDashboardScreen(
+          fields: const [],
+        ),
       ),
     ],
 

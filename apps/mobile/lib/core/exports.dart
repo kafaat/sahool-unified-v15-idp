@@ -15,7 +15,7 @@ export 'config/env_config.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة
-export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn;
+export 'ui/enhanced_widgets.dart' hide AnimatedListItem, ScaleIn, StaggeredAnimationList, HapticFeedbackType;
 
 // Offline Support - دعم عدم الاتصال
 export 'offline/offline.dart';
@@ -26,7 +26,7 @@ export 'performance/performance_utils.dart';
 
 // Notifications - الإشعارات
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction;
+export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction, NotificationType;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';
@@ -44,4 +44,4 @@ export 'sync/network_status.dart';
 export 'haptics/haptics.dart';
 
 // Widgets - المكونات
-export 'widgets/widgets.dart' hide SkeletonCard, SkeletonList;
+export 'widgets/widgets.dart' hide SkeletonCard, SkeletonList, SkeletonGrid;

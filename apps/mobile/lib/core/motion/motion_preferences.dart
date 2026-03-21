@@ -201,18 +201,18 @@ class MotionPreferences {
   /// Create from JSON
   factory MotionPreferences.fromJson(Map<String, dynamic> json) {
     return MotionPreferences(
-      motionEffectsEnabled: json['motionEffectsEnabled'] ?? true,
-      reduceMotion: json['reduceMotion'] ?? false,
-      batterySaverMode: json['batterySaverMode'] ?? false,
-      intensityMultiplier: (json['intensityMultiplier'] ?? 1.0).toDouble(),
-      enableParallax: json['enableParallax'] ?? true,
-      enableTilt: json['enableTilt'] ?? true,
-      enableFloat: json['enableFloat'] ?? true,
-      enableShakeDetection: json['enableShakeDetection'] ?? true,
-      enableWave: json['enableWave'] ?? true,
-      enableHaptics: json['enableHaptics'] ?? true,
-      maxSamplingRate: json['maxSamplingRate'] ?? 60,
-      respectSystemReducedMotion: json['respectSystemReducedMotion'] ?? true,
+      motionEffectsEnabled: (json['motionEffectsEnabled'] as bool?) ?? true,
+      reduceMotion: (json['reduceMotion'] as bool?) ?? false,
+      batterySaverMode: (json['batterySaverMode'] as bool?) ?? false,
+      intensityMultiplier: ((json['intensityMultiplier'] as num?) ?? 1.0).toDouble(),
+      enableParallax: (json['enableParallax'] as bool?) ?? true,
+      enableTilt: (json['enableTilt'] as bool?) ?? true,
+      enableFloat: (json['enableFloat'] as bool?) ?? true,
+      enableShakeDetection: (json['enableShakeDetection'] as bool?) ?? true,
+      enableWave: (json['enableWave'] as bool?) ?? true,
+      enableHaptics: (json['enableHaptics'] as bool?) ?? true,
+      maxSamplingRate: (json['maxSamplingRate'] as int?) ?? 60,
+      respectSystemReducedMotion: (json['respectSystemReducedMotion'] as bool?) ?? true,
     );
   }
 

@@ -43,7 +43,7 @@ export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction;
+export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction, NotificationType;
 
 // Offline Sync
 export 'offline/offline.dart' hide SyncStatus, SyncResult;
@@ -59,7 +59,7 @@ export 'deeplink/deeplink_handler.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة المحسنة
-export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn;
+export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn, SlideIn;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';

@@ -447,9 +447,9 @@ class ChatResponse {
   factory ChatResponse.fromJson(Map<String, dynamic> json) {
     return ChatResponse(
       id: json['id'] as String? ?? '',
-      answer: json['answer'] ?? json['response'] ?? '',
+      answer: (json['answer'] ?? json['response'] ?? '') as String,
       answerAr: json['answer_ar'] as String?,
-      confidence: (json['confidence'] ?? 0.8).toDouble(),
+      confidence: ((json['confidence'] ?? 0.8) as num).toDouble(),
       sources: (json['sources'] as List?)?.cast<String>() ?? [],
       context: json['context'] != null
           ? AdvisoryContext.fromJson(json['context'] as Map<String, dynamic>)

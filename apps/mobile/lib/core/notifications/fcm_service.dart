@@ -720,13 +720,13 @@ class FCMService {
         // RemoteMessage.notification contains title/body
         final notification = message.notification;
         if (notification != null) {
-          title = notification.title ?? title;
-          body = notification.body ?? body;
+          title = notification.title as String? ?? title;
+          body = notification.body as String? ?? body;
         }
 
         // RemoteMessage.data contains the data payload
         if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data as Map);
+          data = Map<String, dynamic>.from(message.data);
           // Data-only messages may have title/body in the data payload
           title = data['title']?.toString() ?? title;
           body = data['body']?.toString() ?? body;

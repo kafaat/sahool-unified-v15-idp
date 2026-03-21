@@ -1,19 +1,25 @@
 # تقرير المراجعة الأمنية — المشاكل المتبقية
 # Security Review Report — Remaining Issues
 
-**التاريخ | Date**: 2026-03-20
+**التاريخ | Date**: 2026-03-20 (محدّث: 2026-03-21)
 **الإصدار | Version**: 16.0.0
 **الفرع | Branch**: `claude/review-user-migration-7CihF`
 **المراجع | Reviewer**: Security Audit (Automated + Manual)
+
+> **تحديث 2026-03-21**: تم إصلاح مشاكل إضافية في commits `9d8c627` و `fe75505`.
+> راجع [التقرير النهائي الشامل](../summaries/POST_MERGE_SECURITY_REVIEW_FINAL.md) لجميع الإصلاحات.
+>
+> **Update 2026-03-21**: Additional issues fixed in commits `9d8c627` and `fe75505`.
+> See [Final Comprehensive Report](../summaries/POST_MERGE_SECURITY_REVIEW_FINAL.md) for all fixes.
 
 ---
 
 ## ملخص تنفيذي | Executive Summary
 
-تمت مراجعة **84 وحدة مشتركة** عبر المنصة. تم إصلاح **41 ملف** في 8 عمليات commit سابقة.
+تمت مراجعة **84 وحدة مشتركة** عبر المنصة. تم إصلاح **185 ملف** عبر 20 commit.
 يوضح هذا التقرير **جميع المشاكل المتبقية** التي لم يتم إصلاحها بعد.
 
-A comprehensive security review of **84 shared modules** was conducted. **41 files** were fixed across 8 previous commits.
+A comprehensive security review of **84 shared modules** was conducted. **185 files** were fixed across 20 commits.
 This report documents **all remaining unfixed issues** requiring attention.
 
 ---
@@ -23,11 +29,22 @@ This report documents **all remaining unfixed issues** requiring attention.
 | المقياس | القيمة |
 |---------|--------|
 | إجمالي الوحدات المفحوصة | 84 |
-| الملفات المُصلحة سابقاً | 41 |
+| إجمالي الـ commits | 20 |
+| إجمالي الملفات المعدلة | 185 |
 | المشاكل الحرجة المتبقية (CRITICAL) | **8** |
 | المشاكل العالية المتبقية (HIGH) | **13** |
 | المشاكل المتوسطة المتبقية (MEDIUM) | **7** |
 | **الإجمالي المتبقي** | **28** |
+
+### المشاكل المُصلحة في آخر تحديث (2026-03-21) | Recently Fixed
+
+| المشكلة | الشدة | Commit |
+|---------|-------|--------|
+| ~~تجاوز 2FA عبر verify_temp_token~~ | متوسطة → **مُصلح** | `9d8c627` |
+| ~~عدم تطابق uppercase في backup codes~~ | متوسطة → **مُصلح** | `9d8c627` |
+| ~~TokenRevocationInterceptor fail-open~~ | منخفضة → **مُصلح** | `9d8c627` |
+| ~~Rate limit bypass via X-Internal-Service~~ | منخفضة → **مُصلح** | `9d8c627` |
+| ~~Audit middleware reads from raw headers~~ | متوسطة → **مُصلح** | `fe75505` |
 
 ---
 
@@ -68,20 +85,16 @@ result = subprocess.run(cmd, ...)
 ### C-03: تخزين غير آمن لأكواد النسخ الاحتياطي (2FA)
 **الملف**: `shared/auth/twofa_service.py:196-212`
 **التصنيف**: Weak Cryptography
-**الوصف**: أكواد النسخ الاحتياطي مُشفرة بـ SHA256 بدون ملح (salt). هذا يجعلها عرضة لهجمات Rainbow Table. أكواد النسخ الاحتياطي تعادل كلمات المرور ويجب معاملتها بنفس المستوى.
+**الحالة**: **مُصلح جزئياً** ✅ (commit `9d8c627`)
 
-```python
-# الكود الحالي (ضعيف)
-return hashlib.sha256(clean_code.encode()).hexdigest()
+**ما تم إصلاحه**:
+- ✅ bcrypt أصبح الخوارزمية الأساسية (rounds=12)
+- ✅ تطبيع `.upper()` لتوحيد المقارنة بين `twofa_service` و `twofa_enhanced`
+- ✅ `verify_backup_code()` يدعم bcrypt + SHA-256 fallback
 
-# الإصلاح المقترح
-import bcrypt
-salt = bcrypt.gensalt(rounds=12)
-return bcrypt.hashpw(clean_code.encode(), salt).decode()
-```
-
-**التبعيات**: يتطلب تحديث `verify_backup_code()` و `verify_backup_code_with_remaining()` لاستخدام `bcrypt.checkpw()`
-**ملاحظة**: يجب ترحيل الأكواد المخزنة الحالية أو إعادة توليدها
+**ما يتبقى**:
+- SHA-256 fallback لا يزال موجوداً (لتوافقية الأكواد القديمة)
+- يجب ترحيل الأكواد المخزنة بـ SHA-256 أو إعادة توليدها
 
 ---
 
@@ -418,8 +431,18 @@ if p1_lat == p2_lat or lat <= lat_intersect:
 - `shared/ml/agml_integration.py`
 - `tests/unit/shared/test_security_fixes.py`
 
+### Commits 12-20: Post-merge review, Copilot, Mobile, Deep security (2026-03-21)
+- `shared/auth/auth_api.py` — verify_temp_token يتحقق من claim `temp`
+- `shared/auth/twofa_service.py` — تطبيع `.upper()` في backup codes
+- `shared/auth/token-revocation.guard.ts` — Interceptor fail-closed
+- `apps/services/advisory-service/src/rate_limiter.py` — إصلاح internal request bypass
+- `packages/shared-audit/src/audit-middleware.ts` — قراءة الهوية من JWT
+- `apps/mobile/lib/core/iam/models/iam_models.dart` — null-safety defaults
+- `apps/mobile/lib/core/rbac/role_model.dart` — farmer role + case-insensitive
+- *و 30+ ملف آخر (راجع [التقرير النهائي](../summaries/POST_MERGE_SECURITY_REVIEW_FINAL.md))*
+
 </details>
 
 ---
 
-_آخر تحديث: 2026-03-20_
+_آخر تحديث: 2026-03-21_

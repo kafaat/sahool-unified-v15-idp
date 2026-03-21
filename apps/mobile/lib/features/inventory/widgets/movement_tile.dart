@@ -189,7 +189,7 @@ class MovementTile extends StatelessWidget {
       backgroundColor: color.withValues(alpha: 0.15),
       child: Icon(
         icon,
-        color: Color.lerp(color, Colors.black, 0.2)!,
+        color: Color.lerp(color, Colors.black, 0.2),
         size: 20,
       ),
     );

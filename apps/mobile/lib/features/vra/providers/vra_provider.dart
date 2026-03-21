@@ -11,6 +11,14 @@ import '../services/vra_service.dart';
 final prescriptionListProvider = FutureProvider.autoDispose
     .family<List<VRAPrescription>, PrescriptionFilter?>((ref, filter) async {
   final service = ref.watch(vraServiceProvider);
+
+  // Validate filter date range if both dates are provided
+  if (filter?.startDate != null && filter?.endDate != null) {
+    if (filter!.endDate!.isBefore(filter.startDate!)) {
+      throw Exception('تاريخ النهاية يجب أن يكون بعد تاريخ البداية');
+    }
+  }
+
   final result = await service.getPrescriptions(
     fieldId: filter?.fieldId,
     vraType: filter?.vraType,

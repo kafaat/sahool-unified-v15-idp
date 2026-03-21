@@ -196,8 +196,8 @@ class TwoFactorAuthService:
         Returns:
             Hashed backup code
         """
-        # Remove formatting
-        clean_code = code.replace("-", "").strip()
+        # Remove formatting and normalize to uppercase for consistent hashing
+        clean_code = code.replace("-", "").strip().upper()
 
         try:
             import bcrypt
@@ -225,7 +225,7 @@ class TwoFactorAuthService:
         if not code or not hashed_codes:
             return False, None, list(hashed_codes) if hashed_codes else []
 
-        clean_code = code.replace("-", "").strip()
+        clean_code = code.replace("-", "").strip().upper()
 
         for stored_hash in hashed_codes:
             match = False

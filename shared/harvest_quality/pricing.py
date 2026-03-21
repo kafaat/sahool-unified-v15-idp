@@ -31,6 +31,9 @@ from .models import (
     QualityTestRecord,
 )
 
+# Guard against division by near-zero in price comparison calculations
+_PRICE_EPSILON = Decimal("0.000001")
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Predefined Price Matrices - مصفوفات الأسعار المحددة مسبقاً
 # ─────────────────────────────────────────────────────────────────────────────
@@ -599,7 +602,7 @@ class QualityPricingEngine:
             )
 
         # Calculate comparison percentages
-        if base_price > 0:
+        if base_price is not None and base_price > _PRICE_EPSILON:
             calc.vs_base_price_percent = float((calc.final_price_per_unit - base_price) / base_price * 100)
 
         calc.calculated_at = datetime.now(UTC)

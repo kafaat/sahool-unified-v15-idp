@@ -45,30 +45,30 @@ class PhenologyData extends Equatable {
     final tasksArData = json['current_tasks_ar'] ?? json['currentTasksAr'] ?? [];
 
     return PhenologyData(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      cropType: json['crop_type'] ?? json['cropType'] ?? '',
-      cropTypeAr: json['crop_type_ar'] ?? json['cropTypeAr'] ?? '',
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      cropType: (json['crop_type'] ?? json['cropType'] ?? '') as String,
+      cropTypeAr: (json['crop_type_ar'] ?? json['cropTypeAr'] ?? '') as String,
       currentStage: GrowthStage.fromString(
-        json['current_stage'] ?? json['currentStage'] ?? 'unknown',
+        (json['current_stage'] ?? json['currentStage'] ?? 'unknown') as String,
       ),
-      daysInCurrentStage: json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0,
-      daysToNextStage: json['days_to_next_stage'] ?? json['daysToNextStage'],
-      daysToHarvest: json['days_to_harvest'] ?? json['daysToHarvest'],
+      daysInCurrentStage: (json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0) as int,
+      daysToNextStage: (json['days_to_next_stage'] ?? json['daysToNextStage']) as int?,
+      daysToHarvest: (json['days_to_harvest'] ?? json['daysToHarvest']) as int?,
       plantingDate: DateTime.parse(
-        json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String(),
+        (json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String()) as String,
       ),
       expectedHarvestDate: json['expected_harvest_date'] != null
-          ? DateTime.parse(json['expected_harvest_date'])
+          ? DateTime.parse(json['expected_harvest_date'] as String)
           : null,
       stages: (stagesData as List)
           .map((item) => GrowthStageInfo.fromJson(item as Map<String, dynamic>))
           .toList(),
       currentTasks: (tasksData as List).map((task) => task.toString()).toList(),
       currentTasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
-      completionPercentage: (json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0)
+      completionPercentage: ((json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0) as num)
           .toDouble(),
       analyzedAt: DateTime.parse(
-        json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String(),
+        (json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
     );
   }

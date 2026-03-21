@@ -178,13 +178,13 @@ class VegetationIndex extends Equatable {
 
   factory VegetationIndex.fromJson(Map<String, dynamic> json) {
     return VegetationIndex(
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['nameAr'] ?? '',
-      code: json['code'] ?? '',
-      value: (json['value'] ?? 0.0).toDouble(),
-      unit: json['unit'] ?? '',
-      description: json['description'] ?? '',
-      descriptionAr: json['description_ar'] ?? json['descriptionAr'] ?? '',
+      name: (json['name'] ?? '') as String,
+      nameAr: (json['name_ar'] ?? json['nameAr'] ?? '') as String,
+      code: (json['code'] ?? '') as String,
+      value: ((json['value'] ?? 0.0) as num).toDouble(),
+      unit: (json['unit'] ?? '') as String,
+      description: (json['description'] ?? '') as String,
+      descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
     );
   }
 

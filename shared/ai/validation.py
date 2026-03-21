@@ -519,7 +519,7 @@ _DELIMITER_ESCAPE_PATTERNS = [
 ]
 
 
-def escape_prompt_input(text: str, max_length: int = 10000) -> str:
+def escape_prompt_input(text: str | None, max_length: int = 10000) -> str | None:
     """
     Escape user input before embedding in LLM prompts.
 
@@ -529,11 +529,11 @@ def escape_prompt_input(text: str, max_length: int = 10000) -> str:
     the semantic content of the input.
 
     Args:
-        text: Raw user input to escape
+        text: Raw user input to escape (None and empty strings pass through)
         max_length: Maximum allowed length (truncate if exceeded)
 
     Returns:
-        Escaped text safe for embedding in prompts
+        Escaped text safe for embedding in prompts, or None if input was None
     """
     if not text:
         return text

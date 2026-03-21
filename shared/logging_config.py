@@ -344,13 +344,17 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
 
-            # Log error
+            # Log error - only log exception type, not message
+            # (exception messages may contain credentials or connection strings)
             self.logger.error(
                 "http_request_failed",
                 method=request.method,
                 path=request.url.path,
                 duration_ms=round(duration_ms, 2),
                 error_type=type(e).__name__,
+            )
+            self.logger.debug(
+                "http_request_error_details",
                 error_message=str(e),
                 exc_info=True,
             )

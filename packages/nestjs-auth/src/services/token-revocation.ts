@@ -407,9 +407,12 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking user token revocation: ${error instanceof Error ? error.message : String(error)}`,
+        `SECURITY: Cannot verify user token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return false;
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
+      return true;
     }
   }
 
@@ -527,9 +530,12 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking tenant token revocation: ${error instanceof Error ? error.message : String(error)}`,
+        `SECURITY: Cannot verify tenant token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      return false;
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
+      return true;
     }
   }
 

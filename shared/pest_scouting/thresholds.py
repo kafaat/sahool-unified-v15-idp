@@ -554,8 +554,12 @@ def assess_threshold(
         pct_economic = observed_value / adj_economic * 100
 
     # Determine if thresholds exceeded
-    exceeds_action = observed_value >= adj_action
-    exceeds_economic = observed_value >= adj_economic
+    # SECURITY: When adjustments drive thresholds to zero/negative, clamp to a
+    # safe minimum so that the exceeded check remains meaningful.
+    safe_adj_action = max(adj_action, 0.01)
+    safe_adj_economic = max(adj_economic, 0.01)
+    exceeds_action = observed_value >= safe_adj_action
+    exceeds_economic = observed_value >= safe_adj_economic
 
     # Determine infestation level
     if observed_value == 0:

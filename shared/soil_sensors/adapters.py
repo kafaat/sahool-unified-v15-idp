@@ -12,14 +12,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Callable
 
-logger = logging.getLogger(__name__)
-
 from .models import (
     SensorProtocol,
     SensorReading,
     SensorType,
     SoilSensor,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

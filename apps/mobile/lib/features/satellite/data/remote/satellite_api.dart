@@ -179,7 +179,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return PhenologyData.fromJson(json);
     } else {
       throw SatelliteApiException(

@@ -58,7 +58,7 @@ class AdvisorRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        return data.map((e) => CropTypeOption.fromJson(e)).toList();
+        return data.map((e) => CropTypeOption.fromJson(e as Map<String, dynamic>)).toList();
       }
       throw AdvisorException(
         'Failed to fetch crops',

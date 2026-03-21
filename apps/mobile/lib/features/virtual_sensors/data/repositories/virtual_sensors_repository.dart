@@ -408,20 +408,20 @@ class VirtualSensorsRepository {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return QuickIrrigationCheck(
-          cropType: data['crop_type'] ?? '',
-          cropNameAr: data['crop_name_ar'] ?? '',
-          growthStage: data['growth_stage'] ?? '',
-          daysSinceIrrigation: data['days_since_irrigation'] ?? 0,
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
+          daysSinceIrrigation: (data['days_since_irrigation'] as int?) ?? 0,
           estimatedEt0: (data['estimated_et0'] as num?)?.toDouble() ?? 0.0,
           kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
           estimatedEtc: (data['estimated_etc'] as num?)?.toDouble() ?? 0.0,
           estimatedWaterLossMm: (data['estimated_water_loss_mm'] as num?)?.toDouble() ?? 0.0,
           estimatedDepletionPercent: (data['estimated_depletion_percent'] as num?)?.toDouble() ?? 0.0,
-          status: data['status'] ?? '',
-          statusAr: data['status_ar'] ?? '',
-          needsIrrigation: data['needs_irrigation'] ?? false,
-          recommendation: data['recommendation'] ?? '',
-          recommendationAr: data['recommendation_ar'] ?? '',
+          status: (data['status'] as String?) ?? '',
+          statusAr: (data['status_ar'] as String?) ?? '',
+          needsIrrigation: (data['needs_irrigation'] as bool?) ?? false,
+          recommendation: (data['recommendation'] as String?) ?? '',
+          recommendationAr: (data['recommendation_ar'] as String?) ?? '',
         );
       }
 

@@ -249,11 +249,12 @@ class FixedWindowLimiter(RateLimitStrategy):
 
         except (ConnectionError, TimeoutError, OSError) as e:
             logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
-            # السماح بالطلب عند الفشل - Allow request on failure
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting when Redis is unavailable
+            return self._in_memory_check(client_id, endpoint, config)
         except ValueError as e:
             logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting on value errors
+            return self._in_memory_check(client_id, endpoint, config)
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
         """إعادة تعيين حدود المعدل"""

@@ -302,13 +302,16 @@ class FieldBoundary(BaseModel):
         """
         Generate parameterized PostGIS INSERT statement | إنشاء جملة INSERT لـ PostGIS
 
-        SECURITY: Returns (sql, params) tuple with $N placeholders to prevent SQL injection.
-
         Args:
-            table_name: Target table name
+            table_name: Target table name (must be an application constant)
 
         Returns:
-            Tuple of (SQL with $N placeholders, list of parameter values)
+            Tuple of (SQL template with $N placeholders, parameter list)
+
+        SECURITY: Uses parameterized queries to prevent SQL injection.
+        Never interpolate user-supplied values into SQL strings.
+        table_name is interpolated directly - callers MUST ensure it is
+        an application constant, never user input.
         """
         import json as _json
 

@@ -912,7 +912,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_enqueue_single_item(self, sample_sync_config, sample_sync_item):
         """Test enqueueing a single item."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         success, message = await queue.enqueue(sample_sync_item)
 
@@ -924,7 +924,7 @@ class TestQueueManagement:
     async def test_queue_enqueue_full(self, sample_sync_config):
         """Test queue rejects items when full."""
         config = SyncQueueConfig(max_queue_size=1)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
         item2 = SyncItem(entity_id="field_002", entity_type=EntityType.FIELD)
@@ -939,7 +939,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_priority_ordering(self, sample_sync_config):
         """Test items are dequeued in priority order."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         # Add items with different priorities
         low = SyncItem(
@@ -975,7 +975,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_dequeue_batch(self, sample_sync_config):
         """Test batch dequeue."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         # Add multiple items
         for i in range(5):
@@ -993,7 +993,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_dequeue_filter_by_entity_type(self, sample_sync_config):
         """Test dequeue filtering by entity type."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         # Add multiple items of the target type and one of different type
         # This ensures batch can complete without infinite loop
@@ -1020,7 +1020,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_mark_completed(self, sample_sync_config, sample_sync_item):
         """Test marking item as completed."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         await queue.enqueue(sample_sync_item)
         item = await queue.dequeue()
@@ -1034,7 +1034,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_mark_failed_with_retry(self, sample_sync_config, sample_sync_item):
         """Test marking item as failed with retry."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         await queue.enqueue(sample_sync_item)
         item = await queue.dequeue()
@@ -1049,7 +1049,7 @@ class TestQueueManagement:
     async def test_queue_mark_failed_max_retries(self, sample_sync_config):
         """Test marking item as failed after max retries."""
         config = SyncQueueConfig(max_retries=2)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         item = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, max_retries=2)
 
@@ -1084,7 +1084,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_mark_conflict(self, sample_sync_config, sample_sync_item):
         """Test marking item as conflict."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         await queue.enqueue(sample_sync_item)
         item = await queue.dequeue()
@@ -1099,7 +1099,7 @@ class TestQueueManagement:
     @pytest.mark.asyncio
     async def test_queue_cancel_item(self, sample_sync_config, sample_sync_item):
         """Test canceling a queue item."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         await queue.enqueue(sample_sync_item)
 
@@ -1122,7 +1122,7 @@ class TestQueueManagement:
         """Test canceling all items for an entity."""
         # Disable deduplication to allow multiple items for same entity
         config = SyncQueueConfig(deduplicate_pending=False, merge_pending_updates=False)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         # Add multiple items for same entity
         item1 = SyncItem(
@@ -1156,7 +1156,7 @@ class TestQueueManagement:
         """Test getting pending items for an entity."""
         # Enable deduplication for this test
         config = SyncQueueConfig(deduplicate_pending=False, merge_pending_updates=False)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
         item2 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
@@ -1173,7 +1173,7 @@ class TestQueueManagement:
     async def test_queue_deduplication(self, sample_sync_config):
         """Test queue deduplication of pending items."""
         config = SyncQueueConfig(deduplicate_pending=True, merge_pending_updates=True)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         item1 = SyncItem(
             entity_id="field_001",
@@ -1194,7 +1194,7 @@ class TestQueueManagement:
 
     def test_queue_get_progress(self, sample_sync_config):
         """Test getting queue progress."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         progress = queue.get_progress()
 
@@ -1203,7 +1203,7 @@ class TestQueueManagement:
 
     def test_queue_get_stats(self, sample_sync_config):
         """Test getting queue statistics."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         stats = queue.get_stats()
 
@@ -1240,7 +1240,7 @@ class TestOfflineHandling:
     @pytest.mark.asyncio
     async def test_queue_skip_items_not_ready_for_retry(self, sample_sync_config):
         """Test queue skips items that are not yet ready for retry."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         # Add a ready item first with HIGH priority
         ready_item = SyncItem(
@@ -1277,7 +1277,7 @@ class TestOfflineHandling:
     async def test_queue_skip_expired_items(self, sample_sync_config):
         """Test queue skips expired items."""
         config = SyncQueueConfig(auto_expire_hours=1)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         # Create an old item
         old_item = SyncItem(
@@ -1297,7 +1297,7 @@ class TestOfflineHandling:
     @pytest.mark.asyncio
     async def test_queue_manager_separate_upload_download(self, sample_sync_config):
         """Test SyncQueueManager maintains separate upload/download queues."""
-        manager = SyncQueueManager(sample_sync_config)
+        manager = SyncQueueManager(sample_sync_config, tenant_id="test-tenant")
 
         upload_item = SyncItem(
             entity_id="field_001",
@@ -1319,7 +1319,7 @@ class TestOfflineHandling:
     @pytest.mark.asyncio
     async def test_queue_manager_start_end_session(self, sample_sync_config):
         """Test SyncQueueManager session lifecycle."""
-        manager = SyncQueueManager(sample_sync_config)
+        manager = SyncQueueManager(sample_sync_config, tenant_id="test-tenant")
 
         session = await manager.start_session(
             user_id="user_001",
@@ -1345,7 +1345,7 @@ class TestOfflineHandling:
     async def test_queue_priority_boost_on_retry(self):
         """Test priority boost on retry."""
         config = SyncQueueConfig(priority_boost_on_retry=True)
-        queue = SyncQueue(config)
+        queue = SyncQueue(config, tenant_id="test-tenant")
 
         item = SyncItem(
             entity_id="field_001",
@@ -1393,7 +1393,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_end_to_end_sync_workflow(self, sample_sync_config, delta_config):
         """Test complete sync workflow."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
         delta_manager = DeltaSyncManager(delta_config)
         conflict_manager = ConflictResolutionManager()
 
@@ -1538,7 +1538,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_queue_with_many_items(self, sample_sync_config):
         """Test queue with many items."""
-        queue = SyncQueue(sample_sync_config)
+        queue = SyncQueue(sample_sync_config, tenant_id="test-tenant")
 
         # Add many items
         for i in range(100):

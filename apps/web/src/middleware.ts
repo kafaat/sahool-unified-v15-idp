@@ -41,9 +41,14 @@ const defaultLocale: (typeof locales)[number] = "ar";
 // @sentry/nextjs (~300KB). In the edge middleware we only need console output.
 // ---------------------------------------------------------------------------
 const edgeLogger = {
+  /** Log security-relevant errors in all environments */
   error: (...args: unknown[]) => {
+    console.error(...args);
+  },
+  /** Log debug information in development only */
+  debug: (...args: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
-      console.error(...args);
+      console.log(...args);
     }
   },
 };

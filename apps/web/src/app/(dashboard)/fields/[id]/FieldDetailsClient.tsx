@@ -514,18 +514,18 @@ export default function FieldDetailsClient({
               <h2 className="text-lg font-bold text-gray-900">إجراءات سريعة</h2>
             </div>
             <div className="p-4 space-y-2">
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              <Link href="/crop-health" className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
                 <Activity className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-medium">تحليل صحة المحصول</span>
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              </Link>
+              <Link href="/irrigation" className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
                 <Droplets className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium">جدولة الري</span>
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              </Link>
+              <Link href="/yield" className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-medium">تقرير الإنتاجية</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>

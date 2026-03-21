@@ -62,9 +62,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (typeof lat !== "number" || typeof lon !== "number") {
+    if (
+      typeof lat !== "number" ||
+      typeof lon !== "number" ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon) ||
+      lat < -90 ||
+      lat > 90 ||
+      lon < -180 ||
+      lon > 180
+    ) {
       return NextResponse.json(
-        { error: "lat and lon are required numeric parameters" },
+        { error: "lat must be between -90 and 90, lon between -180 and 180" },
         { status: 400 },
       );
     }
@@ -84,15 +93,25 @@ export async function POST(request: NextRequest) {
       agricultural: "/weather/agricultural-report",
     };
 
+    // Validate field_id if provided — must be UUID to prevent injection
+    if (field_id !== undefined && field_id !== null && field_id !== "default") {
+      if (typeof field_id !== "string" || !isValidUUID(field_id)) {
+        return NextResponse.json(
+          { error: "field_id must be a valid UUID" },
+          { status: 400 },
+        );
+      }
+    }
+
     const payload: Record<string, unknown> = {
       tenant_id: tenantId,
-      field_id: field_id || "default",
+      field_id: field_id && isValidUUID(field_id) ? field_id : "default",
       lat,
       lon,
     };
 
     if (action === "forecast" && typeof days === "number" && Number.isFinite(days)) {
-      payload.days = days;
+      payload.days = Math.max(1, Math.min(30, Math.floor(days)));
     }
 
     const response = await fetch(`${WEATHER_SERVICE_URL}${pathMap[action]}`, {

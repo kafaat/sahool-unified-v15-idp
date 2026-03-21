@@ -274,9 +274,13 @@ export class RedisTokenRevocationStore
       const exists = await this.redis!.exists(key);
       return exists > 0;
     } catch (error) {
-      this.logger.error(`Error checking token revocation: ${error instanceof Error ? error.message : String(error)}`);
-      // Fail open: don't block access on Redis errors
-      return false;
+      this.logger.error(
+        `SECURITY: Cannot verify token revocation status, failing closed. ` +
+        `Error: ${error instanceof Error ? error.message : String(error)}`
+      );
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
+      return true;
     }
   }
 

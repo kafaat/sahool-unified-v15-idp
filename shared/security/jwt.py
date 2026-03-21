@@ -231,7 +231,16 @@ def decode_token_unsafe(token: str) -> dict:
     - NEVER use for authorization decisions
     - NEVER trust data from this function for access control
     - Use ONLY for debugging, logging, or extracting non-sensitive metadata
+    - BLOCKED in production to prevent accidental misuse
     """
+    import os
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env == "production":
+        raise RuntimeError(
+            "decode_token_unsafe() is blocked in production. "
+            "Use decode_token() with proper verification instead."
+        )
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
         return jwt.decode(token, options=_get_unsafe_decode_options(), algorithms=["HS256", "HS384", "HS512"])

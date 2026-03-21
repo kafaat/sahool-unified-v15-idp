@@ -288,7 +288,26 @@ class BaseScraper(ABC):
 
         Raises:
             NavigationError: If navigation fails.
+            ValueError: If URL scheme is not http/https.
         """
+        # SECURITY: Validate URL scheme to prevent SSRF
+        from urllib.parse import urlparse
+        import ipaddress
+
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"URL must use http/https scheme, got: {parsed.scheme}")
+        if parsed.hostname:
+            # Block navigation to private/internal networks
+            try:
+                ip = ipaddress.ip_address(parsed.hostname)
+                if ip.is_private or ip.is_loopback or ip.is_reserved:
+                    raise ValueError(f"Navigation to private/internal network blocked: {parsed.hostname}")
+            except ValueError as ve:
+                if "blocked" in str(ve):
+                    raise
+                # hostname is not an IP - that's fine (it's a domain name)
+
         page = await self._ensure_page()
         await self._rate_limiter.wait()
 

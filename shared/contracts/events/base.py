@@ -149,7 +149,12 @@ class BaseEvent:
         event_data = self.to_dict()
 
         # Create a registry with local schemas for $ref resolution
-        from referencing import Registry, Resource
+        try:
+            from referencing import Registry, Resource
+        except ImportError:
+            # Fallback: validate without $ref resolution if referencing is not installed
+            jsonschema.validate(event_data, schema)
+            return True
 
         registry = Registry()
 

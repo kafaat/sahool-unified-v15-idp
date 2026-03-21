@@ -21,10 +21,10 @@ class NdviDataPoint extends Equatable {
 
   factory NdviDataPoint.fromJson(Map<String, dynamic> json) {
     return NdviDataPoint(
-      date: DateTime.parse(json['date'] ?? json['timestamp']),
-      value: (json['value'] ?? json['ndvi'] ?? 0.0).toDouble(),
-      source: json['source'] ?? 'sentinel-2',
-      cloudCoverage: (json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0).toDouble(),
+      date: DateTime.parse((json['date'] ?? json['timestamp']) as String),
+      value: ((json['value'] ?? json['ndvi'] ?? 0.0) as num).toDouble(),
+      source: (json['source'] ?? 'sentinel-2') as String,
+      cloudCoverage: ((json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0) as num).toDouble(),
     );
   }
 
@@ -71,20 +71,20 @@ class NdviAnalysis extends Equatable {
     final indicesData = json['indices'];
 
     return NdviAnalysis(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      currentNdvi: (json['current_ndvi'] ?? json['currentNdvi'] ?? 0.0).toDouble(),
-      previousNdvi: (json['previous_ndvi'] ?? json['previousNdvi'] ?? 0.0).toDouble(),
-      changeRate: (json['change_rate'] ?? json['changeRate'] ?? 0.0).toDouble(),
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      currentNdvi: ((json['current_ndvi'] ?? json['currentNdvi'] ?? 0.0) as num).toDouble(),
+      previousNdvi: ((json['previous_ndvi'] ?? json['previousNdvi'] ?? 0.0) as num).toDouble(),
+      changeRate: ((json['change_rate'] ?? json['changeRate'] ?? 0.0) as num).toDouble(),
       health: VegetationHealth.fromString(
-        json['health_status'] ?? json['healthStatus'] ?? 'unknown',
+        (json['health_status'] ?? json['healthStatus'] ?? 'unknown') as String,
       ),
       timeSeries: (timeSeriesData as List)
           .map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>))
           .toList(),
       analyzedAt: DateTime.parse(
-        json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String(),
+        (json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      imageUrl: json['image_url'] ?? json['imageUrl'],
+      imageUrl: (json['image_url'] ?? json['imageUrl']) as String?,
       indices: indicesData != null
           ? (indicesData as Map<String, dynamic>).map(
               (key, value) => MapEntry(key, (value as num).toDouble()),

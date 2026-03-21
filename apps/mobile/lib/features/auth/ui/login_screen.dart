@@ -446,6 +446,66 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  /// عرض نافذة المساعدة
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.help_outline, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('المساعدة'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'كيفية تسجيل الدخول:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('1. أدخل رقم هاتفك اليمني (9 أرقام تبدأ بـ 7)'),
+            SizedBox(height: 4),
+            Text('2. اضغط "أرسل الرمز"'),
+            SizedBox(height: 4),
+            Text('3. أدخل رمز التحقق المكون من 6 أرقام'),
+            SizedBox(height: 16),
+            Text(
+              'للتواصل مع الدعم الفني:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('البريد: support@sahool.app'),
+            Text('الهاتف: +967-1-XXX-XXX'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('حسناً'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// عرض رسالة اليمن فقط عند الضغط على رمز البلد
+  void _showCountryCodeInfo() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('التطبيق يدعم حالياً أرقام الهواتف اليمنية فقط (+967)'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
   Widget _buildPhoneInput() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,31 +522,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           child: Row(
             children: [
-              // Country code
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: Colors.grey[300]!),
+              // Country code - اليمن فقط
+              GestureDetector(
+                onTap: _showCountryCodeInfo,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(color: Colors.grey[300]!),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Text(
-                      '🇾🇪',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+967',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
+                  child: Row(
+                    children: [
+                      const Text(
+                        '🇾🇪',
+                        style: TextStyle(fontSize: 24),
                       ),
-                    ),
-                    Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        '+967',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.info_outline, color: Colors.grey[500], size: 16),
+                    ],
+                  ),
                 ),
               ),
               // Phone input
@@ -534,11 +598,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(6, (index) {
             return Container(
-              width: 64,
-              height: 72,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: 48,
+              height: 64,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               child: TextField(
                 controller: _otpControllers[index],
                 focusNode: _otpFocusNodes[index],

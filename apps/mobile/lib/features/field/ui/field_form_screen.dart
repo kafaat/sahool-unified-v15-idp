@@ -717,10 +717,29 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
             label: 'تأكيد حذف الحقل',
             button: true,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context); // Close dialog
-                AnnouncementHelper.announceComplete(context, 'حذف الحقل');
-                Navigator.pop(context, 'deleted'); // Return to previous screen
+                try {
+                  final repo = ref.read(fieldsRepoProvider);
+                  await repo.deleteField(widget.fieldId!);
+                  if (!mounted) return;
+                  AnnouncementHelper.announceComplete(context, 'حذف الحقل');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تم حذف الحقل بنجاح'),
+                      backgroundColor: SahoolColors.forestGreen,
+                    ),
+                  );
+                  Navigator.pop(context, 'deleted'); // Return to previous screen
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('فشل حذف الحقل: $e'),
+                      backgroundColor: SahoolColors.danger,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: SahoolColors.danger,

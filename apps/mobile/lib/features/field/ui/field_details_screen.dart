@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/logging/logging.dart';
+import '../../../core/di/providers.dart';
 
 /// شاشة تفاصيل الحقل - The Field Hub
 /// تعرض كل شيء عن الحقل في مكان واحد
-class FieldDetailsScreen extends StatelessWidget {
+class FieldDetailsScreen extends ConsumerWidget {
   final String fieldId;
   final String fieldName;
 
@@ -31,7 +33,7 @@ class FieldDetailsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Log screen view on build (would be better in initState for StatefulWidget)
     _logScreenView();
 
@@ -53,7 +55,7 @@ class FieldDetailsScreen extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.more_vert),
-              onPressed: () => _showOptionsMenu(context),
+              onPressed: () => _showOptionsMenu(context, ref),
             ),
           ],
           bottom: TabBar(

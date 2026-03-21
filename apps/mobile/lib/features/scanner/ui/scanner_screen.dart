@@ -39,27 +39,179 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Future<void> _startScan() async {
+    final XFile? photo = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+      maxWidth: 1280,
+      maxHeight: 1280,
+    );
+    if (photo == null || !mounted) return;
+
     setState(() {
       _isScanning = true;
       _hasResult = false;
+      _capturedImage = File(photo.path);
     });
 
-    // Simulate scanning
-    await Future.delayed(const Duration(seconds: 3));
+    await _analyzeImage(_capturedImage!);
+  }
+
+  Future<void> _pickFromGallery() async {
+    final XFile? image = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1280,
+      maxHeight: 1280,
+    );
+    if (image == null || !mounted) return;
+
+    setState(() {
+      _isScanning = true;
+      _hasResult = false;
+      _capturedImage = File(image.path);
+    });
+
+    await _analyzeImage(_capturedImage!);
+  }
+
+  Future<void> _analyzeImage(File imageFile) async {
+    // TODO: Replace with actual API call to crop_vision / yolo26-vision-service
+    // POST /api/v1/detect/disease with multipart image upload
+    // final dio = Dio();
+    // final formData = FormData.fromMap({
+    //   'image': await MultipartFile.fromFile(imageFile.path),
+    //   'confidence_threshold': 0.25,
+    // });
+    // final response = await dio.post(
+    //   'http://vision-service:8150/api/v1/detect/disease',
+    //   data: formData,
+    // );
+    // Parse response.data['detections'] for results.
+
+    // Offline-first fallback: simulate analysis while API is not wired
+    await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
+      final result = _ScanResult(
+        disease: 'صدأ القمح',
+        confidence: 0.95,
+        severity: 'متوسط',
+        treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
+        prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
+        imagePath: imageFile.path,
+        scannedAt: DateTime.now(),
+      );
       setState(() {
         _isScanning = false;
         _hasResult = true;
-        _result = _ScanResult(
-          disease: 'صدأ القمح',
-          confidence: 0.95,
-          severity: 'متوسط',
-          treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
-          prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
-        );
+        _result = result;
+        _scanHistory.insert(0, result);
       });
     }
+  }
+
+  void _showScanHistory() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'سجل الفحوصات',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _scanHistory.isEmpty
+                  ? Center(
+                      child: Text(
+                        'لا توجد فحوصات سابقة',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _scanHistory.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemBuilder: (context, index) {
+                        final scan = _scanHistory[index];
+                        return ListTile(
+                          leading: scan.imagePath != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(scan.imagePath!),
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: SahoolColors.danger.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.bug_report,
+                                      color: SahoolColors.danger),
+                                ),
+                          title: Text(scan.disease),
+                          subtitle: Text(
+                            'الدقة: ${(scan.confidence * 100).toInt()}% - ${scan.severity}',
+                          ),
+                          trailing: scan.scannedAt != null
+                              ? Text(
+                                  '${scan.scannedAt!.hour}:${scan.scannedAt!.minute.toString().padLeft(2, '0')}',
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 12),
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addAsTask() {
+    if (_result == null) return;
+    // Navigate to task creation with pre-filled data
+    context.push('/tasks', extra: {
+      'prefillTitle': 'علاج: ${_result!.disease}',
+      'prefillDescription': '${_result!.treatment}\n\nالوقاية: ${_result!.prevention}',
+      'createNew': true,
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تمت إضافة "${_result!.disease}" كمهمة'),
+        backgroundColor: SahoolColors.success,
+      ),
+    );
   }
 
   @override
@@ -68,22 +220,31 @@ class _ScannerScreenState extends State<ScannerScreen>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Camera placeholder (black background)
-          Container(color: Colors.black),
-
-          // Simulated camera view with gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.green.withOpacity(0.3),
-                  Colors.black.withOpacity(0.5),
-                ],
+          // Camera preview / captured image
+          if (_capturedImage != null)
+            Positioned.fill(
+              child: Image.file(
+                _capturedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            Container(
+              color: Colors.black,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.camera_alt, size: 64, color: Colors.white.withOpacity(0.3)),
+                    const SizedBox(height: 16),
+                    Text(
+                      'اضغط زر التصوير لالتقاط صورة',
+                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
           // Scan frame overlay
           _buildScanFrame(),
@@ -248,7 +409,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                 children: [
                   // Gallery button
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _isScanning ? null : _pickFromGallery,
                     icon: const Icon(Icons.photo_library),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
@@ -286,7 +447,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                   ),
                   // History button
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _showScanHistory,
                     icon: const Icon(Icons.history),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
@@ -482,7 +643,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: _addAsTask,
                           icon: const Icon(Icons.add_task),
                           label: const Text('إضافة كمهمة'),
                         ),
@@ -541,6 +702,8 @@ class _ScanResult {
   final String severity;
   final String treatment;
   final String prevention;
+  final String? imagePath;
+  final DateTime? scannedAt;
 
   _ScanResult({
     required this.disease,
@@ -548,5 +711,7 @@ class _ScanResult {
     required this.severity,
     required this.treatment,
     required this.prevention,
+    this.imagePath,
+    this.scannedAt,
   });
 }

@@ -40,7 +40,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return NdviAnalysis.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -64,7 +64,7 @@ class SatelliteApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> timeSeries = data['time_series'] ?? data['timeseries'] ?? data;
+      final List<dynamic> timeSeries = (data['time_series'] ?? data['timeseries'] ?? data) as List<dynamic>;
       return timeSeries.map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(

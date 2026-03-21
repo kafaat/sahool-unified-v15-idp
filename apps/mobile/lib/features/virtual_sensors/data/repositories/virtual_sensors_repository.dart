@@ -188,9 +188,9 @@ class VirtualSensorsRepository {
           dailyWaterNeedLiters: (data['daily_water_need_liters'] as num?)?.toDouble() ?? 0.0,
           dailyWaterNeedM3: (data['daily_water_need_m3'] as num?)?.toDouble() ?? 0.0,
           weeklyWaterNeedM3: (data['weekly_water_need_m3'] as num?)?.toDouble() ?? 0.0,
-          criticalPeriod: data['critical_period'] ?? false,
-          notes: data['notes'] ?? '',
-          notesAr: data['notes_ar'] ?? '',
+          criticalPeriod: (data['critical_period'] as bool?) ?? false,
+          notes: (data['notes'] as String?) ?? '',
+          notesAr: (data['notes_ar'] as String?) ?? '',
         );
       }
 
@@ -224,10 +224,10 @@ class VirtualSensorsRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List soils = data['soils'] ?? [];
+        final List<dynamic> soils = (data['soils'] as List<dynamic>?) ?? [];
         return soils.map((e) => SoilTypeInfo(
-          soilType: e['soil_type'] ?? '',
-          nameAr: e['name_ar'] ?? '',
+          soilType: (e['soil_type'] as String?) ?? '',
+          nameAr: (e['name_ar'] as String?) ?? '',
           fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
           wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
           availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
@@ -265,11 +265,11 @@ class VirtualSensorsRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List methods = data['methods'] ?? [];
+        final List<dynamic> methods = (data['methods'] as List<dynamic>?) ?? [];
         return methods.map((e) => IrrigationMethodInfo(
-          method: e['method'] ?? '',
+          method: (e['method'] as String?) ?? '',
           efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
-          efficiencyPercent: e['efficiency_percent'] ?? '70%',
+          efficiencyPercent: (e['efficiency_percent'] as String?) ?? '70%',
         )).toList();
       }
 

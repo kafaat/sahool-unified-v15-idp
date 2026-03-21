@@ -579,12 +579,12 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeInOutCubic,
     Duration duration = const Duration(milliseconds: 350),
   }) {
-    return push(SlidePageTransition(
+    return push<T>(SlidePageTransition(
       page: page,
       direction: direction,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push with fade transition - الانتقال بالتلاشي
@@ -593,11 +593,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    return push(FadePageTransition(
+    return push<T>(FadePageTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push with scale transition - الانتقال بالتكبير
@@ -608,13 +608,13 @@ extension NavigationExtension on NavigatorState {
     double beginScale = 0.8,
     Alignment alignment = Alignment.center,
   }) {
-    return push(ScalePageTransition(
+    return push<T>(ScalePageTransition(
       page: page,
       curve: curve,
       duration: duration,
       beginScale: beginScale,
       alignment: alignment,
-    ));
+    ) as Route<T>);
   }
 
   /// Push as modal bottom sheet - كنافذة سفلية
@@ -623,11 +623,11 @@ extension NavigationExtension on NavigatorState {
     Curve curve = Curves.easeOutCubic,
     Duration duration = const Duration(milliseconds: 350),
   }) {
-    return push(ModalBottomSheetTransition(
+    return push<T>(ModalBottomSheetTransition(
       page: page,
       curve: curve,
       duration: duration,
-    ));
+    ) as Route<T>);
   }
 
   /// Push as dialog - كحوار

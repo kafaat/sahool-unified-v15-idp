@@ -43,7 +43,7 @@ export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction, NotificationType;
+export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction, NotificationType, NotificationListItem;
 
 // Offline Sync
 export 'offline/offline.dart' hide SyncStatus, SyncResult;
@@ -65,4 +65,4 @@ export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, Sah
 export 'l10n/locale_manager.dart';
 
 // Animations - التحريكات
-export 'animations/animations.dart' hide SkeletonCard, SkeletonList;
+export 'animations/animations.dart' hide SkeletonCard, SkeletonList, SkeletonGrid;

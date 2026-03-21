@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/models/maintenance_record.dart';
+import '../../domain/models/equipment_status.dart';
 
 /// Maintenance Timeline Widget
 class MaintenanceTimeline extends StatelessWidget {

@@ -67,6 +67,26 @@ class FloatConfig {
     autoFloatAmplitude: 8.0,
     autoFloatSpeed: 1.5,
   );
+
+  FloatConfig copyWith({
+    double? maxVerticalFloat,
+    double? maxHorizontalFloat,
+    Duration? floatDuration,
+    bool? enableAutoFloat,
+    double? autoFloatAmplitude,
+    double? autoFloatSpeed,
+    bool? enabled,
+  }) {
+    return FloatConfig(
+      maxVerticalFloat: maxVerticalFloat ?? this.maxVerticalFloat,
+      maxHorizontalFloat: maxHorizontalFloat ?? this.maxHorizontalFloat,
+      floatDuration: floatDuration ?? this.floatDuration,
+      enableAutoFloat: enableAutoFloat ?? this.enableAutoFloat,
+      autoFloatAmplitude: autoFloatAmplitude ?? this.autoFloatAmplitude,
+      autoFloatSpeed: autoFloatSpeed ?? this.autoFloatSpeed,
+      enabled: enabled ?? this.enabled,
+    );
+  }
 }
 
 /// Widget that floats gently based on device motion

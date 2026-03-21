@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'motion_service.dart';
 import 'motion_preferences.dart';
 import 'parallax_controller.dart';
+import 'tilt_effect.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MOTION SERVICE PROVIDER

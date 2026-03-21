@@ -523,7 +523,7 @@ class _MotionPreferencesScreenState extends State<MotionPreferencesScreen> {
           ListTile(
             title: const Text('شدة التأثيرات'),
             subtitle: Text('${(_prefs.intensityMultiplier * 100).round()}%'),
-            secondary: const Icon(Icons.tune),
+            leading: const Icon(Icons.tune),
             trailing: SizedBox(
               width: 150,
               child: Slider(

@@ -250,16 +250,16 @@ class AppDatabase extends _$AppDatabase {
               id: id.toString(),
               tenantId: tenantId.toString(),
               fieldId: fieldId.toString(),
-              farmId: Value(item['farm_id']),
+              farmId: Value(item['farm_id'] as String?),
               title: title.toString(),
-              description: Value(item['description']),
-              status: Value(item['status'] ?? 'open'),
-              priority: Value(item['priority'] ?? 'medium'),
+              description: Value(item['description'] as String?),
+              status: Value((item['status'] as String?) ?? 'open'),
+              priority: Value((item['priority'] as String?) ?? 'medium'),
               dueDate: Value(item['due_date'] != null
                   ? DateTime.tryParse(item['due_date'].toString())
                   : null),
-              assignedTo: Value(item['assigned_to']),
-              evidenceNotes: Value(item['evidence_notes']),
+              assignedTo: Value(item['assigned_to'] as String?),
+              evidenceNotes: Value(item['evidence_notes'] as String?),
               evidencePhotos: Value(item['evidence_photos'] != null
                   ? (item['evidence_photos'] is List
                       ? (item['evidence_photos'] as List).join(',')
@@ -270,7 +270,7 @@ class AppDatabase extends _$AppDatabase {
               synced: const Value(true),
             ),
             onConflict: DoUpdate((old) => TasksCompanion(
-                  status: Value(item['status'] ?? 'open'),
+                  status: Value((item['status'] as String?) ?? 'open'),
                   updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
                   synced: const Value(true),
                 )),
@@ -547,13 +547,13 @@ class AppDatabase extends _$AppDatabase {
               id: id.toString(),
               remoteId: Value(item['remote_id']?.toString() ?? id.toString()),
               tenantId: tenantId.toString(),
-              farmId: Value(item['farm_id']),
+              farmId: Value(item['farm_id'] as String?),
               name: name.toString(),
-              cropType: Value(item['crop_type']),
+              cropType: Value(item['crop_type'] as String?),
               boundary: boundary,
               centroid: Value(centroid),
               areaHectares: (item['area_hectares'] as num?)?.toDouble() ?? 0,
-              status: Value(item['status']),
+              status: Value(item['status'] as String?),
               ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
               ndviUpdatedAt: Value(item['ndvi_updated_at'] != null
                   ? DateTime.tryParse(item['ndvi_updated_at'].toString())

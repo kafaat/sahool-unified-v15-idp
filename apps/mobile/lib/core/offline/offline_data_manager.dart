@@ -350,8 +350,8 @@ class OfflineDataManager {
     if (jsonString == null) return [];
 
     try {
-      final List<dynamic> jsonList = jsonDecode(jsonString);
-      return jsonList.map((json) => LocalDataItem.fromJson(json)).toList();
+      final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
+      return jsonList.map((json) => LocalDataItem.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
       AppLogger.e('Failed to parse local items', tag: 'OfflineSync', error: e);
       return [];

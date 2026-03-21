@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
+import '../offline/offline_ui_components.dart' show networkStatusProvider;
 import '../sync/network_status.dart';
 
 // =============================================================================

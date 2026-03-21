@@ -158,9 +158,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
                 }
               } catch (e) {
                 AppLogger.w(
-                  'Active crops API unavailable, building from catalog',
+                  'Active crops API unavailable, building from catalog: $e',
                   tag: 'CropsNotifier',
-                  error: e,
                 );
               }
             }
@@ -177,9 +176,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
           }
         } catch (e) {
           AppLogger.w(
-            'CropsRepository failed, trying direct API',
+            'CropsRepository failed, trying direct API: $e',
             tag: 'CropsNotifier',
-            error: e,
           );
         }
       }
@@ -203,9 +201,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
           }
         } catch (e) {
           AppLogger.w(
-            'Direct API call failed, falling back to mock data',
+            'Direct API call failed, falling back to mock data: $e',
             tag: 'CropsNotifier',
-            error: e,
           );
         }
       }
@@ -363,9 +360,8 @@ class CropsNotifier extends StateNotifier<CropsState> {
         }
       } catch (e) {
         AppLogger.w(
-          'Failed to fetch recommendations from advisory API, using defaults',
+          'Failed to fetch recommendations from advisory API, using defaults: $e',
           tag: 'CropsNotifier',
-          error: e,
         );
       }
     }

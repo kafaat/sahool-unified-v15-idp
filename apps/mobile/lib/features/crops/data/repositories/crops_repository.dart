@@ -142,7 +142,7 @@ class CropsRepository {
       final cachedJson = _prefs.getString(_cacheKey);
       if (cachedJson == null) return null;
 
-      final List<dynamic> decoded = jsonDecode(cachedJson);
+      final List<dynamic> decoded = jsonDecode(cachedJson) as List<dynamic>;
       return decoded.map((json) => Crop.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
       AppLogger.e('Failed to load crops from cache', tag: 'CropsRepository', error: e);

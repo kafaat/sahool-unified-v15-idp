@@ -6,10 +6,13 @@ Support for MQTT, LoRaWAN, HTTP protocols
 from __future__ import annotations
 
 import json
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Callable
+
+logger = logging.getLogger(__name__)
 
 from .models import (
     SensorProtocol,
@@ -78,7 +81,7 @@ class SensorAdapter(ABC):
             try:
                 callback(reading)
             except Exception as e:
-                print(f"Callback error: {e}")
+                logger.warning("Callback error during sensor reading emission", exc_info=True)
 
     @abstractmethod
     def parse_payload(self, payload: bytes, sensor: SoilSensor) -> SensorReading | None:

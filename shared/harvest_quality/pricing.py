@@ -599,7 +599,7 @@ class QualityPricingEngine:
             )
 
         # Calculate comparison percentages
-        if base_price > 0:
+        if base_price is not None and base_price > 1e-6:
             calc.vs_base_price_percent = float((calc.final_price_per_unit - base_price) / base_price * 100)
 
         calc.calculated_at = datetime.now(UTC)

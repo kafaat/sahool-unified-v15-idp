@@ -16,6 +16,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -260,6 +261,9 @@ class ResourcePoolService:
         self._maintenance: dict[str, MaintenanceRecord] = {}
         self._members: dict[str, CooperativeMember] = {}
 
+        # Booking lock to prevent race conditions (C-05)
+        self._booking_lock = asyncio.Lock()
+
         # Configuration
         self._default_operating_hours = list(range(6, 20))  # 6 AM to 8 PM
         self._advance_booking_days = 7
@@ -393,38 +397,42 @@ class ResourcePoolService:
         if resource.max_booking_hours and duration_hours > resource.max_booking_hours:
             raise ValueError(f"Maximum booking duration is {resource.max_booking_hours} hours")
 
-        # Check for conflicts
-        if check_conflicts:
-            end_time = start_time + timedelta(hours=duration_hours)
-            conflicts = await self._check_booking_conflicts(resource_id, start_time, end_time)
-            if conflicts:
-                conflict_info = conflicts[0]
-                raise BookingConflictError(f"Booking conflicts with existing reservation: {conflict_info.booking_id}")
+        # Atomic check-and-book to prevent race conditions (C-05)
+        async with self._booking_lock:
+            # Check for conflicts
+            if check_conflicts:
+                end_time = start_time + timedelta(hours=duration_hours)
+                conflicts = await self._check_booking_conflicts(resource_id, start_time, end_time)
+                if conflicts:
+                    conflict_info = conflicts[0]
+                    raise BookingConflictError(
+                        f"Booking conflicts with existing reservation: {conflict_info.booking_id}"
+                    )
 
-        # Calculate fee
-        estimated_fee = resource.calculate_usage_fee(
-            hours=duration_hours,
-            is_member=True,
-        )
+            # Calculate fee
+            estimated_fee = resource.calculate_usage_fee(
+                hours=duration_hours,
+                is_member=True,
+            )
 
-        # Create booking
-        booking = ResourceBooking.create(
-            resource_id=resource_id,
-            member_id=member_id,
-            cooperative_id=self.cooperative_id,
-            purpose=purpose,
-            purpose_ar=purpose_ar,
-            start_time=start_time,
-            duration_hours=duration_hours,
-            estimated_fee=estimated_fee,
-            field_id=field_id,
-            **kwargs,
-        )
-        booking.end_time = start_time + timedelta(hours=duration_hours)
-        booking.status = "confirmed"
+            # Create booking
+            booking = ResourceBooking.create(
+                resource_id=resource_id,
+                member_id=member_id,
+                cooperative_id=self.cooperative_id,
+                purpose=purpose,
+                purpose_ar=purpose_ar,
+                start_time=start_time,
+                duration_hours=duration_hours,
+                estimated_fee=estimated_fee,
+                field_id=field_id,
+                **kwargs,
+            )
+            booking.end_time = start_time + timedelta(hours=duration_hours)
+            booking.status = "confirmed"
 
-        self._bookings[booking.booking_id] = booking
-        return booking
+            self._bookings[booking.booking_id] = booking
+            return booking
 
     async def _check_booking_conflicts(
         self,

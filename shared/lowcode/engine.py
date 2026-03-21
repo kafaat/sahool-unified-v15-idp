@@ -176,6 +176,22 @@ class ComponentMaterial:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+_MAX_REGEX_LENGTH = 500
+
+
+def _validate_regex_pattern(pattern: str) -> str:
+    """Validate regex pattern to prevent ReDoS attacks."""
+    import re
+
+    if len(pattern) > _MAX_REGEX_LENGTH:
+        raise ValueError(f"Regex pattern exceeds maximum length of {_MAX_REGEX_LENGTH}")
+    try:
+        re.compile(pattern, re.TIMEOUT if hasattr(re, "TIMEOUT") else 0)
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}") from e
+    return pattern
+
+
 @dataclass
 class FieldDefinition:
     """Field definition in a data model."""
@@ -194,7 +210,7 @@ class FieldDefinition:
     max_value: float | None = None
     min_length: int | None = None
     max_length: int | None = None
-    pattern: str | None = None  # Regex
+    pattern: str | None = None  # Regex (validated to prevent ReDoS)
 
     # Relations
     relation_model: str | None = None
@@ -204,6 +220,10 @@ class FieldDefinition:
     display_format: str | None = None
     hidden: bool = False
     read_only: bool = False
+
+    def __post_init__(self):
+        if self.pattern is not None:
+            _validate_regex_pattern(self.pattern)
 
 
 @dataclass

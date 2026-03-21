@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
 import '../../market/data/market_repository.dart';
 import '../../../core/network/api_result.dart';
+import '../logic/home_providers.dart';
 
 /// SAHOOL Home Dashboard Screen - الشاشة الرئيسية المذهلة
 /// تجمع ملخص الطقس، التنبيهات، والإجراءات السريعة
@@ -42,6 +44,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
         onRefresh: () async {
           ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
           ref.invalidate(walletFutureProvider);
+          ref.invalidate(dashboardFieldsProvider);
         },
         color: SahoolColors.primary,
         child: CustomScrollView(
@@ -64,13 +67,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined, color: Colors.white),
                   onPressed: () {
-                    // فتح صفحة الإشعارات
+                    context.push('/notifications');
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings_outlined, color: Colors.white),
                   onPressed: () {
-                    // فتح الإعدادات
+                    context.push('/settings');
                   },
                 ),
               ],
@@ -199,7 +202,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
     return _buildWeatherCard(
       temp: data.current.temperature.round(),
-      description: data.current.description,
+      description: data.current.conditionAr,
       humidity: data.current.humidity.round(),
       windSpeed: data.current.windSpeed,
       city: 'صنعاء',
@@ -301,12 +304,29 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   }
 
   Widget _buildWeatherCardFallback() {
-    return _buildWeatherCard(
-      temp: 28,
-      description: 'مشمس وصحو',
-      humidity: 45,
-      windSpeed: 3.5,
-      city: 'صنعاء',
+    // Fallback: clearly shows data is unavailable
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Center(
+        child: Column(
+          children: [
+            Icon(Icons.cloud_off, size: 40, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              'لا تتوفر بيانات الطقس حالياً',
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+            Text(
+              'اسحب للتحديث',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -420,7 +440,34 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   }
 
   Widget _buildWalletCardFallback() {
-    return _buildWalletCard(balance: 1250.00, creditScore: 720);
+    // Fallback: clearly shows wallet data is unavailable
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.account_balance_wallet_outlined, color: Colors.grey, size: 32),
+          SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'المحفظة غير متاحة',
+                style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'اسحب للتحديث',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Color _getCreditScoreColor(int score) {
@@ -438,7 +485,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
           label: 'فحص آفة',
           color: Colors.purple,
           onTap: () {
-            // Navigator.push to crop health screen
+            context.push('/scanner');
           },
         ),
         _ActionItem(
@@ -446,7 +493,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
           label: 'الري الذكي',
           color: Colors.blue,
           onTap: () {
-            // Navigator.push to irrigation screen
+            context.push('/irrigation');
           },
         ),
         _ActionItem(
@@ -454,7 +501,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
           label: 'السوق',
           color: Colors.orange,
           onTap: () {
-            // Navigator.push to market screen
+            context.push('/market');
           },
         ),
         _ActionItem(
@@ -462,7 +509,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
           label: 'الخبراء',
           color: SahoolColors.forestGreen,
           onTap: () {
-            // Navigator.push to community chat
+            context.push('/chat');
           },
         ),
       ],
@@ -470,35 +517,74 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   }
 
   Widget _buildAlertsSection() {
-    // في التطبيق الحقيقي، هذه البيانات تأتي من خدمة IoT
+    final alertsState = ref.watch(alertsProvider);
+
+    if (alertsState.isLoading) {
+      return _buildLoadingCard(height: 80);
+    }
+
+    final activeAlerts = alertsState.alerts
+        .where((a) => a.endTime.isAfter(DateTime.now()))
+        .toList();
+
+    if (activeAlerts.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border(right: BorderSide(color: Colors.green, width: 4)),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 24),
+            SizedBox(width: 12),
+            Text(
+              'لا توجد تنبيهات حالياً',
+              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        _AlertCard(
-          title: 'حقل الشمال',
-          message: 'رطوبة التربة ممتازة (65%)',
-          icon: Icons.check_circle,
-          color: Colors.green,
-          time: 'منذ 5 دقائق',
-        ),
-        const SizedBox(height: 10),
-        _AlertCard(
-          title: 'بيت محمي 1',
-          message: 'درجة الحرارة مرتفعة قليلاً (32°)',
-          icon: Icons.warning_amber_rounded,
-          color: Colors.orange,
-          time: 'منذ 15 دقيقة',
-        ),
-      ],
+      children: activeAlerts.take(3).map((alert) {
+        final isWarning = alert.severity == 'warning' || alert.severity == 'severe';
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _AlertCard(
+            title: alert.description.length > 30
+                ? alert.description.substring(0, 30)
+                : alert.description,
+            message: alert.description,
+            icon: isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
+            color: isWarning ? Colors.orange : Colors.blue,
+            time: _formatAlertTime(alert.startTime),
+          ),
+        );
+      }).toList(),
     );
   }
 
+  String _formatAlertTime(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
+    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
+    return 'منذ ${diff.inDays} يوم';
+  }
+
   Widget _buildStatsRow() {
+    final fieldsCount = ref.watch(activeFieldsCountProvider);
+    final todayTasks = ref.watch(todayTasksCountProvider);
+    final cropHealth = ref.watch(cropHealthPercentProvider);
+
     return Row(
       children: [
         Expanded(
           child: _StatMiniCard(
             icon: Icons.grass,
-            value: '5',
+            value: '$fieldsCount',
             label: 'حقول نشطة',
             color: SahoolColors.forestGreen,
           ),
@@ -507,7 +593,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
         Expanded(
           child: _StatMiniCard(
             icon: Icons.task_alt,
-            value: '3',
+            value: '$todayTasks',
             label: 'مهام اليوم',
             color: Colors.blue,
           ),
@@ -516,7 +602,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
         Expanded(
           child: _StatMiniCard(
             icon: Icons.trending_up,
-            value: '85%',
+            value: cropHealth > 0 ? '$cropHealth%' : '—',
             label: 'صحة المحاصيل',
             color: Colors.green,
           ),
@@ -646,6 +732,8 @@ class _AlertCard extends StatelessWidget {
                     color: Colors.grey[600],
                     fontSize: 12,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

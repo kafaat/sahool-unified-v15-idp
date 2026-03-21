@@ -3,7 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'state/home_controller.dart';
+import '../home/logic/home_providers.dart';
+import '../../features/weather/presentation/providers/weather_provider.dart';
 
 class HomeV16Screen extends ConsumerWidget {
   const HomeV16Screen({super.key});
@@ -225,13 +228,29 @@ class _QuickActions extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            _ActionButton(label: "حقولي", icon: Icons.map, onTap: () {}),
+            _ActionButton(
+              label: "حقولي",
+              icon: Icons.map,
+              onTap: () => context.push('/fields'),
+            ),
             const SizedBox(width: 12),
-            _ActionButton(label: "NDVI", icon: Icons.show_chart, onTap: () {}),
+            _ActionButton(
+              label: "NDVI",
+              icon: Icons.show_chart,
+              onTap: () => context.push('/crop-health'),
+            ),
             const SizedBox(width: 12),
-            _ActionButton(label: "المهام", icon: Icons.checklist, onTap: () {}),
+            _ActionButton(
+              label: "المهام",
+              icon: Icons.checklist,
+              onTap: () => context.push('/tasks'),
+            ),
             const SizedBox(width: 12),
-            _ActionButton(label: "الري", icon: Icons.water_drop, onTap: () {}),
+            _ActionButton(
+              label: "الري",
+              icon: Icons.water_drop,
+              onTap: () => context.push('/irrigation'),
+            ),
           ],
         ),
       ],
@@ -279,15 +298,21 @@ class _ActionButton extends StatelessWidget {
 // Alerts Preview Widget
 // ═══════════════════════════════════════════════════════════════
 
-class _AlertsPreview extends StatelessWidget {
+class _AlertsPreview extends ConsumerWidget {
   final bool loading;
   final int alertsCount;
 
   const _AlertsPreview({required this.loading, required this.alertsCount});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (loading || alertsCount == 0) return const SizedBox.shrink();
+
+    final alertsState = ref.watch(alertsProvider);
+    final activeAlerts = alertsState.alerts
+        .where((a) => a.endTime.isAfter(DateTime.now()))
+        .take(3)
+        .toList();
 
     return Container(
       width: double.infinity,
@@ -322,9 +347,14 @@ class _AlertsPreview extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Text("• انخفاض NDVI في الحقل 12"),
-          const SizedBox(height: 4),
-          const Text("• موعد ري مستحق لقطاع Zone A"),
+          if (activeAlerts.isNotEmpty)
+            ...activeAlerts.map((alert) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text("• ${alert.description}"),
+                ))
+          else ...[
+            const Text("• لا توجد تنبيهات نشطة حالياً"),
+          ],
         ],
       ),
     );
@@ -335,13 +365,15 @@ class _AlertsPreview extends StatelessWidget {
 // Fields Preview Widget
 // ═══════════════════════════════════════════════════════════════
 
-class _FieldsPreview extends StatelessWidget {
+class _FieldsPreview extends ConsumerWidget {
   final int fieldsCount;
 
   const _FieldsPreview({required this.fieldsCount});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fieldsAsync = ref.watch(dashboardFieldsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -352,62 +384,88 @@ class _FieldsPreview extends StatelessWidget {
               "حقولي ($fieldsCount)",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            TextButton(onPressed: () {}, child: const Text("عرض الكل")),
+            TextButton(
+              onPressed: () => context.push('/fields'),
+              child: const Text("عرض الكل"),
+            ),
           ],
         ),
         const SizedBox(height: 8),
         SizedBox(
           height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: fieldsCount > 5 ? 5 : fieldsCount,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 140,
-                margin: const EdgeInsets.only(left: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("حقل ${index + 1}",
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(
-                      "قمح",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+          child: fieldsAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, __) => const Center(
+              child: Text('خطأ في تحميل الحقول', style: TextStyle(color: Colors.grey)),
+            ),
+            data: (fields) {
+              if (fields.isEmpty) {
+                return const Center(
+                  child: Text('لا توجد حقول مسجلة', style: TextStyle(color: Colors.grey)),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: fields.length > 5 ? 5 : fields.length,
+                itemBuilder: (context, index) {
+                  final field = fields[index];
+                  return GestureDetector(
+                    onTap: () => context.push('/field/${field.id}'),
+                    child: Container(
+                      width: 140,
+                      margin: const EdgeInsets.only(left: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            field.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            field.cropType ?? '—',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Icon(Icons.eco, size: 14, color: Colors.green[600]),
+                              const SizedBox(width: 4),
+                              Text(
+                                field.ndviCurrent != null
+                                    ? field.ndviCurrent!.toStringAsFixed(2)
+                                    : '—',
+                                style: TextStyle(
+                                  color: Colors.green[700],
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(Icons.eco, size: 14, color: Colors.green[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          "0.${60 + index}",
-                          style: TextStyle(
-                            color: Colors.green[700],
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),

@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../logic/home_providers.dart';
 
 /// بطاقة الإحصائيات السريعة
-class QuickStatsCard extends StatelessWidget {
+/// Derives stats from dashboardFieldsProvider, pendingTasksCountProvider,
+/// and activeAlertsCountProvider instead of hardcoded values.
+class QuickStatsCard extends ConsumerWidget {
   const QuickStatsCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fieldsCount = ref.watch(activeFieldsCountProvider);
+    final totalArea = ref.watch(totalAreaHectaresProvider);
+    final pendingTasks = ref.watch(pendingTasksCountProvider);
+    final alertsCount = ref.watch(activeAlertsCountProvider);
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -16,28 +25,28 @@ class QuickStatsCard extends StatelessWidget {
           children: [
             _buildStatItem(
               icon: Icons.landscape,
-              value: '3',
+              value: '$fieldsCount',
               label: 'حقول',
               color: const Color(0xFF367C2B),
             ),
             _buildDivider(),
             _buildStatItem(
               icon: Icons.straighten,
-              value: '106',
+              value: totalArea > 0 ? '${totalArea.round()}' : '—',
               label: 'هكتار',
               color: Colors.blue,
             ),
             _buildDivider(),
             _buildStatItem(
               icon: Icons.assignment_turned_in,
-              value: '5',
+              value: '$pendingTasks',
               label: 'إجراءات',
               color: Colors.orange,
             ),
             _buildDivider(),
             _buildStatItem(
               icon: Icons.warning,
-              value: '2',
+              value: '$alertsCount',
               label: 'تنبيهات',
               color: Colors.red,
             ),

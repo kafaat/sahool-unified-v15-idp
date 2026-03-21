@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/auth/auth_service.dart';
 import '../presentation/providers/profile_provider.dart';
 
 /// Profile Screen - الملف الشخصي والإعدادات
@@ -11,6 +12,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider);
+    final authState = ref.watch(authStateProvider);
 
     return Scaffold(
       backgroundColor: SahoolColors.background,
@@ -48,7 +50,9 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        profile.userNameAr.isNotEmpty ? profile.userNameAr : 'أحمد محمد',
+                        profile.userNameAr.isNotEmpty
+                            ? profile.userNameAr
+                            : (authState.user?.name ?? 'المستخدم'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -57,7 +61,9 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        profile.location.isNotEmpty ? profile.location : 'مزارع',
+                        profile.location.isNotEmpty
+                            ? profile.location
+                            : (profile.farmNameAr.isNotEmpty ? profile.farmNameAr : 'مزارع'),
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 14,
@@ -71,7 +77,7 @@ class ProfileScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.white),
-                onPressed: () {},
+                onPressed: () => context.push('/settings'),
               ),
             ],
           ),
@@ -93,18 +99,18 @@ class ProfileScreen extends ConsumerWidget {
                       _SettingItem(
                         icon: Icons.person_outline,
                         title: 'معلومات الحساب',
-                        onTap: () {},
+                        onTap: () => context.push('/settings'),
                       ),
                       _SettingItem(
                         icon: Icons.phone_android,
                         title: 'رقم الهاتف',
-                        subtitle: '+967 7XX XXX XXX',
-                        onTap: () {},
+                        subtitle: authState.user?.phone ?? '+967 7XX XXX XXX',
+                        onTap: () => context.push('/settings'),
                       ),
                       _SettingItem(
                         icon: Icons.security,
                         title: 'الأمان والخصوصية',
-                        onTap: () {},
+                        onTap: () => context.push('/settings'),
                       ),
                       _SettingItem(
                         icon: Icons.fingerprint,
@@ -123,10 +129,10 @@ class ProfileScreen extends ConsumerWidget {
                       _SettingItem(
                         icon: Icons.notifications_outlined,
                         title: 'إعدادات التنبيهات',
-                        onTap: () {},
+                        onTap: () => context.push('/notifications'),
                         trailing: Switch(
                           value: true,
-                          onChanged: (_) {},
+                          onChanged: (_) => context.push('/notifications'),
                           activeColor: SahoolColors.primary,
                         ),
                       ),
@@ -134,15 +140,15 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.language,
                         title: 'اللغة',
                         subtitle: 'العربية',
-                        onTap: () {},
+                        onTap: () => context.push('/settings'),
                       ),
                       _SettingItem(
                         icon: Icons.dark_mode_outlined,
                         title: 'الوضع الليلي',
-                        onTap: () {},
+                        onTap: () => context.push('/settings'),
                         trailing: Switch(
                           value: false,
-                          onChanged: (_) {},
+                          onChanged: (_) => context.push('/settings'),
                           activeColor: SahoolColors.primary,
                         ),
                       ),
@@ -165,7 +171,7 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.download_outlined,
                         title: 'الخرائط المحملة',
                         subtitle: '45 MB',
-                        onTap: () {},
+                        onTap: () => context.push('/map'),
                       ),
                       _SettingItem(
                         icon: Icons.delete_outline,
@@ -183,12 +189,12 @@ class ProfileScreen extends ConsumerWidget {
                       _SettingItem(
                         icon: Icons.help_outline,
                         title: 'مركز المساعدة',
-                        onTap: () {},
+                        onTap: () => context.push('/help'),
                       ),
                       _SettingItem(
                         icon: Icons.chat_bubble_outline,
                         title: 'تواصل معنا',
-                        onTap: () {},
+                        onTap: () => context.push('/chat'),
                       ),
                       _SettingItem(
                         icon: Icons.info_outline,
@@ -378,21 +384,27 @@ class ProfileScreen extends ConsumerWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('تسجيل الخروج'),
         content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.go('/splash');
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
-            child: const Text('خروج'),
+          Consumer(
+            builder: (_, ref, __) => ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                // Call auth service logout - this clears tokens and session
+                await ref.read(authStateProvider.notifier).logout();
+                if (context.mounted) {
+                  context.go('/login');
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
+              child: const Text('خروج', style: TextStyle(color: Colors.white)),
+            ),
           ),
         ],
       ),

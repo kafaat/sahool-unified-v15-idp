@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/accessibility/semantics_helper.dart';
 import '../../../core/di/providers.dart';
 import '../logic/sync_provider.dart';
+import '../logic/home_providers.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
+import '../../tasks/providers/tasks_provider.dart';
 
 /// شاشة سهول الرئيسية - تصميم Bento Grid العضوي
 /// Organic Dashboard with Bento Grid Layout
@@ -23,9 +27,39 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // مراقبة البيانات
-    final fieldsAsync = ref.watch(fieldsStreamProvider);
+    final apiClient = ref.watch(apiClientProvider);
+    final fieldsAsync = ref.watch(fieldsStreamProvider(apiClient.tenantId));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
+
+    // Live data from providers
+    final weatherState = ref.watch(weatherProvider);
+    final pendingTasks = ref.watch(pendingTasksProvider);
+    final ndvi = ref.watch(averageNdviProvider);
+    final fieldsData = ref.watch(dashboardFieldsProvider);
+
+    // Derived values
+    final taskCount = pendingTasks.length;
+    final weatherTemp = weatherState.data?.current.temperature.round();
+    final weatherCondition = weatherState.data?.current.conditionAr ?? '—';
+    final ndviDisplay = ndvi != null ? ndvi.toStringAsFixed(2) : '—';
+    final ndviHealth = ndvi != null
+        ? SahoolSemantics.getHealthLabel(ndvi)
+        : 'لا توجد بيانات';
+
+    // Soil moisture from first field (simplified; in production use sensor data)
+    final soilMoisture = fieldsData.when(
+      data: (fields) {
+        if (fields.isEmpty) return '—';
+        final first = fields.first;
+        // Use NDVI as a rough proxy if no soil sensor
+        return first.ndviCurrent != null
+            ? '${(first.ndviCurrent! * 70).round()}%'
+            : '—';
+      },
+      loading: () => '...',
+      error: (_, __) => '—',
+    );
 
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
@@ -39,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
               Semantics(
                 header: true,
                 label: 'شاشة الرئيسية، لوحة التحكم الزراعية',
-                child: _buildHeader(context, syncStatus, pendingCount),
+                child: _buildHeader(context, syncStatus, pendingCount, weatherTemp),
               ),
 
               const SizedBox(height: 32),
@@ -54,6 +88,7 @@ class HomeScreen extends ConsumerWidget {
                   height: 320,
                   child: OrganicCard(
                     padding: EdgeInsets.zero,
+                    onTap: () => context.push('/monitor'),
                     child: Stack(
                       children: [
                         // الخريطة - Map
@@ -69,40 +104,7 @@ class HomeScreen extends ConsumerWidget {
                           bottom: 16,
                           left: 16,
                           right: 16,
-                          child: Semantics(
-                            label: 'الحقل الشمالي، قمح، نشط',
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  ExcludeSemantics(
-                                    child: const CircleAvatar(
-                                      radius: 4,
-                                      backgroundColor: SahoolColors.forestGreen,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    "الحقل الشمالي • قمح",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  const StatusBadge(
-                                    label: "نشط",
-                                    color: SahoolColors.forestGreen,
-                                    icon: Icons.sensors,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          child: _buildMapOverlay(fieldsData),
                         ),
                       ],
                     ),
@@ -112,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
 
               const SizedBox(height: 16),
 
-              // الصف الثاني: بطاقتين (المهام + الإنتاجية)
+              // الصف الثاني: بطاقتين (المهام + الري)
               // Second row: Tasks and Irrigation cards
               Row(
                 children: [
@@ -120,7 +122,7 @@ class HomeScreen extends ConsumerWidget {
                   Expanded(
                     child: Semantics(
                       label: SahoolSemantics.tasksCard,
-                      hint: '5 مهام تنتظر التنفيذ اليوم، اضغط لعرض المهام',
+                      hint: '$taskCount مهام تنتظر التنفيذ اليوم، اضغط لعرض المهام',
                       button: true,
                       child: SizedBox(
                         height: 160,
@@ -128,8 +130,7 @@ class HomeScreen extends ConsumerWidget {
                           color: SahoolColors.harvestGold,
                           isPrimary: true,
                           onTap: () {
-                            // الانتقال لصفحة المهام
-                            AnnouncementHelper.announceNavigation(context, 'المهام');
+                            context.push('/tasks');
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,18 +149,18 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              const Column(
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "5 مهام",
-                                    style: TextStyle(
+                                    "$taskCount مهام",
+                                    style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  Text(
+                                  const Text(
                                     "تنتظر التنفيذ اليوم",
                                     style: TextStyle(
                                       fontSize: 12,
@@ -180,14 +181,13 @@ class HomeScreen extends ConsumerWidget {
                   Expanded(
                     child: Semantics(
                       label: SahoolSemantics.irrigationCard,
-                      hint: 'رطوبة التربة 45%، ممتازة، اضغط لعرض التفاصيل',
+                      hint: 'رطوبة التربة $soilMoisture، اضغط لعرض التفاصيل',
                       button: true,
                       child: SizedBox(
                         height: 160,
                         child: OrganicCard(
                           onTap: () {
-                            // الانتقال لصفحة التحليلات
-                            AnnouncementHelper.announceNavigation(context, 'التحليلات');
+                            context.push('/irrigation');
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,9 +218,9 @@ class HomeScreen extends ConsumerWidget {
                                 children: [
                                   Row(
                                     children: [
-                                      const Text(
-                                        "45%",
-                                        style: TextStyle(
+                                      Text(
+                                        soilMoisture,
+                                        style: const TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
                                           color: SahoolColors.forestGreen,
@@ -237,7 +237,7 @@ class HomeScreen extends ConsumerWidget {
                                     ],
                                   ),
                                   Text(
-                                    "رطوبة التربة ممتازة",
+                                    soilMoisture == '—' ? 'لا توجد بيانات' : 'رطوبة التربة',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[600],
@@ -263,13 +263,13 @@ class HomeScreen extends ConsumerWidget {
                   // بطاقة صحة المحصول - Crop health card
                   Expanded(
                     child: Semantics(
-                      label: '${SahoolSemantics.fieldHealth}، ${SahoolSemantics.ndviValue} 0.72',
-                      hint: 'صحة ممتازة، اضغط لعرض تفاصيل صحة المحصول',
+                      label: '${SahoolSemantics.fieldHealth}، ${SahoolSemantics.ndviValue} $ndviDisplay',
+                      hint: '$ndviHealth، اضغط لعرض تفاصيل صحة المحصول',
                       button: true,
                       child: SizedBox(
                         height: 120,
                         child: OrganicCard(
-                          onTap: () {},
+                          onTap: () => context.push('/crop-health'),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -303,20 +303,20 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              const Column(
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "0.72",
-                                    style: TextStyle(
+                                    ndviDisplay,
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: SahoolColors.forestGreen,
                                     ),
                                   ),
                                   Text(
-                                    "صحة ممتازة",
-                                    style: TextStyle(
+                                    ndviHealth,
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey,
                                     ),
@@ -335,12 +335,12 @@ class HomeScreen extends ConsumerWidget {
                   Expanded(
                     child: Semantics(
                       label: SahoolSemantics.weatherInfo,
-                      hint: '${SahoolSemantics.temperature} 24 درجة مئوية، مشمس جزئياً',
+                      hint: '${SahoolSemantics.temperature} ${weatherTemp ?? "—"} درجة مئوية، $weatherCondition',
                       button: true,
                       child: SizedBox(
                         height: 120,
                         child: OrganicCard(
-                          onTap: () {},
+                          onTap: () => context.push('/weather'),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -363,20 +363,20 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              const Column(
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "24°C",
-                                    style: TextStyle(
+                                    weatherTemp != null ? "$weatherTemp°C" : "—",
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: SahoolColors.forestGreen,
                                     ),
                                   ),
                                   Text(
-                                    "مشمس جزئياً",
-                                    style: TextStyle(
+                                    weatherCondition,
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey,
                                     ),
@@ -398,12 +398,12 @@ class HomeScreen extends ConsumerWidget {
               // Fourth row: Wide message card
               Semantics(
                 label: SahoolSemantics.messageCard,
-                hint: 'رسالة من المهندس سالم، يرجى فحص مضخة الحقل C غداً، اضغط لفتح الرسالة',
+                hint: 'اضغط للدخول للمحادثات',
                 button: true,
                 child: SizedBox(
                   height: 100,
                   child: OrganicCard(
-                    onTap: () {},
+                    onTap: () => context.push('/chat'),
                     child: Row(
                       children: [
                         ExcludeSemantics(
@@ -415,7 +415,7 @@ class HomeScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(18),
                             ),
                             child: const Icon(
-                              Icons.person,
+                              Icons.chat_bubble_outline,
                               color: SahoolColors.forestGreen,
                               size: 30,
                             ),
@@ -428,11 +428,11 @@ class HomeScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                "رسالة من المهندس سالم",
+                                "المحادثات والخبراء",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "يرجى فحص مضخة الحقل C غداً...",
+                                "تواصل مع الخبراء الزراعيين",
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 12,
@@ -465,9 +465,22 @@ class HomeScreen extends ConsumerWidget {
       bottomNavigationBar: FloatingNavBar(
         currentIndex: 0,
         onTap: (index) {
-          // التنقل بين الصفحات
-          if (index == -1) {
-            // إضافة حقل جديد
+          switch (index) {
+            case 0:
+              // Already on home
+              break;
+            case 1:
+              context.go('/monitor');
+              break;
+            case 2:
+              context.push('/fields/new');
+              break;
+            case 3:
+              context.go('/market');
+              break;
+            case 4:
+              context.go('/profile');
+              break;
           }
         },
       ),
@@ -476,7 +489,7 @@ class HomeScreen extends ConsumerWidget {
 
   // --- Helper Widgets ---
 
-  Widget _buildHeader(BuildContext context, SyncStatus status, int count) {
+  Widget _buildHeader(BuildContext context, SyncStatus status, int count, int? weatherTemp) {
     // Build sync status label for accessibility
     String syncLabel;
     switch (status) {
@@ -500,7 +513,7 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "صباح الخير،",
+                _getGreeting(),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.grey,
                     ),
@@ -508,7 +521,7 @@ class HomeScreen extends ConsumerWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  "المزارع أحمد",
+                  "المزارع",
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: SahoolColors.forestGreen,
@@ -521,7 +534,7 @@ class HomeScreen extends ConsumerWidget {
 
         // كبسولة الطقس والمزامنة - Weather and sync capsule
         Semantics(
-          label: '${SahoolSemantics.syncStatus}: $syncLabel، ${SahoolSemantics.temperature}: 24 درجة',
+          label: '${SahoolSemantics.syncStatus}: $syncLabel، ${SahoolSemantics.temperature}: ${weatherTemp ?? "—"} درجة',
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -575,15 +588,79 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Text(
-                  "24°",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  weatherTemp != null ? "$weatherTemp°" : "—",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'صباح الخير،';
+    if (hour < 17) return 'مساء الخير،';
+    return 'مساء النور،';
+  }
+
+  Widget _buildMapOverlay(AsyncValue<List<dynamic>> fieldsData) {
+    return fieldsData.when(
+      data: (fields) {
+        if (fields.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              "لا توجد حقول مسجلة",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          );
+        }
+        final first = fields.first;
+        return Semantics(
+          label: '${first.name}، ${first.cropType ?? ""}، ${first.status ?? "نشط"}',
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                ExcludeSemantics(
+                  child: const CircleAvatar(
+                    radius: 4,
+                    backgroundColor: SahoolColors.forestGreen,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "${first.name} • ${first.cropType ?? '—'}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                const Spacer(),
+                StatusBadge(
+                  label: first.status ?? "نشط",
+                  color: SahoolColors.forestGreen,
+                  icon: Icons.sensors,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 

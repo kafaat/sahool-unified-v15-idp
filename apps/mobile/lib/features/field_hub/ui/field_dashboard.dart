@@ -6,6 +6,10 @@ import '../../../core/theme/sahool_theme.dart';
 class FieldDashboard extends StatelessWidget {
   const FieldDashboard({super.key});
 
+  void _navigateTo(BuildContext context, String route, {Map<String, dynamic>? arguments}) {
+    Navigator.pushNamed(context, route, arguments: arguments);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,11 +19,18 @@ class FieldDashboard extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            onPressed: () => _navigateTo(context, '/notifications'),
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('جاري تحديث البيانات...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -49,7 +60,7 @@ class FieldDashboard extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _navigateTo(context, '/fields'),
                   icon: const Icon(Icons.arrow_forward, size: 18),
                   label: const Text('عرض الكل'),
                 ),
@@ -81,7 +92,7 @@ class FieldDashboard extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _navigateTo(context, '/task-create'),
         icon: const Icon(Icons.add),
         label: const Text('مهمة جديدة'),
       ),
@@ -465,7 +476,7 @@ class FieldDashboard extends StatelessWidget {
                 ),
               ],
             ),
-            TextButton(onPressed: () {}, child: const Text('عرض الكل')),
+            TextButton(onPressed: () => _navigateTo(context, '/alerts'), child: const Text('عرض الكل')),
           ],
         ),
         const SizedBox(height: 12),

@@ -336,7 +336,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               title: const Text('**** **** **** 4242', style: TextStyle(fontWeight: FontWeight.bold)),
               subtitle: const Text('Visa - تنتهي 12/27'),
               trailing: TextButton(
-                onPressed: () {},
+                onPressed: () => _showPaymentMethodPicker(context),
                 child: const Text('تغيير'),
               ),
             ),
@@ -362,6 +362,103 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
                 ),
               )),
         ],
+      ),
+    );
+  }
+
+  void _showPaymentMethodPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'اختر طريقة الدفع',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.credit_card,
+              title: 'بطاقة ائتمان / خصم',
+              subtitle: 'Visa, Mastercard',
+              color: Colors.blue,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.account_balance,
+              title: 'تحويل بنكي',
+              subtitle: 'تحويل مباشر من حسابك البنكي',
+              color: Colors.green,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.phone_android,
+              title: 'محفظة إلكترونية',
+              subtitle: 'Apple Pay, Google Pay',
+              color: Colors.orange,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.account_balance_wallet,
+              title: 'رصيد المحفظة',
+              subtitle: 'الدفع من رصيد محفظة سهول',
+              color: Colors.purple,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(this.context).showSnackBar(
+            SnackBar(
+              content: Text('تم اختيار: $title'),
+              backgroundColor: SahoolColors.forestGreen,
+            ),
+          );
+        },
       ),
     );
   }

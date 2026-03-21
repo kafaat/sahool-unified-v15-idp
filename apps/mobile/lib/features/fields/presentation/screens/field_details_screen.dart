@@ -748,7 +748,13 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
           ),
           const SizedBox(height: 8),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/task-create',
+                arguments: {'fieldId': widget.field.id, 'fieldName': widget.field.name},
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('إضافة مهمة'),
             style: ElevatedButton.styleFrom(
@@ -856,18 +862,18 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void _handleMenuAction(String action) {
     switch (action) {
       case 'edit':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعديل الحقل - قريباً')),
+        Navigator.pushNamed(
+          context,
+          '/field-form',
+          arguments: {'fieldId': widget.field.id},
         );
         break;
       case 'share':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('مشاركة - قريباً')),
-        );
+        _shareField();
         break;
       case 'export':
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تصدير - قريباً')),
+          const SnackBar(content: Text('تصدير البيانات - قريباً')),
         );
         break;
       case 'delete':
@@ -876,21 +882,53 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     }
   }
 
+  void _shareField() {
+    final field = widget.field;
+    final shareText = StringBuffer()
+      ..writeln('${field.name} - سهول')
+      ..writeln('المحصول: ${field.cropType}')
+      ..writeln('المساحة: ${field.areaHectares.toStringAsFixed(1)} هكتار')
+      ..writeln('الحالة: ${field.status.arabicLabel}');
+    if (field.ndviValue != null) {
+      shareText.writeln('NDVI: ${field.ndviValue!.toStringAsFixed(2)}');
+    }
+    Share.share(shareText.toString(), subject: field.name);
+  }
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('حذف الحقل'),
         content: Text('هل أنت متأكد من حذف "${widget.field.name}"؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              try {
+                final repo = ref.read(fieldsRepoProvider);
+                await repo.deleteField(widget.field.id);
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم حذف الحقل بنجاح'),
+                    backgroundColor: Color(0xFF367C2B),
+                  ),
+                );
+                Navigator.pop(context, 'deleted');
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('فشل حذف الحقل: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('حذف'),

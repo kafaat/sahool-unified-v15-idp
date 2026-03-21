@@ -495,7 +495,7 @@ class _QuickActionsSection extends StatelessWidget {
             icon: Icons.swap_horiz,
             label: 'تحويل',
             color: Colors.purple,
-            onTap: () {},
+            onTap: () => _showTransferDialog(context),
           ),
         ],
       ),
@@ -534,6 +534,113 @@ class _QuickActionsSection extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => const _LoanBottomSheet(),
+    );
+  }
+
+  void _showTransferDialog(BuildContext context) {
+    final amountController = TextEditingController();
+    final recipientController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16213E),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'تحويل رصيد',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: recipientController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'رقم المستفيد أو اسمه',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(Icons.person_search, color: Colors.white70),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'المبلغ (ر.ي)',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(Icons.attach_money, color: Colors.white70),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (amountController.text.isNotEmpty &&
+                      recipientController.text.isNotEmpty) {
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'تم تحويل ${amountController.text} ر.ي إلى ${recipientController.text}'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('تأكيد التحويل',
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -632,7 +739,7 @@ class _AvailableCreditBanner extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () => _showCreditApplicationDialog(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.green.shade700,
@@ -641,6 +748,56 @@ class _AvailableCreditBanner extends StatelessWidget {
               ),
             ),
             child: const Text('تقدم الآن'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreditApplicationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('طلب تمويل زراعي'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'المبلغ المتاح: ${wallet.availableCredit.toStringAsFixed(0)} ر.ي',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text('سيتم مراجعة طلبك والرد خلال 48 ساعة.'),
+            const SizedBox(height: 12),
+            const Text(
+              'الشروط:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const Text('- حساب نشط لمدة 3 أشهر على الأقل'),
+            const Text('- سجل معاملات إيجابي'),
+            const Text('- لا يوجد تمويل سابق متأخر'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تم إرسال طلب التمويل بنجاح. سيتم الرد خلال 48 ساعة.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            child: const Text('تقديم الطلب', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

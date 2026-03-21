@@ -1,94 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../tasks/providers/tasks_provider.dart';
+import '../../../tasks/domain/entities/task.dart';
 
 /// ويدجت ملخص الإجراءات
-class ActionSummaryWidget extends StatelessWidget {
+/// Loads pending tasks from tasksProvider instead of hardcoded list
+class ActionSummaryWidget extends ConsumerWidget {
   const ActionSummaryWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Demo data - في الإنتاج سيكون من Provider
-    final actions = [
-      {
-        'type': 'irrigation',
-        'icon': '💧',
-        'title': 'ري حقل القمح الشمالي',
-        'priority': 'P0',
-        'field': 'حقل القمح الشمالي',
-        'timeWindow': '4 ساعات',
-      },
-      {
-        'type': 'fertilization',
-        'icon': '🌱',
-        'title': 'تسميد حقل الشعير',
-        'priority': 'P1',
-        'field': 'حقل الشعير الغربي',
-        'timeWindow': '24 ساعة',
-      },
-      {
-        'type': 'scouting',
-        'icon': '🔍',
-        'title': 'فحص منطقة الضعف',
-        'priority': 'P1',
-        'field': 'حقل البرسيم',
-        'timeWindow': '48 ساعة',
-      },
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tasksAsync = ref.watch(tasksProvider);
 
-    if (actions.isEmpty) {
-      return Card(
+    return tasksAsync.when(
+      loading: () => const SizedBox(
+        height: 120,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, _) => Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const Padding(
-          padding: EdgeInsets.all(24),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
           child: Center(
             child: Column(
               children: [
-                Icon(Icons.check_circle, size: 48, color: Colors.green),
-                SizedBox(height: 12),
-                Text('لا توجد إجراءات مطلوبة'),
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 12),
+                Text('خطأ في تحميل الإجراءات: ${err.toString().substring(0, 40)}'),
               ],
             ),
           ),
         ),
-      );
-    }
+      ),
+      data: (allTasks) {
+        // Filter to pending / in-progress tasks
+        final actions = allTasks
+            .where((t) =>
+                t.status == TaskStatus.open ||
+                t.status == TaskStatus.inProgress)
+            .toList()
+          ..sort((a, b) => (a.priority.index).compareTo(b.priority.index));
 
-    return Column(
-      children: [
-        // شريط الملخص
-        Card(
-          color: const Color(0xFF367C2B).withOpacity(0.1),
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildSummaryItem('🔴', '1', 'عاجل'),
-                _buildSummaryItem('🟠', '2', 'مهم'),
-                _buildSummaryItem('🔵', '2', 'متوسط'),
-              ],
+        if (actions.isEmpty) {
+          return Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.check_circle, size: 48, color: Colors.green),
+                    SizedBox(height: 12),
+                    Text('لا توجد إجراءات مطلوبة'),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        }
 
-        const SizedBox(height: 12),
+        // Count by priority
+        final urgentCount = actions.where((t) => t.priority == TaskPriority.critical).length;
+        final highCount = actions.where((t) => t.priority == TaskPriority.high).length;
+        final mediumCount = actions.where((t) => t.priority == TaskPriority.medium || t.priority == TaskPriority.low).length;
 
-        // قائمة الإجراءات
-        ...actions.take(3).map((action) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _buildActionTile(context, action),
-            )),
+        return Column(
+          children: [
+            // شريط الملخص
+            Card(
+              color: const Color(0xFF367C2B).withOpacity(0.1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildSummaryItem('🔴', '$urgentCount', 'عاجل'),
+                    _buildSummaryItem('🟠', '$highCount', 'مهم'),
+                    _buildSummaryItem('🔵', '$mediumCount', 'متوسط'),
+                  ],
+                ),
+              ),
+            ),
 
-        // زر عرض الكل
-        TextButton(
-          onPressed: () {
-            context.push('/tasks');
-          },
-          child: const Text('عرض جميع الإجراءات'),
-        ),
-      ],
+            const SizedBox(height: 12),
+
+            // قائمة الإجراءات (top 3)
+            ...actions.take(3).map((task) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _buildTaskTile(context, task),
+                )),
+
+            // زر عرض الكل
+            TextButton(
+              onPressed: () {
+                context.push('/tasks');
+              },
+              child: const Text('عرض جميع الإجراءات'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -116,8 +130,10 @@ class ActionSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildActionTile(BuildContext context, Map<String, dynamic> action) {
-    final priorityColor = _getPriorityColor(action['priority'] as String);
+  Widget _buildTaskTile(BuildContext context, FieldTask task) {
+    final priorityColor = _getPriorityColor(task.priority);
+    final priorityLabel = _getPriorityLabel(task.priority);
+    final icon = _getTaskIcon(task.title);
 
     return Card(
       elevation: 1,
@@ -136,30 +152,35 @@ class ActionSummaryWidget extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              action['icon'] as String,
+              icon,
               style: const TextStyle(fontSize: 20),
             ),
           ),
         ),
         title: Text(
-          action['title'] as String,
+          task.title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Row(
           children: [
             Icon(Icons.location_on, size: 12, color: Colors.grey[600]),
             const SizedBox(width: 2),
-            Text(
-              action['field'] as String,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            Flexible(
+              child: Text(
+                task.fieldId,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const SizedBox(width: 8),
-            Icon(Icons.schedule, size: 12, color: Colors.grey[600]),
-            const SizedBox(width: 2),
-            Text(
-              action['timeWindow'] as String,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
+            if (task.dueDate != null) ...[
+              const SizedBox(width: 8),
+              Icon(Icons.schedule, size: 12, color: Colors.grey[600]),
+              const SizedBox(width: 2),
+              Text(
+                _formatDueDate(task.dueDate!),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
           ],
         ),
         trailing: Container(
@@ -169,7 +190,7 @@ class ActionSummaryWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            action['priority'] as String,
+            priorityLabel,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
@@ -178,26 +199,54 @@ class ActionSummaryWidget extends StatelessWidget {
           ),
         ),
         onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/task/details',
-            arguments: action,
-          );
+          context.push('/tasks/${task.id}');
         },
       ),
     );
   }
 
-  Color _getPriorityColor(String priority) {
+  String _formatDueDate(DateTime dueDate) {
+    final now = DateTime.now();
+    final diff = dueDate.difference(now);
+    if (diff.isNegative) return 'متأخر';
+    if (diff.inHours < 1) return '${diff.inMinutes} دقيقة';
+    if (diff.inHours < 24) return '${diff.inHours} ساعة';
+    return '${diff.inDays} يوم';
+  }
+
+  String _getTaskIcon(String title) {
+    final lower = title.toLowerCase();
+    if (lower.contains('ري') || lower.contains('irrigation')) return '💧';
+    if (lower.contains('تسميد') || lower.contains('fertiliz')) return '🌱';
+    if (lower.contains('فحص') || lower.contains('scout')) return '🔍';
+    if (lower.contains('رش') || lower.contains('spray')) return '🧴';
+    if (lower.contains('حصاد') || lower.contains('harvest')) return '🌾';
+    return '📋';
+  }
+
+  Color _getPriorityColor(TaskPriority priority) {
     switch (priority) {
-      case 'P0':
+      case TaskPriority.critical:
         return Colors.red;
-      case 'P1':
+      case TaskPriority.high:
         return Colors.orange;
-      case 'P2':
+      case TaskPriority.medium:
         return Colors.blue;
-      default:
+      case TaskPriority.low:
         return Colors.grey;
+    }
+  }
+
+  String _getPriorityLabel(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.critical:
+        return 'P0';
+      case TaskPriority.high:
+        return 'P1';
+      case TaskPriority.medium:
+        return 'P2';
+      case TaskPriority.low:
+        return 'P3';
     }
   }
 }

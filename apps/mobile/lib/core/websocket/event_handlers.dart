@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
+import 'websocket_provider.dart';
+import '../../features/notifications/presentation/providers/notification_provider.dart';
 import '../notifications/notification_service.dart';
 import '../utils/app_logger.dart';
 
@@ -16,7 +18,7 @@ class WebSocketEventHandler {
   /// Handle WebSocket event
   /// معالجة حدث WebSocket
   Future<void> handleEvent(WebSocketEvent event) async {
-    AppLogger.info('Handling WebSocket event: ${event.eventType ?? event.type}');
+    AppLogger.i('Handling WebSocket event: ${event.eventType ?? event.type}');
 
     switch (event.eventType) {
       // Field events
@@ -111,14 +113,14 @@ class WebSocketEventHandler {
         break;
 
       default:
-        AppLogger.debug('Unhandled event type: ${event.eventType}');
+        AppLogger.d('Unhandled event type: ${event.eventType}');
     }
   }
 
   // Field Events
   Future<void> _handleFieldUpdated(WebSocketEvent event) async {
     // Update local cache, trigger UI refresh
-    AppLogger.info('Field updated: ${event.data?['field_id']}');
+    AppLogger.i('Field updated: ${event.data?['field_id']}');
   }
 
   Future<void> _handleFieldCreated(WebSocketEvent event) async {
@@ -145,7 +147,7 @@ class WebSocketEventHandler {
 
   Future<void> _handleWeatherUpdated(WebSocketEvent event) async {
     // Update weather cache silently
-    AppLogger.info('Weather updated');
+    AppLogger.i('Weather updated');
   }
 
   // Satellite Events
@@ -161,7 +163,7 @@ class WebSocketEventHandler {
 
   Future<void> _handleSatelliteProcessing(WebSocketEvent event) async {
     // Show processing status in UI
-    AppLogger.info('Satellite imagery processing');
+    AppLogger.i('Satellite imagery processing');
   }
 
   Future<void> _handleSatelliteFailed(WebSocketEvent event) async {
@@ -178,7 +180,7 @@ class WebSocketEventHandler {
   // NDVI Events
   Future<void> _handleNdviUpdated(WebSocketEvent event) async {
     // Update NDVI data in cache
-    AppLogger.info('NDVI updated for field: ${event.data?['field_id']}');
+    AppLogger.i('NDVI updated for field: ${event.data?['field_id']}');
   }
 
   Future<void> _handleNdviAnalysisReady(WebSocketEvent event) async {
@@ -216,7 +218,7 @@ class WebSocketEventHandler {
 
   Future<void> _handleInventoryUpdated(WebSocketEvent event) async {
     // Update inventory cache
-    AppLogger.info('Inventory updated');
+    AppLogger.i('Inventory updated');
   }
 
   // Crop Health Events
@@ -290,7 +292,7 @@ class WebSocketEventHandler {
   Future<void> _handleChatMessage(WebSocketEvent event) async {
     // Don't show notification if user is in the chat room
     // This should be handled by the chat UI
-    AppLogger.info('Chat message received');
+    AppLogger.i('Chat message received');
   }
 
   // Task Events
@@ -404,6 +406,6 @@ extension NotificationServiceExtension on NotificationService {
   }) async {
     // Implement notification display
     // This is a placeholder - actual implementation depends on your NotificationService
-    AppLogger.info('Notification: $title - $body');
+    AppLogger.i('Notification: $title - $body');
   }
 }

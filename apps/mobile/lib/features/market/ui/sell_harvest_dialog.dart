@@ -184,37 +184,37 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                     children: [
                       _InvoiceRow(
                         label: 'المحصول',
-                        value: yieldData['crop_type_ar'] ?? yieldData['cropAr'] ?? 'قمح',
+                        value: (yieldData['crop_type_ar'] as String?) ?? (yieldData['cropAr'] as String?) ?? 'قمح',
                         icon: Icons.grass,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'الكمية المتوقعة',
-                        value: '${yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons']} طن',
+                        value: '${(yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons'] ?? 0) as num} طن',
                         icon: Icons.scale,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'سعر السوق الحالي',
-                        value: '${_formatNumber((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0).toDouble())} ر.ي/طن',
+                        value: '${_formatNumber(((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0) as num).toDouble())} ر.ي/طن',
                         icon: Icons.trending_up,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'المحافظة',
-                        value: yieldData['governorate'] ?? 'غير محدد',
+                        value: (yieldData['governorate'] as String?) ?? 'غير محدد',
                         icon: Icons.location_on,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'موعد الحصاد',
-                        value: yieldData['harvest_date'] ?? yieldData['harvestDate'] ?? 'قريباً',
+                        value: (yieldData['harvest_date'] as String?) ?? (yieldData['harvestDate'] as String?) ?? 'قريباً',
                         icon: Icons.calendar_today,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'درجة الجودة',
-                        value: yieldData['quality_grade'] ?? yieldData['qualityGrade'] ?? 'A',
+                        value: (yieldData['quality_grade'] as String?) ?? (yieldData['qualityGrade'] as String?) ?? 'A',
                         icon: Icons.star,
                         valueColor: SahoolColors.harvestGold,
                       ),
@@ -366,8 +366,8 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
   }
 
   double _calculateTotal(Map<String, dynamic> data) {
-    final quantity = (data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0).toDouble();
-    final price = (data['price_per_ton'] ?? data['marketPrice'] ?? 0).toDouble();
+    final quantity = ((data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0) as num).toDouble();
+    final price = ((data['price_per_ton'] ?? data['marketPrice'] ?? 0) as num).toDouble();
     return quantity * price;
   }
 

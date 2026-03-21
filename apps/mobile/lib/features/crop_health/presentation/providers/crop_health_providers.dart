@@ -40,7 +40,11 @@ final aiServiceAvailableProvider = FutureProvider.autoDispose<bool>((ref) async 
 /// موفر المحاصيل المدعومة
 final supportedCropsProvider = FutureProvider.autoDispose<List<CropOption>>((ref) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
-  return repository.getSupportedCrops();
+  final result = await repository.getSupportedCrops();
+  return result.when(
+    success: (data) => data,
+    failure: (message, _) => throw Exception(message),
+  );
 });
 
 /// Provider for diseases list
@@ -48,7 +52,11 @@ final supportedCropsProvider = FutureProvider.autoDispose<List<CropOption>>((ref
 final diseasesProvider =
     FutureProvider.autoDispose.family<List<DiseaseInfo>, String?>((ref, cropType) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
-  return repository.getDiseases(cropType: cropType);
+  final result = await repository.getDiseases(cropType: cropType);
+  return result.when(
+    success: (data) => data,
+    failure: (message, _) => throw Exception(message),
+  );
 });
 
 /// Provider for treatment details
@@ -56,7 +64,11 @@ final diseasesProvider =
 final treatmentDetailsProvider =
     FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, diseaseId) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
-  return repository.getTreatmentDetails(diseaseId);
+  final result = await repository.getTreatmentDetails(diseaseId);
+  return result.when(
+    success: (data) => data,
+    failure: (message, _) => throw Exception(message),
+  );
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -153,38 +165,47 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await _repository.diagnoseFromImage(
+      final apiResult = await _repository.diagnoseFromImage(
         state.selectedImage!,
         fieldId: state.fieldId,
         cropType: state.selectedCropType,
         symptoms: symptoms,
       );
 
-      // Add to history
-      final historyItem = DiagnosisHistoryItem(
-        diagnosisId: result.diagnosisId,
-        diseaseName: result.diseaseName,
-        diseaseNameAr: result.diseaseNameAr,
-        confidence: result.confidence,
-        severity: result.severity,
-        timestamp: result.timestamp,
-        fieldId: state.fieldId,
-        imagePath: state.selectedImage?.path,
-      );
+      return apiResult.when(
+        success: (result) {
+          // Add to history
+          final historyItem = DiagnosisHistoryItem(
+            diagnosisId: result.diagnosisId,
+            diseaseName: result.diseaseName,
+            diseaseNameAr: result.diseaseNameAr,
+            confidence: result.confidence,
+            severity: result.severity,
+            timestamp: result.timestamp,
+            fieldId: state.fieldId,
+            imagePath: state.selectedImage?.path,
+          );
 
-      state = state.copyWith(
-        isLoading: false,
-        result: result,
-        history: [historyItem, ...state.history],
-      );
+          state = state.copyWith(
+            isLoading: false,
+            result: result,
+            history: [historyItem, ...state.history],
+          );
 
-      return result;
+          return result;
+        },
+        failure: (message, _) {
+          state = state.copyWith(
+            isLoading: false,
+            error: message,
+          );
+          return null;
+        },
+      );
     } catch (e) {
-      final error = e is CropHealthException ? e : CropHealthException('$e');
       state = state.copyWith(
         isLoading: false,
-        error: error.message,
-        errorAr: error.messageAr,
+        error: e.toString(),
       );
       return null;
     }
@@ -199,25 +220,33 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await _repository.diagnoseFromBytes(
+      final apiResult = await _repository.diagnoseFromBytes(
         imageBytes,
         filename,
         fieldId: state.fieldId,
         cropType: state.selectedCropType,
       );
 
-      state = state.copyWith(
-        isLoading: false,
-        result: result,
+      return apiResult.when(
+        success: (result) {
+          state = state.copyWith(
+            isLoading: false,
+            result: result,
+          );
+          return result;
+        },
+        failure: (message, _) {
+          state = state.copyWith(
+            isLoading: false,
+            error: message,
+          );
+          return null;
+        },
       );
-
-      return result;
     } catch (e) {
-      final error = e is CropHealthException ? e : CropHealthException('$e');
       state = state.copyWith(
         isLoading: false,
-        error: error.message,
-        errorAr: error.messageAr,
+        error: e.toString(),
       );
       return null;
     }
@@ -355,18 +384,28 @@ class BatchDiagnosisNotifier extends StateNotifier<BatchDiagnosisState> {
     state = state.copyWith(isLoading: true, error: null, progress: 0);
 
     try {
-      final result = await _repository.batchDiagnose(
+      final apiResult = await _repository.batchDiagnose(
         state.selectedImages,
         fieldId: fieldId,
       );
 
-      state = state.copyWith(
-        isLoading: false,
-        result: result,
-        progress: 1.0,
+      return apiResult.when(
+        success: (result) {
+          state = state.copyWith(
+            isLoading: false,
+            result: result,
+            progress: 1.0,
+          );
+          return result;
+        },
+        failure: (message, _) {
+          state = state.copyWith(
+            isLoading: false,
+            error: message,
+          );
+          return null;
+        },
       );
-
-      return result;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -396,11 +435,15 @@ final expertReviewProvider = FutureProvider.autoDispose.family<ExpertReviewRespo
     ({String diagnosisId, File image, String? notes, String urgency})>(
   (ref, params) async {
     final repository = ref.watch(cropHealthRepositoryProvider);
-    return repository.requestExpertReview(
+    final result = await repository.requestExpertReview(
       params.diagnosisId,
       params.image,
       farmerNotes: params.notes,
       urgency: params.urgency,
+    );
+    return result.when(
+      success: (data) => data,
+      failure: (message, _) => throw Exception(message),
     );
   },
 );

@@ -53,7 +53,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -91,7 +91,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -127,7 +127,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -159,7 +159,7 @@ class TharwattPaymentService {
         },
       );
 
-      final paymentResponse = TharwattPaymentResponse.fromJson(response.data);
+      final paymentResponse = TharwattPaymentResponse.fromJson(response.data as Map<String, dynamic>);
       return Success(paymentResponse);
     } on DioException catch (e) {
       return Failure(
@@ -180,7 +180,7 @@ class TharwattPaymentService {
         '/api/v1/payment/status/$transactionId',
       );
 
-      final transaction = PaymentTransaction.fromJson(response.data);
+      final transaction = PaymentTransaction.fromJson(response.data as Map<String, dynamic>);
       return Success(transaction);
     } on DioException catch (e) {
       return Failure(
@@ -212,9 +212,9 @@ class TharwattPaymentService {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
+      final List<dynamic> data = (response.data['data'] ?? response.data) as List<dynamic>;
       final transactions =
-          data.map((json) => PaymentTransaction.fromJson(json)).toList();
+          data.map((json) => PaymentTransaction.fromJson(json as Map<String, dynamic>)).toList();
       return Success(transactions);
     } on DioException catch (e) {
       return Failure(
@@ -233,7 +233,7 @@ class TharwattPaymentService {
         '/api/v1/payment/balance/$walletId',
       );
 
-      final balance = (response.data['balance'] ?? 0).toDouble();
+      final balance = ((response.data['balance'] ?? 0) as num).toDouble();
       return Success(balance);
     } on DioException catch (e) {
       return Failure(
@@ -270,9 +270,9 @@ class TharwattPaymentService {
     try {
       final response = await _dio.get('/api/v1/payment/operators');
 
-      final List<dynamic> data = response.data['operators'] ?? response.data;
+      final List<dynamic> data = (response.data['operators'] ?? response.data) as List<dynamic>;
       final operators =
-          data.map((json) => MobileOperator.fromJson(json)).toList();
+          data.map((json) => MobileOperator.fromJson(json as Map<String, dynamic>)).toList();
       return Success(operators);
     } on DioException catch (e) {
       return Failure(
@@ -335,7 +335,7 @@ class TharwattPaymentService {
     // محاولة استخراج رسالة الخطأ من الاستجابة
     String? message;
     if (data is Map) {
-      message = data['message'] ?? data['error'] ?? data['msg'];
+      message = (data['message'] ?? data['error'] ?? data['msg']) as String?;
     }
 
     switch (statusCode) {
@@ -381,10 +381,10 @@ class MobileOperator {
 
   factory MobileOperator.fromJson(Map<String, dynamic> json) {
     return MobileOperator(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      nameAr: json['nameAr'] ?? json['name_ar'] ?? json['name'] ?? '',
-      logo: json['logo'],
+      id: (json['id'] as String?) ?? '',
+      name: (json['name'] as String?) ?? '',
+      nameAr: (json['nameAr'] ?? json['name_ar'] ?? json['name'] ?? '') as String,
+      logo: json['logo'] as String?,
       denominations: (json['denominations'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??

@@ -12,6 +12,7 @@ import '../domain/models/advisory_request.dart';
 import '../domain/models/advisory_context.dart';
 import '../domain/models/advisory_feedback.dart';
 import '../../../core/http/api_client.dart';
+import 'chat_controller.dart';
 
 // ============================================================================
 // Core Providers
@@ -72,8 +73,8 @@ class ChatMessagesNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> 
     // Add user message to state
     final userMessage = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      content: request.message,
-      contentAr: request.message,
+      content: request.query,
+      contentAr: request.query,
       role: 'user',
       timestamp: DateTime.now(),
     );
@@ -83,7 +84,7 @@ class ChatMessagesNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> 
     });
 
     try {
-      final response = await _repository.sendMessage(request);
+      final response = await _repository.sendMessage(content: request.query, fieldId: request.fieldId, cropType: request.cropType, language: request.language);
 
       // Add AI response to state
       state.whenData((messages) {
@@ -123,10 +124,20 @@ class ChatMessagesNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> 
     });
 
     try {
-      final response = await _repository.diagnoseWithImage(
+      final diagnosisResult = await _repository.diagnose(
         imagePath: imagePath,
         fieldId: fieldId,
-        description: description,
+        symptoms: description,
+      );
+
+      // Convert diagnosis to chat message
+      final response = ChatMessage(
+        id: diagnosisResult.id,
+        role: 'assistant',
+        content: diagnosisResult.disease,
+        contentAr: diagnosisResult.diseaseAr,
+        timestamp: DateTime.now(),
+        fieldId: fieldId,
       );
 
       // Add AI response to state
@@ -176,8 +187,8 @@ class AdvisoriesNotifier extends StateNotifier<AsyncValue<List<Advisory>>> {
     state = const AsyncValue.loading();
     try {
       final advisories = await _repository.getRecommendations(
-        fieldId: fieldId,
-        type: type,
+        fieldId: fieldId ?? '',
+        focus: type,
       );
 
       // Filter by status if provided
@@ -293,9 +304,9 @@ class FeedbackSubmissionNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> submitFeedback(AdvisoryFeedback feedback) async {
     state = const AsyncValue.loading();
     try {
-      final success = await _repository.submitFeedback(feedback);
+      await _repository.submitFeedback(feedback);
       state = const AsyncValue.data(null);
-      return success;
+      return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       return false;
@@ -375,7 +386,7 @@ final quickQuestionsProvider = Provider.autoDispose<List<QuickQuestion>>((ref) {
 
     if (ctx.hasWeatherData) {
       filtered.addAll(QuickQuestion.predefined.where(
-        (q) => q.focusArea == AdvisoryType.weatherAlert
+        (q) => q.focusArea == AdvisoryType.weather
       ));
     }
 
@@ -407,3 +418,72 @@ final advisoryDetailsProvider = FutureProvider.autoDispose.family<Advisory?, Str
     ),
   );
 });
+
+// ============================================================================
+// Compatibility Aliases
+// ============================================================================
+
+/// Type alias for AiAdvisorState (uses ChatSessionState)
+typedef AiAdvisorState = ChatSessionState;
+
+/// Alias for the main AI advisor provider (wraps chatControllerProvider)
+final aiAdvisorProvider = chatControllerProvider;
+
+/// Advisory history provider
+final advisoryHistoryProvider = StateNotifierProvider.autoDispose<AdvisoryHistoryNotifier, AsyncValue<List<Advisory>>>((ref) {
+  final repository = ref.watch(aiAdvisorRepositoryProvider);
+  return AdvisoryHistoryNotifier(repository);
+});
+
+/// Advisory history notifier
+class AdvisoryHistoryNotifier extends StateNotifier<AsyncValue<List<Advisory>>> {
+  final AiAdvisorRepository _repository;
+
+  AdvisoryHistoryNotifier(this._repository) : super(const AsyncValue.data([]));
+
+  /// Load advisory history
+  Future<void> loadHistory({String? fieldId, AdvisoryType? type, AdvisoryStatus? status}) async {
+    state = const AsyncValue.loading();
+    try {
+      final advisories = await _repository.getAdvisoryHistory(
+        fieldId: fieldId,
+        type: type,
+        status: status,
+      );
+      state = AsyncValue.data(advisories);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  /// Refresh advisory history
+  Future<void> refresh({String? fieldId}) async {
+    try {
+      final advisories = await _repository.getAdvisoryHistory(
+        fieldId: fieldId,
+        forceRefresh: true,
+      );
+      state = AsyncValue.data(advisories);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  /// Filter by type
+  void filterByType(AdvisoryType? type) {
+    state.whenData((advisories) {
+      if (type == null) return;
+      final filtered = advisories.where((a) => a.type == type).toList();
+      state = AsyncValue.data(filtered);
+    });
+  }
+
+  /// Filter by status
+  void filterByStatus(AdvisoryStatus? status) {
+    state.whenData((advisories) {
+      if (status == null) return;
+      final filtered = advisories.where((a) => a.status == status).toList();
+      state = AsyncValue.data(filtered);
+    });
+  }
+}

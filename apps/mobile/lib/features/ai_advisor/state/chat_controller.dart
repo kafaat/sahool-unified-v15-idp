@@ -140,7 +140,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
       // Load context if field selected
       AdvisoryContext? context;
       if (fieldId != null) {
-        context = await _repository.getContext(fieldId);
+        context = await _repository.getContext(fieldId: fieldId);
       }
 
       state = state.copyWith(
@@ -167,7 +167,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     try {
       AdvisoryContext? context;
       if (fieldId != null) {
-        context = await _repository.getContext(fieldId);
+        context = await _repository.getContext(fieldId: fieldId);
       }
 
       state = state.copyWith(
@@ -210,7 +210,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
 
     // Create request
     final request = AdvisoryRequest.question(
-      message: text,
+      query: text,
       fieldId: state.fieldId,
     );
 
@@ -222,7 +222,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     final locale = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
 
     final request = AdvisoryRequest(
-      message: question.getText(locale),
+      query: question.getText(locale),
       type: question.type,
       focusArea: question.focusArea,
       fieldId: state.fieldId,
@@ -253,10 +253,19 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     try {
-      final response = await _repository.diagnoseWithImage(
+      final diagnosisResult = await _repository.diagnose(
         imagePath: imagePath,
         fieldId: state.fieldId,
-        description: description,
+        symptoms: description,
+      );
+
+      final response = ChatMessage(
+        id: diagnosisResult.id,
+        role: 'assistant',
+        content: diagnosisResult.disease,
+        contentAr: diagnosisResult.diseaseAr,
+        timestamp: DateTime.now(),
+        fieldId: state.fieldId,
       );
 
       state = state.copyWith(
@@ -292,7 +301,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     );
 
     try {
-      final response = await _repository.sendMessage(request);
+      final response = await _repository.sendMessage(content: request.query, fieldId: request.fieldId, cropType: request.cropType, language: request.language);
 
       state = state.copyWith(
         messages: _trimMessages([...state.messages, response]),
@@ -416,7 +425,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
   void markAdvisoryDeferred(String advisoryId) {
     _ref.read(advisoriesProvider.notifier).updateAdvisoryStatus(
       advisoryId,
-      AdvisoryStatus.deferred,
+      AdvisoryStatus.pending,
     );
   }
 
@@ -431,7 +440,7 @@ class ChatController extends StateNotifier<ChatSessionState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final context = await _repository.getContext(state.fieldId!);
+      final context = await _repository.getContext(fieldId: state.fieldId!);
       state = state.copyWith(
         context: context,
         isLoading: false,
@@ -580,7 +589,7 @@ extension AnalysisTypeExtension on AnalysisType {
       case AnalysisType.yieldForecast:
         return AdvisoryType.harvest;
       case AnalysisType.weatherImpact:
-        return AdvisoryType.weatherAlert;
+        return AdvisoryType.weather;
     }
   }
 }

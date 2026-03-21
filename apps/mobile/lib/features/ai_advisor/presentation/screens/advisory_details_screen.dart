@@ -27,23 +27,14 @@ class AdvisoryDetailsScreen extends ConsumerStatefulWidget {
 
 class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
   @override
-  void initState() {
-    super.initState();
-    // Load advisory details
-    Future.microtask(() {
-      ref.read(advisoryDetailsProvider(widget.advisoryId).notifier).load();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final state = ref.watch(advisoryDetailsProvider(widget.advisoryId));
+    final asyncState = ref.watch(advisoryDetailsProvider(widget.advisoryId));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('تفاصيل التوصية'),
         actions: [
-          if (state.advisory != null)
+          if (asyncState.valueOrNull != null)
             PopupMenuButton(
               itemBuilder: (context) => [
                 const PopupMenuItem(
@@ -56,7 +47,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
                     ],
                   ),
                 ),
-                if (state.advisory!.status == AdvisoryStatus.pending) ...[
+                if (asyncState.valueOrNull!.status == AdvisoryStatus.pending) ...[
                   const PopupMenuItem(
                     value: 'apply',
                     child: Row(
@@ -79,18 +70,20 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
                   ),
                 ],
               ],
-              onSelected: (value) => _handleMenuAction(value, state.advisory!),
+              onSelected: (value) => _handleMenuAction(value, asyncState.valueOrNull!),
             ),
         ],
       ),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : state.advisory == null
-              ? _buildErrorState(state.error)
-              : _buildContent(state.advisory!),
-      bottomNavigationBar: state.advisory != null &&
-              state.advisory!.status == AdvisoryStatus.pending
-          ? _buildActionBar(state.advisory!)
+      body: asyncState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _buildErrorState(error.toString()),
+        data: (advisory) => advisory == null
+            ? _buildErrorState(null)
+            : _buildContent(advisory),
+      ),
+      bottomNavigationBar: asyncState.valueOrNull != null &&
+              asyncState.valueOrNull!.status == AdvisoryStatus.pending
+          ? _buildActionBar(asyncState.valueOrNull!)
           : null,
     );
   }
@@ -110,7 +103,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              ref.read(advisoryDetailsProvider(widget.advisoryId).notifier).load();
+              ref.invalidate(advisoryDetailsProvider(widget.advisoryId));
             },
             child: const Text('إعادة المحاولة'),
           ),
@@ -655,7 +648,7 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
             advisoryId: advisory.id,
             initialFeedback: advisory.feedback,
             onFeedbackSubmitted: (feedback) {
-              ref.read(advisoryDetailsProvider(widget.advisoryId).notifier)
+              ref.read(feedbackSubmissionProvider.notifier)
                   .submitFeedback(feedback);
             },
           ),
@@ -817,8 +810,8 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
         }
         break;
       case 'apply':
-        ref.read(advisoryDetailsProvider(widget.advisoryId).notifier)
-            .markAsApplied();
+        ref.read(advisoriesProvider.notifier)
+            .updateAdvisoryStatus(widget.advisoryId, AdvisoryStatus.applied);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم تعيين التوصية كمطبقة'),
@@ -827,8 +820,8 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
         );
         break;
       case 'dismiss':
-        ref.read(advisoryDetailsProvider(widget.advisoryId).notifier)
-            .dismiss();
+        ref.read(advisoriesProvider.notifier)
+            .updateAdvisoryStatus(widget.advisoryId, AdvisoryStatus.dismissed);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم تجاهل التوصية'),

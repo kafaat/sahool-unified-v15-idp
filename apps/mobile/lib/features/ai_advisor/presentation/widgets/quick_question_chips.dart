@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import '../../../../core/config/theme.dart';
+import '../../domain/models/advisory.dart';
 import '../../domain/models/advisory_request.dart';
 
 class QuickQuestionChips extends StatelessWidget {

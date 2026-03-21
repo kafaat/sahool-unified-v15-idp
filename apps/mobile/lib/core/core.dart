@@ -14,7 +14,7 @@ export 'theme/sahool_theme.dart';
 export 'utils/app_logger.dart';
 
 // Logging (Structured Logging System)
-export 'logging/logging.dart' hide LogLevel;
+export 'logging/logging.dart' hide LogLevel, LoggerMixin;
 
 // Widgets
 export 'widgets/widgets.dart';

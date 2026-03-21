@@ -38,7 +38,7 @@ class WeatherApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherData.fromJson(json);
     } else {
       throw WeatherApiException(
@@ -61,7 +61,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherData.fromJson(json);
     } else {
       throw WeatherApiException(
@@ -83,7 +83,7 @@ class WeatherApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherData.fromJson(json);
     } else {
       throw WeatherApiException(
@@ -109,8 +109,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> forecasts = data['forecasts'] ?? data;
-      return forecasts.map((d) => DailyForecast.fromJson(d)).toList();
+      final List<dynamic> forecasts = (data['forecasts'] ?? data) as List<dynamic>;
+      return forecasts.map((d) => DailyForecast.fromJson(d as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب التوقعات',
@@ -136,8 +136,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> hourly = data['hourly'] ?? [];
-      return hourly.map((h) => HourlyForecast.fromJson(h)).toList();
+      final List<dynamic> hourly = (data['hourly'] as List<dynamic>?) ?? [];
+      return hourly.map((h) => HourlyForecast.fromJson(h as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب التوقعات الساعية',
@@ -164,8 +164,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> forecasts = data['forecasts'] ?? data;
-      return forecasts.map((d) => DailyForecast.fromJson(d)).toList();
+      final List<dynamic> forecasts = (data['forecasts'] ?? data) as List<dynamic>;
+      return forecasts.map((d) => DailyForecast.fromJson(d as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب التوقعات اليومية',
@@ -189,8 +189,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> alerts = data['alerts'] ?? data;
-      return alerts.map((a) => WeatherAlert.fromJson(a)).toList();
+      final List<dynamic> alerts = (data['alerts'] ?? data) as List<dynamic>;
+      return alerts.map((a) => WeatherAlert.fromJson(a as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب تنبيهات الطقس',
@@ -210,8 +210,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> alerts = data['alerts'] ?? data;
-      return alerts.map((a) => WeatherAlert.fromJson(a)).toList();
+      final List<dynamic> alerts = (data['alerts'] ?? data) as List<dynamic>;
+      return alerts.map((a) => WeatherAlert.fromJson(a as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب تنبيهات الطقس',
@@ -243,8 +243,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> impacts = data['impacts'] ?? data;
-      return impacts.map((i) => AgriculturalImpact.fromJson(i)).toList();
+      final List<dynamic> impacts = (data['impacts'] ?? data) as List<dynamic>;
+      return impacts.map((i) => AgriculturalImpact.fromJson(i as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب التقويم الزراعي',
@@ -264,8 +264,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> impacts = data['impacts'] ?? data;
-      return impacts.map((i) => AgriculturalImpact.fromJson(i)).toList();
+      final List<dynamic> impacts = (data['impacts'] ?? data) as List<dynamic>;
+      return impacts.map((i) => AgriculturalImpact.fromJson(i as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب التأثيرات الزراعية',
@@ -289,8 +289,8 @@ class WeatherApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> locations = data['locations'] ?? data;
-      return locations.map((l) => WeatherLocation.fromJson(l)).toList();
+      final List<dynamic> locations = (data['locations'] ?? data) as List<dynamic>;
+      return locations.map((l) => WeatherLocation.fromJson(l as Map<String, dynamic>)).toList();
     } else {
       throw WeatherApiException(
         'فشل جلب المواقع',
@@ -327,13 +327,13 @@ class WeatherLocation {
 
   factory WeatherLocation.fromJson(Map<String, dynamic> json) {
     return WeatherLocation(
-      id: json['id'] ?? json['location_id'] ?? '',
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['nameAr'] ?? '',
-      latitude: (json['latitude'] ?? json['lat'] ?? 0).toDouble(),
-      longitude: (json['longitude'] ?? json['lon'] ?? 0).toDouble(),
-      region: json['region'] ?? '',
-      regionAr: json['region_ar'] ?? json['regionAr'] ?? '',
+      id: (json['id'] ?? json['location_id'] ?? '') as String,
+      name: (json['name'] as String?) ?? '',
+      nameAr: (json['name_ar'] ?? json['nameAr'] ?? '') as String,
+      latitude: ((json['latitude'] ?? json['lat'] ?? 0) as num).toDouble(),
+      longitude: ((json['longitude'] ?? json['lon'] ?? 0) as num).toDouble(),
+      region: (json['region'] as String?) ?? '',
+      regionAr: (json['region_ar'] ?? json['regionAr'] ?? '') as String,
     );
   }
 }

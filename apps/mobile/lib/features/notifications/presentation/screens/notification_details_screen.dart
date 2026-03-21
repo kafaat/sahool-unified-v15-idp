@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models/notification.dart';
 import '../../domain/models/notification_action.dart';
+import '../../domain/models/notification_category.dart';
 import '../../state/notifications_providers.dart';
 import '../widgets/actionable_notification.dart';
 

@@ -27,4 +27,4 @@ export 'sync_service.dart';
 export 'crash_reporting_service.dart';
 export 'map_provider_service.dart';
 export 'tile_service.dart';
-export 'weather_provider_service.dart';
+export 'weather_provider_service.dart' hide ForecastDay;

@@ -187,8 +187,8 @@ class SAHOOLNotificationPayload {
   }) {
     return SAHOOLNotificationPayload(
       id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      type: SAHOOLNotificationType.fromString(message.data['type'] ?? 'system'),
-      priority: NotificationPriority.fromString(message.data['priority']),
+      type: SAHOOLNotificationType.fromString((message.data['type'] as String?) ?? 'system'),
+      priority: NotificationPriority.fromString(message.data['priority'] as String?),
       title: message.notification?.title ?? '',
       body: message.notification?.body ?? '',
       data: message.data,
@@ -302,9 +302,6 @@ class FirebaseMessagingService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification
-      },
     );
 
     final settings = InitializationSettings(
@@ -426,8 +423,8 @@ class FirebaseMessagingService {
     final notification = message.notification;
     if (notification == null) return;
 
-    final type = SAHOOLNotificationType.fromString(message.data['type']);
-    final priority = NotificationPriority.fromString(message.data['priority']);
+    final type = SAHOOLNotificationType.fromString(message.data['type'] as String?);
+    final priority = NotificationPriority.fromString(message.data['priority'] as String?);
 
     final androidDetails = AndroidNotificationDetails(
       type.channelId,
@@ -477,8 +474,8 @@ class FirebaseMessagingService {
 
     try {
       final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final type = SAHOOLNotificationType.fromString(data['type']);
-      final priority = NotificationPriority.fromString(data['priority']);
+      final type = SAHOOLNotificationType.fromString(data['type'] as String?);
+      final priority = NotificationPriority.fromString(data['priority'] as String?);
 
       final payload = SAHOOLNotificationPayload(
         id: response.id?.toString() ?? '',

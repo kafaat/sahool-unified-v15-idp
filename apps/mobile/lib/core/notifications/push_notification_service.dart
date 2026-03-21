@@ -112,9 +112,6 @@ class PushNotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (iOS < 10)
-      },
     );
 
     final settings = InitializationSettings(

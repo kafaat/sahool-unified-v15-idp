@@ -760,11 +760,11 @@ class FCMService {
       if (message != null) {
         final notification = message.notification;
         if (notification != null) {
-          title = notification.title ?? '';
-          body = notification.body ?? '';
+          title = notification.title as String? ?? '';
+          body = notification.body as String? ?? '';
         }
         if (message.data is Map) {
-          data = Map<String, dynamic>.from(message.data as Map);
+          data = Map<String, dynamic>.from(message.data);
           title = data['title']?.toString() ?? title;
           body = data['body']?.toString() ?? body;
         }

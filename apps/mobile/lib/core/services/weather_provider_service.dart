@@ -298,7 +298,7 @@ class WeatherProviderService {
 
     for (var i = 0; i < dates.length; i++) {
       forecasts.add(ForecastDay(
-        date: DateTime.parse(dates[i]),
+        date: DateTime.parse(dates[i] as String),
         tempMax: (daily['temperature_2m_max'][i] as num).toDouble(),
         tempMin: (daily['temperature_2m_min'][i] as num).toDouble(),
         precipitation: (daily['precipitation_sum'][i] as num?)?.toDouble() ?? 0,
@@ -307,8 +307,8 @@ class WeatherProviderService {
         condition: _wmoCodeToCondition(daily['weather_code'][i] as int),
         conditionAr: _wmoCodeToConditionAr(daily['weather_code'][i] as int),
         icon: _wmoCodeToIcon(daily['weather_code'][i] as int),
-        sunrise: DateTime.tryParse(daily['sunrise'][i] ?? ''),
-        sunset: DateTime.tryParse(daily['sunset'][i] ?? ''),
+        sunrise: DateTime.tryParse((daily['sunrise'][i] as String?) ?? ''),
+        sunset: DateTime.tryParse((daily['sunset'][i] as String?) ?? ''),
       ));
     }
 
@@ -343,8 +343,8 @@ class WeatherProviderService {
       precipitation: (data['rain']?['1h'] as num?)?.toDouble() ?? 0,
       cloudCover: (data['clouds']['all'] as num).toInt(),
       uvIndex: 0, // Not available in basic API
-      condition: data['weather'][0]['main'],
-      conditionAr: _owmConditionToAr(data['weather'][0]['main']),
+      condition: data['weather'][0]['main'] as String,
+      conditionAr: _owmConditionToAr(data['weather'][0]['main'] as String),
       icon: 'https://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png',
       timestamp: DateTime.now(),
       provider: providerName,
@@ -387,8 +387,8 @@ class WeatherProviderService {
         precipitation: precips.reduce((a, b) => a + b),
         precipitationProbability: ((dayItems.first['pop'] as num?) ?? 0 * 100).toInt(),
         windSpeed: (dayItems.first['wind']['speed'] as num).toDouble() * 3.6,
-        condition: dayItems.first['weather'][0]['main'],
-        conditionAr: _owmConditionToAr(dayItems.first['weather'][0]['main']),
+        condition: dayItems.first['weather'][0]['main'] as String,
+        conditionAr: _owmConditionToAr(dayItems.first['weather'][0]['main'] as String),
         icon: 'https://openweathermap.org/img/wn/${dayItems.first['weather'][0]['icon']}@2x.png',
       );
     }).toList();
@@ -419,12 +419,12 @@ class WeatherProviderService {
       temperature: (current['temp_c'] as num).toDouble(),
       humidity: (current['humidity'] as num).toDouble(),
       windSpeed: (current['wind_kph'] as num).toDouble(),
-      windDirection: current['wind_dir'],
+      windDirection: current['wind_dir'] as String,
       precipitation: (current['precip_mm'] as num).toDouble(),
       cloudCover: (current['cloud'] as num).toInt(),
       uvIndex: (current['uv'] as num).toDouble(),
-      condition: current['condition']['text'],
-      conditionAr: current['condition']['text'], // Would need translation
+      condition: current['condition']['text'] as String,
+      conditionAr: current['condition']['text'] as String, // Would need translation
       icon: 'https:${current['condition']['icon']}',
       timestamp: DateTime.now(),
       provider: providerName,
@@ -450,17 +450,17 @@ class WeatherProviderService {
 
     return forecastDays.map((day) {
       return ForecastDay(
-        date: DateTime.parse(day['date']),
+        date: DateTime.parse(day['date'] as String),
         tempMax: (day['day']['maxtemp_c'] as num).toDouble(),
         tempMin: (day['day']['mintemp_c'] as num).toDouble(),
         precipitation: (day['day']['totalprecip_mm'] as num).toDouble(),
         precipitationProbability: (day['day']['daily_chance_of_rain'] as num).toInt(),
         windSpeed: (day['day']['maxwind_kph'] as num).toDouble(),
-        condition: day['day']['condition']['text'],
-        conditionAr: day['day']['condition']['text'],
+        condition: day['day']['condition']['text'] as String,
+        conditionAr: day['day']['condition']['text'] as String,
         icon: 'https:${day['day']['condition']['icon']}',
-        sunrise: _parseTime(day['astro']['sunrise'], day['date']),
-        sunset: _parseTime(day['astro']['sunset'], day['date']),
+        sunrise: _parseTime(day['astro']['sunrise'] as String?, day['date'] as String),
+        sunset: _parseTime(day['astro']['sunset'] as String?, day['date'] as String),
       );
     }).toList();
   }
@@ -494,9 +494,9 @@ class WeatherProviderService {
       precipitation: (current['precip'] as num?)?.toDouble() ?? 0,
       cloudCover: (current['cloudcover'] as num).toInt(),
       uvIndex: (current['uvindex'] as num?)?.toDouble() ?? 0,
-      condition: current['conditions'],
-      conditionAr: current['conditions'],
-      icon: current['icon'],
+      condition: current['conditions'] as String,
+      conditionAr: current['conditions'] as String,
+      icon: current['icon'] as String,
       timestamp: DateTime.now(),
       provider: providerName,
     );
@@ -521,17 +521,17 @@ class WeatherProviderService {
 
     return forecastDays.map((day) {
       return ForecastDay(
-        date: DateTime.parse(day['datetime']),
+        date: DateTime.parse(day['datetime'] as String),
         tempMax: (day['tempmax'] as num).toDouble(),
         tempMin: (day['tempmin'] as num).toDouble(),
         precipitation: (day['precip'] as num?)?.toDouble() ?? 0,
         precipitationProbability: (day['precipprob'] as num?)?.toInt() ?? 0,
         windSpeed: (day['windspeed'] as num).toDouble(),
-        condition: day['conditions'],
-        conditionAr: day['conditions'],
-        icon: day['icon'],
-        sunrise: _parseTime(day['sunrise'], day['datetime']),
-        sunset: _parseTime(day['sunset'], day['datetime']),
+        condition: day['conditions'] as String,
+        conditionAr: day['conditions'] as String,
+        icon: day['icon'] as String,
+        sunrise: _parseTime(day['sunrise'] as String?, day['datetime'] as String),
+        sunset: _parseTime(day['sunset'] as String?, day['datetime'] as String),
       );
     }).toList();
   }

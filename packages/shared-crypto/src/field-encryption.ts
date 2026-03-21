@@ -241,14 +241,29 @@ export function encryptDeterministic(plaintext: string): string {
 }
 
 /**
- * Decrypt deterministically encrypted data
+ * Decrypt deterministically encrypted data.
  *
- * @param encryptedData - The encrypted data
+ * Uses the hint (suspected plaintext) to re-derive the same HMAC-based IV
+ * that was used during encryption, then decrypts with AES-256-GCM.
+ * The GCM auth tag guarantees the hint is correct — a wrong hint will
+ * cause an authentication failure.
+ *
+ * @param encryptedData - The encrypted data in format "authTag:ciphertext"
+ * @param hint - The suspected original plaintext
  * @returns Decrypted plaintext
  */
-export function decryptDeterministic(encryptedData: string): string {
+export function decryptDeterministic(
+  encryptedData: string,
+  hint?: string,
+): string {
   if (!encryptedData) {
     return encryptedData;
+  }
+
+  if (!hint) {
+    throw new Error(
+      "Deterministic decryption requires the original value as hint",
+    );
   }
 
   try {
@@ -263,16 +278,22 @@ export function decryptDeterministic(encryptedData: string): string {
     const authTag = Buffer.from(authTagBase64, "base64");
     const encrypted = Buffer.from(encryptedBase64, "base64");
 
-    // We need to try decryption to recover the plaintext since we can't
-    // derive the IV without knowing the plaintext. This is a limitation
-    // of deterministic encryption that we accept for searchability.
-    // We'll use a different approach: store a hash alongside for verification.
+    // Re-derive the same deterministic IV from the hint
+    const deterministicIV = crypto
+      .createHmac("sha256", key)
+      .update(hint)
+      .digest()
+      .slice(0, IV_LENGTH);
 
-    // For now, we'll use a simpler deterministic approach with AES-256-ECB
-    // which is deterministic by nature (no IV). Less secure but searchable.
-    throw new Error(
-      "Deterministic decryption requires the original implementation",
-    );
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, deterministicIV, {
+      authTagLength: AUTH_TAG_LENGTH,
+    });
+    decipher.setAuthTag(authTag);
+
+    let decrypted = decipher.update(encrypted);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+    return decrypted.toString("utf8");
   } catch (error) {
     throw new Error(
       `Deterministic decryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -281,8 +302,15 @@ export function decryptDeterministic(encryptedData: string): string {
 }
 
 /**
- * Alternative: Deterministic encryption using AES-256-CTR with deterministic IV
- * This is more suitable for searchable encryption
+ * Deterministic encryption using AES-256-CTR with HMAC-derived IV.
+ * Same input always produces same output, enabling encrypted field search.
+ *
+ * The IV is derived from HMAC-SHA256(key, plaintext) — this is
+ * deterministic AND per-deployment (tied to DETERMINISTIC_ENCRYPTION_KEY),
+ * unlike the previous fixed-salt approach.
+ *
+ * Output format: "s2:<base64 ciphertext>" (versioned for migration).
+ * Legacy format (no prefix) is still accepted by decryptSearchable.
  */
 export function encryptSearchable(plaintext: string): string {
   if (!plaintext) {
@@ -292,9 +320,13 @@ export function encryptSearchable(plaintext: string): string {
   try {
     const key = getDeterministicKey();
 
-    // Derive deterministic IV using PBKDF2
-    const salt = Buffer.from("sahool-deterministic-salt"); // Fixed salt for determinism
-    const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
+    // Derive deterministic IV using HMAC-SHA256(key, plaintext)
+    // This is per-deployment (key-dependent) unlike the old fixed salt
+    const iv = crypto
+      .createHmac("sha256", key)
+      .update(plaintext)
+      .digest()
+      .slice(0, IV_LENGTH);
 
     // Use CTR mode which is deterministic with same IV
     const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
@@ -302,7 +334,8 @@ export function encryptSearchable(plaintext: string): string {
     let encrypted = cipher.update(plaintext, "utf8", "base64");
     encrypted += cipher.final("base64");
 
-    return encrypted;
+    // Prefix with version tag so decryptSearchable knows the format
+    return `s2:${encrypted}`;
   } catch (error) {
     throw new Error(
       `Searchable encryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -311,7 +344,16 @@ export function encryptSearchable(plaintext: string): string {
 }
 
 /**
- * Decrypt searchable encrypted data
+ * Decrypt searchable encrypted data.
+ *
+ * For v2 ("s2:" prefix): derives the same HMAC-based IV from the hint
+ * and decrypts with AES-256-CTR.  This works because the IV derivation
+ * is deterministic given the key + plaintext.
+ *
+ * For legacy (no prefix): falls back to hint-comparison only.
+ *
+ * @param encryptedData - The encrypted string
+ * @param hint - The suspected original plaintext (required for decryption)
  */
 export function decryptSearchable(
   encryptedData: string,
@@ -321,21 +363,69 @@ export function decryptSearchable(
     return encryptedData;
   }
 
-  // For searchable encryption, we need the original plaintext to derive the IV
-  // This is a known limitation. In practice, you'd search by encrypting the
-  // search term and comparing encrypted values.
+  if (!hint) {
+    throw new Error(
+      "Searchable decryption requires the original value as hint",
+    );
+  }
 
-  // If we have a hint (the value we're searching for), we can decrypt
-  if (hint) {
-    const encrypted = encryptSearchable(hint);
-    if (encrypted === encryptedData) {
-      return hint;
+  // v2 format: "s2:<base64 ciphertext>"
+  if (encryptedData.startsWith("s2:")) {
+    const ciphertextBase64 = encryptedData.slice(3);
+    const key = getDeterministicKey();
+
+    // Derive the same deterministic IV from the hint
+    const iv = crypto
+      .createHmac("sha256", key)
+      .update(hint)
+      .digest()
+      .slice(0, IV_LENGTH);
+
+    const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
+    let decrypted = decipher.update(ciphertextBase64, "base64", "utf8");
+    decrypted += decipher.final("utf8");
+
+    // Verify the decrypted text matches the hint (CTR mode will always
+    // "decrypt" something — we need to confirm it's correct)
+    if (decrypted !== hint) {
+      throw new Error("Searchable decryption: hint does not match");
     }
+
+    return decrypted;
+  }
+
+  // Legacy format (no prefix): compare encrypted values
+  const encrypted = encryptSearchable(hint);
+  // Strip the "s2:" prefix for comparison since legacy data has none
+  // Re-encrypt with legacy function won't match — use hint comparison only
+  if (encryptedData === encryptLegacySearchable(hint)) {
+    return hint;
   }
 
   throw new Error(
-    "Searchable decryption requires the original value as hint, or use brute force (not recommended)",
+    "Searchable decryption failed: hint does not match encrypted data",
   );
+}
+
+/**
+ * Legacy searchable encryption (v1) using fixed salt.
+ * Used only for verifying/migrating old encrypted data.
+ * @internal
+ */
+export function encryptLegacySearchable(plaintext: string): string {
+  if (!plaintext) {
+    return plaintext;
+  }
+
+  const key = getDeterministicKey();
+  const salt = Buffer.from("sahool-deterministic-salt");
+  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
+  const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+
+  let encrypted = cipher.update(plaintext, "utf8", "base64");
+  encrypted += cipher.final("base64");
+
+  return encrypted;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -381,7 +471,7 @@ export function decryptFields<T extends Record<string, any>>(
   deterministic = false,
 ): T {
   const result = { ...data };
-  const decryptFn = deterministic ? (val: string) => val : decrypt; // Searchable can't be decrypted without hint
+  const decryptFn = deterministic ? (val: string) => val : decrypt; // Searchable needs hint — skip in batch
 
   for (const field of fields) {
     if (result[field] && typeof result[field] === "string") {
@@ -411,11 +501,13 @@ export function isEncrypted(data: string): boolean {
 
   // Check for our encryption format patterns
   const standardFormat = /^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/;
-  const searchableFormat = /^[A-Za-z0-9+/]+=*$/;
+  const searchableV2Format = /^s2:[A-Za-z0-9+/]+=*$/;
+  const searchableLegacyFormat = /^[A-Za-z0-9+/]+=*$/;
 
   return (
     standardFormat.test(data) ||
-    (searchableFormat.test(data) && data.length > 20)
+    searchableV2Format.test(data) ||
+    (searchableLegacyFormat.test(data) && data.length > 20)
   );
 }
 
@@ -446,6 +538,48 @@ export function validateEncryptionKey(key: string): boolean {
 // Exports
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Migrate a legacy searchable-encrypted value (v1, fixed salt) to the
+ * current format (v2, HMAC-derived IV).
+ *
+ * @param legacyCiphertext - Value encrypted with the old encryptSearchable
+ * @param plaintext - The known original plaintext
+ * @returns New v2-encrypted value, or null if the plaintext doesn't match
+ */
+export function migrateSearchableEncryption(
+  legacyCiphertext: string,
+  plaintext: string,
+): string | null {
+  if (!legacyCiphertext || !plaintext) {
+    return null;
+  }
+
+  // Already migrated
+  if (legacyCiphertext.startsWith("s2:")) {
+    return legacyCiphertext;
+  }
+
+  // Verify that the plaintext matches the legacy ciphertext
+  const reEncrypted = encryptLegacySearchable(plaintext);
+  if (reEncrypted !== legacyCiphertext) {
+    return null; // plaintext doesn't match
+  }
+
+  // Re-encrypt with v2 format
+  return encryptSearchable(plaintext);
+}
+
+/**
+ * Check if a searchable-encrypted value uses the legacy (v1) format.
+ */
+export function isLegacySearchable(encryptedData: string): boolean {
+  if (!encryptedData || typeof encryptedData !== "string") {
+    return false;
+  }
+  // v2 values start with "s2:", legacy values are raw base64
+  return !encryptedData.startsWith("s2:") && !encryptedData.includes(":");
+}
+
 export default {
   encrypt,
   decrypt,
@@ -453,6 +587,9 @@ export default {
   decryptDeterministic,
   encryptSearchable,
   decryptSearchable,
+  encryptLegacySearchable,
+  migrateSearchableEncryption,
+  isLegacySearchable,
   encryptFields,
   decryptFields,
   generateEncryptionKey,

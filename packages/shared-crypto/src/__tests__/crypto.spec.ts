@@ -8,8 +8,13 @@ import {
   // Field encryption
   encrypt,
   decrypt,
+  encryptDeterministic,
+  decryptDeterministic,
   encryptSearchable,
   decryptSearchable,
+  encryptLegacySearchable,
+  migrateSearchableEncryption,
+  isLegacySearchable,
   encryptFields,
   decryptFields,
   generateEncryptionKey,
@@ -343,6 +348,13 @@ describe("Field Encryption", () => {
       expect(encrypted1).toBe(encrypted2); // Deterministic
     });
 
+    it("should use v2 format with s2: prefix", () => {
+      const plaintext = "searchable data";
+      const encrypted = encryptSearchable(plaintext);
+
+      expect(encrypted.startsWith("s2:")).toBe(true);
+    });
+
     it("should decrypt with hint", () => {
       const plaintext = "searchable data";
       const encrypted = encryptSearchable(plaintext);
@@ -358,9 +370,100 @@ describe("Field Encryption", () => {
       expect(() => decryptSearchable(encrypted)).toThrow();
     });
 
+    it("should fail to decrypt with wrong hint", () => {
+      const plaintext = "searchable data";
+      const encrypted = encryptSearchable(plaintext);
+
+      expect(() => decryptSearchable(encrypted, "wrong hint")).toThrow();
+    });
+
     it("should handle empty strings", () => {
       const encrypted = encryptSearchable("");
       expect(encrypted).toBe("");
+    });
+  });
+
+  describe("encryptDeterministic and decryptDeterministic", () => {
+    it("should create deterministic encryption", () => {
+      const plaintext = "deterministic data";
+      const encrypted1 = encryptDeterministic(plaintext);
+      const encrypted2 = encryptDeterministic(plaintext);
+
+      expect(encrypted1).toBe(encrypted2);
+    });
+
+    it("should decrypt with correct hint", () => {
+      const plaintext = "deterministic data";
+      const encrypted = encryptDeterministic(plaintext);
+      const decrypted = decryptDeterministic(encrypted, plaintext);
+
+      expect(decrypted).toBe(plaintext);
+    });
+
+    it("should fail to decrypt with wrong hint", () => {
+      const plaintext = "deterministic data";
+      const encrypted = encryptDeterministic(plaintext);
+
+      expect(() => decryptDeterministic(encrypted, "wrong")).toThrow();
+    });
+
+    it("should fail to decrypt without hint", () => {
+      const plaintext = "deterministic data";
+      const encrypted = encryptDeterministic(plaintext);
+
+      expect(() => decryptDeterministic(encrypted)).toThrow();
+    });
+
+    it("should handle empty strings", () => {
+      const encrypted = encryptDeterministic("");
+      expect(encrypted).toBe("");
+    });
+  });
+
+  describe("legacy searchable encryption migration", () => {
+    it("should identify legacy format", () => {
+      const plaintext = "test-national-id";
+      const legacy = encryptLegacySearchable(plaintext);
+
+      expect(isLegacySearchable(legacy)).toBe(true);
+      expect(isLegacySearchable("s2:" + legacy)).toBe(false);
+    });
+
+    it("should migrate legacy to v2", () => {
+      const plaintext = "123456789";
+      const legacy = encryptLegacySearchable(plaintext);
+
+      const migrated = migrateSearchableEncryption(legacy, plaintext);
+
+      expect(migrated).not.toBeNull();
+      expect(migrated!.startsWith("s2:")).toBe(true);
+
+      // Verify migrated value decrypts correctly
+      const decrypted = decryptSearchable(migrated!, plaintext);
+      expect(decrypted).toBe(plaintext);
+    });
+
+    it("should return null for wrong plaintext during migration", () => {
+      const legacy = encryptLegacySearchable("123456789");
+      const result = migrateSearchableEncryption(legacy, "wrong");
+
+      expect(result).toBeNull();
+    });
+
+    it("should pass through already-migrated values", () => {
+      const plaintext = "123456789";
+      const v2 = encryptSearchable(plaintext);
+      const result = migrateSearchableEncryption(v2, plaintext);
+
+      expect(result).toBe(v2);
+    });
+
+    it("should decrypt legacy format via decryptSearchable", () => {
+      const plaintext = "+967712345678";
+      const legacy = encryptLegacySearchable(plaintext);
+
+      const decrypted = decryptSearchable(legacy, plaintext);
+      expect(decrypted).toBe(plaintext);
     });
   });
 
@@ -778,6 +881,19 @@ describe("Integration Tests", () => {
       );
       expect(found).toBeTruthy();
       expect(found?.name).toBe("Jane");
+    });
+
+    it("should produce different ciphertext than legacy for same plaintext", () => {
+      const plaintext = "123456789";
+      const v2 = encryptSearchable(plaintext);
+      const legacy = encryptLegacySearchable(plaintext);
+
+      // v2 has prefix, legacy doesn't
+      expect(v2.startsWith("s2:")).toBe(true);
+      expect(legacy.startsWith("s2:")).toBe(false);
+
+      // The raw ciphertext should differ (different IV derivation)
+      expect(v2.slice(3)).not.toBe(legacy);
     });
   });
 

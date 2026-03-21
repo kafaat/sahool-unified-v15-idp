@@ -613,15 +613,17 @@ class RedisSentinelClient:
         except Exception as e:
             health["checks"]["master_ping"] = False
             health["status"] = "unhealthy"
-            health["error"] = str(e)
+            health["error"] = "Redis master connection failed"
+            logger.error(f"Health check master ping failed: {e}")
 
         # Check sentinel
         try:
             sentinel_info = self.get_sentinel_info()
             health["checks"]["sentinel"] = sentinel_info
         except Exception as e:
-            health["checks"]["sentinel"] = {"error": str(e)}
+            health["checks"]["sentinel"] = {"error": "Sentinel check failed"}
             health["status"] = "degraded"
+            logger.error(f"Health check sentinel failed: {e}")
 
         # Check circuit breaker
         health["checks"]["circuit_breaker"] = self._circuit_breaker.state
@@ -647,19 +649,25 @@ class RedisSentinelClient:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _redis_client: RedisSentinelClient | None = None
+_redis_client_lock = threading.Lock()
 
 
 def get_redis_client() -> RedisSentinelClient:
     """
     الحصول على Redis Client (Singleton)
+    Thread-safe with double-check locking.
 
     Returns:
         RedisSentinelClient instance
     """
     global _redis_client
 
-    if _redis_client is None:
-        _redis_client = RedisSentinelClient()
+    if _redis_client is not None:
+        return _redis_client
+
+    with _redis_client_lock:
+        if _redis_client is None:
+            _redis_client = RedisSentinelClient()
 
     return _redis_client
 
@@ -668,6 +676,7 @@ def close_redis_client():
     """إغلاق Redis Client"""
     global _redis_client
 
-    if _redis_client is not None:
-        _redis_client.close()
-        _redis_client = None
+    with _redis_client_lock:
+        if _redis_client is not None:
+            _redis_client.close()
+            _redis_client = None

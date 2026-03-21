@@ -39,7 +39,7 @@ SAHOOL_FIELD_ALL = "sahool.field.>"
 SAHOOL_FARM_CREATED = "sahool.farm.created"
 SAHOOL_FARM_UPDATED = "sahool.farm.updated"
 SAHOOL_FARM_DELETED = "sahool.farm.deleted"
-SAHOOL_FARM_ALL = "sahool.farm.*"
+SAHOOL_FARM_ALL = "sahool.farm.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -242,7 +242,7 @@ SAHOOL_INTERACTION_LOGGED = "sahool.interaction.logged"
 # Wildcards
 SAHOOL_FARMER_ALL = "sahool.farmer.>"
 SAHOOL_HARVEST_ALL = "sahool.harvest.>"
-SAHOOL_INTERACTION_ALL = "sahool.interaction.*"
+SAHOOL_INTERACTION_ALL = "sahool.interaction.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ SAHOOL_TASK_COMPLETED = "sahool.task.completed"
 SAHOOL_TASK_DELETED = "sahool.task.deleted"
 SAHOOL_TASK_ASSIGNED = "sahool.task.assigned"
 
-SAHOOL_TASK_ALL = "sahool.task.*"
+SAHOOL_TASK_ALL = "sahool.task.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -268,7 +268,7 @@ SAHOOL_RECOMMENDATION_FERTILIZER = "sahool.recommendation.fertilizer"
 SAHOOL_RECOMMENDATION_PEST_CONTROL = "sahool.recommendation.pest_control"
 SAHOOL_RECOMMENDATION_HARVEST = "sahool.recommendation.harvest"
 
-SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.*"
+SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -279,7 +279,7 @@ SAHOOL_ALERT_CREATED = "sahool.alert.created"
 SAHOOL_ALERT_ACKNOWLEDGED = "sahool.alert.acknowledged"
 SAHOOL_ALERT_RESOLVED = "sahool.alert.resolved"
 
-SAHOOL_ALERT_ALL = "sahool.alert.*"
+SAHOOL_ALERT_ALL = "sahool.alert.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -310,7 +310,7 @@ SAHOOL_NOTIFICATION_DELIVERED = "sahool.notification.delivered"
 SAHOOL_NOTIFICATION_FAILED = "sahool.notification.failed"
 SAHOOL_NOTIFICATION_READ = "sahool.notification.read"
 
-SAHOOL_NOTIFICATION_ALL = "sahool.notification.*"
+SAHOOL_NOTIFICATION_ALL = "sahool.notification.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -327,7 +327,7 @@ SAHOOL_ANALYSIS_SOIL = "sahool.analysis.soil"
 SAHOOL_ANALYSIS_YIELD = "sahool.analysis.yield"
 SAHOOL_ANALYSIS_IRRIGATION = "sahool.analysis.irrigation"
 
-SAHOOL_ANALYSIS_ALL = "sahool.analysis.*"
+SAHOOL_ANALYSIS_ALL = "sahool.analysis.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -363,7 +363,7 @@ SAHOOL_TERRAIN_DEM_UPDATED = "sahool.terrain.dem_updated"
 SAHOOL_TERRAIN_SIMULATION_COMPLETED = "sahool.terrain.simulation_completed"
 
 # Wildcards
-SAHOOL_TERRAIN_ALL = "sahool.terrain.*"
+SAHOOL_TERRAIN_ALL = "sahool.terrain.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -402,7 +402,7 @@ SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE = "sahool.edge.firmware_update_available"
 SAHOOL_EDGE_DATA_COLLECTED = "sahool.edge.data_collected"
 
 # Wildcards
-SAHOOL_EDGE_ALL = "sahool.edge.*"
+SAHOOL_EDGE_ALL = "sahool.edge.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -416,7 +416,7 @@ SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out"
 SAHOOL_USER_UPDATED = "sahool.user.updated"
 SAHOOL_USER_DELETED = "sahool.user.deleted"
 
-SAHOOL_USER_ALL = "sahool.user.*"
+SAHOOL_USER_ALL = "sahool.user.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -428,7 +428,7 @@ SAHOOL_SYSTEM_METRIC = "sahool.system.metric"
 SAHOOL_SYSTEM_ERROR = "sahool.system.error"
 SAHOOL_SYSTEM_AUDIT = "sahool.system.audit"
 
-SAHOOL_SYSTEM_ALL = "sahool.system.*"
+SAHOOL_SYSTEM_ALL = "sahool.system.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -443,7 +443,7 @@ SAHOOL_INDICATORS_DASHBOARD_COMPUTED = "sahool.indicators.dashboard_computed"
 SAHOOL_INDICATORS_ALERTS_RETRIEVED = "sahool.indicators.alerts_retrieved"
 SAHOOL_INDICATORS_TREND_ANALYZED = "sahool.indicators.trend_analyzed"
 
-SAHOOL_INDICATORS_ALL = "sahool.indicators.*"
+SAHOOL_INDICATORS_ALL = "sahool.indicators.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -454,7 +454,7 @@ SAHOOL_SKILLS_EVALUATED = "sahool.skills.evaluated"
 SAHOOL_SKILLS_ASSESSED = "sahool.skills.assessed"
 SAHOOL_SKILLS_LEARNING_PATH_CREATED = "sahool.skills.learning_path_created"
 
-SAHOOL_SKILLS_ALL = "sahool.skills.*"
+SAHOOL_SKILLS_ALL = "sahool.skills.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -469,7 +469,7 @@ SAHOOL_COOPERATIVE_MEMBER_REMOVED = "sahool.cooperative.member_removed"
 SAHOOL_COOPERATIVE_RESOURCE_BOOKED = "sahool.cooperative.resource_booked"
 SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED = "sahool.cooperative.revenue_distributed"
 
-SAHOOL_COOPERATIVE_ALL = "sahool.cooperative.*"
+SAHOOL_COOPERATIVE_ALL = "sahool.cooperative.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -481,7 +481,7 @@ SAHOOL_DRONE_MISSION_CREATED = "sahool.drone.mission_created"
 SAHOOL_DRONE_MISSION_STARTED = "sahool.drone.mission_started"
 SAHOOL_DRONE_MISSION_ABORTED = "sahool.drone.mission_aborted"
 
-SAHOOL_DRONE_ALL = "sahool.drone.*"
+SAHOOL_DRONE_ALL = "sahool.drone.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -497,7 +497,7 @@ SAHOOL_TRACEABILITY_PROCESSING_RECORDED = "sahool.traceability.processing_record
 SAHOOL_TRACEABILITY_STORAGE_RECORDED = "sahool.traceability.storage_recorded"
 SAHOOL_TRACEABILITY_TRANSPORT_RECORDED = "sahool.traceability.transport_recorded"
 
-SAHOOL_TRACEABILITY_ALL = "sahool.traceability.*"
+SAHOOL_TRACEABILITY_ALL = "sahool.traceability.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -527,7 +527,7 @@ SAHOOL_COPILOT_TOOL_BLOCKED = "sahool.copilot.tool_blocked"
 SAHOOL_COPILOT_PROMPT_INJECTION = "sahool.copilot.prompt_injection_detected"
 SAHOOL_COPILOT_RATE_LIMIT = "sahool.copilot.rate_limit_exceeded"
 
-SAHOOL_COPILOT_ALL = "sahool.copilot.*"
+SAHOOL_COPILOT_ALL = "sahool.copilot.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -539,7 +539,7 @@ SAHOOL_SOIL_TEST_INTERPRETED = "sahool.soil.test_interpreted"
 SAHOOL_SOIL_AMENDMENT_PLAN_GENERATED = "sahool.soil.amendment_plan_generated"
 SAHOOL_SOIL_TRENDS_ANALYZED = "sahool.soil.trends_analyzed"
 
-SAHOOL_SOIL_ALL = "sahool.soil.*"
+SAHOOL_SOIL_ALL = "sahool.soil.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -549,7 +549,7 @@ SAHOOL_SOIL_ALL = "sahool.soil.*"
 SAHOOL_CROP_DISEASE_DETECTED = "sahool.crop.disease_detected"
 SAHOOL_CROP_HEALTH_ASSESSED = "sahool.crop.health_assessed"
 
-SAHOOL_CROP_ALL = "sahool.crop.*"
+SAHOOL_CROP_ALL = "sahool.crop.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -559,7 +559,7 @@ SAHOOL_CROP_ALL = "sahool.crop.*"
 SAHOOL_CONFIG_UPDATED = "sahool.config.updated"
 SAHOOL_CONFIG_PROVIDER_STATUS_CHANGED = "sahool.config.provider_status_changed"
 
-SAHOOL_CONFIG_ALL = "sahool.config.*"
+SAHOOL_CONFIG_ALL = "sahool.config.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -569,7 +569,7 @@ SAHOOL_CONFIG_ALL = "sahool.config.*"
 SAHOOL_LOWCODE_MODEL_UPDATED = "sahool.lowcode.model_updated"
 SAHOOL_LOWCODE_PAGE_UPDATED = "sahool.lowcode.page_updated"
 
-SAHOOL_LOWCODE_ALL = "sahool.lowcode.*"
+SAHOOL_LOWCODE_ALL = "sahool.lowcode.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -584,7 +584,7 @@ SAHOOL_LLM_MODEL_UNLOADED = "sahool.llm.model_unloaded"
 SAHOOL_LLM_GPU_OOM = "sahool.llm.gpu_oom"
 
 # Wildcards
-SAHOOL_LLM_ALL = "sahool.llm.*"
+SAHOOL_LLM_ALL = "sahool.llm.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -594,7 +594,7 @@ SAHOOL_LLM_ALL = "sahool.llm.*"
 SAHOOL_CHAT_AI_QUERY = "sahool.chat.ai_query"
 SAHOOL_CHAT_AI_RESPONSE = "sahool.chat.ai_response"
 
-SAHOOL_CHAT_ALL = "sahool.chat.*"
+SAHOOL_CHAT_ALL = "sahool.chat.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -616,7 +616,7 @@ SAHOOL_SPRAY_SCHEDULED = "sahool.spray.scheduled"
 SAHOOL_SPRAY_WINDOW = "sahool.spray.window"
 SAHOOL_SPRAY_WARNING = "sahool.spray.warning"
 
-SAHOOL_SPRAY_ALL = "sahool.spray.*"
+SAHOOL_SPRAY_ALL = "sahool.spray.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -630,7 +630,7 @@ SAHOOL_KNOWLEDGE_DOCUMENT_EXPIRED = "sahool.knowledge.document_expired"
 SAHOOL_KNOWLEDGE_COLLECTION_POPULATED = "sahool.knowledge.collection_populated"
 SAHOOL_KNOWLEDGE_INGESTION_FAILED = "sahool.knowledge.ingestion_failed"
 
-SAHOOL_KNOWLEDGE_ALL = "sahool.knowledge.*"
+SAHOOL_KNOWLEDGE_ALL = "sahool.knowledge.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -645,7 +645,7 @@ SAHOOL_COMMUNITY_ADVISORY_POSTED = "sahool.community.advisory_posted"
 SAHOOL_COMMUNITY_ALERT_POSTED = "sahool.community.alert_posted"
 SAHOOL_COMMUNITY_TENANT_SETUP = "sahool.community.tenant_setup"
 
-SAHOOL_COMMUNITY_ALL = "sahool.community.*"
+SAHOOL_COMMUNITY_ALL = "sahool.community.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -653,7 +653,7 @@ SAHOOL_COMMUNITY_ALL = "sahool.community.*"
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_DELIVERY_COMPLETED = "sahool.delivery.completed"
-SAHOOL_DELIVERY_ALL = "sahool.delivery.*"
+SAHOOL_DELIVERY_ALL = "sahool.delivery.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -661,7 +661,7 @@ SAHOOL_DELIVERY_ALL = "sahool.delivery.*"
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_PAYMENT_CONFIRMED = "sahool.payment.confirmed"
-SAHOOL_PAYMENT_ALL = "sahool.payment.*"
+SAHOOL_PAYMENT_ALL = "sahool.payment.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -688,13 +688,16 @@ def get_wildcard_subject(domain: str) -> str:
     """
     Get wildcard subject for a domain to subscribe to all events in that domain.
 
+    Uses the NATS multi-level wildcard ``>`` so that nested subjects
+    (e.g. ``sahool.billing.payment.completed``) are also matched.
+
     Args:
         domain: Domain name (e.g., "field", "weather", "billing")
 
     Returns:
-        Wildcard subject (e.g., "sahool.field.*")
+        Wildcard subject (e.g., "sahool.field.>")
     """
-    return f"sahool.{domain}.*"
+    return f"sahool.{domain}.>"
 
 
 def is_valid_subject(subject: str) -> bool:
@@ -904,6 +907,94 @@ SUBJECT_REGISTRY = {
     "community.advisory_posted": SAHOOL_COMMUNITY_ADVISORY_POSTED,
     "community.alert_posted": SAHOOL_COMMUNITY_ALERT_POSTED,
     "community.tenant_setup": SAHOOL_COMMUNITY_TENANT_SETUP,
+    # Farm
+    "farm.created": SAHOOL_FARM_CREATED,
+    "farm.updated": SAHOOL_FARM_UPDATED,
+    "farm.deleted": SAHOOL_FARM_DELETED,
+    # IoT
+    "iot.sensor.reading": SAHOOL_IOT_SENSOR_READING,
+    "iot.sensor.connected": SAHOOL_IOT_SENSOR_CONNECTED,
+    "iot.sensor.disconnected": SAHOOL_IOT_SENSOR_DISCONNECTED,
+    "iot.sensor.alert": SAHOOL_IOT_SENSOR_ALERT,
+    "iot.device.registered": SAHOOL_IOT_DEVICE_REGISTERED,
+    "iot.device.status": SAHOOL_IOT_DEVICE_STATUS,
+    "iot.threshold": SAHOOL_IOT_THRESHOLD,
+    # Notification
+    "notification.send": SAHOOL_NOTIFICATION_SEND,
+    "notification.sent": SAHOOL_NOTIFICATION_SENT,
+    "notification.delivered": SAHOOL_NOTIFICATION_DELIVERED,
+    "notification.failed": SAHOOL_NOTIFICATION_FAILED,
+    "notification.read": SAHOOL_NOTIFICATION_READ,
+    # User/Auth
+    "user.registered": SAHOOL_USER_REGISTERED,
+    "user.verified": SAHOOL_USER_VERIFIED,
+    "user.logged_in": SAHOOL_USER_LOGGED_IN,
+    "user.logged_out": SAHOOL_USER_LOGGED_OUT,
+    "user.updated": SAHOOL_USER_UPDATED,
+    "user.deleted": SAHOOL_USER_DELETED,
+    # System
+    "system.health": SAHOOL_SYSTEM_HEALTH,
+    "system.metric": SAHOOL_SYSTEM_METRIC,
+    "system.error": SAHOOL_SYSTEM_ERROR,
+    "system.audit": SAHOOL_SYSTEM_AUDIT,
+    # Knowledge
+    "knowledge.document_ingested": SAHOOL_KNOWLEDGE_DOCUMENT_INGESTED,
+    "knowledge.document_verified": SAHOOL_KNOWLEDGE_DOCUMENT_VERIFIED,
+    "knowledge.document_expired": SAHOOL_KNOWLEDGE_DOCUMENT_EXPIRED,
+    "knowledge.collection_populated": SAHOOL_KNOWLEDGE_COLLECTION_POPULATED,
+    "knowledge.ingestion_failed": SAHOOL_KNOWLEDGE_INGESTION_FAILED,
+    # Delivery
+    "delivery.completed": SAHOOL_DELIVERY_COMPLETED,
+    # Payment
+    "payment.confirmed": SAHOOL_PAYMENT_CONFIRMED,
+    # Weather detail
+    "weather.alert.frost": SAHOOL_WEATHER_ALERT_FROST,
+    "weather.alert.heatwave": SAHOOL_WEATHER_ALERT_HEATWAVE,
+    "weather.alert.storm": SAHOOL_WEATHER_ALERT_STORM,
+    "weather.alert.rain": SAHOOL_WEATHER_ALERT_RAIN,
+    "weather.alert.drought": SAHOOL_WEATHER_ALERT_DROUGHT,
+    "weather.alert.wind": SAHOOL_WEATHER_ALERT_WIND,
+    # Satellite detail
+    "satellite.processing.started": SAHOOL_SATELLITE_PROCESSING_STARTED,
+    "satellite.processing.completed": SAHOOL_SATELLITE_PROCESSING_COMPLETED,
+    "satellite.processing.failed": SAHOOL_SATELLITE_PROCESSING_FAILED,
+    "satellite.ndvi.computed": SAHOOL_NDVI_COMPUTED,
+    # Health detail
+    "health.pest.detected": SAHOOL_HEALTH_PEST_DETECTED,
+    # Billing detail
+    "billing.subscription.updated": SAHOOL_BILLING_SUBSCRIPTION_UPDATED,
+    "billing.subscription.renewed": SAHOOL_BILLING_SUBSCRIPTION_RENEWED,
+    "billing.subscription.cancelled": SAHOOL_BILLING_SUBSCRIPTION_CANCELLED,
+    "billing.subscription.expired": SAHOOL_BILLING_SUBSCRIPTION_EXPIRED,
+    "billing.payment.initiated": SAHOOL_BILLING_PAYMENT_INITIATED,
+    "billing.payment.refunded": SAHOOL_BILLING_PAYMENT_REFUNDED,
+    "billing.invoice.created": SAHOOL_BILLING_INVOICE_CREATED,
+    "billing.invoice.paid": SAHOOL_BILLING_INVOICE_PAID,
+    "billing.invoice.overdue": SAHOOL_BILLING_INVOICE_OVERDUE,
+    "billing.quota.exceeded": SAHOOL_BILLING_QUOTA_EXCEEDED,
+    "billing.quota.warning": SAHOOL_BILLING_QUOTA_WARNING,
+    # Inventory detail
+    "inventory.out_of_stock": SAHOOL_INVENTORY_OUT_OF_STOCK,
+    "inventory.batch.expiring": SAHOOL_INVENTORY_BATCH_EXPIRING,
+    "inventory.restocked": SAHOOL_INVENTORY_RESTOCKED,
+    "inventory.adjusted": SAHOOL_INVENTORY_ADJUSTED,
+    "inventory.alert": SAHOOL_INVENTORY_ALERT,
+    "inventory.product.created": SAHOOL_INVENTORY_PRODUCT_CREATED,
+    "inventory.product.updated": SAHOOL_INVENTORY_PRODUCT_UPDATED,
+    "inventory.product.deleted": SAHOOL_INVENTORY_PRODUCT_DELETED,
+    # Recommendation detail
+    "recommendation.pest_control": SAHOOL_RECOMMENDATION_PEST_CONTROL,
+    "recommendation.harvest": SAHOOL_RECOMMENDATION_HARVEST,
+    # Analysis detail
+    "analysis.started": SAHOOL_ANALYSIS_STARTED,
+    "analysis.completed": SAHOOL_ANALYSIS_COMPLETED,
+    "analysis.failed": SAHOOL_ANALYSIS_FAILED,
+    "analysis.ndvi": SAHOOL_ANALYSIS_NDVI,
+    "analysis.soil": SAHOOL_ANALYSIS_SOIL,
+    "analysis.yield": SAHOOL_ANALYSIS_YIELD,
+    "analysis.irrigation": SAHOOL_ANALYSIS_IRRIGATION,
+    # Terrain detail
+    "terrain.simulation_completed": SAHOOL_TERRAIN_SIMULATION_COMPLETED,
 }
 
 

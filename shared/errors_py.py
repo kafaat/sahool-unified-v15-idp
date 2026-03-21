@@ -15,9 +15,13 @@ from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorCode(StrEnum):
@@ -297,12 +301,20 @@ def setup_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         """Catch-all handler for unexpected exceptions."""
         request_id = getattr(request.state, "request_id", None)
+        # Log the actual exception type internally for debugging,
+        # but never expose it to clients (information disclosure risk).
+        logger.error(
+            "Unhandled exception: %s: %s",
+            type(exc).__name__,
+            exc,
+            exc_info=True,
+            extra={"request_id": request_id},
+        )
         sahool_exc = SahoolException(
             message="An unexpected error occurred",
             message_ar="حدث خطأ غير متوقع",
             code=ErrorCode.INTERNAL_ERROR,
             status_code=500,
-            details={"type": type(exc).__name__},
         )
         return create_error_response(sahool_exc, request_id)
 

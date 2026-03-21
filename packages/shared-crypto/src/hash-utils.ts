@@ -184,6 +184,12 @@ function getHmacSecret(): string {
   if (!secret) {
     throw new Error("HMAC_SECRET environment variable is not set");
   }
+  // SECURITY: Enforce minimum key length (32 bytes = 64 hex chars)
+  if (secret.length < 64) {
+    throw new Error(
+      "HMAC_SECRET must be at least 32 bytes (64 hex characters)",
+    );
+  }
   return secret;
 }
 

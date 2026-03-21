@@ -195,25 +195,37 @@ class TwoFactorAuthService:
 
     def hash_backup_code(self, code: str) -> str:
         """
-        Hash a backup code for secure storage.
+        Hash a backup code for secure storage using bcrypt.
 
         Args:
             code: The backup code to hash
 
         Returns:
-            Hashed backup code
+            Hashed backup code (bcrypt)
         """
         # Remove formatting
         clean_code = code.replace("-", "").strip()
 
-        # Use simple hash for backup codes (they're single-use anyway)
-        import hashlib
+        try:
+            import bcrypt
 
-        return hashlib.sha256(clean_code.encode()).hexdigest()
+            return bcrypt.hashpw(clean_code.encode(), bcrypt.gensalt(rounds=12)).decode()
+        except ImportError:
+            # Fallback to SHA-256 with salt if bcrypt not available
+            import hashlib
+            import secrets
+
+            salt = secrets.token_hex(16)
+            return f"sha256:{salt}:{hashlib.sha256((salt + clean_code).encode()).hexdigest()}"
 
     def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None]:
         """
         Verify a backup code against stored hashes.
+
+        .. deprecated::
+            Use :meth:`verify_backup_code_with_remaining` instead.
+            This method discards the remaining-codes list, so callers
+            cannot remove the used code from storage — allowing reuse.
 
         Args:
             code: The backup code to verify
@@ -222,6 +234,15 @@ class TwoFactorAuthService:
         Returns:
             Tuple of (is_valid, matched_hash)
         """
+        import warnings
+
+        warnings.warn(
+            "verify_backup_code() discards remaining codes, allowing reuse. "
+            "Use verify_backup_code_with_remaining() and persist the returned "
+            "remaining_codes list.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         is_valid, matched_hash, _ = self.verify_backup_code_with_remaining(code, hashed_codes)
         return is_valid, matched_hash
 
@@ -243,15 +264,39 @@ class TwoFactorAuthService:
         if not code or not hashed_codes:
             return False, None, list(hashed_codes) if hashed_codes else []
 
-        # Hash the provided code
-        code_hash = self.hash_backup_code(code)
-
-        # Constant-time comparison to prevent timing attacks
-        import hmac
+        clean_code = code.replace("-", "").strip()
 
         for stored_hash in hashed_codes:
-            if hmac.compare_digest(code_hash, stored_hash):
-                # Remove used code to prevent reuse
+            matched = False
+
+            if stored_hash.startswith("$2b$") or stored_hash.startswith("$2a$"):
+                # bcrypt hash
+                try:
+                    import bcrypt
+
+                    matched = bcrypt.checkpw(clean_code.encode(), stored_hash.encode())
+                except ImportError:
+                    pass
+            elif stored_hash.startswith("sha256:"):
+                # Salted SHA-256 hash (format: sha256:<salt>:<hash>)
+                import hashlib
+                import hmac as _hmac
+
+                parts = stored_hash.split(":", 2)
+                if len(parts) == 3:
+                    salt = parts[1]
+                    expected = parts[2]
+                    actual = hashlib.sha256((salt + clean_code).encode()).hexdigest()
+                    matched = _hmac.compare_digest(actual, expected)
+            elif len(stored_hash) == 64:
+                # Legacy unsalted SHA-256 (migration support)
+                import hashlib
+                import hmac as _hmac
+
+                legacy_hash = hashlib.sha256(clean_code.encode()).hexdigest()
+                matched = _hmac.compare_digest(legacy_hash, stored_hash)
+
+            if matched:
                 remaining = [h for h in hashed_codes if h != stored_hash]
                 logger.info(
                     f"Backup code verified successfully. "

@@ -20,6 +20,7 @@ AgML provides standardized access to 30+ agricultural ML datasets.
 # To enable real AgML integration, add `agml>=0.4.0` to requirements.
 
 import os
+import tempfile
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -119,7 +120,15 @@ class AgMLDatasetManager:
     """
 
     def __init__(self, cache_dir: str | None = None):
-        self.cache_dir = Path(cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml"))
+        _default_cache = os.path.join(tempfile.gettempdir(), "agml")  # nosec B108
+        resolved = Path(cache_dir or os.getenv("AGML_CACHE_DIR", _default_cache)).resolve()
+        # SECURITY: Prevent path traversal — restrict to system temp dir or /var/cache
+        _allowed_prefixes = (tempfile.gettempdir(), "/var/cache/")  # nosec B108
+        if not str(resolved).startswith(_allowed_prefixes):
+            raise ValueError(
+                f"cache_dir must be under {tempfile.gettempdir()} or /var/cache, got: {resolved}"
+            )
+        self.cache_dir = resolved
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self._agml = None

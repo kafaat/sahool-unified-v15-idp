@@ -29,6 +29,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+import re
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncGenerator
 
@@ -85,6 +86,14 @@ async def tenant_connection(
     if not tenant_id:
         raise RuntimeError("tenant_id cannot be empty")
 
+    # Validate tenant_id format to prevent injection into session variables.
+    # Allows UUIDs, alphanumeric with hyphens/underscores, max 128 chars.
+    if not re.fullmatch(r"[a-zA-Z0-9_\-]{1,128}", tenant_id):
+        raise RuntimeError(
+            f"tenant_id contains invalid characters or exceeds length limit: "
+            f"{tenant_id!r:.40}"
+        )
+
     conn: asyncpg.Connection = await pool.acquire()
     try:
         # Set RLS session variables using parameterized SET
@@ -114,9 +123,10 @@ async def tenant_connection(
             await conn.execute(
                 "SELECT set_config('app.is_super_admin', 'false', true)"
             )
-        except Exception:
-            # Connection may already be broken; pool.release will handle it
-            pass
+        except Exception as cleanup_err:
+            logger.warning(
+                "Failed to reset RLS session variables: %s", cleanup_err
+            )
         await pool.release(conn)
 
 

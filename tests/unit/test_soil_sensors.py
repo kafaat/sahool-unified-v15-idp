@@ -2293,14 +2293,15 @@ class TestErrorHandling:
 
     @pytest.mark.unit
     def test_processor_handles_none_sensor(self, sample_reading):
-        """Test processor handles reading from unregistered sensor"""
+        """Test processor rejects reading from unregistered sensor (tenant isolation)"""
         processor = SensorDataProcessor("field_456", "tenant_123")
         # Don't register any sensor
 
         alerts = processor.add_reading(sample_reading)
 
-        # Should still store reading (no threshold alerts possible)
-        assert sample_reading.sensor_id in processor._readings
+        # Should NOT store reading from unregistered sensor (security: tenant isolation)
+        assert sample_reading.sensor_id not in processor._readings
+        assert alerts == []
 
     @pytest.mark.unit
     def test_aggregation_handles_empty_periods(self, sample_sensor):

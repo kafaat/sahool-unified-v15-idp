@@ -139,7 +139,14 @@ class RateLimiter:
         """
         # Get client identifier
         client_ip = request.client.host if request.client else "unknown"
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        # Security: Use verified tenant_id from JWT (set by auth middleware on
+        # request.state), never from the untrusted X-Tenant-ID header.
+        # الأمان: استخدام معرف المستأجر الموثق من JWT وليس من رأس العميل
+        tenant_id = "default"
+        if hasattr(request.state, "user") and request.state.user:
+            tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
+        elif hasattr(request.state, "token_payload") and request.state.token_payload:
+            tenant_id = getattr(request.state.token_payload, "tenant_id", None) or "default"
         key = f"{tenant_id}:{client_ip}"
 
         # Use per-request config override if set (avoids shared state mutation)
@@ -205,7 +212,10 @@ _rate_limiter = RateLimiter()
 async def _log_rate_limit_exceeded(request: Request, tier: str):
     """Log rate limit exceeded event for security monitoring"""
     client_ip = request.client.host if request.client else "unknown"
-    tenant_id = request.headers.get("X-Tenant-ID", "default")
+    # Use verified tenant_id from auth context, not untrusted header
+    tenant_id = "default"
+    if hasattr(request.state, "user") and request.state.user:
+        tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
     user_agent = request.headers.get("User-Agent", "unknown")
 
     # Security logging
@@ -439,7 +449,12 @@ def rate_limit_by_tenant(
     """
 
     def tenant_key(request: Request) -> str:
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        # Security: Use verified tenant_id from JWT, not untrusted header
+        tenant_id = "default"
+        if hasattr(request.state, "user") and request.state.user:
+            tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
+        elif hasattr(request.state, "token_payload") and request.state.token_payload:
+            tenant_id = getattr(request.state.token_payload, "tenant_id", None) or "default"
         # nosemgrep
         return f"tenant:{tenant_id}"
 

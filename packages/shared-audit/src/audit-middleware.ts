@@ -159,10 +159,40 @@ export class AuditMiddleware implements NestMiddleware {
       metadata: {
         method: req.method,
         path: req.path,
-        query: req.query,
+        query: this.sanitizeQuery(req.query),
       },
       success: true,
     });
+  }
+
+  /** Sensitive query params that must not appear in audit logs. */
+  private static readonly SENSITIVE_PARAMS = new Set([
+    "token",
+    "api_key",
+    "apikey",
+    "api-key",
+    "secret",
+    "password",
+    "access_token",
+    "refresh_token",
+    "authorization",
+    "key",
+    "credentials",
+  ]);
+
+  /**
+   * Strip sensitive query parameters before logging.
+   */
+  private sanitizeQuery(
+    query: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(query)) {
+      sanitized[key] = AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())
+        ? "[REDACTED]"
+        : value;
+    }
+    return sanitized;
   }
 
   /**

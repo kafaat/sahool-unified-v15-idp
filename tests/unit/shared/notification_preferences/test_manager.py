@@ -26,6 +26,8 @@ from shared.notification_preferences.models import (
     create_default_preferences,
 )
 
+TENANT_ID = "test-tenant"
+
 
 @pytest.fixture
 def storage():
@@ -40,36 +42,36 @@ def manager(storage):
 class TestInMemoryStorage:
     @pytest.mark.asyncio
     async def test_save_and_get(self, storage):
-        prefs = create_default_preferences("user1", "t1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         await storage.save(prefs)
-        retrieved = await storage.get("user1", "t1")
+        retrieved = await storage.get("user1", TENANT_ID)
         assert retrieved is not None
         assert retrieved.user_id == "user1"
 
     @pytest.mark.asyncio
     async def test_get_not_found(self, storage):
-        result = await storage.get("nonexistent")
+        result = await storage.get("nonexistent", TENANT_ID)
         assert result is None
 
     @pytest.mark.asyncio
     async def test_delete(self, storage):
-        prefs = create_default_preferences("user1", "t1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         await storage.save(prefs)
-        result = await storage.delete("user1", "t1")
+        result = await storage.delete("user1", TENANT_ID)
         assert result is True
-        assert await storage.get("user1", "t1") is None
+        assert await storage.get("user1", TENANT_ID) is None
 
     @pytest.mark.asyncio
     async def test_delete_not_found(self, storage):
-        result = await storage.delete("nonexistent")
+        result = await storage.delete("nonexistent", TENANT_ID)
         assert result is False
 
     @pytest.mark.asyncio
     async def test_list_all(self, storage):
-        await storage.save(create_default_preferences("u1", "t1"))
-        await storage.save(create_default_preferences("u2", "t1"))
-        await storage.save(create_default_preferences("u3", "t2"))
-        all_prefs = await storage.list_all()
+        await storage.save(create_default_preferences("u1", TENANT_ID))
+        await storage.save(create_default_preferences("u2", TENANT_ID))
+        await storage.save(create_default_preferences("u3", TENANT_ID))
+        all_prefs = await storage.list_all(TENANT_ID)
         assert len(all_prefs) == 3
 
     @pytest.mark.asyncio
@@ -82,7 +84,7 @@ class TestInMemoryStorage:
 
     @pytest.mark.asyncio
     async def test_save_increments_version(self, storage):
-        prefs = create_default_preferences("user1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         assert prefs.version == 1
         await storage.save(prefs)
         assert prefs.version == 2
@@ -93,64 +95,64 @@ class TestInMemoryStorage:
 class TestNotificationPreferencesManagerCRUD:
     @pytest.mark.asyncio
     async def test_get_preferences_creates_default(self, manager):
-        prefs = await manager.get_preferences("user1", "t1")
+        prefs = await manager.get_preferences("user1", TENANT_ID)
         assert prefs is not None
         assert prefs.user_id == "user1"
         assert prefs.notifications_enabled is True
 
     @pytest.mark.asyncio
     async def test_get_preferences_no_create(self, manager):
-        prefs = await manager.get_preferences("user1", create_if_missing=False)
+        prefs = await manager.get_preferences("user1", TENANT_ID, create_if_missing=False)
         assert prefs is None
 
     @pytest.mark.asyncio
     async def test_save_preferences(self, manager):
-        prefs = create_default_preferences("user1", "t1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         saved = await manager.save_preferences(prefs)
         assert saved.version >= 1
 
     @pytest.mark.asyncio
     async def test_delete_preferences(self, manager):
-        await manager.get_preferences("user1", "t1")
-        result = await manager.delete_preferences("user1", "t1")
+        await manager.get_preferences("user1", TENANT_ID)
+        result = await manager.delete_preferences("user1", TENANT_ID)
         assert result is True
 
     @pytest.mark.asyncio
     async def test_delete_nonexistent(self, manager):
-        result = await manager.delete_preferences("nonexistent")
+        result = await manager.delete_preferences("nonexistent", TENANT_ID)
         assert result is False
 
     @pytest.mark.asyncio
     async def test_reset_to_defaults(self, manager):
-        prefs = await manager.get_preferences("user1")
+        prefs = await manager.get_preferences("user1", TENANT_ID)
         prefs.notifications_enabled = False
         await manager.save_preferences(prefs)
 
-        reset = await manager.reset_to_defaults("user1")
+        reset = await manager.reset_to_defaults("user1", TENANT_ID)
         assert reset.notifications_enabled is True
 
 
 class TestMasterToggle:
     @pytest.mark.asyncio
     async def test_enable_notifications(self, manager):
-        prefs = await manager.disable_notifications("user1")
+        prefs = await manager.disable_notifications("user1", TENANT_ID)
         assert prefs.notifications_enabled is False
-        prefs = await manager.enable_notifications("user1")
+        prefs = await manager.enable_notifications("user1", TENANT_ID)
         assert prefs.notifications_enabled is True
 
     @pytest.mark.asyncio
     async def test_disable_notifications(self, manager):
-        prefs = await manager.disable_notifications("user1")
+        prefs = await manager.disable_notifications("user1", TENANT_ID)
         assert prefs.notifications_enabled is False
 
 
 class TestLanguageOperations:
     @pytest.mark.asyncio
     async def test_set_language(self, manager):
-        prefs = await manager.set_language("user1", Language.ENGLISH)
+        prefs = await manager.set_language("user1", Language.ENGLISH, TENANT_ID)
         assert prefs.language == Language.ENGLISH
 
-        prefs = await manager.set_language("user1", Language.ARABIC)
+        prefs = await manager.set_language("user1", Language.ARABIC, TENANT_ID)
         assert prefs.language == Language.ARABIC
 
 
@@ -160,13 +162,14 @@ class TestChannelOperations:
         prefs = await manager.set_default_channels(
             "user1",
             [NotificationChannel.PUSH, NotificationChannel.EMAIL],
+            TENANT_ID,
         )
         assert NotificationChannel.PUSH in prefs.default_channels
 
     @pytest.mark.asyncio
     async def test_set_default_channels_empty_raises(self, manager):
         with pytest.raises(ValueError):
-            await manager.set_default_channels("user1", [])
+            await manager.set_default_channels("user1", [], TENANT_ID)
 
     @pytest.mark.asyncio
     async def test_add_channel(self, manager):
@@ -174,6 +177,7 @@ class TestChannelOperations:
             "user1",
             NotificationChannel.WHATSAPP,
             address="+966501234567",
+            tenant_id=TENANT_ID,
             verified=True,
         )
         config = prefs.get_channel_config(NotificationChannel.WHATSAPP)
@@ -183,33 +187,33 @@ class TestChannelOperations:
 
     @pytest.mark.asyncio
     async def test_add_channel_update_existing(self, manager):
-        await manager.add_channel("user1", NotificationChannel.SMS, address="old")
-        prefs = await manager.add_channel("user1", NotificationChannel.SMS, address="new")
+        await manager.add_channel("user1", NotificationChannel.SMS, address="old", tenant_id=TENANT_ID)
+        prefs = await manager.add_channel("user1", NotificationChannel.SMS, address="new", tenant_id=TENANT_ID)
         config = prefs.get_channel_config(NotificationChannel.SMS)
         assert config.address == "new"
 
     @pytest.mark.asyncio
     async def test_remove_channel(self, manager):
-        await manager.add_channel("user1", NotificationChannel.WHATSAPP, address="test")
-        prefs = await manager.remove_channel("user1", NotificationChannel.WHATSAPP)
+        await manager.add_channel("user1", NotificationChannel.WHATSAPP, address="test", tenant_id=TENANT_ID)
+        prefs = await manager.remove_channel("user1", NotificationChannel.WHATSAPP, TENANT_ID)
         config = prefs.get_channel_config(NotificationChannel.WHATSAPP)
         assert config is None
 
     @pytest.mark.asyncio
     async def test_enable_disable_channel(self, manager):
-        await manager.add_channel("user1", NotificationChannel.SMS, address="test")
-        prefs = await manager.disable_channel("user1", NotificationChannel.SMS)
+        await manager.add_channel("user1", NotificationChannel.SMS, address="test", tenant_id=TENANT_ID)
+        prefs = await manager.disable_channel("user1", NotificationChannel.SMS, TENANT_ID)
         config = prefs.get_channel_config(NotificationChannel.SMS)
         assert config.enabled is False
 
-        prefs = await manager.enable_channel("user1", NotificationChannel.SMS)
+        prefs = await manager.enable_channel("user1", NotificationChannel.SMS, TENANT_ID)
         config = prefs.get_channel_config(NotificationChannel.SMS)
         assert config.enabled is True
 
     @pytest.mark.asyncio
     async def test_verify_channel(self, manager):
-        await manager.add_channel("user1", NotificationChannel.SMS, address="test")
-        prefs = await manager.verify_channel("user1", NotificationChannel.SMS)
+        await manager.add_channel("user1", NotificationChannel.SMS, address="test", tenant_id=TENANT_ID)
+        prefs = await manager.verify_channel("user1", NotificationChannel.SMS, TENANT_ID)
         config = prefs.get_channel_config(NotificationChannel.SMS)
         assert config.verified is True
         assert config.verified_at is not None
@@ -220,6 +224,7 @@ class TestAlertTypeOperations:
     async def test_set_alert_preference(self, manager):
         prefs = await manager.set_alert_preference(
             "user1",
+            TENANT_ID,
             AlertType.IRRIGATION_REMINDER,
             channels=[NotificationChannel.PUSH],
             min_urgency=AlertUrgency.MEDIUM,
@@ -230,15 +235,15 @@ class TestAlertTypeOperations:
 
     @pytest.mark.asyncio
     async def test_disable_alert_type(self, manager):
-        prefs = await manager.disable_alert_type("user1", AlertType.MARKET_PRICE)
+        prefs = await manager.disable_alert_type("user1", AlertType.MARKET_PRICE, TENANT_ID)
         pref = prefs.get_alert_preference(AlertType.MARKET_PRICE)
         assert pref is not None
         assert pref.enabled is False
 
     @pytest.mark.asyncio
     async def test_enable_alert_type(self, manager):
-        await manager.disable_alert_type("user1", AlertType.MARKET_PRICE)
-        prefs = await manager.enable_alert_type("user1", AlertType.MARKET_PRICE)
+        await manager.disable_alert_type("user1", AlertType.MARKET_PRICE, TENANT_ID)
+        prefs = await manager.enable_alert_type("user1", AlertType.MARKET_PRICE, TENANT_ID)
         pref = prefs.get_alert_preference(AlertType.MARKET_PRICE)
         assert pref.enabled is True
 
@@ -248,6 +253,7 @@ class TestQuietHoursOperations:
     async def test_set_quiet_hours(self, manager):
         prefs = await manager.set_quiet_hours(
             "user1",
+            TENANT_ID,
             start_time=time(22, 0),
             end_time=time(6, 0),
             enabled=True,
@@ -259,14 +265,14 @@ class TestQuietHoursOperations:
 
     @pytest.mark.asyncio
     async def test_disable_quiet_hours(self, manager):
-        await manager.set_quiet_hours("user1", time(22, 0), time(6, 0), enabled=True)
-        prefs = await manager.disable_quiet_hours("user1")
+        await manager.set_quiet_hours("user1", TENANT_ID, time(22, 0), time(6, 0), enabled=True)
+        prefs = await manager.disable_quiet_hours("user1", TENANT_ID)
         assert prefs.quiet_hours.enabled is False
 
     @pytest.mark.asyncio
     async def test_enable_quiet_hours(self, manager):
-        await manager.set_quiet_hours("user1", time(22, 0), time(6, 0), enabled=False)
-        prefs = await manager.enable_quiet_hours("user1")
+        await manager.set_quiet_hours("user1", TENANT_ID, time(22, 0), time(6, 0), enabled=False)
+        prefs = await manager.enable_quiet_hours("user1", TENANT_ID)
         assert prefs.quiet_hours.enabled is True
 
 
@@ -283,7 +289,7 @@ class TestTimeRuleOperations:
             fallback_channel=NotificationChannel.PUSH,
             priority=100,
         )
-        prefs = await manager.add_time_rule("user1", rule)
+        prefs = await manager.add_time_rule("user1", rule, TENANT_ID)
         assert len(prefs.time_rules) >= 1
 
     @pytest.mark.asyncio
@@ -295,13 +301,13 @@ class TestTimeRuleOperations:
             channels=[NotificationChannel.SMS],
             action="block",
         )
-        await manager.add_time_rule("user1", rule)
-        prefs = await manager.remove_time_rule("user1", "rule1")
+        await manager.add_time_rule("user1", rule, TENANT_ID)
+        prefs = await manager.remove_time_rule("user1", "rule1", TENANT_ID)
         assert all(r.id != "rule1" for r in prefs.time_rules)
 
     @pytest.mark.asyncio
     async def test_create_no_sms_at_night(self, manager):
-        prefs = await manager.create_no_sms_at_night_rule("user1")
+        prefs = await manager.create_no_sms_at_night_rule("user1", TENANT_ID)
         sms_rules = [r for r in prefs.time_rules if NotificationChannel.SMS in r.channels]
         assert len(sms_rules) >= 1
 
@@ -314,7 +320,7 @@ class TestUrgencyOverrideOperations:
             force_channels=[NotificationChannel.SMS, NotificationChannel.PUSH],
             bypass_quiet_hours=True,
         )
-        prefs = await manager.set_urgency_override("user1", override)
+        prefs = await manager.set_urgency_override("user1", override, TENANT_ID)
         assert len(prefs.urgency_overrides) >= 1
 
     @pytest.mark.asyncio
@@ -323,8 +329,8 @@ class TestUrgencyOverrideOperations:
             urgency=AlertUrgency.CRITICAL,
             force_channels=[NotificationChannel.SMS],
         )
-        await manager.set_urgency_override("user1", override)
-        prefs = await manager.remove_urgency_override("user1", AlertUrgency.CRITICAL)
+        await manager.set_urgency_override("user1", override, TENANT_ID)
+        prefs = await manager.remove_urgency_override("user1", AlertUrgency.CRITICAL, TENANT_ID)
         assert all(o.urgency != AlertUrgency.CRITICAL for o in prefs.urgency_overrides)
 
 
@@ -338,6 +344,7 @@ class TestBulkOperations:
                 "sound_enabled": False,
                 "language": "en",
             },
+            TENANT_ID,
         )
         assert prefs.notifications_enabled is False
         assert prefs.sound_enabled is False
@@ -345,47 +352,47 @@ class TestBulkOperations:
 
     @pytest.mark.asyncio
     async def test_export_preferences(self, manager):
-        await manager.get_preferences("user1", "t1")
-        exported = await manager.export_preferences("user1", "t1")
+        await manager.get_preferences("user1", TENANT_ID)
+        exported = await manager.export_preferences("user1", TENANT_ID)
         assert exported["user_id"] == "user1"
 
     @pytest.mark.asyncio
     async def test_export_nonexistent(self, manager):
-        exported = await manager.export_preferences("nonexistent")
+        exported = await manager.export_preferences("nonexistent", TENANT_ID)
         assert exported == {}
 
     @pytest.mark.asyncio
     async def test_import_preferences(self, manager):
-        original = create_default_preferences("user1", "t1")
+        original = create_default_preferences("user1", TENANT_ID)
         data = original.to_dict()
-        imported = await manager.import_preferences("user2", data, "t1")
+        imported = await manager.import_preferences("user2", data, TENANT_ID)
         assert imported.user_id == "user2"
-        assert imported.tenant_id == "t1"
+        assert imported.tenant_id == TENANT_ID
 
     @pytest.mark.asyncio
     async def test_import_merge(self, manager):
         # Create existing preferences
-        await manager.get_preferences("user1", "t1")
+        await manager.get_preferences("user1", TENANT_ID)
         # Import with merge
-        new_data = create_default_preferences("other", "t1")
+        new_data = create_default_preferences("other", TENANT_ID)
         new_data.channel_configs.append(
             ChannelConfig(channel=NotificationChannel.WHATSAPP, address="test"),
         )
         data = new_data.to_dict()
-        merged = await manager.import_preferences("user1", data, "t1", merge=True)
+        merged = await manager.import_preferences("user1", data, TENANT_ID, merge=True)
         assert merged.user_id == "user1"
 
 
 class TestValidation:
     @pytest.mark.asyncio
     async def test_validate_empty_user_id(self, manager):
-        prefs = create_default_preferences("", "t1")
+        prefs = create_default_preferences("", TENANT_ID)
         with pytest.raises(ValueError, match="User ID"):
             await manager.save_preferences(prefs)
 
     @pytest.mark.asyncio
     async def test_validate_quiet_hours_same_time(self, manager):
-        prefs = create_default_preferences("user1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         prefs.quiet_hours = QuietHours(
             enabled=True,
             start_time=time(22, 0),
@@ -396,7 +403,7 @@ class TestValidation:
 
     @pytest.mark.asyncio
     async def test_validate_duplicate_channel(self, manager):
-        prefs = create_default_preferences("user1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         prefs.channel_configs = [
             ChannelConfig(channel=NotificationChannel.SMS, address="+966501234567"),
             ChannelConfig(channel=NotificationChannel.SMS, address="+966509876543"),
@@ -406,7 +413,7 @@ class TestValidation:
 
     @pytest.mark.asyncio
     async def test_validate_fallback_rule(self, manager):
-        prefs = create_default_preferences("user1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         prefs.time_rules.append(
             TimeBasedRule(
                 name="Bad",
@@ -421,7 +428,7 @@ class TestValidation:
 
     @pytest.mark.asyncio
     async def test_validate_duplicate_urgency_override(self, manager):
-        prefs = create_default_preferences("user1")
+        prefs = create_default_preferences("user1", TENANT_ID)
         prefs.urgency_overrides = [
             UrgencyOverride(urgency=AlertUrgency.CRITICAL, force_channels=[NotificationChannel.SMS]),
             UrgencyOverride(urgency=AlertUrgency.CRITICAL, force_channels=[NotificationChannel.PUSH]),
@@ -434,42 +441,42 @@ class TestQueryOperations:
     @pytest.mark.asyncio
     async def test_get_users_by_channel(self, manager):
         # Create users with verified push channel
-        prefs1 = await manager.get_preferences("u1", "t1")
-        await manager.add_channel("u1", NotificationChannel.PUSH, address="token1", tenant_id="t1", verified=True)
+        prefs1 = await manager.get_preferences("u1", TENANT_ID)
+        await manager.add_channel("u1", NotificationChannel.PUSH, address="token1", tenant_id=TENANT_ID, verified=True)
 
-        prefs2 = await manager.get_preferences("u2", "t1")
-        await manager.add_channel("u2", NotificationChannel.PUSH, address="token2", tenant_id="t1", verified=True)
+        prefs2 = await manager.get_preferences("u2", TENANT_ID)
+        await manager.add_channel("u2", NotificationChannel.PUSH, address="token2", tenant_id=TENANT_ID, verified=True)
 
-        users = await manager.get_users_by_channel(NotificationChannel.PUSH, tenant_id="t1")
+        users = await manager.get_users_by_channel(NotificationChannel.PUSH, tenant_id=TENANT_ID)
         assert "u1" in users
         assert "u2" in users
 
     @pytest.mark.asyncio
     async def test_get_users_by_channel_verified_only(self, manager):
-        await manager.get_preferences("u1", "t1")
-        await manager.add_channel("u1", NotificationChannel.SMS, address="phone", tenant_id="t1", verified=False)
+        await manager.get_preferences("u1", TENANT_ID)
+        await manager.add_channel("u1", NotificationChannel.SMS, address="phone", tenant_id=TENANT_ID, verified=False)
 
         users = await manager.get_users_by_channel(
             NotificationChannel.SMS,
-            tenant_id="t1",
+            tenant_id=TENANT_ID,
             verified_only=True,
         )
         assert "u1" not in users
 
     @pytest.mark.asyncio
     async def test_get_users_subscribed_to_alert(self, manager):
-        await manager.get_preferences("u1", "t1")
-        await manager.get_preferences("u2", "t1")
-        await manager.disable_alert_type("u2", AlertType.MARKET_PRICE, "t1")
+        await manager.get_preferences("u1", TENANT_ID)
+        await manager.get_preferences("u2", TENANT_ID)
+        await manager.disable_alert_type("u2", AlertType.MARKET_PRICE, TENANT_ID)
 
-        users = await manager.get_users_subscribed_to_alert(AlertType.MARKET_PRICE, "t1")
+        users = await manager.get_users_subscribed_to_alert(AlertType.MARKET_PRICE, TENANT_ID)
         assert "u1" in users
         assert "u2" not in users
 
     @pytest.mark.asyncio
     async def test_disabled_user_not_in_query(self, manager):
-        await manager.get_preferences("u1", "t1")
-        await manager.disable_notifications("u1", "t1")
+        await manager.get_preferences("u1", TENANT_ID)
+        await manager.disable_notifications("u1", TENANT_ID)
 
-        users = await manager.get_users_subscribed_to_alert(AlertType.IRRIGATION_REMINDER, "t1")
+        users = await manager.get_users_subscribed_to_alert(AlertType.IRRIGATION_REMINDER, TENANT_ID)
         assert "u1" not in users

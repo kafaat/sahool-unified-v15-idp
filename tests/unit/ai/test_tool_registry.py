@@ -6,6 +6,9 @@ Tests for tool registration, discovery, capability querying,
 and configuration management.
 """
 
+import pytest
+
+pytest.importorskip("structlog")
 
 from shared.ai.tool_registry import (
     Language,

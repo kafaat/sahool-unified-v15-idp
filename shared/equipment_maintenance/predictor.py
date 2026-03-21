@@ -588,8 +588,11 @@ class PredictiveMaintenanceEngine:
                 confidence=0,
             )
 
-        # Get expected life for this component
-        expected_life = COMPONENT_LIFE_HOURS.get(equipment.equipment_type, {}).get(component, 5000)
+        # Get expected life for this component (guard against zero/negative)
+        expected_life = max(
+            COMPONENT_LIFE_HOURS.get(equipment.equipment_type, {}).get(component, 5000),
+            1,
+        )
 
         # Calculate wear based on operating hours
         total_hours = equipment.total_hours

@@ -1,8 +1,11 @@
 """
-SAHOOL Event Models
-===================
-Pydantic models matching the JSON schemas in shared/contracts/events/
-These models ensure type safety and validation for event-driven communication.
+SAHOOL Event Models (Legacy)
+============================
+Legacy event models — new code should use shared.events.contracts instead.
+
+These models are kept for backward compatibility.  The local BaseEvent now
+inherits from contracts.BaseEvent so that all legacy events carry the full
+event envelope (event_id, timestamp, correlation_id, trace_id, etc.).
 
 Usage:
     from shared.events.models import FieldCreatedEvent, FieldUpdatedEvent
@@ -23,7 +26,9 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+
+from .contracts import BaseEvent as _ContractsBaseEvent
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Enums
@@ -67,14 +72,21 @@ EventMetadata = EventMetadataDTO
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Base Event Model
+# Base Event Model — now delegates to contracts.BaseEvent
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class BaseEvent(BaseModel):
-    """Base class for all SAHOOL events with common metadata."""
+class BaseEvent(_ContractsBaseEvent):
+    """
+    Legacy base event — inherits the canonical envelope from contracts.BaseEvent.
 
-    model_config = ConfigDict()
+    All legacy event models (FieldCreatedEvent, TaskCreatedEvent, etc.) now
+    carry event_id, timestamp, correlation_id, causation_id, trace_id, span_id
+    automatically.
+
+    .. deprecated::
+        Use ``shared.events.contracts.BaseEvent`` directly for new events.
+    """
 
 
 # ─────────────────────────────────────────────────────────────────────────────

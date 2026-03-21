@@ -60,8 +60,24 @@ class MCPClient:
         Args:
             server_url: URL for HTTP/SSE transport (e.g., "http://localhost:8200")
             command: Command for stdio transport (e.g., ["python", "server.py"])
+
+        Raises:
+            MCPClientError: If command executable is not found or contains path traversal
         """
         self.server_url = server_url
+        if command:
+            command = list(command)
+            # SECURITY: Validate and resolve executable to absolute path
+            import shutil
+
+            executable = command[0]
+            resolved = shutil.which(executable)
+            if resolved is None:
+                raise MCPClientError(
+                    f"Executable not found: {executable!r}. "
+                    "Only known executables on PATH are allowed."
+                )
+            command[0] = resolved
         self.command = command
         self.client = httpx.AsyncClient(timeout=60.0)
         self.process: subprocess.Popen | None = None

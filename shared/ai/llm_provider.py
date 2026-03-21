@@ -71,6 +71,19 @@ class LLMConfig:
     enabled: bool = True
     priority: int = 0  # Lower = higher priority
 
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        # SECURITY: Validate base_url scheme to prevent SSRF
+        if self.base_url is not None:
+            from urllib.parse import urlparse
+
+            parsed = urlparse(self.base_url)
+            if parsed.scheme not in ("http", "https"):
+                raise ValueError(
+                    f"base_url must use http/https scheme, got '{parsed.scheme}'. "
+                    "Other protocols (file, ftp, gopher, etc.) are blocked to prevent SSRF."
+                )
+
     @classmethod
     def from_env(cls, provider: LLMProvider) -> LLMConfig:
         """Create config from environment variables."""

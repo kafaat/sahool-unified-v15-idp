@@ -134,6 +134,41 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   /**
+   * Sensitive query parameters that must be redacted from audit logs.
+   * SECURITY: Prevents credential leakage via audit trail.
+   */
+  private static readonly SENSITIVE_PARAMS: ReadonlySet<string> = new Set([
+    "token",
+    "api_key",
+    "secret",
+    "password",
+    "access_token",
+    "refresh_token",
+    "apikey",
+    "auth",
+    "credential",
+    "session_id",
+  ]);
+
+  /**
+   * Sanitize query parameters by redacting sensitive values.
+   * SECURITY: Prevents credential leakage in audit logs.
+   */
+  private sanitizeQuery(
+    query: Record<string, any>,
+  ): Record<string, any> {
+    const sanitized: Record<string, any> = {};
+    for (const [key, value] of Object.entries(query)) {
+      if (AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())) {
+        sanitized[key] = "[REDACTED]";
+      } else {
+        sanitized[key] = value;
+      }
+    }
+    return sanitized;
+  }
+
+  /**
    * Log incoming request
    */
   private logRequest(req: RequestWithAudit): void {
@@ -159,7 +194,7 @@ export class AuditMiddleware implements NestMiddleware {
       metadata: {
         method: req.method,
         path: req.path,
-        query: req.query,
+        query: this.sanitizeQuery(req.query as Record<string, any>),
       },
       success: true,
     });

@@ -118,8 +118,21 @@ class AgMLDatasetManager:
     Provides access to agricultural ML datasets and pre-trained models.
     """
 
+    # SECURITY: Allowed base directories for cache_dir to prevent path traversal
+    _ALLOWED_CACHE_PREFIXES = ("/tmp/", "/var/cache/")
+
     def __init__(self, cache_dir: str | None = None):
-        self.cache_dir = Path(cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml"))
+        raw_path = cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml")
+        resolved = str(Path(raw_path).resolve())
+
+        # SECURITY: Validate cache_dir is under an allowed prefix
+        if not any(resolved.startswith(prefix) for prefix in self._ALLOWED_CACHE_PREFIXES):
+            raise ValueError(
+                f"cache_dir must be under {self._ALLOWED_CACHE_PREFIXES}, "
+                f"got '{resolved}'. Path traversal is not allowed."
+            )
+
+        self.cache_dir = Path(resolved)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self._agml = None

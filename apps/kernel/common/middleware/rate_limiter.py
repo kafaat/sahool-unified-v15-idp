@@ -171,6 +171,40 @@ class FixedWindowLimiter(RateLimitStrategy):
     Cons: Can allow 2x requests at window boundaries
     """
 
+    def __init__(self, redis_client=None):
+        super().__init__(redis_client)
+        # SECURITY: In-memory fallback store for fail-closed behavior
+        self._memory_store: dict[str, tuple[int, float]] = {}  # key -> (count, window_start)
+
+    def _in_memory_check(
+        self, client_id: str, endpoint: str, config: EndpointConfig
+    ) -> tuple[bool, int, int]:
+        """
+        SECURITY: In-memory rate limiting fallback (fail-closed).
+        Uses local counter when Redis is unavailable.
+        """
+        if config.requests == 0:
+            return True, -1, 0
+
+        now = time.time()
+        window_start = int(now / config.period) * config.period
+        key = f"mem:{client_id}:{endpoint}:{window_start}"
+
+        # Clean old entries
+        stale_keys = [k for k, (_, ws) in self._memory_store.items() if now - ws > config.period * 2]
+        for k in stale_keys:
+            del self._memory_store[k]
+
+        current_count, _ = self._memory_store.get(key, (0, window_start))
+        current_count += 1
+        self._memory_store[key] = (current_count, window_start)
+
+        remaining = max(0, config.requests - current_count)
+        reset_time = int(window_start + config.period - now)
+        allowed = current_count <= config.requests
+
+        return allowed, remaining, reset_time
+
     async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة ثابتة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
@@ -185,9 +219,8 @@ class FixedWindowLimiter(RateLimitStrategy):
         window_key = f"ratelimit:fixed:{client_id}:{endpoint}:{window_start}"
 
         if not self.redis:
-            # الرجوع إلى الذاكرة إذا لم يكن Redis متاحًا
-            # Fallback to in-memory if Redis not available
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting when Redis is unavailable
+            return self._in_memory_check(client_id, endpoint, config)
 
         try:
             # زيادة العداد بشكل ذري
@@ -708,9 +741,8 @@ class ClientIdentifier:
         # 1. Try to get API key from header
         api_key = request.headers.get("X-API-Key")
         if api_key:
-            # تجزئة مفتاح API للأمان
-            # Hash API key for security
-            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()[:16]
+            # SECURITY: Use full SHA-256 hash (64 chars) to prevent hash collisions
+            api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()
             return f"apikey:{api_key_hash}"
 
         # 2. محاولة الحصول على معرف المستخدم من المصادقة

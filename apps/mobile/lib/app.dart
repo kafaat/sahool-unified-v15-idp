@@ -7,8 +7,11 @@ import 'core/routes/app_router.dart';
 import 'core/auth/auth_service.dart';
 import 'generated/l10n/app_localizations.dart';
 
-/// SAHOOL Field App
-/// تطبيق سهول الميداني
+/// SAHOOL Field App - تطبيق سهول الميداني
+///
+/// Uses GoRouter (MaterialApp.router) with centralized route definitions
+/// from [AppRouter]. Auth state is monitored reactively and redirects
+/// to login when the user is unauthenticated.
 class SahoolFieldApp extends ConsumerStatefulWidget {
   const SahoolFieldApp({super.key});
 
@@ -20,7 +23,6 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
   @override
   void initState() {
     super.initState();
-    // Set system UI overlay style
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -31,6 +33,11 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth state for reactive redirects
+    ref.listen<AuthState>(authStateProvider, (previous, next) {
+      _handleAuthStateChange(previous, next);
+    });
+
     return MaterialApp.router(
       title: 'سهول',
       debugShowCheckedModeBanner: false,
@@ -45,95 +52,26 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       darkTheme: SahoolTheme.dark,
       themeMode: ThemeMode.system,
 
-      // GoRouter configuration - uses centralized router from app_router.dart
+      // GoRouter - centralized routing from app_router.dart
       routerConfig: AppRouter.router,
     );
   }
-}
 
-/// Auth Guard Widget
-/// يتحقق من حالة المصادقة ويعيد التوجيه للدخول عند الحاجة
-///
-/// Wrap the root of the app widget tree (in main.dart) or use as a
-/// top-level wrapper inside the router to enforce authentication.
-class AuthGuard extends ConsumerWidget {
-  final Widget child;
+  /// Handles auth state transitions:
+  /// - When user becomes unauthenticated -> redirect to /login
+  /// - When user becomes authenticated from login -> redirect to /home
+  void _handleAuthStateChange(AuthState? previous, AuthState next) {
+    final wasAuthenticated = previous?.isAuthenticated ?? false;
+    final isAuthenticated = next.isAuthenticated;
 
-  const AuthGuard({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-
-    // Still initializing - show splash
-    if (authState.status == AuthStatus.initial ||
-        authState.status == AuthStatus.loading) {
-      return const _SplashScreen();
+    if (wasAuthenticated && !isAuthenticated) {
+      // User logged out or session expired - go to login
+      AppRouter.router.go('/login');
+    } else if (!wasAuthenticated &&
+        isAuthenticated &&
+        previous?.status != AuthStatus.initial) {
+      // User just logged in - go to home
+      AppRouter.router.go('/home');
     }
-
-    // Not authenticated - redirect to login
-    if (!authState.isAuthenticated) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          context.go('/login');
-        }
-      });
-      return const _SplashScreen();
-    }
-
-    return child;
-  }
-}
-
-/// Splash Screen while checking auth/onboarding status
-/// شاشة البداية أثناء التحقق من حالة المصادقة
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                SahoolTheme.primary,
-                Color(0xFF1B4D1B),
-              ],
-            ),
-          ),
-          child: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.eco_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
-                SizedBox(height: 24),
-                Text(
-                  'سهول',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 48),
-                CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

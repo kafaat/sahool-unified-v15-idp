@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
 
 /// شاشة تفاصيل الحقل

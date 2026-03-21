@@ -94,7 +94,7 @@ class FieldDetailsScreen extends ConsumerWidget {
     );
   }
 
-  void _showOptionsMenu(BuildContext context) {
+  void _showOptionsMenu(BuildContext context, WidgetRef ref) {
     Logger.user(
       'Options menu opened',
       actionAr: 'فتح قائمة الخيارات',
@@ -106,7 +106,7 @@ class FieldDetailsScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -122,7 +122,13 @@ class FieldDetailsScreen extends ConsumerWidget {
                   action: 'share_report',
                   actionAr: 'مشاركة التقرير',
                 );
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('مشاركة التقرير - قريباً'),
+                    backgroundColor: SahoolColors.forestGreen,
+                  ),
+                );
               },
             ),
             ListTile(
@@ -136,7 +142,13 @@ class FieldDetailsScreen extends ConsumerWidget {
                   action: 'export_data',
                   actionAr: 'تصدير البيانات',
                 );
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تصدير البيانات - قريباً'),
+                    backgroundColor: SahoolColors.forestGreen,
+                  ),
+                );
               },
             ),
             ListTile(
@@ -151,11 +163,57 @@ class FieldDetailsScreen extends ConsumerWidget {
                   actionAr: 'حذف الحقل',
                   level: LogLevel.warning,
                 );
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
+                _showDeleteConfirmation(context, ref);
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("حذف الحقل"),
+        content: Text('هل أنت متأكد من حذف "$fieldName"؟ لا يمكن التراجع عن هذا الإجراء.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text("إلغاء"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              try {
+                final repo = ref.read(fieldsRepoProvider);
+                await repo.deleteField(fieldId);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تم حذف الحقل بنجاح'),
+                      backgroundColor: SahoolColors.forestGreen,
+                    ),
+                  );
+                  Navigator.pop(context, 'deleted');
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('فشل حذف الحقل: $e'),
+                      backgroundColor: SahoolColors.danger,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
+            child: const Text("حذف", style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

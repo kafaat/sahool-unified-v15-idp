@@ -218,21 +218,132 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
                 _AttachButton(
                   icon: Icons.camera_alt,
                   label: 'Photo | صورة',
-                  onTap: () {},
+                  onTap: () async {
+                    final picker = ImagePicker();
+                    final XFile? photo = await picker.pickImage(
+                      source: ImageSource.camera,
+                      imageQuality: 85,
+                    );
+                    if (photo != null && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('تم إرفاق الصورة'),
+                          backgroundColor: SahoolColors.forestGreen,
+                        ),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(width: 12),
                 _AttachButton(
                   icon: Icons.location_on,
                   label: 'Field | الحقل',
-                  onTap: () {},
+                  onTap: () {
+                    _showFieldPicker(context);
+                  },
                 ),
                 const SizedBox(width: 12),
                 _AttachButton(
                   icon: Icons.tag,
                   label: 'Tag | تصنيف',
-                  onTap: () {},
+                  onTap: () {
+                    _showTagPicker(context);
+                  },
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // Field Picker
+  // اختيار الحقل
+  // ===========================================================================
+
+  void _showFieldPicker(BuildContext context) {
+    final fields = ['حقل 1 - القمح', 'حقل 2 - الطماطم', 'حقل 3 - النخيل', 'حقل 4 - الشعير'];
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'اختر الحقل | Select Field',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ...fields.map((field) => ListTile(
+                  leading: const Icon(Icons.grass, color: SahoolColors.forestGreen),
+                  title: Text(field),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('تم إرفاق: $field'),
+                        backgroundColor: SahoolColors.forestGreen,
+                      ),
+                    );
+                  },
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // Tag Picker
+  // اختيار التصنيف
+  // ===========================================================================
+
+  void _showTagPicker(BuildContext context) {
+    final tags = [
+      ('diseases', 'أمراض النبات'),
+      ('irrigation', 'الري والتسميد'),
+      ('marketing', 'تسويق'),
+      ('equipment', 'معدات'),
+      ('general', 'عام'),
+    ];
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'اختر التصنيف | Select Tag',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: tags.map((tag) => ActionChip(
+                    label: Text(tag.$2),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('تم اختيار التصنيف: ${tag.$2}'),
+                          backgroundColor: SahoolColors.forestGreen,
+                        ),
+                      );
+                    },
+                  )).toList(),
             ),
           ],
         ),
@@ -375,7 +486,7 @@ class _FeedTab extends ConsumerWidget {
                   onLike: () =>
                       ref.read(communityProvider.notifier).likePost(post.id),
                   onComment: () => _showComments(context, ref, post),
-                  onTap: () {},
+                  onTap: () => _showComments(context, ref, post),
                 ),
               )),
 

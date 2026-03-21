@@ -106,7 +106,7 @@ describe("POST /api/weather", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toContain("lat and lon are required numeric parameters");
+    expect(data.error).toContain("lat must be between -90 and 90, lon between -180 and 180");
   });
 
   it("calls weather service with correct body for 'current' action", async () => {

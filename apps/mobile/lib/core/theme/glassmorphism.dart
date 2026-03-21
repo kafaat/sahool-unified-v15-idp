@@ -576,7 +576,7 @@ class GlassButton extends StatefulWidget {
   });
 
   /// Icon-only glass button
-  const GlassButton.icon({
+  GlassButton.icon({
     super.key,
     required IconData icon,
     this.onPressed,

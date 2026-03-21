@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,7 +84,7 @@ Future<void> firebaseMessagingBackgroundHandler(dynamic message) async {
 class NotificationChannels {
   /// Alerts channel - high priority for urgent notifications
   /// (pest outbreaks, disease detection, weather warnings)
-  static final alerts = AndroidNotificationChannel(
+  static const alerts = AndroidNotificationChannel(
     'sahool_alerts',
     'Alerts',
     description: 'Critical alerts requiring immediate attention',
@@ -91,7 +92,6 @@ class NotificationChannels {
     enableVibration: true,
     playSound: true,
     enableLights: true,
-    ledColor: const Color(0xFFFF0000),
   );
 
   /// Irrigation channel - medium priority for irrigation reminders

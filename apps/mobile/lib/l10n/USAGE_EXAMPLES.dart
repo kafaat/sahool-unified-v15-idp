@@ -2,7 +2,6 @@
 // This file demonstrates how to use the localization system
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n.dart';
 
 // ============================================================================
@@ -505,7 +504,7 @@ class YemenCropsList extends StatelessWidget {
         ...crops.map(
           (crop) => ListTile(
             leading: const Icon(Icons.eco),
-            title: Text(crop),
+            title: Text(crop as String),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {},
           ),

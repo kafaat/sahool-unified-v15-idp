@@ -329,7 +329,7 @@ class UpdateCheckerNotifier extends StateNotifier<UpdateCheckerState> {
           lastCheckTime: DateTime.fromMillisecondsSinceEpoch(lastCheckMs),
         );
       } catch (e) {
-        AppLogger.w('Failed to load cached update info', error: e);
+        AppLogger.w('Failed to load cached update info: $e');
       }
     }
   }

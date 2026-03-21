@@ -37,17 +37,17 @@ class WeatherSummary extends Equatable {
     final forecastData = json['forecast'] ?? [];
 
     return WeatherSummary(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      temperature: (json['temperature'] ?? json['temp'] ?? 0.0).toDouble(),
-      minTemp: (json['min_temp'] ?? json['minTemp'] ?? 0.0).toDouble(),
-      maxTemp: (json['max_temp'] ?? json['maxTemp'] ?? 0.0).toDouble(),
-      precipitation: (json['precipitation'] ?? json['rain'] ?? 0.0).toDouble(),
-      humidity: (json['humidity'] ?? 0.0).toDouble(),
-      et0: (json['et0'] ?? json['evapotranspiration'] ?? 0.0).toDouble(),
-      condition: json['condition'] ?? json['weather'] ?? 'clear',
-      conditionAr: json['condition_ar'] ?? json['conditionAr'] ?? 'صافي',
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      temperature: ((json['temperature'] ?? json['temp'] ?? 0.0) as num).toDouble(),
+      minTemp: ((json['min_temp'] ?? json['minTemp'] ?? 0.0) as num).toDouble(),
+      maxTemp: ((json['max_temp'] ?? json['maxTemp'] ?? 0.0) as num).toDouble(),
+      precipitation: ((json['precipitation'] ?? json['rain'] ?? 0.0) as num).toDouble(),
+      humidity: ((json['humidity'] ?? 0.0) as num).toDouble(),
+      et0: ((json['et0'] ?? json['evapotranspiration'] ?? 0.0) as num).toDouble(),
+      condition: (json['condition'] ?? json['weather'] ?? 'clear') as String,
+      conditionAr: (json['condition_ar'] ?? json['conditionAr'] ?? 'صافي') as String,
       updatedAt: DateTime.parse(
-        json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String(),
+        (json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
       forecast: (forecastData as List)
           .map((item) => DailyForecastSummary.fromJson(item as Map<String, dynamic>))

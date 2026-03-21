@@ -624,10 +624,10 @@ class WalletBalance {
 
   factory WalletBalance.fromJson(Map<String, dynamic> json) {
     return WalletBalance(
-      balance: (json['balance'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'YER',
-      pendingBalance: (json['pending_balance'] ?? 0).toDouble(),
-      lastUpdated: DateTime.tryParse(json['last_updated'] ?? '') ?? DateTime.now(),
+      balance: ((json['balance'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'YER',
+      pendingBalance: ((json['pending_balance'] ?? 0) as num).toDouble(),
+      lastUpdated: DateTime.tryParse((json['last_updated'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 }
@@ -655,13 +655,13 @@ class PaymentResult {
   factory PaymentResult.fromJson(Map<String, dynamic> json) {
     final payment = json['payment'] as Map<String, dynamic>?;
     return PaymentResult(
-      success: json['success'] ?? false,
-      paymentId: payment?['payment_id'] ?? json['payment_id'],
-      status: payment?['status'] ?? json['status'] ?? 'unknown',
-      message: json['message'],
-      messageAr: json['message_ar'],
-      tharwattResponse: json['tharwatt_response'],
-      stripeResponse: json['stripe_response'],
+      success: (json['success'] as bool?) ?? false,
+      paymentId: (payment?['payment_id'] ?? json['payment_id']) as String?,
+      status: (payment?['status'] ?? json['status'] ?? 'unknown') as String,
+      message: json['message'] as String?,
+      messageAr: json['message_ar'] as String?,
+      tharwattResponse: json['tharwatt_response'] as Map<String, dynamic>?,
+      stripeResponse: json['stripe_response'] as Map<String, dynamic>?,
     );
   }
 }
@@ -688,13 +688,13 @@ class WalletTransaction {
 
   factory WalletTransaction.fromJson(Map<String, dynamic> json) {
     return WalletTransaction(
-      id: json['id'] ?? json['transaction_id'] ?? '',
-      type: json['type'] ?? 'unknown',
-      amount: (json['amount'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'YER',
-      status: json['status'] ?? 'pending',
-      description: json['description'],
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      id: (json['id'] ?? json['transaction_id'] ?? '') as String,
+      type: (json['type'] as String?) ?? 'unknown',
+      amount: ((json['amount'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'YER',
+      status: (json['status'] as String?) ?? 'pending',
+      description: json['description'] as String?,
+      createdAt: DateTime.tryParse((json['created_at'] as String?) ?? '') ?? DateTime.now(),
     );
   }
 }
@@ -725,14 +725,14 @@ class Plan {
 
   factory Plan.fromJson(Map<String, dynamic> json) {
     return Plan(
-      id: json['plan_id'] ?? json['id'] ?? '',
-      name: json['name'] ?? '',
-      nameAr: json['name_ar'] ?? json['name'] ?? '',
-      tier: json['tier'] ?? 'starter',
-      priceMonthly: (json['price_monthly'] ?? 0).toDouble(),
-      priceYearly: (json['price_yearly'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'USD',
-      limits: Map<String, int>.from(json['limits'] ?? {}),
+      id: (json['plan_id'] ?? json['id'] ?? '') as String,
+      name: (json['name'] as String?) ?? '',
+      nameAr: (json['name_ar'] ?? json['name'] ?? '') as String,
+      tier: (json['tier'] as String?) ?? 'starter',
+      priceMonthly: ((json['price_monthly'] ?? 0) as num).toDouble(),
+      priceYearly: ((json['price_yearly'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'USD',
+      limits: Map<String, int>.from((json['limits'] as Map?) ?? {}),
       features: (json['features'] as List?)?.cast<String>() ?? [],
     );
   }
@@ -762,16 +762,16 @@ class Subscription {
 
   factory Subscription.fromJson(Map<String, dynamic> json) {
     return Subscription(
-      id: json['subscription_id'] ?? json['id'] ?? '',
-      planId: json['plan_id'] ?? '',
-      status: json['status'] ?? 'active',
-      billingCycle: json['billing_cycle'] ?? 'monthly',
-      startDate: DateTime.tryParse(json['start_date'] ?? '') ?? DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
+      id: (json['subscription_id'] ?? json['id'] ?? '') as String,
+      planId: (json['plan_id'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'active',
+      billingCycle: (json['billing_cycle'] as String?) ?? 'monthly',
+      startDate: DateTime.tryParse((json['start_date'] as String?) ?? '') ?? DateTime.now(),
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       nextBillingDate: json['next_billing_date'] != null
-          ? DateTime.tryParse(json['next_billing_date'])
+          ? DateTime.tryParse(json['next_billing_date'] as String)
           : null,
-      plan: json['plan'] != null ? Plan.fromJson(json['plan']) : null,
+      plan: json['plan'] != null ? Plan.fromJson(json['plan'] as Map<String, dynamic>) : null,
     );
   }
 }

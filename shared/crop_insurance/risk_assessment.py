@@ -309,14 +309,14 @@ class WeatherRiskAnalyzer:
         base_score = deficit_ratio * 100
 
         # Adjust for rainfall variability
-        if weather.annual_rainfall_avg > 1e-6:
+        if weather.annual_rainfall_avg > 0:
             cv = weather.annual_rainfall_std / weather.annual_rainfall_avg
             variability_adjustment = min(cv * 30, 30)
         else:
             variability_adjustment = 30
 
         # Adjust for dry spell intensity
-        dry_spell_adjustment = min(weather.max_dry_spell_days / max(3, 1e-6), 20)
+        dry_spell_adjustment = min(weather.max_dry_spell_days / 3, 20)
 
         total_score = base_score + variability_adjustment + dry_spell_adjustment
         return min(max(total_score, 0), 100)
@@ -330,7 +330,7 @@ class WeatherRiskAnalyzer:
         storm_score = min(weather.storm_events_per_year * 10, 30)
 
         # High rainfall variability increases flood risk
-        if weather.annual_rainfall_avg > 1e-6:
+        if weather.annual_rainfall_avg > 0:
             cv = weather.annual_rainfall_std / weather.annual_rainfall_avg
             variability_score = min(cv * 20, 20)
         else:

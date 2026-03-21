@@ -105,10 +105,10 @@ export const SensorChart: React.FC<SensorChartProps> = ({
 
   if (readings.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-8">
+      <div className="bg-white rounded-xl border-2 border-gray-200 p-8">
         <div className="text-center py-8">
-          <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-          <p className="text-gray-500 dark:text-gray-400">
+          <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <p className="text-gray-500">
             لا توجد قراءات متاحة | No readings available
           </p>
         </div>
@@ -117,49 +117,49 @@ export const SensorChart: React.FC<SensorChartProps> = ({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6 space-y-6">
+    <div className="bg-white rounded-xl border-2 border-gray-200 p-6 space-y-6">
       {/* Statistics */}
       {showStats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {/* Current */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">الحالي | Current</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600 mb-1">الحالي | Current</p>
             <p className="text-xl font-bold" style={{ color }}>
               {stats.current!.toFixed(2)}
-              <span className="text-sm text-gray-600 dark:text-gray-400 mr-1">{sensorUnitAr}</span>
+              <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
 
           {/* Average */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">المتوسط | Average</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600 mb-1">المتوسط | Average</p>
             <p className="text-xl font-bold text-gray-900">
               {stats.average.toFixed(2)}
-              <span className="text-sm text-gray-600 dark:text-gray-400 mr-1">{sensorUnitAr}</span>
+              <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
 
           {/* Min */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">الأدنى | Min</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600 mb-1">الأدنى | Min</p>
             <p className="text-xl font-bold text-blue-600">
               {stats.min.toFixed(2)}
-              <span className="text-sm text-gray-600 dark:text-gray-400 mr-1">{sensorUnitAr}</span>
+              <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
 
           {/* Max */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">الأعلى | Max</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600 mb-1">الأعلى | Max</p>
             <p className="text-xl font-bold text-red-600">
               {stats.max.toFixed(2)}
-              <span className="text-sm text-gray-600 dark:text-gray-400 mr-1">{sensorUnitAr}</span>
+              <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
 
           {/* Trend */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">الاتجاه | Trend</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600 mb-1">الاتجاه | Trend</p>
             <div className="flex items-center gap-1">
               {stats.trend > 0 ? (
                 <TrendingUp className="w-5 h-5 text-green-600" />

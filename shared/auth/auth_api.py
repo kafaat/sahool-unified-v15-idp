@@ -218,7 +218,7 @@ async def login(request: LoginRequest):
                 is_valid_backup = False
                 used_backup_hash = None
                 if not is_valid_totp and user.twofa_backup_codes:
-                    is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
+                    is_valid_backup, used_backup_hash, _remaining = twofa_service.verify_backup_code(
                         request.totp_code, user.twofa_backup_codes
                     )
 
@@ -323,7 +323,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
         is_valid_backup = False
         used_backup_hash = None
         if not is_valid_totp and user.twofa_backup_codes:
-            is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
+            is_valid_backup, used_backup_hash, _remaining = twofa_service.verify_backup_code(
                 request.totp_code, user.twofa_backup_codes
             )
 

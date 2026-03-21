@@ -176,9 +176,7 @@ export default function SatellitePage() {
                       ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
                       : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
-                title={idx.labelAr}
-                aria-label={idx.value !== "ndvi" ? `${idx.label} — قريباً (Coming Soon)` : idx.label}
-                aria-disabled={idx.value !== "ndvi"}
+                title={idx.value !== "ndvi" ? `${idx.labelAr} — قريباً` : idx.labelAr}
               >
                 {idx.icon} {idx.label}
               </button>

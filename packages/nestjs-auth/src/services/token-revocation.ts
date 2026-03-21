@@ -280,7 +280,6 @@ export class RedisTokenRevocationStore
       );
       // Fail closed: treat token as revoked when revocation store is unavailable.
       // This prevents revoked tokens from being accepted during Redis outages.
-      // Aligned with Python shared/auth/token_revocation.py behavior.
       return true;
     }
   }
@@ -411,7 +410,8 @@ export class RedisTokenRevocationStore
         `SECURITY: Cannot verify user token revocation status, failing closed. ` +
         `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      // Fail closed: treat as revoked when store is unavailable
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
       return true;
     }
   }
@@ -533,7 +533,8 @@ export class RedisTokenRevocationStore
         `SECURITY: Cannot verify tenant token revocation status, failing closed. ` +
         `Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      // Fail closed: treat as revoked when store is unavailable
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
       return true;
     }
   }

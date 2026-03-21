@@ -3,20 +3,12 @@ IoT Rules Worker - SAHOOL Agro Rules
 Subscribes to sensor events and creates tasks
 """
 
-from __future__ import annotations
-
 import asyncio
 import json
 import os
 from datetime import UTC, datetime, timedelta
 
-_nats_available = False
-try:
-    from nats.aio.client import Client as NATS
-
-    _nats_available = True
-except ImportError:
-    NATS = None  # type: ignore[assignment,misc]
+from nats.aio.client import Client as NATS
 
 from .fieldops_client import FieldOpsClient
 from .iot_rules import TaskRecommendation, evaluate_combined_rules, rule_from_sensor
@@ -39,8 +31,6 @@ class IoTRulesWorker:
 
     async def start(self):
         """Start the worker"""
-        if not _nats_available:
-            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
         self.nc = NATS()
         await self.nc.connect(NATS_URL)
         self._running = True

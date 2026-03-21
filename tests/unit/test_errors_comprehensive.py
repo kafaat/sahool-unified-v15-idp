@@ -403,7 +403,8 @@ class TestExceptionHandlersIntegration:
         response = self.client.get("/generic-error")
         assert response.status_code == 500
         data = response.json()
-        assert data["success"] is False
+        # Exception type must NOT be exposed to clients (information disclosure)
+        assert "type" not in data["error"].get("details", {})
         assert data["error"]["code"] == "E1001"
         assert data["error"]["message"] == "An unexpected error occurred"
 

@@ -300,8 +300,7 @@ class FieldBoundary(BaseModel):
 
     def to_postgis_insert(self, table_name: str = "field_boundaries") -> tuple[str, list]:
         """
-        Generate parameterized PostGIS INSERT statement.
-        إنشاء جملة INSERT مُعلمة لـ PostGIS
+        Generate parameterized PostGIS INSERT statement | إنشاء جملة INSERT لـ PostGIS
 
         Args:
             table_name: Target table name (must be an application constant)
@@ -311,26 +310,45 @@ class FieldBoundary(BaseModel):
 
         SECURITY: Uses parameterized queries to prevent SQL injection.
         Never interpolate user-supplied values into SQL strings.
+        table_name is interpolated directly - callers MUST ensure it is
+        an application constant, never user input.
         """
-        geometry_sql = self.geometry.to_postgis()
+        import json as _json
+
+        geometry_geojson = _json.dumps(self.geometry.model_dump())
+
         sql = f"""
         INSERT INTO {table_name} (
             id, field_id, tenant_id, owner_id, name, name_ar,
             boundary_type, status, geometry, area_hectares,
             perimeter_meters, version, created_at, updated_at
         ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8,
-            ST_GeomFromGeoJSON($9), $10, $11, $12, $13, $14
+            $1, $2, $3, $4,
+            $5, $6, $7,
+            $8, ST_GeomFromGeoJSON($9), $10,
+            $11, $12,
+            $13, $14
         );
         """
+
         params = [
-            self.id, self.field_id, self.tenant_id, self.owner_id,
-            self.name, self.name_ar, self.boundary_type.value,
-            self.status.value, self.geometry.model_dump_json(),
-            self.area_hectares, self.perimeter_meters, self.version,
-            self.created_at, self.updated_at,
+            self.id,
+            self.field_id,
+            self.tenant_id,
+            self.owner_id,
+            self.name,
+            self.name_ar,
+            self.boundary_type.value,
+            self.status.value,
+            geometry_geojson,
+            self.area_hectares,
+            self.perimeter_meters,
+            self.version,
+            self.created_at.isoformat(),
+            self.updated_at.isoformat(),
         ]
-        return sql, params
+
+        return (sql, params)
 
 
 class BoundaryConflict(BaseModel):

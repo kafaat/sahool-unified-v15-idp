@@ -1246,65 +1246,35 @@ class AuthService {
 // Models
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// User model (aligned with Prisma User schema)
+/// User model
 class User {
   final String id;
   final String email;
   final String name;
   final String role;
-  final String status;
   final String tenantId;
   final String? phone;
-  final String? firstName;
-  final String? lastName;
-  final String? firstNameAr;
-  final String? lastNameAr;
-  final String? nameAr;
   final String? avatarUrl;
-  final bool emailVerified;
-  final bool phoneVerified;
 
   const User({
     required this.id,
     required this.email,
     required this.name,
     required this.role,
-    this.status = 'active',
     required this.tenantId,
     this.phone,
-    this.firstName,
-    this.lastName,
-    this.firstNameAr,
-    this.lastNameAr,
-    this.nameAr,
     this.avatarUrl,
-    this.emailVerified = false,
-    this.phoneVerified = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Build display name from firstName/lastName if 'name' is absent
-    final firstName = json['first_name'] as String?;
-    final lastName = json['last_name'] as String?;
-    final name = json['name'] as String? ??
-        [firstName, lastName].whereType<String>().join(' ');
-
     return User(
       id: json['id'] as String,
       email: json['email'] as String,
-      name: name.isEmpty ? json['email'] as String : name,
-      role: (json['role'] as String? ?? 'viewer').toLowerCase(),
-      status: (json['status'] as String? ?? 'active').toLowerCase(),
+      name: json['name'] as String,
+      role: json['role'] as String,
       tenantId: json['tenant_id'] as String,
       phone: json['phone'] as String?,
-      firstName: firstName,
-      lastName: lastName,
-      firstNameAr: json['first_name_ar'] as String?,
-      lastNameAr: json['last_name_ar'] as String?,
-      nameAr: json['name_ar'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      emailVerified: json['email_verified'] as bool? ?? false,
-      phoneVerified: json['phone_verified'] as bool? ?? false,
     );
   }
 
@@ -1314,75 +1284,8 @@ class User {
       'email': email,
       'name': name,
       'role': role,
-      'status': status,
       'tenant_id': tenantId,
       'phone': phone,
-      'first_name': firstName,
-      'last_name': lastName,
-      'first_name_ar': firstNameAr,
-      'last_name_ar': lastNameAr,
-      'name_ar': nameAr,
-      'avatar_url': avatarUrl,
-      'email_verified': emailVerified,
-      'phone_verified': phoneVerified,
-    };
-  }
-}
-
-/// User profile model (matches Prisma UserProfile schema)
-class UserProfile {
-  final String id;
-  final String tenantId;
-  final String userId;
-  final String? nationalId;
-  final DateTime? dateOfBirth;
-  final String? address;
-  final String? city;
-  final String? region;
-  final String? country;
-  final String? avatarUrl;
-
-  const UserProfile({
-    required this.id,
-    required this.tenantId,
-    required this.userId,
-    this.nationalId,
-    this.dateOfBirth,
-    this.address,
-    this.city,
-    this.region,
-    this.country = 'SA',
-    this.avatarUrl,
-  });
-
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
-      id: json['id'] as String,
-      tenantId: json['tenant_id'] as String,
-      userId: json['user_id'] as String,
-      nationalId: json['national_id'] as String?,
-      dateOfBirth: json['date_of_birth'] != null
-          ? DateTime.parse(json['date_of_birth'] as String)
-          : null,
-      address: json['address'] as String?,
-      city: json['city'] as String?,
-      region: json['region'] as String?,
-      country: json['country'] as String? ?? 'SA',
-      avatarUrl: json['avatar_url'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'tenant_id': tenantId,
-      'user_id': userId,
-      'national_id': nationalId,
-      'date_of_birth': dateOfBirth?.toIso8601String(),
-      'address': address,
-      'city': city,
-      'region': region,
-      'country': country,
       'avatar_url': avatarUrl,
     };
   }

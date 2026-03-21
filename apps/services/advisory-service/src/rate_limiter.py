@@ -89,8 +89,21 @@ class AdvisoryRateLimiter:
         self._burst_tokens: dict[str, tuple[int, float]] = {}
 
     def _get_client_key(self, request: Request, tier: str) -> str:
-        """Get client identifier from request."""
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        """Get client identifier from request.
+
+        SECURITY: Prefer tenant_id from verified JWT (request.state) over
+        untrusted X-Tenant-ID header to prevent rate limit evasion.
+        """
+        # Try verified JWT context first (set by auth middleware)
+        tenant_id = "default"
+        if hasattr(request.state, "tenant_id") and request.state.tenant_id:
+            tenant_id = request.state.tenant_id
+        elif hasattr(request.state, "user") and hasattr(request.state.user, "tenant_id") and request.state.user.tenant_id:
+            tenant_id = request.state.user.tenant_id
+        else:
+            # Fallback to header only for unauthenticated routes;
+            # rate limit by IP will still apply
+            tenant_id = request.headers.get("X-Tenant-ID", "default")
         client_ip = request.client.host if request.client else "unknown"
         return f"{tier}:{tenant_id}:{client_ip}"
 

@@ -207,29 +207,12 @@ class PolicyEngine:
 
     def get_policy(self, path: str) -> RoutePolicy | None:
         """Get policy for a path (exact match first, then prefix match)"""
-        # Normalize path to prevent traversal attacks (e.g., "/admin/../secret")
-        import posixpath
-
-        path = posixpath.normpath(path)
-        # Strip null bytes that could bypass checks
-        path = path.replace("\x00", "")
-        # Ensure path starts with /
-        if not path.startswith("/"):
-            path = "/" + path
-
         # Exact match
         if path in self._policies:
             return self._policies[path]
 
-        # Prefix match (longest first) — use normalized path segments
-        # to prevent "/admin-panel" matching policy for "/admin"
-        matching = []
-        for p, policy in self._policies.items():
-            if p == "/":
-                continue
-            # Ensure prefix match is on a path boundary
-            if path == p or path.startswith(p + "/") or path.startswith(p + "?"):
-                matching.append((p, policy))
+        # Prefix match (longest first)
+        matching = [(p, policy) for p, policy in self._policies.items() if path.startswith(p) and p != "/"]
         if matching:
             matching.sort(key=lambda x: len(x[0]), reverse=True)
             return matching[0][1]

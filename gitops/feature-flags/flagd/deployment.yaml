@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: flagd
   namespace: feature-flags
-  annotations:
-    checkov.io/skip1: CKV_K8S_43=flagd public image; digest pinning managed by GitOps release pipeline
 spec:
   replicas: 1
   selector:
@@ -18,12 +16,9 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         fsGroup: 65534
-        seccompProfile:
-          type: RuntimeDefault
       containers:
         - name: flagd
           image: ghcr.io/open-feature/flagd:v0.11.1
-          imagePullPolicy: Always
           args: ["start", "--uri", "file:/etc/flagd/flags.json"]
           ports:
             - containerPort: 8013

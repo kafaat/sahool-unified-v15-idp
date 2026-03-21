@@ -738,11 +738,13 @@ def generate_postgis_overlap_query(table1: str, table2: str, geometry_column: st
 
 
 def generate_postgis_neighbors_query(
-    table: str, boundary_id: str, geometry_column: str = "geometry", buffer_m: float = 10.0  # noqa: ARG001 — buffer_m now via $2
+    table: str, boundary_id: str, geometry_column: str = "geometry", buffer_m: float = 10.0
 ) -> str:
     """
     Generate PostGIS query to find neighboring boundaries.
     إنشاء استعلام PostGIS للعثور على الحدود المجاورة.
+
+    SECURITY: Uses $1 for boundary_id and $2 for buffer_m to prevent SQL injection.
 
     Args:
         table: Table name
@@ -751,10 +753,10 @@ def generate_postgis_neighbors_query(
         buffer_m: Buffer distance in meters for "near" neighbors
 
     Returns:
-        SQL query string
+        SQL query string with $1 and $2 parameter placeholders
     """
     g = geometry_column
-    # SECURITY: Use parameterized placeholder ($1) for boundary_id to prevent SQL injection
+    # SECURITY: Use parameterized placeholders ($1, $2) to prevent SQL injection
     return f"""
     SELECT
         b.id,

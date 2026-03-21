@@ -187,8 +187,6 @@ def verify_token(token: str) -> TokenPayload:
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
             permissions=payload.get("permissions", []),
-            twofa_required=payload.get("twofa_required", False),
-            twofa_verified=payload.get("twofa_verified", False),
         )
 
     except jwt.ExpiredSignatureError:
@@ -247,7 +245,7 @@ def decode_token_unsafe(token: str) -> dict:
     """
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
-        return jwt.decode(token, options=_get_debug_decode_options(), algorithms=["HS256"])
+        return jwt.decode(token, options=_get_debug_decode_options(), algorithms=["HS256", "HS384", "HS512"])
     except PyJWTError:
         return {}
 

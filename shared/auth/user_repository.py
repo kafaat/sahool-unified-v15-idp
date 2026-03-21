@@ -99,59 +99,42 @@ class UserRepository:
             return None
 
         try:
-            if SQLALCHEMY_AVAILABLE and self.session:
-                try:
-                    user_model = self._get_user_model()
-                except NotImplementedError:
-                    logger.warning(
-                        "UserRepository._get_user_model() not implemented. "
-                        "Subclass UserRepository and override _get_user_model()."
-                    )
-                    return None
-
-                # SQLAlchemy async session query
-                result = await self.session.execute(
-                    select(user_model).where(user_model.id == user_id)
-                )
-                user = result.scalar_one_or_none()
-
-                if not user:
-                    logger.warning(f"User {user_id} not found in database")
-                    return None
-
-                # Fail-closed: default to restrictive values when attributes
-                # are missing, so an incomplete user model denies access
-                # rather than silently granting it.
-                return UserValidationData(
-                    user_id=str(user.id),
-                    email=getattr(user, "email", ""),
-                    is_active=getattr(user, "is_active", False),
-                    is_verified=getattr(user, "is_verified", False),
-                    roles=getattr(user, "roles", []) or [],
-                    tenant_id=getattr(user, "tenant_id", None),
-                    is_deleted=getattr(user, "is_deleted", True),
-                    is_suspended=getattr(user, "is_suspended", True),
-                )
+            # ============================================================
+            # IMPORTANT: Replace this with your actual user table query
+            # ============================================================
+            # Example implementation (adjust table name and columns):
+            #
+            # from your_models import User  # Import your User model
+            #
+            # stmt = select(User).where(User.id == user_id)
+            # result = await self.session.execute(stmt)
+            # user = result.scalar_one_or_none()
+            #
+            # if not user:
+            #     logger.warning(f"User {user_id} not found in database")
+            #     return None
+            #
+            # return UserValidationData(
+            #     user_id=user.id,
+            #     email=user.email,
+            #     is_active=user.is_active,
+            #     is_verified=user.is_verified,
+            #     roles=user.roles or [],
+            #     tenant_id=user.tenant_id,
+            #     is_deleted=getattr(user, 'is_deleted', False),
+            #     is_suspended=getattr(user, 'is_suspended', False),
+            # )
+            # ============================================================
 
             logger.warning(
-                "UserRepository.get_user_validation_data() - SQLAlchemy is not available. "
-                "Install SQLAlchemy or override this method in a subclass."
+                "UserRepository.get_user_validation_data() not implemented. "
+                "Override this method with your database query."
             )
             return None
 
         except Exception as e:
             logger.error(f"Error fetching user {user_id} from database: {e}")
             return None
-
-    def _get_user_model(self):
-        """
-        Get the User model class. Override in subclass if your model
-        has a different name or location.
-        """
-        raise NotImplementedError(
-            "Subclass UserRepository and implement _get_user_model() "
-            "to return your SQLAlchemy User model class."
-        )
 
     async def update_last_login(self, user_id: str) -> bool:
         """
@@ -188,80 +171,6 @@ class UserRepository:
             logger.debug(f"Last login update for user {user_id} (not implemented)")
             return False
 
-        except Exception as e:
-            logger.error(f"Error updating last login for user {user_id}: {e}")
-            return False
-
-
-# asyncpg-based implementation for FastAPI services using raw connection pools
-class AsyncpgUserRepository(UserRepository):
-    """
-    User repository using asyncpg connection pool.
-    مستودع المستخدمين باستخدام asyncpg.
-
-    This is the recommended implementation for FastAPI services
-    that use asyncpg directly (without SQLAlchemy).
-    """
-
-    def __init__(self, pool):
-        """
-        Initialize with an asyncpg connection pool.
-
-        Args:
-            pool: asyncpg Pool instance (from asyncpg.create_pool())
-        """
-        super().__init__(session=None)
-        self._pool = pool
-
-    async def get_user_validation_data(self, user_id: str) -> UserValidationData | None:
-        """Get user from PostgreSQL via asyncpg pool"""
-        if not self._pool:
-            logger.warning("No asyncpg pool available for user validation")
-            return None
-
-        try:
-            async with self._pool.acquire() as conn:
-                row = await conn.fetchrow(
-                    """
-                    SELECT id, email, status, "emailVerified", role, "tenantId"
-                    FROM "User"
-                    WHERE id = $1
-                    """,
-                    user_id,
-                )
-
-            if not row:
-                logger.warning(f"User {user_id} not found in database")
-                return None
-
-            status = row.get("status", "ACTIVE")
-            return UserValidationData(
-                user_id=str(row["id"]),
-                email=row.get("email", ""),
-                is_active=status == "ACTIVE",
-                is_verified=bool(row.get("emailVerified", False)),
-                roles=[row.get("role", "FARMER").lower()],
-                tenant_id=row.get("tenantId"),
-                is_deleted=status == "DELETED",
-                is_suspended=status == "SUSPENDED",
-            )
-
-        except Exception as e:
-            logger.error(f"Error fetching user {user_id} from database: {e}")
-            return None
-
-    async def update_last_login(self, user_id: str) -> bool:
-        """Update last login timestamp via asyncpg"""
-        if not self._pool:
-            return False
-
-        try:
-            async with self._pool.acquire() as conn:
-                await conn.execute(
-                    'UPDATE "User" SET "lastLoginAt" = NOW() WHERE id = $1',
-                    user_id,
-                )
-            return True
         except Exception as e:
             logger.error(f"Error updating last login for user {user_id}: {e}")
             return False

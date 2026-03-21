@@ -108,12 +108,9 @@ def setup_cors_middleware(app, **kwargs):
         logger.critical("Wildcard CORS blocked in production")
         origins = PRODUCTION_ORIGINS
 
-    # SECURITY: Never allow credentials with wildcard origins.
-    # With credentials=True, browsers require explicit origin matching,
-    # but misconfigured origins can enable CSRF attacks.
+    # SECURITY: Disable credentials when wildcard origin is used
+    # Browsers reject Access-Control-Allow-Credentials with wildcard origin
     allow_creds = "*" not in origins
-    if not allow_creds:
-        logger.warning("CORS credentials disabled — wildcard origin detected")
 
     defaults = {
         "allow_origins": origins,

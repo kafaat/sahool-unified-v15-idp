@@ -303,9 +303,9 @@ export default function FieldDetailsClient({
                 <div className="text-center">
                   <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-3" />
                   <p className="text-gray-500">لم يتم تحديد حدود الحقل</p>
-                  <Link href="/fields" className="mt-3 inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                  <button className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                     رسم حدود الحقل
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
@@ -474,8 +474,8 @@ export default function FieldDetailsClient({
             </div>
           </div>
 
-          {/* Weather Card - Links to weather page */}
-          <Link href="/weather" className="block bg-white rounded-xl border-2 border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+          {/* Weather Card */}
+          <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Sun className="w-5 h-5 text-yellow-500" />
@@ -486,24 +486,27 @@ export default function FieldDetailsClient({
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-orange-50 rounded-lg">
                   <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                  <p className="text-sm text-gray-500">درجة الحرارة</p>
+                  <p className="text-lg font-bold text-gray-900">28°C</p>
+                  <p className="text-xs text-gray-500">درجة الحرارة</p>
                 </div>
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-                  <p className="text-sm text-gray-500">الرطوبة</p>
+                  <p className="text-lg font-bold text-gray-900">65%</p>
+                  <p className="text-xs text-gray-500">الرطوبة</p>
                 </div>
                 <div className="text-center p-3 bg-cyan-50 rounded-lg">
                   <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
-                  <p className="text-sm text-gray-500">سرعة الرياح</p>
+                  <p className="text-lg font-bold text-gray-900">12 كم/س</p>
+                  <p className="text-xs text-gray-500">سرعة الرياح</p>
                 </div>
                 <div className="text-center p-3 bg-yellow-50 rounded-lg">
                   <Sun className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-                  <p className="text-sm text-gray-500">الحالة</p>
+                  <p className="text-lg font-bold text-gray-900">مشمس</p>
+                  <p className="text-xs text-gray-500">الحالة</p>
                 </div>
               </div>
-              <p className="text-center text-sahool-green-600 text-sm mt-3 font-medium">عرض تفاصيل الطقس ←</p>
             </div>
-          </Link>
+          </div>
 
           {/* Quick Actions */}
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">

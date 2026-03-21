@@ -36,9 +36,9 @@ export function useWebSocket({
   const [error, setError] = useState<string | null>(null);
   const [reconnectCount, setReconnectCount] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pongTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pongTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onMessageRef = useRef(onMessage);
   const isMountedRef = useRef(true);
   const isTabVisibleRef = useRef(
@@ -135,13 +135,14 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      // Pass JWT token via query parameter.
-      // Browser WebSocket API does not support custom headers, and ws-gateway
-      // reads the token from the Authorization header or ?token= query param.
-      const wsUrl = token
-        ? `${url}${url.includes("?") ? "&" : "?"}token=${encodeURIComponent(token)}`
-        : url;
-      const ws = new WebSocket(wsUrl);
+      // Append token as query parameter when provided
+      let connectUrl = url;
+      if (token) {
+        const separator = url.includes("?") ? "&" : "?";
+        connectUrl = `${url}${separator}token=${encodeURIComponent(token)}`;
+      }
+
+      const ws = new WebSocket(connectUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -177,7 +178,7 @@ export function useWebSocket({
 
           onMessageRef.current?.(message);
         } catch (err) {
-          logger.warn("Failed to parse WebSocket message:", err);
+          logger.error("Failed to parse WebSocket message:", err);
         }
       };
 
@@ -188,11 +189,12 @@ export function useWebSocket({
         setIsConnected(false);
         stopHeartbeat();
 
-        // Detect authentication failures from ws-gateway (codes 4001, 4003)
-        if (event.code === 4001 || event.code === 4003) {
-          logger.warn(`WebSocket auth failed (code ${event.code}) - token may be expired`);
+        // Authentication failure - don't reconnect
+        const code = (event as CloseEvent)?.code;
+        if (code === 4001 || code === 4003) {
           setError("Authentication failed");
-          return; // Don't auto-reconnect on auth failure
+          logger.log("WebSocket authentication failed, not reconnecting");
+          return;
         }
 
         // Don't reconnect if manually disconnected or unmounting
@@ -228,13 +230,11 @@ export function useWebSocket({
 
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        // Use warn instead of error to avoid triggering Next.js error overlay
-        // WebSocket unavailability is expected when backend services are down
-        logger.warn("WebSocket connection unavailable", event);
+        logger.error("WebSocket error:", event);
         setError("Connection unavailable");
       };
     } catch (err) {
-      logger.warn("WebSocket unavailable:", err);
+      logger.error("Failed to connect WebSocket:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
   }, [url, token, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);

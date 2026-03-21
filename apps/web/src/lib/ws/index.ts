@@ -57,7 +57,6 @@ type ConnectionHandler = (connected: boolean) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
-  private token: string | null = null;
   private eventHandlers: Set<EventHandler> = new Set();
   private connectionHandlers: Set<ConnectionHandler> = new Set();
   private reconnectAttempts = 0;
@@ -69,15 +68,6 @@ class WebSocketClient {
 
   constructor(url: string) {
     this.url = url;
-  }
-
-  /**
-   * Set JWT token for authenticated WebSocket connections.
-   * Token is passed via query parameter (?token=) as ws-gateway
-   * reads it from Authorization header or ?token= query param.
-   */
-  setToken(token: string | null) {
-    this.token = token;
   }
 
   connect(
@@ -92,12 +82,7 @@ class WebSocketClient {
     this.subscriptions = subscriptions;
 
     try {
-      // Pass JWT via query parameter — ws-gateway reads token from
-      // Authorization header or ?token= query param (not subprotocol).
-      const wsUrl = this.token
-        ? `${this.url}/events?token=${encodeURIComponent(this.token)}`
-        : `${this.url}/events`;
-      this.ws = new WebSocket(wsUrl);
+      this.ws = new WebSocket(`${this.url}/events`);
 
       this.ws.onopen = () => {
         logger.log("🔌 WebSocket connected");
@@ -116,30 +101,21 @@ class WebSocketClient {
             this.ws?.send(JSON.stringify({ type: "pong" }));
           }
         } catch (error) {
-          logger.warn("Failed to parse WebSocket message:", error);
+          logger.error("Failed to parse WebSocket message:", error);
         }
       };
 
       this.ws.onclose = (event) => {
         logger.log("🔌 WebSocket disconnected", event.code);
         this.notifyConnectionHandlers(false);
-
-        // Don't auto-reconnect on authentication failures (ws-gateway codes)
-        if (event.code === 4001 || event.code === 4003) {
-          logger.warn(`WebSocket auth failed (code ${event.code}) - token may be expired`);
-          return;
-        }
-
         this.attemptReconnect();
       };
 
-      this.ws.onerror = (event) => {
-        // WebSocket errors are expected when ws-gateway is unavailable.
-        // Use warn (not error) to avoid triggering Next.js error overlay.
-        logger.warn("WebSocket connection unavailable - using demo mode", event);
+      this.ws.onerror = (error) => {
+        logger.error("WebSocket error:", error);
       };
     } catch (error) {
-      logger.warn("WebSocket unavailable - using demo mode", error);
+      logger.error("Failed to create WebSocket:", error);
       this.attemptReconnect();
     }
   }

@@ -635,7 +635,11 @@ class IslamicEventsManager:
             # Check current and next year
             for year in [from_date.year, from_date.year + 1]:
                 event_date = self.get_event_gregorian_date(event, year)
-                if event_date and from_date <= event_date <= end_date:
+                if event_date is None:
+                    continue
+                event_end_date = event_date + timedelta(days=event.duration_days - 1)
+                # Include events that start within the window OR are still ongoing
+                if event_end_date >= from_date and event_date <= end_date:
                     hijri_date = self.calendar.gregorian_to_hijri(event_date)
                     upcoming.append(
                         {

@@ -3,19 +3,11 @@ Agro Rules Worker - SAHOOL
 Event-driven worker that generates tasks from NDVI/Weather events
 """
 
-from __future__ import annotations
-
 import asyncio
 import json
 import os
 
-_nats_available = False
-try:
-    from nats.aio.client import Client as NATS
-
-    _nats_available = True
-except ImportError:
-    NATS = None  # type: ignore[assignment,misc]
+from nats.aio.client import Client as NATS
 
 from .fieldops_client import FieldOpsClient
 from .rules import (
@@ -46,8 +38,6 @@ class AgroRulesWorker:
 
     async def start(self):
         """Start the worker"""
-        if not _nats_available:
-            raise RuntimeError("NATS client library is not installed. Install with: pip install nats-py")
         self.nc = NATS()
         await self.nc.connect(NATS_URL)
         self._running = True

@@ -15,8 +15,7 @@ Use this as a reference when enhancing existing services.
 """
 
 # Observability imports
-# NOTE: In production, install shared modules as a package.
-# Do NOT use sys.path manipulation — it enables path injection attacks.
+# NOTE: Install shared modules as a package; never use sys.path manipulation
 import uuid
 from contextlib import asynccontextmanager
 
@@ -160,7 +159,8 @@ app = FastAPI(
 # Middleware Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# CORS — disable credentials when wildcard origin is used (browser security)
+# CORS
+# SECURITY: Disable credentials when wildcard origin is used
 _cors_origins = get_cors_origins()
 _allow_creds = "*" not in _cors_origins
 app.add_middleware(

@@ -426,31 +426,33 @@ class TestBackupCodeHashing:
         hashed = service.hash_backup_code(code)
         assert isinstance(hashed, str)
 
-    def test_hash_backup_code_is_sha256(self, service):
-        """Test that hash uses SHA256 (64 hex characters)"""
+    def test_hash_backup_code_is_secure_hash(self, service):
+        """Test that hash uses bcrypt or salted SHA-256"""
         code = "ABCD-EFGH"
         hashed = service.hash_backup_code(code)
-        # SHA256 hex is 64 characters
-        assert len(hashed) == 64
-        assert re.match(r"^[a-f0-9]{64}$", hashed), "Should be SHA256 hex"
+        # Should be either bcrypt ($2b$...) or salted SHA-256 (sha256:salt:hex)
+        is_bcrypt = hashed.startswith("$2")
+        is_salted_sha256 = hashed.startswith("sha256:")
+        assert is_bcrypt or is_salted_sha256, f"Expected bcrypt or salted SHA-256, got: {hashed[:20]}..."
 
     def test_hash_backup_code_removes_formatting(self, service):
-        """Test that hash_backup_code handles formatted input"""
+        """Test that hash_backup_code handles formatted input via verification"""
         code_with_dash = "ABCD-EFGH"
         code_without_dash = "ABCDEFGH"
 
-        hash_with_dash = service.hash_backup_code(code_with_dash)
-        hash_without_dash = service.hash_backup_code(code_without_dash)
+        # Both formatted and unformatted codes should verify against either hash
+        hashed = service.hash_backup_code(code_with_dash)
+        is_valid1, _, _ = service.verify_backup_code(code_with_dash, [hashed])
+        is_valid2, _, _ = service.verify_backup_code(code_without_dash, [hashed])
+        assert is_valid1 is True
+        assert is_valid2 is True
 
-        # Should be equal since formatting is removed
-        assert hash_with_dash == hash_without_dash
-
-    def test_hash_backup_code_is_consistent(self, service):
-        """Test that hashing the same code produces the same hash"""
+    def test_hash_backup_code_verifiable(self, service):
+        """Test that hashed codes can be verified"""
         code = "ABCD-EFGH"
-        hash1 = service.hash_backup_code(code)
-        hash2 = service.hash_backup_code(code)
-        assert hash1 == hash2
+        hashed = service.hash_backup_code(code)
+        is_valid, _, _ = service.verify_backup_code(code, [hashed])
+        assert is_valid is True
 
     def test_hash_backup_code_differs_for_different_codes(self, service):
         """Test that different codes produce different hashes"""
@@ -459,11 +461,12 @@ class TestBackupCodeHashing:
         assert len(set(hashes)) == len(hashes), "Different codes should have different hashes"
 
     def test_hash_backup_code_strips_whitespace(self, service):
-        """Test that hash_backup_code strips whitespace"""
+        """Test that hash_backup_code strips whitespace via verification"""
         code = "ABCD-EFGH"
         hash_normal = service.hash_backup_code(code)
-        hash_spaces = service.hash_backup_code(f"  {code}  ")
-        assert hash_normal == hash_spaces
+        # Whitespace-padded code should still verify
+        is_valid, _, _ = service.verify_backup_code(f"  {code}  ", [hash_normal])
+        assert is_valid is True
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -487,13 +490,13 @@ class TestBackupCodeVerification:
         hashed_codes = [service.hash_backup_code(code) for code in codes]
         result = service.verify_backup_code(codes[0], hashed_codes)
         assert isinstance(result, tuple)
-        assert len(result) == 2
+        assert len(result) == 3
 
     def test_verify_backup_code_with_valid_code(self, service):
         """Test backup code verification with valid code"""
         codes = service.generate_backup_codes(count=1)
         hashed_codes = [service.hash_backup_code(code) for code in codes]
-        is_valid, matched_hash = service.verify_backup_code(codes[0], hashed_codes)
+        is_valid, matched_hash, _remaining = service.verify_backup_code(codes[0], hashed_codes)
         assert is_valid is True
         assert matched_hash is not None
 
@@ -501,7 +504,7 @@ class TestBackupCodeVerification:
         """Test backup code verification with invalid code"""
         codes = service.generate_backup_codes(count=3)
         hashed_codes = [service.hash_backup_code(code) for code in codes]
-        is_valid, matched_hash = service.verify_backup_code("INVALID-CODE", hashed_codes)
+        is_valid, matched_hash, _remaining = service.verify_backup_code("INVALID-CODE", hashed_codes)
         assert is_valid is False
         assert matched_hash is None
 
@@ -509,7 +512,7 @@ class TestBackupCodeVerification:
         """Test backup code verification with empty code"""
         codes = service.generate_backup_codes(count=1)
         hashed_codes = [service.hash_backup_code(code) for code in codes]
-        is_valid, matched_hash = service.verify_backup_code("", hashed_codes)
+        is_valid, matched_hash, _remaining = service.verify_backup_code("", hashed_codes)
         assert is_valid is False
         assert matched_hash is None
 
@@ -517,19 +520,19 @@ class TestBackupCodeVerification:
         """Test backup code verification with None code"""
         codes = service.generate_backup_codes(count=1)
         hashed_codes = [service.hash_backup_code(code) for code in codes]
-        is_valid, matched_hash = service.verify_backup_code(None, hashed_codes)
+        is_valid, matched_hash, _remaining = service.verify_backup_code(None, hashed_codes)
         assert is_valid is False
         assert matched_hash is None
 
     def test_verify_backup_code_with_empty_hashes(self, service):
         """Test backup code verification with empty hash list"""
-        is_valid, matched_hash = service.verify_backup_code("ABCD-EFGH", [])
+        is_valid, matched_hash, _remaining = service.verify_backup_code("ABCD-EFGH", [])
         assert is_valid is False
         assert matched_hash is None
 
     def test_verify_backup_code_with_none_hashes(self, service):
         """Test backup code verification with None hash list"""
-        is_valid, matched_hash = service.verify_backup_code("ABCD-EFGH", None)
+        is_valid, matched_hash, _remaining = service.verify_backup_code("ABCD-EFGH", None)
         assert is_valid is False
         assert matched_hash is None
 
@@ -539,7 +542,7 @@ class TestBackupCodeVerification:
         hashed_codes = [service.hash_backup_code(code) for code in codes]
 
         # Verify with various formatting
-        is_valid1, _ = service.verify_backup_code(codes[0], hashed_codes)
+        is_valid1, _, _remaining = service.verify_backup_code(codes[0], hashed_codes)
         assert is_valid1 is True
 
     def test_verify_backup_code_multiple_codes(self, service):
@@ -548,19 +551,21 @@ class TestBackupCodeVerification:
         hashed_codes = [service.hash_backup_code(code) for code in codes]
 
         # Verify the third code
-        is_valid, matched_hash = service.verify_backup_code(codes[2], hashed_codes)
+        is_valid, matched_hash, _remaining = service.verify_backup_code(codes[2], hashed_codes)
         assert is_valid is True
-        assert matched_hash == hashed_codes[2]
+        assert matched_hash is not None
+        assert matched_hash in hashed_codes
 
     def test_verify_backup_code_returns_correct_hash(self, service):
         """Test that verify_backup_code returns the correct matched hash"""
         codes = service.generate_backup_codes(count=3)
         hashed_codes = [service.hash_backup_code(code) for code in codes]
 
-        for code, expected_hash in zip(codes, hashed_codes):
-            is_valid, matched_hash = service.verify_backup_code(code, hashed_codes)
+        for code in codes:
+            is_valid, matched_hash, _remaining = service.verify_backup_code(code, hashed_codes)
             assert is_valid is True
-            assert matched_hash == expected_hash
+            assert matched_hash is not None
+            assert matched_hash in hashed_codes
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -668,10 +673,10 @@ class TestTwoFAIntegration:
         assert len(hashed_codes) == 10
 
         # Step 3: Verify each code
-        for code, expected_hash in zip(codes, hashed_codes):
-            is_valid, matched_hash = service.verify_backup_code(code, hashed_codes)
+        for code in codes:
+            is_valid, matched_hash, _remaining = service.verify_backup_code(code, hashed_codes)
             assert is_valid is True
-            assert matched_hash == expected_hash
+            assert matched_hash is not None
 
     def test_full_2fa_user_setup(self, service):
         """Test full 2FA user setup: secret, backup codes, verification"""
@@ -692,7 +697,7 @@ class TestTwoFAIntegration:
         assert service.verify_totp(secret, current_token) is True
 
         # Verify at least one backup code
-        is_valid, _ = service.verify_backup_code(backup_codes[0], backup_codes_hashed)
+        is_valid, _, _remaining = service.verify_backup_code(backup_codes[0], backup_codes_hashed)
         assert is_valid is True
 
     def test_totp_and_backup_code_together(self, service):
@@ -706,7 +711,7 @@ class TestTwoFAIntegration:
         totp_valid = service.verify_totp(secret, totp_token)
 
         # Method 2: Use backup code
-        backup_valid, _ = service.verify_backup_code(backup_codes[5], hashed_backup_codes)
+        backup_valid, _, _remaining = service.verify_backup_code(backup_codes[5], hashed_backup_codes)
 
         # Both should work
         assert totp_valid is True

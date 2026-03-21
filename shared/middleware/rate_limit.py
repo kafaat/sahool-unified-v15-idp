@@ -139,14 +139,10 @@ class RateLimiter:
         """
         # Get client identifier
         client_ip = request.client.host if request.client else "unknown"
-        # Security: Use verified tenant_id from JWT (set by auth middleware on
-        # request.state), never from the untrusted X-Tenant-ID header.
-        # الأمان: استخدام معرف المستأجر الموثق من JWT وليس من رأس العميل
+        # Use verified tenant_id from auth context, not untrusted header
         tenant_id = "default"
         if hasattr(request.state, "user") and request.state.user:
             tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
-        elif hasattr(request.state, "token_payload") and request.state.token_payload:
-            tenant_id = getattr(request.state.token_payload, "tenant_id", None) or "default"
         key = f"{tenant_id}:{client_ip}"
 
         # Use per-request config override if set (avoids shared state mutation)

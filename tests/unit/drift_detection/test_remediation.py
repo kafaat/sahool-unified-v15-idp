@@ -333,15 +333,11 @@ class TestExecuteAutoFix:
         engine = AutoRemediationEngine(working_dir="/tmp", dry_run=False)
         action = RemediationAction(
             strategy=RemediationStrategy.AUTO_FIX,
-            command="ruff check --fix .",
+            command="echo 'fixed'",
             requires_approval=False,
             dry_run=False,
         )
-        with patch("shared.drift_detection.remediation.subprocess.run") as mock_run:
-            mock_run.return_value = subprocess.CompletedProcess(
-                args=["ruff", "check", "--fix", "."], returncode=0, stdout="fixed", stderr=""
-            )
-            result = await engine._execute_auto_fix(action)
+        result = await engine._execute_auto_fix(action)
         assert result.success is True
         assert "fixed" in result.output
 
@@ -350,15 +346,11 @@ class TestExecuteAutoFix:
         engine = AutoRemediationEngine(working_dir="/tmp", dry_run=False)
         action = RemediationAction(
             strategy=RemediationStrategy.AUTO_FIX,
-            command="ruff check .",
+            command="/bin/false",
             requires_approval=False,
             dry_run=False,
         )
-        with patch("shared.drift_detection.remediation.subprocess.run") as mock_run:
-            mock_run.return_value = subprocess.CompletedProcess(
-                args=["ruff", "check", "."], returncode=1, stdout="", stderr="lint errors"
-            )
-            result = await engine._execute_auto_fix(action)
+        result = await engine._execute_auto_fix(action)
         assert result.success is False
 
     @pytest.mark.asyncio
@@ -379,12 +371,12 @@ class TestExecuteAutoFix:
         engine = AutoRemediationEngine(working_dir="/tmp", dry_run=False)
         action = RemediationAction(
             strategy=RemediationStrategy.AUTO_FIX,
-            command="ruff check --fix .",
+            command="sleep 999",
             requires_approval=False,
             dry_run=False,
         )
         with patch("shared.drift_detection.remediation.subprocess.run") as mock_run:
-            mock_run.side_effect = subprocess.TimeoutExpired(cmd="ruff check --fix .", timeout=60)
+            mock_run.side_effect = subprocess.TimeoutExpired(cmd="sleep 999", timeout=60)
             result = await engine._execute_auto_fix(action)
         assert result.success is False
         assert "timed out" in result.error
@@ -405,12 +397,8 @@ class TestExecuteAutoFix:
         actions = engine.plan_remediation(report)
         for a in actions:
             a.dry_run = False
-            a.command = "npx prisma generate"
-        with patch("shared.drift_detection.remediation.subprocess.run") as mock_run:
-            mock_run.return_value = subprocess.CompletedProcess(
-                args=["npx", "prisma", "generate"], returncode=0, stdout="contract regenerated", stderr=""
-            )
-            results = await engine.execute(actions)
+            a.command = "echo 'contract regenerated'"
+        results = await engine.execute(actions)
         assert results[0].success is True
         assert "contract regenerated" in results[0].output
 

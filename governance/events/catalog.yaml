@@ -6,66 +6,21 @@
 # Each event must be documented with schema, producers, and consumers.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "2.0.0"
-last_updated: "2026-03-20"
+version: "1.0.0"
+last_updated: "2024-12-19"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Categories
-# Aligned with shared/events/subjects.py domain constants (v16.0.0)
 # ─────────────────────────────────────────────────────────────────────────────
 categories:
-  # Acquisition Layer
   field: "Field management events / أحداث إدارة الحقول"
-  farm: "Farm lifecycle events / أحداث المزارع"
-  satellite: "Satellite imagery & NDVI / أحداث الأقمار الصناعية"
-  weather: "Weather data & alerts / أحداث الطقس"
-  iot: "IoT sensor readings & device status / أحداث إنترنت الأشياء"
-  edge: "Edge device management / أحداث أجهزة الحافة"
-
-  # Intelligence Layer
-  health: "Crop health & disease detection / أحداث صحة المحاصيل"
-  vision: "Computer vision (YOLO26) / أحداث الرؤية الحاسوبية"
-  terrain: "Terrain & hydrology analysis / أحداث تحليل التضاريس"
-  analysis: "General analysis events / أحداث التحليل"
-  indicators: "Field indicators computation / أحداث المؤشرات"
-  skills: "Farmer skills assessment / أحداث المهارات"
-  crop: "Crop intelligence / أحداث ذكاء المحاصيل"
-  soil: "Soil testing & analysis / أحداث التربة"
-  calibration: "Sensor & model calibration / أحداث المعايرة"
-
-  # Decision Layer
-  recommendation: "Advisory recommendations / أحداث التوصيات"
-  irrigation: "Irrigation scheduling & alerts / أحداث الري"
-  spray: "Spray window optimization / أحداث الرش"
-
-  # Business Layer
+  ndvi: "NDVI analysis events / أحداث تحليل NDVI"
   alert: "Alert and notification events / أحداث التنبيهات"
-  notification: "Push & in-app notifications / أحداث الإشعارات"
-  billing: "Billing, subscriptions, payments / أحداث الفواتير"
-  inventory: "Inventory & stock management / أحداث المخزون"
-  task: "Task management / أحداث المهام"
-  farmer: "Farmer CRM / أحداث المزارعين"
-  harvest: "Harvest deals / أحداث الحصاد"
-  cooperative: "Cooperative management / أحداث التعاونيات"
-  traceability: "Supply chain traceability / أحداث التتبع"
-  compliance: "GlobalGAP compliance / أحداث الامتثال"
-  drone: "Drone fleet management / أحداث الطائرات بدون طيار"
-  marketplace: "Agricultural marketplace / أحداث السوق"
-  community: "Community platform / أحداث المجتمع"
-  chat: "Chat & messaging / أحداث المحادثات"
-  delivery: "Delivery tracking / أحداث التوصيل"
-  payment: "Payment processing / أحداث الدفع"
-  config: "Provider configuration / أحداث التكوين"
-  lowcode: "Low-code workflow / أحداث المحرك منخفض الكود"
-
-  # AI & System
-  agent: "AI agent execution / أحداث الوكلاء الذكية"
-  copilot: "AI copilot / أحداث المساعد الذكي"
-  llm: "LLM inference / أحداث النماذج اللغوية"
-  knowledge: "Knowledge base / أحداث قاعدة المعرفة"
-  user: "User authentication & lifecycle / أحداث المستخدمين"
-  system: "System health & audit / أحداث النظام"
-  tenant: "Tenant-scoped events / أحداث محددة المستأجر"
+  weather: "Weather data events / أحداث الطقس"
+  irrigation: "Irrigation events / أحداث الري"
+  crop_health: "Crop health events / أحداث صحة المحصول"
+  yield: "Yield prediction events / أحداث توقع الإنتاج"
+  system: "System events / أحداث النظام"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Events Definitions
@@ -86,9 +41,9 @@ events:
         area_hectares: { type: number }
         crop_type: { type: string }
     producers:
-      - field-management-service
+      - field-service
     consumers:
-      - vegetation-analysis-service
+      - ndvi-processor
       - alert-service
       - analytics-service
     examples:
@@ -107,9 +62,9 @@ events:
         changes: { type: object }
         updated_at: { type: string }
     producers:
-      - field-management-service
+      - field-service
     consumers:
-      - vegetation-analysis-service
+      - ndvi-processor
       - alert-service
     examples:
       - field_id: "fld_abc123"
@@ -125,9 +80,9 @@ events:
         tenant_id: { type: string }
         deleted_at: { type: string }
     producers:
-      - field-management-service
+      - field-service
     consumers:
-      - vegetation-analysis-service
+      - ndvi-processor
       - alert-service
       - analytics-service
 
@@ -140,10 +95,10 @@ events:
         boundary: { type: object }
         area_hectares: { type: number }
     producers:
-      - field-management-service
+      - field-service
     consumers:
-      - vegetation-analysis-service
-      - vegetation-analysis-service
+      - ndvi-processor
+      - satellite-service
 
   # ═══════════════════════════════════════════════════════════════════════════
   # NDVI EVENTS
@@ -158,7 +113,7 @@ events:
         timestamp: { type: string }
         statistics: { type: object }
     producers:
-      - vegetation-analysis-service
+      - ndvi-processor
     consumers:
       - alert-service
       - analytics-service
@@ -182,7 +137,7 @@ events:
         previous_value: { type: number }
         current_value: { type: number }
     producers:
-      - vegetation-analysis-service
+      - ndvi-processor
     consumers:
       - alert-service
       - notification-service
@@ -205,7 +160,7 @@ events:
       - analytics-service
     consumers:
       - alert-service
-      - advisory-service
+      - advisor-service
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ALERT EVENTS
@@ -273,7 +228,7 @@ events:
     producers:
       - weather-service
     consumers:
-      - irrigation-smart
+      - irrigation-service
       - alert-service
       - frontend-sse
     examples:
@@ -294,8 +249,8 @@ events:
     producers:
       - weather-service
     consumers:
-      - irrigation-smart
-      - advisory-service
+      - irrigation-service
+      - advisor-service
 
   weather.alert:
     category: weather
@@ -323,7 +278,7 @@ events:
         scheduled_at: { type: string }
         duration_minutes: { type: integer }
     producers:
-      - irrigation-smart
+      - irrigation-service
     consumers:
       - notification-service
       - frontend-sse
@@ -337,10 +292,10 @@ events:
         completed_at: { type: string }
         water_used_liters: { type: number }
     producers:
-      - irrigation-smart
+      - irrigation-service
     consumers:
       - analytics-service
-      - field-management-service
+      - field-service
 
   irrigation.recommendation:
     category: irrigation
@@ -350,9 +305,9 @@ events:
         field_id: { type: string }
         recommendation: { type: object }
     producers:
-      - advisory-service
+      - advisor-service
     consumers:
-      - irrigation-smart
+      - irrigation-service
       - notification-service
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -367,10 +322,10 @@ events:
         health_score: { type: number }
         assessment_date: { type: string }
     producers:
-      - crop-intelligence-service
+      - crop-health-service
     consumers:
       - alert-service
-      - advisory-service
+      - advisor-service
       - analytics-service
 
   crop_health.disease_detected:
@@ -382,11 +337,11 @@ events:
         disease_type: { type: string }
         confidence: { type: number }
     producers:
-      - crop-intelligence-service
+      - crop-health-service
     consumers:
       - alert-service
       - notification-service
-      - advisory-service
+      - advisor-service
 
   # ═══════════════════════════════════════════════════════════════════════════
   # YIELD EVENTS
@@ -414,7 +369,7 @@ events:
         actual_yield_kg: { type: number }
         harvest_date: { type: string }
     producers:
-      - field-management-service
+      - field-service
     consumers:
       - yield-prediction-service
       - analytics-service

@@ -177,17 +177,19 @@ export function sha512(data: string | Buffer): string {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Get HMAC secret from environment
+ * Get HMAC secret from environment.
+ * SECURITY: Enforces minimum secret length of 64 characters (32 bytes hex-encoded)
+ * to prevent brute-force attacks.
  */
 function getHmacSecret(): string {
   const secret = process.env.HMAC_SECRET;
   if (!secret) {
     throw new Error("HMAC_SECRET environment variable is not set");
   }
-  // SECURITY: Enforce minimum key length (32 bytes = 64 hex chars)
   if (secret.length < 64) {
     throw new Error(
-      "HMAC_SECRET must be at least 32 bytes (64 hex characters)",
+      "HMAC_SECRET must be at least 64 characters (32 bytes hex-encoded). " +
+        "Short secrets are vulnerable to brute-force attacks.",
     );
   }
   return secret;

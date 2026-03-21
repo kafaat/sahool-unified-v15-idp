@@ -151,6 +151,13 @@ class AutoRemediationEngine:
     محرك يطبق إجراءات التصحيح بناءً على نتائج كشف الانحراف.
     """
 
+    # SECURITY: Only these commands are allowed for auto-fix execution
+    _ALLOWED_COMMANDS: frozenset[str] = frozenset({
+        "git", "ruff", "npm", "npx", "pytest", "python", "node",
+        "eslint", "prettier", "mypy", "black", "isort", "docker",
+        "echo", "true", "false", "sleep",
+    })
+
     def __init__(
         self,
         working_dir: str = ".",
@@ -314,24 +321,22 @@ class AutoRemediationEngine:
             output=f"Issue created: {issue_body['title']}",
         )
 
-    # SECURITY: Only allow known-safe executables for auto-remediation.
-    _ALLOWED_COMMANDS = frozenset({
-        "git", "ruff", "eslint", "mypy", "npx", "npm", "dart",
-        "prisma", "kubectl", "helm", "docker",
-    })
-
     async def _execute_auto_fix(self, action: RemediationAction) -> RemediationResult:
         """Apply automatic fix."""
         if action.command:
             try:
                 argv = shlex.split(action.command)
-                # SECURITY: Validate the executable against an allowlist
-                if not argv or argv[0] not in self._ALLOWED_COMMANDS:
+
+                # SECURITY: Validate command against allowlist
+                base_cmd = argv[0].split("/")[-1] if argv else ""
+                if base_cmd not in self._ALLOWED_COMMANDS:
                     return RemediationResult(
                         action_id=action.id,
                         success=False,
-                        error=f"Command '{argv[0] if argv else ''}' not in allowed commands",
+                        output="",
+                        error=f"Command '{base_cmd}' not in allowed commands: {sorted(self._ALLOWED_COMMANDS)}",
                     )
+
                 result = subprocess.run(
                     argv,
                     shell=False,

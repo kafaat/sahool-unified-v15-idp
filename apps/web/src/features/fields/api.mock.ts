@@ -17,8 +17,6 @@ export const MOCK_FIELDS: Field[] = [
     crop: "Wheat",
     cropAr: "قمح",
     farmId: "farm-1",
-    ndviValue: 0.72,
-    healthScore: 85,
     polygon: {
       type: "Polygon",
       coordinates: [
@@ -31,7 +29,6 @@ export const MOCK_FIELDS: Field[] = [
         ],
       ],
     },
-    centroid: { type: "Point", coordinates: [44.205, 15.305] },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -43,8 +40,6 @@ export const MOCK_FIELDS: Field[] = [
     crop: "Corn",
     cropAr: "ذرة",
     farmId: "farm-1",
-    ndviValue: 0.45,
-    healthScore: 60,
     polygon: {
       type: "Polygon",
       coordinates: [
@@ -57,7 +52,6 @@ export const MOCK_FIELDS: Field[] = [
         ],
       ],
     },
-    centroid: { type: "Point", coordinates: [44.205, 15.295] },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -69,8 +63,6 @@ export const MOCK_FIELDS: Field[] = [
     crop: "Barley",
     cropAr: "شعير",
     farmId: "farm-1",
-    ndviValue: 0.58,
-    healthScore: 72,
     polygon: {
       type: "Polygon",
       coordinates: [
@@ -83,7 +75,6 @@ export const MOCK_FIELDS: Field[] = [
         ],
       ],
     },
-    centroid: { type: "Point", coordinates: [44.225, 15.305] },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },

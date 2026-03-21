@@ -18,8 +18,7 @@ security = HTTPBearer(auto_error=False)
 # أمان: يجب تعيين JWT_SECRET_KEY عبر متغيرات البيئة
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-JWT_ISSUER = os.getenv("JWT_ISSUER", "")
-JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "")
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
 
 def validate_jwt_config(environment: str | None = None) -> None:
     """
@@ -56,16 +55,11 @@ async def get_current_user(
 
     token = credentials.credentials
     try:
-        decode_kwargs: dict = {
-            "algorithms": [JWT_ALGORITHM],
-            "options": {"require": ["exp", "sub"]},
-        }
-        if JWT_ISSUER:
-            decode_kwargs["issuer"] = JWT_ISSUER
-        if JWT_AUDIENCE:
-            decode_kwargs["audience"] = JWT_AUDIENCE
+        # Validate algorithm against whitelist to prevent algorithm confusion attacks
+        if JWT_ALGORITHM not in ALLOWED_ALGORITHMS:
+            raise jwt.InvalidTokenError(f"Algorithm {JWT_ALGORITHM} not allowed")
 
-        payload = jwt.decode(token, JWT_SECRET_KEY, **decode_kwargs)
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=ALLOWED_ALGORITHMS, options={"require": ["exp", "sub"]})
 
         user_id = payload.get("sub") or payload.get("user_id")
         if not user_id:

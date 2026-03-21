@@ -297,15 +297,10 @@ class WeChatConfig:
             weather_integration=get_bool("WECHAT_WEATHER_INTEGRATION", True),
         )
 
-        # Validate configuration and log warnings for any issues
-        validation_errors = config.validate()
-        if validation_errors:
-            for err in validation_errors:
-                logger.warning("wechat_config_validation_error", error=err)
-
         logger.info(
             "wechat_config_loaded",
             environment=config.environment.value,
+            mcp_url=config.mcp_url,
             tenant_id=config.tenant_id,
             default_language=config.default_language,
         )
@@ -320,19 +315,7 @@ class WeChatConfig:
         Returns:
             list[str]: List of validation error messages
         """
-        from urllib.parse import urlparse
-
         errors = []
-
-        # SECURITY: Validate mcp_url to prevent SSRF
-        parsed = urlparse(self.mcp_url)
-        if parsed.scheme not in ("http", "https"):
-            errors.append(
-                f"MCP URL must use http or https scheme, got '{parsed.scheme}' | "
-                f"يجب أن يستخدم عنوان MCP بروتوكول http أو https"
-            )
-        if not parsed.hostname:
-            errors.append("MCP URL must have a valid hostname | يجب أن يحتوي عنوان MCP على اسم مضيف صالح")
 
         # Check required credentials for production
         if self.environment == WeChatEnvironment.PRODUCTION:
@@ -343,11 +326,39 @@ class WeChatConfig:
             if not self.app_secret:
                 errors.append("WeChat App Secret required for production | مطلوب سر تطبيق WeChat للإنتاج")
 
-        # Validate timeouts — enforce upper bounds to prevent resource exhaustion
-        if self.connect_timeout <= 0 or self.connect_timeout > 120:
-            errors.append("Connect timeout must be between 0 and 120s | يجب أن يكون وقت الاتصال بين 0 و 120 ثانية")
-        if self.read_timeout <= 0 or self.read_timeout > 300:
-            errors.append("Read timeout must be between 0 and 300s | يجب أن يكون وقت القراءة بين 0 و 300 ثانية")
+        # SECURITY: Validate MCP URL scheme to prevent SSRF
+        if self.mcp_url:
+            from urllib.parse import urlparse
+
+            parsed = urlparse(self.mcp_url)
+            if parsed.scheme not in ("http", "https"):
+                errors.append(
+                    f"mcp_url must use http/https scheme, got '{parsed.scheme}' | "
+                    f"يجب أن يستخدم عنوان MCP بروتوكول http/https"
+                )
+            if not parsed.hostname:
+                errors.append(
+                    "mcp_url must have a valid hostname | "
+                    "يجب أن يحتوي عنوان MCP على اسم مضيف صالح"
+                )
+
+        # Validate timeouts
+        if self.connect_timeout <= 0:
+            errors.append("Connect timeout must be positive | يجب أن يكون وقت الاتصال إيجابياً")
+        if self.read_timeout <= 0:
+            errors.append("Read timeout must be positive | يجب أن يكون وقت القراءة إيجابياً")
+
+        # SECURITY: Enforce timeout upper bounds to prevent resource exhaustion
+        if self.connect_timeout > 120:
+            errors.append(
+                f"Connect timeout must not exceed 120 seconds, got {self.connect_timeout} | "
+                f"يجب ألا يتجاوز وقت الاتصال 120 ثانية"
+            )
+        if self.read_timeout > 300:
+            errors.append(
+                f"Read timeout must not exceed 300 seconds, got {self.read_timeout} | "
+                f"يجب ألا يتجاوز وقت القراءة 300 ثانية"
+            )
 
         # Validate agent settings
         if self.agent_temperature < 0 or self.agent_temperature > 2:

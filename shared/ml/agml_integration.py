@@ -20,7 +20,6 @@ AgML provides standardized access to 30+ agricultural ML datasets.
 # To enable real AgML integration, add `agml>=0.4.0` to requirements.
 
 import os
-import tempfile
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -119,16 +118,21 @@ class AgMLDatasetManager:
     Provides access to agricultural ML datasets and pre-trained models.
     """
 
+    # SECURITY: Allowed base directories for cache_dir to prevent path traversal
+    _ALLOWED_CACHE_PREFIXES = ("/tmp/", "/var/cache/")
+
     def __init__(self, cache_dir: str | None = None):
-        _default_cache = os.path.join(tempfile.gettempdir(), "agml")  # nosec B108
-        resolved = Path(cache_dir or os.getenv("AGML_CACHE_DIR", _default_cache)).resolve()
-        # SECURITY: Prevent path traversal — restrict to system temp dir or /var/cache
-        _allowed_prefixes = (tempfile.gettempdir(), "/var/cache/")  # nosec B108
-        if not str(resolved).startswith(_allowed_prefixes):
+        raw_path = cache_dir or os.getenv("AGML_CACHE_DIR", "/tmp/agml")
+        resolved = str(Path(raw_path).resolve())
+
+        # SECURITY: Validate cache_dir is under an allowed prefix
+        if not any(resolved.startswith(prefix) for prefix in self._ALLOWED_CACHE_PREFIXES):
             raise ValueError(
-                f"cache_dir must be under {tempfile.gettempdir()} or /var/cache, got: {resolved}"
+                f"cache_dir must be under {self._ALLOWED_CACHE_PREFIXES}, "
+                f"got '{resolved}'. Path traversal is not allowed."
             )
-        self.cache_dir = resolved
+
+        self.cache_dir = Path(resolved)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self._agml = None

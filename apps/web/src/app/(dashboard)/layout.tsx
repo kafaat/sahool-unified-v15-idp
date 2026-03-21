@@ -21,7 +21,6 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { isAuthenticated, isLoading, checkAuth } = useAuth();
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
 
   const [queryClient] = React.useState(
     () =>
@@ -70,10 +69,7 @@ export default function DashboardLayout({
             </div>
           }
         >
-          <Sidebar
-            isOpen={isMobileSidebarOpen}
-            onClose={() => setIsMobileSidebarOpen(false)}
-          />
+          <Sidebar />
         </ErrorBoundary>
         <div className="flex-1 flex flex-col overflow-hidden">
           <ErrorBoundary
@@ -83,7 +79,7 @@ export default function DashboardLayout({
               </div>
             }
           >
-            <Header onMenuToggle={() => setIsMobileSidebarOpen(prev => !prev)} />
+            <Header />
           </ErrorBoundary>
           <main id="main-content" className="flex-1 overflow-y-auto p-6">
             <ErrorBoundary>{children}</ErrorBoundary>

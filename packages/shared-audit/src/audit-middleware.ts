@@ -134,6 +134,65 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   /**
+   * Sensitive query parameters that must be redacted from audit logs.
+   * SECURITY: Prevents credential leakage via audit trail.
+   */
+  private static readonly SENSITIVE_PARAMS: ReadonlySet<string> = new Set([
+    "token",
+    "api_key",
+    "secret",
+    "password",
+    "access_token",
+    "refresh_token",
+    "apikey",
+    "auth",
+    "credential",
+    "session_id",
+  ]);
+
+  /**
+   * Allowed characters for query parameter keys.
+   * SECURITY: Prevents prototype pollution via property injection.
+   */
+  private static readonly SAFE_KEY_PATTERN = /^[a-zA-Z0-9_\-.\[\]]+$/;
+
+  /**
+   * Dangerous property names that must never be used as object keys.
+   * SECURITY: Prevents prototype pollution attacks.
+   */
+  private static readonly DANGEROUS_KEYS: ReadonlySet<string> = new Set([
+    "__proto__",
+    "constructor",
+    "prototype",
+  ]);
+
+  /**
+   * Sanitize query parameters by redacting sensitive values.
+   * SECURITY: Prevents credential leakage in audit logs and prototype pollution.
+   */
+  private sanitizeQuery(
+    query: Record<string, any>,
+  ): Record<string, any> {
+    const sanitized = Object.create(null) as Record<string, any>;
+    for (const [key, value] of Object.entries(query)) {
+      // SECURITY: Skip dangerous property names to prevent prototype pollution
+      if (AuditMiddleware.DANGEROUS_KEYS.has(key)) {
+        continue;
+      }
+      // SECURITY: Only allow safe key patterns
+      if (!AuditMiddleware.SAFE_KEY_PATTERN.test(key)) {
+        continue;
+      }
+      if (AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())) {
+        sanitized[key] = "[REDACTED]";
+      } else {
+        sanitized[key] = value;
+      }
+    }
+    return sanitized;
+  }
+
+  /**
    * Log incoming request
    */
   private logRequest(req: RequestWithAudit): void {
@@ -159,40 +218,10 @@ export class AuditMiddleware implements NestMiddleware {
       metadata: {
         method: req.method,
         path: req.path,
-        query: this.sanitizeQuery(req.query),
+        query: this.sanitizeQuery(req.query as Record<string, any>),
       },
       success: true,
     });
-  }
-
-  /** Sensitive query params that must not appear in audit logs. */
-  private static readonly SENSITIVE_PARAMS = new Set([
-    "token",
-    "api_key",
-    "apikey",
-    "api-key",
-    "secret",
-    "password",
-    "access_token",
-    "refresh_token",
-    "authorization",
-    "key",
-    "credentials",
-  ]);
-
-  /**
-   * Strip sensitive query parameters before logging.
-   */
-  private sanitizeQuery(
-    query: Record<string, unknown>,
-  ): Record<string, unknown> {
-    const sanitized: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(query)) {
-      sanitized[key] = AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())
-        ? "[REDACTED]"
-        : value;
-    }
-    return sanitized;
   }
 
   /**

@@ -114,7 +114,7 @@ class FrontendDiagnosticRunner:
             return diagnostics
 
         try:
-            cmd = ["npx", "eslint", str(path), "--format", "json"]
+            cmd = ["npx", "eslint", path, "--format", "json"]
             if self.config.auto_fix:
                 cmd.append("--fix")
 
@@ -212,7 +212,7 @@ class FrontendDiagnosticRunner:
         diagnostics = []
 
         try:
-            cmd = ["npx", "@biomejs/biome", "check", str(path), "--reporter", "json"]
+            cmd = ["npx", "biome", "check", path, "--reporter", "json"]
             if self.config.auto_fix:
                 cmd.append("--apply")
 

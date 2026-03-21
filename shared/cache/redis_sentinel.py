@@ -234,7 +234,8 @@ class RedisSentinelClient:
             logger.info(f"Successfully connected to Redis master: {self.config.master_name}")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Sentinel: {e}")
+            logger.error("Failed to initialize Sentinel: %s", type(e).__name__)
+            logger.debug("Sentinel initialization error details", exc_info=True)
             raise
 
     def get_master_address(self) -> tuple | None:
@@ -247,7 +248,8 @@ class RedisSentinelClient:
         try:
             return self._sentinel.discover_master(self.config.master_name)
         except Exception as e:
-            logger.error(f"Failed to discover master: {e}")
+            logger.error("Failed to discover master: %s", type(e).__name__)
+            logger.debug("Master discovery error details", exc_info=True)
             return None
 
     def get_slaves_addresses(self) -> list[tuple]:
@@ -613,17 +615,15 @@ class RedisSentinelClient:
         except Exception as e:
             health["checks"]["master_ping"] = False
             health["status"] = "unhealthy"
-            health["error"] = "Redis master connection failed"
-            logger.error(f"Health check master ping failed: {e}")
+            health["error"] = str(e)
 
         # Check sentinel
         try:
             sentinel_info = self.get_sentinel_info()
             health["checks"]["sentinel"] = sentinel_info
         except Exception as e:
-            health["checks"]["sentinel"] = {"error": "Sentinel check failed"}
+            health["checks"]["sentinel"] = {"error": str(e)}
             health["status"] = "degraded"
-            logger.error(f"Health check sentinel failed: {e}")
 
         # Check circuit breaker
         health["checks"]["circuit_breaker"] = self._circuit_breaker.state
@@ -676,7 +676,6 @@ def close_redis_client():
     """إغلاق Redis Client"""
     global _redis_client
 
-    with _redis_client_lock:
-        if _redis_client is not None:
-            _redis_client.close()
-            _redis_client = None
+    if _redis_client is not None:
+        _redis_client.close()
+        _redis_client = None

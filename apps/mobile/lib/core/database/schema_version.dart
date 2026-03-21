@@ -65,7 +65,7 @@ final DateTime _v2ReleaseDate = DateTime(2024, 6, 1);
 final DateTime _v3ReleaseDate = DateTime(2024, 9, 1);
 final DateTime _v4ReleaseDate = DateTime(2025, 1, 1);
 final DateTime _v5ReleaseDate = DateTime(2025, 6, 1);
-final DateTime _v6ReleaseDate = DateTime(2026, 3, 20);
+final DateTime _v6ReleaseDate = DateTime(2026, 3, 1);
 
 /// Registry of all schema versions
 class SchemaVersionRegistry {

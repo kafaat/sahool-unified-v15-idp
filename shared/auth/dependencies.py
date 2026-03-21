@@ -14,7 +14,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import config
 from .jwt_handler import verify_token
 from .models import AuthErrors, AuthException, User
-from .token_revocation import is_token_revoked
 from .user_cache import get_user_cache
 from .user_repository import get_user_repository
 
@@ -26,8 +25,8 @@ oauth2_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
+    request: Request = None,
 ) -> User:
     """
     Get the current authenticated user from the JWT token.
@@ -69,35 +68,6 @@ async def get_current_user(
         payload = verify_token(token)
         user_id = payload.user_id
 
-        # Check token revocation before any other validation
-        if config.TOKEN_REVOCATION_ENABLED:
-            try:
-                revoked, reason = await is_token_revoked(
-                    jti=payload.jti,
-                    user_id=user_id,
-                    tenant_id=payload.tenant_id,
-                    issued_at=payload.iat.timestamp() if payload.iat else None,
-                )
-                if revoked:
-                    logger.warning(
-                        f"Authentication failed: Token revoked for user {user_id}, reason={reason}"
-                    )
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail=AuthErrors.TOKEN_REVOKED.en,
-                        headers={"WWW-Authenticate": "Bearer"},
-                    )
-            except HTTPException:
-                raise
-            except Exception as e:
-                # Fail closed: reject token if revocation store is unavailable
-                logger.error(f"SECURITY: Token revocation check failed, failing closed: {e}")
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=AuthErrors.TOKEN_REVOKED.en,
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-
         # Check cache first for user status
         cache = get_user_cache()
         cached_user = None
@@ -106,23 +76,7 @@ async def get_current_user(
             cached_user = await cache.get_user_status(user_id)
 
             if cached_user:
-                # Validate cached user status — check ALL denial conditions.
-                # Security: defaults are fail-closed (False/True) so that a
-                # missing key rejects rather than admits the user.
-                if cached_user.get("is_deleted", False):
-                    logger.warning(f"Authentication failed: User {user_id} is deleted (cached)")
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=AuthErrors.ACCOUNT_DISABLED.en,
-                    )
-
-                if cached_user.get("is_suspended", False):
-                    logger.warning(f"Authentication failed: User {user_id} is suspended (cached)")
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=AuthErrors.ACCOUNT_DISABLED.en,
-                    )
-
+                # Validate cached user status
                 if not cached_user.get("is_active", False):
                     logger.warning(f"Authentication failed: User {user_id} is inactive (cached)")
                     raise HTTPException(
@@ -137,22 +91,21 @@ async def get_current_user(
                         detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
                     )
 
-                # Create User object from cache — use fail-closed defaults
+                # Create User object from cache
                 user = User(
                     id=user_id,
                     email=cached_user.get("email", ""),
                     roles=cached_user.get("roles", payload.roles),
                     tenant_id=cached_user.get("tenant_id", payload.tenant_id),
                     permissions=payload.permissions,
-                    is_active=cached_user.get("is_active", False),
-                    is_verified=cached_user.get("is_verified", False),
+                    is_active=cached_user.get("is_active", True),
+                    is_verified=cached_user.get("is_verified", True),
                 )
 
                 logger.debug(f"User {user_id} authenticated successfully (from cache)")
 
                 if request:
                     request.state.user = user
-                    request.state.token_payload = payload
 
                 return user
 
@@ -202,35 +155,16 @@ async def get_current_user(
                     detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
                 )
 
-            # Update cache — include all status fields so cached path
-            # can perform the same denial checks as the DB path.
+            # Update cache
             if cache:
-                cache_kwargs = {
-                    "user_id": user_id,
-                    "is_active": user_data.is_active,
-                    "is_verified": user_data.is_verified,
-                    "roles": user_data.roles,
-                    "email": user_data.email,
-                    "tenant_id": user_data.tenant_id,
-                }
-                # Pass is_deleted/is_suspended if the cache accepts them
-                if hasattr(user_data, "is_deleted"):
-                    cache_kwargs["is_deleted"] = user_data.is_deleted
-                if hasattr(user_data, "is_suspended"):
-                    cache_kwargs["is_suspended"] = user_data.is_suspended
-                try:
-                    await cache.set_user_status(**cache_kwargs)
-                except TypeError:
-                    # Older cache implementation may not accept new fields;
-                    # fall back to the original signature.
-                    await cache.set_user_status(
-                        user_id=user_id,
-                        is_active=user_data.is_active,
-                        is_verified=user_data.is_verified,
-                        roles=user_data.roles,
-                        email=user_data.email,
-                        tenant_id=user_data.tenant_id,
-                    )
+                await cache.set_user_status(
+                    user_id=user_id,
+                    is_active=user_data.is_active,
+                    is_verified=user_data.is_verified,
+                    roles=user_data.roles,
+                    email=user_data.email,
+                    tenant_id=user_data.tenant_id,
+                )
 
             # Create User object from database
             user = User(
@@ -258,10 +192,9 @@ async def get_current_user(
 
             logger.info(f"User {user_id} authenticated successfully (token only)")
 
-        # Store user and token payload in request state
+        # Store user in request state
         if request:
             request.state.user = user
-            request.state.token_payload = payload
 
         return user
 
@@ -282,53 +215,6 @@ async def get_current_user(
             detail=AuthErrors.INVALID_TOKEN.en,
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-async def require_2fa_verified(
-    request: Request,
-    user: User = Depends(get_current_user),
-) -> User:
-    """
-    Dependency that enforces 2FA verification.
-
-    Use on sensitive endpoints that require completed 2FA.
-    Checks the JWT claim 'twofa_verified' to ensure the user
-    has passed 2FA during the current session.
-
-    Args:
-        request: FastAPI request object (injected automatically)
-        user: Authenticated user from get_current_user
-
-    Returns:
-        User object if 2FA is verified
-
-    Raises:
-        HTTPException 403: If 2FA is required but not verified
-
-    Example:
-        ```python
-        @app.post("/admin/danger")
-        async def danger(user: User = Depends(require_2fa_verified)):
-            ...
-        ```
-    """
-    # Fail-closed: if token_payload is missing from request state,
-    # we cannot verify 2FA status. get_current_user always sets it
-    # when request is available, so this should not happen in practice.
-    if not hasattr(request.state, "token_payload"):
-        logger.warning("require_2fa_verified: token_payload missing from request state")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Two-factor authentication is required for this operation",
-        )
-
-    payload = request.state.token_payload
-    if getattr(payload, "twofa_required", False) and not getattr(payload, "twofa_verified", False):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Two-factor authentication is required for this operation",
-        )
-    return user
 
 
 async def get_current_active_user(
@@ -400,12 +286,10 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
         )
 
     if requested_tenant_id:
-        # Only super_admin can access other tenants (cross-tenant access).
-        # Regular admin is scoped to their own tenant.
-        # الأمان: فقط المشرف الأعلى يمكنه الوصول عبر المستأجرين
-        if "super_admin" in (user.roles or []):
+        # Admin users can access any tenant
+        if "admin" in (user.roles or []):
             return requested_tenant_id
-        # Non-super_admin users must match their own tenant
+        # Non-admin users must match their own tenant
         if user_tenant and user_tenant != requested_tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -664,7 +548,7 @@ async def rate_limit_dependency(
     return user
 
 
-async def get_optional_user(
+def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
 ) -> User | None:
     """
@@ -695,22 +579,6 @@ async def get_optional_user(
         token = credentials.credentials
         payload = verify_token(token)
 
-        # Check token revocation for optional auth too
-        if config.TOKEN_REVOCATION_ENABLED:
-            try:
-                revoked, _reason = await is_token_revoked(
-                    jti=payload.jti,
-                    user_id=payload.user_id,
-                    tenant_id=payload.tenant_id,
-                    issued_at=payload.iat.timestamp() if payload.iat else None,
-                )
-                if revoked:
-                    logger.debug(f"Optional auth: token revoked for user {payload.user_id}")
-                    return None
-            except Exception:
-                # Fail closed for optional auth: treat as unauthenticated
-                return None
-
         return User(
             id=payload.user_id,
             email="",
@@ -719,7 +587,7 @@ async def get_optional_user(
             permissions=payload.permissions,
         )
     except AuthException as e:
-        logger.debug(f"Optional auth failed: {e.error.code}")
+        logger.debug(f"Optional auth failed: {e.error.value}")
         return None
     except Exception as e:
         logger.warning(f"Unexpected error in optional auth: {type(e).__name__}: {e}")

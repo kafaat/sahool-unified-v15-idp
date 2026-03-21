@@ -243,11 +243,14 @@ class SAHOOLMCPServer:
 
     async def handle_tools_call(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle tools/call request"""
-        tool_name = params.get("name", "").strip()
+        tool_name = params.get("name")
         arguments = params.get("arguments", {})
 
         if not tool_name:
             raise ValueError("Tool name is required | اسم الأداة مطلوب")
+
+        # Enforce string type and strip whitespace to prevent injection
+        tool_name = str(tool_name).strip()
 
         # Validate tool_name against registered tools to prevent injection
         registered_tools = {t["name"] for t in self.tools.get_tool_definitions()}

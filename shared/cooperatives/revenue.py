@@ -1325,23 +1325,23 @@ class RevenueService:
     async def get_member_statement(
         self,
         member_id: str,
-        requesting_cooperative_id: str,
         from_date: datetime | None = None,
         to_date: datetime | None = None,
+        requesting_cooperative_id: str = "",
     ) -> dict[str, Any]:
         """
         Get financial statement for a member.
         الحصول على كشف حساب مالي للعضو
 
-        Args:
-            member_id: Member to retrieve statement for.
-            requesting_cooperative_id: Caller's cooperative ID (tenant isolation).
+        SECURITY: requesting_cooperative_id is required and must match service
+        cooperative_id to prevent cross-cooperative financial data access.
         """
         # SECURITY: Verify caller belongs to this cooperative
         if requesting_cooperative_id != self.cooperative_id:
             raise PermissionError(
                 "Cannot access member statements from a different cooperative"
             )
+
         payments = await self.list_payments(member_id=member_id)
 
         if from_date:

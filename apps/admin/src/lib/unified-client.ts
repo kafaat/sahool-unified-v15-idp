@@ -43,7 +43,7 @@ export const sahoolClient = new SahoolApiClient(
           credentials: "same-origin",
         });
       } catch (logoutError) {
-        logger.warn("Logout error:", logoutError);
+        logger.error("Logout error:", logoutError);
       }
       authApiClient.clearToken();
       if (typeof window !== "undefined") {
@@ -61,10 +61,9 @@ export const sahoolClient = new SahoolApiClient(
           });
           if (!res.ok) return null;
           const data = await res.json();
-          const token = data.access_token ?? data.token;
-          if (token) {
-            Cookies.set("sahool_admin_token", token);
-            return token;
+          if (data.token) {
+            Cookies.set("sahool_admin_token", data.token);
+            return data.token;
           }
           return null;
         } catch {

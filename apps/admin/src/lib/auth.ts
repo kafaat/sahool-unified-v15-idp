@@ -90,7 +90,7 @@ export async function logout(): Promise<void> {
       credentials: "same-origin",
     });
   } catch (error) {
-    logger.warn("Logout error:", error);
+    logger.error("Logout error:", error);
   }
 
   if (typeof window !== "undefined") {

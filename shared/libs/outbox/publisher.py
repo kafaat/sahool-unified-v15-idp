@@ -110,10 +110,6 @@ def publish_pending(
             event.last_error = str(e)
             logger.error(f"Failed to publish event {event.id}: {e} (attempt {event.retry_count}/{max_retries})")
 
-    # Persist all status changes (published=True, retry_count increments, etc.)
-    # Without this commit, outbox events would be re-processed indefinitely.
-    db.commit()
-
     return published_count
 
 

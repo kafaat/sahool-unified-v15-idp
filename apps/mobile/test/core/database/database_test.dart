@@ -9,8 +9,6 @@
 /// - Error handling
 ///
 /// Uses in-memory database for testing
-import 'dart:convert';
-
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -131,51 +129,6 @@ class TestSyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Test CachedUsers Table - mirrors production CachedUsers
-/// جدول المستخدمين المخزنين مؤقتاً للاختبار
-@TableIndex(name: 'test_cached_users_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'test_cached_users_email_idx', columns: {#email})
-class TestCachedUsers extends Table {
-  TextColumn get id => text()();
-  TextColumn get email => text()();
-  TextColumn get firstName => text().nullable()();
-  TextColumn get lastName => text().nullable()();
-  TextColumn get firstNameAr => text().nullable()();
-  TextColumn get lastNameAr => text().nullable()();
-  TextColumn get phone => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('FARMER'))();
-  TextColumn get status => text().withDefault(const Constant('ACTIVE'))();
-  BoolColumn get emailVerified => boolean().withDefault(const Constant(false))();
-  BoolColumn get phoneVerified => boolean().withDefault(const Constant(false))();
-  TextColumn get tenantId => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  IntColumn get failedLoginAttempts => integer().withDefault(const Constant(0))();
-  DateTimeColumn get lockoutUntil => dateTime().nullable()();
-  DateTimeColumn get lastLoginAt => dateTime().nullable()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-  BoolColumn get synced => boolean().withDefault(const Constant(false))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// Test CachedUserProfiles Table - mirrors production CachedUserProfiles
-/// جدول الملفات الشخصية المخزنة مؤقتاً للاختبار
-class TestCachedUserProfiles extends Table {
-  TextColumn get userId => text()();
-  TextColumn get nationalId => text().nullable()();
-  DateTimeColumn get dateOfBirth => dateTime().nullable()();
-  TextColumn get address => text().nullable()();
-  TextColumn get city => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get country => text().withDefault(const Constant('SA')).nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {userId};
-}
-
 /// Test Database - In-memory version for unit testing
 @DriftDatabase(tables: [
   TestTasks,
@@ -183,8 +136,6 @@ class TestCachedUserProfiles extends Table {
   TestFields,
   TestSyncLogs,
   TestSyncEvents,
-  TestCachedUsers,
-  TestCachedUserProfiles,
 ])
 class TestDatabase extends _$TestDatabase {
   TestDatabase() : super(_openInMemoryConnection());
@@ -193,7 +144,7 @@ class TestDatabase extends _$TestDatabase {
   TestDatabase.withExecutor(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -213,10 +164,6 @@ class TestDatabase extends _$TestDatabase {
           if (from < 4) {
             await m.deleteTable('test_outbox');
             await m.createTable(testOutbox);
-          }
-          if (from < 6) {
-            await m.createTable(testCachedUsers);
-            await m.createTable(testCachedUserProfiles);
           }
         },
       );
@@ -253,7 +200,7 @@ void main() {
     });
 
     test('should have correct schema version', () {
-      expect(db.schemaVersion, equals(6));
+      expect(db.schemaVersion, equals(4));
     });
 
     test('should create all tables on initialization', () async {
@@ -269,8 +216,6 @@ void main() {
       expect(tableNames, contains('test_fields'));
       expect(tableNames, contains('test_sync_logs'));
       expect(tableNames, contains('test_sync_events'));
-      expect(tableNames, contains('test_cached_users'));
-      expect(tableNames, contains('test_cached_user_profiles'));
     });
 
     test('should create indexes on initialization', () async {
@@ -314,10 +259,6 @@ void main() {
       expect(indexNames, contains('test_sync_events_read_idx'));
       expect(indexNames, contains('test_sync_events_tenant_read_idx'));
       expect(indexNames, contains('test_sync_events_created_idx'));
-
-      // Verify all TestCachedUsers indexes
-      expect(indexNames, contains('test_cached_users_tenant_idx'));
-      expect(indexNames, contains('test_cached_users_email_idx'));
     });
 
     test('should handle close and reopen', () async {
@@ -1027,7 +968,7 @@ void main() {
 
     test('should mark task done with evidence photos as JSON array', () async {
       final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
-      final photosJson = jsonEncode(photos);
+      final photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
 
       await (db.update(db.testTasks)
             ..where((t) => t.id.equals('mark-done-1')))

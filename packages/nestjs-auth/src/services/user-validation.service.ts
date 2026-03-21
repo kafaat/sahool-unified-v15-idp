@@ -52,7 +52,7 @@ export class UserValidationService {
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
-    private readonly redis: Redis | null,
+    private readonly redis: Redis,
     private readonly userRepository?: IUserRepository,
   ) {}
 
@@ -142,7 +142,6 @@ export class UserValidationService {
   private async getCachedUser(
     userId: string,
   ): Promise<UserValidationData | null> {
-    if (!this.redis) return null;
     try {
       const key = `${this.cacheKeyPrefix}${userId}`;
       const cached = await this.redis.get(key);
@@ -164,7 +163,6 @@ export class UserValidationService {
    * @param userData - User validation data
    */
   private async cacheUser(userData: UserValidationData): Promise<void> {
-    if (!this.redis) return;
     try {
       const key = `${this.cacheKeyPrefix}${userData.userId}`;
       await this.redis.setex(key, this.cacheTTL, JSON.stringify(userData));
@@ -182,7 +180,6 @@ export class UserValidationService {
    * @param userId - User identifier
    */
   async invalidateUser(userId: string): Promise<void> {
-    if (!this.redis) return;
     try {
       const key = `${this.cacheKeyPrefix}${userId}`;
       await this.redis.del(key);
@@ -200,7 +197,6 @@ export class UserValidationService {
    * @returns Number of keys deleted
    */
   async clearAll(): Promise<number> {
-    if (!this.redis) return 0;
     try {
       const pattern = `${this.cacheKeyPrefix}*`;
       const keys = await this.redis.keys(pattern);

@@ -131,25 +131,16 @@ app.add_middleware(TenantContextMiddleware)
 # JWT Authentication - مصادقة JWT
 # =============================================================================
 
-security = HTTPBearer(auto_error=False)
-
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+security = HTTPBearer()
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> dict:
     """
     Validate JWT token and return user info.
     التحقق من رمز JWT وإرجاع معلومات المستخدم.
     """
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "Authentication required", "error_ar": "المصادقة مطلوبة"},
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
     token = credentials.credentials
     jwt_secret = os.getenv("JWT_SECRET_KEY")
 
@@ -160,35 +151,26 @@ async def get_current_user(
             detail="JWT not configured",
         )
 
-    jwt_issuer = os.getenv("JWT_ISSUER")
-    jwt_audience = os.getenv("JWT_AUDIENCE")
-
-    decode_options: dict = {"require": ["exp", "sub"]}
-    decode_kwargs: dict = {
-        "algorithms": [JWT_ALGORITHM],
-        "options": decode_options,
-    }
-    if jwt_issuer:
-        decode_kwargs["issuer"] = jwt_issuer
-    if jwt_audience:
-        decode_kwargs["audience"] = jwt_audience
-
     try:
-        payload = jwt.decode(token, jwt_secret, **decode_kwargs)
+        payload = jwt.decode(
+            token,
+            jwt_secret,
+            algorithms=["HS256", "HS384", "HS512"],
+        )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))
         return payload
     except jwt.ExpiredSignatureError:
         logger.warning("JWT token expired")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "Token has expired", "error_ar": "انتهت صلاحية الرمز"},
+            detail="Token has expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError as e:
         logger.warning("Invalid JWT token", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "Invalid token", "error_ar": "رمز غير صالح"},
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

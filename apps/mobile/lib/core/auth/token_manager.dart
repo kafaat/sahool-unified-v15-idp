@@ -32,75 +32,6 @@ final tokenManagerProvider = Provider<TokenManager>((ref) {
   );
 });
 
-/// Token rotation metadata for tracking token family and revocation.
-/// Aligns with backend Prisma RefreshToken model fields.
-class TokenRotationInfo {
-  /// JWT ID for revocation tracking
-  final String? jti;
-  /// Token family identifier for rotation chain
-  final String? family;
-  /// Whether this token has been revoked
-  final bool revoked;
-  /// Whether this token has been used (for rotation detection)
-  final bool used;
-  /// JTI of the replacement token (if rotated)
-  final String? replacedBy;
-
-  const TokenRotationInfo({
-    this.jti,
-    this.family,
-    this.revoked = false,
-    this.used = false,
-    this.replacedBy,
-  });
-
-  factory TokenRotationInfo.fromJson(Map<String, dynamic> json) {
-    return TokenRotationInfo(
-      jti: json['jti'] as String?,
-      family: json['family'] as String?,
-      revoked: json['revoked'] as bool? ?? false,
-      used: json['used'] as bool? ?? false,
-      replacedBy: json['replacedBy'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'jti': jti,
-        'family': family,
-        'revoked': revoked,
-        'used': used,
-        'replacedBy': replacedBy,
-      };
-}
-
-/// Account lockout info aligned with backend User model fields.
-class AccountLockoutInfo {
-  final int failedLoginAttempts;
-  final DateTime? lockoutUntil;
-  final DateTime? lastFailedLoginAt;
-
-  const AccountLockoutInfo({
-    this.failedLoginAttempts = 0,
-    this.lockoutUntil,
-    this.lastFailedLoginAt,
-  });
-
-  bool get isLockedOut =>
-      lockoutUntil != null && lockoutUntil!.isAfter(DateTime.now());
-
-  factory AccountLockoutInfo.fromJson(Map<String, dynamic> json) {
-    return AccountLockoutInfo(
-      failedLoginAttempts: json['failedLoginAttempts'] as int? ?? 0,
-      lockoutUntil: json['lockoutUntil'] != null
-          ? DateTime.tryParse(json['lockoutUntil'] as String)
-          : null,
-      lastFailedLoginAt: json['lastFailedLoginAt'] != null
-          ? DateTime.tryParse(json['lastFailedLoginAt'] as String)
-          : null,
-    );
-  }
-}
-
 /// Token refresh result
 class TokenRefreshResult {
   final bool success;
@@ -108,8 +39,6 @@ class TokenRefreshResult {
   final String? refreshToken;
   final int? expiresIn;
   final String? error;
-  /// Token rotation metadata from server response
-  final TokenRotationInfo? rotationInfo;
 
   const TokenRefreshResult({
     required this.success,
@@ -117,7 +46,6 @@ class TokenRefreshResult {
     this.refreshToken,
     this.expiresIn,
     this.error,
-    this.rotationInfo,
   });
 
   factory TokenRefreshResult.success({

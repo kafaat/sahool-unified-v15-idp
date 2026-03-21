@@ -591,9 +591,7 @@ async def get_publisher(
     """
     Get or create the singleton publisher instance.
     الحصول على أو إنشاء ناشر الأحداث الوحيد
-
-    Thread-safe: uses asyncio.Lock to prevent duplicate initialization
-    when multiple coroutines call get_publisher() concurrently.
+    Thread-safe with double-check locking.
 
     Args:
         service_name: Service name
@@ -624,10 +622,9 @@ async def close_publisher():
     """Close the singleton publisher instance."""
     global _publisher_instance
 
-    async with _publisher_lock:
-        if _publisher_instance:
-            await _publisher_instance.close()
-            _publisher_instance = None
+    if _publisher_instance:
+        await _publisher_instance.close()
+        _publisher_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

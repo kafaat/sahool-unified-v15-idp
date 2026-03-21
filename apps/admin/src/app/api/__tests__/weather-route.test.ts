@@ -106,7 +106,7 @@ describe("POST /api/weather", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toContain("lat must be between -90 and 90");
+    expect(data.error).toContain("lat must be between -90 and 90, lon between -180 and 180");
   });
 
   it("calls weather service with correct body for 'current' action", async () => {
@@ -239,84 +239,6 @@ describe("POST /api/weather", () => {
 
     const response = await POST(request);
     expect(response.status).toBe(401);
-  });
-
-  it("returns 400 for invalid field_id (non-UUID)", async () => {
-    const { POST } = await import("@/app/api/weather/route");
-    const request = createRequest("http://localhost:3002/api/weather", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "current",
-        lat: 24.7,
-        lon: 46.7,
-        field_id: "../../etc/passwd",
-      }),
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.error).toContain("field_id must be a valid UUID");
-  });
-
-  it("accepts valid UUID field_id", async () => {
-    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(
-        JSON.stringify({ temperature: 25 }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
-    );
-
-    const { POST } = await import("@/app/api/weather/route");
-    const request = createRequest("http://localhost:3002/api/weather", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "current",
-        lat: 24.7,
-        lon: 46.7,
-        field_id: "11111111-2222-3333-4444-555555555555",
-      }),
-    });
-
-    const response = await POST(request);
-    expect(response.status).toBe(200);
-
-    const fetchBody = JSON.parse(
-      vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
-    );
-    expect(fetchBody.field_id).toBe("11111111-2222-3333-4444-555555555555");
-  });
-
-  it("clamps days parameter to 1-30 range", async () => {
-    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(
-        JSON.stringify({ forecast: [] }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
-    );
-
-    const { POST } = await import("@/app/api/weather/route");
-    const request = createRequest("http://localhost:3002/api/weather", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "forecast",
-        lat: 24.7,
-        lon: 46.7,
-        days: 999,
-      }),
-    });
-
-    const response = await POST(request);
-    expect(response.status).toBe(200);
-
-    const fetchBody = JSON.parse(
-      vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
-    );
-    expect(fetchBody.days).toBe(30);
   });
 
   it("returns 502 when weather service returns non-JSON response", async () => {

@@ -42,7 +42,7 @@ try:
         refresh_access_token,
     )
     from shared.auth.models import User
-except (ImportError, RuntimeError) as e:
+except ImportError as e:
     pytest.skip(f"Auth dependencies not available: {e}", allow_module_level=True)
 
 
@@ -277,7 +277,7 @@ class TestLoginEndpoint:
         mock_user_service.update_last_login.return_value = None
         mock_user_service.remove_backup_code.return_value = None
         mock_twofa_service.verify_totp.return_value = True
-        mock_twofa_service.verify_backup_code.return_value = (False, None)
+        mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
             with patch("shared.auth.auth_api.create_token") as mock_create_token:
@@ -303,7 +303,7 @@ class TestLoginEndpoint:
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa
         mock_twofa_service.verify_totp.return_value = False
-        mock_twofa_service.verify_backup_code.return_value = (False, None)
+        mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
             response = client.post(
@@ -326,7 +326,7 @@ class TestLoginEndpoint:
         mock_user_service.update_last_login.return_value = None
         mock_user_service.remove_backup_code.return_value = None
         mock_twofa_service.verify_totp.return_value = False
-        mock_twofa_service.verify_backup_code.return_value = (True, "5f6b2a3c8d9e1f4b")
+        mock_twofa_service.verify_backup_code.return_value = (True, "5f6b2a3c8d9e1f4b", [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
             with patch("shared.auth.auth_api.create_token") as mock_create_token:
@@ -410,7 +410,7 @@ class TestTwoFALoginEndpoint:
         mock_user_service.get_user.return_value = mock_user_with_2fa
         mock_user_service.update_last_login.return_value = None
         mock_twofa_service.verify_totp.return_value = True
-        mock_twofa_service.verify_backup_code.return_value = (False, None)
+        mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         temp_token = create_temp_token("user-456", "admin@sahool.io")
 
@@ -486,7 +486,7 @@ class TestTwoFALoginEndpoint:
         mock_user_service.update_last_login.return_value = None
         mock_user_service.remove_backup_code.return_value = None
         mock_twofa_service.verify_totp.return_value = False
-        mock_twofa_service.verify_backup_code.return_value = (True, "5f6b2a3c8d9e1f4b")
+        mock_twofa_service.verify_backup_code.return_value = (True, "5f6b2a3c8d9e1f4b", [])
 
         temp_token = create_temp_token("user-456", "admin@sahool.io")
 
@@ -512,7 +512,7 @@ class TestTwoFALoginEndpoint:
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user_with_2fa
         mock_twofa_service.verify_totp.return_value = False
-        mock_twofa_service.verify_backup_code.return_value = (False, None)
+        mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         temp_token = create_temp_token("user-456", "admin@sahool.io")
 
@@ -1100,7 +1100,7 @@ class TestAuthIntegrationScenarios:
         mock_user_service.get_user.return_value = mock_user_with_2fa
         mock_user_service.update_last_login.return_value = None
         mock_twofa_service.verify_totp.return_value = True
-        mock_twofa_service.verify_backup_code.return_value = (False, None)
+        mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
             # Step 1: Initial login (no TOTP code)

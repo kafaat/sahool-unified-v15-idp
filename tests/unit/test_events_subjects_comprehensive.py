@@ -124,7 +124,7 @@ class TestFarmSubjects:
 
     def test_farm_wildcard(self):
         """Test farm wildcard subject"""
-        assert SAHOOL_FARM_ALL == "sahool.farm.>"
+        assert SAHOOL_FARM_ALL == "sahool.farm.*"
 
 
 @pytest.mark.unit

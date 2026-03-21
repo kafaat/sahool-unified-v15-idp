@@ -56,11 +56,10 @@ _URL_CREDENTIAL_RE = re.compile(
     r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@"
 )
 
-# Matches sensitive query parameters (case-insensitive):
-#   ?password=secret&token=abc  ->  ?password=***&token=***
+# Matches sensitive query parameters: password=secret, token=abc, api_key=xyz
 _SENSITIVE_QUERY_PARAM_RE = re.compile(
-    r"(?i)((?:password|passwd|secret|token|api[_-]?key|access[_-]?key|auth|credential|private[_-]?key)"
-    r")\s*=\s*([^&\s]+)",
+    r"((?:password|token|api_key|secret|access_token|refresh_token|auth)=)[^&]+",
+    re.IGNORECASE,
 )
 
 
@@ -303,15 +302,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 userId=user_id,
             )
 
-        # Log incoming request — sanitize query params to avoid leaking credentials
-        raw_qs = str(request.query_params) if request.query_params else None
-        safe_qs = sanitize_url(raw_qs) if raw_qs else None
-
+        # Log incoming request
         self.logger.info(
             "http_request_started",
             method=request.method,
             path=request.url.path,
-            query_params=safe_qs,
+            query_params=str(request.query_params) if request.query_params else None,
             client_ip=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent"),
         )
@@ -348,15 +344,18 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
 
-            # Log error — sanitize error message to avoid leaking credentials
-            safe_error = sanitize_url(str(e))
+            # Log error - only log exception type, not message
+            # (exception messages may contain credentials or connection strings)
             self.logger.error(
                 "http_request_failed",
                 method=request.method,
                 path=request.url.path,
                 duration_ms=round(duration_ms, 2),
                 error_type=type(e).__name__,
-                error_message=safe_error,
+            )
+            self.logger.debug(
+                "http_request_error_details",
+                error_message=str(e),
                 exc_info=True,
             )
             raise

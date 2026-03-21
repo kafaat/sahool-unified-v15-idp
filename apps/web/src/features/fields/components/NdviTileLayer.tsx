@@ -299,10 +299,9 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
         }
       }
     };
-    // isLayerLoaded is intentionally excluded: it's a guard against redundant
-    // updates, not a reactive dependency. Including it causes an infinite loop
-    // since this very effect is the one that sets it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isLayerLoaded is intentionally
+    // excluded: it's a guard against redundant updates, not a reactive dependency.
+    // Including it would cause an infinite loop since this effect sets it.
   }, [map, ndviMapData, visible, opacity, fieldId, dateString, indexType]);
 
   /**

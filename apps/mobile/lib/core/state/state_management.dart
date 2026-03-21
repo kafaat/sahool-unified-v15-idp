@@ -474,7 +474,7 @@ abstract class PaginatedNotifier<T>
 
   /// Load next page
   Future<void> loadMore() async {
-    final current = SahoolAsyncValueX(state).valueOrNull;
+    final current = state.valueOrNull;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
 
     state = AsyncData(current.copyWith(isLoadingMore: true));

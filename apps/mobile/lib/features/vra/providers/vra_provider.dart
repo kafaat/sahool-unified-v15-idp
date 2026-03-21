@@ -59,6 +59,14 @@ final vraStatsProvider = FutureProvider.autoDispose<VRAStats>((ref) async {
 /// مزود مناطق الإدارة لحقل
 final fieldZonesProvider = FutureProvider.autoDispose
     .family<List<ManagementZone>, FieldZonesParams>((ref, params) async {
+  // Validate zonesCount if provided
+  if (params.zonesCount != null && params.zonesCount! <= 0) {
+    throw ArgumentError('zonesCount must be greater than 0 | عدد المناطق يجب أن يكون أكبر من صفر');
+  }
+  if (params.fieldId.isEmpty) {
+    throw ArgumentError('fieldId must not be empty | معرف الحقل مطلوب');
+  }
+
   final service = ref.watch(vraServiceProvider);
   final result = await service.getFieldZones(
     params.fieldId,
@@ -170,6 +178,22 @@ class VRAController extends StateNotifier<AsyncValue<void>> {
     String? notesAr,
     Map<String, dynamic>? parameters,
   }) async {
+    // Validate parameters
+    if (zonesCount <= 0) {
+      state = AsyncValue.error(
+        'عدد المناطق يجب أن يكون أكبر من صفر',
+        StackTrace.current,
+      );
+      return null;
+    }
+    if (fieldId.isEmpty) {
+      state = AsyncValue.error(
+        'معرف الحقل مطلوب',
+        StackTrace.current,
+      );
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     final result = await _service.generatePrescription(

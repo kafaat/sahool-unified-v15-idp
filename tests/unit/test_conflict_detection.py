@@ -515,6 +515,7 @@ class TestModuleImportConflicts:
             )
         except ImportError:
             pytest.skip("shared.events.subjects not importable")
+            return
 
         assert callable(get_subject_for_event)
         assert callable(get_wildcard_subject)
@@ -538,6 +539,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_subject_for_event
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert get_subject_for_event("sahool.field.created") == "sahool.field.created"
 
     def test_get_subject_for_event_without_prefix(self):
@@ -546,6 +548,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_subject_for_event
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert get_subject_for_event("field.created") == "sahool.field.created"
 
     def test_get_wildcard_subject(self):
@@ -554,6 +557,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_wildcard_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert get_wildcard_subject("field") == "sahool.field.*"
         assert get_wildcard_subject("billing") == "sahool.billing.*"
 
@@ -563,6 +567,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import is_valid_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert is_valid_subject("sahool.field.created") is True
         assert is_valid_subject("sahool.billing.payment.completed") is True
 
@@ -572,6 +577,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import is_valid_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert is_valid_subject("field.created") is False
         assert is_valid_subject("sahool") is False
         assert is_valid_subject("sahool.field") is False
@@ -582,6 +588,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_tenant_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         result = get_tenant_subject("org_123", "field", "created")
         assert result == "sahool.tenant.org_123.field.created"
 
@@ -591,6 +598,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_tenant_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         with pytest.raises(ValueError, match="tenant_id"):
             get_tenant_subject("", "field", "created")
 
@@ -600,6 +608,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_tenant_wildcard
         except ImportError:
             pytest.skip("Module not available")
+            return
         result = get_tenant_wildcard("org_123")
         assert result == "sahool.tenant.org_123.>"
 
@@ -609,6 +618,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import get_tenant_wildcard
         except ImportError:
             pytest.skip("Module not available")
+            return
         result = get_tenant_wildcard("org_123", "field")
         assert result == "sahool.tenant.org_123.field.>"
 
@@ -618,6 +628,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import lookup_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         assert lookup_subject("field.created") == "sahool.field.created"
         assert lookup_subject("task.completed") == "sahool.task.completed"
 
@@ -627,6 +638,7 @@ class TestNATSSubjectUtilities:
             from shared.events.subjects import lookup_subject
         except ImportError:
             pytest.skip("Module not available")
+            return
         result = lookup_subject("custom.unknown_action")
         assert result == "sahool.custom.unknown_action"
 
@@ -645,6 +657,7 @@ class TestTenantSubjectBuilder:
             from shared.events.subjects import TenantSubjectBuilder
         except ImportError:
             pytest.skip("TenantSubjectBuilder not importable")
+            return None  # unreachable, satisfies type checker
         return TenantSubjectBuilder(tenant_id)
 
     def test_builder_field_created(self):
@@ -680,6 +693,7 @@ class TestTenantSubjectBuilder:
             from shared.events.subjects import TenantSubjectBuilder
         except ImportError:
             pytest.skip("TenantSubjectBuilder not importable")
+            return
         with pytest.raises(ValueError, match="tenant_id"):
             TenantSubjectBuilder("")
 

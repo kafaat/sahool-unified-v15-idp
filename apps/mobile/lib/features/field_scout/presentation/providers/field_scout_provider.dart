@@ -248,34 +248,52 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     _locationSubscription = null;
   }
 
-  void _recordTrackPoint() {
+  Future<void> _recordTrackPoint() async {
     if (state.currentSession == null) return;
 
-    // In real implementation, get actual GPS coordinates
-    // For now, simulate with dummy data
-    final lastPoint = state.currentSession!.trackPoints.isNotEmpty
-        ? state.currentSession!.trackPoints.last
-        : const GeoPoint(latitude: 15.3694, longitude: 44.1910); // Sanaa default
+    try {
+      // Use geolocator to get real GPS coordinates
+      // Import: import 'package:geolocator/geolocator.dart';
+      // final position = await Geolocator.getCurrentPosition(
+      //   desiredAccuracy: LocationAccuracy.high,
+      // );
+      // final newPoint = GeoPoint(
+      //   latitude: position.latitude,
+      //   longitude: position.longitude,
+      //   accuracy: position.accuracy,
+      //   timestamp: DateTime.now(),
+      // );
 
-    // Simulate slight movement
-    final newPoint = GeoPoint(
-      latitude: lastPoint.latitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      longitude: lastPoint.longitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      accuracy: 5.0,
-      timestamp: DateTime.now(),
-    );
+      // TODO: Replace with Geolocator.getCurrentPosition() once geolocator
+      // permission flow is integrated. For now, skip recording if no real
+      // location is available.
+      final currentLocation = state.currentLocation;
+      if (currentLocation == null) {
+        AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+        return;
+      }
 
-    final updatedTrackPoints = [
-      ...state.currentSession!.trackPoints,
-      newPoint,
-    ];
+      final newPoint = GeoPoint(
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        accuracy: currentLocation.accuracy,
+        timestamp: DateTime.now(),
+      );
 
-    state = state.copyWith(
-      currentSession: state.currentSession!.copyWith(
-        trackPoints: updatedTrackPoints,
-      ),
-      currentLocation: newPoint,
-    );
+      final updatedTrackPoints = [
+        ...state.currentSession!.trackPoints,
+        newPoint,
+      ];
+
+      state = state.copyWith(
+        currentSession: state.currentSession!.copyWith(
+          trackPoints: updatedTrackPoints,
+        ),
+        currentLocation: newPoint,
+      );
+    } catch (e) {
+      AppLogger.w('Failed to record track point: $e', tag: 'SCOUT');
+    }
   }
 
   /// تحديث الموقع الحالي

@@ -314,8 +314,14 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final rawData = data['data'] as Map<String, dynamic>;
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
       final waterBalance = WaterBalanceData.fromJson(rawData);
 
       // Cache water balance
@@ -358,10 +364,15 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final efficiency = IrrigationEfficiencyData.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final efficiency = IrrigationEfficiencyData.fromJson(rawData);
 
       return ApiResult.success(efficiency);
     } on DioException catch (e) {
@@ -387,15 +398,20 @@ class IrrigationRepository {
         queryParameters: {'field_id': fieldId},
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache schedule
       await _cacheData(
         _CacheKeys.schedule(fieldId),
-        data['data'],
+        rawData,
       );
 
       return ApiResult.success(schedule);

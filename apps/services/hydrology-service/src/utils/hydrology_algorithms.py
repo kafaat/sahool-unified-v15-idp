@@ -276,8 +276,11 @@ def fill_depressions(dem: DEMData, max_depth: float = 2.0) -> tuple[np.ndarray, 
                 continue
 
             # Get neighborhood
-            neighborhood = filled[i - 1 : i + 2, j - 1 : j + 2]
+            neighborhood = filled[i - 1 : i + 2, j - 1 : j + 2].copy()
+            center_val = neighborhood[1, 1]
+            neighborhood[1, 1] = nodata  # Exclude center from neighbor calculation
             valid_neighbors = neighborhood[neighborhood != nodata]
+            neighborhood[1, 1] = center_val  # Restore
 
             if len(valid_neighbors) == 0:
                 continue

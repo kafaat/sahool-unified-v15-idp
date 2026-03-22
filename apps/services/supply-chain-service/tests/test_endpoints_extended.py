@@ -241,17 +241,14 @@ class TestAutoPurchaseExtended:
         resp = client.post("/api/v1/auto-purchase", json=request_data)
         assert resp.status_code == 404
 
-    def test_auto_purchase_without_supplier_hits_key_bug(self, client):
-        """Test auto-purchase without supplier triggers known bug (source uses 'id' but quotes have 'supplier_id').
-
-        The find_best_supplier returns a dict with 'supplier_id' key but auto_purchase.py:119 accesses 'id'.
-        """
+    def test_auto_purchase_without_supplier_uses_best(self, client):
+        """Test auto-purchase without supplier_id finds best supplier automatically."""
         request_data = {
             "recommendation_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             "payment_method": "cash_on_delivery",
         }
-        with pytest.raises(KeyError):
-            client.post("/api/v1/auto-purchase", json=request_data)
+        resp = client.post("/api/v1/auto-purchase", json=request_data)
+        assert resp.status_code in (200, 201)
 
     def test_compare_suppliers_endpoint(self, client):
         resp = client.post(f"/api/v1/auto-purchase/compare?product_id={uuid4()}&quantity=50")

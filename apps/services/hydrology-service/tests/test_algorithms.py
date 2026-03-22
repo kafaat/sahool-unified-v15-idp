@@ -159,12 +159,10 @@ class TestDepressionFilling:
         dem = DEMData(elevation=elevation, resolution=30.0)
         filled, depressions = fill_depressions(dem, max_depth=20.0)
 
-        # Note: The fill_depressions algorithm includes the center cell in its
-        # neighborhood min calculation, so a single-cell depression surrounded by
-        # uniform neighbors won't be detected (center == min of window including itself).
-        # The depression remains unfilled in this case.
-        assert filled[1, 1] == 100.0  # Center not filled (algorithm includes center in neighborhood)
-        assert len(depressions) == 0
+        # After fix: center cell is excluded from neighborhood min calculation,
+        # so the depression is correctly detected and filled.
+        assert filled[1, 1] == 110.0  # Depression filled to neighbor level
+        assert len(depressions) == 1
 
     def test_no_fill_deep_depression(self):
         """Test that deep depressions are not filled beyond max_depth."""

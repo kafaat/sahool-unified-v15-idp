@@ -101,7 +101,7 @@ class TestCompressionEndpoint:
         assert "compressed_data" in data
 
     @pytest.mark.unit
-    def test_compress_empty_skill_data_returns_500(self, client):
+    def test_compress_empty_skill_data_returns_validation_error(self, client):
         """Empty skill_data triggers a code path using ErrorCode.INVALID_INPUT
         which does not exist in ErrorCode enum, resulting in a 500 error."""
         payload = {
@@ -110,7 +110,7 @@ class TestCompressionEndpoint:
             "compression_level": 5,
         }
         response = client.post("/compress", json=payload, headers=TENANT_HEADERS)
-        assert response.status_code == 500
+        assert response.status_code in (400, 422)
 
     @pytest.mark.unit
     def test_compress_level_out_of_range(self, client):
@@ -192,7 +192,7 @@ class TestMemoryEndpoints:
         assert data["namespace"] == "default"
 
     @pytest.mark.unit
-    def test_store_empty_skill_id_returns_500(self, client):
+    def test_store_empty_skill_id_returns_validation_error(self, client):
         """Empty skill_id triggers ErrorCode.INVALID_INPUT path which errors at runtime"""
         payload = {
             "skill_id": "",
@@ -200,7 +200,7 @@ class TestMemoryEndpoints:
             "skill_data": {"test": "data"},
         }
         response = client.post("/memory/store", json=payload, headers=TENANT_HEADERS)
-        assert response.status_code == 500
+        assert response.status_code in (400, 422)
 
     @pytest.mark.unit
     def test_store_missing_required_fields(self, client):
@@ -212,31 +212,26 @@ class TestMemoryEndpoints:
         assert response.status_code == 422
 
     @pytest.mark.unit
-    def test_recall_from_memory_returns_500(self, client):
-        """Recall returns 500 because MemoryRecallResponse model has a bug:
-        skill_data and metadata are typed as dict[str, Any] but default to None,
-        which causes a Pydantic ValidationError when the endpoint returns None values."""
+    def test_recall_from_memory_returns_result(self, client):
+        """Recall returns memory data (Pydantic type fix allows None values)."""
         payload = {
             "skill_id": "memory-skill-1",
             "namespace": "test",
             "include_metadata": False,
         }
         response = client.post("/memory/recall", json=payload, headers=TENANT_HEADERS)
-        # MemoryRecallResponse(skill_data=None, metadata=None) fails Pydantic v2 validation
-        assert response.status_code == 500
+        assert response.status_code == 200
 
     @pytest.mark.unit
-    def test_recall_with_metadata_returns_500(self, client):
-        """Recall with metadata=True still returns 500 because skill_data=None
-        fails Pydantic validation (dict type expected, got None)."""
+    def test_recall_with_metadata(self, client):
+        """Recall with metadata=True returns enriched result."""
         payload = {
             "skill_id": "memory-skill-1",
             "namespace": "test",
             "include_metadata": True,
         }
         response = client.post("/memory/recall", json=payload, headers=TENANT_HEADERS)
-        # Even though metadata={} is valid, skill_data=None still fails
-        assert response.status_code == 500
+        assert response.status_code == 200
 
 
 class TestEvaluationEndpoint:
@@ -276,7 +271,7 @@ class TestEvaluationEndpoint:
         assert len(data["metrics"]) >= 1
 
     @pytest.mark.unit
-    def test_evaluate_empty_input_data_returns_500(self, client):
+    def test_evaluate_empty_input_data_returns_validation_error(self, client):
         """Empty input_data triggers ErrorCode.INVALID_INPUT path which errors at runtime"""
         payload = {
             "skill_id": "eval-skill-1",
@@ -284,7 +279,7 @@ class TestEvaluationEndpoint:
             "metrics": ["accuracy"],
         }
         response = client.post("/evaluate", json=payload, headers=TENANT_HEADERS)
-        assert response.status_code == 500
+        assert response.status_code in (400, 422)
 
     @pytest.mark.unit
     def test_evaluate_missing_required_fields(self, client):

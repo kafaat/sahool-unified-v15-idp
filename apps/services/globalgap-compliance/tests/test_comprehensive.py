@@ -373,8 +373,7 @@ class TestComplianceService:
 
     @pytest.mark.asyncio
     async def test_update_corrective_action(self):
-        """Source code has a bug: sets corrective_action_plan instead of corrective_action_taken.
-        We verify the ValueError is raised (source code bug, not test bug)."""
+        """Test corrective action update sets corrective_action_taken correctly."""
         from src.models.compliance import NonConformity, SeverityLevel
         svc = self._make_service()
         nc = NonConformity(
@@ -384,11 +383,11 @@ class TestComplianceService:
             description_ar="d", description_en="d",
         )
         created = await svc.create_non_conformity(nc)
-        # Source sets corrective_action_plan which doesn't exist on the model
-        with pytest.raises(ValueError, match="corrective_action_plan"):
-            await svc.update_corrective_action(
-                created.id, "Fix applied", datetime.now(UTC) + timedelta(days=30), "completed"
-            )
+        updated = await svc.update_corrective_action(
+            created.id, "Fix applied", datetime.now(UTC) + timedelta(days=30), "completed"
+        )
+        assert updated is not None
+        assert updated.corrective_action_taken == "Fix applied"
 
     @pytest.mark.asyncio
     async def test_update_corrective_action_not_found(self):

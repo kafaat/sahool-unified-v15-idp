@@ -587,11 +587,10 @@ class TestFieldIndicatorsEndpoint:
         r = client.get("/v1/field/f1/indicators?category=vegetation&force_refresh=true")
         assert r.status_code == 200
 
-    def test_all_indicators_returns_500_due_to_none_optimal(self, client):
-        """Unfiltered request hits crop_stage_progress with None optimal values,
-        causing a Pydantic validation error (source code bug, not test issue)."""
+    def test_all_indicators_returns_all_categories(self, client):
+        """Unfiltered request returns indicators from all categories."""
         r = client.get("/v1/field/f1/indicators")
-        assert r.status_code == 500
+        assert r.status_code == 200
 
     def test_weather_indicators(self, client):
         r = client.get("/v1/field/f1/indicators?category=weather")

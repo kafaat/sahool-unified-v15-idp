@@ -243,7 +243,7 @@ async def interpret_soil_test(request: InterpretRequest, req: Request):
         result = {
             "test_id": request.test_id,
             "crop": request.crop,
-            "summary": report.summary,
+            "summary": report.summary_en,
             "summary_ar": report.summary_ar,
             "interpretations": [
                 {
@@ -383,7 +383,7 @@ async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: st
 
         result = {
             "field_id": request.field_id,
-            "summary": report.summary,
+            "summary": report.summary_en,
             "summary_ar": report.summary_ar,
             "trends": [
                 {

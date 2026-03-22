@@ -221,9 +221,9 @@ class MemoryRecallResponse(BaseModel):
     skill_id: str
     namespace: str
     found: bool
-    skill_data: dict[str, Any] = None
-    metadata: dict[str, Any] = None
-    retrieved_at: str = None
+    skill_data: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
+    retrieved_at: str | None = None
 
 
 class EvaluateRequest(BaseModel):
@@ -333,7 +333,7 @@ async def compress_skill(
     # Validate input
     if not request.skill_data:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_data", "message": "Skill data cannot be empty"},
         )
 
@@ -385,13 +385,13 @@ async def store_in_memory(
     # Validate input
     if not request.skill_id:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_id", "message": "Skill ID is required"},
         )
 
     if not request.skill_data:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_data", "message": "Skill data is required"},
         )
 
@@ -422,7 +422,7 @@ async def recall_from_memory(
     # Validate input
     if not request.skill_id:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_id", "message": "Skill ID is required"},
         )
 
@@ -458,13 +458,13 @@ async def evaluate_skill(
     # Validate input
     if not request.skill_id:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_id", "message": "Skill ID is required"},
         )
 
     if not request.input_data:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "input_data", "message": "Input data is required"},
         )
 
@@ -525,19 +525,19 @@ async def assess_skill(
     # Validate input
     if not request.farmer_id:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "farmer_id", "message": "Farmer ID is required"},
         )
 
     if not request.skill_type:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "skill_type", "message": "Skill type is required"},
         )
 
     if not request.assessment_data:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "assessment_data", "message": "Assessment data is required"},
         )
 
@@ -623,7 +623,7 @@ async def create_learning_path(
     # Validate input
     if not request.farmer_id:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
+            ErrorCode.VALIDATION_ERROR,
             details={"field": "farmer_id", "message": "Farmer ID is required"},
         )
 

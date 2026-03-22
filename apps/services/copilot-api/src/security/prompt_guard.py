@@ -11,7 +11,7 @@ logger = structlog.get_logger()
 # Patterns indicating prompt injection attempts
 INJECTION_PATTERNS: list[tuple[str, str]] = [
     # English injection patterns
-    (r"ignore\s+(previous|all|above|prior)\s+(instructions|prompts|context)", "ignore_instructions"),
+    (r"ignore\s+(previous|all|above|prior)\s+\w*\s*(instructions|prompts|context)", "ignore_instructions"),
     (r"disregard\s+(your|all|the)\s+(instructions|rules|guidelines)", "disregard_rules"),
     (r"you\s+are\s+now\s+(?:a|an)\s+", "role_override"),
     (r"pretend\s+(?:you(?:'re|\s+are)|to\s+be)\s+", "pretend_role"),

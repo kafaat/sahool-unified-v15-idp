@@ -737,7 +737,7 @@ class TestErrorHandling:
 
         mock_db_session.flush.side_effect = Exception("Duplicate key")
 
-        with pytest.raises((ValueError, Exception)):
+        with pytest.raises(Exception, match="Duplicate key"):
             create_alert(mock_db_session, mock_alert)
 
     def test_update_nonexistent_alert(self, mock_db_session):

@@ -127,6 +127,7 @@ vi.mock("lucide-react", () => {
     ShieldCheck: createIcon("shield-check"),
     Layers: createIcon("layers"),
     Wheat: createIcon("wheat"),
+    FileCode2: createIcon("file-code-2"),
   };
 });
 

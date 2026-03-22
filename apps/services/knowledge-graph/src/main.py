@@ -26,15 +26,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, "../../../../shared")
 
 # Import shared middleware
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from shared.middleware.tenant_context import TenantContextMiddleware
-
-# Import CORS config from shared module (has its own internal fallback)
-from shared.cors_config import setup_cors_middleware
 from services import EntityService, KnowledgeGraphService, RelationshipService
 
 # Import models and services
 from models import HealthCheckResponse
+
+# Import CORS config from shared module (has its own internal fallback)
+from shared.cors_config import setup_cors_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration

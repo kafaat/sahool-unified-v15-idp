@@ -15,8 +15,8 @@ Updated: January 2026
 """
 
 import importlib
-import sys
 import os
+import sys
 
 import pytest
 
@@ -168,8 +168,8 @@ class TestFixOpsImports:
     def test_import_orchestrator(self):
         """Test orchestrator imports."""
         from tools.fixops.orchestrator import (
-            FixOpsOrchestrator,
             FixOpsConfig,
+            FixOpsOrchestrator,
             FixOpsSummary,
             FixRecommendation,
             SignalSource,
@@ -184,9 +184,9 @@ class TestFixOpsImports:
     def test_import_signals(self):
         """Test signals imports."""
         from tools.fixops.signals import (
-            SignalCollector,
             CISignal,
             LocalSignal,
+            SignalCollector,
         )
 
         assert SignalCollector is not None
@@ -196,15 +196,15 @@ class TestFixOpsImports:
     def test_import_scheduler(self):
         """Test scheduler imports."""
         from tools.fixops.scheduler import (
+            CheckFrequency,
+            CheckResult,
+            CheckType,
             FixOpsScheduler,
             LogAnalyzer,
-            CheckType,
-            CheckFrequency,
             ScheduledCheck,
-            CheckResult,
-            run_pre_commit,
-            run_post_fix,
             analyze_logs,
+            run_post_fix,
+            run_pre_commit,
         )
 
         assert FixOpsScheduler is not None
@@ -220,17 +220,17 @@ class TestFixOpsImports:
     def test_import_from_package(self):
         """Test package-level imports."""
         from tools.fixops import (
-            FixOpsOrchestrator,
-            FixOpsSummary,
-            FixOpsConfig,
-            SignalSource,
-            SignalCollector,
-            CISignal,
-            LocalSignal,
-            FixOpsScheduler,
-            LogAnalyzer,
-            CheckType,
             CheckFrequency,
+            CheckType,
+            CISignal,
+            FixOpsConfig,
+            FixOpsOrchestrator,
+            FixOpsScheduler,
+            FixOpsSummary,
+            LocalSignal,
+            LogAnalyzer,
+            SignalCollector,
+            SignalSource,
         )
 
         assert FixOpsOrchestrator is not None
@@ -288,11 +288,11 @@ class TestAutoFixIntegration:
     def test_import_auto_audit(self):
         """Test auto_audit imports."""
         from shared.ai.auto_fix.auto_audit import (
-            AutoAudit,
             AuditAction,
-            AuditSeverity,
             AuditLogEntry,
+            AuditSeverity,
             AuditSummary,
+            AutoAudit,
         )
 
         assert AutoAudit is not None
@@ -304,10 +304,10 @@ class TestAutoFixIntegration:
     def test_import_fix_learning(self):
         """Test fix_learning imports."""
         from shared.ai.auto_fix.fix_learning import (
+            DeveloperPreferences,
+            FixFeedback,
             FixLearningSystem,
             FixPattern,
-            FixFeedback,
-            DeveloperPreferences,
             LearnedFix,
         )
 
@@ -320,8 +320,8 @@ class TestAutoFixIntegration:
     def test_import_batch_processor(self):
         """Test batch_processor imports."""
         from shared.ai.auto_fix.batch_processor import (
-            BatchProcessor,
             BatchConfig,
+            BatchProcessor,
             BatchResult,
         )
 
@@ -332,17 +332,17 @@ class TestAutoFixIntegration:
     def test_import_auto_fix_models(self):
         """Test auto_fix models imports."""
         from shared.ai.auto_fix.models import (
+            CodeFix,
+            CodeLocation,
             Diagnostic,
+            DiagnosticCategory,
             DiagnosticReport,
             DiagnosticSeverity,
-            DiagnosticCategory,
-            CodeLocation,
-            ToolType,
-            FixStrategy,
             FixConfidence,
-            CodeFix,
             FixPlan,
             FixResult,
+            FixStrategy,
+            ToolType,
         )
 
         assert Diagnostic is not None
@@ -353,8 +353,8 @@ class TestAutoFixIntegration:
     def test_import_diagnostics(self):
         """Test diagnostics imports."""
         from shared.ai.auto_fix.diagnostics import (
-            CodeDiagnostics,
             CircuitBreaker,
+            CodeDiagnostics,
             DiagnosticCache,
         )
 
@@ -365,9 +365,9 @@ class TestAutoFixIntegration:
     def test_import_fixers(self):
         """Test fixers imports."""
         from shared.ai.auto_fix.fixers import (
-            CodeFixer,
             PYTHON_FIX_PATTERNS,
             SECURITY_FIX_PATTERNS,
+            CodeFixer,
         )
 
         assert CodeFixer is not None
@@ -395,9 +395,9 @@ class TestGuardrailsImports:
     def test_import_tool_guard(self):
         """Test tool guard imports."""
         from shared.ai.guardrails.tool_guard import (
-            ToolGuard,
-            ToolCallContext,
             GuardDecision,
+            ToolCallContext,
+            ToolGuard,
             guard_tool_call,
         )
 
@@ -409,10 +409,10 @@ class TestGuardrailsImports:
     def test_import_allowlists(self):
         """Test allowlists imports."""
         from shared.ai.guardrails.allowlists import (
-            TOOL_ALLOWLIST,
-            DOMAIN_ALLOWLIST,
             BLOCKED_PATTERNS,
             DANGEROUS_COMMANDS,
+            DOMAIN_ALLOWLIST,
+            TOOL_ALLOWLIST,
         )
 
         assert len(TOOL_ALLOWLIST) > 0
@@ -423,10 +423,10 @@ class TestGuardrailsImports:
     def test_import_policy(self):
         """Test policy imports."""
         from shared.ai.guardrails.policy import (
-            PolicyRule,
             GuardPolicy,
-            save_policy,
+            PolicyRule,
             load_policy,
+            save_policy,
         )
 
         assert PolicyRule is not None
@@ -555,11 +555,11 @@ class TestExperienceLearningImports:
     def test_import_experience_learning(self):
         """Test experience learning imports."""
         from shared.ai.experience_learning import (
-            ExperienceLearner,
-            TaskExecution,
             SOP,
             ExecutionStatus,
+            ExperienceLearner,
             SOPConfidence,
+            TaskExecution,
         )
 
         assert ExperienceLearner is not None

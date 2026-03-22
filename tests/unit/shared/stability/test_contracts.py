@@ -6,10 +6,10 @@ Tests for SAHOOL Contract Validation Framework
 import pytest
 
 from shared.stability.contracts import (
-    ContractValidator,
     ContractReport,
     ContractSeverity,
     ContractType,
+    ContractValidator,
 )
 
 

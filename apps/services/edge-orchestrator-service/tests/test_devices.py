@@ -21,7 +21,7 @@ from src.main import app
 @pytest.fixture
 def client():
     """Create test client."""
-    return TestClient(app)
+    return TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
 
 
 @pytest.fixture

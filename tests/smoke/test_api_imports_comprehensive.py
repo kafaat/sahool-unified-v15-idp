@@ -115,15 +115,15 @@ class TestSharedAIModuleImports:
     def test_shared_ai_auto_fix_models(self):
         """shared.ai.auto_fix.models imports correctly"""
         from shared.ai.auto_fix.models import (
-            Diagnostic,
-            DiagnosticReport,
+            AuditEntry,
             CodeFix,
+            Diagnostic,
+            DiagnosticCategory,
+            DiagnosticReport,
+            DiagnosticSeverity,
+            FixConfidence,
             FixPlan,
             FixResult,
-            AuditEntry,
-            DiagnosticSeverity,
-            DiagnosticCategory,
-            FixConfidence,
             FixStrategy,
         )
         assert Diagnostic is not None
@@ -179,7 +179,7 @@ class TestSharedAIModuleImports:
 
     def test_shared_ai_embeddings_imports(self):
         """shared.ai.embeddings imports correctly"""
-        from shared.ai.embeddings import EmbeddingsAdapter, EmbeddingConfig
+        from shared.ai.embeddings import EmbeddingConfig, EmbeddingsAdapter
 
         assert EmbeddingsAdapter is not None
         assert EmbeddingConfig is not None
@@ -282,8 +282,9 @@ class TestContractEventSchemas:
 
     def test_event_metadata_has_required_fields(self):
         """EventMetadata dataclass has all required fields"""
-        from shared.contracts.events.base import EventMetadata
         from dataclasses import fields
+
+        from shared.contracts.events.base import EventMetadata
 
         field_names = {f.name for f in fields(EventMetadata)}
         assert "correlation_id" in field_names
@@ -298,10 +299,11 @@ class TestContractEventSchemas:
 
     def test_base_event_serialization(self):
         """BaseEvent subclass to_dict returns a dictionary"""
-        from shared.contracts.events.base import BaseEvent
         from dataclasses import dataclass
         from typing import Any
         from uuid import uuid4
+
+        from shared.contracts.events.base import BaseEvent
 
         @dataclass
         class SimpleTestEvent(BaseEvent):
@@ -314,7 +316,7 @@ class TestContractEventSchemas:
                 return {"field_id": self.field_id}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent:
                 return cls(
                     tenant_id=uuid4(),
                     field_id=data.get("payload", {}).get("field_id", ""),
@@ -326,10 +328,11 @@ class TestContractEventSchemas:
 
     def test_base_event_from_dict(self):
         """BaseEvent subclass from_dict creates an event from dictionary"""
-        from shared.contracts.events.base import BaseEvent
         from dataclasses import dataclass
         from typing import Any
         from uuid import uuid4
+
+        from shared.contracts.events.base import BaseEvent
 
         @dataclass
         class SimpleTestEvent2(BaseEvent):
@@ -342,7 +345,7 @@ class TestContractEventSchemas:
                 return {"field_id": self.field_id}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent2":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent2:
                 return cls(
                     tenant_id=uuid4(),
                     field_id=data.get("payload", {}).get("field_id", ""),
@@ -356,10 +359,11 @@ class TestContractEventSchemas:
     def test_base_event_to_json(self):
         """BaseEvent.to_json produces valid JSON"""
         import json
-        from shared.contracts.events.base import BaseEvent
         from dataclasses import dataclass
         from typing import Any
         from uuid import uuid4
+
+        from shared.contracts.events.base import BaseEvent
 
         @dataclass
         class SimpleTestEvent3(BaseEvent):
@@ -372,7 +376,7 @@ class TestContractEventSchemas:
                 return {"value": self.value}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent3":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent3:
                 return cls(
                     tenant_id=uuid4(),
                     value=data.get("payload", {}).get("value", ""),
@@ -443,14 +447,14 @@ class TestSharedAuthModels:
 
     def test_user_model_has_required_fields(self):
         """User model has all required fields"""
-        from shared.auth.models import User
-
         import inspect
+
+        from shared.auth.models import User
         sig = inspect.signature(User.__init__)
         # Check for common required fields
         params = sig.parameters
         # User should have id, email or username fields
-        user_attrs = {name.lower() for name in params.keys()}
+        user_attrs = {name.lower() for name in params}
         # At least some core fields should be present
         assert len(user_attrs) > 1, "User model should have multiple fields"
 
@@ -539,8 +543,9 @@ class TestAPIContractsIntegrity:
 
     def test_event_validation_with_no_schema(self):
         """BaseEvent.validate returns True when no SCHEMA_PATH defined"""
-        from shared.contracts.events.base import BaseEvent
         from dataclasses import dataclass
+
+        from shared.contracts.events.base import BaseEvent
 
         @dataclass
         class NoSchemaEvent(BaseEvent):

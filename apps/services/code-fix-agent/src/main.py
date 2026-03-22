@@ -16,6 +16,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 from shared.middleware.tenant_context import TenantContextMiddleware

@@ -17,7 +17,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # Skip all tests if httpx is not available
 pytest.importorskip("httpx")
 
@@ -33,7 +32,6 @@ from shared.ai.model_training import (
     TrainingStatus,
     create_code_fix_dataset,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

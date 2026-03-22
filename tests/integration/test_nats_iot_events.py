@@ -33,8 +33,8 @@ NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 try:
     from shared.events.subjects import (
         SAHOOL_IOT_DEVICE_REGISTERED,
-        SAHOOL_IOT_SENSOR_ALL,
         SAHOOL_IOT_SENSOR_ALERT,
+        SAHOOL_IOT_SENSOR_ALL,
         SAHOOL_IOT_SENSOR_CONNECTED,
         SAHOOL_IOT_SENSOR_DISCONNECTED,
         SAHOOL_IOT_SENSOR_READING,

@@ -12,7 +12,7 @@ import os
 import random
 from typing import Any
 
-from locust import HttpUser, between, task, events
+from locust import HttpUser, between, events, task
 from locust.runners import MasterRunner
 
 # ═══════════════════════════════════════════════════════════════════════════════

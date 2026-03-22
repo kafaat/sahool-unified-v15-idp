@@ -202,7 +202,7 @@ class TestSearchResult:
 
     def test_create_search_result(self):
         """Test creating a search result"""
-        from shared.ai.graph_memory import SearchResult, Entity, EntityType
+        from shared.ai.graph_memory import Entity, EntityType, SearchResult
 
         entity = Entity(id="e1", type=EntityType.FIELD, name="Test")
 
@@ -220,7 +220,7 @@ class TestSearchResult:
 
     def test_search_result_to_dict(self):
         """Test search result serialization"""
-        from shared.ai.graph_memory import SearchResult, Entity, EntityType
+        from shared.ai.graph_memory import Entity, EntityType, SearchResult
 
         entity = Entity(id="e2", type=EntityType.CROP, name="Wheat")
 
@@ -667,7 +667,7 @@ class TestConvenienceFunctions:
     @pytest.mark.asyncio
     async def test_add_function(self):
         """Test module-level add function"""
-        from shared.ai.graph_memory import add, EntityType
+        from shared.ai.graph_memory import EntityType, add
 
         entity = await add("Test content", EntityType.DOCUMENT, name="Test")
         assert entity.name == "Test"
@@ -710,7 +710,7 @@ class TestRelationshipExtraction:
     @pytest.mark.asyncio
     async def test_farm_field_relationship(self):
         """Test automatic farm-field relationship extraction"""
-        from shared.ai.graph_memory import GraphMemory, EntityType, RelationType
+        from shared.ai.graph_memory import EntityType, GraphMemory, RelationType
 
         memory = GraphMemory(tenant_id="test")
 
@@ -731,7 +731,7 @@ class TestRelationshipExtraction:
     @pytest.mark.asyncio
     async def test_field_crop_relationship(self):
         """Test automatic field-crop relationship extraction"""
-        from shared.ai.graph_memory import GraphMemory, EntityType, RelationType
+        from shared.ai.graph_memory import EntityType, GraphMemory, RelationType
 
         memory = GraphMemory(tenant_id="test2")
 
@@ -756,7 +756,7 @@ class TestArabicSupport:
     @pytest.mark.asyncio
     async def test_arabic_entity(self):
         """Test entity with Arabic content"""
-        from shared.ai.graph_memory import GraphMemory, EntityType
+        from shared.ai.graph_memory import EntityType, GraphMemory
 
         memory = GraphMemory(tenant_id="arabic-test")
 
@@ -775,7 +775,7 @@ class TestArabicSupport:
     @pytest.mark.asyncio
     async def test_arabic_search(self):
         """Test searching with Arabic query"""
-        from shared.ai.graph_memory import GraphMemory, EntityType
+        from shared.ai.graph_memory import EntityType, GraphMemory
 
         memory = GraphMemory(tenant_id="arabic-search")
 

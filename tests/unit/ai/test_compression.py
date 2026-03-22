@@ -14,23 +14,23 @@ Author: SAHOOL QA Team
 Updated: January 2025
 """
 
-import pytest
 from datetime import datetime, timezone
 
+import pytest
+
 from shared.ai.context_engineering.compression import (
-    ContextCompressor,
-    CompressionStrategy,
-    CompressionResult,
-    estimate_tokens,
-    detect_primary_language,
     CHARS_PER_TOKEN_ARABIC,
     CHARS_PER_TOKEN_ENGLISH,
     CHARS_PER_TOKEN_MIXED,
     DEFAULT_FIELD_COMPRESSION_RATIO,
-    DEFAULT_WEATHER_COMPRESSION_RATIO,
     DEFAULT_HISTORY_COMPRESSION_RATIO,
+    DEFAULT_WEATHER_COMPRESSION_RATIO,
+    CompressionResult,
+    CompressionStrategy,
+    ContextCompressor,
+    detect_primary_language,
+    estimate_tokens,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

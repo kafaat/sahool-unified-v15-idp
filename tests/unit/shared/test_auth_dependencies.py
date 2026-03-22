@@ -3,31 +3,31 @@ Unit tests for shared/auth/dependencies.py
 Tests FastAPI authentication dependencies and rate limiting.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
-import time
-
 # Set test environment before imports
 import os
+import time
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
 
 from shared.auth.dependencies import (
-    get_current_user,
-    get_current_active_user,
-    require_roles,
-    require_permissions,
-    require_farm_access,
-    rate_limit_dependency,
-    get_optional_user,
     RateLimiter,
+    get_current_active_user,
+    get_current_user,
+    get_optional_user,
+    rate_limit_dependency,
+    require_farm_access,
+    require_permissions,
+    require_roles,
 )
 from shared.auth.jwt_handler import create_access_token
-from shared.auth.models import User, AuthErrors
+from shared.auth.models import AuthErrors, User
 
 
 @pytest.fixture

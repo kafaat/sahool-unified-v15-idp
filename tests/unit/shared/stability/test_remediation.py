@@ -3,15 +3,16 @@ Tests for SAHOOL Auto-Remediation Engine
 ==========================================
 """
 
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
+
 from shared.stability.remediation import (
-    RemediationEngine,
     RemediationAction,
+    RemediationEngine,
     RemediationPlan,
-    RemediationType,
     RemediationStatus,
+    RemediationType,
 )
 
 

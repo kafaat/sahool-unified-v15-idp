@@ -6,21 +6,22 @@ Tests for the SAHOOL platform event subscriber module.
 """
 
 import json
-import pytest
+from datetime import UTC, datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime, timezone, UTC
 from uuid import uuid4
+
+import pytest
+
+from shared.events.contracts import BaseEvent
 
 # Import the module under test
 from shared.events.subscriber import (
     EventSubscriber,
     SubscriberConfig,
     Subscription,
-    get_subscriber,
     close_subscriber,
+    get_subscriber,
 )
-from shared.events.contracts import BaseEvent
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test Fixtures

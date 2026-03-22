@@ -23,6 +23,8 @@ from uuid import uuid4
 import pytest
 
 from shared.audit_trail import (
+    RETENTION_DAYS,
+    ActorType,
     # Models
     AuditActionType,
     AuditCategory,
@@ -31,29 +33,26 @@ from shared.audit_trail import (
     AuditQueryFilter,
     AuditReportGenerator,
     AuditSeverity,
-    ActorType,
-    ChangeType,
-    FieldChange,
-    RETENTION_DAYS,
-    RetentionPeriod,
-    RetentionPolicy,
-    RetentionJob,
-    UserActivitySummary,
     # Logger
     AuditTrailLogger,
+    ChangeType,
+    FieldChange,
+    RetentionJob,
+    RetentionPeriod,
+    RetentionPolicy,
+    UserActivitySummary,
     compute_changes,
-    log_action,
-    log_change,
     # Reporter
     generate_activity_report,
-    # Retention
-    get_default_policies,
     # Label helpers
     get_action_label,
     get_category_label,
+    # Retention
+    get_default_policies,
     get_severity_label,
+    log_action,
+    log_change,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixtures

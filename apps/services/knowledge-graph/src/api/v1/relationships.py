@@ -5,7 +5,7 @@ Relationship API endpoints
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from models import RelationshipType
 
@@ -153,8 +153,8 @@ async def get_preventive_treatments(
 @router.get("/related/{entity_type}/{entity_id}")
 async def get_all_related(
     request,
-    entity_type: str = Query(..., description="Entity type (crop, disease, treatment)"),
-    entity_id: str = Query(..., description="Entity ID"),
+    entity_type: str = Path(..., description="Entity type (crop, disease, treatment)"),
+    entity_id: str = Path(..., description="Entity ID"),
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
 ):
     """

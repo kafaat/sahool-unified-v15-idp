@@ -4,10 +4,11 @@ Telemetry and Metrics Tests for SAHOOL Platform.
 Tests validate OpenTelemetry integration, metrics collection, and tracing.
 """
 
-import pytest
-from typing import Any, Optional
-from dataclasses import dataclass, field
 import time
+from dataclasses import dataclass, field
+from typing import Any, Optional
+
+import pytest
 
 
 @dataclass

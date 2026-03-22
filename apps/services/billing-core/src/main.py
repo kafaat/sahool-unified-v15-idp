@@ -16,7 +16,6 @@ import hashlib
 import hmac
 import logging
 import os
-import structlog
 
 # Authentication imports
 import sys
@@ -30,6 +29,7 @@ from typing import Any
 
 import httpx
 import nats
+import structlog
 from fastapi import (
     BackgroundTasks,
     Depends,
@@ -342,7 +342,8 @@ async def job_handle_trial_expiry():
                 return
 
             # Find trials that have expired
-            from sqlalchemy import select as sa_select, and_
+            from sqlalchemy import and_
+            from sqlalchemy import select as sa_select
 
             result = await db.execute(
                 sa_select(db_models.Subscription).where(

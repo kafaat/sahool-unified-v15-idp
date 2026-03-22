@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -21,12 +21,12 @@ from uuid import UUID
 import pytest
 
 from shared.events.contracts import (
+    AgentExecutionCompletedEvent,
+    DiseaseDetectedEvent,
     FieldCreatedEvent,
     FieldUpdatedEvent,
-    WeatherForecastEvent,
     SatelliteDataReadyEvent,
-    DiseaseDetectedEvent,
-    AgentExecutionCompletedEvent,
+    WeatherForecastEvent,
 )
 
 # Deterministic UUIDs for reproducible snapshots

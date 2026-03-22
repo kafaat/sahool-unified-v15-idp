@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timezone
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import unified error handling

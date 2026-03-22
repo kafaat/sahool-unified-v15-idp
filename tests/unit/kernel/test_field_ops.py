@@ -5,7 +5,7 @@ Tests for field operations logic without I/O
 
 # Import from the service
 import sys
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 import pytest
 from pydantic import ValidationError

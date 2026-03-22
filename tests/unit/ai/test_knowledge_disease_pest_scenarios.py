@@ -17,15 +17,15 @@ from pathlib import Path
 
 import pytest
 
-from shared.ai.knowledge.graph_builder import (
-    AgriculturalKnowledgeGraph,
-    build_agricultural_knowledge_graph,
-)
 from shared.ai.knowledge.collection_populator import (
     KnowledgeBasePopulator,
 )
 from shared.ai.knowledge.collections import (
     PEST_KNOWLEDGE,
+)
+from shared.ai.knowledge.graph_builder import (
+    AgriculturalKnowledgeGraph,
+    build_agricultural_knowledge_graph,
 )
 
 

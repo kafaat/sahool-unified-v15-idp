@@ -26,7 +26,6 @@ import pytest
 
 from .conftest import OperationType
 
-
 # ==============================================================================
 # Blockchain Traceability Implementation (Test Target Mock)
 # ==============================================================================

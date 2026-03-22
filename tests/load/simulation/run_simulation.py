@@ -29,7 +29,7 @@ import json
 import logging
 import os
 import sys
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 # Add scripts directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))

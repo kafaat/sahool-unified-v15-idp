@@ -1,7 +1,8 @@
 """Tests for NotificationPreferencesManager"""
 
-import pytest
 from datetime import time
+
+import pytest
 
 from shared.notification_preferences.manager import (
     InMemoryStorage,

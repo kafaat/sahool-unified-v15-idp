@@ -24,11 +24,11 @@ from shared.labor_management.models import (
     TaskStatus,
     Worker,
     WorkerCertification,
+    WorkerSchedule,
     WorkerSkill,
     WorkerStatus,
     WorkerType,
     WorkShift,
-    WorkerSchedule,
 )
 from shared.labor_management.scheduler import (
     LaborScheduler,

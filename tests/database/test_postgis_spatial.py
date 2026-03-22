@@ -4,10 +4,11 @@ PostGIS Spatial Operations Tests for SAHOOL Platform.
 Tests validate geospatial queries, geometry operations, and field boundary handling.
 """
 
-import pytest
 import json
-from typing import Dict, Any, List
 from dataclasses import dataclass
+from typing import Any, Dict, List
+
+import pytest
 
 
 @dataclass

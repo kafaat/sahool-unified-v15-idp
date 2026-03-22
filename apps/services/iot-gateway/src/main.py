@@ -53,6 +53,9 @@ except ImportError:
         pass
 
 
+# Configure structured logging
+import structlog
+
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
@@ -64,9 +67,6 @@ from .registry import (
     get_registry,
     set_registry,
 )
-
-# Configure structured logging
-import structlog
 
 logger = structlog.get_logger("iot-gateway")
 
@@ -353,6 +353,7 @@ except ImportError:
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
     from fastapi import Request
+
     from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def iot_tier_func(request: Request) -> RateLimitTier:

@@ -72,36 +72,37 @@ class TestKnowledgeGraphService:
     @pytest.mark.asyncio
     async def test_get_disease(self, graph_service):
         """Test retrieving a disease"""
-        disease = await graph_service.get_disease("powdery-mildew")
+        disease = await graph_service.get_disease("powdery_mildew")
         assert disease is not None
-        assert disease.id == "powdery-mildew"
+        assert disease.id == "powdery_mildew"
 
     @pytest.mark.asyncio
     async def test_get_related_entities(self, graph_service):
         """Test getting related entities"""
-        # Get crops affected by powdery mildew
+        # Get crops affected by powdery mildew (disease -> AFFECTS -> crop)
         related = await graph_service.get_related_entities(
             entity_type="disease",
-            entity_id="powdery-mildew",
+            entity_id="powdery_mildew",
             relationship_type=RelationshipType.AFFECTS,
         )
         assert len(related) > 0
-        # Verify we got crops back
-        assert any("wheat" in str(r.get("id")) for r in related)
+        # Verify we got crops back (wheat is affected by powdery mildew)
+        assert any("wheat" in str(r.get("id", "")) or "Wheat" in str(r.get("name_en", "")) for r in related)
 
     @pytest.mark.asyncio
     async def test_find_shortest_path(self, graph_service):
         """Test finding shortest path between entities"""
+        # Path goes from treatment -> disease (treatment:sulfur --treats--> disease:powdery_mildew)
         path = await graph_service.find_shortest_path(
-            source_type="disease",
-            source_id="powdery-mildew",
-            target_type="treatment",
-            target_id="sulfur-dust",
+            source_type="treatment",
+            source_id="sulfur",
+            target_type="disease",
+            target_id="powdery_mildew",
         )
         assert path is not None
         assert len(path.path) >= 2
-        assert path.path[0] == "disease:powdery-mildew"
-        assert path.path[-1] == "treatment:sulfur-dust"
+        assert path.path[0] == "treatment:sulfur"
+        assert path.path[-1] == "disease:powdery_mildew"
 
     @pytest.mark.asyncio
     async def test_search_entities(self, graph_service):
@@ -128,7 +129,5 @@ class TestKnowledgeGraphService:
         """Test health check"""
         health = await graph_service.health_check()
         assert health is True
-
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

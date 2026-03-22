@@ -58,8 +58,7 @@ from src.processing import (
     process_ndvi_mock,
     update_job_status,
 )
-from src.store import _jobs, _results, _composites
-
+from src.store import _composites, _jobs, _results
 
 # ---------------------------------------------------------------------------
 # Helpers

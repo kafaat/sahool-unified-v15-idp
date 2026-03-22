@@ -15,9 +15,10 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from src.main import app
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from src.main import app
 
 
 def _fake_current_user():

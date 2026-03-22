@@ -13,7 +13,6 @@ import pytest
 from shared.ai.knowledge.cache import CacheEntry, KnowledgeCache
 from shared.ai.knowledge.metrics import KnowledgeMetrics
 
-
 # ─── Cache Tests ──────────────────────────────────────────────────────────────
 
 

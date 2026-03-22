@@ -10,8 +10,9 @@ Tests that:
 - Error handling for missing tenant_id
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 @pytest.mark.unit

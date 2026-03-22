@@ -5,21 +5,20 @@
 
 import pytest
 
+from shared.ai.ultrarag.models import EntityType, RelationType, TriRAGConfig
 from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
-from shared.ai.ultrarag.providers.agri_provider import AgriQueryContext, AgriAdvisoryResult
-from shared.ai.ultrarag.providers.code_provider import CodeQueryContext, CodeAnalysisResult
+from shared.ai.ultrarag.providers.agri_provider import AgriAdvisoryResult, AgriQueryContext
+from shared.ai.ultrarag.providers.code_provider import CodeAnalysisResult, CodeQueryContext
 from shared.ai.ultrarag.providers.gee_provider import (
-    GEEQueryContext,
-    GEEAnalysisResult,
-    TimeSeriesPoint,
-    SatelliteSource,
-    VegetationIndex,
-    LandCoverClass,
-    ChangeType,
     AnalysisType,
+    ChangeType,
+    GEEAnalysisResult,
+    GEEQueryContext,
+    LandCoverClass,
+    SatelliteSource,
+    TimeSeriesPoint,
+    VegetationIndex,
 )
-from shared.ai.ultrarag.models import TriRAGConfig, EntityType, RelationType
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AgriRAGProvider Tests

@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
@@ -50,6 +51,8 @@ _change_detector = None
 try:
     from .multi_provider import (
         MultiSatelliteService,
+    )
+    from .multi_provider import (
         SatelliteType as MultiSatelliteType,
     )
 
@@ -165,11 +168,13 @@ try:
         AllIndices,
         BandData,
         CropType,
-        GrowthStage as VegGrowthStage,
         HealthStatus,
         IndexInterpreter,
         VegetationIndex,
         VegetationIndicesCalculator,
+    )
+    from .vegetation_indices import (
+        GrowthStage as VegGrowthStage,
     )
 
     _indices_available = True

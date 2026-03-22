@@ -6,8 +6,8 @@ Cache manager for AI responses using Redis.
 import hashlib
 import json
 import logging
-from typing import Optional
 from datetime import UTC, datetime
+from typing import Optional
 
 import redis.asyncio as redis
 from redis.asyncio import Redis

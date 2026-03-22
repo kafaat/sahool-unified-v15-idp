@@ -3,12 +3,13 @@ Tests for UltraRAG Generator Module
 اختبارات وحدة المولد UltraRAG
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from shared.ai.ultrarag.generator import (
-    GeneratorConfig,
     Generator,
+    GeneratorConfig,
     OllamaGenerator,
 )
 from shared.ai.ultrarag.models import (

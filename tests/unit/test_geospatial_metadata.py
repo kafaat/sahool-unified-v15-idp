@@ -11,38 +11,38 @@ Tests cover:
 - ISO-compliant dictionary export
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, UTC
 
 from shared.geospatial_metadata import (
-    GeospatialMetadataRecord,
-    MD_Metadata,
-    MD_DataIdentification,
-    MD_ReferenceSystem,
-    MD_Resolution,
-    MD_Keywords,
-    MD_LegalConstraints,
-    MD_ScopeCode,
-    MD_TopicCategory,
-    MD_SpatialRepresentationType,
     CI_Citation,
     CI_ResponsibleParty,
     CI_RoleCode,
+    DataQualityReport,
+    DQ_Scope,
     EX_Extent,
     EX_GeographicBoundingBox,
     EX_TemporalExtent,
-    DataQualityReport,
-    DQ_Scope,
+    GeospatialMetadataRecord,
     LI_Lineage,
     LI_ProcessStep,
     LI_Source,
+    MD_DataIdentification,
+    MD_Keywords,
+    MD_LegalConstraints,
+    MD_Metadata,
+    MD_ReferenceSystem,
+    MD_Resolution,
+    MD_ScopeCode,
+    MD_SpatialRepresentationType,
+    MD_TopicCategory,
     create_field_metadata,
-    create_ndvi_metadata,
-    create_terrain_metadata,
-    create_satellite_metadata,
     create_iot_sensor_metadata,
+    create_ndvi_metadata,
+    create_satellite_metadata,
+    create_terrain_metadata,
 )
-
 
 # =============================================================================
 # ISO 19115 Core Models
@@ -703,12 +703,12 @@ class TestMDMetadataEdgeCases:
     def test_full_metadata_record(self):
         """Test creating a complete metadata record with all optional fields."""
         from shared.geospatial_metadata.iso19115 import (
+            CI_OnlineResource,
+            MD_AggregateInformation,
+            MD_BrowseGraphic,
+            MD_DigitalTransferOptions,
             MD_Distribution,
             MD_DistributionFormat,
-            MD_DigitalTransferOptions,
-            CI_OnlineResource,
-            MD_BrowseGraphic,
-            MD_AggregateInformation,
         )
 
         md = MD_Metadata(

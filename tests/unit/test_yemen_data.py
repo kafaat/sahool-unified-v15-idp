@@ -1,25 +1,26 @@
 """Unit tests for shared/yemen data modules."""
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from shared.yemen.crops import (
-    get_yemen_crop,
-    list_yemen_crops,
-    YEMEN_CROPS,
-)
 from shared.yemen.climate import (
+    YEMEN_CLIMATE_ZONES,
     get_climate_zone,
     get_et0_range,
-    YEMEN_CLIMATE_ZONES,
+)
+from shared.yemen.crops import (
+    YEMEN_CROPS,
+    get_yemen_crop,
+    list_yemen_crops,
 )
 from shared.yemen.soils import (
+    YEMEN_SOIL_PROFILES,
     get_soil_profile,
     list_soil_profiles,
-    YEMEN_SOIL_PROFILES,
 )
 
 

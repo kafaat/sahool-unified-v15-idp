@@ -22,7 +22,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # Ensure drone service is importable
 _drone_service_path = str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service")
 sys.path.insert(0, _drone_service_path)
@@ -905,8 +904,8 @@ class TestVRAGenerator:
         assert ar == "نمو قوي"
 
     def test_ndvi_to_zone_type(self):
-        from shared.drone_integration.vra import VRAGenerator
         from shared.drone_integration.models import VRAZoneType
+        from shared.drone_integration.vra import VRAGenerator
 
         gen = VRAGenerator()
         assert gen._ndvi_to_zone_type(0.05) == VRAZoneType.BARE_SOIL
@@ -945,6 +944,7 @@ class TestAdvancedFlightPlannerDeprecation:
     def test_deprecation_warning(self):
         """Test that DroneFlightPlanner raises DeprecationWarning."""
         import warnings
+
         from shared.drone_integration.advanced_flight_planner import DroneFlightPlanner
 
         with warnings.catch_warnings(record=True) as w:
@@ -957,6 +957,7 @@ class TestAdvancedFlightPlannerDeprecation:
     def test_gsd_calculation_still_works(self):
         """Test that deprecated planner still functions correctly."""
         import warnings
+
         from shared.drone_integration.advanced_flight_planner import DroneFlightPlanner
 
         with warnings.catch_warnings():

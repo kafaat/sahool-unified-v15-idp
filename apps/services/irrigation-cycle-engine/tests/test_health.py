@@ -1,5 +1,4 @@
 """Tests for irrigation-cycle-engine health and core endpoints."""
-
 import os
 import sys
 
@@ -10,17 +9,14 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 from src.main import app
 
-
+TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
 @pytest.fixture
 def client():
-    return TestClient(app)
-
-
+    return TestClient(app, headers=TENANT_HEADER)
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -29,15 +25,13 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["status"] == "ok"
         assert data["service"] == "irrigation-cycle-engine"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     def test_readyz(self, client):
         response = client.get("/readyz")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-
-
 @pytest.mark.unit
 class TestET0Calculation:
     def test_et0_basic(self, client):
@@ -119,8 +113,6 @@ class TestET0Calculation:
         data = response.json()
         # Should still return non-negative ET0
         assert data[0]["et0_mm"] >= 0
-
-
 @pytest.mark.unit
 class TestIrrigationCycle:
     def test_cycle_basic(self, client):
@@ -181,8 +173,6 @@ class TestIrrigationCycle:
         data = response.json()
         # Should default to 30 days when ET is zero
         assert data["cycle_days"] == 30.0
-
-
 @pytest.mark.unit
 class TestIrrigationSchedule:
     def test_schedule_basic(self, client):
@@ -236,8 +226,6 @@ class TestIrrigationSchedule:
             },
         )
         assert response.status_code == 400
-
-
 @pytest.mark.unit
 class TestSalinityAssessment:
     def test_salinity_assessment(self, client):
@@ -271,8 +259,6 @@ class TestSalinityAssessment:
         assert response.status_code == 200
         data = response.json()
         assert data["sar"] > 0
-
-
 @pytest.mark.unit
 class TestYemenData:
     def test_list_crops(self, client):

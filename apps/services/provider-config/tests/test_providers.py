@@ -5,6 +5,7 @@ SAHOOL Provider Configuration Service - Unit Tests
 
 import os
 import sys
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -15,13 +16,43 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import MAP_PROVIDERS, SATELLITE_PROVIDERS, WEATHER_PROVIDERS, app
+from src.main import (
+    MAP_PROVIDERS,
+    SATELLITE_PROVIDERS,
+    WEATHER_PROVIDERS,
+    app,
+    get_db_session,
+)
+
+from shared.auth.dependencies import get_current_user
+
+# Valid UUID for tenant context middleware
+TEST_TENANT_ID = "00000000-0000-0000-0000-000000000001"
+TENANT_HEADER = {"X-Tenant-ID": TEST_TENANT_ID}
+
+
+def _mock_current_user():
+    return {"sub": "test-user-id", "tid": TEST_TENANT_ID, "roles": ["admin"]}
+
+
+def _mock_db_session():
+    session = MagicMock()
+    yield session
+
+
+@pytest.fixture(autouse=True)
+def override_deps():
+    """Override auth and database dependencies for all tests."""
+    app.dependency_overrides[get_current_user] = _mock_current_user
+    app.dependency_overrides[get_db_session] = _mock_db_session
+    yield
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
 def client():
     """Test client fixture"""
-    return TestClient(app)
+    return TestClient(app, raise_server_exceptions=False)
 
 
 class TestRootEndpoint:
@@ -29,7 +60,7 @@ class TestRootEndpoint:
 
     def test_root(self, client):
         """Test root endpoint returns service info"""
-        response = client.get("/")
+        response = client.get("/", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "service" in data
@@ -42,7 +73,7 @@ class TestHealthEndpoint:
 
     def test_health_check(self, client):
         """Test health check returns healthy status"""
-        response = client.get("/health")
+        response = client.get("/healthz")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
@@ -54,7 +85,7 @@ class TestListProviders:
 
     def test_list_all_providers(self, client):
         """Test listing all providers"""
-        response = client.get("/providers")
+        response = client.get("/providers", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "map_providers" in data
@@ -66,7 +97,7 @@ class TestListProviders:
 
     def test_list_map_providers(self, client):
         """Test listing map providers"""
-        response = client.get("/providers/maps")
+        response = client.get("/providers/maps", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "providers" in data
@@ -77,7 +108,7 @@ class TestListProviders:
 
     def test_list_weather_providers(self, client):
         """Test listing weather providers"""
-        response = client.get("/providers/weather")
+        response = client.get("/providers/weather", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "providers" in data
@@ -88,7 +119,7 @@ class TestListProviders:
 
     def test_list_satellite_providers(self, client):
         """Test listing satellite providers"""
-        response = client.get("/providers/satellite")
+        response = client.get("/providers/satellite", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "providers" in data
@@ -101,7 +132,7 @@ class TestMapProviderDetails:
 
     def test_map_provider_has_required_fields(self, client):
         """Test that map providers have all required fields"""
-        response = client.get("/providers/maps")
+        response = client.get("/providers/maps", headers=TENANT_HEADER)
         data = response.json()
 
         for provider in data["providers"]:
@@ -115,7 +146,7 @@ class TestMapProviderDetails:
 
     def test_openstreetmap_is_free(self, client):
         """Test that OpenStreetMap doesn't require API key"""
-        response = client.get("/providers/maps")
+        response = client.get("/providers/maps", headers=TENANT_HEADER)
         data = response.json()
 
         osm = next((p for p in data["providers"] if p["id"] == "openstreetmap"), None)
@@ -129,7 +160,7 @@ class TestWeatherProviderDetails:
 
     def test_weather_provider_has_required_fields(self, client):
         """Test that weather providers have all required fields"""
-        response = client.get("/providers/weather")
+        response = client.get("/providers/weather", headers=TENANT_HEADER)
         data = response.json()
 
         for provider in data["providers"]:
@@ -142,7 +173,7 @@ class TestWeatherProviderDetails:
 
     def test_open_meteo_is_free(self, client):
         """Test that Open-Meteo doesn't require API key"""
-        response = client.get("/providers/weather")
+        response = client.get("/providers/weather", headers=TENANT_HEADER)
         data = response.json()
 
         om = next((p for p in data["providers"] if p["id"] == "open_meteo"), None)
@@ -157,7 +188,7 @@ class TestSatelliteProviderDetails:
 
     def test_satellite_provider_has_required_fields(self, client):
         """Test that satellite providers have all required fields"""
-        response = client.get("/providers/satellite")
+        response = client.get("/providers/satellite", headers=TENANT_HEADER)
         data = response.json()
 
         for provider in data["providers"]:
@@ -173,14 +204,25 @@ class TestSatelliteProviderDetails:
 class TestProviderHealthCheck:
     """Provider health check tests"""
 
-    def test_check_map_provider(self, client):
+    @patch("httpx.AsyncClient")
+    def test_check_map_provider(self, mock_httpx_cls, client):
         """Test checking a map provider health"""
+        # Mock httpx to avoid real HTTP calls
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_client_instance = AsyncMock()
+        mock_client_instance.head = AsyncMock(return_value=mock_response)
+        mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client_instance.__aexit__ = AsyncMock(return_value=None)
+        mock_httpx_cls.return_value = mock_client_instance
+
         response = client.post(
             "/providers/check",
             json={
                 "provider_type": "map",
                 "provider_name": "openstreetmap",
             },
+            headers=TENANT_HEADER,
         )
         assert response.status_code == 200
         data = response.json()
@@ -196,6 +238,7 @@ class TestProviderHealthCheck:
                 "provider_type": "map",
                 "provider_name": "unknown_provider",
             },
+            headers=TENANT_HEADER,
         )
         assert response.status_code == 400
 
@@ -207,6 +250,7 @@ class TestProviderHealthCheck:
                 "provider_type": "weather",
                 "provider_name": "openweathermap",
             },
+            headers=TENANT_HEADER,
         )
         assert response.status_code == 200
         data = response.json()
@@ -220,7 +264,15 @@ class TestTenantConfiguration:
 
     def test_get_default_config(self, client):
         """Test getting default config for new tenant"""
-        response = client.get("/config/new_tenant")
+        mock_session = MagicMock()
+
+        with patch(
+            "src.main.config_service"
+        ) as mock_config_svc:
+            mock_config_svc.get_tenant_configs.return_value = []
+
+            response = client.get("/config/new_tenant", headers=TENANT_HEADER)
+
         assert response.status_code == 200
         data = response.json()
         assert data["tenant_id"] == "new_tenant"
@@ -233,37 +285,40 @@ class TestTenantConfiguration:
 
     def test_update_tenant_config(self, client):
         """Test updating tenant configuration"""
-        config = {
-            "tenant_id": "test_tenant",
-            "map_providers": [
-                {
-                    "provider_name": "mapbox_streets",
-                    "api_key": "test_key",
-                    "priority": "primary",
-                    "enabled": True,
-                }
-            ],
-            "weather_providers": [],
-            "satellite_providers": [],
-        }
-        response = client.post("/config/test_tenant", json=config)
+        with patch("src.main.config_service") as mock_config_svc, \
+             patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub, \
+             patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status:
+            mock_config_svc.get_config_by_name.return_value = None
+            mock_config_svc.create_config.return_value = MagicMock()
+
+            config = {
+                "tenant_id": "test_tenant",
+                "map_providers": [
+                    {
+                        "provider_name": "mapbox_streets",
+                        "api_key": "test_key",
+                        "priority": "primary",
+                        "enabled": True,
+                    }
+                ],
+                "weather_providers": [],
+                "satellite_providers": [],
+            }
+            response = client.post("/config/test_tenant", json=config, headers=TENANT_HEADER)
+
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
 
     def test_reset_tenant_config(self, client):
         """Test resetting tenant configuration"""
-        # First set a config
-        config = {
-            "tenant_id": "reset_tenant",
-            "map_providers": [],
-            "weather_providers": [],
-            "satellite_providers": [],
-        }
-        client.post("/config/reset_tenant", json=config)
+        with patch("src.main.config_service") as mock_config_svc, \
+             patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub, \
+             patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status:
+            mock_config_svc.get_tenant_configs.return_value = []
 
-        # Then reset
-        response = client.delete("/config/reset_tenant")
+            response = client.delete("/config/reset_tenant", headers=TENANT_HEADER)
+
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -274,7 +329,10 @@ class TestProviderRecommendations:
 
     def test_get_free_recommendations(self, client):
         """Test getting free provider recommendations"""
-        response = client.get("/providers/recommend?budget=free&use_case=agricultural")
+        response = client.get(
+            "/providers/recommend?budget=free&use_case=agricultural",
+            headers=TENANT_HEADER,
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["budget"] == "free"
@@ -287,7 +345,9 @@ class TestProviderRecommendations:
 
     def test_get_low_budget_recommendations(self, client):
         """Test getting low budget recommendations"""
-        response = client.get("/providers/recommend?budget=low")
+        response = client.get(
+            "/providers/recommend?budget=low", headers=TENANT_HEADER
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["budget"] == "low"
@@ -295,7 +355,9 @@ class TestProviderRecommendations:
 
     def test_get_high_budget_recommendations(self, client):
         """Test getting high budget recommendations"""
-        response = client.get("/providers/recommend?budget=high")
+        response = client.get(
+            "/providers/recommend?budget=high", headers=TENANT_HEADER
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["budget"] == "high"
@@ -305,7 +367,10 @@ class TestProviderRecommendations:
 
     def test_offline_required_recommendations(self, client):
         """Test recommendations with offline requirement"""
-        response = client.get("/providers/recommend?offline_required=true&budget=free")
+        response = client.get(
+            "/providers/recommend?offline_required=true&budget=free",
+            headers=TENANT_HEADER,
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["offline_required"] is True
@@ -316,7 +381,7 @@ class TestProviderEnums:
 
     def test_all_map_provider_ids_valid(self, client):
         """Test that all map provider IDs are valid enum values"""
-        response = client.get("/providers/maps")
+        response = client.get("/providers/maps", headers=TENANT_HEADER)
         data = response.json()
 
         valid_ids = [
@@ -336,7 +401,7 @@ class TestProviderEnums:
 
     def test_all_weather_provider_ids_valid(self, client):
         """Test that all weather provider IDs are valid enum values"""
-        response = client.get("/providers/weather")
+        response = client.get("/providers/weather", headers=TENANT_HEADER)
         data = response.json()
 
         valid_ids = ["open_meteo", "openweathermap", "weather_api", "visual_crossing"]
@@ -345,9 +410,16 @@ class TestProviderEnums:
 
     def test_all_satellite_provider_ids_valid(self, client):
         """Test that all satellite provider IDs are valid enum values"""
-        response = client.get("/providers/satellite")
+        response = client.get("/providers/satellite", headers=TENANT_HEADER)
         data = response.json()
 
-        valid_ids = ["sentinel_hub", "planet_labs", "maxar", "landsat"]
+        valid_ids = [
+            "sentinel_hub",
+            "planet_labs",
+            "maxar",
+            "landsat",
+            "google_earth_engine",
+            "copernicus",
+        ]
         for provider in data["providers"]:
             assert provider["id"] in valid_ids

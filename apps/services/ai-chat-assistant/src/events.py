@@ -5,15 +5,15 @@ NATS event handler for AI chat queries.
 
 import json
 import logging
-from typing import Optional
 from datetime import UTC, datetime
+from typing import Optional
 
 from nats.aio.client import Client as NATS
 
-from src.config import settings
-from src.models import AIQuery, AIResponse, ResponseMetadata
 from src.cache import cache_manager
+from src.config import settings
 from src.llm_client import llm_client
+from src.models import AIQuery, AIResponse, ResponseMetadata
 
 logger = logging.getLogger(__name__)
 

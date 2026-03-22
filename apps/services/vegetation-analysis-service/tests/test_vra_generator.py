@@ -56,8 +56,6 @@ async def test_generate_fertilizer_prescription():
     print(f"   Savings: {prescription.savings_percent:.1f}%")
     if prescription.cost_savings is not None:
         print(f"   Cost Savings: ${prescription.cost_savings:.2f}")
-
-
 @pytest.mark.asyncio
 async def test_generate_seed_prescription():
     """Test generating a seed prescription with 5 zones"""
@@ -93,8 +91,6 @@ async def test_generate_seed_prescription():
     print(f"   Zones: {prescription.num_zones}")
     for zone in prescription.zones:
         print(f"   {zone.zone_name}: {zone.recommended_rate:.0f} {zone.unit} ({zone.area_ha:.2f} ha)")
-
-
 @pytest.mark.asyncio
 async def test_classify_zones():
     """Test zone classification without full prescription"""
@@ -123,8 +119,6 @@ async def test_classify_zones():
     print(f"   NDVI Mean: {zones_stats.ndvi_mean:.3f}")
     for zone in zones_stats.zones:
         print(f"   {zone.zone_name}: {zone.area_ha:.2f} ha ({zone.percentage:.1f}%)")
-
-
 @pytest.mark.asyncio
 async def test_geojson_export():
     """Test GeoJSON export"""
@@ -158,8 +152,6 @@ async def test_geojson_export():
     print("\n✅ GeoJSON Export:")
     print(f"   Features: {len(geojson['features'])}")
     print(f"   Prescription ID: {geojson['properties']['prescription_id']}")
-
-
 @pytest.mark.asyncio
 async def test_isoxml_export():
     """Test ISO-XML export"""
@@ -186,8 +178,6 @@ async def test_isoxml_export():
     print("\n✅ ISO-XML Export:")
     print(f"   Length: {len(isoxml)} characters")
     print(f"   Contains treatment zones: {'TreatmentZone' in isoxml}")
-
-
 @pytest.mark.asyncio
 async def test_prescription_storage():
     """Test prescription storage and retrieval"""
@@ -229,8 +219,6 @@ async def test_prescription_storage():
     print(f"   Created: {prescription_id}")
     print(f"   Retrieved: {retrieved.id}")
     print("   Deleted: Success")
-
-
 @pytest.mark.asyncio
 async def test_calculate_zone_rate():
     """Test zone rate calculation"""
@@ -281,8 +269,6 @@ async def test_calculate_zone_rate():
     print(f"   Fertilizer - High zone: {rate_high:.2f} kg/ha")
     print(f"   Seed - Low zone: {seed_rate_low:.0f} seeds/ha")
     print(f"   Seed - High zone: {seed_rate_high:.0f} seeds/ha")
-
-
 if __name__ == "__main__":
     # Run tests
     print("=" * 60)

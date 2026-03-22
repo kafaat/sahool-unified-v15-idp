@@ -12,7 +12,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import time
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
@@ -20,12 +20,11 @@ pytest.importorskip("redis")
 
 from shared.cache.redis_sentinel import (
     CircuitBreaker,
-    RedisSentinelConfig,
     RedisSentinelClient,
-    get_redis_client,
+    RedisSentinelConfig,
     close_redis_client,
+    get_redis_client,
 )
-
 
 # =============================================================================
 # Test Fixtures

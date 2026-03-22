@@ -4,10 +4,11 @@ Rate Limiting Middleware Tests for SAHOOL Platform.
 Tests validate rate limiting, throttling, and abuse prevention.
 """
 
-import pytest
 import time
-from typing import Dict, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
+import pytest
 
 
 @dataclass

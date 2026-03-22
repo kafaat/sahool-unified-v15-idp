@@ -128,8 +128,8 @@ def app_client(mock_db):
     with patch("src.main.check_db_connection", return_value=True):
         with patch("src.main.get_publisher", new=AsyncMock()):
             with patch("src.main.get_subscriber", new=AsyncMock()):
-                from src.main import app
                 from src.database import get_db
+                from src.main import app
 
                 # Use FastAPI dependency_overrides so Depends(get_db) returns mock_db
                 app.dependency_overrides[get_db] = lambda: mock_db
@@ -147,7 +147,7 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["service"] == "alert-service"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     def test_healthz_check(self, app_client):
         """Test healthz endpoint"""

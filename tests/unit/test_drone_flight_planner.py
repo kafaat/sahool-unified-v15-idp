@@ -1,12 +1,13 @@
 """Tests for drone flight planner."""
 
 import pytest
+
 from shared.drone_integration.advanced_flight_planner import (
+    DRONE_SPECS,
     DroneFlightPlanner,
     DroneType,
-    MissionType,
     FlightStatus,
-    DRONE_SPECS,
+    MissionType,
 )
 
 

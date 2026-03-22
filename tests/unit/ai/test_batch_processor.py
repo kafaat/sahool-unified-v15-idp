@@ -4,12 +4,12 @@ Tests for BatchProcessor - Auto-fix batch processing module.
 Tests the batch processing functionality for large-scale code analysis.
 """
 
-import pytest
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone, UTC
-from uuid import uuid4
 import sys
+from datetime import UTC, datetime, timezone
+from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
+import pytest
 
 # Mock the dependencies before importing
 sys.modules["shared.ai.orchestration"] = MagicMock()

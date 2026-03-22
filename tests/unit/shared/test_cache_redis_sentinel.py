@@ -6,20 +6,20 @@ Tests for the SAHOOL platform Redis Sentinel client with high availability.
 """
 
 import time
+from unittest.mock import MagicMock, PropertyMock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
 
 pytest.importorskip("redis")
 
 # Import the modules under test
 from shared.cache.redis_sentinel import (
-    RedisSentinelConfig,
     CircuitBreaker,
     RedisSentinelClient,
-    get_redis_client,
+    RedisSentinelConfig,
     close_redis_client,
+    get_redis_client,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # RedisSentinelConfig Tests

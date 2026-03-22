@@ -34,16 +34,15 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,
     add_request_id_middleware,
     setup_exception_handlers,
 )
-
-# Authentication imports
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
 
 # Security headers middleware
 try:

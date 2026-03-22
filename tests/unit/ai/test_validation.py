@@ -13,19 +13,18 @@ import pytest
 
 from shared.ai.validation import (
     AIValidator,
-    ValidationResult,
+    Severity,
+    ThreatCategory,
     ValidationIssue,
     ValidationLevel,
-    ThreatCategory,
-    Severity,
+    ValidationResult,
     escape_prompt_input,
     get_validator,
-    validate_prompt,
-    validate_response,
     is_safe_prompt,
     is_safe_response,
+    validate_prompt,
+    validate_response,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

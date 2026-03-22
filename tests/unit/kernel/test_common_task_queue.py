@@ -7,16 +7,16 @@ import pytest
 
 pytest.importorskip("numpy", reason="numpy required for kernel task queue tests")
 
+import json
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
-import json
 
 from apps.kernel.common.queue.task_queue import (  # noqa: E402
-    TaskQueue,
     Task,
-    TaskType,
-    TaskStatus,
     TaskPriority,
+    TaskQueue,
+    TaskStatus,
+    TaskType,
 )
 
 

@@ -25,6 +25,7 @@ import os
 
 import httpx
 import pytest
+
 from shared.events.streams import STREAMS
 
 pytestmark = [pytest.mark.infrastructure]

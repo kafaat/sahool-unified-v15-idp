@@ -1,19 +1,20 @@
 """Unit tests for shared/salinity module."""
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.salinity import (
     SalinityModule,
     SalinityRisk,
-    calculate_sar,
-    classify_salinity_risk,
-    calculate_yield_reduction,
-    calculate_leaching_fraction,
     adjust_kc_for_salinity,
+    calculate_leaching_fraction,
+    calculate_sar,
+    calculate_yield_reduction,
+    classify_salinity_risk,
 )
 
 

@@ -17,7 +17,7 @@ import logging
 import random
 import time
 from dataclasses import dataclass
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import aiohttp

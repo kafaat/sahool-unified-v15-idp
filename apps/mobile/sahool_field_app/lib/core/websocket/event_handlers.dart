@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
+import 'websocket_provider.dart';
 import '../notifications/notification_service.dart';
+import '../notifications/notification_provider.dart';
 import '../utils/app_logger.dart';
 
 /// Event handler for WebSocket events
@@ -375,7 +377,7 @@ class WebSocketEventListener extends ConsumerWidget {
     ref.listen(
       webSocketEventsProvider,
       (previous, next) {
-        next.whenData((event) {
+        next?.whenData((event) {
           eventHandler.handleEvent(event);
         });
       },

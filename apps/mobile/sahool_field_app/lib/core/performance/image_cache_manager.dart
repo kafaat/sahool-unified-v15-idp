@@ -43,6 +43,10 @@ class SahoolImageCacheManager {
     return _instance ??= SahoolImageCacheManager._();
   }
 
+  /// الحصول على مدير الكاش الداخلي لاستخدامه مع CachedNetworkImage
+  /// Get underlying cache manager for use with CachedNetworkImage
+  CacheManager get cacheManager => _cacheManager;
+
   /// تهيئة مع إعدادات مخصصة
   static void configure({
     int maxCacheSizeMB = 200,

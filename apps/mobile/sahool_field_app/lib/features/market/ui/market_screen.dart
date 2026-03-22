@@ -100,7 +100,7 @@ class _MarketScreenState extends State<MarketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -196,6 +196,7 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Widget _buildSearchAndCategories() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

@@ -697,8 +697,8 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      final field = tester.widget<TextFormField>(find.byType(TextFormField));
-      expect(field.obscureText, isTrue);
+      final editableText = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editableText.obscureText, isTrue);
     });
 
     testWidgets('Field name form validates minimum length', (tester) async {

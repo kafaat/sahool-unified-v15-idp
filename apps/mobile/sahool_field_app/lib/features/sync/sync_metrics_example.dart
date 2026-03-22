@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/storage/database.dart';
 import '../../core/sync/sync_metrics_service.dart';
 import '../../core/sync/sync_metrics_providers.dart';
+import '../../main.dart' show databaseProvider;
 import 'ui/sync_metrics_widget.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════

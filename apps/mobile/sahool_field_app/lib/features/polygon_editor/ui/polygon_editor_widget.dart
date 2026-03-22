@@ -257,16 +257,18 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
 
     // Project current point to screen coordinates
     final screenPoint =
-        widget.mapController.camera.latLngToScreenPoint(currentPoint);
+        widget.mapController.camera.getOffsetFromOrigin(currentPoint);
 
     // Apply delta
-    final newScreenPoint = Point<double>(
-      screenPoint.x + details.delta.dx,
-      screenPoint.y + details.delta.dy,
+    final newScreenOffset = Offset(
+      screenPoint.dx + details.delta.dx,
+      screenPoint.dy + details.delta.dy,
     );
 
     // Unproject back to LatLng
-    var newLatLng = widget.mapController.camera.pointToLatLng(newScreenPoint);
+    var newLatLng = widget.mapController.camera.unprojectAtZoom(
+      newScreenOffset + widget.mapController.camera.pixelOrigin,
+    );
 
     // Snap to vertex if enabled
     if (widget.enableSnap) {

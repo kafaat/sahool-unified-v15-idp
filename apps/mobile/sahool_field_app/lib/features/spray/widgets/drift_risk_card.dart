@@ -242,7 +242,7 @@ class DriftRiskCard extends StatelessWidget {
       DriftRiskLevel level, ThemeData theme, bool isArabic) {
     String recommendation;
     IconData icon;
-    Color color;
+    MaterialColor color;
 
     switch (level) {
       case DriftRiskLevel.low:

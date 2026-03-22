@@ -296,3 +296,9 @@ final syncEngineWithMetricsProvider = metricsAwareSyncEngineProvider;
 /// Legacy alias for backwards compatibility
 @Deprecated('Use metricsAwareQueueManagerProvider instead')
 final queueManagerWithMetricsProvider = metricsAwareQueueManagerProvider;
+
+/// Provider for daily sync metrics (last 7 days)
+final dailyMetricsProvider = Provider<List<DailyMetrics>>((ref) {
+  final metricsService = ref.watch(syncMetricsServiceProvider);
+  return metricsService.getLastNDays(7);
+});

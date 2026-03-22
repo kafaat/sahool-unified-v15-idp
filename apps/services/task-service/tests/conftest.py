@@ -5,8 +5,12 @@ can import Base, TenantMixin, TimestampMixin without the shared package.
 Also sets up an in-memory SQLite database for integration-style tests.
 """
 
+import os
 import sys
 import types
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from datetime import UTC, datetime
 
 from sqlalchemy import JSON, DateTime, String, Text, TypeDecorator, create_engine, event

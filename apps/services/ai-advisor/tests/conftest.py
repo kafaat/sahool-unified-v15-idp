@@ -4,6 +4,10 @@ Pytest Configuration and Fixtures
 """
 
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from collections.abc import Generator
 from typing import Any
 from unittest.mock import AsyncMock, Mock, patch

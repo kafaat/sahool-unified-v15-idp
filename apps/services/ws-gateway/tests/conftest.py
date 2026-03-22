@@ -4,6 +4,10 @@ Pytest Configuration and Fixtures for WS Gateway
 """
 
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import AsyncMock, patch

@@ -5,6 +5,10 @@ Pytest configuration and fixtures for Leveling Optimizer Service tests.
 """
 
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Set test environment variables before importing app
 os.environ["ENVIRONMENT"] = "test"

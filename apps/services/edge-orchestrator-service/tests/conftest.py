@@ -8,7 +8,11 @@ Pytest configuration and fixtures for Edge Orchestrator Service tests.
 
 import asyncio
 import os
+import sys
 from collections.abc import Generator
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from uuid import uuid4
 
 import pytest

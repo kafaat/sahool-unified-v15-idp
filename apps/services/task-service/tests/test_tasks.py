@@ -5,7 +5,7 @@ SAHOOL Task Service - Unit Tests
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -21,13 +21,13 @@ except ImportError:
 @pytest.fixture
 def client():
     """Test client fixture"""
-    return TestClient(app)
+    return TestClient(app, raise_server_exceptions=False)
 
 
 @pytest.fixture
 def sample_task():
     """Sample task data for testing"""
-    tomorrow = (datetime.utcnow() + timedelta(days=1)).isoformat()
+    tomorrow = (datetime.now(UTC) + timedelta(days=1)).isoformat()
     return {
         "title": "Test Task",
         "title_ar": "مهمة اختبار",
@@ -47,12 +47,12 @@ class TestHealthEndpoint:
     """Health check endpoint tests"""
 
     def test_health_check(self, client):
-        """Test health check returns healthy status"""
+        """Test health check returns ok status"""
         response = client.get("/health")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "healthy"
-        assert "sahool-task-service" in data["service"]
+        assert data["status"] == "ok"
+        assert data["service"] == "sahool-task-service"
 
 
 class TestTaskList:
@@ -165,27 +165,31 @@ class TestTaskCRUD:
         assert data["status"] == "pending"
         assert data["task_id"] is not None
 
-    def test_get_task_by_id(self, client):
-        """Test getting task by ID"""
-        response = client.get("/api/v1/tasks/task_001")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["task_id"] == "task_001"
-
     def test_get_task_not_found(self, client):
         """Test getting non-existent task"""
         response = client.get("/api/v1/tasks/nonexistent_id")
         assert response.status_code == 404
 
-    def test_update_task(self, client):
-        """Test updating task"""
+    def test_get_and_update_created_task(self, client, sample_task):
+        """Test getting and updating a task by first creating it"""
+        # Create a task
+        create_response = client.post("/api/v1/tasks", json=sample_task)
+        assert create_response.status_code == 201
+        task_id = create_response.json()["task_id"]
+
+        # Get the task by ID
+        get_response = client.get(f"/api/v1/tasks/{task_id}")
+        assert get_response.status_code == 200
+        assert get_response.json()["task_id"] == task_id
+
+        # Update the task
         update_data = {
             "title": "Updated Title",
             "priority": "urgent",
         }
-        response = client.put("/api/v1/tasks/task_001", json=update_data)
-        assert response.status_code == 200
-        data = response.json()
+        update_response = client.put(f"/api/v1/tasks/{task_id}", json=update_data)
+        assert update_response.status_code == 200
+        data = update_response.json()
         assert data["title"] == "Updated Title"
         assert data["priority"] == "urgent"
 
@@ -236,6 +240,7 @@ class TestTaskWorkflow:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "cancelled"
+        # cancel_reason is stored in task_metadata, exposed as metadata
         assert data["metadata"]["cancel_reason"] == "Weather conditions"
 
     def test_start_non_pending_task_fails(self, client, sample_task):
@@ -245,7 +250,7 @@ class TestTaskWorkflow:
         task_id = create_response.json()["task_id"]
         client.post(f"/api/v1/tasks/{task_id}/start")
 
-        # Try to start again
+        # Try to start again - should fail with 400
         response = client.post(f"/api/v1/tasks/{task_id}/start")
         assert response.status_code == 400
 
@@ -253,10 +258,14 @@ class TestTaskWorkflow:
 class TestTaskEvidence:
     """Task evidence tests"""
 
-    def test_add_photo_evidence(self, client):
+    def test_add_photo_evidence(self, client, sample_task):
         """Test adding photo evidence to a task"""
+        # Create a task first
+        create_response = client.post("/api/v1/tasks", json=sample_task)
+        task_id = create_response.json()["task_id"]
+
         response = client.post(
-            "/api/v1/tasks/task_001/evidence"
+            f"/api/v1/tasks/{task_id}/evidence"
             "?evidence_type=photo"
             "&content=https://example.com/photo.jpg"
             "&lat=15.37"
@@ -269,9 +278,15 @@ class TestTaskEvidence:
         assert data["location"]["lat"] == 15.37
         assert data["location"]["lon"] == 44.19
 
-    def test_add_note_evidence(self, client):
+    def test_add_note_evidence(self, client, sample_task):
         """Test adding note evidence to a task"""
-        response = client.post("/api/v1/tasks/task_001/evidence?evidence_type=note&content=Field%20looks%20healthy")
+        # Create a task first
+        create_response = client.post("/api/v1/tasks", json=sample_task)
+        task_id = create_response.json()["task_id"]
+
+        response = client.post(
+            f"/api/v1/tasks/{task_id}/evidence?evidence_type=note&content=Field%20looks%20healthy"
+        )
         assert response.status_code == 201
         data = response.json()
         assert data["type"] == "note"

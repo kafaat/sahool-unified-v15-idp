@@ -1,6 +1,8 @@
 """
 SAHOOL Irrigation Smart Service - Unit Tests
 اختبارات خدمة الري الذكي
+
+Tests the actual API endpoints and calculation functions defined in src/main.py.
 """
 
 import pytest
@@ -10,266 +12,443 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
+import sys
+import os
+
+# Ensure the service src is importable
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+
+
+# ---------------------------------------------------------------------------
+# Pure calculation function tests (no app/auth required)
+# ---------------------------------------------------------------------------
+
+
+class TestCalculateET0:
+    """Test reference evapotranspiration calculation."""
+
+    def test_et0_basic(self):
+        from main import calculate_et0
+
+        result = calculate_et0(temperature=30, humidity=50, wind_speed=10)
+        assert isinstance(result, float)
+        assert result > 0
+
+    def test_et0_higher_temp_increases_et(self):
+        from main import calculate_et0
+
+        low = calculate_et0(temperature=20, humidity=50, wind_speed=10)
+        high = calculate_et0(temperature=40, humidity=50, wind_speed=10)
+        assert high > low
+
+    def test_et0_lower_humidity_increases_et(self):
+        from main import calculate_et0
+
+        humid = calculate_et0(temperature=30, humidity=80, wind_speed=10)
+        dry = calculate_et0(temperature=30, humidity=20, wind_speed=10)
+        assert dry > humid
+
+
+class TestCalculateCropET:
+    """Test crop evapotranspiration calculation."""
+
+    def test_crop_et_basic(self):
+        from main import CropType, GrowthStage, calculate_crop_et
+
+        result = calculate_crop_et(et0=5.0, crop=CropType.WHEAT, stage=GrowthStage.FLOWERING)
+        assert isinstance(result, float)
+        assert result > 0
+
+    def test_crop_et_fruiting_higher_than_seedling(self):
+        from main import CropType, GrowthStage, calculate_crop_et
+
+        seedling = calculate_crop_et(et0=5.0, crop=CropType.TOMATO, stage=GrowthStage.SEEDLING)
+        fruiting = calculate_crop_et(et0=5.0, crop=CropType.TOMATO, stage=GrowthStage.FRUITING)
+        assert fruiting > seedling
+
+    def test_crop_et_date_palm_has_high_coefficient(self):
+        from main import CropType, GrowthStage, calculate_crop_et
+
+        palm = calculate_crop_et(et0=5.0, crop=CropType.DATE_PALM, stage=GrowthStage.FRUITING)
+        wheat = calculate_crop_et(et0=5.0, crop=CropType.WHEAT, stage=GrowthStage.FRUITING)
+        assert palm > wheat
+
+
+class TestCalculateWaterNeed:
+    """Test irrigation water need calculation."""
+
+    def test_water_need_returns_expected_keys(self):
+        from main import (
+            CropType,
+            GrowthStage,
+            IrrigationMethod,
+            SoilType,
+            calculate_water_need,
+        )
+
+        result = calculate_water_need(
+            crop=CropType.TOMATO,
+            stage=GrowthStage.VEGETATIVE,
+            area_ha=1.0,
+            soil_type=SoilType.LOAMY,
+            method=IrrigationMethod.DRIP,
+            current_moisture=None,
+            days_since_irrigation=3,
+        )
+        assert "daily_et_mm" in result
+        assert "water_m3" in result
+        assert "water_liters" in result
+        assert "urgency" in result
+        assert "efficiency" in result
+
+    def test_water_need_increases_with_days_since_irrigation(self):
+        from main import (
+            CropType,
+            GrowthStage,
+            IrrigationMethod,
+            SoilType,
+            calculate_water_need,
+        )
+
+        kwargs = {
+            "crop": CropType.TOMATO,
+            "stage": GrowthStage.VEGETATIVE,
+            "area_ha": 1.0,
+            "soil_type": SoilType.LOAMY,
+            "method": IrrigationMethod.DRIP,
+            "current_moisture": None,
+            "temperature": 30,
+            "humidity": 50,
+            "rainfall_forecast": 0,
+        }
+        short = calculate_water_need(days_since_irrigation=1, **kwargs)
+        long = calculate_water_need(days_since_irrigation=7, **kwargs)
+        assert long["water_m3"] > short["water_m3"]
+
+    def test_drip_has_zero_savings(self):
+        from main import (
+            CropType,
+            GrowthStage,
+            IrrigationMethod,
+            SoilType,
+            calculate_water_need,
+        )
+
+        result = calculate_water_need(
+            crop=CropType.WHEAT,
+            stage=GrowthStage.FLOWERING,
+            area_ha=1.0,
+            soil_type=SoilType.LOAMY,
+            method=IrrigationMethod.DRIP,
+            current_moisture=None,
+            days_since_irrigation=3,
+        )
+        assert result["savings_percent"] == 0
+
+    def test_flood_has_positive_savings_vs_drip(self):
+        from main import (
+            CropType,
+            GrowthStage,
+            IrrigationMethod,
+            SoilType,
+            calculate_water_need,
+        )
+
+        result = calculate_water_need(
+            crop=CropType.WHEAT,
+            stage=GrowthStage.FLOWERING,
+            area_ha=1.0,
+            soil_type=SoilType.LOAMY,
+            method=IrrigationMethod.FLOOD,
+            current_moisture=None,
+            days_since_irrigation=3,
+        )
+        assert result["savings_percent"] > 0
+
+
+class TestDetermineIrrigationTime:
+    """Test optimal irrigation time determination."""
+
+    def test_hot_weather_early_time(self):
+        from main import CropType, determine_irrigation_time
+
+        result = determine_irrigation_time(CropType.TOMATO, temperature=40)
+        assert result == "05:00"
+
+    def test_moderate_weather_time(self):
+        from main import CropType, determine_irrigation_time
+
+        result = determine_irrigation_time(CropType.TOMATO, temperature=32)
+        assert result == "06:00"
+
+    def test_cool_weather_later_time(self):
+        from main import CropType, determine_irrigation_time
+
+        result = determine_irrigation_time(CropType.TOMATO, temperature=25)
+        assert result == "07:00"
+
+
+class TestCalculateDuration:
+    """Test irrigation duration calculation."""
+
+    def test_duration_basic(self):
+        from main import calculate_duration
+
+        # 2000 liters at 2000 lph = 1 hour = 60 minutes
+        result = calculate_duration(water_liters=2000, flow_rate_lph=2000)
+        assert result == 60
+
+    def test_duration_half_flow(self):
+        from main import calculate_duration
+
+        # 1000 liters at 2000 lph = 0.5 hours = 30 minutes
+        result = calculate_duration(water_liters=1000, flow_rate_lph=2000)
+        assert result == 30
+
+
+class TestGenerateReasoning:
+    """Test bilingual reasoning generation."""
+
+    def test_reasoning_returns_tuple(self):
+        from main import CropType, GrowthStage, UrgencyLevel, generate_reasoning
+
+        water_need = {"accumulated_need_mm": 15.0, "daily_et_mm": 5.0}
+        reason_ar, reason_en = generate_reasoning(
+            crop=CropType.WHEAT,
+            stage=GrowthStage.FLOWERING,
+            urgency=UrgencyLevel.HIGH,
+            water_need=water_need,
+            days_since_irrigation=3,
+        )
+        assert isinstance(reason_ar, str)
+        assert isinstance(reason_en, str)
+        assert len(reason_ar) > 0
+        assert len(reason_en) > 0
+
+    def test_critical_urgency_mentions_severe(self):
+        from main import CropType, GrowthStage, UrgencyLevel, generate_reasoning
+
+        water_need = {"accumulated_need_mm": 30.0, "daily_et_mm": 5.0}
+        _reason_ar, reason_en = generate_reasoning(
+            crop=CropType.WHEAT,
+            stage=GrowthStage.FLOWERING,
+            urgency=UrgencyLevel.CRITICAL,
+            water_need=water_need,
+            days_since_irrigation=7,
+        )
+        assert "severe" in reason_en.lower() or "immediate" in reason_en.lower()
+
+
+# ---------------------------------------------------------------------------
+# API endpoint tests using TestClient against the real app
+# ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def client():
-    """Create test client with mocked app"""
-    from fastapi import FastAPI
+    """Create test client against the real FastAPI app with auth overridden."""
+    # Patch environment so shared imports don't fail at module level
+    os.environ.setdefault("ENVIRONMENT", "test")
+    os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+    os.environ.setdefault("JWT_ALGORITHM", "HS256")
+    os.environ.setdefault("DATABASE_URL", "")
+    os.environ.setdefault("NATS_URL", "")
 
-    app = FastAPI()
+    try:
+        from main import app, get_current_user
+    except Exception:
+        pytest.skip("Cannot import app (missing shared dependencies)")
 
-    @app.get("/healthz")
-    def health():
-        return {"status": "ok", "service": "irrigation_smart"}
+    # Override auth dependency to bypass JWT for testing
+    async def mock_user():
+        return {"sub": "test-user", "tid": "test-tenant", "role": "admin"}
 
-    @app.get("/api/v1/fields/{field_id}/recommendation")
-    def get_recommendation(field_id: str):
-        return {
-            "field_id": field_id,
-            "timestamp": "2025-12-23T10:00:00Z",
-            "recommendation": {
-                "action": "irrigate",
-                "action_ar": "يجب الري",
-                "amount_mm": 25,
-                "duration_minutes": 45,
-                "priority": "high",
-                "reason": "Soil moisture below threshold",
-                "reason_ar": "رطوبة التربة أقل من الحد",
-            },
-            "conditions": {
-                "soil_moisture": 28,
-                "et0": 5.2,
-                "crop_kc": 1.05,
-                "temperature": 32,
-            },
-        }
+    app.dependency_overrides[get_current_user] = mock_user
 
-    @app.post("/api/v1/fields/{field_id}/calculate-et")
-    def calculate_et(field_id: str):
-        return {
-            "field_id": field_id,
-            "date": "2025-12-23",
-            "et0": 5.2,
-            "etc": 5.46,
-            "crop_coefficient": 1.05,
-            "method": "penman_monteith",
-        }
+    yield TestClient(app, raise_server_exceptions=False)
 
-    @app.get("/api/v1/fields/{field_id}/schedule")
-    def get_schedule(field_id: str):
-        return {
-            "field_id": field_id,
-            "schedule": [
-                {
-                    "day": "sunday",
-                    "time": "06:00",
-                    "duration_min": 45,
-                    "zone": "zone_a",
-                },
-                {
-                    "day": "tuesday",
-                    "time": "06:00",
-                    "duration_min": 45,
-                    "zone": "zone_a",
-                },
-                {
-                    "day": "thursday",
-                    "time": "06:00",
-                    "duration_min": 45,
-                    "zone": "zone_a",
-                },
-            ],
-            "total_weekly_mm": 75,
-        }
-
-    @app.post("/api/v1/fields/{field_id}/schedule")
-    def update_schedule(field_id: str):
-        return {
-            "field_id": field_id,
-            "status": "updated",
-            "message": "تم تحديث جدول الري",
-        }
-
-    @app.get("/api/v1/fields/{field_id}/water-balance")
-    def get_water_balance(field_id: str):
-        return {
-            "field_id": field_id,
-            "date": "2025-12-23",
-            "balance": {
-                "precipitation_mm": 0,
-                "irrigation_mm": 25,
-                "et_mm": 5.5,
-                "drainage_mm": 2,
-                "net_change_mm": 17.5,
-            },
-            "soil_moisture_pct": 45,
-        }
-
-    @app.get("/api/v1/fields/{field_id}/forecast")
-    def get_irrigation_forecast(field_id: str, days: int = 7):
-        return {
-            "field_id": field_id,
-            "forecast": [
-                {"date": "2025-12-24", "need_irrigation": True, "amount_mm": 25},
-                {"date": "2025-12-25", "need_irrigation": False, "amount_mm": 0},
-                {"date": "2025-12-26", "need_irrigation": True, "amount_mm": 20},
-            ],
-        }
-
-    @app.post("/api/v1/fields/{field_id}/trigger")
-    def trigger_irrigation(field_id: str):
-        return {
-            "field_id": field_id,
-            "status": "triggered",
-            "duration_minutes": 45,
-            "started_at": "2025-12-23T10:00:00Z",
-            "message": "تم بدء الري",
-        }
-
-    @app.get("/api/v1/crops/{crop}/water-requirements")
-    def get_crop_water_requirements(crop: str):
-        return {
-            "crop": crop,
-            "crop_ar": "قمح",
-            "stages": {
-                "initial": {"kc": 0.35, "daily_mm": 3},
-                "development": {"kc": 0.75, "daily_mm": 5},
-                "mid": {"kc": 1.15, "daily_mm": 7},
-                "late": {"kc": 0.45, "daily_mm": 4},
-            },
-            "total_season_mm": 450,
-        }
-
-    return TestClient(app)
+    app.dependency_overrides.clear()
 
 
 class TestHealthEndpoint:
-    """Test health check"""
+    """Test health check endpoints (no auth required)."""
 
-    def test_health_check(self, client):
+    def test_healthz(self, client):
         response = client.get("/healthz")
         assert response.status_code == 200
-        assert response.json()["status"] == "ok"
+        data = response.json()
+        assert data["status"] == "ok"
+        assert data["service"] == "irrigation-smart"
 
-
-class TestRecommendation:
-    """Test irrigation recommendations"""
-
-    def test_get_recommendation(self, client):
-        response = client.get("/api/v1/fields/field_001/recommendation")
+    def test_readyz(self, client):
+        response = client.get("/readyz")
         assert response.status_code == 200
         data = response.json()
-        assert "recommendation" in data
-        assert "conditions" in data
+        assert data["status"] == "ready"
+        assert "checks" in data
 
-    def test_recommendation_has_action(self, client):
-        response = client.get("/api/v1/fields/field_001/recommendation")
+
+class TestListCrops:
+    """Test GET /v1/crops endpoint."""
+
+    def test_list_crops(self, client):
+        response = client.get("/v1/crops")
         assert response.status_code == 200
-        rec = response.json()["recommendation"]
-        assert "action" in rec
-        assert "action_ar" in rec
-        assert "amount_mm" in rec
+        data = response.json()
+        assert "crops" in data
+        assert len(data["crops"]) > 0
+        # Each crop should have id and Arabic name
+        crop = data["crops"][0]
+        assert "id" in crop
+        assert "name_ar" in crop
 
 
-class TestETCalculation:
-    """Test evapotranspiration calculation"""
+class TestListMethods:
+    """Test GET /v1/methods endpoint."""
 
-    def test_calculate_et(self, client):
+    def test_list_methods(self, client):
+        response = client.get("/v1/methods")
+        assert response.status_code == 200
+        data = response.json()
+        assert "methods" in data
+        assert len(data["methods"]) > 0
+        method = data["methods"][0]
+        assert "id" in method
+        assert "name_ar" in method
+        assert "efficiency_percent" in method
+
+
+class TestCalculateEndpoint:
+    """Test POST /v1/calculate endpoint."""
+
+    def test_calculate_irrigation_plan(self, client):
         response = client.post(
-            "/api/v1/fields/field_001/calculate-et",
-            json={"date": "2025-12-23", "crop": "wheat", "stage": "mid"},
+            "/v1/calculate",
+            json={
+                "field_id": "field_001",
+                "crop": "wheat",
+                "growth_stage": "flowering",
+                "area_hectares": 2.0,
+                "soil_type": "loamy",
+                "irrigation_method": "drip",
+            },
         )
         assert response.status_code == 200
         data = response.json()
-        assert "et0" in data
-        assert "etc" in data
-        assert "crop_coefficient" in data
-
-
-class TestSchedule:
-    """Test irrigation schedule"""
-
-    def test_get_schedule(self, client):
-        response = client.get("/api/v1/fields/field_001/schedule")
-        assert response.status_code == 200
-        data = response.json()
-        assert "schedule" in data
-        assert len(data["schedule"]) > 0
-
-    def test_update_schedule(self, client):
-        response = client.post(
-            "/api/v1/fields/field_001/schedule",
-            json={"schedule": [{"day": "sunday", "time": "05:30", "duration_min": 60}]},
-        )
-        assert response.status_code == 200
-        assert response.json()["status"] == "updated"
-
-
-class TestWaterBalance:
-    """Test water balance"""
-
-    def test_get_water_balance(self, client):
-        response = client.get("/api/v1/fields/field_001/water-balance")
-        assert response.status_code == 200
-        data = response.json()
-        assert "balance" in data
-        assert "soil_moisture_pct" in data
-
-    def test_balance_has_components(self, client):
-        response = client.get("/api/v1/fields/field_001/water-balance")
-        assert response.status_code == 200
-        balance = response.json()["balance"]
-        assert "precipitation_mm" in balance
-        assert "irrigation_mm" in balance
-        assert "et_mm" in balance
-
-
-class TestForecast:
-    """Test irrigation forecast"""
-
-    def test_get_forecast(self, client):
-        response = client.get("/api/v1/fields/field_001/forecast")
-        assert response.status_code == 200
-        data = response.json()
-        assert "forecast" in data
-        assert len(data["forecast"]) > 0
-
-    def test_forecast_has_irrigation_need(self, client):
-        response = client.get("/api/v1/fields/field_001/forecast")
-        assert response.status_code == 200
-        day = response.json()["forecast"][0]
-        assert "date" in day
-        assert "need_irrigation" in day
-        assert "amount_mm" in day
-
-
-class TestTriggerIrrigation:
-    """Test manual irrigation trigger"""
-
-    def test_trigger_irrigation(self, client):
-        response = client.post(
-            "/api/v1/fields/field_001/trigger",
-            json={"duration_minutes": 45, "zone": "zone_a"},
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "triggered"
-
-
-class TestCropWaterRequirements:
-    """Test crop water requirements"""
-
-    def test_get_crop_requirements(self, client):
-        response = client.get("/api/v1/crops/wheat/water-requirements")
-        assert response.status_code == 200
-        data = response.json()
+        assert data["field_id"] == "field_001"
         assert data["crop"] == "wheat"
-        assert "stages" in data
+        assert "schedules" in data
+        assert "total_water_m3" in data
+        assert "recommendations_ar" in data
 
-    def test_requirements_have_kc(self, client):
-        response = client.get("/api/v1/crops/wheat/water-requirements")
+    def test_calculate_with_soil_moisture(self, client):
+        response = client.post(
+            "/v1/calculate",
+            json={
+                "field_id": "field_002",
+                "crop": "tomato",
+                "growth_stage": "vegetative",
+                "area_hectares": 1.0,
+                "current_soil_moisture": 30.0,
+            },
+        )
         assert response.status_code == 200
-        stages = response.json()["stages"]
-        for stage_data in stages.values():
-            assert "kc" in stage_data
-            assert "daily_mm" in stage_data
+
+    def test_calculate_invalid_crop_returns_422(self, client):
+        response = client.post(
+            "/v1/calculate",
+            json={
+                "field_id": "field_001",
+                "crop": "invalid_crop",
+                "growth_stage": "flowering",
+                "area_hectares": 1.0,
+            },
+        )
+        assert response.status_code == 422
+
+
+class TestSensorReading:
+    """Test POST /v1/sensor-reading endpoint."""
+
+    def test_sensor_reading_critical(self, client):
+        response = client.post(
+            "/v1/sensor-reading",
+            json={
+                "field_id": "field_001",
+                "sensor_id": "sensor_01",
+                "reading_time": "2025-12-23T10:00:00Z",
+                "depth_cm": 30,
+                "moisture_percent": 20.0,
+                "temperature_c": 25.0,
+                "ec_ds_m": 1.5,
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "critical"
+        assert data["field_id"] == "field_001"
+
+    def test_sensor_reading_optimal(self, client):
+        response = client.post(
+            "/v1/sensor-reading",
+            json={
+                "field_id": "field_001",
+                "sensor_id": "sensor_01",
+                "reading_time": "2025-12-23T10:00:00Z",
+                "depth_cm": 30,
+                "moisture_percent": 55.0,
+                "temperature_c": 25.0,
+                "ec_ds_m": 1.5,
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "optimal"
+
+
+class TestIrrigationExecuted:
+    """Test POST /v1/irrigation-executed endpoint."""
+
+    def test_record_execution(self, client):
+        response = client.post(
+            "/v1/irrigation-executed",
+            json={
+                "field_id": "field_001",
+                "amount_mm": 25.0,
+                "duration_minutes": 45,
+                "method": "drip",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "recorded"
+        assert data["field_id"] == "field_001"
+        assert "execution_id" in data
+        assert "method_ar" in data
+
+
+class TestWaterBalanceEndpoint:
+    """Test GET /v1/water-balance/{field_id} endpoint."""
+
+    def test_water_balance(self, client):
+        response = client.get("/v1/water-balance/field_001?crop=wheat&days=7")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["field_id"] == "field_001"
+        assert "summary" in data
+        assert "daily_data" in data
+        assert len(data["daily_data"]) == 7
+
+
+class TestEfficiencyReport:
+    """Test GET /v1/efficiency-report/{field_id} endpoint."""
+
+    def test_efficiency_report(self, client):
+        response = client.get(
+            "/v1/efficiency-report/field_001?current_method=traditional&area_hectares=2.0"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["field_id"] == "field_001"
+        assert "current_method" in data
+        assert "comparisons" in data
+        assert len(data["comparisons"]) > 0

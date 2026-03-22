@@ -184,8 +184,8 @@ class TestCalculateEvapotranspiration:
 
     def test_weekly_water(self):
         r = calculate_evapotranspiration(temp_c=30, humidity_pct=40, wind_speed_kmh=10)
-        expected = round(r["et0_mm_day"] * 7, 2)
-        assert r["weekly_water_liters_per_sqm"] == expected
+        # weekly = et0 * 7, both independently rounded to 2 decimals
+        assert abs(r["weekly_water_liters_per_sqm"] - r["et0_mm_day"] * 7) < 0.1
 
     def test_classification_very_low(self):
         r = calculate_evapotranspiration(temp_c=5, humidity_pct=95, wind_speed_kmh=1, solar_radiation_mj=3)

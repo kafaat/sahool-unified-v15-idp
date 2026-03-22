@@ -838,3 +838,253 @@ class TestIndexInterpreter:
     def test_recommended_indices_harvest(self, interpreter):
         result = interpreter.get_recommended_indices(GrowthStage.HARVEST)
         assert isinstance(result, list)
+
+
+class TestIndexInterpreterAllBranches:
+    """Test all status branches of interpretation methods."""
+
+    @pytest.fixture
+    def interpreter(self):
+        return IndexInterpreter()
+
+    # NDRE branches
+    def test_ndre_excellent(self, interpreter):
+        r = interpreter.interpret_index("ndre", 0.6, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ndre_good(self, interpreter):
+        r = interpreter.interpret_index("ndre", 0.25, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.GOOD
+
+    def test_ndre_fair(self, interpreter):
+        r = interpreter.interpret_index("ndre", 0.22, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.FAIR
+
+    def test_ndre_poor(self, interpreter):
+        r = interpreter.interpret_index("ndre", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.POOR
+
+    def test_ndre_critical(self, interpreter):
+        r = interpreter.interpret_index("ndre", 0.02, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # Water stress index branches (NDWI)
+    def test_ndwi_excellent(self, interpreter):
+        r = interpreter.interpret_index("ndwi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ndwi_good(self, interpreter):
+        r = interpreter.interpret_index("ndwi", 0.15, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.GOOD
+
+    def test_ndwi_fair(self, interpreter):
+        r = interpreter.interpret_index("ndwi", -0.05, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.FAIR
+
+    def test_ndwi_poor(self, interpreter):
+        r = interpreter.interpret_index("ndwi", -0.15, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.POOR
+
+    def test_ndwi_critical(self, interpreter):
+        r = interpreter.interpret_index("ndwi", -0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # EVI branches
+    def test_evi_excellent(self, interpreter):
+        r = interpreter.interpret_index("evi", 0.6, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_evi_good(self, interpreter):
+        r = interpreter.interpret_index("evi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.GOOD
+
+    def test_evi_fair(self, interpreter):
+        r = interpreter.interpret_index("evi", 0.22, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.FAIR
+
+    def test_evi_poor(self, interpreter):
+        r = interpreter.interpret_index("evi", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.POOR
+
+    def test_evi_critical(self, interpreter):
+        r = interpreter.interpret_index("evi", -0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # LAI branches
+    def test_lai_excellent(self, interpreter):
+        r = interpreter.interpret_index("lai", 5.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_lai_good(self, interpreter):
+        r = interpreter.interpret_index("lai", 3.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.GOOD
+
+    def test_lai_fair(self, interpreter):
+        r = interpreter.interpret_index("lai", 1.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.FAIR
+
+    def test_lai_poor(self, interpreter):
+        r = interpreter.interpret_index("lai", 1.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.POOR
+
+    def test_lai_critical(self, interpreter):
+        r = interpreter.interpret_index("lai", 0.05, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # NBR branches
+    def test_nbr_excellent(self, interpreter):
+        r = interpreter.interpret_index("nbr", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_nbr_poor(self, interpreter):
+        r = interpreter.interpret_index("nbr", -0.05, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.POOR
+
+    def test_nbr_critical(self, interpreter):
+        r = interpreter.interpret_index("nbr", -0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # BSI branches
+    def test_bsi_excellent(self, interpreter):
+        r = interpreter.interpret_index("bsi", -0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_bsi_critical(self, interpreter):
+        r = interpreter.interpret_index("bsi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # SR branches
+    def test_sr_excellent(self, interpreter):
+        r = interpreter.interpret_index("sr", 8.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_sr_critical(self, interpreter):
+        r = interpreter.interpret_index("sr", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # CCCI branches
+    def test_ccci_excellent(self, interpreter):
+        r = interpreter.interpret_index("ccci", 1.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ccci_critical(self, interpreter):
+        r = interpreter.interpret_index("ccci", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # MSI branches
+    def test_msi_excellent(self, interpreter):
+        r = interpreter.interpret_index("msi", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_msi_critical(self, interpreter):
+        r = interpreter.interpret_index("msi", 2.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # Phase 2 detailed branches
+    def test_ci_green_excellent(self, interpreter):
+        r = interpreter.interpret_index("ci_green", 8.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ci_green_critical(self, interpreter):
+        r = interpreter.interpret_index("ci_green", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_ci_rededge_excellent(self, interpreter):
+        r = interpreter.interpret_index("ci_rededge", 5.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ci_rededge_critical(self, interpreter):
+        r = interpreter.interpret_index("ci_rededge", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_ireci_excellent(self, interpreter):
+        r = interpreter.interpret_index("ireci", 4.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ireci_critical(self, interpreter):
+        r = interpreter.interpret_index("ireci", 0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_mtci_excellent(self, interpreter):
+        r = interpreter.interpret_index("mtci", 5.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_mtci_critical(self, interpreter):
+        r = interpreter.interpret_index("mtci", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # RENDVI branches
+    def test_rendvi_excellent(self, interpreter):
+        r = interpreter.interpret_index("rendvi", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_rendvi_critical(self, interpreter):
+        r = interpreter.interpret_index("rendvi", 0.02, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # WDRVI branches
+    def test_wdrvi_excellent(self, interpreter):
+        r = interpreter.interpret_index("wdrvi", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_wdrvi_critical(self, interpreter):
+        r = interpreter.interpret_index("wdrvi", -0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # Phase 3 branches
+    def test_mndwi_excellent(self, interpreter):
+        r = interpreter.interpret_index("mndwi", 0.4, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_mndwi_critical(self, interpreter):
+        r = interpreter.interpret_index("mndwi", -0.4, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_nbr2_excellent(self, interpreter):
+        r = interpreter.interpret_index("nbr2", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_nbr2_critical(self, interpreter):
+        r = interpreter.interpret_index("nbr2", -0.15, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_ndbi_excellent(self, interpreter):
+        r = interpreter.interpret_index("ndbi", -0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_ndbi_critical(self, interpreter):
+        r = interpreter.interpret_index("ndbi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_dvi_excellent(self, interpreter):
+        r = interpreter.interpret_index("dvi", 0.4, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_dvi_critical(self, interpreter):
+        r = interpreter.interpret_index("dvi", 0.01, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_gdvi_excellent(self, interpreter):
+        r = interpreter.interpret_index("gdvi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_gdvi_critical(self, interpreter):
+        r = interpreter.interpret_index("gdvi", 0.01, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    def test_tsavi_excellent(self, interpreter):
+        r = interpreter.interpret_index("tsavi", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_tsavi_critical(self, interpreter):
+        r = interpreter.interpret_index("tsavi", 0.02, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL
+
+    # EVI2 branches
+    def test_evi2_excellent(self, interpreter):
+        r = interpreter.interpret_index("evi2", 0.55, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.EXCELLENT
+
+    def test_evi2_critical(self, interpreter):
+        r = interpreter.interpret_index("evi2", -0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert r.status == HealthStatus.CRITICAL

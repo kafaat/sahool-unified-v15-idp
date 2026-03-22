@@ -363,7 +363,6 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
                     color: color.withOpacity(isSelected ? 0.5 : 0.3),
                     borderColor: color,
                     borderStrokeWidth: isSelected ? 3 : 2,
-                    isFilled: true,
                   );
                 }).toList(),
               ),

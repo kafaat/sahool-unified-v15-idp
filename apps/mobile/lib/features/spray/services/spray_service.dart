@@ -32,8 +32,8 @@ class ApiResult<T> {
 class SprayService {
   final Dio _dio;
 
-  // Note: Add spray service port to ApiConfig when backend is ready
-  static const int sprayServicePort = 8098;
+  // Uses yield-prediction-service (consolidated from deprecated yield-engine:8098)
+  static const int sprayServicePort = 8152;
 
   SprayService({Dio? dio})
       : _dio = dio ??

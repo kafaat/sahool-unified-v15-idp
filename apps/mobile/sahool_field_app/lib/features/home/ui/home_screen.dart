@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // مراقبة البيانات
-    final fieldsAsync = ref.watch(fieldsStreamProvider);
+    final fieldsAsync = ref.watch(fieldsStreamProvider('default'));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
 
@@ -504,7 +504,6 @@ class HomeScreen extends ConsumerWidget {
                     color: SahoolColors.harvestGold.withOpacity(0.4),
                     borderColor: Colors.white,
                     borderStrokeWidth: 2,
-                    isFilled: true,
                   ),
                 )
                 .toList(),

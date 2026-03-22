@@ -759,6 +759,7 @@ class _PulsingDot extends StatefulWidget {
 
   const _PulsingDot({
     required this.color,
+    this.size = 12.0,
   });
 
   @override

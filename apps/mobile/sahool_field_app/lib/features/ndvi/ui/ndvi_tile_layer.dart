@@ -276,7 +276,7 @@ class NdviImageCacheManager {
     final x = ((lng + 180.0) / 360.0 * n).floor();
     final latRad = lat * 3.141592653589793 / 180.0;
     final y = ((1.0 -
-                (math.tan(latRad) + 1.0 / math.tan(latRad).abs()).log() /
+                math.log(math.tan(latRad) + 1.0 / math.tan(latRad).abs()) /
                     3.141592653589793) /
             2.0 *
             n)

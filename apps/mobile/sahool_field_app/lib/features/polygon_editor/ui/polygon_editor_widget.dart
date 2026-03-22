@@ -78,7 +78,6 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                 color: widget.polygonColor.withOpacity(0.3),
                 borderColor: widget.polygonColor,
                 borderStrokeWidth: 3,
-                isFilled: true,
               ),
             ],
           ),

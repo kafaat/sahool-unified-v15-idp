@@ -12,8 +12,9 @@ library;
 
 export 'notification_types.dart';
 export 'notification_service.dart';
+// ignore: undefined_hidden_name
 export 'local_notification_service.dart'
-    hide NotificationTapCallback;
+    hide NotificationTapCallback, TZDateTime, Location, local;
 export 'notification_settings.dart';
 export 'notification_preferences.dart';
 export 'notification_handler.dart';

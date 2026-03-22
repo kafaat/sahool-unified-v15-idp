@@ -391,18 +391,14 @@ class TestEventVersionCompatibility:
                 f"{cls.__name__} has default version {event.version!r}, expected '1.0'"
             )
 
-    def test_page_published_event_version_collision_bug(self):
-        """BUG FOUND: PagePublishedEvent.version (int) shadows BaseEvent.version (str).
-
-        This means PagePublishedEvent cannot carry the event schema version.
-        The 'version' field becomes the page publication version instead of '1.0'.
-        """
+    def test_page_published_event_version_collision_fixed(self):
+        """BUG FIXED: PagePublishedEvent now uses page_version (int) instead of
+        shadowing BaseEvent.version (str). Both fields coexist correctly."""
         data = _build_minimal_event_data(PagePublishedEvent)
         event = PagePublishedEvent(**data)
-        # This documents the bug: version is an int (page version), not "1.0"
-        assert isinstance(event.version, int), (
-            "Expected PagePublishedEvent.version to be int (the shadowing bug)"
-        )
+        assert isinstance(event.version, str), "BaseEvent.version should be str"
+        assert event.version == "1.0"
+        assert isinstance(event.page_version, int)
 
     def test_custom_version_accepted(self):
         """Events should accept custom version strings."""
@@ -584,32 +580,32 @@ class TestFieldConstraintValidation:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6. BaseEvent tenant_id_header alias handling
+# 6. BaseEvent tenant_id alias handling
 # ─────────────────────────────────────────────────────────────────────────────
 
 
 class TestBaseEventAliasHandling:
-    """BUG HUNT: Test that the tenant_id_meta alias works correctly."""
+    """BUG HUNT: Test that the tenant_id alias works correctly."""
 
-    def test_tenant_id_header_via_alias(self):
-        """BaseEvent should accept tenant_id_meta as alias for tenant_id_header."""
-        event = BaseEvent.model_validate({"tenant_id_meta": "tenant-123"})
-        assert event.tenant_id_header == "tenant-123"
+    def test_tenant_id_via_alias(self):
+        """BaseEvent should accept tenant_id as alias for tenant_id."""
+        event = BaseEvent.model_validate({"tenant_id": "tenant-123"})
+        assert event.tenant_id == "tenant-123"
 
-    def test_tenant_id_header_direct(self):
-        """BaseEvent should accept tenant_id_header directly (populate_by_name=True)."""
-        event = BaseEvent(tenant_id_header="tenant-456")
-        assert event.tenant_id_header == "tenant-456"
+    def test_tenant_id_direct(self):
+        """BaseEvent should accept tenant_id directly (populate_by_name=True)."""
+        event = BaseEvent(tenant_id="tenant-456")
+        assert event.tenant_id == "tenant-456"
 
     def test_serialization_uses_field_name_not_alias(self):
         """BUG HUNT: Does model_dump use the field name or the alias?"""
-        event = BaseEvent(tenant_id_header="tenant-789")
+        event = BaseEvent(tenant_id="tenant-789")
         dumped = event.model_dump()
         # By default, model_dump uses field names unless by_alias=True
-        assert "tenant_id_header" in dumped or "tenant_id_meta" in dumped
+        assert "tenant_id" in dumped or "tenant_id" in dumped
 
     def test_serialization_by_alias(self):
-        """model_dump(by_alias=True) should use 'tenant_id_meta'."""
-        event = BaseEvent(tenant_id_header="tenant-abc")
+        """model_dump(by_alias=True) should use 'tenant_id'."""
+        event = BaseEvent(tenant_id="tenant-abc")
         dumped = event.model_dump(by_alias=True)
-        assert "tenant_id_meta" in dumped
+        assert "tenant_id" in dumped

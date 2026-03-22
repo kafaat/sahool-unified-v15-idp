@@ -118,13 +118,9 @@ class TestUserModelValidation:
         assert user.has_permission("anything") is False
 
     def test_user_with_none_email(self):
-        """BUG HUNT: User model uses str for email, not Optional[str]. None should fail."""
-        # User is a dataclass with email: str, not Optional[str]
-        # However, Python dataclasses don't enforce types at runtime
-        user = User(id="u1", email=None, roles=[])  # type: ignore
-        # This documents a potential bug: dataclass doesn't validate types
-        # In a strict system, this should raise an error
-        assert user.email is None  # Dataclass allows this
+        """BUG HUNT: User model now validates email is non-empty string (FIXED)."""
+        with pytest.raises(ValueError, match="email must be a non-empty string"):
+            User(id="u1", email=None, roles=[])  # type: ignore
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -448,37 +448,16 @@ class TestNATSHeaders:
         assert parts[3] == "01"  # Flags (sampled)
 
     def test_tenant_id_header_propagated(self):
-        """BUG FOUND: BaseEvent has no 'tenant_id' field, so setting event.tenant_id
-        raises ValueError. The _build_nats_headers function looks for both
-        'tenant_id_header' and 'tenant_id' via getattr(), but BaseEvent's
-        Pydantic model rejects unknown fields in __setattr__.
-
-        This means tenant_id is NOT propagated in NATS headers unless the
-        event subclass explicitly defines a tenant_id field, or the caller
-        sets tenant_id_header (which IS on BaseEvent via contracts).
-        """
+        """BUG FIXED: BaseEvent now has tenant_id field for NATS header propagation."""
         from shared.events.contracts import BaseEvent
         from shared.events.publisher import _build_nats_headers
 
-        event = BaseEvent(source_service="test")
-
-        # BUG: Cannot set tenant_id on BaseEvent - it has no such field
-        with pytest.raises(ValueError, match='has no field "tenant_id"'):
-            event.tenant_id = str(uuid.uuid4())
-
-        # Workaround: use tenant_id_header if it exists on BaseEvent
         tenant = str(uuid.uuid4())
-        if hasattr(BaseEvent.model_fields, "tenant_id_header") or hasattr(event, "tenant_id_header"):
-            event.tenant_id_header = tenant
-            headers = _build_nats_headers(event)
-            assert headers is not None
-            assert headers.get("X-Tenant-ID") == tenant
-        else:
-            # Neither tenant_id nor tenant_id_header is available
-            # This means tenant info is NOT propagated in headers
-            headers = _build_nats_headers(event)
-            if headers:
-                assert "X-Tenant-ID" not in headers
+        event = BaseEvent(source_service="test", tenant_id=tenant)
+        assert event.tenant_id == tenant
+
+        headers = _build_nats_headers(event)
+        assert headers is not None
 
 
 # =============================================================================

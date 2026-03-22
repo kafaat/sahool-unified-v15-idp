@@ -88,11 +88,9 @@ class BaseEvent(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
-    tenant_id_header: str | None = Field(
+    tenant_id: str | None = Field(
         None,
-        alias="tenant_id_meta",
-        description="Tenant ID propagated in NATS headers (X-Tenant-ID). "
-        "Use domain-specific tenant_id in child events for business logic.",
+        description="Tenant ID for multi-tenant event routing and NATS header propagation.",
     )
     correlation_id: str | None = Field(None, description="Correlation ID for tracing across services")
     causation_id: str | None = Field(
@@ -721,7 +719,7 @@ class PagePublishedEvent(BaseEvent):
     tenant_id: str = Field(..., description="Tenant identifier")
     name: str = Field(..., description="Page name")
     route: str = Field(..., description="Published route")
-    version: int = Field(default=1, ge=1, description="Published version")
+    page_version: int = Field(default=1, ge=1, description="Published page version number")
 
 
 class DataModelCreatedEvent(BaseEvent):

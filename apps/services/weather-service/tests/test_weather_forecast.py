@@ -3,7 +3,7 @@ Comprehensive Weather Forecast Tests
 Tests for forecast calculations, alert generation, and agricultural indices
 """
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

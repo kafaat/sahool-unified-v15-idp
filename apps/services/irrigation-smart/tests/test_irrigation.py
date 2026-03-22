@@ -379,6 +379,7 @@ class TestSensorReading:
     def test_sensor_reading_critical(self, client):
         response = client.post(
             "/v1/sensor-reading",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_001",
                 "sensor_id": "sensor_01",
@@ -397,6 +398,7 @@ class TestSensorReading:
     def test_sensor_reading_optimal(self, client):
         response = client.post(
             "/v1/sensor-reading",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_001",
                 "sensor_id": "sensor_01",
@@ -417,6 +419,7 @@ class TestIrrigationExecuted:
     def test_record_execution(self, client):
         response = client.post(
             "/v1/irrigation-executed",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_001",
                 "amount_mm": 25.0,
@@ -436,7 +439,7 @@ class TestWaterBalanceEndpoint:
     """Test GET /v1/water-balance/{field_id} endpoint."""
 
     def test_water_balance(self, client):
-        response = client.get("/v1/water-balance/field_001?crop=wheat&days=7")
+        response = client.get("/v1/water-balance/field_001?crop=wheat&days=7", headers=TENANT_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data["field_id"] == "field_001"

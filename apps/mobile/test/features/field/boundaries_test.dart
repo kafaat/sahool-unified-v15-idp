@@ -705,7 +705,7 @@ void main() {
         boundary: originalBoundary,
         properties: {'name': 'Test'},
       );
-      final parsedPolygon = GeoJson.parsePolygon(feature['geometry']);
+      final parsedPolygon = GeoJson.parsePolygon(feature['geometry'] as Map<String, dynamic>);
 
       // Assert - Note: parsed polygon will have closing point added
       for (var i = 0; i < originalBoundary.length; i++) {

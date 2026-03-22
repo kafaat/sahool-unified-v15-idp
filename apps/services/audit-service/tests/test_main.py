@@ -13,7 +13,7 @@ except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 # Set test environment before importing app
-os.environ["ENVIRONMENT"] = "test"
+os.environ.setdefault("ENVIRONMENT", "test")
 
 # Valid UUID tenant ID (TenantContextMiddleware requires UUID format)
 VALID_TENANT_ID = "00000000-0000-0000-0000-000000000001"

@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-os.environ["ENVIRONMENT"] = "test"
-os.environ["DATABASE_URL"] = "postgresql+asyncpg://test:test@localhost:5432/test_db"
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test_db")
 class TestDatabaseConfig:
     """Test database configuration and URL handling"""
 

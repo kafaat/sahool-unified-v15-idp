@@ -17,14 +17,14 @@ except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 # Set test environment before imports
-os.environ["ENVIRONMENT"] = "test"
+os.environ.setdefault("ENVIRONMENT", "test")
 os.environ["WHATSAPP_TOKEN"] = "test_token"
 os.environ["WHATSAPP_PHONE_ID"] = "123456789012345"
 os.environ["WHATSAPP_VERIFY_TOKEN"] = "test_verify_token"
 os.environ["LLM_ORCHESTRATOR_URL"] = "http://localhost:8220"
-os.environ["REDIS_URL"] = ""
-os.environ["DATABASE_URL"] = ""
-os.environ["NATS_URL"] = ""
+os.environ.setdefault("REDIS_URL", "")
+os.environ.setdefault("DATABASE_URL", "")
+os.environ.setdefault("NATS_URL", "")
 
 # Add paths
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))

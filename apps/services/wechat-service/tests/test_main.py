@@ -26,12 +26,12 @@ from uuid import uuid4
 import pytest
 
 # Ensure test environment
-os.environ["ENVIRONMENT"] = "test"
-os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
-os.environ["JWT_ALGORITHM"] = "HS256"
-os.environ["DATABASE_URL"] = ""
-os.environ["NATS_URL"] = ""
-os.environ["REDIS_URL"] = ""
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+os.environ.setdefault("DATABASE_URL", "")
+os.environ.setdefault("NATS_URL", "")
+os.environ.setdefault("REDIS_URL", "")
 
 
 # ===============================================================================

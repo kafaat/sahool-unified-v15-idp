@@ -12,8 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 
-os.environ["ENVIRONMENT"] = "test"
-os.environ["DATABASE_URL"] = ""
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("DATABASE_URL", "")
 def make_mock_session():
     """Create a mock AsyncSession with common behaviors."""
     session = AsyncMock()

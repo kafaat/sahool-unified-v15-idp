@@ -456,6 +456,22 @@ class TestSeasonalCalendar:
         assert cal.year == 2026
 
     def test_get_current_season(self):
+        spring = SeasonDefinition(
+            season=AgriculturalSeason.SPRING,
+            region=Region.RIYADH,
+            climate_zone=ClimateZone.ARID_HOT,
+            start_month=3,
+            start_day=1,
+            end_month=5,
+            end_day=31,
+        )
+        cal = SeasonalCalendar(region=Region.RIYADH, seasons=[spring])
+        result = cal.get_current_season(date(2026, 4, 15))
+        assert result is not None
+        assert result.season == AgriculturalSeason.SPRING
+
+    def test_get_current_season_winter_cross_year(self):
+        """Winter season Dec-Feb: a date in Dec should match."""
         winter = SeasonDefinition(
             season=AgriculturalSeason.WINTER,
             region=Region.RIYADH,
@@ -466,7 +482,7 @@ class TestSeasonalCalendar:
             end_day=28,
         )
         cal = SeasonalCalendar(region=Region.RIYADH, seasons=[winter])
-        result = cal.get_current_season(date(2026, 1, 15))
+        result = cal.get_current_season(date(2026, 12, 15))
         assert result is not None
         assert result.season == AgriculturalSeason.WINTER
 

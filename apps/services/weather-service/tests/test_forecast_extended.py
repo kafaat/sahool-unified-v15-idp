@@ -41,6 +41,7 @@ try:
         detect_heat_wave,
         detect_heavy_rain,
     )
+
     # Use multi_provider dataclasses (sunrise/sunset optional)
     from src.providers.multi_provider import DailyForecast as DailyForecast
     from src.providers.multi_provider import HourlyForecast as HourlyForecast
@@ -495,10 +496,14 @@ def _make_daily(temp_min=20, temp_max=30, precip=0, date="2026-01-01"):
 class TestForecastIntegrationModels:
     def test_alert_to_dict(self):
         alert = AgriculturalAlert(
-            alert_id="test-1", alert_type="frost_risk",
-            category=AlertCategory.TEMPERATURE, severity=AlertSeverity.HIGH,
-            title_en="Frost", title_ar="صقيع",
-            description_en="Desc", description_ar="وصف",
+            alert_id="test-1",
+            alert_type="frost_risk",
+            category=AlertCategory.TEMPERATURE,
+            severity=AlertSeverity.HIGH,
+            title_en="Frost",
+            title_ar="صقيع",
+            description_en="Desc",
+            description_ar="وصف",
             start_date="2026-01-01",
         )
         d = alert.to_dict()
@@ -527,13 +532,13 @@ class TestDetectFrostRiskFI:
 @pytest.mark.skipif(not FORECAST_AVAILABLE, reason="forecast_integration not importable")
 class TestDetectHeatWave:
     def test_detected(self):
-        forecasts = [_make_daily(temp_max=42, date=f"2026-01-0{i+1}") for i in range(5)]
+        forecasts = [_make_daily(temp_max=42, date=f"2026-01-0{i + 1}") for i in range(5)]
         alerts = detect_heat_wave(forecasts)
         assert len(alerts) >= 1
         assert alerts[0].alert_type == "heat_wave"
 
     def test_no_wave(self):
-        forecasts = [_make_daily(temp_max=25, date=f"2026-01-0{i+1}") for i in range(5)]
+        forecasts = [_make_daily(temp_max=25, date=f"2026-01-0{i + 1}") for i in range(5)]
         alerts = detect_heat_wave(forecasts)
         assert len(alerts) == 0
 
@@ -564,17 +569,17 @@ class TestDetectHeavyRainFI:
 @pytest.mark.skipif(not FORECAST_AVAILABLE, reason="forecast_integration not importable")
 class TestDetectDroughtFI:
     def test_dry(self):
-        forecasts = [_make_daily(precip=0.1, date=f"2026-01-{i+1:02d}") for i in range(20)]
+        forecasts = [_make_daily(precip=0.1, date=f"2026-01-{i + 1:02d}") for i in range(20)]
         alerts = detect_drought_conditions(forecasts)
         assert isinstance(alerts, list)
 
     def test_wet(self):
-        forecasts = [_make_daily(precip=10, date=f"2026-01-{i+1:02d}") for i in range(20)]
+        forecasts = [_make_daily(precip=10, date=f"2026-01-{i + 1:02d}") for i in range(20)]
         alerts = detect_drought_conditions(forecasts)
         assert len(alerts) == 0
 
     def test_too_few_days(self):
-        forecasts = [_make_daily(precip=0, date=f"2026-01-{i+1:02d}") for i in range(3)]
+        forecasts = [_make_daily(precip=0, date=f"2026-01-{i + 1:02d}") for i in range(3)]
         alerts = detect_drought_conditions(forecasts)
         assert len(alerts) == 0
 
@@ -621,9 +626,15 @@ class TestAgriculturalIndices:
         f = _make_daily(temp_min=20, temp_max=35)
         hourly = [
             HourlyForecast(
-                datetime="2026-01-01T00:00", temperature_c=5.0, humidity_pct=80,
-                precipitation_mm=0, precipitation_probability_pct=0,
-                wind_speed_kmh=5, cloud_cover_pct=20, condition="Clear", condition_ar="صافي",
+                datetime="2026-01-01T00:00",
+                temperature_c=5.0,
+                humidity_pct=80,
+                precipitation_mm=0,
+                precipitation_probability_pct=0,
+                wind_speed_kmh=5,
+                cloud_cover_pct=20,
+                condition="Clear",
+                condition_ar="صافي",
             )
             for _ in range(24)
         ]

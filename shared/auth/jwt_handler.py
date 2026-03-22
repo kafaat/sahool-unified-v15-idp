@@ -77,7 +77,10 @@ def create_access_token(
         payload["permissions"] = permissions
 
     if extra_claims:
-        payload.update(extra_claims)
+        # Security: prevent extra_claims from overwriting core JWT fields
+        _protected_fields = {"sub", "exp", "iat", "iss", "aud", "jti", "type", "roles", "tid", "permissions"}
+        safe_claims = {k: v for k, v in extra_claims.items() if k not in _protected_fields}
+        payload.update(safe_claims)
 
     return jwt.encode(payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM)
 

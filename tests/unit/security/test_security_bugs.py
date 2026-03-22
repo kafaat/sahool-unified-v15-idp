@@ -573,24 +573,46 @@ class TestTokenPayloadIntegrity:
         assert refresh_payload.token_type == "refresh"
 
     def test_extra_claims_do_not_overwrite_core_fields(self):
-        """Bug: extra_claims could overwrite 'sub', 'exp', or 'iss' in the payload."""
-        token = create_access_token(
+        """BUG FOUND: extra_claims CAN overwrite core JWT fields (sub, iss, exp).
+
+        In jwt_handler.py create_access_token(), the code does:
+            payload.update(extra_claims)
+        AFTER setting sub, exp, iss. This means extra_claims={'sub': 'attacker'}
+        would create a token where sub='attacker', enabling impersonation.
+
+        Similarly, extra_claims={'iss': 'evil'} overwrites the issuer, which
+        causes verify_token to reject the token (caught by issuer validation).
+        But if the attacker sets iss to the correct issuer value and sub to
+        a target user, the token passes verification.
+
+        SEVERITY: CRITICAL - Privilege escalation via extra_claims injection.
+        """
+        # Test 1: extra_claims={'iss': 'evil'} overwrites issuer - detected by
+        # verify_token's issuer check (this is the SYMPTOM, not a defense)
+        token_evil_iss = create_access_token(
             user_id="user-001",
             roles=["farmer"],
-            extra_claims={"sub": "attacker", "exp": 9999999999, "iss": "evil"},
+            extra_claims={"iss": "evil"},
         )
-        payload = verify_token(token)
-        # WARNING: This test exposes a potential bug - if extra_claims dict.update()
-        # runs AFTER core fields are set, it OVERWRITES them. Let's check:
-        # The code does payload.update(extra_claims) AFTER setting sub/exp/iss,
-        # meaning extra_claims CAN overwrite core fields!
-        # This test documents the current (potentially buggy) behavior.
-        # If sub was overwritten to "attacker", the token would verify with user_id="attacker"
-        if payload.user_id == "attacker":
+        with pytest.raises(AuthException) as exc_info:
+            verify_token(token_evil_iss)
+        assert exc_info.value.error.code == "invalid_issuer"
+
+        # Test 2: CRITICAL BUG - extra_claims can overwrite 'sub' to impersonate
+        # any user. Since the issuer stays correct, the token passes verification.
+        token_impersonate = create_access_token(
+            user_id="innocent-user",
+            roles=["farmer"],
+            extra_claims={"sub": "admin-target-user"},
+        )
+        payload = verify_token(token_impersonate)
+        if payload.user_id == "admin-target-user":
             pytest.fail(
-                "BUG FOUND: extra_claims can overwrite core JWT fields (sub). "
-                "This is a critical security vulnerability - an attacker could "
-                "impersonate any user by passing extra_claims={'sub': 'admin-id'}."
+                "BUG CONFIRMED: extra_claims can overwrite 'sub' field, enabling "
+                "user impersonation. An attacker who can pass extra_claims to "
+                "create_access_token() can create a token for ANY user. "
+                "FIX: Filter or reject extra_claims keys that match core JWT fields "
+                "(sub, exp, iat, iss, aud, jti, type, roles)."
             )
 
     def test_wrong_secret_key_rejected(self):

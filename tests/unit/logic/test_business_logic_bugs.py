@@ -513,7 +513,13 @@ class TestEnvironmentalCompliance:
                 tenant_id="T-001",
                 field_id="FIELD-001",
                 fertilizer_id="urea",
-                application_date=datetime.now(UTC),
+                # NOTE: Cannot use default for application_date because of a
+                # dataclass bug in models.py line 294 where default_factory is
+                # set to datetime.now(UTC).replace(tzinfo=None) which evaluates
+                # the datetime.now() at class definition time, producing a
+                # datetime OBJECT instead of a callable factory.
+                # We must explicitly provide this field.
+                application_date=datetime.now(UTC).replace(tzinfo=None),
                 area_treated_ha=1.0,
                 application_rate_kg_ha=434.78,
                 total_quantity_kg=434.78,
@@ -539,7 +545,13 @@ class TestEnvironmentalCompliance:
                 tenant_id="T-001",
                 field_id="FIELD-001",
                 fertilizer_id="urea",
-                application_date=datetime.now(UTC),
+                # NOTE: Cannot use default for application_date because of a
+                # dataclass bug in models.py line 294 where default_factory is
+                # set to datetime.now(UTC).replace(tzinfo=None) which evaluates
+                # the datetime.now() at class definition time, producing a
+                # datetime OBJECT instead of a callable factory.
+                # We must explicitly provide this field.
+                application_date=datetime.now(UTC).replace(tzinfo=None),
                 area_treated_ha=1.0,
                 application_rate_kg_ha=500.0,
                 total_quantity_kg=500.0,
@@ -565,7 +577,13 @@ class TestEnvironmentalCompliance:
                 tenant_id="T-001",
                 field_id="FIELD-001",
                 fertilizer_id="urea",
-                application_date=datetime.now(UTC),
+                # NOTE: Cannot use default for application_date because of a
+                # dataclass bug in models.py line 294 where default_factory is
+                # set to datetime.now(UTC).replace(tzinfo=None) which evaluates
+                # the datetime.now() at class definition time, producing a
+                # datetime OBJECT instead of a callable factory.
+                # We must explicitly provide this field.
+                application_date=datetime.now(UTC).replace(tzinfo=None),
                 area_treated_ha=1.0,
                 application_rate_kg_ha=370.0,
                 total_quantity_kg=370.0,

@@ -310,19 +310,9 @@ jobs:
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short --timeout=60 \
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing
 
-          # Run all unit tests (MUST pass - no optional deps)
-          # Excluding auth tests with pyo3 compatibility issues
+          # Run all unit tests (MUST pass)
+          # Security/auth tests re-enabled (pyo3 issue resolved - Pillow installed above)
           pytest tests/unit/ -v --tb=short --timeout=60 \
-            --ignore=tests/unit/auth \
-            --ignore=tests/unit/shared/auth \
-            --ignore=tests/unit/shared/test_auth_dependencies.py \
-            --ignore=tests/unit/shared/test_auth_jwt_handler.py \
-            --ignore=tests/unit/shared/test_jwt.py \
-            --ignore=tests/unit/shared/test_rbac.py \
-            --ignore=tests/unit/shared/test_token_revocation.py \
-            --ignore=tests/unit/shared/test_twofa_config.py \
-            --ignore=tests/unit/shared/test_twofa_service.py \
-            --ignore=tests/unit/test_shared_auth.py \
             --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing
         env:
           ENVIRONMENT: test

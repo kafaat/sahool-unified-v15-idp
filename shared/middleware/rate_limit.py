@@ -14,7 +14,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps

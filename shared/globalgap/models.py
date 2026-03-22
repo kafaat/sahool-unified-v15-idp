@@ -17,8 +17,6 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
 
-logger = logging.getLogger(__name__)
-
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationInfo, field_validator
 
 from .constants import (
@@ -26,6 +24,8 @@ from .constants import (
     AuditType,
     ComplianceLevel,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _compute_integrity_hash(data: dict) -> str:

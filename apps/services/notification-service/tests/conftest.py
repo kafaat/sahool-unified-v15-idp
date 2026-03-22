@@ -1,18 +1,18 @@
 """
-import os
-import sys
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-# Clear cached src module to avoid cross-service contamination in CI
-for _mod in list(sys.modules):
-    if _mod == "src" or _mod.startswith("src."):
-        del sys.modules[_mod]
 Pytest Configuration and Shared Fixtures
 Provides common test fixtures and configurations for all notification service tests
 """
 
 import asyncio
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Clear cached src module to avoid cross-service contamination in CI
+for _mod in list(sys.modules):
+    if _mod == "src" or _mod.startswith("src."):
+        del sys.modules[_mod]
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4

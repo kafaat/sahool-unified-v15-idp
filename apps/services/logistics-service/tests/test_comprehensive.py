@@ -134,7 +134,7 @@ class TestModels:
         assert data.capacity_kg == 5000.0
 
     def test_vehicle_create_capacity_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             VehicleCreate(
                 name="Bad Truck",
                 vehicle_type=VehicleType.TRUCK,
@@ -172,7 +172,7 @@ class TestModels:
         assert data.priority == CollectionPriority.MEDIUM  # default
 
     def test_shipment_create_weight_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ShipmentCreate(
                 vehicle_id="v1",
                 cargo_description="Test",

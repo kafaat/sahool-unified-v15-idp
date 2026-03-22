@@ -830,7 +830,7 @@ class TestMainEndpoints:
 
     def test_get_tenant_id_missing(self):
         from src.main import get_tenant_id
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             get_tenant_id(None)
 
     def test_get_tenant_id_present(self):

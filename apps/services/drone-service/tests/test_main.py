@@ -8,12 +8,16 @@ from src.main import _metrics, app
 
 @pytest.fixture(autouse=True)
 def reset_metrics():
-    """Reset metrics before each test."""
+    """Reset metrics and app state before each test."""
     _metrics["requests_total"] = 0
     _metrics["requests_errors"] = 0
     _metrics["request_duration_sum"] = 0.0
     _metrics["request_duration_count"] = 0
+    app.state.db_connected = False
+    app.state.nats_connected = False
     yield
+    app.state.db_connected = False
+    app.state.nats_connected = False
 @pytest.mark.asyncio
 async def test_healthz():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:

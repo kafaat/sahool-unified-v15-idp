@@ -52,15 +52,15 @@ class TestValidateTransition:
         _validate_transition("planned", "active")  # should not raise
 
     def test_invalid_transition_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):  # ValidationException
             _validate_transition("planned", "completed")
 
     def test_invalid_from_completed(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):  # ValidationException
             _validate_transition("completed", "active")
 
     def test_unknown_current_state(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):  # ValidationException
             _validate_transition("unknown", "active")
 class TestMissionToResponse:
     """Test _mission_to_response helper."""

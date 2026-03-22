@@ -46,6 +46,7 @@ def _fake_current_user():
         email="test@sahool.sa",
         roles=["farmer"],
         tenant_id="00000000-0000-0000-0000-000000000001",
+        hashed_password="$2b$12$test_hashed_password_placeholder",
     )
 
 

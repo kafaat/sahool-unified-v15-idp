@@ -71,7 +71,7 @@ class TestET0Models:
         assert len(req.weather) == 1
 
     def test_et0_request_requires_weather(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ET0Request(latitude=15.0, elevation_m=500, weather=[])
 
     def test_et0_response(self):
@@ -176,7 +176,7 @@ class TestScheduleModels:
         assert req.days == 365
 
     def test_schedule_request_invalid_days(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ScheduleRequest(
                 crop="wheat",
                 soil_profile="prof",

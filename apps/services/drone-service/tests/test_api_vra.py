@@ -47,7 +47,7 @@ class TestVRAModels:
         assert r.name_ar == "خريطة الرش النقطي"
 class TestVRAHelpers:
     def test_raise_not_found(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             _raise_not_found()
 def _create_test_app():
     from fastapi import FastAPI

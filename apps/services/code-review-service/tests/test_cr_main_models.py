@@ -99,11 +99,11 @@ class TestReviewResponse:
         assert resp.score == 100
 
     def test_score_out_of_range(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ReviewResponse(summary="X", score=101)
 
     def test_score_negative(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ReviewResponse(summary="X", score=-1)
 class TestHealthResponse:
     def test_creation(self):

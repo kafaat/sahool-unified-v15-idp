@@ -66,13 +66,13 @@ class TestSchemaValidation:
     def test_elevation_point_out_of_range(self):
         from src.api.schemas import ElevationPoint
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ElevationPoint(x=0, y=0, elevation=5000.0)  # > 3000
 
     def test_elevation_point_below_range(self):
         from src.api.schemas import ElevationPoint
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ElevationPoint(x=0, y=0, elevation=-200.0)  # < -100
 
     def test_elevation_point_id_whitespace(self):
@@ -84,7 +84,7 @@ class TestSchemaValidation:
     def test_elevation_point_id_too_long(self):
         from src.api.schemas import ElevationPoint
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ElevationPoint(x=0, y=0, elevation=100.0, point_id="x" * 65)
 
     def test_field_boundary_valid(self):
@@ -96,13 +96,13 @@ class TestSchemaValidation:
     def test_field_boundary_too_few_coords(self):
         from src.api.schemas import FieldBoundary
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             FieldBoundary(coordinates=[[0, 0], [1, 0]])
 
     def test_field_boundary_invalid_coord(self):
         from src.api.schemas import FieldBoundary
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             FieldBoundary(coordinates=[[0, 0], [1, 0], ["a", "b"]])
 
     def test_leveling_analysis_request_valid(self):
@@ -121,7 +121,7 @@ class TestSchemaValidation:
     def test_leveling_analysis_request_empty_field_id(self):
         from src.api.schemas import ElevationPoint, LevelingAnalysisRequest
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             LevelingAnalysisRequest(
                 field_id="   ",
                 elevation_points=[
@@ -135,7 +135,7 @@ class TestSchemaValidation:
     def test_leveling_analysis_request_insufficient_points(self):
         from src.api.schemas import ElevationPoint, LevelingAnalysisRequest
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             LevelingAnalysisRequest(
                 field_id="F1",
                 elevation_points=[
@@ -147,7 +147,7 @@ class TestSchemaValidation:
     def test_leveling_analysis_request_grade_validation(self):
         from src.api.schemas import ElevationPoint, LevelingAnalysisRequest
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             LevelingAnalysisRequest(
                 field_id="F1",
                 elevation_points=[

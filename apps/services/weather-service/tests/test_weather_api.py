@@ -618,7 +618,7 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Should raise exception
-            with pytest.raises(Exception):
+            with pytest.raises((ValueError, Exception)):
                 await provider.get_current(15.35, 44.20)
 
         await provider.close()

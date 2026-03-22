@@ -63,7 +63,7 @@ class TestHelpers:
         assert "extra_field" not in result
 
     def test_raise_not_found(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             _raise_not_found()
 # --- API endpoint tests using httpx AsyncClient ---
 

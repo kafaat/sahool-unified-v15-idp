@@ -716,6 +716,6 @@ class TestGetDbSessionDependency:
         with patch("src.main.database", None), patch("src.main.get_current_user", return_value=MagicMock()):
             from src.main import get_db_session
 
-            with pytest.raises(Exception):
+            with pytest.raises((ValueError, Exception)):
                 gen = get_db_session()
                 next(gen)

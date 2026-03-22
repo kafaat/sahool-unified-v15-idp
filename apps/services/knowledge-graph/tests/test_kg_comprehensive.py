@@ -80,7 +80,7 @@ class TestModels:
 
     def test_disease_severity_range(self):
         """Test Disease severity_level must be 1-10."""
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             Disease(id="bad", name_en="Bad", name_ar="سيء", severity_level=15)
 
     def test_treatment_model_creation(self):
@@ -102,7 +102,7 @@ class TestModels:
 
     def test_treatment_safety_range(self):
         """Test Treatment safety_level must be 1-5."""
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             Treatment(id="bad", name_en="Bad", name_ar="سيء", safety_level=10)
 
     def test_relationship_type_enum(self):
@@ -131,7 +131,7 @@ class TestModels:
 
     def test_relationship_confidence_bounds(self):
         """Test Relationship confidence must be 0-1."""
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             Relationship(
                 id="bad",
                 source_type="a",

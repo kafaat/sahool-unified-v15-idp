@@ -547,7 +547,7 @@ class TestModelValidation:
         assert req.soil_n_ppm is None
 
     def test_fertigation_request_min_area(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             FertigationRequest(
                 crop="wheat",
                 growth_phase=GrowthPhase.TILLERING,

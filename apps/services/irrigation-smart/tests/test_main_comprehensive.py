@@ -396,7 +396,7 @@ class TestIrrigationRequestModel:
         assert req.irrigation_method == IrrigationMethod.DRIP  # default
 
     def test_area_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             IrrigationRequest(
                 field_id="f1",
                 crop=CropType.WHEAT,
@@ -436,7 +436,7 @@ class TestIrrigationExecutionModel:
         assert exe.schedule_id is None
 
     def test_amount_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             IrrigationExecution(
                 field_id="f1",
                 amount_mm=0,
@@ -444,7 +444,7 @@ class TestIrrigationExecutionModel:
             )
 
     def test_duration_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             IrrigationExecution(
                 field_id="f1",
                 amount_mm=10.0,

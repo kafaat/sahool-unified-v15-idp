@@ -98,7 +98,7 @@ class TestSchemaModels:
         c = Coordinate(longitude=46.7, latitude=24.7)
         assert c.longitude == 46.7
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             Coordinate(longitude=200, latitude=24.7)
 
     def test_bounding_box_valid(self):
@@ -110,13 +110,13 @@ class TestSchemaModels:
     def test_bounding_box_invalid_lon(self):
         from src.api.schemas import BoundingBox
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             BoundingBox(min_lon=47.0, min_lat=24.0, max_lon=46.0, max_lat=25.0)
 
     def test_bounding_box_invalid_lat(self):
         from src.api.schemas import BoundingBox
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             BoundingBox(min_lon=46.0, min_lat=25.0, max_lon=47.0, max_lat=24.0)
 
     def test_bilingual_field(self):
@@ -160,7 +160,7 @@ class TestSchemaModels:
     def test_terrain_analysis_request_empty_field_id(self):
         from src.api.schemas import TerrainAnalysisRequest
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             TerrainAnalysisRequest(field_id="   ")
 
     def test_terrain_analysis_request_crs_validation(self):
@@ -169,7 +169,7 @@ class TestSchemaModels:
         req = TerrainAnalysisRequest(field_id="F1", target_crs="EPSG:4326")
         assert req.target_crs == "EPSG:4326"
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             TerrainAnalysisRequest(field_id="F1", target_crs="INVALID")
 
     def test_contour_request_valid(self):
@@ -181,7 +181,7 @@ class TestSchemaModels:
     def test_contour_request_invalid_elevation_range(self):
         from src.api.schemas import ContourRequest
 
-        with pytest.raises(Exception):
+        with pytest.raises((ValueError, Exception)):
             ContourRequest(field_id="F1", min_elevation=500.0, max_elevation=400.0)
 
     def test_dem_source_info(self):

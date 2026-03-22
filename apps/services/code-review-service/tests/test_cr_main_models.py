@@ -479,5 +479,153 @@ class TestCodeReviewServiceAsync:
             await service.review_pr(pr_number=1)
 
 
+@pytest.mark.asyncio
+class TestCodeReviewServiceReviewFile:
+    """Test review_file method."""
+
+    @pytest.fixture
+    def service(self):
+        svc = CodeReviewService.__new__(CodeReviewService)
+        svc.settings = MagicMock(
+            enable_cache=False,
+            github_token=None,
+            enable_agricultural_rules=False,
+            enable_fallback=False,
+            ollama_url="http://localhost:11434",
+            ollama_model="test-model",
+            review_on_change=False,
+            max_retries=1,
+            retry_delay=0,
+            max_file_size=1000000,
+            log_reviews_to_file=False,
+            watch_paths="",
+            cache_backend="memory",
+            redis_url="redis://localhost:6379",
+            cache_file_path="/tmp/test.json",
+            cache_max_size=10,
+            cache_ttl=3600,
+            github_api_url="https://api.github.com",
+            github_webhook_secret=None,
+            github_comment_threshold=70,
+            get_fallback_models_list=MagicMock(return_value=[]),
+        )
+        svc.session = MagicMock()
+        svc.observer = None
+        svc.cache = None
+        svc.github = None
+        svc.agricultural_engine = MagicMock()
+        svc._available_models = []
+        return svc
+
+    async def test_review_file_empty_content(self, service, tmp_path):
+        """Test review_file with empty file skips review."""
+        empty_file = tmp_path / "empty.py"
+        empty_file.write_text("")
+        await service.review_file(empty_file)
+        # Should not crash, just return
+
+    async def test_review_file_nonexistent(self, service):
+        """Test review_file with non-existent file handles error."""
+        await service.review_file(Path("/nonexistent/file.py"))
+        # Should log error but not crash
+
+    async def test_review_file_with_content(self, service, tmp_path):
+        """Test review_file with valid content calls review_code."""
+        test_file = tmp_path / "test.py"
+        test_file.write_text("x = 1\nprint(x)")
+        service.review_code = AsyncMock(return_value={"score": 80, "summary": "OK"})
+        await service.review_file(test_file)
+        service.review_code.assert_called_once()
+
+
+class TestCodeReviewHandlerAbsolutePaths:
+    """Test CodeReviewHandler with absolute watch paths."""
+
+    def test_should_review_absolute_watch_path(self, tmp_path):
+        mock_service = MagicMock()
+        mock_service.settings = MagicMock(
+            max_file_size=1000000,
+            watch_paths=str(tmp_path),
+            debounce_delay=0.1,
+        )
+        handler = CodeReviewHandler(mock_service)
+        test_file = tmp_path / "test.py"
+        test_file.write_text("x = 1")
+        assert handler._should_review(test_file) is True
+
+    def test_should_review_relative_watch_path(self, tmp_path):
+        """Test watch path that is relative to /app/codebase."""
+        mock_service = MagicMock()
+        mock_service.settings = MagicMock(
+            max_file_size=1000000,
+            watch_paths="apps/services",
+            debounce_delay=0.1,
+        )
+        handler = CodeReviewHandler(mock_service)
+        # File NOT under /app/codebase/apps/services, so not reviewable
+        test_file = tmp_path / "other.py"
+        test_file.write_text("x = 1")
+        assert handler._should_review(test_file) is False
+
+    def test_on_modified_triggers_review(self, tmp_path):
+        """Test on_modified with reviewable file."""
+        mock_service = MagicMock()
+        mock_service.settings = MagicMock(
+            max_file_size=1000000,
+            watch_paths=str(tmp_path),
+            debounce_delay=0.1,
+        )
+        handler = CodeReviewHandler(mock_service)
+        handler._schedule_review = MagicMock()
+
+        test_file = tmp_path / "code.py"
+        test_file.write_text("x = 1")
+
+        event = MagicMock()
+        event.is_directory = False
+        event.src_path = str(test_file)
+
+        handler.on_modified(event)
+        handler._schedule_review.assert_called_once()
+
+    def test_on_created_triggers_review(self, tmp_path):
+        """Test on_created with reviewable file."""
+        mock_service = MagicMock()
+        mock_service.settings = MagicMock(
+            max_file_size=1000000,
+            watch_paths=str(tmp_path),
+            debounce_delay=0.1,
+        )
+        handler = CodeReviewHandler(mock_service)
+        handler._schedule_review = MagicMock()
+
+        test_file = tmp_path / "new.ts"
+        test_file.write_text("const x = 1;")
+
+        event = MagicMock()
+        event.is_directory = False
+        event.src_path = str(test_file)
+
+        handler.on_created(event)
+        handler._schedule_review.assert_called_once()
+
+    def test_schedule_review_cancels_existing(self, tmp_path):
+        """Test debounce cancels previous task."""
+        mock_service = MagicMock()
+        mock_service.settings = MagicMock(
+            max_file_size=1000000,
+            watch_paths=str(tmp_path),
+            debounce_delay=0.1,
+        )
+        handler = CodeReviewHandler(mock_service)
+        mock_task = MagicMock()
+        handler._debounce_tasks[str(tmp_path / "file.py")] = mock_task
+
+        # Without an event loop, _schedule_review will hit RuntimeError
+        handler._schedule_review(tmp_path / "file.py")
+        mock_task.cancel.assert_called_once()
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

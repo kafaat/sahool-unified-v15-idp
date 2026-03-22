@@ -77,3 +77,22 @@ class _FakeARRAY(TypeDecorator):
 
 
 _pg.ARRAY = _FakeARRAY
+
+# JSONB -> JSON for SQLite
+_pg.JSONB = JSON
+
+# UUID -> String for SQLite
+_orig_UUID = _pg.UUID
+
+
+class _FakeUUID(TypeDecorator):
+    """Store UUID columns as String in SQLite."""
+
+    impl = String(36)
+    cache_ok = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+
+_pg.UUID = _FakeUUID

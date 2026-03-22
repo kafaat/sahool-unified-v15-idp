@@ -34,9 +34,9 @@ export function useWebSocket({
   const [error, setError] = useState<string | null>(null);
   const [reconnectCount, setReconnectCount] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const pongTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pongTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onMessageRef = useRef(onMessage);
   const isMountedRef = useRef(true);
   const isTabVisibleRef = useRef(
@@ -89,17 +89,19 @@ export function useWebSocket({
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        // Skip ping if a pong timeout is already pending — avoids resetting
-        // the stale-connection detector when heartbeatInterval < 10 s.
-        if (pongTimeoutRef.current) return;
-
         wsRef.current.send(JSON.stringify({ type: "ping", ts: Date.now() }));
 
-        // Expect pong within 10 seconds
-        pongTimeoutRef.current = setTimeout(() => {
-          logger.log("WebSocket heartbeat timeout - connection stale, reconnecting...");
-          wsRef.current?.close();
-        }, 10000);
+        // Only start a pong-timeout if one isn't already pending.
+        // This avoids continuously resetting the timer when heartbeatInterval
+        // is shorter than the 10-second pong window, which would prevent
+        // stale-connection detection if no pong ever arrives.
+        if (!pongTimeoutRef.current) {
+          pongTimeoutRef.current = setTimeout(() => {
+            pongTimeoutRef.current = null;
+            logger.log("WebSocket heartbeat timeout - connection stale, reconnecting...");
+            wsRef.current?.close();
+          }, 10000);
+        }
       }
     }, heartbeatInterval);
   }, [heartbeatInterval]);

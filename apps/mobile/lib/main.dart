@@ -275,13 +275,16 @@ Future<void> _initializeAndRunApp({bool skipSecurityCheck = false}) async {
   final database = AppDatabase();
 
   // Initialize preferences manager
-  final preferencesManager = await PreferencesManager.initialize();
+  final preferencesManager = PreferencesManager();
+  await preferencesManager.initialize();
 
   // Initialize draft manager
-  final draftManager = DraftManager(preferencesManager);
+  final draftManager = DraftManager();
+  await draftManager.initialize();
 
   // Initialize app state manager
-  final appStateManager = AppStateManager(preferencesManager);
+  final appStateManager = AppStateManager();
+  await appStateManager.initialize();
 
   // Initialize sync engine
   final syncEngine = SyncEngine(database: database);

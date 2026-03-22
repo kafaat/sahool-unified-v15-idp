@@ -12,17 +12,12 @@ import '../domain/models/advisory.dart';
 import '../domain/models/advisory_request.dart';
 import '../domain/models/advisory_context.dart';
 import '../domain/models/advisory_feedback.dart';
-import '../../../core/http/api_client.dart';
+import '../../../core/di/providers.dart' show apiClientProvider;
 import 'chat_controller.dart';
 
 // ============================================================================
 // Core Providers
 // ============================================================================
-
-/// API client provider
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
-});
 
 /// AI Advisor API provider
 final aiAdvisorApiProvider = Provider<AiAdvisorApi>((ref) {

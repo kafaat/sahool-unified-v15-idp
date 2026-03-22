@@ -2853,6 +2853,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "127.0.0.1:8116:8116"

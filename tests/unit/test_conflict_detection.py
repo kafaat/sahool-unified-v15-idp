@@ -589,8 +589,9 @@ class TestNATSSubjectUtilities:
         except ImportError:
             pytest.skip("Module not available")
             return
-        result = get_tenant_subject("org_123", "field", "created")
-        assert result == "sahool.tenant.org_123.field.created"
+        test_uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        result = get_tenant_subject(test_uuid, "field", "created")
+        assert result == f"sahool.tenant.{test_uuid}.field.created"
 
     def test_tenant_subject_requires_tenant_id(self):
         """get_tenant_subject must reject empty tenant_id."""

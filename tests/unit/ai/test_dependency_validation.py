@@ -258,8 +258,9 @@ class TestEventsSubjects:
         except ImportError:
             pytest.skip("get_tenant_subject not available")
 
-        result = get_tenant_subject("test-tenant-id", "field", "created")
-        assert "test-tenant-id" in result
+        test_uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        result = get_tenant_subject(test_uuid, "field", "created")
+        assert test_uuid in result
         assert "field" in result
         assert "created" in result
 

@@ -16,11 +16,10 @@ try:
         get_stage_timeline,
     )
     from src.main import app
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    pytest.skip("advisory-service src not available", allow_module_level=True)
-
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
+    pytest.skip("advisory-service dependencies not installed", allow_module_level=True)
 
 
 def _fake_current_user():

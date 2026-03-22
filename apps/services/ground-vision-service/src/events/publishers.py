@@ -8,7 +8,7 @@ for consumption by other services.
 
 import logging
 from datetime import UTC, datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 from pydantic import BaseModel
 
@@ -129,13 +129,14 @@ class GroundVisionPublisher:
             ValueError: If detection data is missing required fields
         """
         # Validate detection data is not empty/default
-        if not detection.detection_id or not detection.field_id:
+        if not detection.detection_id or not detection.field_id or not detection.tenant_id:
             logger.error(
-                "[publish_operation_detected] Detection data missing required fields (detection_id=%s, field_id=%s)",
+                "[publish_operation_detected] Detection data missing required fields (detection_id=%s, field_id=%s, tenant_id=%s)",
                 detection.detection_id,
                 detection.field_id,
+                detection.tenant_id,
             )
-            raise ValueError("Cannot publish operation_detected event: detection_id and field_id are required")
+            raise ValueError("Cannot publish operation_detected event: detection_id, field_id, and tenant_id are required")
 
         if detection.confidence <= 0.0:
             logger.warning(
@@ -270,7 +271,7 @@ class GroundVisionPublisher:
             anomaly: Anomaly detection result
         """
         # Validate anomaly data is not empty/default
-        if not anomaly.anomaly_id or not anomaly.field_id:
+        if not anomaly.anomaly_id or not anomaly.field_id or not anomaly.tenant_id:
             logger.error(
                 "[publish_anomaly_detected] Anomaly data missing required fields (anomaly_id=%s, field_id=%s)",
                 anomaly.anomaly_id,
@@ -333,7 +334,7 @@ class GroundVisionPublisher:
             analysis: Crop timeline analysis result
         """
         # Validate timeline analysis data
-        if not analysis.analysis_id or not analysis.field_id:
+        if not analysis.analysis_id or not analysis.field_id or not analysis.tenant_id:
             logger.error(
                 "[publish_timeline_updated] Timeline analysis missing required fields (analysis_id=%s, field_id=%s)",
                 analysis.analysis_id,

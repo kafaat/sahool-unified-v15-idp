@@ -44,8 +44,17 @@ async function proxyGet(path: string): Promise<NextResponse> {
       headers,
       signal: AbortSignal.timeout(15000),
     });
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      return NextResponse.json(data, { status: response.status });
+    } catch {
+      logger.error("Code review service returned non-JSON:", { status: response.status, body: text.slice(0, 200) });
+      return NextResponse.json(
+        { error: "Code review service returned an unexpected response" },
+        { status: 502 },
+      );
+    }
   } catch (error) {
     logger.error("Code review proxy GET error:", error);
     return NextResponse.json(
@@ -68,10 +77,19 @@ async function proxyPost(
       method: "POST",
       headers,
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(60000), // Reviews can take time
+      signal: AbortSignal.timeout(60000),
     });
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      return NextResponse.json(data, { status: response.status });
+    } catch {
+      logger.error("Code review service returned non-JSON:", { status: response.status, body: text.slice(0, 200) });
+      return NextResponse.json(
+        { error: "Code review service returned an unexpected response" },
+        { status: 502 },
+      );
+    }
   } catch (error) {
     logger.error("Code review proxy POST error:", error);
     return NextResponse.json(

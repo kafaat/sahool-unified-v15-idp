@@ -389,12 +389,12 @@ class TestGlobalFunctions:
         import src.templates.notification_templates as mod
         old = mod._template_manager
         mod._template_manager = None
-
-        manager1 = get_template_manager()
-        manager2 = get_template_manager()
-        assert manager1 is manager2
-
-        mod._template_manager = old
+        try:
+            manager1 = get_template_manager()
+            manager2 = get_template_manager()
+            assert manager1 is manager2
+        finally:
+            mod._template_manager = old
 
     def test_render_notification_push(self):
         manager = get_template_manager()

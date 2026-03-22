@@ -112,7 +112,7 @@ class WebSocketEventHandler {
         break;
 
       default:
-        AppLogger.debug('Unhandled event type: ${event.eventType}');
+        AppLogger.d('Unhandled event type: ${event.eventType}');
     }
   }
 

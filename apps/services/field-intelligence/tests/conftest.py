@@ -1,4 +1,5 @@
 """Test configuration for field-intelligence."""
+
 import os
 import sys
 

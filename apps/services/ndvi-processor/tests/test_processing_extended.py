@@ -484,9 +484,7 @@ class TestCreateComposite:
     @pytest.mark.asyncio
     async def test_create_composite_stores_in_memory(self):
         """create_composite stores composite in _composites."""
-        result = await create_composite(
-            "t1", "f1", 2025, 6, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2
-        )
+        result = await create_composite("t1", "f1", 2025, 6, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
         cid = result["composite_id"]
         assert cid in _composites
         assert _composites[cid]["field_id"] == "f1"
@@ -494,9 +492,7 @@ class TestCreateComposite:
     @pytest.mark.asyncio
     async def test_create_composite_has_statistics(self):
         """create_composite includes statistics."""
-        result = await create_composite(
-            "t1", "f1", 2025, 6, CompositeMethod.MEAN_NDVI, SatelliteSource.SENTINEL_2
-        )
+        result = await create_composite("t1", "f1", 2025, 6, CompositeMethod.MEAN_NDVI, SatelliteSource.SENTINEL_2)
         stats = result["statistics"]
         assert "mean" in stats
         assert "min" in stats
@@ -506,9 +502,7 @@ class TestCreateComposite:
     @pytest.mark.asyncio
     async def test_create_composite_has_files(self):
         """create_composite includes file URLs."""
-        result = await create_composite(
-            "t1", "f1", 2025, 6, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2
-        )
+        result = await create_composite("t1", "f1", 2025, 6, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
         assert result["files"]["geotiff"] is not None
         assert "max_ndvi" in result["files"]["geotiff"]
 
@@ -516,9 +510,7 @@ class TestCreateComposite:
     async def test_create_composite_different_methods(self):
         """create_composite works with different methods."""
         for method in CompositeMethod:
-            result = await create_composite(
-                "t1", "f1", 2025, 6, method, SatelliteSource.SENTINEL_2
-            )
+            result = await create_composite("t1", "f1", 2025, 6, method, SatelliteSource.SENTINEL_2)
             assert result["method"] == method.value
 
 

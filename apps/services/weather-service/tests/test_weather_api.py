@@ -66,6 +66,7 @@ def app():
     from src.main import app as weather_app
 
     from shared.auth.dependencies import get_current_user
+
     # Import User from the same module that src/main.py loaded (apps/services/shared/)
     # to match the User type expected by get_current_user dependency
     from shared.auth.models import User

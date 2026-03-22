@@ -64,6 +64,8 @@ class TestValidateFieldId:
     def test_path_traversal_rejected(self):
         with pytest.raises(InvalidFieldIdError):
             validate_field_id("../etc/passwd")
+
+
 class TestValidateScheduledTime:
     """Tests for validate_scheduled_time function"""
 
@@ -87,6 +89,8 @@ class TestValidateScheduledTime:
     def test_no_raise_mode(self):
         assert validate_scheduled_time("25:00", raise_exception=False) is False
         assert validate_scheduled_time("not-time", raise_exception=False) is False
+
+
 class TestValidateDateString:
     """Tests for validate_date_string function"""
 
@@ -110,6 +114,8 @@ class TestValidateDateString:
     def test_no_raise_mode(self):
         assert validate_date_string("bad", raise_exception=False) is False
         assert validate_date_string("2025-02-30", raise_exception=False) is False
+
+
 class TestValidateMetadataSize:
     """Tests for validate_metadata_size function"""
 
@@ -128,6 +134,8 @@ class TestValidateMetadataSize:
     def test_no_raise_mode(self):
         large_metadata = {"data": "x" * 70000}
         assert validate_metadata_size(large_metadata, raise_exception=False) is False
+
+
 class TestSanitizeForLog:
     """Tests for sanitize_for_log function"""
 
@@ -166,6 +174,8 @@ class TestSanitizeForLog:
     def test_whitespace_only(self):
         result = sanitize_for_log("   ")
         assert result == "<empty>"
+
+
 class TestSanitizeFieldIdForUrl:
     """Tests for sanitize_field_id_for_url function"""
 
@@ -184,6 +194,8 @@ class TestSanitizeFieldIdForUrl:
     def test_length_limited(self):
         result = sanitize_field_id_for_url("x" * 200)
         assert len(result) <= 100
+
+
 class TestScheduledTimeValidator:
     """Tests for Pydantic scheduled_time_validator"""
 
@@ -198,6 +210,8 @@ class TestScheduledTimeValidator:
     def test_invalid_time_raises(self):
         with pytest.raises(ValueError, match="Invalid time format"):
             scheduled_time_validator(None, "25:00")
+
+
 class TestFieldIdValidator:
     """Tests for Pydantic field_id_validator"""
 
@@ -216,6 +230,8 @@ class TestFieldIdValidator:
     def test_invalid_chars_raises(self):
         with pytest.raises(ValueError, match="Invalid field ID"):
             field_id_validator(None, "field@bad!")
+
+
 class TestMetadataValidator:
     """Tests for Pydantic metadata_validator"""
 
@@ -230,6 +246,8 @@ class TestMetadataValidator:
     def test_too_large_raises(self):
         with pytest.raises(ValueError, match="too large"):
             metadata_validator(None, {"data": "x" * 70000})
+
+
 class TestDateStringValidator:
     """Tests for Pydantic date_string_validator"""
 
@@ -248,6 +266,8 @@ class TestDateStringValidator:
     def test_invalid_date_raises(self):
         with pytest.raises(ValueError, match="Invalid date"):
             date_string_validator(None, "2025-02-30")
+
+
 class TestValidateTaskCreateData:
     """Tests for validate_task_create_data composite validator"""
 
@@ -284,6 +304,8 @@ class TestValidateTaskCreateData:
     def test_title_stripped(self):
         result = validate_task_create_data(title="  Test Task  ")
         assert result["title"] == "Test Task"
+
+
 class TestPatternConstants:
     """Test regex pattern constants"""
 

@@ -139,7 +139,9 @@ class WeatherPublisher:
         except Exception as e:
             logger.error(
                 "Failed to publish weather_alert event: subject=%s, field=%s, error=%s",
-                subject, field_id, str(e),
+                subject,
+                field_id,
+                str(e),
             )
             raise
 
@@ -179,7 +181,9 @@ class WeatherPublisher:
         except Exception as e:
             logger.error(
                 "Failed to publish forecast_issued event: subject=%s, field=%s, error=%s",
-                subject, field_id, str(e),
+                subject,
+                field_id,
+                str(e),
             )
             raise
 
@@ -221,7 +225,9 @@ class WeatherPublisher:
         except Exception as e:
             logger.error(
                 "Failed to publish irrigation_adjustment event: subject=%s, field=%s, error=%s",
-                subject, field_id, str(e),
+                subject,
+                field_id,
+                str(e),
             )
             raise
 

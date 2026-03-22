@@ -3,9 +3,9 @@ Comprehensive unit tests for SAHOOL Skills Service.
 Targets >60% code coverage across models, endpoints, helpers, and edge cases.
 """
 
-
 # Patch TokenRevocationMiddleware before importing main to avoid init error with exempt_paths
 import os
+
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
@@ -16,11 +16,15 @@ import sys
 from shared.auth.revocation_middleware import TokenRevocationMiddleware
 
 _orig_init = TokenRevocationMiddleware.__init__
+
+
 def _patched_init(self, app, **kwargs):
     # Map exempt_paths -> exclude_paths for compatibility
     if "exempt_paths" in kwargs:
         kwargs["exclude_paths"] = kwargs.pop("exempt_paths")
     _orig_init(self, app, **kwargs)
+
+
 TokenRevocationMiddleware.__init__ = _patched_init
 
 import json
@@ -58,16 +62,24 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from src.main import get_current_user
+
+
 async def _mock_current_user():
     return None
+
+
 app.dependency_overrides[get_current_user] = _mock_current_user
 
 # Valid UUID for tenant context middleware
 VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
+
+
 @pytest.fixture
 def client():
     return TestClient(app, headers=TENANT_HEADER, raise_server_exceptions=False)
+
+
 # ---------------------------------------------------------------------------
 # Pydantic model tests
 # ---------------------------------------------------------------------------
@@ -115,9 +127,7 @@ class TestPydanticModels:
         assert req.expected_output is None
 
     def test_learning_module_model(self):
-        m = LearningModuleModel(
-            module_id="m1", title="Test", skill_type="irrigation"
-        )
+        m = LearningModuleModel(module_id="m1", title="Test", skill_type="irrigation")
         assert m.difficulty == "beginner"
         assert m.duration_minutes == 30
         assert m.title_ar is None
@@ -130,9 +140,7 @@ class TestPydanticModels:
         assert req.max_modules == 5
 
     def test_skill_assessment_request_defaults(self):
-        req = SkillAssessmentRequest(
-            farmer_id="f1", skill_type="irrigation", assessment_data={"q1": "a"}
-        )
+        req = SkillAssessmentRequest(farmer_id="f1", skill_type="irrigation", assessment_data={"q1": "a"})
         assert req.assessment_type == "quiz"
 
     def test_evaluate_response_model(self):
@@ -157,6 +165,8 @@ class TestPydanticModels:
             timestamp="2026-01-01T00:00:00Z",
         )
         assert resp.level == "advanced"
+
+
 # ---------------------------------------------------------------------------
 # Health endpoint tests
 # ---------------------------------------------------------------------------
@@ -182,6 +192,8 @@ class TestHealthEndpoints:
         assert data["data"]["service"] == "skills_service"
         assert "endpoints" in data["data"]
         assert len(data["data"]["endpoints"]) >= 6
+
+
 # ---------------------------------------------------------------------------
 # Compression endpoint tests
 # ---------------------------------------------------------------------------
@@ -267,6 +279,8 @@ class TestCompressionEndpoint:
         decoded = base64.b64decode(data["compressed_data"])
         parsed = json.loads(decoded)
         assert parsed["skill_id"] == "skill-007"
+
+
 # ---------------------------------------------------------------------------
 # Memory store/recall endpoint tests
 # ---------------------------------------------------------------------------
@@ -331,6 +345,8 @@ class TestMemoryEndpoints:
         payload = {"skill_id": ""}
         resp = client.post("/memory/recall", json=payload)
         assert resp.status_code in (422, 500)
+
+
 # ---------------------------------------------------------------------------
 # Evaluation endpoint tests
 # ---------------------------------------------------------------------------
@@ -401,6 +417,8 @@ class TestEvaluationEndpoint:
             resp = client.post("/evaluate", json=payload)
             results.append(resp.json()["performance_score"])
         assert all(0 <= s <= 1 for s in results)
+
+
 # ---------------------------------------------------------------------------
 # Skill assessment endpoint tests
 # ---------------------------------------------------------------------------
@@ -498,6 +516,8 @@ class TestSkillAssessment:
         resp = client.post("/assess", json=payload)
         data = resp.json()
         assert data["level"] == "beginner"
+
+
 # ---------------------------------------------------------------------------
 # Learning path endpoint tests
 # ---------------------------------------------------------------------------
@@ -581,6 +601,8 @@ class TestLearningPath:
         assert resp.status_code == 200
         data = resp.json()
         assert len(data["modules"]) <= 1
+
+
 # ---------------------------------------------------------------------------
 # Event publishing helper tests
 # ---------------------------------------------------------------------------

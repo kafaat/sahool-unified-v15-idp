@@ -21,6 +21,8 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
+
+
 # ---------------------------------------------------------------------------
 # Config tests
 # ---------------------------------------------------------------------------
@@ -48,6 +50,8 @@ class TestConfig:
         assert ResamplingMethod.BILINEAR == "bilinear"
         assert ResamplingMethod.LANCZOS == "lanczos"
         assert len(ResamplingMethod) == 5
+
+
 # ---------------------------------------------------------------------------
 # Schema enum tests
 # ---------------------------------------------------------------------------
@@ -88,6 +92,8 @@ class TestSchemaEnums:
 
         assert TerrainCategory.FLAT == "flat"
         assert TerrainCategory.VERY_STEEP == "very_steep"
+
+
 # ---------------------------------------------------------------------------
 # Schema model tests
 # ---------------------------------------------------------------------------
@@ -134,9 +140,7 @@ class TestSchemaModels:
     def test_geojson_polygon(self):
         from src.api.schemas import GeoJSONPolygon
 
-        poly = GeoJSONPolygon(
-            coordinates=[[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]
-        )
+        poly = GeoJSONPolygon(coordinates=[[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]])
         assert poly.type == "Polygon"
 
     def test_field_geometry(self):
@@ -144,9 +148,7 @@ class TestSchemaModels:
 
         fg = FieldGeometry(
             field_id="FIELD-001",
-            geometry=GeoJSONPolygon(
-                coordinates=[[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
-            ),
+            geometry=GeoJSONPolygon(coordinates=[[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]),
         )
         assert fg.crs == "EPSG:4326"
 
@@ -225,6 +227,8 @@ class TestSchemaModels:
 
         req = TWIRequest(field_id="F1")
         assert req.dem_source == "copernicus"
+
+
 # ---------------------------------------------------------------------------
 # DEMBounds tests
 # ---------------------------------------------------------------------------
@@ -234,6 +238,8 @@ class TestDEMBounds:
 
         b = DEMBounds(min_lon=46.0, min_lat=24.0, max_lon=47.0, max_lat=25.0)
         assert b.as_tuple == (46.0, 24.0, 47.0, 25.0)
+
+
 # ---------------------------------------------------------------------------
 # DEMMetadata tests
 # ---------------------------------------------------------------------------
@@ -275,6 +281,8 @@ class TestDEMMetadata:
         )
         d = meta.to_dict()
         assert d["acquisition_date"] == now.isoformat()
+
+
 # ---------------------------------------------------------------------------
 # DEMData tests
 # ---------------------------------------------------------------------------
@@ -316,6 +324,8 @@ class TestDEMData:
         dem = DEMData(data=data, metadata=meta, transform=None, nodata_mask=mask)
         valid = dem.valid_data
         assert valid[1, 1] is np.ma.masked
+
+
 # ---------------------------------------------------------------------------
 # DEMProcessor tests
 # ---------------------------------------------------------------------------
@@ -426,6 +436,8 @@ class TestDEMProcessor:
         dem = DEMData(data=data, metadata=meta, transform=None, nodata_mask=np.zeros((10, 10), dtype=bool))
         result = await proc.resample(dem, 30.0)
         assert result is dem  # Same object since resolution matches
+
+
 # ---------------------------------------------------------------------------
 # TerrainIndicatorCalculator tests
 # ---------------------------------------------------------------------------

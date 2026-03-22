@@ -175,7 +175,8 @@ class TestSingleSensorRules:
     def test_sensor_with_context(self):
         """Test sensor rules accept context parameter"""
         result = rule_from_sensor(
-            "soil_moisture", 5,
+            "soil_moisture",
+            5,
             context={"field_id": "F001", "device_id": "D001"},
         )
         assert result is not None

@@ -1,6 +1,7 @@
 """Tests for digital-twin-engine health and core endpoints."""
 
 import os
+
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")

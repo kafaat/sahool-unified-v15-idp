@@ -37,6 +37,8 @@ def mock_analyzer():
     analyzer.load_dem(dem)
     analyzer.run_full_analysis(flow_threshold=50, depression_max_depth=2.0, min_basin_cells=50)
     return analyzer, dem
+
+
 @pytest.fixture
 def mock_analyzer_no_bounds():
     """Create an analyzer with DEM that has no bounds."""
@@ -45,6 +47,8 @@ def mock_analyzer_no_bounds():
     analyzer.load_dem(dem)
     analyzer.run_full_analysis(flow_threshold=30, depression_max_depth=2.0, min_basin_cells=30)
     return analyzer, dem
+
+
 # ==============================================================================
 # validate_field_id Tests
 # ==============================================================================
@@ -70,6 +74,8 @@ class TestValidateFieldId:
             validate_field_id("field id with spaces")
         with pytest.raises(ValueError):
             validate_field_id("field;drop table")
+
+
 # ==============================================================================
 # build_drainage_network Tests
 # ==============================================================================
@@ -107,6 +113,8 @@ class TestBuildDrainageNetwork:
         result = build_drainage_network(analyzer, dem, "F1")
 
         assert result.bifurcation_ratio > 0
+
+
 # ==============================================================================
 # build_wetness_analysis Tests
 # ==============================================================================
@@ -160,6 +168,8 @@ class TestBuildWetnessAnalysis:
             assert len(zone.level_ar) > 0
             assert len(zone.recommendations_ar) >= 0
             assert len(zone.recommendations_en) >= 0
+
+
 # ==============================================================================
 # build_depression_analysis Tests
 # ==============================================================================
@@ -216,6 +226,8 @@ class TestBuildDepressionAnalysis:
 
         result = build_depression_analysis(analyzer, dem, "F1")
         assert "critical" in result.summary_en.lower() or "حرج" in result.summary_ar
+
+
 # ==============================================================================
 # build_stream_network Tests
 # ==============================================================================
@@ -245,6 +257,8 @@ class TestBuildStreamNetwork:
                 assert stream.is_perennial is True
             else:
                 assert stream.is_perennial is False
+
+
 # ==============================================================================
 # build_basin_delineation Tests
 # ==============================================================================
@@ -276,6 +290,8 @@ class TestBuildBasinDelineation:
         result = build_basin_delineation(analyzer, dem, "F1")
         assert result.total_basins == 0
         assert result.outlet_point is not None  # fallback point
+
+
 # ==============================================================================
 # calculate_flood_risk Tests
 # ==============================================================================
@@ -323,6 +339,8 @@ class TestCalculateFloodRisk:
 
         result = calculate_flood_risk(wetness, depressions)
         assert result == DepressionRisk.MEDIUM
+
+
 # ==============================================================================
 # calculate_drainage_quality_score Tests
 # ==============================================================================
@@ -368,6 +386,8 @@ class TestCalculateDrainageQualityScore:
         score = calculate_drainage_quality_score(drainage, wetness)
         assert score >= 0
         assert score <= 100
+
+
 # ==============================================================================
 # generate_recommendations Tests
 # ==============================================================================
@@ -426,6 +446,8 @@ class TestGenerateRecommendations:
 
         ar, en = generate_recommendations(drainage, wetness, depressions, DepressionRisk.CRITICAL)
         assert any("flood" in r.lower() or "urgent" in r.lower() for r in en)
+
+
 # ==============================================================================
 # Wetness/Depression Recommendations Tests
 # ==============================================================================
@@ -463,6 +485,8 @@ class TestRecommendationFunctions:
             recs = get_depression_recommendations_en(risk)
             assert isinstance(recs, list)
             assert len(recs) > 0
+
+
 # ==============================================================================
 # cells_to_coordinates Tests
 # ==============================================================================
@@ -493,6 +517,8 @@ class TestCellsToCoordinates:
         cells = [(3, 7)]
         coords = cells_to_coordinates(cells, dem)
         assert coords == [[7, 3]]  # col, row as pixel coords
+
+
 # ==============================================================================
 # classify_drainage_pattern Tests
 # ==============================================================================
@@ -523,6 +549,8 @@ class TestClassifyDrainagePattern:
         slope = np.ones((10, 10)) * 5.0
         pattern = classify_drainage_pattern(dem, flow_dir, slope)
         assert pattern == "unknown"
+
+
 # ==============================================================================
 # generate_mock_analysis_data Tests
 # ==============================================================================
@@ -540,6 +568,8 @@ class TestGenerateMockAnalysisData:
         assert analyzer.dem is not None
         assert analyzer.flow_data is not None
         assert analyzer.twi is not None
+
+
 # ==============================================================================
 # fetch_dem_from_terrain_service Tests
 # ==============================================================================
@@ -563,12 +593,16 @@ class TestFetchDemFromTerrainService:
         class _FakeClient:
             def __init__(self, **kw):
                 pass
+
             async def __aenter__(self):
                 raise Exception("Connection refused")
+
             async def __aexit__(self, *a):
                 return False
 
-        with patch("src.api.endpoints.hydrology.httpx.AsyncClient", _FakeClient), \
-             patch("src.api.endpoints.hydrology.logger"):
+        with (
+            patch("src.api.endpoints.hydrology.httpx.AsyncClient", _FakeClient),
+            patch("src.api.endpoints.hydrology.logger"),
+        ):
             result = await fetch_dem_from_terrain_service("FIELD-001")
             assert result is None

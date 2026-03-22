@@ -159,7 +159,11 @@ class TestFieldOpsClientCreateTask:
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t", field_id="f", title="T", description="D", priority="low",
+            tenant_id="t",
+            field_id="f",
+            title="T",
+            description="D",
+            priority="low",
         )
 
         assert result["status"] == "error"
@@ -175,7 +179,11 @@ class TestFieldOpsClientCreateTask:
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t", field_id="f", title="T", description="D", priority="low",
+            tenant_id="t",
+            field_id="f",
+            title="T",
+            description="D",
+            priority="low",
         )
 
         assert result["status"] == "connection_error"
@@ -190,7 +198,11 @@ class TestFieldOpsClientCreateTask:
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t", field_id="f", title="T", description="D", priority="low",
+            tenant_id="t",
+            field_id="f",
+            title="T",
+            description="D",
+            priority="low",
         )
 
         assert result["status"] == "error"

@@ -74,8 +74,7 @@ class MCPClient:
             resolved = shutil.which(executable)
             if resolved is None:
                 raise MCPClientError(
-                    f"Executable not found: {executable!r}. "
-                    "Only known executables on PATH are allowed."
+                    f"Executable not found: {executable!r}. Only known executables on PATH are allowed."
                 )
             command[0] = resolved
         self.command = command

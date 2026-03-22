@@ -50,6 +50,8 @@ class TestTaskEnums:
         assert TaskStatus.COMPLETED == "completed"
         assert TaskStatus.CANCELLED == "cancelled"
         assert TaskStatus.OVERDUE == "overdue"
+
+
 class TestGenerateTaskId:
     """Tests for generate_task_id"""
 
@@ -61,6 +63,8 @@ class TestGenerateTaskId:
     def test_uniqueness(self):
         ids = {generate_task_id() for _ in range(100)}
         assert len(ids) == 100
+
+
 class TestTaskCreateData:
     """Tests for TaskCreateData data class"""
 
@@ -108,6 +112,8 @@ class TestTaskCreateData:
         assert data.astronomical_score == 8
         assert data.suggested_by_calendar is True
         assert data.astronomical_warnings == ["warning1"]
+
+
 class TestCreateTaskModel:
     """Tests for create_task_model"""
 
@@ -161,6 +167,8 @@ class TestCreateTaskModel:
         priority_value = data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
         assert task_type_value == "irrigation"
         assert priority_value == "urgent"
+
+
 class TestDbTaskToDict:
     """Tests for db_task_to_dict"""
 
@@ -289,6 +297,8 @@ class TestDbTaskToDict:
         assert result["created_at"] is None
         assert result["completed_at"] is None
         assert result["evidence"] == []
+
+
 class TestCalculateNdviPriority:
     """Tests for calculate_ndvi_priority"""
 
@@ -313,21 +323,15 @@ class TestCalculateNdviPriority:
         # 12.5% drop
 
     def test_z_score_urgent(self):
-        result = calculate_ndvi_priority(
-            0.5, alert_metadata={"z_score": 3.5}
-        )
+        result = calculate_ndvi_priority(0.5, alert_metadata={"z_score": 3.5})
         assert result == TaskPriority.URGENT
 
     def test_z_score_high(self):
-        result = calculate_ndvi_priority(
-            0.5, alert_metadata={"z_score": 2.5}
-        )
+        result = calculate_ndvi_priority(0.5, alert_metadata={"z_score": 2.5})
         assert result == TaskPriority.HIGH
 
     def test_z_score_medium(self):
-        result = calculate_ndvi_priority(
-            0.5, alert_metadata={"z_score": 1.7}
-        )
+        result = calculate_ndvi_priority(0.5, alert_metadata={"z_score": 1.7})
         assert result == TaskPriority.MEDIUM
 
     def test_critical_alert_type(self):
@@ -346,28 +350,24 @@ class TestCalculateNdviPriority:
         # previous_ndvi=0 should not cause division by zero
         result = calculate_ndvi_priority(0.5, previous_ndvi=0.0)
         assert result in [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH, TaskPriority.URGENT]
+
+
 class TestGenerateNdviTaskContent:
     """Tests for generate_ndvi_task_content"""
 
     def test_critical_content(self):
-        title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "critical", 0.15, None, "field_001"
-        )
+        title, title_ar, desc, desc_ar = generate_ndvi_task_content("critical", 0.15, None, "field_001")
         assert "Critical" in title
         assert "NDVI" in desc
         assert "حرج" in title_ar
 
     def test_drop_content(self):
-        title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "drop", 0.5, 0.7, "field_001"
-        )
+        title, title_ar, desc, desc_ar = generate_ndvi_task_content("drop", 0.5, 0.7, "field_001")
         assert "Decline" in title
         assert "%" in desc  # drop percentage
 
     def test_anomaly_content(self):
-        title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "anomaly", 0.4, None, "field_001"
-        )
+        title, title_ar, desc, desc_ar = generate_ndvi_task_content("anomaly", 0.4, None, "field_001")
         assert "Unusual" in title
 
     def test_with_zone_id(self):
@@ -378,10 +378,10 @@ class TestGenerateNdviTaskContent:
 
     def test_drop_with_zero_previous(self):
         # previous_ndvi=0 should not crash
-        title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "drop", 0.5, 0.0, "field_001"
-        )
+        title, title_ar, desc, desc_ar = generate_ndvi_task_content("drop", 0.5, 0.0, "field_001")
         assert title is not None
+
+
 class TestGetDueDateForPriority:
     """Tests for get_due_date_for_priority"""
 
@@ -407,6 +407,8 @@ class TestGetDueDateForPriority:
         before = datetime.now(UTC)
         result = get_due_date_for_priority(TaskPriority.LOW)
         assert result > before + timedelta(days=1, hours=23)
+
+
 class TestGetActivityTranslation:
     """Tests for get_activity_translation"""
 
@@ -421,8 +423,17 @@ class TestGetActivityTranslation:
         assert ar == "ري"
 
     def test_all_english_activities(self):
-        activities = ["planting", "irrigation", "harvest", "fertilization",
-                      "pruning", "transplanting", "spraying", "scouting", "sampling"]
+        activities = [
+            "planting",
+            "irrigation",
+            "harvest",
+            "fertilization",
+            "pruning",
+            "transplanting",
+            "spraying",
+            "scouting",
+            "sampling",
+        ]
         for act in activities:
             en, ar = get_activity_translation(act)
             assert en == act
@@ -437,6 +448,8 @@ class TestGetActivityTranslation:
         en, ar = get_activity_translation("Planting")
         # The function lowercases
         assert en == "planting"
+
+
 class TestGetTaskTypeActivity:
     """Tests for get_task_type_activity"""
 
@@ -449,6 +462,8 @@ class TestGetTaskTypeActivity:
         assert get_task_type_activity(TaskType.SCOUTING) == "فحص"
         assert get_task_type_activity(TaskType.SAMPLING) == "جمع عينات"
         assert get_task_type_activity(TaskType.OTHER) == "زراعة"
+
+
 class TestEmptyAstronomicalData:
     """Tests for _empty_astronomical_data"""
 

@@ -44,6 +44,8 @@ class TestCheckDbConnection:
 
             result = check_db_connection()
             assert result is False
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_db Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -95,6 +97,8 @@ class TestGetDb:
 
             mock_session.rollback.assert_called_once()
             mock_session.close.assert_called_once()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # init_db Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -117,6 +121,8 @@ class TestInitDb:
 
                 init_db()
                 mock_base.metadata.create_all.assert_called_once_with(bind=mock_engine)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # drop_all_tables Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -139,6 +145,8 @@ class TestDropAllTables:
 
                 drop_all_tables()
                 mock_base.metadata.drop_all.assert_called_once_with(bind=mock_engine)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Module-level Configuration Tests
 # ═══════════════════════════════════════════════════════════════════════════════

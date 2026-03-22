@@ -88,33 +88,23 @@ class TestCalculateGDD:
 
 class TestWaterStress:
     def test_no_stress(self, predictor):
-        result = predictor.calculate_water_stress(
-            precipitation=200.0, et0=150.0, kc=1.0, soil_moisture=0.5
-        )
+        result = predictor.calculate_water_stress(precipitation=200.0, et0=150.0, kc=1.0, soil_moisture=0.5)
         assert result >= 0.9
 
     def test_full_stress(self, predictor):
-        result = predictor.calculate_water_stress(
-            precipitation=0.0, et0=200.0, kc=1.0, soil_moisture=0.1
-        )
+        result = predictor.calculate_water_stress(precipitation=0.0, et0=200.0, kc=1.0, soil_moisture=0.1)
         assert result < 0.5
 
     def test_no_soil_moisture(self, predictor):
-        result = predictor.calculate_water_stress(
-            precipitation=100.0, et0=200.0, kc=1.0, soil_moisture=None
-        )
+        result = predictor.calculate_water_stress(precipitation=100.0, et0=200.0, kc=1.0, soil_moisture=None)
         assert 0 <= result <= 1
 
     def test_zero_et0(self, predictor):
-        result = predictor.calculate_water_stress(
-            precipitation=100.0, et0=0.0, kc=1.0, soil_moisture=0.5
-        )
+        result = predictor.calculate_water_stress(precipitation=100.0, et0=0.0, kc=1.0, soil_moisture=0.5)
         assert result == 1.0
 
     def test_low_soil_moisture(self, predictor):
-        result = predictor.calculate_water_stress(
-            precipitation=100.0, et0=100.0, kc=1.0, soil_moisture=0.1
-        )
+        result = predictor.calculate_water_stress(precipitation=100.0, et0=100.0, kc=1.0, soil_moisture=0.1)
         assert result < 1.0
 
 
@@ -381,9 +371,13 @@ class TestConstants:
 class TestGetYieldFactors:
     def test_basic_factors(self, predictor):
         factors = predictor.get_yield_factors(
-            ndvi_peak=0.7, ndvi_integral=50.0, gdd=2000,
-            precipitation=200, water_stress_factor=0.9,
-            soil_moisture=0.5, crop_code="WHEAT",
+            ndvi_peak=0.7,
+            ndvi_integral=50.0,
+            gdd=2000,
+            precipitation=200,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            crop_code="WHEAT",
         )
         assert "vegetation_health" in factors
         assert "biomass_accumulation" in factors
@@ -394,9 +388,13 @@ class TestGetYieldFactors:
 
     def test_low_values(self, predictor):
         factors = predictor.get_yield_factors(
-            ndvi_peak=0.2, ndvi_integral=10.0, gdd=500,
-            precipitation=50, water_stress_factor=0.3,
-            soil_moisture=0.1, crop_code="WHEAT",
+            ndvi_peak=0.2,
+            ndvi_integral=10.0,
+            gdd=500,
+            precipitation=50,
+            water_stress_factor=0.3,
+            soil_moisture=0.1,
+            crop_code="WHEAT",
         )
         assert factors["vegetation_health"] < 0.5
         assert factors["water_availability"] < 0.5
@@ -427,90 +425,144 @@ class TestNormalizeGDD:
 class TestGenerateRecommendations:
     def test_water_stress_recommendations(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.7, water_stress_factor=0.4, soil_moisture=0.3,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=1.5, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.7,
+            water_stress_factor=0.4,
+            soil_moisture=0.3,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=1.5,
+            base_yield=2.0,
             factors={"vegetation_health": 0.8, "water_availability": 0.4},
         )
         assert any("water" in r.lower() or "irrigation" in r.lower() for r in en)
 
     def test_high_soil_moisture(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.7, water_stress_factor=0.9, soil_moisture=0.8,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=2.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.7,
+            water_stress_factor=0.9,
+            soil_moisture=0.8,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=2.0,
+            base_yield=2.0,
             factors={"vegetation_health": 0.8},
         )
         assert any("moisture" in r.lower() or "reduce" in r.lower() for r in en)
 
     def test_poor_vegetation(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.3, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=1.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.3,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=1.0,
+            base_yield=2.0,
             factors={"vegetation_health": 0.3},
         )
         assert any("vegetation" in r.lower() or "nitrogen" in r.lower() for r in en)
 
     def test_excellent_performance(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.85, water_stress_factor=0.95, soil_moisture=0.5,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=3.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.85,
+            water_stress_factor=0.95,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=3.0,
+            base_yield=2.0,
             factors={"vegetation_health": 1.0, "water_availability": 0.95},
         )
         assert any("excellent" in r.lower() for r in en)
 
     def test_flowering_stage(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.7, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=2000, growth_stage="flowering",
-            predicted_yield=2.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.7,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="flowering",
+            predicted_yield=2.0,
+            base_yield=2.0,
             factors={},
         )
         assert any("flowering" in r.lower() for r in en)
 
     def test_fruiting_stage(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="TOMATO", crop_name_ar="طماطم", crop_name_en="Tomato",
-            ndvi_peak=0.8, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=1000, growth_stage="fruiting",
-            predicted_yield=25.0, base_yield=25.0,
+            crop_code="TOMATO",
+            crop_name_ar="طماطم",
+            crop_name_en="Tomato",
+            ndvi_peak=0.8,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=1000,
+            growth_stage="fruiting",
+            predicted_yield=25.0,
+            base_yield=25.0,
             factors={},
         )
         assert any("fruiting" in r.lower() for r in en)
 
     def test_ripening_stage(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.6, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=2000, growth_stage="ripening",
-            predicted_yield=2.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.6,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="ripening",
+            predicted_yield=2.0,
+            base_yield=2.0,
             factors={},
         )
         assert any("ripening" in r.lower() for r in en)
 
     def test_no_issues(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.8, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=2.0, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.8,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=2.0,
+            base_yield=2.0,
             factors={"vegetation_health": 0.9, "water_availability": 0.9},
         )
         assert len(en) >= 1
 
     def test_critical_factors(self, predictor):
         ar, en = predictor.generate_recommendations(
-            crop_code="WHEAT", crop_name_ar="قمح", crop_name_en="Wheat",
-            ndvi_peak=0.7, water_stress_factor=0.9, soil_moisture=0.5,
-            gdd=2000, growth_stage="vegetative",
-            predicted_yield=1.5, base_yield=2.0,
+            crop_code="WHEAT",
+            crop_name_ar="قمح",
+            crop_name_en="Wheat",
+            ndvi_peak=0.7,
+            water_stress_factor=0.9,
+            soil_moisture=0.5,
+            gdd=2000,
+            growth_stage="vegetative",
+            predicted_yield=1.5,
+            base_yield=2.0,
             factors={"vegetation_health": 0.3, "soil_moisture": 0.2},
         )
         assert any("critical" in r.lower() for r in en)

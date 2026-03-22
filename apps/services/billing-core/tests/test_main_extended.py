@@ -21,6 +21,7 @@ os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32c
 # Helpers
 # ============================================================
 
+
 def _mock_plan(plan_id="starter", tier="starter", pricing=None):
     plan = MagicMock()
     plan.plan_id = plan_id
@@ -36,6 +37,8 @@ def _mock_plan(plan_id="starter", tier="starter", pricing=None):
     plan.trial_days = 14
     plan.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return plan
+
+
 def _mock_subscription(tenant_id="t-001", plan_id="starter", status="active"):
     sub = MagicMock()
     sub.id = uuid.uuid4()
@@ -51,6 +54,8 @@ def _mock_subscription(tenant_id="t-001", plan_id="starter", status="active"):
     sub.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     sub.canceled_at = None
     return sub
+
+
 def _mock_tenant(tenant_id="t-001"):
     t = MagicMock()
     t.tenant_id = tenant_id
@@ -61,6 +66,8 @@ def _mock_tenant(tenant_id="t-001"):
     t.is_active = True
     t.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return t
+
+
 def _mock_invoice(status="pending", total=Decimal("29.00")):
     inv = MagicMock()
     inv.id = uuid.uuid4()
@@ -83,8 +90,11 @@ def _mock_invoice(status="pending", total=Decimal("29.00")):
     inv.notes_ar = None
     inv.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return inv
+
+
 def _mock_payment(status="pending"):
     from src.models import Currency, PaymentMethod, PaymentStatus
+
     p = MagicMock()
     p.id = uuid.uuid4()
     p.invoice_id = uuid.uuid4()
@@ -97,6 +107,8 @@ def _mock_payment(status="pending"):
     p.stripe_payment_id = None
     p.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return p
+
+
 # ============================================================
 # Test init_nats
 # ============================================================
@@ -117,6 +129,7 @@ class TestInitNats:
 
         # Restore globals
         import src.main
+
         src.main.nats_client = None
         src.main.js = None
 
@@ -129,8 +142,11 @@ class TestInitNats:
             await init_nats()  # Should not raise
 
         import src.main
+
         src.main.nats_client = None
         src.main.js = None
+
+
 # ============================================================
 # Test Scheduled Jobs
 # ============================================================
@@ -171,7 +187,9 @@ class TestScheduledJobs:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
-                with patch("src.main.generate_invoice_for_subscription", new_callable=AsyncMock, return_value=mock_invoice):
+                with patch(
+                    "src.main.generate_invoice_for_subscription", new_callable=AsyncMock, return_value=mock_invoice
+                ):
                     with patch("src.main.get_billing_period_end", return_value=date(2025, 3, 1)):
                         with patch("src.main.publish_event", new_callable=AsyncMock):
                             await job_generate_invoices()
@@ -300,6 +318,8 @@ class TestScheduledJobs:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             await job_suspend_past_due()  # Should not raise
+
+
 # ============================================================
 # Test Scheduler
 # ============================================================
@@ -309,7 +329,9 @@ class TestScheduler:
     def test_start_scheduler_no_apscheduler(self):
         from src.main import start_scheduler
 
-        with patch.dict("sys.modules", {"apscheduler": None, "apscheduler.schedulers": None, "apscheduler.schedulers.asyncio": None}):
+        with patch.dict(
+            "sys.modules", {"apscheduler": None, "apscheduler.schedulers": None, "apscheduler.schedulers.asyncio": None}
+        ):
             # Should handle ImportError gracefully
             start_scheduler()
 
@@ -322,19 +344,25 @@ class TestScheduler:
 
         mock_trigger_cls = MagicMock()
 
-        with patch.dict("sys.modules", {
-            "apscheduler": MagicMock(),
-            "apscheduler.schedulers": MagicMock(),
-            "apscheduler.schedulers.asyncio": MagicMock(AsyncIOScheduler=mock_scheduler_cls),
-            "apscheduler.triggers": MagicMock(),
-            "apscheduler.triggers.cron": MagicMock(CronTrigger=mock_trigger_cls),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "apscheduler": MagicMock(),
+                "apscheduler.schedulers": MagicMock(),
+                "apscheduler.schedulers.asyncio": MagicMock(AsyncIOScheduler=mock_scheduler_cls),
+                "apscheduler.triggers": MagicMock(),
+                "apscheduler.triggers.cron": MagicMock(CronTrigger=mock_trigger_cls),
+            },
+        ):
             start_scheduler()
             mock_scheduler.start.assert_called_once()
 
         # Cleanup
         import src.main
+
         src.main.scheduler = None
+
+
 # ============================================================
 # Test Invoice Generation
 # ============================================================
@@ -379,6 +407,8 @@ class TestInvoiceGeneration:
             with patch("src.main.get_next_invoice_number", new_callable=AsyncMock, return_value="SAH-2025-0001"):
                 result = await generate_invoice_for_subscription(mock_db, mock_sub)
                 assert result is not None
+
+
 # ============================================================
 # Test Invoice Sequence
 # ============================================================
@@ -389,6 +419,7 @@ class TestInvoiceSequence:
     async def test_init_invoice_sequence(self):
         import src.main
         from src.main import init_invoice_sequence
+
         src.main._invoice_sequence_initialized = False
 
         mock_db = AsyncMock()
@@ -407,6 +438,7 @@ class TestInvoiceSequence:
     async def test_init_invoice_sequence_already_initialized(self):
         import src.main
         from src.main import init_invoice_sequence
+
         src.main._invoice_sequence_initialized = True
 
         # Should return immediately
@@ -419,6 +451,7 @@ class TestInvoiceSequence:
     async def test_init_invoice_sequence_error(self):
         import src.main
         from src.main import init_invoice_sequence
+
         src.main._invoice_sequence_initialized = False
 
         mock_ctx = AsyncMock()
@@ -462,6 +495,8 @@ class TestInvoiceSequence:
             # Fallback uses 8-char hex suffix
             suffix = result.split("-", 2)[2]
             assert len(suffix) == 8
+
+
 # ============================================================
 # Test init_default_plans_in_db
 # ============================================================
@@ -521,6 +556,8 @@ class TestInitDefaultPlans:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             await init_default_plans_in_db()  # Should not raise
+
+
 # ============================================================
 # Test call_tharwatt_api
 # ============================================================
@@ -571,6 +608,8 @@ class TestTharwattApi:
             with pytest.raises(HTTPException) as exc_info:
                 await call_tharwatt_api(mock_payment, "+967123456789")
             assert exc_info.value.status_code == 502
+
+
 # ============================================================
 # Test call_stripe_api
 # ============================================================
@@ -597,6 +636,8 @@ class TestStripeApi:
                 with pytest.raises(HTTPException) as exc_info:
                     await call_stripe_api(mock_payment, "tok_123")
                 assert exc_info.value.status_code == 502
+
+
 # ============================================================
 # Test publish_event edge cases
 # ============================================================
@@ -617,12 +658,17 @@ class TestPublishEventEdgeCases:
 
         mock_js = AsyncMock()
         with patch("src.main.js", mock_js):
-            await publish_event("sahool.test", {
-                "timestamp": datetime.now(UTC),
-                "amount": Decimal("29.00"),
-                "id": uuid.uuid4(),
-            })
+            await publish_event(
+                "sahool.test",
+                {
+                    "timestamp": datetime.now(UTC),
+                    "amount": Decimal("29.00"),
+                    "id": uuid.uuid4(),
+                },
+            )
             mock_js.publish.assert_awaited_once()
+
+
 # ============================================================
 # Test DB Model Table Args
 # ============================================================
@@ -631,27 +677,35 @@ class TestDbModelTableArgs:
 
     def test_plan_tablename(self):
         from src.models import Plan
+
         assert Plan.__tablename__ == "plans"
 
     def test_tenant_tablename(self):
         from src.models import Tenant
+
         assert Tenant.__tablename__ == "tenants"
 
     def test_subscription_tablename(self):
         from src.models import Subscription
+
         assert Subscription.__tablename__ == "subscriptions"
 
     def test_invoice_tablename(self):
         from src.models import Invoice
+
         assert Invoice.__tablename__ == "invoices"
 
     def test_payment_tablename(self):
         from src.models import Payment
+
         assert Payment.__tablename__ == "payments"
 
     def test_usage_record_tablename(self):
         from src.models import UsageRecord
+
         assert UsageRecord.__tablename__ == "usage_records"
+
+
 # ============================================================
 # Test check_usage_limit_db - plan not found
 # ============================================================
@@ -673,6 +727,8 @@ class TestCheckUsageLimitPlanNotFound:
             result = await check_usage_limit_db(mock_db, "t-001", "fields")
             assert result["allowed"] is False
             assert "Plan not found" in result["reason"]
+
+
 # ============================================================
 # Test Subscription get_by_tenant with status filter
 # ============================================================
@@ -705,6 +761,8 @@ class TestSubscriptionGetByTenant:
         repo = SubscriptionRepository(mock_db)
         result = await repo.get_by_tenant("t-001")
         assert result is None
+
+
 # ============================================================
 # Test Invoice list_by_tenant with various filters
 # ============================================================

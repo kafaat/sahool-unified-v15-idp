@@ -53,6 +53,8 @@ TENANT = "tenant_demo"
 # Middleware requires UUID format, but the dependency override returns tenant_demo for business logic
 TENANT_UUID = "00000000-0000-0000-0000-000000000001"
 HEADERS = {"X-Tenant-Id": TENANT_UUID}
+
+
 @pytest.fixture(autouse=True)
 def reset_stores():
     """Reset in-memory stores before each test and seed demo data."""
@@ -66,8 +68,12 @@ def reset_stores():
     STORAGE_FACILITIES.clear()
     HARVEST_COLLECTIONS.clear()
     SHIPMENTS.clear()
+
+
 async def _override_tenant_id():
     return TENANT
+
+
 @pytest.fixture
 def client():
     from src.main import get_tenant_id as real_get_tenant_id
@@ -76,6 +82,8 @@ def client():
     c = TestClient(app)
     yield c
     app.dependency_overrides.clear()
+
+
 # ==========================================================================
 # Enum & Translation Tests
 # ==========================================================================
@@ -119,6 +127,8 @@ class TestEnums:
             assert st in STORAGE_TYPE_AR, f"Missing Arabic for StorageType.{st.name}"
         for cp in CollectionPriority:
             assert cp in PRIORITY_AR, f"Missing Arabic for CollectionPriority.{cp.name}"
+
+
 # ==========================================================================
 # Pydantic Model Tests
 # ==========================================================================
@@ -188,6 +198,8 @@ class TestModels:
             collection_ids=["c1", "c2"],
         )
         assert req.return_to_start is True  # default
+
+
 # ==========================================================================
 # Helper Function Tests
 # ==========================================================================
@@ -221,6 +233,8 @@ class TestHelpers:
         assert len(VEHICLES) == 2
         assert len(STORAGE_FACILITIES) == 2
         assert len(HARVEST_COLLECTIONS) == 2
+
+
 # ==========================================================================
 # Health Endpoint Tests
 # ==========================================================================
@@ -246,6 +260,8 @@ class TestHealthEndpoints:
         data = resp.json()
         assert "stats" in data
         assert "vehicles" in data["stats"]
+
+
 # ==========================================================================
 # Fleet / Vehicle Endpoint Tests
 # ==========================================================================
@@ -356,6 +372,8 @@ class TestVehicleEndpoints:
             headers=HEADERS,
         )
         assert resp.status_code == 404
+
+
 # ==========================================================================
 # Storage Facility Endpoint Tests
 # ==========================================================================
@@ -434,6 +452,8 @@ class TestStorageFacilityEndpoints:
             headers=HEADERS,
         )
         assert resp.status_code == 404
+
+
 # ==========================================================================
 # Harvest Collection Endpoint Tests
 # ==========================================================================
@@ -519,6 +539,8 @@ class TestCollectionEndpoints:
             headers=HEADERS,
         )
         assert resp.status_code == 404
+
+
 # ==========================================================================
 # Route Optimization Tests
 # ==========================================================================
@@ -584,6 +606,8 @@ class TestRouteOptimization:
             headers=HEADERS,
         )
         assert resp.status_code == 400
+
+
 # ==========================================================================
 # Shipment Endpoint Tests
 # ==========================================================================
@@ -669,6 +693,8 @@ class TestShipmentEndpoints:
         )
         assert resp.status_code == 200
         assert SHIPMENTS[sid]["current_lat"] == 15.5
+
+
 # ==========================================================================
 # Statistics Endpoint Tests
 # ==========================================================================
@@ -689,6 +715,8 @@ class TestStatsEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert 0 <= data["storage"]["utilization_percent"] <= 100
+
+
 # ==========================================================================
 # Tenant Isolation Tests
 # ==========================================================================

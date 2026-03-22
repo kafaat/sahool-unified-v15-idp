@@ -38,16 +38,18 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "tenant-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "field_id": "field-1",
-                "sensor_type": "soil_moisture",
-                "value": 5,
-                "device_id": "dev-1",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "tenant-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "field_id": "field-1",
+                    "sensor_type": "soil_moisture",
+                    "value": 5,
+                    "device_id": "dev-1",
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -59,15 +61,17 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "tenant-1",
-            "payload": {
-                "field_id": "field-1",
-                "sensor_type": "soil_moisture",
-                "value": 50,
-                "device_id": "dev-1",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "tenant-1",
+                "payload": {
+                    "field_id": "field-1",
+                    "sensor_type": "soil_moisture",
+                    "value": 50,
+                    "device_id": "dev-1",
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -79,13 +83,15 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "tenant-1",
-            "field_id": "field-1",
-            "sensor_type": "soil_moisture",
-            "value": 5,
-            "device_id": "dev-1",
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "tenant-1",
+                "field_id": "field-1",
+                "sensor_type": "soil_moisture",
+                "value": 5,
+                "device_id": "dev-1",
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -97,14 +103,16 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "payload": {
-                "field_id": "field-1",
-                "sensor_type": "soil_moisture",
-                "value": 5,
-                "device_id": "dev-1",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "payload": {
+                    "field_id": "field-1",
+                    "sensor_type": "soil_moisture",
+                    "value": 5,
+                    "device_id": "dev-1",
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -116,13 +124,15 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "tenant-1",
-            "payload": {
-                "field_id": "field-1",
-                # Missing sensor_type and value
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "tenant-1",
+                "payload": {
+                    "field_id": "field-1",
+                    # Missing sensor_type and value
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -144,15 +154,17 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "tenant-1",
-            "payload": {
-                "field_id": "field-1",
-                "sensor_type": "air_temperature",
-                "value": 25,
-                "device_id": "dev-1",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "tenant-1",
+                "payload": {
+                    "field_id": "field-1",
+                    "sensor_type": "air_temperature",
+                    "value": 25,
+                    "device_id": "dev-1",
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         assert "field-1" in worker._recent_readings
@@ -166,16 +178,18 @@ class TestIoTRulesWorkerHandleSensorReading:
         worker.fieldops = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "correlation_id": "corr-xyz",
-            "payload": {
-                "field_id": "f1",
-                "sensor_type": "water_flow",
-                "value": 0,
-                "device_id": "dev-1",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "correlation_id": "corr-xyz",
+                "payload": {
+                    "field_id": "f1",
+                    "sensor_type": "water_flow",
+                    "value": 0,
+                    "device_id": "dev-1",
+                },
+            }
+        ).encode()
 
         await worker._handle_sensor_reading(msg)
         if worker.fieldops.create_task.called:
@@ -263,13 +277,17 @@ class TestIoTRulesWorkerCreateTaskFromRecommendation:
 
         # First call should succeed
         await worker._create_task_from_recommendation(
-            "tenant-1", "field-1", rec,
+            "tenant-1",
+            "field-1",
+            rec,
         )
         assert worker.fieldops.create_task.call_count == 1
 
         # Second call should be skipped (within cooldown)
         await worker._create_task_from_recommendation(
-            "tenant-1", "field-1", rec,
+            "tenant-1",
+            "field-1",
+            rec,
         )
         assert worker.fieldops.create_task.call_count == 1
 
@@ -294,7 +312,9 @@ class TestIoTRulesWorkerCreateTaskFromRecommendation:
         worker._recent_tasks[task_key] = datetime.now(UTC) - timedelta(minutes=31)
 
         await worker._create_task_from_recommendation(
-            "tenant-1", "field-1", rec,
+            "tenant-1",
+            "field-1",
+            rec,
         )
         assert worker.fieldops.create_task.call_count == 1
 
@@ -316,7 +336,9 @@ class TestIoTRulesWorkerCreateTaskFromRecommendation:
 
         # Should not raise
         await worker._create_task_from_recommendation(
-            "tenant-1", "field-1", rec,
+            "tenant-1",
+            "field-1",
+            rec,
         )
 
     @pytest.mark.asyncio
@@ -336,7 +358,9 @@ class TestIoTRulesWorkerCreateTaskFromRecommendation:
         )
 
         await worker._create_task_from_recommendation(
-            "tenant-1", "field-1", rec,
+            "tenant-1",
+            "field-1",
+            rec,
         )
 
         call_kwargs = worker.fieldops.create_task.call_args.kwargs
@@ -360,7 +384,10 @@ class TestIoTRulesWorkerCreateTaskFromRecommendation:
         )
 
         await worker._create_task_from_recommendation(
-            "t1", "f1", rec, device_id="sensor-42",
+            "t1",
+            "f1",
+            rec,
+            device_id="sensor-42",
         )
 
         call_kwargs = worker.fieldops.create_task.call_args.kwargs

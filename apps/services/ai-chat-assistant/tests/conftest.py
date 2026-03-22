@@ -1,4 +1,5 @@
 """Test configuration for ai-chat-assistant."""
+
 import os
 import sys
 

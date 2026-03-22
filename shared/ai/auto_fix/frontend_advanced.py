@@ -167,28 +167,32 @@ class FrontendAdvancedRunner:
                     total_js_kb += size_kb
 
                     if size_kb > self.budget.max_js_bundle_kb:
-                        violations.append(BudgetViolation(
-                            metric="js_chunk_size",
-                            metric_ar="حجم حزمة JavaScript",
-                            actual=round(size_kb, 1),
-                            budget=self.budget.max_js_bundle_kb,
-                            severity=DiagnosticSeverity.WARNING,
-                            file_path=str(js_file.relative_to(self.working_dir)),
-                            suggestion=f"Split chunk or use dynamic import. Size: {size_kb:.0f}KB > {self.budget.max_js_bundle_kb:.0f}KB",
-                            suggestion_ar=f"قسم الحزمة أو استخدم الاستيراد الديناميكي. الحجم: {size_kb:.0f}KB > {self.budget.max_js_bundle_kb:.0f}KB",
-                        ))
+                        violations.append(
+                            BudgetViolation(
+                                metric="js_chunk_size",
+                                metric_ar="حجم حزمة JavaScript",
+                                actual=round(size_kb, 1),
+                                budget=self.budget.max_js_bundle_kb,
+                                severity=DiagnosticSeverity.WARNING,
+                                file_path=str(js_file.relative_to(self.working_dir)),
+                                suggestion=f"Split chunk or use dynamic import. Size: {size_kb:.0f}KB > {self.budget.max_js_bundle_kb:.0f}KB",
+                                suggestion_ar=f"قسم الحزمة أو استخدم الاستيراد الديناميكي. الحجم: {size_kb:.0f}KB > {self.budget.max_js_bundle_kb:.0f}KB",
+                            )
+                        )
 
                 if total_js_kb > self.budget.max_total_bundle_kb:
-                    violations.append(BudgetViolation(
-                        metric="total_js_size",
-                        metric_ar="إجمالي حجم JavaScript",
-                        actual=round(total_js_kb, 1),
-                        budget=self.budget.max_total_bundle_kb,
-                        severity=DiagnosticSeverity.ERROR,
-                        file_path=str(app_path.relative_to(self.working_dir)),
-                        suggestion="Reduce total JS bundle size. Consider code splitting and tree shaking.",
-                        suggestion_ar="قلل حجم حزمة JavaScript الإجمالي. استخدم تقسيم الكود وإزالة الكود غير المستخدم.",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="total_js_size",
+                            metric_ar="إجمالي حجم JavaScript",
+                            actual=round(total_js_kb, 1),
+                            budget=self.budget.max_total_bundle_kb,
+                            severity=DiagnosticSeverity.ERROR,
+                            file_path=str(app_path.relative_to(self.working_dir)),
+                            suggestion="Reduce total JS bundle size. Consider code splitting and tree shaking.",
+                            suggestion_ar="قلل حجم حزمة JavaScript الإجمالي. استخدم تقسيم الكود وإزالة الكود غير المستخدم.",
+                        )
+                    )
 
         return violations
 
@@ -210,16 +214,18 @@ class FrontendAdvancedRunner:
 
                 size_kb = img.stat().st_size / 1024
                 if size_kb > self.budget.max_image_size_kb:
-                    violations.append(BudgetViolation(
-                        metric="image_size",
-                        metric_ar="حجم الصورة",
-                        actual=round(size_kb, 1),
-                        budget=self.budget.max_image_size_kb,
-                        severity=DiagnosticSeverity.WARNING,
-                        file_path=str(img.relative_to(self.working_dir)),
-                        suggestion=f"Compress image or convert to WebP. Size: {size_kb:.0f}KB",
-                        suggestion_ar=f"اضغط الصورة أو حولها إلى WebP. الحجم: {size_kb:.0f}KB",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="image_size",
+                            metric_ar="حجم الصورة",
+                            actual=round(size_kb, 1),
+                            budget=self.budget.max_image_size_kb,
+                            severity=DiagnosticSeverity.WARNING,
+                            file_path=str(img.relative_to(self.working_dir)),
+                            suggestion=f"Compress image or convert to WebP. Size: {size_kb:.0f}KB",
+                            suggestion_ar=f"اضغط الصورة أو حولها إلى WebP. الحجم: {size_kb:.0f}KB",
+                        )
+                    )
 
         return violations
 
@@ -243,16 +249,18 @@ class FrontendAdvancedRunner:
                     continue
 
                 if "<img " in content and "next/image" not in content:
-                    violations.append(BudgetViolation(
-                        metric="next_image",
-                        metric_ar="استخدام next/image",
-                        actual=1,
-                        budget=0,
-                        severity=DiagnosticSeverity.WARNING,
-                        file_path=str(tsx_file.relative_to(self.working_dir)),
-                        suggestion="Use next/image <Image> component instead of <img> for automatic optimization",
-                        suggestion_ar="استخدم مكون <Image> من next/image بدلاً من <img> للتحسين التلقائي",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="next_image",
+                            metric_ar="استخدام next/image",
+                            actual=1,
+                            budget=0,
+                            severity=DiagnosticSeverity.WARNING,
+                            file_path=str(tsx_file.relative_to(self.working_dir)),
+                            suggestion="Use next/image <Image> component instead of <img> for automatic optimization",
+                            suggestion_ar="استخدم مكون <Image> من next/image بدلاً من <img> للتحسين التلقائي",
+                        )
+                    )
 
         return violations
 
@@ -279,30 +287,34 @@ class FrontendAdvancedRunner:
                 # Check for missing alt text on images
                 if "<Image" in content or "<img" in content:
                     if 'alt=""' in content or "alt=''" in content:
-                        violations.append(BudgetViolation(
-                            metric="a11y_alt_text",
-                            metric_ar="نص بديل للصور",
-                            actual=1,
-                            budget=0,
-                            severity=DiagnosticSeverity.WARNING,
-                            file_path=rel_path,
-                            suggestion="Provide meaningful alt text for images (WCAG 1.1.1)",
-                            suggestion_ar="أضف نصاً بديلاً واضحاً للصور (WCAG 1.1.1)",
-                        ))
+                        violations.append(
+                            BudgetViolation(
+                                metric="a11y_alt_text",
+                                metric_ar="نص بديل للصور",
+                                actual=1,
+                                budget=0,
+                                severity=DiagnosticSeverity.WARNING,
+                                file_path=rel_path,
+                                suggestion="Provide meaningful alt text for images (WCAG 1.1.1)",
+                                suggestion_ar="أضف نصاً بديلاً واضحاً للصور (WCAG 1.1.1)",
+                            )
+                        )
 
                 # Check for onClick without keyboard handler
                 if "onClick" in content and "onKeyDown" not in content and "onKeyPress" not in content:
                     if "<div onClick" in content or "<span onClick" in content:
-                        violations.append(BudgetViolation(
-                            metric="a11y_keyboard",
-                            metric_ar="إمكانية الوصول بلوحة المفاتيح",
-                            actual=1,
-                            budget=0,
-                            severity=DiagnosticSeverity.INFO,
-                            file_path=rel_path,
-                            suggestion="Add keyboard event handler for interactive non-button elements (WCAG 2.1.1)",
-                            suggestion_ar="أضف معالج أحداث لوحة المفاتيح للعناصر التفاعلية (WCAG 2.1.1)",
-                        ))
+                        violations.append(
+                            BudgetViolation(
+                                metric="a11y_keyboard",
+                                metric_ar="إمكانية الوصول بلوحة المفاتيح",
+                                actual=1,
+                                budget=0,
+                                severity=DiagnosticSeverity.INFO,
+                                file_path=rel_path,
+                                suggestion="Add keyboard event handler for interactive non-button elements (WCAG 2.1.1)",
+                                suggestion_ar="أضف معالج أحداث لوحة المفاتيح للعناصر التفاعلية (WCAG 2.1.1)",
+                            )
+                        )
 
         return violations
 
@@ -371,30 +383,34 @@ class MobileAdvancedRunner:
             if "setState(" in content:
                 lines = content.split("\n")
                 if len(lines) > 200:
-                    violations.append(BudgetViolation(
-                        metric="flutter_rebuild",
-                        metric_ar="إعادة بناء الواجهة",
-                        actual=len(lines),
-                        budget=200,
-                        severity=DiagnosticSeverity.WARNING,
-                        file_path=rel_path,
-                        suggestion="Large widget with setState. Consider extracting sub-widgets or using Riverpod.",
-                        suggestion_ar="واجهة كبيرة مع setState. انقل الأجزاء إلى واجهات فرعية أو استخدم Riverpod.",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="flutter_rebuild",
+                            metric_ar="إعادة بناء الواجهة",
+                            actual=len(lines),
+                            budget=200,
+                            severity=DiagnosticSeverity.WARNING,
+                            file_path=rel_path,
+                            suggestion="Large widget with setState. Consider extracting sub-widgets or using Riverpod.",
+                            suggestion_ar="واجهة كبيرة مع setState. انقل الأجزاء إلى واجهات فرعية أو استخدم Riverpod.",
+                        )
+                    )
 
             # Check for missing const constructors
             if "Widget build(" in content and "const " not in content[:500]:
                 if content.count("Container(") > 3 or content.count("Padding(") > 3:
-                    violations.append(BudgetViolation(
-                        metric="flutter_const",
-                        metric_ar="استخدام const",
-                        actual=1,
-                        budget=0,
-                        severity=DiagnosticSeverity.INFO,
-                        file_path=rel_path,
-                        suggestion="Consider using const constructors for static widgets to improve performance.",
-                        suggestion_ar="استخدم const للواجهات الثابتة لتحسين الأداء.",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="flutter_const",
+                            metric_ar="استخدام const",
+                            actual=1,
+                            budget=0,
+                            severity=DiagnosticSeverity.INFO,
+                            file_path=rel_path,
+                            suggestion="Consider using const constructors for static widgets to improve performance.",
+                            suggestion_ar="استخدم const للواجهات الثابتة لتحسين الأداء.",
+                        )
+                    )
 
         return violations
 
@@ -418,17 +434,24 @@ class MobileAdvancedRunner:
             if "static " in content and " = " in content and "final" not in content:
                 for line in content.split("\n"):
                     stripped = line.strip()
-                    if stripped.startswith("static ") and "final" not in stripped and "const" not in stripped and "=" in stripped:
-                        violations.append(BudgetViolation(
-                            metric="flutter_global_state",
-                            metric_ar="حالة عامة قابلة للتعديل",
-                            actual=1,
-                            budget=0,
-                            severity=DiagnosticSeverity.WARNING,
-                            file_path=rel_path,
-                            suggestion="Avoid mutable static state. Use Riverpod providers instead.",
-                            suggestion_ar="تجنب الحالة الثابتة القابلة للتعديل. استخدم Riverpod بدلاً.",
-                        ))
+                    if (
+                        stripped.startswith("static ")
+                        and "final" not in stripped
+                        and "const" not in stripped
+                        and "=" in stripped
+                    ):
+                        violations.append(
+                            BudgetViolation(
+                                metric="flutter_global_state",
+                                metric_ar="حالة عامة قابلة للتعديل",
+                                actual=1,
+                                budget=0,
+                                severity=DiagnosticSeverity.WARNING,
+                                file_path=rel_path,
+                                suggestion="Avoid mutable static state. Use Riverpod providers instead.",
+                                suggestion_ar="تجنب الحالة الثابتة القابلة للتعديل. استخدم Riverpod بدلاً.",
+                            )
+                        )
                         break
 
         return violations
@@ -453,15 +476,17 @@ class MobileAdvancedRunner:
             # HTTP calls without try-catch (offline risk)
             if (".get(" in content or ".post(" in content) and "dio" in content.lower():
                 if "catch" not in content and "try" not in content:
-                    violations.append(BudgetViolation(
-                        metric="offline_compliance",
-                        metric_ar="التوافق مع وضع عدم الاتصال",
-                        actual=1,
-                        budget=0,
-                        severity=DiagnosticSeverity.WARNING,
-                        file_path=rel_path,
-                        suggestion="HTTP calls should have error handling for offline scenarios.",
-                        suggestion_ar="يجب معالجة أخطاء الشبكة لدعم وضع عدم الاتصال.",
-                    ))
+                    violations.append(
+                        BudgetViolation(
+                            metric="offline_compliance",
+                            metric_ar="التوافق مع وضع عدم الاتصال",
+                            actual=1,
+                            budget=0,
+                            severity=DiagnosticSeverity.WARNING,
+                            file_path=rel_path,
+                            suggestion="HTTP calls should have error handling for offline scenarios.",
+                            suggestion_ar="يجب معالجة أخطاء الشبكة لدعم وضع عدم الاتصال.",
+                        )
+                    )
 
         return violations

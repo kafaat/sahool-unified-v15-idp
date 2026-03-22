@@ -54,6 +54,8 @@ class TestGenerateCacheKey:
 
         key = generate_cache_key("some code", "py", "model")
         assert len(key) == 32
+
+
 @pytest.mark.asyncio
 class TestMemoryCache:
     """Tests for MemoryCache backend."""
@@ -121,6 +123,8 @@ class TestMemoryCache:
     async def test_stats_no_accesses(self, cache):
         stats = await cache.stats()
         assert stats["hit_rate"] == "0.0%"
+
+
 class TestCreateCacheBackend:
     """Tests for create_cache_backend factory."""
 
@@ -154,6 +158,8 @@ class TestCreateCacheBackend:
 
         backend = create_cache_backend("unknown_backend")
         assert isinstance(backend, MemoryCache)
+
+
 @pytest.mark.asyncio
 class TestFileCache:
     """Tests for FileCache backend."""
@@ -202,6 +208,8 @@ class TestFileCache:
         assert stats["backend"] == "file"
         assert stats["hits"] == 1
         assert stats["misses"] == 1
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Agricultural Rules Tests (agricultural_rules.py)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -226,6 +234,8 @@ class TestAgriculturalIssue:
         assert "NDVI خارج النطاق" in d["message"]
         assert d["line"] == 10
         assert d["snippet"] == "ndvi = 2.0"
+
+
 class TestAgriculturalAnalysis:
     """Tests for AgriculturalAnalysis dataclass."""
 
@@ -233,9 +243,14 @@ class TestAgriculturalAnalysis:
         from src.agricultural_rules import AgriculturalAnalysis, AgriculturalIssue
 
         analysis = AgriculturalAnalysis()
-        analysis.add_issue(AgriculturalIssue(
-            category="ndvi", severity="critical", message_en="Bad", message_ar="سيء",
-        ))
+        analysis.add_issue(
+            AgriculturalIssue(
+                category="ndvi",
+                severity="critical",
+                message_en="Bad",
+                message_ar="سيء",
+            )
+        )
         assert len(analysis.issues) == 1
         assert analysis.score_modifier == -15
 
@@ -243,30 +258,47 @@ class TestAgriculturalAnalysis:
         from src.agricultural_rules import AgriculturalAnalysis, AgriculturalIssue
 
         analysis = AgriculturalAnalysis()
-        analysis.add_issue(AgriculturalIssue(
-            category="sensor", severity="warning", message_en="Warn", message_ar="تحذير",
-        ))
+        analysis.add_issue(
+            AgriculturalIssue(
+                category="sensor",
+                severity="warning",
+                message_en="Warn",
+                message_ar="تحذير",
+            )
+        )
         assert analysis.score_modifier == -5
 
     def test_add_info_issue(self):
         from src.agricultural_rules import AgriculturalAnalysis, AgriculturalIssue
 
         analysis = AgriculturalAnalysis()
-        analysis.add_issue(AgriculturalIssue(
-            category="general", severity="info", message_en="Info", message_ar="معلومة",
-        ))
+        analysis.add_issue(
+            AgriculturalIssue(
+                category="general",
+                severity="info",
+                message_en="Info",
+                message_ar="معلومة",
+            )
+        )
         assert analysis.score_modifier == -1
 
     def test_get_issue_messages(self):
         from src.agricultural_rules import AgriculturalAnalysis, AgriculturalIssue
 
         analysis = AgriculturalAnalysis()
-        analysis.add_issue(AgriculturalIssue(
-            category="ndvi", severity="warning", message_en="Range issue", message_ar="مشكلة نطاق",
-        ))
+        analysis.add_issue(
+            AgriculturalIssue(
+                category="ndvi",
+                severity="warning",
+                message_en="Range issue",
+                message_ar="مشكلة نطاق",
+            )
+        )
         msgs = analysis.get_issue_messages()
         assert len(msgs) == 1
         assert "Range issue" in msgs[0]
+
+
 class TestAgriculturalRulesEngine:
     """Tests for AgriculturalRulesEngine."""
 
@@ -422,6 +454,8 @@ class TestAgriculturalRulesEngine:
         analysis = AgriculturalAnalysis(is_agricultural_code=False)
         prompt = engine.get_enhanced_prompt(analysis)
         assert prompt == ""
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # GitHub Integration Tests (github_integration.py)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -502,6 +536,8 @@ class TestPRReviewResult:
         result = PRReviewResult(pr_number=1, owner="o", repo="r")
         result.add_file_review("a.py", {"score": 80, "security_concerns": []})
         assert result.has_security_concerns() is False
+
+
 class TestGitHubIntegration:
     """Tests for GitHubIntegration class."""
 
@@ -541,14 +577,16 @@ class TestGitHubIntegration:
         from src.github_integration import GitHubIntegration
 
         gh = GitHubIntegration(token="tok")
-        comment = gh.format_review_comment({
-            "score": 40,
-            "summary": "Needs work",
-            "critical_issues": ["Bug found"],
-            "security_concerns": ["XSS vulnerability"],
-            "agricultural_issues": ["NDVI out of range"],
-            "suggestions": ["Add tests"],
-        })
+        comment = gh.format_review_comment(
+            {
+                "score": 40,
+                "summary": "Needs work",
+                "critical_issues": ["Bug found"],
+                "security_concerns": ["XSS vulnerability"],
+                "agricultural_issues": ["NDVI out of range"],
+                "suggestions": ["Add tests"],
+            }
+        )
         assert "40/100" in comment
         assert "Bug found" in comment
         assert "XSS vulnerability" in comment
@@ -573,8 +611,22 @@ class TestGitHubIntegration:
 
         gh = GitHubIntegration(token="tok")
         reviews = [
-            {"file": "a.py", "score": 90, "summary": "Great", "critical_issues": [], "security_concerns": [], "agricultural_issues": []},
-            {"file": "b.py", "score": 40, "summary": "Bad", "critical_issues": ["Bug"], "security_concerns": ["XSS"], "agricultural_issues": ["NDVI"]},
+            {
+                "file": "a.py",
+                "score": 90,
+                "summary": "Great",
+                "critical_issues": [],
+                "security_concerns": [],
+                "agricultural_issues": [],
+            },
+            {
+                "file": "b.py",
+                "score": 40,
+                "summary": "Bad",
+                "critical_issues": ["Bug"],
+                "security_concerns": ["XSS"],
+                "agricultural_issues": ["NDVI"],
+            },
         ]
         summary = gh.format_pr_summary(reviews)
         assert "65/100" in summary  # (90+40)//2
@@ -589,6 +641,8 @@ class TestGitHubIntegration:
 
         gh = GitHubIntegration(token="tok", api_url="https://api.github.com/")
         assert gh.api_url == "https://api.github.com"
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Main Service Logic Tests - _parse_response and _create_review_prompt
 # These test the methods directly on a manually-constructed service instance
@@ -660,6 +714,8 @@ class TestParseResponse:
         assert result["security_concerns"] == []
         assert result["agricultural_issues"] == []
         assert result["score"] == 75
+
+
 class TestCreateReviewPromptLogic:
     """Tests for review prompt generation logic."""
 
@@ -670,11 +726,20 @@ class TestCreateReviewPromptLogic:
             file_type = language.capitalize()
         else:
             file_type = {
-                ".py": "Python", ".ts": "TypeScript", ".tsx": "TypeScript React",
-                ".js": "JavaScript", ".jsx": "JavaScript React",
-                ".yml": "YAML", ".yaml": "YAML", ".json": "JSON",
-                ".md": "Markdown", ".sh": "Bash", ".dockerfile": "Dockerfile",
-                ".tf": "Terraform", ".go": "Go", ".rs": "Rust",
+                ".py": "Python",
+                ".ts": "TypeScript",
+                ".tsx": "TypeScript React",
+                ".js": "JavaScript",
+                ".jsx": "JavaScript React",
+                ".yml": "YAML",
+                ".yaml": "YAML",
+                ".json": "JSON",
+                ".md": "Markdown",
+                ".sh": "Bash",
+                ".dockerfile": "Dockerfile",
+                ".tf": "Terraform",
+                ".go": "Go",
+                ".rs": "Rust",
             }.get(file_ext, "Code")
         return f"Review {file_type} file: {file_path}\n{content[:5000]}"
 
@@ -694,6 +759,8 @@ class TestCreateReviewPromptLogic:
         long_code = "x = 1\n" * 10000
         prompt = self._create_prompt("big.py", long_code)
         assert len(prompt) < len(long_code)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Tests (mock-based - no real Redis needed)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -711,6 +778,8 @@ class TestRedisCacheKeyPrefixing:
 
         cache = RedisCache(redis_url="redis://localhost:6379", prefix="test_prefix:")
         assert cache._make_key("key") == "test_prefix:key"
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Settings Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -721,9 +790,7 @@ class TestSettings:
         from config.settings import Settings
 
         with patch.dict(os.environ, {}, clear=False):
-            settings = Settings(
-                fallback_models="model1@http://host1,model2@http://host2,model3"
-            )
+            settings = Settings(fallback_models="model1@http://host1,model2@http://host2,model3")
             models = settings.get_fallback_models_list()
             assert len(models) == 3
             assert models[0] == ("model1", "http://host1")
@@ -756,5 +823,7 @@ class TestSettings:
             assert settings.cache_backend == "memory"
             assert settings.enable_agricultural_rules is True
             assert settings.max_retries == 3
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

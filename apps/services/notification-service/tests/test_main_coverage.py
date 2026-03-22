@@ -565,9 +565,7 @@ class TestSendNotificationViaChannel:
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
 
-        with patch(
-            "src.main.send_whatsapp_notification", new_callable=AsyncMock, side_effect=Exception("WA error")
-        ):
+        with patch("src.main.send_whatsapp_notification", new_callable=AsyncMock, side_effect=Exception("WA error")):
             with patch("src.main.NotificationLogRepository") as mock_log:
                 mock_log.create_log = AsyncMock()
                 await send_notification_via_channel(mock_notif, NotificationChannel.WHATSAPP, "farmer-1")

@@ -17,6 +17,8 @@ def finder():
     from src.suppliers.finder import SupplierFinder
 
     return SupplierFinder()
+
+
 class TestSupplierFinderInit:
     """Tests for SupplierFinder initialization."""
 
@@ -37,6 +39,8 @@ class TestSupplierFinderInit:
     def test_mock_suppliers_have_uuid_ids(self, finder):
         for s in finder._mock_suppliers:
             assert isinstance(s["id"], UUID)
+
+
 class TestHaversineDistance:
     """Tests for haversine distance calculation."""
 
@@ -66,6 +70,8 @@ class TestHaversineDistance:
         # North pole to south pole is about half earth circumference (~20015 km)
         d = SupplierFinder._haversine_distance(90, 0, -90, 0)
         assert 20000 < d < 20100
+
+
 class TestFindSuppliersByProduct:
     """Tests for find_suppliers_by_product."""
 
@@ -81,9 +87,7 @@ class TestFindSuppliersByProduct:
 
     @pytest.mark.asyncio
     async def test_with_location_sorts_by_distance(self, finder):
-        result = await finder.find_suppliers_by_product(
-            uuid4(), latitude=24.7, longitude=46.7
-        )
+        result = await finder.find_suppliers_by_product(uuid4(), latitude=24.7, longitude=46.7)
         assert len(result) > 0
         # Check that distance_km is set
         assert "distance_km" in result[0]
@@ -92,6 +96,8 @@ class TestFindSuppliersByProduct:
     async def test_without_location_no_distance(self, finder):
         result = await finder.find_suppliers_by_product(uuid4())
         assert "distance_km" not in result[0]
+
+
 class TestFindSuppliersNearby:
     """Tests for find_suppliers_nearby."""
 
@@ -120,6 +126,8 @@ class TestFindSuppliersNearby:
         for s in result:
             # distance_km should be rounded to 2 decimal places
             assert s["distance_km"] == round(s["distance_km"], 2)
+
+
 class TestComparePrices:
     """Tests for compare_prices."""
 
@@ -153,6 +161,8 @@ class TestComparePrices:
             assert "total_price" in comp
             assert "delivery_days" in comp
             assert "rating" in comp
+
+
 class TestCheckAvailability:
     """Tests for check_availability."""
 
@@ -176,6 +186,8 @@ class TestCheckAvailability:
         qty = 75.5
         result = await finder.check_availability(uuid4(), qty, uuid4())
         assert result["requested_quantity"] == qty
+
+
 class TestGetQuotes:
     """Tests for get_quotes."""
 
@@ -201,6 +213,8 @@ class TestGetQuotes:
         for q in result:
             expected = round(q["unit_price"] * 100.0, 2)
             assert q["total_price"] == expected
+
+
 class TestFindBestSupplier:
     """Tests for find_best_supplier."""
 
@@ -226,6 +240,8 @@ class TestFindBestSupplier:
     async def test_unknown_optimize_defaults_to_price(self, finder):
         result = await finder.find_best_supplier(uuid4(), 100.0, optimize_for="unknown")
         assert result is not None
+
+
 class TestGetSupplierRating:
     """Tests for get_supplier_rating."""
 

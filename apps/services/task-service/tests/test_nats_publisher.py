@@ -19,28 +19,36 @@ def mock_shared_events():
     mock_module.EventPublisher = mock_publisher_class
     mock_module.PublisherConfig = mock_config_class
 
-    with patch.dict("sys.modules", {
-        "shared": MagicMock(),
-        "shared.events": MagicMock(),
-        "shared.events.publisher": mock_module,
-    }):
+    with patch.dict(
+        "sys.modules",
+        {
+            "shared": MagicMock(),
+            "shared.events": MagicMock(),
+            "shared.events.publisher": mock_module,
+        },
+    ):
         yield mock_publisher_class, mock_config_class
+
+
 class TestNatsPublisher:
     """Tests for NatsPublisher class"""
 
     def test_init(self, mock_shared_events):
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         assert publisher.connected is False
         assert publisher._service_name == "task-service"
 
     def test_init_custom_name(self, mock_shared_events):
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher(service_name="custom-service")
         assert publisher._service_name == "custom-service"
 
     def test_is_connected_false_initially(self, mock_shared_events):
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         assert publisher.is_connected is False
 
@@ -53,6 +61,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         result = await publisher.connect("nats://localhost:4222")
         assert result is True
@@ -66,6 +75,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         result = await publisher.connect("nats://bad:4222")
         assert result is False
@@ -80,6 +90,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         await publisher.connect("nats://localhost:4222")
         await publisher.disconnect()
@@ -88,6 +99,7 @@ class TestNatsPublisher:
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, mock_shared_events):
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         result = await publisher.publish_event(
             subject="sahool.task.created",
@@ -106,6 +118,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         await publisher.connect("nats://localhost:4222")
 
@@ -126,6 +139,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         await publisher.connect("nats://localhost:4222")
 
@@ -149,6 +163,7 @@ class TestNatsPublisher:
         mock_publisher_class.return_value = mock_ep
 
         from src.events.nats_publisher import NatsPublisher
+
         publisher = NatsPublisher()
         await publisher.connect("nats://localhost:4222")
 
@@ -158,6 +173,8 @@ class TestNatsPublisher:
             payload={"taskId": "t1"},
         )
         assert result is False
+
+
 class TestGlobalPublisher:
     """Tests for global publisher functions"""
 
@@ -165,6 +182,7 @@ class TestGlobalPublisher:
         # Initially None
         import src.events.nats_publisher as module
         from src.events.nats_publisher import NatsPublisher, get_publisher, set_publisher
+
         old = module._publisher
         module._publisher = None
 
@@ -176,6 +194,8 @@ class TestGlobalPublisher:
 
         # Restore
         module._publisher = old
+
+
 class TestEventPublishFunctions:
     """Tests for individual event publish functions"""
 
@@ -183,12 +203,15 @@ class TestEventPublishFunctions:
     async def test_publish_task_created_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_created
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_created(
-            task_id="t1", tenant_id="tenant_1",
-            task_type="irrigation", priority="high",
+            task_id="t1",
+            tenant_id="tenant_1",
+            task_type="irrigation",
+            priority="high",
         )
         assert result is False
         module._publisher = old
@@ -197,11 +220,13 @@ class TestEventPublishFunctions:
     async def test_publish_task_updated_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_updated
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_updated(
-            task_id="t1", tenant_id="tenant_1",
+            task_id="t1",
+            tenant_id="tenant_1",
             changes={"status": {"old": "pending", "new": "in_progress"}},
         )
         assert result is False
@@ -211,11 +236,13 @@ class TestEventPublishFunctions:
     async def test_publish_task_assigned_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_assigned
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_assigned(
-            task_id="t1", tenant_id="tenant_1",
+            task_id="t1",
+            tenant_id="tenant_1",
             assigned_to="user_1",
         )
         assert result is False
@@ -225,11 +252,13 @@ class TestEventPublishFunctions:
     async def test_publish_task_started_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_started
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_started(
-            task_id="t1", tenant_id="tenant_1",
+            task_id="t1",
+            tenant_id="tenant_1",
             started_by="user_1",
         )
         assert result is False
@@ -239,11 +268,13 @@ class TestEventPublishFunctions:
     async def test_publish_task_completed_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_completed
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_completed(
-            task_id="t1", tenant_id="tenant_1",
+            task_id="t1",
+            tenant_id="tenant_1",
             completed_by="user_1",
         )
         assert result is False
@@ -253,12 +284,15 @@ class TestEventPublishFunctions:
     async def test_publish_task_cancelled_no_publisher(self, mock_shared_events):
         import src.events.nats_publisher as module
         from src.events.nats_publisher import publish_task_cancelled
+
         old = module._publisher
         module._publisher = None
 
         result = await publish_task_cancelled(
-            task_id="t1", tenant_id="tenant_1",
-            cancelled_by="user_1", reason="Weather",
+            task_id="t1",
+            tenant_id="tenant_1",
+            cancelled_by="user_1",
+            reason="Weather",
         )
         assert result is False
         module._publisher = old

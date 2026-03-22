@@ -428,6 +428,7 @@ class TestErrorHandling:
         # exception handlers instead of propagating to the test client
         try:
             from shared.auth.dependencies import get_current_user
+
             app.dependency_overrides[get_current_user] = lambda: None
         except ImportError:
             pass

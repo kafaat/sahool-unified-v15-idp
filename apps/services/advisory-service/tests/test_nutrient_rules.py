@@ -354,9 +354,7 @@ class TestAssessFromVisual:
         )
         for r in results:
             # symptoms key should contain Arabic text
-            assert any(
-                isinstance(s, str) for s in r.details.get("symptoms", [])
-            )
+            assert any(isinstance(s, str) for s in r.details.get("symptoms", []))
 
     def test_language_en(self):
         """English lang should provide symptoms_en in details."""
@@ -365,9 +363,7 @@ class TestAssessFromVisual:
             lang="en",
         )
         for r in results:
-            assert any(
-                isinstance(s, str) for s in r.details.get("symptoms", [])
-            )
+            assert any(isinstance(s, str) for s in r.details.get("symptoms", []))
 
     def test_iron_deficiency_new_leaves(self):
         """Pale new leaves with interveinal chlorosis -> iron."""

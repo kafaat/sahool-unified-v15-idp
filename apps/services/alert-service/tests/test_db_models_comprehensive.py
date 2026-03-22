@@ -151,6 +151,8 @@ class TestAlertModel:
         # __table_args__ should be a tuple with Index objects
         assert isinstance(Alert.__table_args__, tuple)
         assert len(Alert.__table_args__) >= 5  # 5 indexes defined
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRule Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -238,6 +240,8 @@ class TestAlertRuleModel:
         # Verify they parse back
         datetime.fromisoformat(d["created_at"])
         datetime.fromisoformat(d["updated_at"])
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Base declarative_base Tests
 # ═══════════════════════════════════════════════════════════════════════════════

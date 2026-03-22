@@ -17,6 +17,8 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+
+
 # ============================================================
 # Test Enums
 # ============================================================
@@ -81,6 +83,8 @@ class TestEnums:
 
         assert Currency.USD == "USD"
         assert Currency.YER == "YER"
+
+
 # ============================================================
 # Test Pydantic Models
 # ============================================================
@@ -226,6 +230,8 @@ class TestPydanticModels:
         )
         assert payload.status == "completed"
         assert payload.currency == "YER"
+
+
 # ============================================================
 # Test Helper Functions
 # ============================================================
@@ -329,6 +335,8 @@ class TestHelperFunctions:
 
         result = _sanitize_log("normal text")
         assert result == "normal text"
+
+
 # ============================================================
 # Test Feature Translations
 # ============================================================
@@ -370,6 +378,8 @@ class TestFeatureTranslations:
         # "fields_limit" should match partial key "fields"
         result = translate_feature_name("fields_limit")
         assert result == "الحقول"
+
+
 # ============================================================
 # Test Constants and Config
 # ============================================================
@@ -406,6 +416,8 @@ class TestConstants:
 
         assert len(FEATURE_TRANSLATIONS_AR) > 50
         assert "irrigation" in FEATURE_TRANSLATIONS_AR
+
+
 # ============================================================
 # Test Webhook Signature Verification
 # ============================================================
@@ -460,6 +472,8 @@ class TestWebhookSignatures:
         with patch("src.main.STRIPE_WEBHOOK_SECRET", "secret"):
             result = verify_stripe_signature(b"payload", "")
             assert result is False
+
+
 # ============================================================
 # Test Auth Helpers
 # ============================================================

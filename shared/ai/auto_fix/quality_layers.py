@@ -255,9 +255,7 @@ class QualityOrchestrator:
     def _tool_available(self, cmd: str) -> bool:
         """Check if a command-line tool is available."""
         try:
-            result = subprocess.run(
-                ["which", cmd], capture_output=True, text=True, timeout=5
-            )
+            result = subprocess.run(["which", cmd], capture_output=True, text=True, timeout=5)
             return result.returncode == 0
         except Exception:
             return False
@@ -601,12 +599,14 @@ class QualityOrchestrator:
                     except json.JSONDecodeError:
                         pass
             result.tools_run.append("hadolint")
-            result.details.append({
-                "tool": "hadolint",
-                "dockerfiles_scanned": min(len(dockerfiles), 20),
-                "errors": errors,
-                "warnings": warnings,
-            })
+            result.details.append(
+                {
+                    "tool": "hadolint",
+                    "dockerfiles_scanned": min(len(dockerfiles), 20),
+                    "errors": errors,
+                    "warnings": warnings,
+                }
+            )
         else:
             result.tools_skipped.append("hadolint")
 
@@ -678,11 +678,13 @@ def generate_markdown_report(report: QualityReport) -> str:
     icon = ":white_check_mark:" if report.overall_passed else ":x:"
     lines.append(f"## {icon} Quality Orchestrator Report")
     lines.append("")
-    lines.append(f"**Score**: {report.overall_score:.1f}/100 | "
-                 f"**Issues**: {report.total_issues} | "
-                 f"**Errors**: {report.total_errors} | "
-                 f"**Warnings**: {report.total_warnings} | "
-                 f"**Duration**: {report.duration_ms / 1000:.1f}s")
+    lines.append(
+        f"**Score**: {report.overall_score:.1f}/100 | "
+        f"**Issues**: {report.total_issues} | "
+        f"**Errors**: {report.total_errors} | "
+        f"**Warnings**: {report.total_warnings} | "
+        f"**Duration**: {report.duration_ms / 1000:.1f}s"
+    )
     lines.append("")
     lines.append("| # | Layer | Status | Issues | Errors | Warnings | Duration |")
     lines.append("|---|-------|--------|--------|--------|----------|----------|")
@@ -776,9 +778,7 @@ def _aggregate_reports_from_dir(reports_dir: str) -> QualityReport:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="SAHOOL 8-Layer Quality Orchestrator"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL 8-Layer Quality Orchestrator")
     parser.add_argument(
         "--reports-dir",
         default="reports/",
@@ -809,6 +809,7 @@ if __name__ == "__main__":
     md = generate_markdown_report(report)
 
     from pathlib import Path
+
     Path(args.output).write_text(md)
 
     print(f"Quality report written to {args.output}")

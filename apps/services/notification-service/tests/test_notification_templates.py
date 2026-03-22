@@ -387,6 +387,7 @@ class TestGlobalFunctions:
     def test_get_template_manager_returns_singleton(self):
         # Reset global to test creation
         import src.templates.notification_templates as mod
+
         old = mod._template_manager
         mod._template_manager = None
         try:

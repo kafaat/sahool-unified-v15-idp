@@ -152,11 +152,27 @@ class AutoRemediationEngine:
     """
 
     # SECURITY: Only these commands are allowed for auto-fix execution
-    _ALLOWED_COMMANDS: frozenset[str] = frozenset({
-        "git", "ruff", "npm", "npx", "pytest", "python", "node",
-        "eslint", "prettier", "mypy", "black", "isort", "docker",
-        "echo", "true", "false", "sleep",
-    })
+    _ALLOWED_COMMANDS: frozenset[str] = frozenset(
+        {
+            "git",
+            "ruff",
+            "npm",
+            "npx",
+            "pytest",
+            "python",
+            "node",
+            "eslint",
+            "prettier",
+            "mypy",
+            "black",
+            "isort",
+            "docker",
+            "echo",
+            "true",
+            "false",
+            "sleep",
+        }
+    )
 
     def __init__(
         self,

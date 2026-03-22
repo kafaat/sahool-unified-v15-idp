@@ -8,6 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 pytestmark = [pytest.mark.unit]
+
+
 class TestInitDb:
     @pytest.mark.asyncio
     async def test_returns_false_when_no_url(self):
@@ -58,6 +60,8 @@ class TestInitDb:
         with patch.dict("sys.modules", {"asyncpg": mock_asyncpg}):
             result = await cs.init_db("postgresql://localhost/test")
             assert result is False
+
+
 class TestCloseDb:
     @pytest.mark.asyncio
     async def test_close_when_pool_exists(self):
@@ -92,6 +96,8 @@ class TestCloseDb:
         await cs.close_db()
         assert cs._pool is None
         assert cs._initialized is False
+
+
 class TestIsReady:
     def test_not_ready_when_not_initialized(self):
         import src.db.chat_store as cs
@@ -115,6 +121,8 @@ class TestIsReady:
         assert cs._is_ready() is True
         cs._pool = None
         cs._initialized = False
+
+
 class TestSaveMessage:
     @pytest.mark.asyncio
     async def test_returns_none_when_not_ready(self):
@@ -130,6 +138,8 @@ class TestSaveMessage:
             content="hello",
         )
         assert result is None
+
+
 class TestGetSessionMessages:
     @pytest.mark.asyncio
     async def test_returns_empty_when_not_ready(self):
@@ -139,6 +149,8 @@ class TestGetSessionMessages:
         cs._initialized = False
         result = await cs.get_session_messages("s1")
         assert result == []
+
+
 class TestListSessions:
     @pytest.mark.asyncio
     async def test_returns_empty_when_not_ready(self):
@@ -148,6 +160,8 @@ class TestListSessions:
         cs._initialized = False
         result = await cs.list_sessions("u1", "t1")
         assert result == []
+
+
 class TestDeleteSession:
     @pytest.mark.asyncio
     async def test_returns_false_when_not_ready(self):

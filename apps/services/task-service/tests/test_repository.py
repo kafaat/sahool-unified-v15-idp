@@ -23,6 +23,7 @@ class TestSanitizeId:
         """Import _sanitize_id with mocked database dependencies."""
         # Mock the database module that models.py imports
         import importlib
+
         mock_db_module = MagicMock()
         mock_db_module.Base = type("Base", (), {"metadata": MagicMock()})
         mock_db_module.TimestampMixin = type("TimestampMixin", (), {})
@@ -70,6 +71,8 @@ class TestSanitizeId:
         assert "\r" not in result
         assert "\n" not in result
         assert "injected_line" in result  # content preserved, just newlines removed
+
+
 class TestRepositoryLogic:
     """Tests for TaskRepository business logic.
 

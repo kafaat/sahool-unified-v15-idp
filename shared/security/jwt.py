@@ -238,8 +238,7 @@ def decode_token_unsafe(token: str) -> dict:
     env = os.getenv("ENVIRONMENT", "development")
     if env == "production":
         raise RuntimeError(
-            "decode_token_unsafe() is blocked in production. "
-            "Use decode_token() with proper verification instead."
+            "decode_token_unsafe() is blocked in production. Use decode_token() with proper verification instead."
         )
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode

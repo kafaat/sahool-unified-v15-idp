@@ -301,6 +301,7 @@ class TestOTPStorage:
     def test_verify_expired_otp(self):
         storage = OTPStorage()
         import time as t
+
         key = storage._get_key("+967771234567", "login")
         storage._storage[key] = {
             "otp": "123456",
@@ -316,6 +317,7 @@ class TestOTPStorage:
     def test_verify_max_attempts(self):
         storage = OTPStorage()
         import time as t
+
         key = storage._get_key("+967771234567", "login")
         storage._storage[key] = {
             "otp": "123456",
@@ -331,6 +333,7 @@ class TestOTPStorage:
     def test_verify_already_verified(self):
         storage = OTPStorage()
         import time as t
+
         key = storage._get_key("+967771234567", "login")
         storage._storage[key] = {
             "otp": "123456",
@@ -346,6 +349,7 @@ class TestOTPStorage:
     def test_cleanup_expired(self):
         storage = OTPStorage()
         import time as t
+
         key = storage._get_key("cleanup-test", "login")
         storage._storage[key] = {
             "otp": "111111",
@@ -421,9 +425,7 @@ class TestSendOTPViaChannel:
 
     @pytest.mark.asyncio
     async def test_telegram_not_initialized(self):
-        result = await send_otp_via_channel(
-            "chat123", "123456", OTPChannel.TELEGRAM, OTPPurpose.LOGIN, Language.ARABIC
-        )
+        result = await send_otp_via_channel("chat123", "123456", OTPChannel.TELEGRAM, OTPPurpose.LOGIN, Language.ARABIC)
         assert result is False
 
     @pytest.mark.asyncio

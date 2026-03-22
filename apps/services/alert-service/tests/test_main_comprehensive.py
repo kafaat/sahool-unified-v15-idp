@@ -78,6 +78,8 @@ class TestSanitizeLogInput:
         result = sanitize_log_input(malicious)
         assert "\n" not in result
         assert "\\n" in result
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_tenant_id Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -116,6 +118,8 @@ class TestGetTenantId:
         with pytest.raises(HTTPException) as exc_info:
             get_tenant_id("")
         assert exc_info.value.status_code == 400
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # _PERIOD_PATTERN Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -141,6 +145,8 @@ class TestPeriodPattern:
         assert not _PERIOD_PATTERN.match("")
         assert not _PERIOD_PATTERN.match("12345d")  # >4 digits
         assert not _PERIOD_PATTERN.match("-7d")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Event Handler Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -209,6 +215,8 @@ class TestHandleNdviAnomaly:
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("DB error"))):
             # Should not raise
             await handle_ndvi_anomaly(data)
+
+
 class TestHandleWeatherAlert:
     """Tests for handle_weather_alert event handler."""
 
@@ -298,6 +306,8 @@ class TestHandleWeatherAlert:
 
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("fail"))):
             await handle_weather_alert(data)
+
+
 class TestHandleIotThreshold:
     """Tests for handle_iot_threshold event handler."""
 
@@ -379,6 +389,8 @@ class TestHandleIotThreshold:
 
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("fail"))):
             await handle_iot_threshold(data)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # create_alert_internal Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -489,6 +501,8 @@ class TestCreateAlertInternal:
 
         mock_db.rollback.assert_called_once()
         mock_db.close.assert_called_once()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # App-Level Tests (health endpoints via TestClient)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -499,6 +513,8 @@ def mock_db_session():
     session.close = MagicMock()
     session.execute = MagicMock()
     return session
+
+
 @pytest.fixture
 def test_client(mock_db_session):
     """Create test client with mocked dependencies."""
@@ -512,6 +528,8 @@ def test_client(mock_db_session):
                 client = TestClient(app, raise_server_exceptions=False)
                 yield client
                 app.dependency_overrides.clear()
+
+
 class TestHealthEndpointsComprehensive:
     """Extended health endpoint tests."""
 
@@ -545,6 +563,8 @@ class TestHealthEndpointsComprehensive:
         data = response.json()
         assert "alerts_count" in data
         assert "rules_count" in data
+
+
 class TestStatsEndpointValidation:
     """Tests for stats endpoint period validation."""
 
@@ -599,6 +619,8 @@ class TestStatsEndpointValidation:
         data = response.json()
         assert data["acknowledged_rate"] == 25.0
         assert data["resolved_rate"] == 50.0
+
+
 class TestTenantValidationEndpoints:
     """Test tenant validation through API endpoints."""
 
@@ -641,6 +663,8 @@ class TestTenantValidationEndpoints:
             headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"},
         )
         assert response.status_code == 400
+
+
 class TestAlertActionEdgeCases:
     """Edge case tests for alert action endpoints."""
 

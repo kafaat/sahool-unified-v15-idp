@@ -16,6 +16,8 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+
+
 def _make_mock_plan(plan_id="starter", tier_value="starter"):
     """Create a mock plan object."""
     plan = MagicMock()
@@ -32,6 +34,8 @@ def _make_mock_plan(plan_id="starter", tier_value="starter"):
     plan.trial_days = 14
     plan.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return plan
+
+
 def _make_mock_subscription(tenant_id="t-001", plan_id="starter"):
     """Create a mock subscription object."""
     sub = MagicMock()
@@ -47,6 +51,8 @@ def _make_mock_subscription(tenant_id="t-001", plan_id="starter"):
     sub.trial_end_date = None
     sub.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return sub
+
+
 def _make_mock_tenant(tenant_id="t-001"):
     """Create a mock tenant object."""
     tenant = MagicMock()
@@ -58,6 +64,8 @@ def _make_mock_tenant(tenant_id="t-001"):
     tenant.is_active = True
     tenant.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return tenant
+
+
 def _make_mock_invoice():
     """Create a mock invoice object."""
     inv = MagicMock()
@@ -81,6 +89,8 @@ def _make_mock_invoice():
     inv.notes_ar = "شكرا"
     inv.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return inv
+
+
 # ============================================================
 # Test Health Endpoints
 # ============================================================
@@ -100,6 +110,8 @@ class TestHealthEndpoints:
             assert data["status"] == "ok"
             assert data["service"] == "billing-core"
             assert "version" in data
+
+
 # ============================================================
 # Test NATS Event Publishing
 # ============================================================
@@ -132,6 +144,8 @@ class TestNatsPublishing:
         with patch("src.main.js", mock_js):
             # Should not raise
             await publish_event("sahool.billing.test", {"key": "value"})
+
+
 # ============================================================
 # Test DB Model Enums (from models.py)
 # ============================================================
@@ -182,6 +196,8 @@ class TestDbModelEnums:
 
         assert PlanTier.FREE == "free"
         assert PlanTier.ENTERPRISE == "enterprise"
+
+
 # ============================================================
 # Test DB Model __repr__
 # ============================================================
@@ -264,6 +280,8 @@ class TestDbModelRepr:
         r = repr(mock)
         assert "UsageRecord" in r
         assert "api_calls" in r
+
+
 # ============================================================
 # Test Init Module
 # ============================================================
@@ -274,6 +292,8 @@ class TestInitModule:
         from src import __version__
 
         assert __version__ == "15.6.0"
+
+
 # ============================================================
 # Test Async Helper Functions
 # ============================================================

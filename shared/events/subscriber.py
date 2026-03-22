@@ -791,10 +791,7 @@ class EventSubscriber:
                 except Exception as e:
                     logger.error(f"Error re-subscribing to {subject}: {e}")
 
-            logger.info(
-                f"Re-established {resubscribed}/{len(old_handlers)} subscriptions "
-                f"after reconnection"
-            )
+            logger.info(f"Re-established {resubscribed}/{len(old_handlers)} subscriptions after reconnection")
 
     async def _closed_callback(self):
         """Handle connection closure."""

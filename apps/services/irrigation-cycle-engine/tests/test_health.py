@@ -1,4 +1,5 @@
 """Tests for irrigation-cycle-engine health and core endpoints."""
+
 import os
 import sys
 
@@ -14,9 +15,13 @@ except ImportError:
     pytest.skip("irrigation-cycle-engine dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
+
 @pytest.fixture
 def client():
     return TestClient(app, headers=TENANT_HEADER)
+
+
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -32,6 +37,8 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
+
+
 @pytest.mark.unit
 class TestET0Calculation:
     def test_et0_basic(self, client):
@@ -113,6 +120,8 @@ class TestET0Calculation:
         data = response.json()
         # Should still return non-negative ET0
         assert data[0]["et0_mm"] >= 0
+
+
 @pytest.mark.unit
 class TestIrrigationCycle:
     def test_cycle_basic(self, client):
@@ -173,6 +182,8 @@ class TestIrrigationCycle:
         data = response.json()
         # Should default to 30 days when ET is zero
         assert data["cycle_days"] == 30.0
+
+
 @pytest.mark.unit
 class TestIrrigationSchedule:
     def test_schedule_basic(self, client):
@@ -226,6 +237,8 @@ class TestIrrigationSchedule:
             },
         )
         assert response.status_code == 400
+
+
 @pytest.mark.unit
 class TestSalinityAssessment:
     def test_salinity_assessment(self, client):
@@ -259,6 +272,8 @@ class TestSalinityAssessment:
         assert response.status_code == 200
         data = response.json()
         assert data["sar"] > 0
+
+
 @pytest.mark.unit
 class TestYemenData:
     def test_list_crops(self, client):

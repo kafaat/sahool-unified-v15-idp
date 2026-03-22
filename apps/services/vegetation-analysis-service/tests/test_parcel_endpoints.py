@@ -171,9 +171,7 @@ class TestGeojsonToParcels:
                 "type": "Feature",
                 "geometry": {
                     "type": "Polygon",
-                    "coordinates": [
-                        [[44.2, 15.5], [44.3, 15.5], [44.3, 15.6], [44.2, 15.6], [44.2, 15.5]]
-                    ],
+                    "coordinates": [[[44.2, 15.5], [44.3, 15.5], [44.3, 15.6], [44.2, 15.6], [44.2, 15.5]]],
                 },
                 "properties": {
                     "parcel_id": "test-parcel-1",
@@ -258,6 +256,7 @@ class TestGeojsonToParcels:
         parcels = _geojson_to_parcels(features, mock_land_detector)
         assert len(parcels) == 1
         from src.agricultural_land_detector import LandCoverClass
+
         assert parcels[0].land_cover == LandCoverClass.UNKNOWN
 
     def test_multiple_features(self, mock_land_detector):
@@ -312,12 +311,14 @@ class TestRegisterParcelEndpoints:
             def decorator(func):
                 registered_endpoints[("POST", path)] = func
                 return func
+
             return decorator
 
         def mock_get(path, **kwargs):
             def decorator(func):
                 registered_endpoints[("GET", path)] = func
                 return func
+
             return decorator
 
         app.post = mock_post
@@ -328,6 +329,7 @@ class TestRegisterParcelEndpoints:
     @pytest.fixture
     def mock_detector(self):
         from src.agricultural_land_detector import DetectionConfig
+
         detector = MagicMock()
         detector.config = DetectionConfig()
         return detector
@@ -397,6 +399,7 @@ class TestRegisterParcelEndpoints:
         auto_gen_func = mock_app._registered[("POST", "/v1/parcels/auto-generate")]
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await auto_gen_func(lat=15.5, lon=44.2)
         assert exc_info.value.status_code == 503
@@ -409,6 +412,7 @@ class TestRegisterParcelEndpoints:
         req = RegionDetectionRequest(north=16.0, south=15.0, east=45.0, west=44.0)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await detect_func(req)
         assert exc_info.value.status_code == 503
@@ -420,6 +424,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await classify_func(req)
         assert exc_info.value.status_code == 503
@@ -431,6 +436,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -442,6 +448,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelMergeRequest(parcel_ids=["p1"], parcels=[{}])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -453,6 +460,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelSplitRequest(parcel={}, cutting_line=[[0, 0], [1, 1]])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -464,6 +472,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelConnectRequest(parcels=[{}, {}])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -475,6 +484,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -486,6 +496,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -497,6 +508,7 @@ class TestRegisterParcelEndpoints:
         req = BatchAssignRequest(parcel_ids=[], parcels=[], attribute="crop_type", value="wheat")
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -508,6 +520,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -519,6 +532,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 503
@@ -532,6 +546,7 @@ class TestRegisterParcelEndpoints:
         # north <= south
         req = RegionDetectionRequest(north=15.0, south=16.0, east=45.0, west=44.0)
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await detect_func(req)
         assert exc_info.value.status_code == 400
@@ -544,6 +559,7 @@ class TestRegisterParcelEndpoints:
         # east <= west
         req = RegionDetectionRequest(north=16.0, south=15.0, east=44.0, west=45.0)
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await detect_func(req)
         assert exc_info.value.status_code == 400
@@ -556,6 +572,7 @@ class TestRegisterParcelEndpoints:
         req = ParcelClassifyRequest(parcels=[])
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await classify_func(req)
         assert exc_info.value.status_code == 400
@@ -581,6 +598,7 @@ class TestRegisterParcelEndpoints:
             ],
         )
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 400
@@ -596,6 +614,7 @@ class TestRegisterParcelEndpoints:
         )
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 400
@@ -617,6 +636,7 @@ class TestRegisterParcelEndpoints:
         )
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 400
@@ -643,6 +663,7 @@ class TestRegisterParcelEndpoints:
         )
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 400
@@ -666,6 +687,7 @@ class TestRegisterParcelEndpoints:
         )
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             await func(req)
         assert exc_info.value.status_code == 400

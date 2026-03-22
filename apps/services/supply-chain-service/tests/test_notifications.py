@@ -237,18 +237,14 @@ class TestPrivateMethods:
     @pytest.mark.asyncio
     async def test_send_push(self, notification_service):
         farmer_id = uuid4()
-        result = await notification_service._send_push(
-            farmer_id, "Title", "Body", {"key": "value"}
-        )
+        result = await notification_service._send_push(farmer_id, "Title", "Body", {"key": "value"})
         assert result["status"] == "sent"
         assert result["farmer_id"] == str(farmer_id)
         assert "notification_id" in result
 
     @pytest.mark.asyncio
     async def test_send_email(self, notification_service):
-        result = await notification_service._send_email(
-            "test@example.com", "Subject", "Body EN", "Body AR"
-        )
+        result = await notification_service._send_email("test@example.com", "Subject", "Body EN", "Body AR")
         assert result["status"] == "sent"
         assert result["email"] == "test@example.com"
         assert "message_id" in result

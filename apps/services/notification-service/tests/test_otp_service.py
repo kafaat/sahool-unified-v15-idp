@@ -646,7 +646,7 @@ class TestOTPServiceDelivery:
         service = OTPService()
         service._sms_client = None
         # Force _get_sms_client to return None
-        with patch.object(service, '_get_sms_client', return_value=None):
+        with patch.object(service, "_get_sms_client", return_value=None):
             result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
             assert result is None
 
@@ -655,14 +655,14 @@ class TestOTPServiceDelivery:
         service = OTPService()
         mock_client = MagicMock()
         mock_client.send_sms = AsyncMock(return_value="SM123")
-        with patch.object(service, '_get_sms_client', return_value=mock_client):
+        with patch.object(service, "_get_sms_client", return_value=mock_client):
             result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
             assert result == "SM123"
 
     @pytest.mark.asyncio
     async def test_send_via_whatsapp_no_client(self):
         service = OTPService()
-        with patch.object(service, '_get_whatsapp_client', return_value=None):
+        with patch.object(service, "_get_whatsapp_client", return_value=None):
             result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
             assert result is None
 
@@ -671,14 +671,14 @@ class TestOTPServiceDelivery:
         service = OTPService()
         mock_client = MagicMock()
         mock_client.send_otp = AsyncMock(return_value="WA123")
-        with patch.object(service, '_get_whatsapp_client', return_value=mock_client):
+        with patch.object(service, "_get_whatsapp_client", return_value=mock_client):
             result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
             assert result == "WA123"
 
     @pytest.mark.asyncio
     async def test_send_via_telegram_no_client(self):
         service = OTPService()
-        with patch.object(service, '_get_telegram_client', return_value=None):
+        with patch.object(service, "_get_telegram_client", return_value=None):
             result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
             assert result is None
 
@@ -687,14 +687,14 @@ class TestOTPServiceDelivery:
         service = OTPService()
         mock_client = MagicMock()
         mock_client.send_otp = AsyncMock(return_value=12345)
-        with patch.object(service, '_get_telegram_client', return_value=mock_client):
+        with patch.object(service, "_get_telegram_client", return_value=mock_client):
             result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
             assert result == 12345
 
     @pytest.mark.asyncio
     async def test_send_via_email_no_client(self):
         service = OTPService()
-        with patch.object(service, '_get_email_client', return_value=None):
+        with patch.object(service, "_get_email_client", return_value=None):
             result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
             assert result is None
 
@@ -703,7 +703,7 @@ class TestOTPServiceDelivery:
         service = OTPService()
         mock_client = MagicMock()
         mock_client.send_email = AsyncMock(return_value="msg-123")
-        with patch.object(service, '_get_email_client', return_value=mock_client):
+        with patch.object(service, "_get_email_client", return_value=mock_client):
             result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
             assert result == "msg-123"
 
@@ -712,7 +712,7 @@ class TestOTPServiceDelivery:
         service = OTPService()
         mock_client = MagicMock()
         mock_client.send_email = AsyncMock(return_value="msg-ar")
-        with patch.object(service, '_get_email_client', return_value=mock_client):
+        with patch.object(service, "_get_email_client", return_value=mock_client):
             result = await service._send_otp_via_email("test@example.com", "123456", "login", "ar")
             assert result == "msg-ar"
 
@@ -784,7 +784,7 @@ class TestOTPServiceGenerateAndVerify:
 
         mock_client = MagicMock()
         mock_client.send_sms = AsyncMock(return_value="SM789")
-        with patch.object(service, '_get_sms_client', return_value=mock_client):
+        with patch.object(service, "_get_sms_client", return_value=mock_client):
             result = await service.generate_otp(
                 user_id="user-sms-ok",
                 phone_or_email="+967712345678",
@@ -803,7 +803,7 @@ class TestOTPServiceGenerateAndVerify:
 
         mock_client = MagicMock()
         mock_client.send_email = AsyncMock(return_value="msg-456")
-        with patch.object(service, '_get_email_client', return_value=mock_client):
+        with patch.object(service, "_get_email_client", return_value=mock_client):
             result = await service.generate_otp(
                 user_id="user-email-ok",
                 phone_or_email="test@example.com",
@@ -821,7 +821,7 @@ class TestOTPServiceGenerateAndVerify:
 
         mock_client = MagicMock()
         mock_client.send_sms = AsyncMock(side_effect=Exception("Network error"))
-        with patch.object(service, '_get_sms_client', return_value=mock_client):
+        with patch.object(service, "_get_sms_client", return_value=mock_client):
             result = await service.generate_otp(
                 user_id="user-exc",
                 phone_or_email="+967712345678",
@@ -838,7 +838,7 @@ class TestOTPServiceGenerateAndVerify:
 
         mock_client = MagicMock()
         mock_client.send_sms = AsyncMock(return_value="SM101")
-        with patch.object(service, '_get_sms_client', return_value=mock_client):
+        with patch.object(service, "_get_sms_client", return_value=mock_client):
             result = await service.generate_otp(
                 user_id="user-str-conv",
                 phone_or_email="+967712345678",

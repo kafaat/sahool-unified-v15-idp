@@ -171,12 +171,14 @@ class TestValidateMetadataSize:
     def test_non_serializable_raises(self):
         class Unserializable:
             pass
+
         with pytest.raises(MetadataTooLargeError):
             validate_metadata_size({"obj": Unserializable()})
 
     def test_non_serializable_no_raise(self):
         class Unserializable:
             pass
+
         assert validate_metadata_size({"obj": Unserializable()}, raise_exception=False) is False
 
 
@@ -300,6 +302,7 @@ class TestMetadataValidator:
     def test_non_serializable(self):
         class Bad:
             pass
+
         with pytest.raises(ValueError, match="JSON serializable"):
             metadata_validator(None, {"obj": Bad()})
 

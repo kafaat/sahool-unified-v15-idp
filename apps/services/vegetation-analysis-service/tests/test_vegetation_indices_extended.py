@@ -180,29 +180,71 @@ class TestAllIndices:
     def test_clamping_normalized_indices(self):
         """Test that normalized indices are clamped to [-1, 1]."""
         indices = AllIndices(
-            ndvi=1.5, ndwi=-1.5, evi=0.5, savi=0.5, lai=3.0,
-            ndmi=0.5, ndre=0.5, cvi=2.0, mcari=0.5, tcari=0.5,
-            sipi=1.0, gndvi=0.5, vari=0.5, gli=0.5, grvi=0.5,
-            msavi=0.5, osavi=0.5, arvi=0.5,
+            ndvi=1.5,
+            ndwi=-1.5,
+            evi=0.5,
+            savi=0.5,
+            lai=3.0,
+            ndmi=0.5,
+            ndre=0.5,
+            cvi=2.0,
+            mcari=0.5,
+            tcari=0.5,
+            sipi=1.0,
+            gndvi=0.5,
+            vari=0.5,
+            gli=0.5,
+            grvi=0.5,
+            msavi=0.5,
+            osavi=0.5,
+            arvi=0.5,
         )
         assert indices.ndvi == 1.0  # Clamped from 1.5
         assert indices.ndwi == -1.0  # Clamped from -1.5
 
     def test_lai_clamping(self):
         indices = AllIndices(
-            ndvi=0.5, ndwi=0.5, evi=0.5, savi=0.5, lai=10.0,
-            ndmi=0.5, ndre=0.5, cvi=2.0, mcari=0.5, tcari=0.5,
-            sipi=1.0, gndvi=0.5, vari=0.5, gli=0.5, grvi=0.5,
-            msavi=0.5, osavi=0.5, arvi=0.5,
+            ndvi=0.5,
+            ndwi=0.5,
+            evi=0.5,
+            savi=0.5,
+            lai=10.0,
+            ndmi=0.5,
+            ndre=0.5,
+            cvi=2.0,
+            mcari=0.5,
+            tcari=0.5,
+            sipi=1.0,
+            gndvi=0.5,
+            vari=0.5,
+            gli=0.5,
+            grvi=0.5,
+            msavi=0.5,
+            osavi=0.5,
+            arvi=0.5,
         )
         assert indices.lai == 8.0  # Clamped
 
     def test_to_dict(self):
         indices = AllIndices(
-            ndvi=0.7, ndwi=0.3, evi=0.5, savi=0.4, lai=3.0,
-            ndmi=0.2, ndre=0.5, cvi=2.0, mcari=0.3, tcari=0.5,
-            sipi=1.2, gndvi=0.6, vari=0.3, gli=0.2, grvi=0.1,
-            msavi=0.5, osavi=0.4, arvi=0.5,
+            ndvi=0.7,
+            ndwi=0.3,
+            evi=0.5,
+            savi=0.4,
+            lai=3.0,
+            ndmi=0.2,
+            ndre=0.5,
+            cvi=2.0,
+            mcari=0.3,
+            tcari=0.5,
+            sipi=1.2,
+            gndvi=0.6,
+            vari=0.3,
+            gli=0.2,
+            grvi=0.1,
+            msavi=0.5,
+            osavi=0.4,
+            arvi=0.5,
         )
         d = indices.to_dict()
         assert d["ndvi"] == 0.7
@@ -212,11 +254,26 @@ class TestAllIndices:
 
     def test_to_dict_with_optional(self):
         indices = AllIndices(
-            ndvi=0.7, ndwi=0.3, evi=0.5, savi=0.4, lai=3.0,
-            ndmi=0.2, ndre=0.5, cvi=2.0, mcari=0.3, tcari=0.5,
-            sipi=1.2, gndvi=0.6, vari=0.3, gli=0.2, grvi=0.1,
-            msavi=0.5, osavi=0.4, arvi=0.5,
-            pri=0.05, nbr=0.3,
+            ndvi=0.7,
+            ndwi=0.3,
+            evi=0.5,
+            savi=0.4,
+            lai=3.0,
+            ndmi=0.2,
+            ndre=0.5,
+            cvi=2.0,
+            mcari=0.3,
+            tcari=0.5,
+            sipi=1.2,
+            gndvi=0.6,
+            vari=0.3,
+            gli=0.2,
+            grvi=0.1,
+            msavi=0.5,
+            osavi=0.4,
+            arvi=0.5,
+            pri=0.05,
+            nbr=0.3,
         )
         d = indices.to_dict()
         assert d["pri"] == 0.05
@@ -327,9 +384,16 @@ class TestChlorophyllIndices:
     def test_sipi_zero_denominator(self, calculator):
         # NIR == Red => denominator is 0 => return 1.0
         bands = BandData(
-            B02_blue=0.05, B03_green=0.06, B04_red=0.35,
-            B05_red_edge1=0.12, B06_red_edge2=0.25, B07_red_edge3=0.32,
-            B08_nir=0.35, B8A_nir_narrow=0.33, B11_swir1=0.15, B12_swir2=0.08,
+            B02_blue=0.05,
+            B03_green=0.06,
+            B04_red=0.35,
+            B05_red_edge1=0.12,
+            B06_red_edge2=0.25,
+            B07_red_edge3=0.32,
+            B08_nir=0.35,
+            B8A_nir_narrow=0.33,
+            B11_swir1=0.15,
+            B12_swir2=0.08,
         )
         assert calculator.sipi(bands) == 1.0
 
@@ -417,10 +481,18 @@ class TestPigmentIndices:
 
     def test_pri_zero_denominator(self, calculator):
         bands = BandData(
-            B02_blue=0.03, B03_green=0.06, B04_red=0.04,
-            B05_red_edge1=0.12, B06_red_edge2=0.25, B07_red_edge3=0.32,
-            B08_nir=0.35, B8A_nir_narrow=0.33, B11_swir1=0.15, B12_swir2=0.08,
-            B_531nm=0.0, B_570nm=0.0,
+            B02_blue=0.03,
+            B03_green=0.06,
+            B04_red=0.04,
+            B05_red_edge1=0.12,
+            B06_red_edge2=0.25,
+            B07_red_edge3=0.32,
+            B08_nir=0.35,
+            B8A_nir_narrow=0.33,
+            B11_swir1=0.15,
+            B12_swir2=0.08,
+            B_531nm=0.0,
+            B_570nm=0.0,
         )
         assert calculator.pri(bands) == 0.0
 
@@ -456,9 +528,16 @@ class TestPigmentIndices:
 
     def test_psri_zero_re2(self, calculator):
         bands = BandData(
-            B02_blue=0.03, B03_green=0.06, B04_red=0.04,
-            B05_red_edge1=0.12, B06_red_edge2=0.0, B07_red_edge3=0.32,
-            B08_nir=0.35, B8A_nir_narrow=0.33, B11_swir1=0.15, B12_swir2=0.08,
+            B02_blue=0.03,
+            B03_green=0.06,
+            B04_red=0.04,
+            B05_red_edge1=0.12,
+            B06_red_edge2=0.0,
+            B07_red_edge3=0.32,
+            B08_nir=0.35,
+            B8A_nir_narrow=0.33,
+            B11_swir1=0.15,
+            B12_swir2=0.08,
         )
         assert calculator.psri(bands) is None
 
@@ -469,9 +548,16 @@ class TestPigmentIndices:
 
     def test_rep_zero_denominator(self, calculator):
         bands = BandData(
-            B02_blue=0.03, B03_green=0.06, B04_red=0.04,
-            B05_red_edge1=0.25, B06_red_edge2=0.25, B07_red_edge3=0.32,
-            B08_nir=0.35, B8A_nir_narrow=0.33, B11_swir1=0.15, B12_swir2=0.08,
+            B02_blue=0.03,
+            B03_green=0.06,
+            B04_red=0.04,
+            B05_red_edge1=0.25,
+            B06_red_edge2=0.25,
+            B07_red_edge3=0.32,
+            B08_nir=0.35,
+            B8A_nir_narrow=0.33,
+            B11_swir1=0.15,
+            B12_swir2=0.08,
         )
         assert calculator.rep(bands) is None
 
@@ -523,9 +609,16 @@ class TestExtendedIndices:
 
     def test_ccci_low_ndvi(self, calculator):
         bands = BandData(
-            B02_blue=0.15, B03_green=0.15, B04_red=0.15,
-            B05_red_edge1=0.15, B06_red_edge2=0.15, B07_red_edge3=0.15,
-            B08_nir=0.15, B8A_nir_narrow=0.15, B11_swir1=0.15, B12_swir2=0.15,
+            B02_blue=0.15,
+            B03_green=0.15,
+            B04_red=0.15,
+            B05_red_edge1=0.15,
+            B06_red_edge2=0.15,
+            B07_red_edge3=0.15,
+            B08_nir=0.15,
+            B8A_nir_narrow=0.15,
+            B11_swir1=0.15,
+            B12_swir2=0.15,
         )
         result = calculator.ccci(bands)
         # NDVI is 0 for equal bands, so CCCI returns 0

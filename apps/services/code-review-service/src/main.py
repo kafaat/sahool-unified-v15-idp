@@ -825,7 +825,9 @@ async def review_file_endpoint(request: FileReviewRequest, user: User = Depends(
 
 
 @app.post("/review/pr")
-async def review_pr_endpoint(request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
+async def review_pr_endpoint(
+    request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)
+):
     """Review a GitHub Pull Request"""
     service = get_service()
 

@@ -5,25 +5,25 @@
  * Coverage:
  * - Health endpoint responses
  * - Module initialization
- * - JWT Auth Guard with mock verification
- * - User creation validation (DTO & service)
- * - Password validation (strength, hashing, comparison)
+ * - DTO validation (CreateUserDto)
+ * - Password strength & phone validation constraints
+ * - UserRole and UserStatus enum values
+ *
+ * NOTE: JwtAuthGuard tests are in src/auth/jwt-auth.guard.spec.ts
+ * NOTE: RolesGuard tests are in src/auth/roles.guard.spec.ts
+ * NOTE: UsersService CRUD tests are in src/users/users.service.spec.ts
+ * NOTE: AuthService tests are in src/auth/auth.service.spec.ts
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
 import {
-  ConflictException,
-  NotFoundException,
-  UnauthorizedException,
   HttpException,
   HttpStatus,
-  ExecutionContext,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { UsersService } from "../users/users.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateUserDto } from "../users/dto/create-user.dto";
-import { UpdateUserDto } from "../users/dto/update-user.dto";
 import {
   UserStatus,
   UserRole,
@@ -34,10 +34,8 @@ import {
   HealthController,
   HealthzController,
 } from "../health/health.controller";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
-import * as bcrypt from "bcryptjs";
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 

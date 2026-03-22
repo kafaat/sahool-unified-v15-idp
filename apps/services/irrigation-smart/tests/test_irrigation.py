@@ -453,11 +453,12 @@ class TestEfficiencyReport:
 
     def test_efficiency_report(self, client):
         response = client.get(
-            "/v1/efficiency-report/field_001?current_method=traditional&area_hectares=2.0"
+            "/v1/efficiency-report/field_001?current_method=traditional&area_hectares=2.0",
+            headers=TENANT_HEADERS,
         )
         assert response.status_code == 200
         data = response.json()
         assert data["field_id"] == "field_001"
         assert "current_method" in data
-        assert "comparisons" in data
-        assert len(data["comparisons"]) > 0
+        assert "alternatives" in data
+        assert len(data["alternatives"]) > 0

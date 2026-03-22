@@ -3,6 +3,12 @@
 import os
 import sys
 
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+os.environ.setdefault("DATABASE_URL", "")
+os.environ.setdefault("NATS_URL", "")
+
 import pytest
 
 try:
@@ -14,6 +20,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 from src.main import app
+
+# Valid UUID for tenant context middleware
+VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
 
 
 @pytest.fixture

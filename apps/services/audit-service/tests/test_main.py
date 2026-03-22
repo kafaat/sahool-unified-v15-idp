@@ -3,6 +3,7 @@ Audit Service Tests
 """
 
 import os
+import uuid
 
 import pytest
 
@@ -13,6 +14,29 @@ except ImportError:
 
 # Set test environment before importing app
 os.environ["ENVIRONMENT"] = "test"
+
+# Valid UUID tenant ID (TenantContextMiddleware requires UUID format)
+VALID_TENANT_ID = "00000000-0000-0000-0000-000000000001"
+
+
+def _make_client():
+    """Create a test client with auth dependency overridden."""
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    from src.main import app
+
+    # Override the auth dependency so we don't need real JWT tokens
+    async def mock_current_user():
+        return User(
+            id="test-user-id",
+            email="test@example.com",
+            tenant_id=VALID_TENANT_ID,
+            roles=["admin"],
+        )
+
+    app.dependency_overrides[get_current_user] = mock_current_user
+    return TestClient(app)
 
 
 def test_import_main():
@@ -63,20 +87,18 @@ def test_readyz_endpoint():
 
 def test_get_audit_logs_requires_tenant():
     """Test that audit logs endpoint requires tenant header"""
-    from src.main import app
-
-    client = TestClient(app)
+    client = _make_client()
     response = client.get("/api/v1/audit/logs")
     assert response.status_code == 400
-    assert "X-Tenant-Id" in response.json()["detail"]
+    data = response.json()
+    # TenantContextMiddleware returns {"error": "missing_tenant", ...}
+    assert data["error"] == "missing_tenant"
 
 
 def test_get_audit_logs_with_tenant():
     """Test audit logs endpoint with tenant header"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/logs", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/logs", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -88,10 +110,8 @@ def test_get_audit_logs_with_tenant():
 
 def test_get_audit_stats():
     """Test audit statistics endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/stats", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/stats", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "total_events" in data
@@ -101,10 +121,8 @@ def test_get_audit_stats():
 
 def test_validate_hash_chain():
     """Test hash chain validation endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/chain/validate", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/chain/validate", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "valid" in data
@@ -114,10 +132,8 @@ def test_validate_hash_chain():
 
 def test_get_chain_summary():
     """Test chain summary endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/chain/summary", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/chain/summary", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "tenant_id" in data
@@ -127,9 +143,7 @@ def test_get_chain_summary():
 
 def test_get_compliance_report():
     """Test compliance report endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
+    client = _make_client()
     response = client.get(
         "/api/v1/audit/compliance/report",
         params={
@@ -137,11 +151,11 @@ def test_get_compliance_report():
             "end_date": "2026-01-31T23:59:59Z",
             "framework": "general",
         },
-        headers={"X-Tenant-Id": "test-tenant"},
+        headers={"X-Tenant-Id": VALID_TENANT_ID},
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["tenant_id"] == "test-tenant"
+    assert data["tenant_id"] == VALID_TENANT_ID
     assert data["framework"] == "general"
     assert "summary" in data
     assert "by_category" in data
@@ -149,10 +163,8 @@ def test_get_compliance_report():
 
 def test_get_security_events():
     """Test security events endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/security-events", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/security-events", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -161,10 +173,8 @@ def test_get_security_events():
 
 def test_get_failed_logins():
     """Test failed logins endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/failed-logins", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/failed-logins", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -173,9 +183,7 @@ def test_get_failed_logins():
 
 def test_export_audit_logs_json():
     """Test export endpoint with JSON format"""
-    from src.main import app
-
-    client = TestClient(app)
+    client = _make_client()
     response = client.get(
         "/api/v1/audit/export",
         params={
@@ -183,17 +191,15 @@ def test_export_audit_logs_json():
             "end_date": "2026-01-31T23:59:59Z",
             "format": "json",
         },
-        headers={"X-Tenant-Id": "test-tenant"},
+        headers={"X-Tenant-Id": VALID_TENANT_ID},
     )
     assert response.status_code == 200
 
 
 def test_get_user_audit_trail():
     """Test user audit trail endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/users/user-123/trail", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get("/api/v1/audit/users/user-123/trail", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -202,10 +208,10 @@ def test_get_user_audit_trail():
 
 def test_get_resource_audit_trail():
     """Test resource audit trail endpoint"""
-    from src.main import app
-
-    client = TestClient(app)
-    response = client.get("/api/v1/audit/resources/field/field-123/trail", headers={"X-Tenant-Id": "test-tenant"})
+    client = _make_client()
+    response = client.get(
+        "/api/v1/audit/resources/field/field-123/trail", headers={"X-Tenant-Id": VALID_TENANT_ID}
+    )
     assert response.status_code == 200
     data = response.json()
     assert "items" in data

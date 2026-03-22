@@ -66,15 +66,20 @@ def app():
     from src.main import app as weather_app
 
     from shared.auth.dependencies import get_current_user
-    from shared.auth.models import User
 
-    def fake_current_user():
-        return User(
-            id="test-user-001",
-            email="test@sahool.sa",
-            roles=["farmer"],
-            tenant_id="00000000-0000-0000-0000-000000000123",
-        )
+    class FakeUser:
+        """Lightweight mock user to avoid User model variant differences."""
+        id = "test-user-001"
+        email = "test@sahool.sa"
+        roles = ["farmer"]
+        tenant_id = "00000000-0000-0000-0000-000000000123"
+        farm_ids = []
+        permissions = []
+        is_active = True
+        is_verified = True
+
+    async def fake_current_user():
+        return FakeUser()
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
     yield weather_app

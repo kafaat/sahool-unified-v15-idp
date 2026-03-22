@@ -28,6 +28,12 @@ os.environ.setdefault("NATS_URL", "")
 
 # Add paths
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+
+# Valid UUID tenant ID for TenantContextMiddleware
+VALID_TENANT_ID = "00000000-0000-0000-0000-000000000001"
+TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT_ID}
+
+
 class TestWebhookVerification:
     """Tests for webhook verification endpoint."""
 
@@ -36,7 +42,7 @@ class TestWebhookVerification:
         # Import app after environment is set
         from src.main import app
 
-        self.client = TestClient(app)
+        self.client = TestClient(app, headers=TENANT_HEADER)
 
     def test_webhook_verification_success(self):
         """Test successful webhook verification."""
@@ -79,6 +85,8 @@ class TestWebhookVerification:
         """Test webhook verification with missing parameters."""
         response = self.client.get("/webhook")
         assert response.status_code == 403
+
+
 class TestWebhookMessageReceive:
     """Tests for webhook message receive endpoint."""
 
@@ -86,7 +94,7 @@ class TestWebhookMessageReceive:
         """Set up test client."""
         from src.main import app
 
-        self.client = TestClient(app)
+        self.client = TestClient(app, headers=TENANT_HEADER)
         self.app = app
 
     def test_receive_text_message(self, sample_text_message, mock_message_handler):
@@ -141,11 +149,23 @@ class TestSendMessageAPI:
     """Tests for send message API endpoint."""
 
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth override."""
         from src.main import app
+        from src.api.endpoints.webhook import get_current_user
 
-        self.client = TestClient(app)
+        class FakeUser:
+            id = "test-user"
+            tenant_id = VALID_TENANT_ID
+
+        async def fake_user():
+            return FakeUser()
+
+        app.dependency_overrides[get_current_user] = fake_user
+        self.client = TestClient(app, headers=TENANT_HEADER)
         self.app = app
+
+    def teardown_method(self):
+        self.app.dependency_overrides.clear()
 
     def test_send_text_message(self, mock_whatsapp_client):
         """Test sending a text message."""
@@ -187,11 +207,23 @@ class TestSendTemplateAPI:
     """Tests for send template message API endpoint."""
 
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth override."""
         from src.main import app
+        from src.api.endpoints.webhook import get_current_user
 
-        self.client = TestClient(app)
+        class FakeUser:
+            id = "test-user"
+            tenant_id = VALID_TENANT_ID
+
+        async def fake_user():
+            return FakeUser()
+
+        app.dependency_overrides[get_current_user] = fake_user
+        self.client = TestClient(app, headers=TENANT_HEADER)
         self.app = app
+
+    def teardown_method(self):
+        self.app.dependency_overrides.clear()
 
     def test_send_template_message(self, mock_whatsapp_client):
         """Test sending a template message."""
@@ -216,7 +248,7 @@ class TestHealthEndpoints:
         """Set up test client."""
         from src.main import app
 
-        self.client = TestClient(app)
+        self.client = TestClient(app, headers=TENANT_HEADER)
 
     def test_health_endpoint(self):
         """Test health check endpoint."""

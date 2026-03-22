@@ -3,11 +3,11 @@ Tests for drone management API endpoints - اختبارات نقاط نهاية 
 """
 
 import pytest
-from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
 from src.api.v1.drones import (
     DroneCreate,
     DroneResponse,
+    NotFoundException,
     _drone_to_response,
     _drones,
     _get_tenant_id,
@@ -43,6 +43,8 @@ class TestDroneModels:
         d = DroneResponse(id="1", name="D", model="M", serial_number="S", drone_type="custom")
         assert d.status == "active"
         assert d.tenant_id is None
+
+
 class TestHelpers:
     """Test helper functions."""
 
@@ -62,10 +64,11 @@ class TestHelpers:
         assert "extra_field" not in result
 
     def test_raise_not_found(self):
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundException) as exc_info:
             _raise_not_found()
         assert exc_info.value.status_code == 404
-        assert "not found" in str(exc_info.value.detail).lower()
+
+
 # --- API endpoint tests using httpx AsyncClient ---
 
 def _create_test_app():

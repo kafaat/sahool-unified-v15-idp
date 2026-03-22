@@ -131,8 +131,7 @@ class GroundVisionPublisher:
         # Validate detection data is not empty/default
         if not detection.detection_id or not detection.field_id:
             logger.error(
-                "publish_operation_detected_validation_failed",
-                "Detection data missing required fields (detection_id=%s, field_id=%s)",
+                "[publish_operation_detected] Detection data missing required fields (detection_id=%s, field_id=%s)",
                 detection.detection_id,
                 detection.field_id,
             )
@@ -140,8 +139,7 @@ class GroundVisionPublisher:
 
         if detection.confidence <= 0.0:
             logger.warning(
-                "publish_operation_detected_zero_confidence",
-                "Detection has zero or negative confidence, skipping publish (detection_id=%s, confidence=%s)",
+                "[publish_operation_detected] Detection has zero or negative confidence, skipping publish (detection_id=%s, confidence=%s)",
                 detection.detection_id,
                 detection.confidence,
             )
@@ -210,8 +208,7 @@ class GroundVisionPublisher:
         # Validate required fields
         if not field_id or not tenant_id:
             logger.error(
-                "publish_growth_stage_changed_validation_failed",
-                "Growth stage change missing required fields (field_id=%s, tenant_id=%s)",
+                "[publish_growth_stage_changed] Growth stage change missing required fields (field_id=%s, tenant_id=%s)",
                 field_id,
                 tenant_id,
             )
@@ -219,8 +216,7 @@ class GroundVisionPublisher:
 
         if not from_stage or not to_stage:
             logger.error(
-                "publish_growth_stage_changed_missing_stages",
-                "Growth stage change missing stage information (field_id=%s, from=%s, to=%s)",
+                "[publish_growth_stage_changed] Growth stage change missing stage information (field_id=%s, from=%s, to=%s)",
                 field_id,
                 from_stage,
                 to_stage,
@@ -229,8 +225,7 @@ class GroundVisionPublisher:
 
         if confidence <= 0.0:
             logger.warning(
-                "publish_growth_stage_changed_zero_confidence",
-                "Growth stage change has zero or negative confidence, skipping publish (field_id=%s, confidence=%s)",
+                "[publish_growth_stage_changed] Growth stage change has zero or negative confidence, skipping publish (field_id=%s, confidence=%s)",
                 field_id,
                 confidence,
             )
@@ -277,8 +272,7 @@ class GroundVisionPublisher:
         # Validate anomaly data is not empty/default
         if not anomaly.anomaly_id or not anomaly.field_id:
             logger.error(
-                "publish_anomaly_detected_validation_failed",
-                "Anomaly data missing required fields (anomaly_id=%s, field_id=%s)",
+                "[publish_anomaly_detected] Anomaly data missing required fields (anomaly_id=%s, field_id=%s)",
                 anomaly.anomaly_id,
                 anomaly.field_id,
             )
@@ -286,8 +280,7 @@ class GroundVisionPublisher:
 
         if anomaly.confidence <= 0.0:
             logger.warning(
-                "publish_anomaly_detected_zero_confidence",
-                "Anomaly detection has zero or negative confidence, skipping publish (anomaly_id=%s, confidence=%s)",
+                "[publish_anomaly_detected] Anomaly detection has zero or negative confidence, skipping publish (anomaly_id=%s, confidence=%s)",
                 anomaly.anomaly_id,
                 anomaly.confidence,
             )
@@ -342,8 +335,7 @@ class GroundVisionPublisher:
         # Validate timeline analysis data
         if not analysis.analysis_id or not analysis.field_id:
             logger.error(
-                "publish_timeline_updated_validation_failed",
-                "Timeline analysis missing required fields (analysis_id=%s, field_id=%s)",
+                "[publish_timeline_updated] Timeline analysis missing required fields (analysis_id=%s, field_id=%s)",
                 analysis.analysis_id,
                 analysis.field_id,
             )
@@ -351,8 +343,7 @@ class GroundVisionPublisher:
 
         if analysis.stage_confidence <= 0.0:
             logger.warning(
-                "publish_timeline_updated_zero_confidence",
-                "Timeline analysis has zero or negative stage confidence, skipping publish (analysis_id=%s, confidence=%s)",
+                "[publish_timeline_updated] Timeline analysis has zero or negative stage confidence, skipping publish (analysis_id=%s, confidence=%s)",
                 analysis.analysis_id,
                 analysis.stage_confidence,
             )

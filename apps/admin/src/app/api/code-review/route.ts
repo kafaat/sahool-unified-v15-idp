@@ -14,6 +14,9 @@ import { logger } from "@/lib/logger";
 const CODE_REVIEW_SERVICE_URL =
   process.env.CODE_REVIEW_SERVICE_URL || "http://code-review-service:8102";
 
+/** Maximum allowed code size in characters (~500KB) */
+const MAX_CODE_SIZE = 512_000;
+
 async function getAuthHeaders(): Promise<Record<string, string> | null> {
   try {
     const cookieStore = await cookies();
@@ -44,6 +47,9 @@ async function proxyGet(path: string): Promise<NextResponse> {
       headers,
       signal: AbortSignal.timeout(15000),
     });
+    if (response.status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
     const text = await response.text();
     try {
       const data = JSON.parse(text);
@@ -144,6 +150,12 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: "code is required" },
             { status: 400 },
+          );
+        }
+        if (params.code.length > MAX_CODE_SIZE) {
+          return NextResponse.json(
+            { error: `Code size exceeds maximum allowed size of ${MAX_CODE_SIZE} characters` },
+            { status: 413 },
           );
         }
         return proxyPost("/review", {

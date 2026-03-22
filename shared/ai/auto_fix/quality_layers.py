@@ -246,7 +246,7 @@ class QualityOrchestrator:
             return subprocess.CompletedProcess(
                 cmd, proc.returncode or 0, stdout.decode(errors="replace"), stderr.decode(errors="replace")
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("Command timed out: %s", " ".join(cmd))
             return subprocess.CompletedProcess(cmd, 124, "", "timeout")
         except FileNotFoundError:

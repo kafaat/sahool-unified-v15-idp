@@ -188,9 +188,7 @@ class TestMarkProcessed:
     async def test_successful_insert(self):
         conn = AsyncMock()
         conn.execute = AsyncMock()
-        pool = AsyncMock()
-        pool.acquire.return_value.__aenter__ = AsyncMock(return_value=conn)
-        pool.acquire.return_value.__aexit__ = AsyncMock(return_value=False)
+        pool = _make_pool(conn)
 
         await _mark_processed(pool, "tenant-1", "event-1", "sahool.test", "corr-1")
         conn.execute.assert_called_once()
@@ -201,8 +199,9 @@ class TestMarkProcessed:
 
     @pytest.mark.asyncio
     async def test_db_error_does_not_raise(self):
-        pool = AsyncMock()
-        pool.acquire.side_effect = Exception("DB down")
+        conn = AsyncMock()
+        conn.execute = AsyncMock(side_effect=Exception("DB down"))
+        pool = _make_pool(conn)
         # Should not raise
         await _mark_processed(pool, "tenant", "event-1", "subject")
 
@@ -210,9 +209,7 @@ class TestMarkProcessed:
     async def test_none_tenant_uses_global(self):
         conn = AsyncMock()
         conn.execute = AsyncMock()
-        pool = AsyncMock()
-        pool.acquire.return_value.__aenter__ = AsyncMock(return_value=conn)
-        pool.acquire.return_value.__aexit__ = AsyncMock(return_value=False)
+        pool = _make_pool(conn)
 
         await _mark_processed(pool, None, "event-1", "subject")
         args = conn.execute.call_args[0]

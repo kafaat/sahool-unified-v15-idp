@@ -17,7 +17,7 @@ try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
     from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
-except BaseException:
+except Exception:
     get_current_user = None
     User = None
     OBSERVATIONS = None

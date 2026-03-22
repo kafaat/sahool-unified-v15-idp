@@ -92,6 +92,11 @@ class LRUDict(OrderedDict):
             oldest_key = next(iter(self))
             del self[oldest_key]
 
+    def __missing__(self, key):
+        """Auto-create empty list for missing keys (replaces defaultdict behaviour)."""
+        self[key] = []
+        return self[key]
+
     def __getitem__(self, key):
         value = super().__getitem__(key)
         self.move_to_end(key)

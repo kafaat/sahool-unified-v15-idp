@@ -617,7 +617,25 @@ export function migrateSearchableEncryption(
     return legacyCiphertext;
   }
 
-  // Verify that the plaintext matches the legacy ciphertext (fixed-salt format)
+  // Handle s1: format (random-salt legacy) - verify by decrypting
+  if (legacyCiphertext.startsWith("s1:")) {
+    const parts = legacyCiphertext.split(":");
+    if (parts.length === 3) {
+      const salt = Buffer.from(parts[1]!, "base64");
+      const key = getDeterministicKey();
+      const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
+      const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+      let encrypted = cipher.update(plaintext, "utf8", "base64");
+      encrypted += cipher.final("base64");
+      if (encrypted !== parts[2]) {
+        return null; // plaintext doesn't match
+      }
+      return encryptSearchable(plaintext);
+    }
+    return null;
+  }
+
+  // Handle fixed-salt legacy format (raw base64, no prefix)
   const reEncrypted = verifyFixedSaltLegacy(plaintext);
   if (reEncrypted !== legacyCiphertext) {
     return null; // plaintext doesn't match
@@ -634,8 +652,8 @@ export function isLegacySearchable(encryptedData: string): boolean {
   if (!encryptedData || typeof encryptedData !== "string") {
     return false;
   }
-  // v2 values start with "s2:", s1 values start with "s1:", legacy (fixed-salt) values are raw base64
-  return !encryptedData.startsWith("s2:") && !encryptedData.startsWith("s1:") && !encryptedData.includes(":");
+  // v2 values start with "s2:", everything else is legacy (fixed-salt raw base64 or s1: random-salt)
+  return !encryptedData.startsWith("s2:");
 }
 
 export default {

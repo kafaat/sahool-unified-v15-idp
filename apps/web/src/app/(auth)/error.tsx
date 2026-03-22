@@ -23,8 +23,13 @@ function sanitizeErrorMessage(message: string | undefined): string | null {
     return "An authentication error occurred. Please try again.";
   }
 
-  // Strip HTML tags
-  const stripped = message.replace(/<[^>]*>/g, "");
+  // Escape HTML characters to prevent XSS
+  const stripped = message
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
   // Limit length
   const truncated =
     stripped.length > MAX_ERROR_MESSAGE_LENGTH

@@ -38,7 +38,7 @@ from ..deps import get_current_user
 
 # Import guardrails for input/output validation
 try:
-    from shared.guardrails import input_filter, output_filter, TrustLevel
+    from shared.guardrails import input_filter, TrustLevel
 
     HAS_GUARDRAILS = True
 except ImportError:

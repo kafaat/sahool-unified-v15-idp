@@ -188,11 +188,11 @@ class TestDeliveryTracker:
 class TestGetDeliveryTracker:
     def test_returns_singleton(self):
         import src.delivery_tracker as mod
-        old = mod._tracker_instance
-        mod._tracker_instance = None
+        old = mod._delivery_tracker
+        mod._delivery_tracker = None
 
         tracker1 = get_delivery_tracker()
         tracker2 = get_delivery_tracker()
         assert tracker1 is tracker2
 
-        mod._tracker_instance = old
+        mod._delivery_tracker = old

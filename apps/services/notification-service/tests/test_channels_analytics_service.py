@@ -65,10 +65,12 @@ class TestAddChannel:
 
     @pytest.mark.asyncio
     async def test_valid_push_channel(self):
+        from src.models import ChannelType
+
         mock_channel = MagicMock()
         mock_channel.id = "ch-1"
         mock_channel.user_id = "user-123"
-        mock_channel.channel = "push"
+        mock_channel.channel = ChannelType.PUSH
         mock_channel.address = "fcm-token-123"
         mock_channel.verified = True
         mock_channel.enabled = True
@@ -83,15 +85,17 @@ class TestAddChannel:
                 channel_type="push",
                 address="fcm-token-123",
             )
-            assert result["channel_type"] == "push"
+            assert result["channel"] == "push"
             assert result["verified"] is True
 
     @pytest.mark.asyncio
     async def test_email_channel_needs_verification(self):
+        from src.models import ChannelType
+
         mock_channel = MagicMock()
         mock_channel.id = "ch-2"
         mock_channel.user_id = "user-123"
-        mock_channel.channel = "email"
+        mock_channel.channel = ChannelType.EMAIL
         mock_channel.address = "test@example.com"
         mock_channel.verified = False
         mock_channel.enabled = True
@@ -101,6 +105,7 @@ class TestAddChannel:
 
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.create = AsyncMock(return_value=mock_channel)
+            mock_repo.update_channel = AsyncMock(return_value=True)
             result = await ChannelsService.add_channel(
                 user_id="user-123",
                 channel_type="email",

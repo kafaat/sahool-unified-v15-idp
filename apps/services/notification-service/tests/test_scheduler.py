@@ -409,3 +409,214 @@ class TestPriorityOrdering:
         )
         assert result is True
         assert scheduler._notification_map["daily-reminder"].frequency == ScheduleFrequency.DAILY
+
+
+class TestSendNotification:
+    @pytest.mark.asyncio
+    async def test_send_success(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_notification = MagicMock(return_value="msg-123")
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notif = ScheduledNotification(
+            scheduled_time=datetime.now(UTC),
+            notification_id="n-send-1",
+            payload=payload,
+            recipient_token="token-1",
+        )
+
+        result = await scheduler._send_notification(notif)
+        assert result is True
+        assert notif.status == "sent"
+
+    @pytest.mark.asyncio
+    async def test_send_failure_retries(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_notification = MagicMock(side_effect=Exception("FCM error"))
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notif = ScheduledNotification(
+            scheduled_time=datetime.now(UTC),
+            notification_id="n-fail-1",
+            payload=payload,
+            recipient_token="token-1",
+            max_retries=3,
+        )
+
+        result = await scheduler._send_notification(notif)
+        assert result is False
+        assert notif.status == "failed"
+        assert notif.retry_count == 1
+        # Should be rescheduled in queue
+        assert len(scheduler._queue) == 1
+
+    @pytest.mark.asyncio
+    async def test_send_rate_limited(self):
+        mock_firebase = MagicMock()
+        scheduler = NotificationScheduler(
+            firebase_client=mock_firebase,
+            rate_limit_per_minute=0,  # Always rate limited
+        )
+
+        payload = _make_payload()
+        notif = ScheduledNotification(
+            scheduled_time=datetime.now(UTC),
+            notification_id="n-rl-1",
+            payload=payload,
+            recipient_token="token-1",
+        )
+
+        # Fill rate limit
+        scheduler._send_timestamps["token-1"] = [datetime.now(UTC)]
+
+        result = await scheduler._send_notification(notif)
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_send_with_recurring_frequency(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_notification = MagicMock(return_value="msg-456")
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notif = ScheduledNotification(
+            scheduled_time=datetime.now(UTC),
+            notification_id="n-daily-1",
+            payload=payload,
+            recipient_token="token-1",
+            frequency=ScheduleFrequency.DAILY,
+        )
+
+        result = await scheduler._send_notification(notif)
+        assert result is True
+        # Should schedule next occurrence
+        assert "n-daily-1_next" in scheduler._notification_map
+
+    @pytest.mark.asyncio
+    async def test_send_firebase_returns_none(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_notification = MagicMock(return_value=None)
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notif = ScheduledNotification(
+            scheduled_time=datetime.now(UTC),
+            notification_id="n-none-1",
+            payload=payload,
+            recipient_token="token-1",
+        )
+
+        result = await scheduler._send_notification(notif)
+        assert result is False
+        assert notif.status == "failed"
+
+
+class TestProcessBatch:
+    @pytest.mark.asyncio
+    async def test_batch_success(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_multicast = MagicMock(return_value={
+            "success_count": 2,
+            "failure_count": 0,
+            "responses": [{"success": True}, {"success": True}],
+        })
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notifs = [
+            ScheduledNotification(
+                scheduled_time=datetime.now(UTC),
+                notification_id=f"batch-{i}",
+                payload=payload,
+                recipient_token=f"token-{i}",
+            )
+            for i in range(2)
+        ]
+
+        stats = await scheduler._process_batch(notifs)
+        assert stats["success"] == 2
+        assert stats["failed"] == 0
+
+    @pytest.mark.asyncio
+    async def test_batch_with_failures(self):
+        mock_firebase = MagicMock()
+        mock_firebase.send_multicast = MagicMock(return_value={
+            "success_count": 1,
+            "failure_count": 1,
+            "responses": [{"success": True}, {"success": False}],
+        })
+        scheduler = NotificationScheduler(firebase_client=mock_firebase)
+
+        payload = _make_payload()
+        notifs = [
+            ScheduledNotification(
+                scheduled_time=datetime.now(UTC),
+                notification_id=f"batch-fail-{i}",
+                payload=payload,
+                recipient_token=f"token-{i}",
+            )
+            for i in range(2)
+        ]
+
+        stats = await scheduler._process_batch(notifs)
+        assert stats["success"] == 1
+        assert stats["failed"] == 1
+
+    @pytest.mark.asyncio
+    async def test_batch_empty(self):
+        scheduler = NotificationScheduler(firebase_client=MagicMock())
+        stats = await scheduler._process_batch([])
+        assert stats["success"] == 0
+        assert stats["failed"] == 0
+
+
+class TestSchedulerStats:
+    def test_get_stats(self):
+        scheduler = NotificationScheduler(firebase_client=MagicMock())
+        payload = _make_payload()
+        scheduler.schedule_notification("n-1", payload, "t-1", datetime.now(UTC) + timedelta(hours=1))
+        scheduler.schedule_notification("n-2", payload, "t-2", datetime.now(UTC) + timedelta(hours=1))
+        scheduler.cancel_notification("n-1")
+
+        stats = scheduler.get_stats()
+        assert stats["total_scheduled"] == 2
+        assert stats["cancelled"] == 1
+        assert stats["is_running"] is False
+
+    @pytest.mark.asyncio
+    async def test_start_stop(self):
+        scheduler = NotificationScheduler(firebase_client=MagicMock())
+        await scheduler.start()
+        assert scheduler._running is True
+        await scheduler.stop()
+        assert scheduler._running is False
+
+    @pytest.mark.asyncio
+    async def test_stop_not_running(self):
+        scheduler = NotificationScheduler(firebase_client=MagicMock())
+        await scheduler.stop()  # Should not raise
+        assert scheduler._running is False
+
+    @pytest.mark.asyncio
+    async def test_start_already_running(self):
+        scheduler = NotificationScheduler(firebase_client=MagicMock())
+        await scheduler.start()
+        await scheduler.start()  # Should warn but not create second worker
+        assert scheduler._running is True
+        await scheduler.stop()
+
+
+class TestGetScheduler:
+    def test_singleton(self):
+        from src.notification_scheduler import get_scheduler
+        import src.notification_scheduler as mod
+        old = mod._scheduler
+        mod._scheduler = None
+
+        s1 = get_scheduler()
+        s2 = get_scheduler()
+        assert s1 is s2
+
+        mod._scheduler = old

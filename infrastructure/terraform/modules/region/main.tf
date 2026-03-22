@@ -680,9 +680,10 @@ resource "aws_elasticache_replication_group" "redis" {
   snapshot_window         = "03:00-05:00"
   maintenance_window      = "sun:05:00-sun:07:00"
 
-  # التوفر العالي
-  # High availability
-  automatic_failover_enabled = var.redis_num_cache_nodes > 1
+  # التوفر العالي - يُفعّل تلقائياً عند وجود أكثر من عقدة واحدة (الافتراضي: 2)
+  # High availability - auto-enabled when num_cache_nodes > 1 (default: 2)
+  automatic_failover_enabled = var.redis_num_cache_nodes > 1 #checkov:skip=CKV2_AWS_50:Conditional on node count; default is 2 (HA enabled)
+  multi_az_enabled           = var.redis_num_cache_nodes > 1
 
   tags = merge(
     var.tags,
@@ -803,8 +804,32 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "ai_models" {
   }
 }
 
-# مفتاح KMS لتشفير S3
-# KMS key for S3 encryption
+# سياسة دورة الحياة لنماذج الذكاء الاصطناعي
+# Lifecycle policy for AI models
+resource "aws_s3_bucket_lifecycle_configuration" "ai_models" {
+  count  = var.enable_model_bucket ? 1 : 0
+  bucket = aws_s3_bucket.ai_models[0].id
+
+  rule {
+    id     = "archive-old-models"
+    status = "Enabled"
+
+    transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 180
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 730
+    }
+  }
+}
+
 # ======================================================================
 # حظر الوصول العام لحاويات S3 (S3 Public Access Block)
 # ======================================================================

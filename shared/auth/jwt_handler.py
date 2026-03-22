@@ -189,6 +189,7 @@ def verify_token(token: str) -> TokenPayload:
             tenant_id=payload.get("tenant_id") or payload.get("tid"),
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
+            email=payload.get("email", ""),
             permissions=payload.get("permissions", []),
         )
 

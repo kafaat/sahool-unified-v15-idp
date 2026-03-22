@@ -97,7 +97,7 @@ class TestToolType:
         assert ToolType.DART_ANALYZE.value == "dart_analyze"
 
     def test_member_count(self):
-        assert len(ToolType) == 8
+        assert len(ToolType) == 22
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -185,7 +185,7 @@ async def get_current_user(
             logger.warning("No user repository available - using token data only")
             user = User(
                 id=user_id,
-                email="",
+                email=payload.email or f"{user_id}@sahool.local",
                 roles=payload.roles,
                 tenant_id=payload.tenant_id,
                 permissions=payload.permissions,
@@ -586,7 +586,7 @@ def get_optional_user(
 
         return User(
             id=payload.user_id,
-            email="",
+            email=payload.email or f"{payload.user_id}@sahool.local",
             roles=payload.roles,
             tenant_id=payload.tenant_id,
             permissions=payload.permissions,

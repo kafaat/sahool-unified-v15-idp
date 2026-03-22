@@ -378,11 +378,12 @@ class TestBilingualOutput:
         assert "summary_ar" in data
         assert "ريال" in data["summary_ar"]
 
-    def test_bilingual_equipment_names(self, client):
+    def test_bilingual_equipment_names(self, client, auth_headers):
         """Test bilingual equipment names."""
         response = client.get(
             "/api/v1/leveling/equipment/FIELD-001",
             params={"total_volume_m3": 3000},
+            headers=auth_headers,
         )
 
         assert response.status_code == 200

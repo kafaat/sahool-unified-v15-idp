@@ -244,14 +244,20 @@ class TestCodeReviewServiceMethods:
         assert "Code" in prompt
 
     def test_create_review_prompt_agri_context(self, service):
+        """Test that detected agricultural domains are included in the prompt."""
         from src.agricultural_rules import AgriculturalAnalysis
 
         analysis = AgriculturalAnalysis(
             is_agricultural_code=True,
             detected_domains=["ndvi", "sensor"],
         )
+        # The source code calls agri_analysis.get_enhanced_prompt(agri_analysis)
+        # which fails because get_enhanced_prompt is on the engine, not analysis.
+        # But the code has a hasattr check and falls through to append detected domains.
+        # So the prompt should still contain the detected domains.
         prompt = service._create_review_prompt(Path("ndvi.py"), "ndvi = 0.5", agri_analysis=analysis)
-        assert "ndvi" in prompt.lower() or "sensor" in prompt.lower()
+        assert "ndvi" in prompt.lower()
+        assert "sensor" in prompt.lower()
 
     def test_create_review_prompt_truncation(self, service):
         long_code = "x = 1\n" * 10000  # Way more than 5000 chars

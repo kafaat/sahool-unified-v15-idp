@@ -840,7 +840,7 @@ except Exception:
 def api_client():
     if not _CLIENT_AVAILABLE:
         pytest.skip("TestClient not available")
-    return TestClient(app)
+    return TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
 
 
 @pytest.fixture

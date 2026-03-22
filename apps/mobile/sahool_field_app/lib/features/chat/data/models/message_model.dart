@@ -2,6 +2,7 @@
 /// نموذج الرسالة
 ///
 /// Represents a chat message in a conversation
+library;
 
 /// Message status
 enum MessageStatus {

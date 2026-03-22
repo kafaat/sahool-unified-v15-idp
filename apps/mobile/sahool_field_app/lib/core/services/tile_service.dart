@@ -341,7 +341,7 @@ class TileService {
   /// الحصول على معلومات الكاش
   /// Get cache information
   Future<CacheSizeInfo> getCacheInfo() async {
-    return await ImageCompressionUtil.getCacheSize();
+    return ImageCompressionUtil.getCacheSize();
   }
 }
 

@@ -10,13 +10,11 @@
 /// - Efficiency calculations
 /// - Water balance calculations
 /// - Irrigation scheduling calculations
+library;
 
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart';
-import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
 import 'package:sahool_field_app/features/pivot_irrigation/domain/models/span_zone_models.dart';
 
 import 'irrigation_fixtures.dart';
@@ -113,19 +111,19 @@ void main() {
       const etc = 6.0;
 
       // Drip irrigation (90% efficiency)
-      final dripNeed = etc / 0.90;
+      const dripNeed = etc / 0.90;
       expect(dripNeed, closeTo(6.67, 0.01));
 
       // Sprinkler irrigation (75% efficiency)
-      final sprinklerNeed = etc / 0.75;
+      const sprinklerNeed = etc / 0.75;
       expect(sprinklerNeed, closeTo(8.0, 0.01));
 
       // Flood irrigation (60% efficiency)
-      final floodNeed = etc / 0.60;
+      const floodNeed = etc / 0.60;
       expect(floodNeed, closeTo(10.0, 0.01));
 
       // Pivot irrigation (85% efficiency)
-      final pivotNeed = etc / 0.85;
+      const pivotNeed = etc / 0.85;
       expect(pivotNeed, closeTo(7.06, 0.01));
     });
 
@@ -482,7 +480,7 @@ void main() {
       const wiltingPoint = 15.0;
 
       // Act
-      final availableWater = soilMoisture - wiltingPoint;
+      const availableWater = soilMoisture - wiltingPoint;
 
       // Assert
       expect(availableWater, 23.0);
@@ -495,9 +493,9 @@ void main() {
       const soilMoisture = 30.0;
 
       // Act
-      final totalAvailable = fieldCapacity - wiltingPoint; // 30
-      final current = soilMoisture - wiltingPoint; // 15
-      final depletion = ((totalAvailable - current) / totalAvailable) * 100; // 50%
+      const totalAvailable = fieldCapacity - wiltingPoint; // 30
+      const current = soilMoisture - wiltingPoint; // 15
+      const depletion = ((totalAvailable - current) / totalAvailable) * 100; // 50%
 
       // Assert
       expect(depletion, 50.0);
@@ -523,7 +521,7 @@ void main() {
       // MAD = 30 * 0.55 = 16.5 (maximum allowable depletion)
       // Current available above MAD threshold = 25 - (30 - 16.5) = 11.5
       // Days until irrigation = 11.5 / 6.5 = 1.77 days
-      final daysUntilIrrigation = (currentSoilMoisture - wiltingPoint -
+      const daysUntilIrrigation = (currentSoilMoisture - wiltingPoint -
           (fieldCapacity - wiltingPoint) * (1 - madFraction)) / dailyETc;
 
       // Assert
@@ -647,7 +645,7 @@ void main() {
       // Arrange
       final span = SpanZoneFixtures.sampleSpanConfig.copyWith(
         zones: [
-          SpanZone(
+          const SpanZone(
             id: 'zone_test',
             spanNumber: 1,
             zoneNumber: 1,

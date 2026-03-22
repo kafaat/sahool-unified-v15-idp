@@ -17,6 +17,7 @@
 /// - Custom scheme: sahool://verify-otp?identifier=xxx&purpose=xxx
 /// - Universal link: https://sahool.app/reset-password?token=xxx
 /// - Universal link: https://sahool.app/verify-otp?identifier=xxx&purpose=xxx
+library;
 
 import 'dart:async';
 

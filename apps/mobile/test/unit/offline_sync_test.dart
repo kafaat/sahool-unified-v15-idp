@@ -12,6 +12,7 @@
 /// - Offline operation queue ordering (pure logic)
 ///
 /// Run with: flutter test test/unit/offline_sync_test.dart
+library;
 
 import 'dart:convert';
 
@@ -270,7 +271,7 @@ void main() {
 
     test('null ETag means no previous sync (safe to override)', () {
       const String? localEtag = null;
-      final isFirstSync = localEtag == null;
+      const isFirstSync = localEtag == null;
       expect(isFirstSync, isTrue);
     });
 
@@ -467,7 +468,7 @@ void main() {
       const failed = 15;
       const succeeded = total - failed;
 
-      final successRate = succeeded / total;
+      const successRate = succeeded / total;
       expect(successRate, equals(0.85));
     });
 

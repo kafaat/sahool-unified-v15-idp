@@ -7,6 +7,7 @@
 /// - Retry-ability indicators
 /// - Recovery suggestions
 /// - Proper logging integration
+library;
 
 import 'package:dio/dio.dart';
 import '../utils/app_logger.dart';

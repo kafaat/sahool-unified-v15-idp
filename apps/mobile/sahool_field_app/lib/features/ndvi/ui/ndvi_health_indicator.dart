@@ -331,7 +331,7 @@ class _NdviChartPainter extends CustomPainter {
     if (statistics.history.isEmpty) return;
 
     final history = statistics.history;
-    final padding = 20.0;
+    const padding = 20.0;
     final chartWidth = size.width - padding * 2;
     final chartHeight = size.height - padding * 2;
 

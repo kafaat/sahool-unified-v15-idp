@@ -291,7 +291,7 @@ void main() {
 
     test('loadImpacts success', () async {
       final impacts = [
-        AgriculturalImpact(
+        const AgriculturalImpact(
           category: 'irrigation',
           recommendation: 'Irrigate now',
           recommendationAr: 'اروِ الآن',

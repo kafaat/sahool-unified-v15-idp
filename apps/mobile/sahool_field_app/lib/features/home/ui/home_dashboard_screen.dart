@@ -144,7 +144,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildHeaderBackground() {
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF1B5E20), Color(0xFF43A047)],
@@ -486,7 +486,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
   Widget _buildAlertsSection() {
     // في التطبيق الحقيقي، هذه البيانات تأتي من خدمة IoT
-    return Column(
+    return const Column(
       children: [
         _AlertCard(
           title: 'حقل الشمال',
@@ -495,7 +495,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
           color: Colors.green,
           time: 'منذ 5 دقائق',
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _AlertCard(
           title: 'بيت محمي 1',
           message: 'درجة الحرارة مرتفعة قليلاً (32°)',
@@ -508,7 +508,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   }
 
   Widget _buildStatsRow() {
-    return Row(
+    return const Row(
       children: [
         Expanded(
           child: _StatMiniCard(
@@ -518,7 +518,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
             color: SahoolColors.forestGreen,
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: _StatMiniCard(
             icon: Icons.task_alt,
@@ -527,7 +527,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
             color: Colors.blue,
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: _StatMiniCard(
             icon: Icons.trending_up,

@@ -7,7 +7,6 @@ import '../../http/api_client.dart';
 import '../../error_handling/app_exceptions.dart';
 import '../../utils/app_logger.dart';
 import '../network_status.dart';
-import 'outbox_entry.dart';
 import 'outbox_service.dart';
 
 /// SAHOOL Outbox Processor
@@ -157,7 +156,7 @@ class OutboxProcessor {
   /// Process all pending outbox entries
   Future<ProcessingResult> _processOutbox({bool force = false}) async {
     if (_isProcessing && !force) {
-      return ProcessingResult(
+      return const ProcessingResult(
         success: false,
         message: 'Processing already in progress',
       );
@@ -180,7 +179,7 @@ class OutboxProcessor {
       if (entries.isEmpty) {
         _updateState(ProcessorState.idle);
         _isProcessing = false;
-        return ProcessingResult(
+        return const ProcessingResult(
           success: true,
           message: 'No pending entries',
         );
@@ -367,12 +366,12 @@ class OutboxProcessor {
         message: '${entry.entityType}/${entry.entityId} synced successfully',
       );
 
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.success,
         message: 'Synced successfully',
       );
     } on AppException catch (e) {
-      return await _handleAppError(entry, e);
+      return _handleAppError(entry, e);
     } catch (e) {
       await _outboxService.markFailed(entry.id, e.toString());
 
@@ -402,7 +401,7 @@ class OutboxProcessor {
       await _handleConflict(entry, null);
       await _outboxService.markConflict(entry.id, 'Conflict with server');
 
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.conflict,
         message: 'Conflict detected',
       );
@@ -410,7 +409,7 @@ class OutboxProcessor {
 
     // Handle 429 Rate Limit
     if (statusCode == 429) {
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.rateLimited,
         message: 'Rate limited',
       );

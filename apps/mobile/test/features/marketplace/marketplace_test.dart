@@ -1,5 +1,6 @@
 /// Unit Tests for Marketplace Feature - Models, State, and Cart Logic
 /// اختبارات وحدات ميزة السوق
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart';
 
@@ -380,7 +381,7 @@ void main() {
     });
 
     test('copyWith clearCategory clears selectedCategory', () {
-      final state = MarketplaceState(
+      const state = MarketplaceState(
         selectedCategory: ProductCategory.seeds,
       );
 

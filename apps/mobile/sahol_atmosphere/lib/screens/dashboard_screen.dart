@@ -354,7 +354,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           style: AtmosphereTypography.bodyMedium,
         ),
         const SizedBox(height: AtmosphereSpacing.xs),
-        Text(
+        const Text(
           'المزارع أحمد',
           style: AtmosphereTypography.displayMedium,
         ),

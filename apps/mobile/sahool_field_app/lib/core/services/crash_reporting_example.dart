@@ -3,6 +3,7 @@
 ///
 /// This file demonstrates how to use the crash reporting service
 /// throughout the application.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

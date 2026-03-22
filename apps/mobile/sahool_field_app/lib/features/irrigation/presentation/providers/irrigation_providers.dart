@@ -117,7 +117,7 @@ List<IrrigationRecommendation> _generateRecommendations({
 
   // Urgency-based recommendation
   if (waterBalance.status == 'critical') {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.urgency,
       priority: Priority.high,
       title: 'Urgent Irrigation Needed',
@@ -126,7 +126,7 @@ List<IrrigationRecommendation> _generateRecommendations({
       descriptionAr: 'رطوبة التربة منخفضة جدًا. الري فورًا.',
     ));
   } else if (waterBalance.status == 'low') {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.urgency,
       priority: Priority.medium,
       title: 'Irrigation Recommended',
@@ -153,7 +153,7 @@ List<IrrigationRecommendation> _generateRecommendations({
 
   // Timing recommendation
   if (requirement.etc > 5) {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.timing,
       priority: Priority.low,
       title: 'Optimal Irrigation Time',

@@ -500,13 +500,13 @@ class ExperimentDetailsScreen extends StatelessWidget {
           icon: Icons.grid_view,
           color: Colors.indigo,
         ),
-        _StatCard(
+        const _StatCard(
           title: 'الملاحظات',
           value: '48',
           icon: Icons.note,
           color: Colors.green,
         ),
-        _StatCard(
+        const _StatCard(
           title: 'العينات',
           value: '24',
           icon: Icons.science,

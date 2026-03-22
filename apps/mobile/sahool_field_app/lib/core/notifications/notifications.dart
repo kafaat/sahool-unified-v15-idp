@@ -8,6 +8,7 @@
 /// - Notification settings and preferences (إعدادات الإشعارات)
 /// - Notification handler for navigation (معالج التنقل للإشعارات)
 /// - Notification providers for Riverpod (مزودات الإشعارات)
+library;
 
 export 'notification_types.dart';
 export 'notification_service.dart';

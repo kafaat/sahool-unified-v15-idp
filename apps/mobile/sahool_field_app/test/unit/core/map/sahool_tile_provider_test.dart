@@ -5,6 +5,7 @@
 /// - Tile provider creation
 /// - Cached tile image equality and hashing
 /// - toString representation
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';

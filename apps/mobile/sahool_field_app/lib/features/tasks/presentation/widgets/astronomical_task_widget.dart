@@ -3,6 +3,7 @@
 ///
 /// عرض أفضل الأيام للأنشطة الزراعية بناءً على التقويم الفلكي اليمني
 /// مع إمكانية إنشاء مهام مباشرة من الأيام المقترحة
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +13,6 @@ import 'dart:convert';
 
 import '../../../astronomical/models/astronomical_models.dart';
 import '../../../astronomical/providers/astronomical_providers.dart';
-import '../../domain/entities/task.dart';
 import '../create_task_screen.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -46,7 +46,7 @@ final astronomicalCacheProvider =
     return result;
   } catch (e) {
     // في حالة الفشل، محاولة القراءة من التخزين المؤقت
-    return await _loadFromCache(activity);
+    return _loadFromCache(activity);
   }
 });
 
@@ -127,7 +127,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -675,7 +675,7 @@ class _CalendarGrid extends StatelessWidget {
   Widget _buildLegend(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -719,7 +719,7 @@ class _CalendarGrid extends StatelessWidget {
     if (days.isEmpty) return [];
 
     final weeks = <List<BestDay?>>[];
-    var currentWeek = <BestDay?>[];
+    final currentWeek = <BestDay?>[];
 
     // البدء من أول يوم في الشهر
     final firstDay = DateFormat('yyyy-MM-dd').parse(days.first.date);

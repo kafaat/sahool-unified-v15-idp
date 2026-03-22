@@ -2,6 +2,7 @@
 /// اختبارات معالجة الأخطاء في واجهة الحقول
 ///
 /// Tests that FieldsApi properly handles errors with logging and rethrow
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 

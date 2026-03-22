@@ -7,6 +7,7 @@
 /// - Arabic notification support
 /// - Scheduled notifications
 /// - Notification actions and buttons
+library;
 
 import 'dart:convert';
 import 'dart:io';
@@ -343,7 +344,7 @@ class LocalNotificationService {
       icon: '@mipmap/ic_launcher',
     );
 
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
       presentSound: false,
@@ -375,7 +376,7 @@ class LocalNotificationService {
 
   /// الحصول على الإشعارات المعلقة
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 
   /// الحصول على الإشعارات النشطة
@@ -386,7 +387,7 @@ class LocalNotificationService {
               AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
-        return await androidPlugin.getActiveNotifications();
+        return androidPlugin.getActiveNotifications();
       }
     }
     return [];
@@ -401,14 +402,14 @@ class LocalNotificationService {
 
       if (iosPlugin != null) {
         // Clear badge count
-        final details = DarwinNotificationDetails(
+        const details = DarwinNotificationDetails(
           badgeNumber: 0,
         );
         await _localNotifications.show(
           0,
           '',
           '',
-          NotificationDetails(iOS: details),
+          const NotificationDetails(iOS: details),
         );
       }
     }

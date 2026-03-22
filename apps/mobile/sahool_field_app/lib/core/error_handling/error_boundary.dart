@@ -103,7 +103,7 @@ class _DefaultErrorWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    return Container(
+    return ColoredBox(
       color: theme.scaffoldBackgroundColor,
       child: SafeArea(
         child: Padding(

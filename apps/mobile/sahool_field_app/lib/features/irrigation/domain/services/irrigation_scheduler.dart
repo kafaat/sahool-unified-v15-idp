@@ -81,7 +81,7 @@ class IrrigationScheduler {
     final now = DateTime.now();
 
     // Determine irrigation interval based on crop and conditions
-    int intervalDays = _calculateIrrigationInterval(
+    final int intervalDays = _calculateIrrigationInterval(
       crop: crop,
       method: method,
       dailyEtc: requirement.etc,
@@ -212,7 +212,7 @@ class IrrigationScheduler {
     final recommendations = <ScheduleRecommendation>[];
 
     // Morning irrigation recommendation
-    recommendations.add(ScheduleRecommendation(
+    recommendations.add(const ScheduleRecommendation(
       type: RecommendationType.timing,
       message:
           'Schedule irrigation in early morning (5-8 AM) to reduce evaporation losses',
@@ -234,7 +234,7 @@ class IrrigationScheduler {
 
     // Efficiency recommendation
     if (method.efficiency < 0.75) {
-      recommendations.add(ScheduleRecommendation(
+      recommendations.add(const ScheduleRecommendation(
         type: RecommendationType.efficiency,
         message:
             'Consider upgrading to a more efficient irrigation method to save water',

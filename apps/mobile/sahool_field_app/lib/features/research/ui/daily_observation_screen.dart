@@ -25,10 +25,10 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
 
   String _selectedPlot = 'B-01';
   String _selectedCategory = 'observation';
-  List<XFile> _photos = [];
-  List<MeasurementEntry> _measurements = [];
+  final List<XFile> _photos = [];
+  final List<MeasurementEntry> _measurements = [];
   bool _isSaving = false;
-  bool _isOffline = false; // Check connectivity
+  final bool _isOffline = false; // Check connectivity
 
   final List<String> _plots = ['B-01', 'B-02', 'B-03', 'B-04', 'B-05'];
   final List<Map<String, dynamic>> _categories = [

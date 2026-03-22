@@ -326,7 +326,7 @@ void main() {
       // ... (create field code)
 
       // Find field
-      final testFieldName = 'حقل للحذف';
+      const testFieldName = 'حقل للحذف';
       final fieldToDelete = find.text(testFieldName);
       if (fieldToDelete.evaluate().isEmpty) {
         helpers.debug('⚠ Test field not found');

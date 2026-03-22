@@ -6,6 +6,7 @@
 /// - Credit score gauge
 /// - Quick actions (deposit, withdraw, loan)
 /// - Transaction history
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -228,7 +229,7 @@ class _WalletBalanceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          const Row(
             children: [
               _BalanceInfoChip(
                 icon: Icons.arrow_upward,
@@ -236,7 +237,7 @@ class _WalletBalanceCard extends StatelessWidget {
                 value: '+15,000',
                 color: Colors.green,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               _BalanceInfoChip(
                 icon: Icons.arrow_downward,
                 label: 'المصروفات',

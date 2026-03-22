@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -1033,9 +1032,7 @@ class KongGatewayClient {
       'isOpen': isOpen,
       'failureCount': failures,
       'openedAt': openTime?.toIso8601String(),
-      'willResetAt': openTime != null
-          ? openTime.add(_circuitTimeout).toIso8601String()
-          : null,
+      'willResetAt': openTime?.add(_circuitTimeout).toIso8601String(),
     };
   }
 

@@ -7,6 +7,7 @@
 /// - Field polygon drawing
 /// - Marker clustering
 /// - Yemen-optimized defaults
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -90,7 +91,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
   late MapController _mapController;
   late MapProviderConfig _currentProvider;
   bool _showSatellite = false;
-  List<LatLng> _drawnPoints = [];
+  final List<LatLng> _drawnPoints = [];
 
   @override
   void initState() {
@@ -218,7 +219,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                           point: entry.value,
                           width: 24,
                           height: 24,
-                          child: Container(
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
                               color: Colors.blue,
                               shape: BoxShape.circle,

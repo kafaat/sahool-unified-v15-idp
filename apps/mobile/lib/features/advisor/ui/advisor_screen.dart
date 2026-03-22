@@ -331,7 +331,6 @@ class _ChatMessage {
     required this.text,
     required this.isUser,
     required this.time,
-    this.hasAction = false,
   });
 }
 

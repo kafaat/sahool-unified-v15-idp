@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/sahool_theme.dart';
 import '../../core/widgets/bottom_navigation.dart';
 import '../../core/widgets/drawer_menu.dart';
 

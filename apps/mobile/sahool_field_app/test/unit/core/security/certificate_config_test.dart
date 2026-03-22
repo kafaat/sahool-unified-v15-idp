@@ -9,6 +9,7 @@
 /// - Pin configuration validation
 /// - Configuration status reporting
 /// - CertificatePin expiry logic
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/security/certificate_config.dart';

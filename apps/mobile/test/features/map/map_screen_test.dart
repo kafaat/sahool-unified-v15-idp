@@ -16,11 +16,11 @@ import 'package:sahool_field_app/features/map_home/ui/map_screen.dart';
 
 void main() {
   Widget createTestWidget() {
-    return ProviderScope(
+    return const ProviderScope(
       child: MaterialApp(
         home: Directionality(
           textDirection: TextDirection.rtl,
-          child: const MapScreen(),
+          child: MapScreen(),
         ),
       ),
     );

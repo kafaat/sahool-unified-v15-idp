@@ -8,6 +8,7 @@
 /// - ETag-based conflict resolution
 /// - Queue priority and ordering
 /// - Cleanup operations
+library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
@@ -171,13 +172,13 @@ class SyncDaoTestDatabase extends _$SyncDaoTestDatabase {
 
   /// Delete synced items (cleanup)
   Future<int> cleanupSynced() async {
-    return await (delete(syncOutbox)..where((o) => o.isSynced.equals(true))).go();
+    return (delete(syncOutbox)..where((o) => o.isSynced.equals(true))).go();
   }
 
   /// Delete old synced items
   Future<int> cleanupOldSynced({Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
-    return await (delete(syncOutbox)
+    return (delete(syncOutbox)
           ..where((o) => o.isSynced.equals(true))
           ..where((o) => o.createdAt.isSmallerThanValue(cutoff)))
         .go();
@@ -185,7 +186,7 @@ class SyncDaoTestDatabase extends _$SyncDaoTestDatabase {
 
   /// Delete failed items exceeding max retries
   Future<int> cleanupFailed() async {
-    return await (delete(syncOutbox)
+    return (delete(syncOutbox)
           ..where((o) => o.retryCount.isBiggerOrEqualValue(5))
           ..where((o) => o.isSynced.equals(false)))
         .go();
@@ -278,7 +279,7 @@ class SyncDaoTestDatabase extends _$SyncDaoTestDatabase {
   /// Delete old sync logs
   Future<int> cleanupOldLogs({Duration olderThan = const Duration(days: 30)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
-    return await (delete(syncLogs)..where((l) => l.timestamp.isSmallerThanValue(cutoff))).go();
+    return (delete(syncLogs)..where((l) => l.timestamp.isSmallerThanValue(cutoff))).go();
   }
 
   // ============================================================

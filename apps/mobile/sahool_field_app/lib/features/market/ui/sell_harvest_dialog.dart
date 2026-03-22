@@ -6,6 +6,7 @@
 /// - AI yield prediction display
 /// - Animated loading state
 /// - Integration with MarketNotifier
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,7 +98,7 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Container(
+      child: DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),

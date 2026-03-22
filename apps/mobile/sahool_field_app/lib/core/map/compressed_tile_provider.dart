@@ -203,7 +203,7 @@ class CompressedTileImage extends ImageProvider<CompressedTileImage> {
       0x82,
     ]);
     final buffer = await ui.ImmutableBuffer.fromUint8List(transparent);
-    return await decode(buffer);
+    return decode(buffer);
   }
 
   @override
@@ -281,7 +281,7 @@ class CompressedTileManager {
     required List<int> zoomLevels,
     Function(int completed, int total)? onProgress,
   }) async {
-    return await _provider._tileService.prefetchTilesForArea(
+    return _provider._tileService.prefetchTilesForArea(
       bounds: bounds,
       zoomLevels: zoomLevels,
       quality: _provider.quality,
@@ -296,7 +296,7 @@ class CompressedTileManager {
     required List<int> zoomLevels,
     Function(int completed, int total)? onProgress,
   }) async {
-    return await _provider._tileService.prefetchTilesAroundLocation(
+    return _provider._tileService.prefetchTilesAroundLocation(
       center: center,
       radiusKm: radiusKm,
       zoomLevels: zoomLevels,

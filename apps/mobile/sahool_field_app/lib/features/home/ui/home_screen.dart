@@ -56,23 +56,23 @@ class HomeScreen extends ConsumerWidget {
                             color: Colors.white.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Row(
+                          child: const Row(
                             children: [
-                              const CircleAvatar(
+                              CircleAvatar(
                                 radius: 4,
                                 backgroundColor: SahoolColors.forestGreen,
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "الحقل الشمالي • قمح",
+                              SizedBox(width: 8),
+                              Text(
+                                'الحقل الشمالي • قمح',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
                               ),
-                              const Spacer(),
-                              const StatusBadge(
-                                label: "نشط",
+                              Spacer(),
+                              StatusBadge(
+                                label: 'نشط',
                                 color: SahoolColors.forestGreen,
                                 icon: Icons.sensors,
                               ),
@@ -119,7 +119,7 @@ class HomeScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "5 مهام",
+                                  '5 مهام',
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  "تنتظر التنفيذ اليوم",
+                                  'تنتظر التنفيذ اليوم',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.white70,
@@ -162,7 +162,7 @@ class HomeScreen extends ConsumerWidget {
                                   color: Colors.blue,
                                 ),
                                 Text(
-                                  "الري",
+                                  'الري',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 12,
@@ -176,7 +176,7 @@ class HomeScreen extends ConsumerWidget {
                                 Row(
                                   children: [
                                     const Text(
-                                      "45%",
+                                      '45%',
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class HomeScreen extends ConsumerWidget {
                                   ],
                                 ),
                                 Text(
-                                  "رطوبة التربة ممتازة",
+                                  'رطوبة التربة ممتازة',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[600],
@@ -241,7 +241,7 @@ class HomeScreen extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
-                                    "NDVI",
+                                    'NDVI',
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: SahoolColors.sageGreen,
@@ -255,7 +255,7 @@ class HomeScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "0.72",
+                                  '0.72',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -263,7 +263,7 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  "صحة ممتازة",
+                                  'صحة ممتازة',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.grey,
@@ -296,7 +296,7 @@ class HomeScreen extends ConsumerWidget {
                                   color: SahoolColors.harvestGold,
                                 ),
                                 Text(
-                                  "اليوم",
+                                  'اليوم',
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey[600],
@@ -308,7 +308,7 @@ class HomeScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "24°C",
+                                  '24°C',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -316,7 +316,7 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  "مشمس جزئياً",
+                                  'مشمس جزئياً',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.grey,
@@ -361,11 +361,11 @@ class HomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "رسالة من المهندس سالم",
+                              'رسالة من المهندس سالم',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              "يرجى فحص مضخة الحقل C غداً...",
+                              'يرجى فحص مضخة الحقل C غداً...',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 12,
@@ -414,13 +414,13 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "صباح الخير،",
+              'صباح الخير،',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colors.grey,
                   ),
             ),
             Text(
-              "المزارع أحمد",
+              'المزارع أحمد',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: SahoolColors.forestGreen,
@@ -473,7 +473,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 4),
               const Text(
-                "24°",
+                '24°',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

@@ -77,10 +77,10 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: AxisTitles(
+        rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles: AxisTitles(
+        topTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
         bottomTitles: AxisTitles(
@@ -265,7 +265,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       Colors.red.shade300,
     ];
 
-    for (var stage in widget.stages) {
+    for (final stage in widget.stages) {
       // إيجاد السجل الذي يصل إلى بداية هذه المرحلة
       final stageStartRecord = widget.records.indexWhere(
         (r) => r.accumulatedGDD >= stage.gddStart,

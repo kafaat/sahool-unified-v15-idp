@@ -539,7 +539,7 @@ void main() {
     });
 
     test('should preserve ifMatch ETag when provided', () async {
-      final etag = '"abc123"';
+      const etag = '"abc123"';
       await mockDb.queueOutboxItem(
         tenantId: 'tenant_1',
         entityType: 'field',

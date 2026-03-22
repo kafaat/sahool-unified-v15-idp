@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 import '../utils/app_logger.dart';
+import '../ai/farm_memory.dart';
 import 'converters/geo_converter.dart';
 import 'database_encryption.dart';
 
@@ -141,12 +142,12 @@ class SyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents, AiMemoryTable, AiContextCacheTable, AiKnowledgeBaseTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4; // v4: Unified Outbox schema
+  int get schemaVersion => 5; // v5: AI Memory tables
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -161,15 +162,21 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 3) {
             // Migration to v3: Add ETag support + SyncEvents
-            await m.addColumn(this.fields, this.fields.etag);
-            await m.addColumn(this.fields, this.fields.serverUpdatedAt);
-            await m.createTable(this.syncEvents);
+            await m.addColumn(fields, fields.etag);
+            await m.addColumn(fields, fields.serverUpdatedAt);
+            await m.createTable(syncEvents);
           }
           if (from < 4) {
             // Migration to v4: Unified Outbox schema with ETag support
             // Recreate outbox table with new structure
             await m.deleteTable('outbox');
             await m.createTable(outbox);
+          }
+          if (from < 5) {
+            // Migration to v5: AI Memory tables
+            await m.createTable(aiMemoryTable);
+            await m.createTable(aiContextCacheTable);
+            await m.createTable(aiKnowledgeBaseTable);
           }
         },
       );
@@ -810,7 +817,7 @@ class AppDatabase extends _$AppDatabase {
   Future<int> pruneOldOutboxItems(
       {Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
-    return await (delete(outbox)
+    return (delete(outbox)
           ..where((o) => o.isSynced.equals(true))
           ..where((o) => o.createdAt.isSmallerThanValue(cutoff)))
         .go();
@@ -818,7 +825,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get count of failed outbox items (retry count exceeded)
   Future<int> getFailedOutboxCount({int maxRetries = 5}) async {
-    return await (selectOnly(outbox)
+    return (selectOnly(outbox)
           ..where(outbox.isSynced.equals(false))
           ..where(outbox.retryCount.isBiggerOrEqualValue(maxRetries))
           ..addColumns([outbox.id.count()]))

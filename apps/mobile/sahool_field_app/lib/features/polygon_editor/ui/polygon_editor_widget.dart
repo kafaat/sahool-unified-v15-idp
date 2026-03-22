@@ -218,7 +218,7 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
         height: 24,
         child: GestureDetector(
           onTap: () => widget.editorState.insertPoint(j, midpoint),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
               shape: BoxShape.circle,
@@ -377,12 +377,12 @@ class PolygonEditorToolbar extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.straighten,
+                      const Icon(Icons.straighten,
                           size: 20, color: SahoolColors.success),
                       const SizedBox(width: 8),
                       Text(
                         '${area.toStringAsFixed(2)} ${areaUnit.label}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: SahoolColors.success,

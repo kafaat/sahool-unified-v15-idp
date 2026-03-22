@@ -3,9 +3,9 @@
 ///
 /// Tests for GeoJSON parsing, creation, and coordinate transformations.
 /// Compatible with PostGIS integration.
+library;
 
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';

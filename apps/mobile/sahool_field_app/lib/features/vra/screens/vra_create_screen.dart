@@ -165,8 +165,9 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  if (value != null)
+                  if (value != null) {
                     setState(() => _selectedZoningMethod = value);
+                  }
                 },
               ),
               const SizedBox(height: 16),

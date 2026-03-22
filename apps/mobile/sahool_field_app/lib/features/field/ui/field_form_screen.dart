@@ -145,7 +145,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
-        title: Text(isEditing ? "تعديل الحقل" : "إضافة حقل جديد"),
+        title: Text(isEditing ? 'تعديل الحقل' : 'إضافة حقل جديد'),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
         elevation: 0,
@@ -166,15 +166,15 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // القسم 1: البيانات الأساسية
-              _buildSectionHeader("بيانات الحقل الأساسية", Icons.info_outline),
+              _buildSectionHeader('بيانات الحقل الأساسية', Icons.info_outline),
               const SizedBox(height: 16),
 
               // اسم الحقل
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: "اسم الحقل",
-                  hintText: "مثال: المزرعة الشمالية",
+                  labelText: 'اسم الحقل',
+                  hintText: 'مثال: المزرعة الشمالية',
                   prefixIcon: Icon(Icons.label_outline),
                 ),
                 validator: (value) {
@@ -195,10 +195,10 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 controller: _areaController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: "المساحة (هكتار)",
-                  hintText: "مثال: 2.5",
+                  labelText: 'المساحة (هكتار)',
+                  hintText: 'مثال: 2.5',
                   prefixIcon: Icon(Icons.aspect_ratio),
-                  suffixText: "هكتار",
+                  suffixText: 'هكتار',
                 ),
               ),
               const SizedBox(height: 16),
@@ -207,16 +207,16 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
               DropdownButtonFormField<String>(
                 value: _selectedIrrigation,
                 decoration: const InputDecoration(
-                  labelText: "نظام الري",
+                  labelText: 'نظام الري',
                   prefixIcon: Icon(Icons.water_drop),
                 ),
                 items: const [
-                  DropdownMenuItem(value: "drip", child: Text("تنقيط")),
-                  DropdownMenuItem(value: "sprinkler", child: Text("رشاشات")),
-                  DropdownMenuItem(value: "flood", child: Text("غمر")),
-                  DropdownMenuItem(value: "pivot", child: Text("محوري")),
+                  DropdownMenuItem(value: 'drip', child: Text('تنقيط')),
+                  DropdownMenuItem(value: 'sprinkler', child: Text('رشاشات')),
+                  DropdownMenuItem(value: 'flood', child: Text('غمر')),
+                  DropdownMenuItem(value: 'pivot', child: Text('محوري')),
                   DropdownMenuItem(
-                      value: "none", child: Text("بدون ري (مطري)")),
+                      value: 'none', child: Text('بدون ري (مطري)')),
                 ],
                 onChanged: (v) => setState(() => _selectedIrrigation = v),
               ),
@@ -227,14 +227,14 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 onTap: _selectPlantingDate,
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "تاريخ الزراعة",
+                    labelText: 'تاريخ الزراعة',
                     prefixIcon: Icon(Icons.calendar_today),
                     suffixIcon: Icon(Icons.arrow_drop_down),
                   ),
                   child: Text(
                     _plantingDate != null
                         ? "${_plantingDate!.year}-${_plantingDate!.month.toString().padLeft(2, '0')}-${_plantingDate!.day.toString().padLeft(2, '0')}"
-                        : "اختر التاريخ",
+                        : 'اختر التاريخ',
                     style: TextStyle(
                       color: _plantingDate != null ? Colors.black : Colors.grey,
                     ),
@@ -245,7 +245,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
               const SizedBox(height: 32),
 
               // القسم 2: الموقع الجغرافي
-              _buildSectionHeader("الموقع الجغرافي", Icons.map_outlined),
+              _buildSectionHeader('الموقع الجغرافي', Icons.map_outlined),
               const SizedBox(height: 16),
 
               // بطاقة الرسم على الخريطة
@@ -254,15 +254,15 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
               const SizedBox(height: 32),
 
               // القسم 3: معلومات إضافية
-              _buildSectionHeader("معلومات إضافية (اختياري)", Icons.more_horiz),
+              _buildSectionHeader('معلومات إضافية (اختياري)', Icons.more_horiz),
               const SizedBox(height: 16),
 
               // ملاحظات
               TextFormField(
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  labelText: "ملاحظات",
-                  hintText: "أي معلومات إضافية عن الحقل...",
+                  labelText: 'ملاحظات',
+                  hintText: 'أي معلومات إضافية عن الحقل...',
                   alignLabelWithHint: true,
                   prefixIcon: Padding(
                     padding: EdgeInsets.only(bottom: 50),
@@ -293,7 +293,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                         ),
                       )
                     : Text(
-                        isEditing ? "حفظ التغييرات" : "إضافة الحقل",
+                        isEditing ? 'حفظ التغييرات' : 'إضافة الحقل',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -313,7 +313,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("إلغاء"),
+                child: const Text('إلغاء'),
               ),
             ],
           ),
@@ -341,21 +341,21 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
 
   Widget _buildCropDropdown() {
     if (_isLoadingCrops) {
-      return InputDecorator(
-        decoration: const InputDecoration(
-          labelText: "نوع المحصول",
+      return const InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'نوع المحصول',
           prefixIcon: Icon(Icons.grass),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             SizedBox(width: 8),
-            Text("جاري التحميل...", style: TextStyle(fontSize: 12)),
+            Text('جاري التحميل...', style: TextStyle(fontSize: 12)),
           ],
         ),
       );
@@ -367,7 +367,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
         children: [
           InputDecorator(
             decoration: const InputDecoration(
-              labelText: "نوع المحصول",
+              labelText: 'نوع المحصول',
               prefixIcon: Icon(Icons.grass),
             ),
             child: Text(
@@ -379,20 +379,20 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
           TextButton.icon(
             onPressed: _loadCrops,
             icon: const Icon(Icons.refresh),
-            label: const Text("إعادة المحاولة"),
+            label: const Text('إعادة المحاولة'),
           ),
         ],
       );
     }
 
     if (_crops.isEmpty) {
-      return InputDecorator(
-        decoration: const InputDecoration(
-          labelText: "نوع المحصول",
+      return const InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'نوع المحصول',
           prefixIcon: Icon(Icons.grass),
         ),
-        child: const Text(
-          "لا توجد محاصيل متاحة",
+        child: Text(
+          'لا توجد محاصيل متاحة',
           style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
       );
@@ -401,13 +401,13 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
     return DropdownButtonFormField<String>(
       value: _selectedCrop,
       decoration: InputDecoration(
-        labelText: "نوع المحصول",
+        labelText: 'نوع المحصول',
         prefixIcon: const Icon(Icons.grass),
         suffixIcon: _crops.length > 10
             ? IconButton(
                 icon: const Icon(Icons.search, size: 20),
                 onPressed: _showCropSearchDialog,
-                tooltip: "البحث عن محصول",
+                tooltip: 'البحث عن محصول',
               )
             : null,
       ),
@@ -461,7 +461,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 }).toList();
 
           return AlertDialog(
-            title: const Text("اختر المحصول"),
+            title: const Text('اختر المحصول'),
             content: SizedBox(
               width: double.maxFinite,
               child: Column(
@@ -469,7 +469,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 children: [
                   TextField(
                     decoration: const InputDecoration(
-                      labelText: "البحث",
+                      labelText: 'البحث',
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
@@ -504,7 +504,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("إلغاء"),
+                child: const Text('إلغاء'),
               ),
             ],
           );
@@ -535,7 +535,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _hasBoundary ? "تم تحديد الحدود" : "لم يتم تحديد الحدود",
+            _hasBoundary ? 'تم تحديد الحدود' : 'لم يتم تحديد الحدود',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: _hasBoundary
@@ -546,12 +546,12 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
           const SizedBox(height: 8),
           if (_hasBoundary)
             Text(
-              "المساحة: ${_calculatedArea.toStringAsFixed(2)} هكتار",
+              'المساحة: ${_calculatedArea.toStringAsFixed(2)} هكتار',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
           if (_hasBoundary)
             Text(
-              "${_boundary.length} نقاط",
+              '${_boundary.length} نقاط',
               style: const TextStyle(color: Colors.grey, fontSize: 11),
             ),
           const SizedBox(height: 12),
@@ -580,7 +580,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
             },
             icon: Icon(_hasBoundary ? Icons.edit : Icons.draw),
             label:
-                Text(_hasBoundary ? "تعديل الحدود" : "رسم الحدود على الخريطة"),
+                Text(_hasBoundary ? 'تعديل الحدود' : 'رسم الحدود على الخريطة'),
             style: OutlinedButton.styleFrom(
               foregroundColor: SahoolColors.forestGreen,
             ),
@@ -706,13 +706,13 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("حذف الحقل"),
+        title: const Text('حذف الحقل'),
         content: const Text(
-            "هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء."),
+            'هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("إلغاء"),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -722,7 +722,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: SahoolColors.danger,
             ),
-            child: const Text("حذف", style: TextStyle(color: Colors.white)),
+            child: const Text('حذف', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

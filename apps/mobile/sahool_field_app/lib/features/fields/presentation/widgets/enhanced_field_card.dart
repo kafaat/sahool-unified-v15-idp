@@ -33,17 +33,17 @@ class EnhancedFieldCard extends StatelessWidget {
             // Header with gradient
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF367C2B),
-                    const Color(0xFF4A9A3D),
+                    Color(0xFF367C2B),
+                    Color(0xFF4A9A3D),
                   ],
                 ),
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                    BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
                 children: [

@@ -207,10 +207,10 @@ void main() {
 
   group('NdviTileLayerWidget', () {
     testWidgets('should not render when invisible', (tester) async {
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: Scaffold(
           body: NdviTileLayerWidget(
-            config: const NdviTileConfig(
+            config: NdviTileConfig(
               urlTemplate: 'https://example.com/{z}/{x}/{y}.png',
             ),
             visible: false,
@@ -223,13 +223,13 @@ void main() {
     });
 
     testWidgets('should use AnimatedOpacity when visible', (tester) async {
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: Scaffold(
           body: FlutterMap(
-            options: const MapOptions(),
+            options: MapOptions(),
             children: [
               NdviTileLayerWidget(
-                config: const NdviTileConfig(
+                config: NdviTileConfig(
                   urlTemplate: 'https://example.com/{z}/{x}/{y}.png',
                   opacity: 0.5,
                 ),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -107,6 +106,7 @@ class NdviTileLayerWidget extends StatelessWidget {
 /// Cached NDVI Tile Provider for offline support
 /// مزود البلاطات المخزنة مؤقتاً لدعم الوضع غير المتصل
 class CachedNdviTileProvider extends TileProvider {
+  @override
   final Map<String, String>? headers;
   static const String _cacheKeyPrefix = 'ndvi_tile_';
 

@@ -1,5 +1,6 @@
 /// Unit Tests for Equipment Models
 /// اختبارات وحدات نماذج المعدات
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/equipment/data/equipment_models.dart';
 
@@ -210,7 +211,7 @@ void main() {
     });
 
     test('EquipmentStats validates counts', () {
-      final stats = EquipmentStats(
+      const stats = EquipmentStats(
         total: 10,
         byType: {'tractor': 5, 'pump': 5},
         byStatus: {'operational': 7, 'maintenance': 3},

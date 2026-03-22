@@ -3,6 +3,7 @@
 ///
 /// توفر هذه الخدمة الوصول إلى بيانات التقويم الفلكي اليمني
 /// تشمل: المنازل القمرية، أطوار القمر، التاريخ الهجري، الأمثال الزراعية
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';

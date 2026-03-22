@@ -11,6 +11,7 @@
 /// - Error state and empty state handling
 /// - Accessibility (semantics)
 /// - Theming (dark/light)
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -44,9 +45,9 @@ class _OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return const Material(
       color: Colors.orange,
-      child: const Padding(
+      child: Padding(
         padding: EdgeInsets.all(8),
         child: Row(
           children: [
@@ -411,9 +412,9 @@ void main() {
     testWidgets('Offline banner shows Arabic text and wifi-off icon',
         (tester) async {
       await tester.pumpWidget(buildTestApp(
-        home: Scaffold(
+        home: const Scaffold(
           body: Column(
-            children: const [_OfflineBanner()],
+            children: [_OfflineBanner()],
           ),
         ),
       ));
@@ -425,9 +426,9 @@ void main() {
 
     testWidgets('Offline banner has orange background', (tester) async {
       await tester.pumpWidget(buildTestApp(
-        home: Scaffold(
+        home: const Scaffold(
           body: Column(
-            children: const [_OfflineBanner()],
+            children: [_OfflineBanner()],
           ),
         ),
       ));
@@ -446,9 +447,9 @@ void main() {
 
     testWidgets('Offline mode shows cached data placeholder', (tester) async {
       await tester.pumpWidget(buildTestApp(
-        home: Scaffold(
+        home: const Scaffold(
           body: Column(
-            children: const [
+            children: [
               _OfflineBanner(),
               Expanded(
                 child: Center(
@@ -474,11 +475,11 @@ void main() {
 
     testWidgets('Online indicator shows checkmark when connected', (tester) async {
       await tester.pumpWidget(buildTestApp(
-        home: Scaffold(
+        home: const Scaffold(
           body: Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.check_circle, color: Colors.green),
                 SizedBox(width: 8),
                 Text('متصل'),
@@ -869,19 +870,19 @@ void main() {
         home: Scaffold(
           appBar: AppBar(title: const Text('الحقول')),
           body: ListView(
-            children: [
+            children: const [
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.grass, color: Colors.green),
-                  title: const Text('حقل القمح الشمالي'),
-                  subtitle: const Column(
+                  leading: Icon(Icons.grass, color: Colors.green),
+                  title: Text('حقل القمح الشمالي'),
+                  subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('القمح • 5.5 هكتار'),
                       Text('NDVI: 0.72'),
                     ],
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: Icon(Icons.chevron_right),
                 ),
               ),
             ],

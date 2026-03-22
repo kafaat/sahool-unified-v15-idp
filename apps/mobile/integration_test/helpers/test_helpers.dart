@@ -1,5 +1,6 @@
 /// SAHOOL Integration Test - Helper Functions
 /// دوال مساعدة للاختبارات
+library;
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';

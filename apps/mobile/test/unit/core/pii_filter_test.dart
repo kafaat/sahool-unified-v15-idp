@@ -118,7 +118,7 @@ void main() {
 
   group('PiiFilter - Token and Password Removal', () {
     test('Should remove JWT tokens', () {
-      final token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
           'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.'
           'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
@@ -137,7 +137,7 @@ void main() {
     });
 
     test('Should redact long API keys', () {
-      final apiKey = 'api_key_test_abcdef1234567890xyz';
+      const apiKey = 'api_key_test_abcdef1234567890xyz';
       final result = PiiFilter.sanitize('API Key: $apiKey');
       expect(result, contains('[KEY_REDACTED]'));
     });
@@ -298,7 +298,7 @@ void main() {
     });
 
     test('Should sanitize JSON string body', () {
-      final body = '{"password":"secret123","email":"test@example.com"}';
+      const body = '{"password":"secret123","email":"test@example.com"}';
       final result = PiiFilter.sanitizeRequestBody(body);
 
       expect(result, contains('[REDACTED]'));
@@ -351,7 +351,7 @@ void main() {
 
   group('PiiFilter - PII Summary', () {
     test('Should count PII types in text', () {
-      final text = '''
+      const text = '''
         Contact: +966501234567
         Email: ahmed@example.com
         Another phone: 0557778888
@@ -443,7 +443,7 @@ void main() {
     });
 
     test('Should handle special characters in text', () {
-      final text = 'Email: ahmed@example.com\nPhone: +966501234567\tID: 1234567890';
+      const text = 'Email: ahmed@example.com\nPhone: +966501234567\tID: 1234567890';
       final result = PiiFilter.sanitize(text);
 
       expect(result, contains('****@example.com'));
@@ -520,7 +520,7 @@ void main() {
     });
 
     test('Should sanitize error messages', () {
-      final error = '''
+      const error = '''
         Authentication failed for user ahmed@example.com
         Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT
         Please contact support at +966501234567

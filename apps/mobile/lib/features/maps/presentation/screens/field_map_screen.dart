@@ -75,7 +75,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       final geometry = widget.initialCenter!['geometry'] as Map<String, dynamic>?;
       if (geometry != null && geometry['type'] == 'Polygon') {
         try {
-          _fieldBoundary = GeoJson.parsePolygon(geometry as Map<String, dynamic>);
+          _fieldBoundary = GeoJson.parsePolygon(geometry);
         } catch (_) {
           // Fallback: use center point to create a small bounding area
           _createBoundaryFromCenter();

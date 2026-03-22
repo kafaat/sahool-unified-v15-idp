@@ -1,5 +1,6 @@
 /// Unit Tests for API Configuration
 /// اختبارات إعدادات API
+library;
 import 'package:flutter_test/flutter_test.dart';
 
 // Note: These tests verify the API configuration logic

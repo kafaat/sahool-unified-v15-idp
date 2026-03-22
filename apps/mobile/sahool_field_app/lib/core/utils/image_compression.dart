@@ -133,19 +133,17 @@ class ImageCompressionUtil {
         );
       }
 
-      if (compressed != null) {
-        final originalSize = imageData.length / 1024; // KB
-        final compressedSize = compressed.length / 1024; // KB
-        final ratio = ((1 - (compressedSize / originalSize)) * 100);
+      final originalSize = imageData.length / 1024; // KB
+      final compressedSize = compressed.length / 1024; // KB
+      final ratio = ((1 - (compressedSize / originalSize)) * 100);
 
-        AppLogger.d(
-          'Compressed: ${originalSize.toStringAsFixed(1)} KB → '
-          '${compressedSize.toStringAsFixed(1)} KB '
-          '(${ratio.toStringAsFixed(1)}% reduction)',
-          tag: 'IMAGE_COMPRESSION',
-        );
-      }
-
+      AppLogger.d(
+        'Compressed: ${originalSize.toStringAsFixed(1)} KB → '
+        '${compressedSize.toStringAsFixed(1)} KB '
+        '(${ratio.toStringAsFixed(1)}% reduction)',
+        tag: 'IMAGE_COMPRESSION',
+      );
+    
       return compressed;
     } catch (e) {
       AppLogger.e(
@@ -208,7 +206,7 @@ class ImageCompressionUtil {
       );
 
       AppLogger.d(
-        'Resized: ${image.width}x${image.height} → ${newWidth}x${newHeight}',
+        'Resized: ${image.width}x${image.height} → ${newWidth}x$newHeight',
         tag: 'IMAGE_COMPRESSION',
       );
 

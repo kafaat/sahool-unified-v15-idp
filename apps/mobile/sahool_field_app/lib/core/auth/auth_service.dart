@@ -483,7 +483,7 @@ class AuthService {
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
-        return await _loginWithMock(email, password);
+        return _loginWithMock(email, password);
       }
 
       rethrow;

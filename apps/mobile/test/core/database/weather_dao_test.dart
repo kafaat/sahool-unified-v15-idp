@@ -10,6 +10,7 @@
 ///
 /// Note: Weather caching supports offline-first architecture by
 /// storing weather data locally for access when network is unavailable.
+library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
@@ -145,14 +146,14 @@ class WeatherDaoTestDatabase extends _$WeatherDaoTestDatabase {
 
   /// Delete expired cache entries
   Future<int> cleanupExpiredCache() async {
-    return await (delete(weatherCache)
+    return (delete(weatherCache)
           ..where((w) => w.expiresAt.isSmallerThanValue(DateTime.now())))
         .go();
   }
 
   /// Delete all cache for tenant
   Future<int> clearCacheForTenant(String tenantId) async {
-    return await (delete(weatherCache)
+    return (delete(weatherCache)
           ..where((w) => w.tenantId.equals(tenantId)))
         .go();
   }
@@ -239,7 +240,7 @@ class WeatherDaoTestDatabase extends _$WeatherDaoTestDatabase {
 
   /// Deactivate expired alerts
   Future<int> deactivateExpiredAlerts() async {
-    return await (update(weatherAlerts)
+    return (update(weatherAlerts)
           ..where((a) => a.expiresAt.isSmallerThanValue(DateTime.now()))
           ..where((a) => a.isActive.equals(true)))
         .write(const WeatherAlertsCompanion(isActive: Value(false)));

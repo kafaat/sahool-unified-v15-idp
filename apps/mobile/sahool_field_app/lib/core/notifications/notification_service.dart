@@ -1,5 +1,6 @@
 /// SAHOOL Notification Service
 /// خدمة الإشعارات
+library;
 
 import 'dart:convert';
 import 'dart:io';
@@ -327,7 +328,7 @@ class NotificationServiceImpl implements NotificationService {
 
   @override
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 }
 

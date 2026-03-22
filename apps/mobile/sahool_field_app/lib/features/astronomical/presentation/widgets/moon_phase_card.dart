@@ -1,5 +1,6 @@
 /// SAHOOL Moon Phase Card
 /// بطاقة طور القمر
+library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';

@@ -3,6 +3,7 @@
 ///
 /// Provides test data and fixtures for authentication unit tests.
 /// يوفر بيانات اختبار ثابتة لاختبارات وحدة المصادقة
+library;
 
 /// Sample user data for tests
 class AuthFixtures {

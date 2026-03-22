@@ -168,7 +168,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
       child: IconButton(
         onPressed: _isAuthenticating ? null : _authenticate,
         icon: _isAuthenticating
-            ? SizedBox(
+            ? const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
@@ -199,7 +199,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
           child: child,
         );
       },
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [

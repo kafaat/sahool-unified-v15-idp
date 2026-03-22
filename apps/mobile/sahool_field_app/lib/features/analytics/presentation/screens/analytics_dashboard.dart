@@ -514,14 +514,14 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('نسبة الإنجاز'),
+                    Text('نسبة الإنجاز'),
                     Text(
                       '49%',
                       style: TextStyle(
-                        color: const Color(0xFF367C2B),
+                        color: Color(0xFF367C2B),
                         fontWeight: FontWeight.bold,
                       ),
                     ),

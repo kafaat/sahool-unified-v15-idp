@@ -21,6 +21,7 @@
 ///   // ...
 /// )
 /// ```
+library;
 
 // Main theme - الثيم الرئيسي
 export 'sahool_theme.dart';

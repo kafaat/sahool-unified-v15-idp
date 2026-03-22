@@ -1,5 +1,6 @@
 /// Widget Tests for Equipment Screen
 /// اختبارات واجهة شاشة المعدات
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -179,10 +180,10 @@ void main() {
             home: Scaffold(
               body: GestureDetector(
                 onTap: () => tapped = true,
-                child: Card(
+                child: const Card(
                   child: ListTile(
-                    title: const Text('John Deere 8R'),
-                    subtitle: const Text('جرار'),
+                    title: Text('John Deere 8R'),
+                    subtitle: Text('جرار'),
                   ),
                 ),
               ),

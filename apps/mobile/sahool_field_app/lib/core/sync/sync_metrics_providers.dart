@@ -240,7 +240,7 @@ class MetricsAwareQueueManager {
 
   /// Get pending items sorted by priority
   Future<List<OutboxData>> getPendingItemsSorted({int limit = 50}) async {
-    return await _manager.getPendingItemsSorted(limit: limit);
+    return _manager.getPendingItemsSorted(limit: limit);
   }
 
   /// Cleanup completed items

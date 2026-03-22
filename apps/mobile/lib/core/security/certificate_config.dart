@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'certificate_pinning_service.dart';
 import '../utils/app_logger.dart';
 

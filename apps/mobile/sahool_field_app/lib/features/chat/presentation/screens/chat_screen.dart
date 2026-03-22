@@ -8,6 +8,7 @@
 /// - Message input
 /// - Online status
 /// - Load more messages (pagination)
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -136,7 +137,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ? NetworkImage(otherParticipant!.avatarUrl!)
                   : null,
               child: otherParticipant?.avatarUrl == null
-                  ? Icon(
+                  ? const Icon(
                       Icons.person,
                       size: 20,
                       color: SahoolTheme.primary,
@@ -224,7 +225,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ],
             onSelected: (value) {
-              _handleMenuAction(value as String, conversation);
+              _handleMenuAction(value, conversation);
             },
           ),
         ],
@@ -298,7 +299,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        SizedBox(
+                        const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
@@ -379,7 +380,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               conversation.productId != null
                   ? 'محادثة حول منتج'
                   : 'محادثة حول طلب',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: SahoolTheme.primary,
                 fontWeight: FontWeight.w600,

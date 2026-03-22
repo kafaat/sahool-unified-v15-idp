@@ -7,11 +7,11 @@ class RotationTimelineWidget extends StatelessWidget {
   final Function(int) onYearSelected;
 
   const RotationTimelineWidget({
-    Key? key,
+    super.key,
     required this.rotationYears,
     required this.selectedIndex,
     required this.onYearSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

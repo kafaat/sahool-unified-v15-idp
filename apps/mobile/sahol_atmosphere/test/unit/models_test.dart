@@ -491,8 +491,8 @@ void main() {
         moisturePercent: 64,
         temperatureCelsius: 28,
         sunlightPercent: 85,
-        boundary: [LatLng(15.3694, 44.1910)],
-        center: LatLng(15.3693, 44.1920),
+        boundary: [const LatLng(15.3694, 44.1910)],
+        center: const LatLng(15.3693, 44.1920),
         lastUpdated: DateTime.utc(2026, 1, 20, 10, 0),
         hasAlerts: true,
         pendingTasks: 3,
@@ -524,7 +524,7 @@ void main() {
         moisturePercent: 50,
         temperatureCelsius: 25,
         sunlightPercent: 70,
-        boundary: [LatLng(15.3694, 44.1910)],
+        boundary: [const LatLng(15.3694, 44.1910)],
         lastUpdated: DateTime(2026, 1, 20),
       );
 

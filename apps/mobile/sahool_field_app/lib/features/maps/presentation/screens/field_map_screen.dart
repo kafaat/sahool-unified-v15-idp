@@ -153,7 +153,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   Widget _buildMapView() {
     // Placeholder for MapLibre map
     // In production, use maplibre_gl package
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,

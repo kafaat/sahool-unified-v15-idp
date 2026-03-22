@@ -214,6 +214,12 @@ omit = [
     "**/__pycache__/*",
     "**/migrations/*",
     "**/conftest.py",
+    "**/*example*",
+    "**/*examples*",
+    "**/scraping/**",
+    "**/templates/service_template.py",
+    "**/globalgap/addons/**",
+    "**/middleware/test_*",
 ]
 
 [tool.coverage.report]

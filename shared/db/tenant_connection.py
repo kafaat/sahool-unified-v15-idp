@@ -34,8 +34,27 @@ from typing import TYPE_CHECKING, AsyncGenerator
 
 if TYPE_CHECKING:
     import asyncpg
+    from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WARNING: Row-Level Security (RLS) gap
+# ──────────────────────────────────────────────────────────────────────────────
+# This module provides tenant_connection() for RLS-enforced DB access, but
+# most services still use raw asyncpg pools WITHOUT setting RLS session
+# variables.  Until all 72 services adopt tenant_connection() or call
+# setup_tenant_rls(), cross-tenant data leaks are possible at the DB layer.
+#
+# To close the gap incrementally, call setup_tenant_rls(app, db_pool) in your
+# service's lifespan function.  See docstring below for details.
+# ──────────────────────────────────────────────────────────────────────────────
+logger.warning(
+    "shared.db.tenant_connection loaded but RLS is NOT enforced by default. "
+    "Services must explicitly call setup_tenant_rls(app, db_pool) in their "
+    "lifespan to enable Row-Level Security.  Without this, cross-tenant data "
+    "access is only prevented by application-layer filtering."
+)
 
 
 @asynccontextmanager
@@ -187,3 +206,119 @@ class TenantPool:
     async def close(self):
         """Close the underlying pool."""
         await self._pool.close()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Adoption helpers - make it easy for services to enable RLS
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+async def verify_tenant_isolation(app: FastAPI) -> bool:
+    """
+    Verify that RLS policies are active on critical tables.
+
+    Call this in your service's lifespan (after DB pool is created) to confirm
+    that PostgreSQL RLS policies exist and are enabled.  Logs warnings for any
+    tables missing RLS.
+
+    Args:
+        app: FastAPI application instance (expects app.state.db_pool).
+
+    Returns:
+        True if all critical tables have RLS enabled, False otherwise.
+
+    Example:
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            app.state.db_pool = await asyncpg.create_pool(DATABASE_URL)
+            await verify_tenant_isolation(app)
+            yield
+    """
+    pool: asyncpg.Pool | None = getattr(app.state, "db_pool", None)
+    if pool is None:
+        logger.warning("verify_tenant_isolation: no db_pool on app.state, skipping RLS check")
+        return False
+
+    critical_tables = ["fields", "tasks", "farms", "ndvi_readings", "sync_status"]
+    all_ok = True
+
+    try:
+        conn = await pool.acquire()
+        try:
+            for table in critical_tables:
+                row = await conn.fetchrow(
+                    "SELECT relrowsecurity, relforcerowsecurity "
+                    "FROM pg_class WHERE relname = $1",
+                    table,
+                )
+                if row is None:
+                    # Table may not exist in this service's DB
+                    continue
+                if not row["relrowsecurity"]:
+                    logger.warning(
+                        "RLS is NOT enabled on table '%s'. Run: "
+                        "ALTER TABLE %s ENABLE ROW LEVEL SECURITY;",
+                        table,
+                        table,
+                    )
+                    all_ok = False
+                elif not row["relforcerowsecurity"]:
+                    logger.warning(
+                        "RLS on table '%s' does not apply to table owner. Run: "
+                        "ALTER TABLE %s FORCE ROW LEVEL SECURITY;",
+                        table,
+                        table,
+                    )
+                    all_ok = False
+                else:
+                    logger.info("RLS verified for table '%s'", table)
+        finally:
+            await pool.release(conn)
+    except Exception as exc:
+        logger.error("verify_tenant_isolation failed: %s", exc)
+        return False
+
+    if all_ok:
+        logger.info("All critical tables have RLS enabled and enforced.")
+    return all_ok
+
+
+def setup_tenant_rls(app: FastAPI, db_pool: asyncpg.Pool) -> None:
+    """
+    Register a TenantPool on the app and wrap the raw pool for RLS enforcement.
+
+    Call this in your service's lifespan to enable tenant-scoped DB access.
+    After calling this, use ``app.state.tenant_pool`` instead of the raw pool
+    for all tenant-scoped queries.
+
+    Args:
+        app: FastAPI application instance.
+        db_pool: asyncpg connection pool (already created).
+
+    Usage:
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            db_pool = await asyncpg.create_pool(DATABASE_URL, min_size=2, max_size=10)
+            app.state.db_pool = db_pool
+
+            # Enable RLS - creates app.state.tenant_pool
+            setup_tenant_rls(app, db_pool)
+
+            # Optionally verify RLS policies exist in the DB
+            await verify_tenant_isolation(app)
+
+            yield
+            await db_pool.close()
+
+        # In route handlers, use the tenant pool:
+        async def get_fields(request: Request):
+            tenant_id = request.state.tenant_id  # from auth middleware
+            async with request.app.state.tenant_pool.acquire(tenant_id=tenant_id) as conn:
+                return await conn.fetch("SELECT * FROM fields")
+    """
+    tenant_pool = TenantPool(db_pool)
+    app.state.tenant_pool = tenant_pool
+    logger.info(
+        "Tenant RLS pool registered on app.state.tenant_pool. "
+        "Use tenant_pool.acquire(tenant_id=...) for RLS-enforced queries."
+    )

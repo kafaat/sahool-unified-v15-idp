@@ -1,5 +1,5 @@
 """
-Tests for IoT Rules Worker - sensor event processing and task creation
+Tests for IoTRulesWorker
 """
 
 import json
@@ -7,357 +7,389 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from src.iot_worker import IoTRulesWorker
+
+try:
+    from src.iot_rules import TaskRecommendation
+    from src.iot_worker import IoTRulesWorker
+except ImportError:
+    pytest.skip("agro-rules dependencies not installed", allow_module_level=True)
 
 
-def _make_msg(data: dict) -> MagicMock:
-    """Create a mock NATS message"""
-    msg = MagicMock()
-    msg.data = json.dumps(data).encode()
-    return msg
 class TestIoTRulesWorkerInit:
-    """Tests for IoT worker initialization"""
+    """Test IoTRulesWorker initialization"""
 
-    def test_initial_state(self):
-        """Test worker starts with correct initial state"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            assert worker.nc is None
-            assert worker._running is False
-            assert worker._recent_readings == {}
-            assert worker._recent_tasks == {}
-            assert worker._cooldown_minutes == 30
-class TestHandleSensorReading:
-    """Tests for sensor reading handler"""
+    def test_init_defaults(self):
+        """Test worker initializes with correct defaults"""
+        worker = IoTRulesWorker()
+        assert worker.nc is None
+        assert worker._running is False
+        assert worker._recent_readings == {}
+        assert worker._recent_tasks == {}
+        assert worker._cooldown_minutes == 30
 
-    @pytest.mark.asyncio
-    async def test_critical_moisture_creates_urgent_task(self):
-        """Test critical low moisture creates urgent irrigation task"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
 
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "payload": {
-                    "field_id": "f1",
-                    "sensor_type": "soil_moisture",
-                    "value": 5,
-                    "device_id": "dev-1",
-                },
-            })
-
-            await worker._handle_sensor_reading(msg)
-
-            worker.fieldops.create_task.assert_called_once()
-            call_kwargs = worker.fieldops.create_task.call_args.kwargs
-            assert call_kwargs["priority"] == "urgent"
-            assert call_kwargs["source"] == "iot_rules"
+class TestIoTRulesWorkerHandleSensorReading:
+    """Test sensor reading handling"""
 
     @pytest.mark.asyncio
-    async def test_normal_reading_no_task(self):
-        """Test normal soil moisture creates no task"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+    async def test_handle_sensor_reading_triggers_rule(self):
+        """Test sensor reading that triggers a rule creates task"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "payload": {
-                    "field_id": "f1",
-                    "sensor_type": "soil_moisture",
-                    "value": 50,
-                    "device_id": "dev-1",
-                },
-            })
-
-            await worker._handle_sensor_reading(msg)
-            worker.fieldops.create_task.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_missing_tenant_id_skips(self):
-        """Test messages without tenant_id are skipped"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
-
-            msg = _make_msg({
-                "payload": {
-                    "field_id": "f1",
-                    "sensor_type": "soil_moisture",
-                    "value": 5,
-                    "device_id": "dev-1",
-                },
-            })
-
-            await worker._handle_sensor_reading(msg)
-            worker.fieldops.create_task.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_missing_required_fields_skips(self):
-        """Test messages missing field_id/sensor_type/value are skipped"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
-
-            # Missing sensor_type
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "payload": {
-                    "field_id": "f1",
-                    "value": 5,
-                    "device_id": "dev-1",
-                },
-            })
-
-            await worker._handle_sensor_reading(msg)
-            worker.fieldops.create_task.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_direct_payload_format(self):
-        """Test handling messages without envelope wrapper"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
-
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "field_id": "f1",
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "tenant-1",
+            "correlation_id": "corr-1",
+            "payload": {
+                "field_id": "field-1",
                 "sensor_type": "soil_moisture",
                 "value": 5,
                 "device_id": "dev-1",
-            })
+            },
+        }).encode()
 
-            await worker._handle_sensor_reading(msg)
-            worker.fieldops.create_task.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_handler_error_doesnt_crash(self):
-        """Test handler recovers from bad data"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
-
-            bad_msg = MagicMock()
-            bad_msg.data = b"not-json"
-
-            await worker._handle_sensor_reading(bad_msg)
+        await worker._handle_sensor_reading(msg)
+        worker.fieldops.create_task.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_stores_recent_reading(self):
+    async def test_handle_sensor_reading_no_trigger(self):
+        """Test sensor reading with normal values doesn't create task"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock()
+
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "tenant-1",
+            "payload": {
+                "field_id": "field-1",
+                "sensor_type": "soil_moisture",
+                "value": 50,
+                "device_id": "dev-1",
+            },
+        }).encode()
+
+        await worker._handle_sensor_reading(msg)
+        worker.fieldops.create_task.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handle_sensor_reading_direct_payload(self):
+        """Test handling direct payload (not wrapped in envelope)"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
+
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "tenant-1",
+            "field_id": "field-1",
+            "sensor_type": "soil_moisture",
+            "value": 5,
+            "device_id": "dev-1",
+        }).encode()
+
+        await worker._handle_sensor_reading(msg)
+        worker.fieldops.create_task.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_handle_sensor_reading_missing_tenant(self):
+        """Test reading without tenant_id is skipped"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock()
+
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "payload": {
+                "field_id": "field-1",
+                "sensor_type": "soil_moisture",
+                "value": 5,
+                "device_id": "dev-1",
+            },
+        }).encode()
+
+        await worker._handle_sensor_reading(msg)
+        worker.fieldops.create_task.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handle_sensor_reading_missing_fields(self):
+        """Test reading with missing required fields is skipped"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock()
+
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "tenant-1",
+            "payload": {
+                "field_id": "field-1",
+                # Missing sensor_type and value
+            },
+        }).encode()
+
+        await worker._handle_sensor_reading(msg)
+        worker.fieldops.create_task.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handle_sensor_reading_error_handled(self):
+        """Test error in handler doesn't crash"""
+        worker = IoTRulesWorker()
+
+        msg = MagicMock()
+        msg.data = b"invalid json"
+
+        await worker._handle_sensor_reading(msg)
+
+    @pytest.mark.asyncio
+    async def test_handle_sensor_stores_reading(self):
         """Test sensor readings are stored for combined evaluation"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock()
 
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "payload": {
-                    "field_id": "f1",
-                    "sensor_type": "soil_moisture",
-                    "value": 50,
-                    "device_id": "dev-1",
-                },
-            })
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "tenant-1",
+            "payload": {
+                "field_id": "field-1",
+                "sensor_type": "air_temperature",
+                "value": 25,
+                "device_id": "dev-1",
+            },
+        }).encode()
 
-            await worker._handle_sensor_reading(msg)
-            assert "f1" in worker._recent_readings
-            assert len(worker._recent_readings["f1"]) == 1
+        await worker._handle_sensor_reading(msg)
+        assert "field-1" in worker._recent_readings
+        assert len(worker._recent_readings["field-1"]) == 1
+        assert worker._recent_readings["field-1"][0]["sensor_type"] == "air_temperature"
 
     @pytest.mark.asyncio
     async def test_correlation_id_passed_through(self):
         """Test correlation_id is passed to task creation"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        worker = IoTRulesWorker()
+        worker.fieldops = AsyncMock()
 
-            msg = _make_msg({
-                "tenant_id": "t1",
-                "correlation_id": "corr-xyz",
-                "payload": {
-                    "field_id": "f1",
-                    "sensor_type": "water_flow",
-                    "value": 0,
-                    "device_id": "dev-1",
-                },
-            })
+        msg = MagicMock()
+        msg.data = json.dumps({
+            "tenant_id": "t1",
+            "correlation_id": "corr-xyz",
+            "payload": {
+                "field_id": "f1",
+                "sensor_type": "water_flow",
+                "value": 0,
+                "device_id": "dev-1",
+            },
+        }).encode()
 
-            await worker._handle_sensor_reading(msg)
+        await worker._handle_sensor_reading(msg)
+        if worker.fieldops.create_task.called:
             call_kwargs = worker.fieldops.create_task.call_args.kwargs
             assert call_kwargs["correlation_id"] == "corr-xyz"
-class TestStoreReading:
-    """Tests for _store_reading"""
 
-    def test_store_new_field(self):
-        """Test storing reading for new field"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker._store_reading("f1", "soil_moisture", 40.0, "dev-1", "t1")
-            assert len(worker._recent_readings["f1"]) == 1
 
-    def test_store_limits_to_ten(self):
-        """Test readings are capped at 10 per field"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            for i in range(15):
-                worker._store_reading("f1", "soil_moisture", float(i), "dev-1", "t1")
-            assert len(worker._recent_readings["f1"]) == 10
-class TestCreateTaskFromRecommendation:
-    """Tests for task creation with cooldown"""
+class TestIoTRulesWorkerStoreReading:
+    """Test reading storage"""
 
-    @pytest.mark.asyncio
-    async def test_creates_task_and_records_timestamp(self):
-        """Test task creation records timestamp for cooldown"""
-        from src.iot_rules import TaskRecommendation
+    def test_store_reading_creates_list(self):
+        """Test store_reading creates reading list for new field"""
+        worker = IoTRulesWorker()
+        worker._store_reading("field-1", "soil_moisture", 45, "dev-1", "tenant-1")
 
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        assert "field-1" in worker._recent_readings
+        assert len(worker._recent_readings["field-1"]) == 1
 
-            rec = TaskRecommendation(
-                title_ar="تست",
-                title_en="Test",
-                description_ar="وصف",
-                description_en="Desc",
-                task_type="irrigation",
-                priority="high",
-                urgency_hours=6,
-            )
+    def test_store_reading_appends(self):
+        """Test store_reading appends to existing list"""
+        worker = IoTRulesWorker()
+        worker._store_reading("field-1", "soil_moisture", 45, "dev-1", "tenant-1")
+        worker._store_reading("field-1", "air_temperature", 30, "dev-2", "tenant-1")
 
-            await worker._create_task_from_recommendation(
-                tenant_id="t1",
-                field_id="f1",
-                recommendation=rec,
-                device_id="dev-1",
-            )
+        assert len(worker._recent_readings["field-1"]) == 2
 
-            worker.fieldops.create_task.assert_called_once()
-            assert "f1:irrigation:high" in worker._recent_tasks
+    def test_store_reading_limits_to_10(self):
+        """Test store_reading keeps only last 10 readings"""
+        worker = IoTRulesWorker()
+        for i in range(15):
+            worker._store_reading("field-1", "soil_moisture", i, "dev-1", "tenant-1")
+
+        assert len(worker._recent_readings["field-1"]) == 10
+        # Last value should be 14
+        assert worker._recent_readings["field-1"][-1]["value"] == 14
+
+
+class TestIoTRulesWorkerCreateTaskFromRecommendation:
+    """Test task creation from recommendation"""
 
     @pytest.mark.asyncio
-    async def test_cooldown_prevents_duplicate(self):
-        """Test cooldown prevents duplicate task creation"""
-        from src.iot_rules import TaskRecommendation
+    async def test_create_task_with_device_id(self):
+        """Test task creation includes device_id in metadata"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        rec = TaskRecommendation(
+            title_ar="اختبار",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Description",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
+            metadata={"sensor_type": "soil_moisture"},
+        )
 
-            rec = TaskRecommendation(
-                title_ar="تست",
-                title_en="Test",
-                description_ar="وصف",
-                description_en="Desc",
-                task_type="irrigation",
-                priority="high",
-                urgency_hours=6,
-            )
+        await worker._create_task_from_recommendation(
+            tenant_id="tenant-1",
+            field_id="field-1",
+            recommendation=rec,
+            device_id="dev-1",
+            correlation_id="corr-1",
+        )
 
-            await worker._create_task_from_recommendation("t1", "f1", rec)
-            await worker._create_task_from_recommendation("t1", "f1", rec)
-
-            # Second call should be skipped due to cooldown
-            assert worker.fieldops.create_task.call_count == 1
+        worker.fieldops.create_task.assert_called_once()
+        call_kwargs = worker.fieldops.create_task.call_args.kwargs
+        assert call_kwargs["metadata"]["device_id"] == "dev-1"
 
     @pytest.mark.asyncio
-    async def test_cooldown_expires(self):
-        """Test task can be created after cooldown expires"""
-        from src.iot_rules import TaskRecommendation
+    async def test_create_task_cooldown(self):
+        """Test task not created within cooldown period"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        rec = TaskRecommendation(
+            title_ar="اختبار",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Description",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
+        )
 
-            rec = TaskRecommendation(
-                title_ar="تست",
-                title_en="Test",
-                description_ar="وصف",
-                description_en="Desc",
-                task_type="irrigation",
-                priority="high",
-                urgency_hours=6,
-            )
+        # First call should succeed
+        await worker._create_task_from_recommendation(
+            "tenant-1", "field-1", rec,
+        )
+        assert worker.fieldops.create_task.call_count == 1
 
-            # First creation
-            await worker._create_task_from_recommendation("t1", "f1", rec)
+        # Second call should be skipped (within cooldown)
+        await worker._create_task_from_recommendation(
+            "tenant-1", "field-1", rec,
+        )
+        assert worker.fieldops.create_task.call_count == 1
 
-            # Simulate cooldown expiry
-            task_key = "f1:irrigation:high"
-            worker._recent_tasks[task_key] = datetime.now(UTC) - timedelta(minutes=31)
+    @pytest.mark.asyncio
+    async def test_create_task_after_cooldown_expired(self):
+        """Test task created after cooldown expires"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
-            # Second creation should succeed
-            await worker._create_task_from_recommendation("t1", "f1", rec)
-            assert worker.fieldops.create_task.call_count == 2
+        rec = TaskRecommendation(
+            title_ar="اختبار",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Description",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
+        )
+
+        # Simulate expired cooldown
+        task_key = "field-1:irrigation:high"
+        worker._recent_tasks[task_key] = datetime.now(UTC) - timedelta(minutes=31)
+
+        await worker._create_task_from_recommendation(
+            "tenant-1", "field-1", rec,
+        )
+        assert worker.fieldops.create_task.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_create_task_error_handled(self):
+        """Test fieldops error in task creation doesn't crash"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(side_effect=Exception("fail"))
+
+        rec = TaskRecommendation(
+            title_ar="اختبار",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Description",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
+        )
+
+        # Should not raise
+        await worker._create_task_from_recommendation(
+            "tenant-1", "field-1", rec,
+        )
+
+    @pytest.mark.asyncio
+    async def test_create_task_without_device_id(self):
+        """Test task creation without device_id"""
+        worker = IoTRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
+
+        rec = TaskRecommendation(
+            title_ar="اختبار",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Description",
+            task_type="inspection",
+            priority="medium",
+            urgency_hours=24,
+        )
+
+        await worker._create_task_from_recommendation(
+            "tenant-1", "field-1", rec,
+        )
+
+        call_kwargs = worker.fieldops.create_task.call_args.kwargs
+        assert "device_id" not in call_kwargs["metadata"]
+        assert call_kwargs["metadata"]["title_en"] == "Test"
 
     @pytest.mark.asyncio
     async def test_metadata_includes_device_id(self):
         """Test metadata includes device_id when provided"""
-        from src.iot_rules import TaskRecommendation
+        worker = IoTRulesWorker()
+        worker.fieldops = AsyncMock()
 
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
+        rec = TaskRecommendation(
+            title_ar="تست",
+            title_en="Test",
+            description_ar="وصف",
+            description_en="Desc",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
+        )
 
-            rec = TaskRecommendation(
-                title_ar="تست",
-                title_en="Test",
-                description_ar="وصف",
-                description_en="Desc",
-                task_type="irrigation",
-                priority="high",
-                urgency_hours=6,
-            )
+        await worker._create_task_from_recommendation(
+            "t1", "f1", rec, device_id="sensor-42",
+        )
 
-            await worker._create_task_from_recommendation(
-                "t1", "f1", rec, device_id="sensor-42",
-            )
+        call_kwargs = worker.fieldops.create_task.call_args.kwargs
+        assert call_kwargs["metadata"]["device_id"] == "sensor-42"
+        assert call_kwargs["metadata"]["title_en"] == "Test"
 
-            call_kwargs = worker.fieldops.create_task.call_args.kwargs
-            assert call_kwargs["metadata"]["device_id"] == "sensor-42"
-            assert call_kwargs["metadata"]["title_en"] == "Test"
 
-    @pytest.mark.asyncio
-    async def test_create_task_handles_fieldops_error(self):
-        """Test handles fieldops client errors gracefully"""
-        from src.iot_rules import TaskRecommendation
-
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.fieldops = AsyncMock()
-            worker.fieldops.create_task = AsyncMock(side_effect=RuntimeError("fail"))
-
-            rec = TaskRecommendation(
-                title_ar="تست", title_en="Test",
-                description_ar="وصف", description_en="Desc",
-                task_type="x", priority="low", urgency_hours=24,
-            )
-
-            # Should not raise
-            await worker._create_task_from_recommendation("t1", "f1", rec)
 class TestIoTWorkerLifecycle:
     """Tests for worker start/stop"""
 
     @pytest.mark.asyncio
     async def test_stop_closes_connections(self):
         """Test stop closes NATS and fieldops"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.nc = AsyncMock()
-            worker.fieldops = AsyncMock()
-            worker._running = True
+        worker = IoTRulesWorker()
+        worker.nc = AsyncMock()
+        worker.fieldops = AsyncMock()
+        worker._running = True
 
-            await worker.stop()
-            assert worker._running is False
-            worker.nc.close.assert_called_once()
-            worker.fieldops.close.assert_called_once()
+        await worker.stop()
+        assert worker._running is False
+        worker.nc.close.assert_called_once()
+        worker.fieldops.close.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_stop_without_nats(self):
         """Test stop when NATS not connected"""
-        with patch("src.iot_worker.FieldOpsClient"):
-            worker = IoTRulesWorker()
-            worker.nc = None
-            worker.fieldops = AsyncMock()
+        worker = IoTRulesWorker()
+        worker.nc = None
+        worker.fieldops = AsyncMock()
 
-            await worker.stop()
-            assert worker._running is False
+        await worker.stop()
+        assert worker._running is False

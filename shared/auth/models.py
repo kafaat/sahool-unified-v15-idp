@@ -109,6 +109,12 @@ class User:
     is_active: bool = True
     is_verified: bool = True
 
+    def __post_init__(self):
+        if not self.email or not isinstance(self.email, str):
+            raise ValueError("User email must be a non-empty string")
+        if not self.id or not isinstance(self.id, str):
+            raise ValueError("User id must be a non-empty string")
+
     def has_role(self, role: str) -> bool:
         """Check if user has a specific role"""
         return role in self.roles

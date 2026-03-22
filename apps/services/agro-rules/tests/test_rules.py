@@ -2,13 +2,18 @@
 Tests for Agro Rules Module
 """
 
-from src.rules import (
-    TaskRule,
-    rule_from_irrigation_adjustment,
-    rule_from_ndvi,
-    rule_from_ndvi_weather,
-    rule_from_weather,
-)
+import pytest
+
+try:
+    from src.rules import (
+        TaskRule,
+        rule_from_irrigation_adjustment,
+        rule_from_ndvi,
+        rule_from_ndvi_weather,
+        rule_from_weather,
+    )
+except ImportError:
+    pytest.skip("agro-rules dependencies not installed", allow_module_level=True)
 
 
 class TestNdviRules:
@@ -51,6 +56,34 @@ class TestNdviRules:
 
         assert rule is None
 
+    def test_normal_ndvi_no_trend_no_task(self):
+        """Test no task for normal NDVI with no significant trend"""
+        rule = rule_from_ndvi(ndvi_mean=0.55, trend_7d=0.0)
+        assert rule is None
+
+    def test_moderate_ndvi_positive_trend_no_task(self):
+        """Test no task when NDVI is moderate with positive trend"""
+        rule = rule_from_ndvi(ndvi_mean=0.50, trend_7d=0.06)
+        assert rule is None
+
+    def test_boundary_severe_drop_exactly_minus_015(self):
+        """Test boundary: trend exactly at -0.15 triggers severe"""
+        rule = rule_from_ndvi(ndvi_mean=0.5, trend_7d=-0.15)
+        assert rule is not None
+        assert rule.priority == "urgent"
+
+    def test_boundary_moderate_drop_exactly_minus_010(self):
+        """Test boundary: trend exactly at -0.10 triggers moderate"""
+        rule = rule_from_ndvi(ndvi_mean=0.5, trend_7d=-0.10)
+        assert rule is not None
+        assert rule.priority == "high"
+
+    def test_boundary_very_low_ndvi_exactly_020(self):
+        """Test boundary: NDVI exactly 0.2 triggers low (not very low)"""
+        rule = rule_from_ndvi(ndvi_mean=0.20, trend_7d=0.0)
+        assert rule is not None
+        assert rule.priority == "medium"
+
     def test_bilingual_content(self):
         """Test task has Arabic and English content"""
         rule = rule_from_ndvi(ndvi_mean=0.15, trend_7d=-0.05)
@@ -82,6 +115,15 @@ class TestWeatherRules:
         assert rule.priority == "urgent"
         assert rule.task_type == "irrigation"
 
+    def test_medium_heat_stress(self):
+        """Test medium heat stress triggers monitoring"""
+        rule = rule_from_weather("heat_stress", "medium")
+
+        assert rule is not None
+        assert rule.priority == "high"
+        assert rule.task_type == "monitoring"
+        assert rule.urgency_hours == 12
+
     def test_frost_emergency(self):
         """Test frost emergency task"""
         rule = rule_from_weather("frost", "critical")
@@ -89,6 +131,23 @@ class TestWeatherRules:
         assert rule is not None
         assert rule.priority == "urgent"
         assert rule.task_type == "emergency"
+
+    def test_frost_high_severity(self):
+        """Test frost high severity also triggers emergency"""
+        rule = rule_from_weather("frost", "high")
+
+        assert rule is not None
+        assert rule.priority == "urgent"
+        assert rule.task_type == "emergency"
+
+    def test_frost_medium_severity(self):
+        """Test medium frost triggers cold warning"""
+        rule = rule_from_weather("frost", "medium")
+
+        assert rule is not None
+        assert rule.priority == "high"
+        assert rule.task_type == "preparation"
+        assert rule.urgency_hours == 6
 
     def test_heavy_rain_preparation(self):
         """Test heavy rain preparation task"""
@@ -98,12 +157,26 @@ class TestWeatherRules:
         assert rule.priority == "high"
         assert rule.task_type == "preparation"
 
+    def test_heavy_rain_medium_severity(self):
+        """Test medium heavy rain triggers follow-up"""
+        rule = rule_from_weather("heavy_rain", "medium")
+
+        assert rule is not None
+        assert rule.priority == "medium"
+        assert rule.task_type == "inspection"
+        assert rule.urgency_hours == 24
+
     def test_strong_wind_preparation(self):
         """Test strong wind preparation task"""
         rule = rule_from_weather("strong_wind", "high")
 
         assert rule is not None
         assert rule.priority == "high"
+
+    def test_strong_wind_medium_no_task(self):
+        """Test medium wind does not trigger task"""
+        rule = rule_from_weather("strong_wind", "medium")
+        assert rule is None
 
     def test_disease_risk_inspection(self):
         """Test disease risk inspection task"""
@@ -112,10 +185,34 @@ class TestWeatherRules:
         assert rule is not None
         assert rule.task_type == "inspection"
 
+    def test_disease_risk_medium(self):
+        """Test medium disease risk triggers monitoring"""
+        rule = rule_from_weather("disease_risk", "medium")
+
+        assert rule is not None
+        assert rule.priority == "medium"
+        assert rule.task_type == "monitoring"
+        assert rule.urgency_hours == 24
+
     def test_low_severity_no_task(self):
         """Test no task for low severity alerts"""
         rule = rule_from_weather("heat_stress", "low")
 
+        assert rule is None
+
+    def test_none_severity_no_task(self):
+        """Test no task for none severity"""
+        rule = rule_from_weather("heat_stress", "none")
+        assert rule is None
+
+    def test_unknown_alert_type_no_task(self):
+        """Test unknown alert type returns None"""
+        rule = rule_from_weather("unknown_alert", "high")
+        assert rule is None
+
+    def test_unknown_alert_medium_no_task(self):
+        """Test unknown alert type with medium severity returns None"""
+        rule = rule_from_weather("volcanic_eruption", "medium")
         assert rule is None
 
 

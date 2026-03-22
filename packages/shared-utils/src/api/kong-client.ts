@@ -56,9 +56,41 @@ export interface ServiceHealth {
 }
 
 /**
- * API response wrapper
+ * API response wrapper — aligned with the canonical definition in
+ * @sahool/shared-types/contracts/api-responses.ts.
+ *
+ * Uses flat error fields (error, errorAr, errorCode) to match the
+ * platform-wide ApiResponse contract.
  */
-export interface ApiResponse<T> {
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  errorAr?: string;
+  errorCode?: string;
+  requestId?: string;
+  message?: string;
+  pagination?: PaginationMeta;
+}
+
+/**
+ * Pagination metadata — matches @sahool/shared-types/contracts.
+ */
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages?: number;
+  hasMore?: boolean;
+  offset?: number;
+}
+
+/**
+ * @deprecated Use `ApiResponse` with flat error fields instead.
+ * Legacy nested error format retained for backward compatibility.
+ * Will be removed in v17.0.0.
+ */
+export interface LegacyApiResponse<T> {
   success: boolean;
   data?: T;
   error?: {
@@ -71,6 +103,22 @@ export interface ApiResponse<T> {
     requestId: string;
     timestamp: string;
     apiVersion: string;
+  };
+}
+
+/**
+ * Convert a LegacyApiResponse to the canonical ApiResponse format.
+ */
+export function normalizeLegacyResponse<T>(
+  legacy: LegacyApiResponse<T>
+): ApiResponse<T> {
+  return {
+    success: legacy.success,
+    data: legacy.data,
+    error: legacy.error?.message,
+    errorAr: legacy.error?.messageAr,
+    errorCode: legacy.error?.code,
+    requestId: legacy.meta?.requestId,
   };
 }
 
@@ -404,4 +452,5 @@ export default {
   getServicesForTier,
   isServiceAvailable,
   getHealthCheckUrl,
+  normalizeLegacyResponse,
 };

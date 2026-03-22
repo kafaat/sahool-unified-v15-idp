@@ -91,7 +91,9 @@ module "riyadh_region" {
   # تكوين الشبكة
   # Network configuration
   vpc_cidr           = var.riyadh_vpc_cidr
-  availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
+  # AWS Bahrain (me-south-1) only has 2 availability zones (a, b).
+  # منطقة البحرين (me-south-1) تحتوي على منطقتي توفر فقط (a، b).
+  availability_zones = ["me-south-1a", "me-south-1b"]
 
   # تكوين مجموعة EKS
   # EKS cluster configuration
@@ -158,7 +160,9 @@ module "jeddah_region" {
   # تكوين الشبكة
   # Network configuration
   vpc_cidr           = var.jeddah_vpc_cidr
-  availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
+  # AWS Bahrain (me-south-1) only has 2 availability zones (a, b).
+  # منطقة البحرين (me-south-1) تحتوي على منطقتي توفر فقط (a، b).
+  availability_zones = ["me-south-1a", "me-south-1b"]
 
   # تكوين مجموعة EKS
   # EKS cluster configuration

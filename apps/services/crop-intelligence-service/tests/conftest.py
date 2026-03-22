@@ -27,10 +27,9 @@ os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 
 try:
-    from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
-
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+    from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
 except Exception:
     get_current_user = None
     User = None
@@ -46,7 +45,6 @@ def _fake_current_user():
         email="test@sahool.sa",
         roles=["farmer"],
         tenant_id="00000000-0000-0000-0000-000000000001",
-        hashed_password="$2b$12$test_hashed_password_placeholder",
     )
 
 

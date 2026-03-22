@@ -3,14 +3,21 @@ Model Training Module
 =====================
 وحدة تدريب النماذج
 
-Provides training, fine-tuning, and evaluation capabilities
+Provides model configuration registration and evaluation capabilities
 for local LLMs using Ollama and custom datasets.
+
+IMPORTANT: Ollama's /api/create endpoint registers model configurations
+(system prompts, templates, parameters) but does NOT perform actual
+fine-tuning or weight updates. The "training" in this module creates a
+derived Ollama model with an optimized system prompt built from the
+provided dataset. For real fine-tuning, use external infrastructure
+(torchtune, axolotl, or a dedicated training cluster).
 
 Features:
     - Custom dataset creation from code examples
-    - Fine-tuning with LoRA/QLoRA (via Ollama Modelfiles)
-    - Evaluation and benchmarking
-    - Training progress tracking
+    - Model configuration via Ollama Modelfiles (system prompt, parameters)
+    - Configuration-based evaluation and benchmarking
+    - Progress tracking
     - Bilingual (Arabic/English) support
 
 Author: SAHOOL Platform Team
@@ -19,7 +26,6 @@ Updated: January 2026
 
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import uuid
@@ -28,6 +34,10 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     import httpx
@@ -45,6 +55,7 @@ class TrainingStatus(StrEnum):
     TRAINING = "training"
     EVALUATING = "evaluating"
     COMPLETED = "completed"
+    CONFIGURED = "configured"  # Model configuration registered (no real fine-tuning)
     FAILED = "failed"
     CANCELLED = "cancelled"
 
@@ -200,7 +211,13 @@ class TrainingConfig:
 
 @dataclass
 class EvaluationResult:
-    """Result from model evaluation."""
+    """Result from model evaluation.
+
+    NOTE: When produced by ModelTrainer, these metrics are configuration-based
+    (system prompt + parameters via Ollama /api/create), NOT from actual
+    fine-tuning. Accuracy is estimated via string similarity against dataset
+    examples and should not be interpreted as true ML training metrics.
+    """
 
     model: str
     accuracy: float
@@ -530,24 +547,30 @@ Provide expert advice:"""
 
 class ModelTrainer:
     """
-    Model training manager using Ollama.
+    Model configuration manager using Ollama.
 
-    مدير تدريب النماذج باستخدام Ollama
+    مدير تكوين النماذج باستخدام Ollama
+
+    IMPORTANT: This class does NOT perform real fine-tuning or weight updates.
+    Ollama's /api/create endpoint only registers model configurations (system
+    prompts, templates, parameters). The resulting model is the base model with
+    a custom system prompt derived from the dataset.
+
+    For actual fine-tuning, use external training infrastructure such as
+    torchtune, axolotl, or a dedicated training cluster.
 
     Example:
         trainer = ModelTrainer()
 
-        # Create and start training job
+        # Create and start a configuration job (NOT real training)
         job = await trainer.create_training_job(
             dataset=dataset,
             config=TrainingConfig(base_model="codellama:7b")
         )
 
-        # Monitor progress
-        while job.status not in [TrainingStatus.COMPLETED, TrainingStatus.FAILED]:
-            job = await trainer.get_job_status(job.id)
-            print(f"Progress: {job.progress}%")
-            await asyncio.sleep(10)
+        # Job will complete with status CONFIGURED (not COMPLETED)
+        job = await trainer.start_training(job.id)
+        assert job.status == TrainingStatus.CONFIGURED
     """
 
     def __init__(
@@ -642,18 +665,27 @@ class ModelTrainer:
 
             await self._train_model(job, modelfile_content)
 
-            # Evaluate model
+            # Evaluate model (configuration-based, not training-based)
             job.status = TrainingStatus.EVALUATING
             self._notify_progress(job)
 
             eval_result = await self._evaluate_model(job.config.output_model, dataset)
             job.evaluation_result = eval_result
 
-            # Complete
-            job.status = TrainingStatus.COMPLETED
+            # Mark as configured (not trained) - Ollama /api/create only registers
+            # system prompts and parameters, no actual weight updates occur.
+            job.status = TrainingStatus.CONFIGURED
             job.progress = 100.0
             job.completed_at = datetime.now(UTC)
             self._notify_progress(job)
+
+            logger.info(
+                "Model '%s' configured (not fine-tuned) from base '%s'. "
+                "Configuration-based evaluation accuracy: %.2f",
+                job.config.output_model,
+                job.config.base_model,
+                eval_result.accuracy,
+            )
 
         except Exception as e:
             job.status = TrainingStatus.FAILED
@@ -731,9 +763,26 @@ Consider local climate, soil conditions, and available resources."""
         job: TrainingJob,
         modelfile_content: str,
     ) -> None:
-        """Train model using Ollama."""
+        """Register model configuration using Ollama create API.
+
+        NOTE: Ollama's /api/create registers model configurations (system prompts,
+        templates) but does NOT perform actual fine-tuning/weight updates.
+        Real fine-tuning requires external training infrastructure (e.g., torchtune,
+        axolotl, or a dedicated training cluster).
+
+        This method creates a derived model with a custom system prompt and parameters
+        based on the training dataset, but no gradient-based learning occurs.
+        """
+        logger.warning(
+            "Model training requested for job %s, but Ollama /api/create only "
+            "registers model configurations (system prompt, parameters). "
+            "No actual fine-tuning/weight updates will occur. "
+            "For real training, use external infrastructure.",
+            job.id,
+        )
+
         async with httpx.AsyncClient(timeout=600.0) as client:
-            # Create model
+            # Register model configuration via Ollama (not real training)
             response = await client.post(
                 f"{self.ollama_url}/api/create",
                 json={
@@ -744,14 +793,11 @@ Consider local climate, soil conditions, and available resources."""
             )
             response.raise_for_status()
 
-            # Simulate training progress (Ollama doesn't have real fine-tuning yet)
-            # In production, this would be replaced with actual training API
-            for i in range(job.total_steps):
-                job.current_step = i + 1
-                job.progress = (i + 1) / job.total_steps * 100
-                job.loss = 2.5 - (i / job.total_steps * 2)  # Simulated loss decrease
-                self._notify_progress(job)
-                await asyncio.sleep(0.1)  # Simulate training time
+            # Mark as configured - this is NOT real training, just model registration
+            job.current_step = job.total_steps
+            job.progress = 100.0
+            job.loss = None  # No real loss computed
+            self._notify_progress(job)
 
     async def _evaluate_model(
         self,
@@ -759,7 +805,13 @@ Consider local climate, soil conditions, and available resources."""
         dataset: TrainingDataset,
         eval_samples: int = 10,
     ) -> EvaluationResult:
-        """Evaluate model on dataset samples."""
+        """Evaluate configured model on dataset samples.
+
+        NOTE: These metrics reflect the base model's performance with a custom
+        system prompt, NOT the result of fine-tuning. Accuracy, precision,
+        recall, and F1 are configuration-based estimates using simple string
+        similarity, not proper ML evaluation metrics.
+        """
         correct = 0
         total_latency = 0.0
         eval_count = min(eval_samples, len(dataset.examples))
@@ -888,18 +940,26 @@ async def train_code_fixer(
     output_model: str = "sahool-codefix:latest",
 ) -> TrainingJob:
     """
-    Train a code fixer model.
+    Configure a code fixer model via Ollama (NOT real fine-tuning).
 
-    تدريب نموذج إصلاح الكود
+    تكوين نموذج إصلاح الكود عبر Ollama (ليس تدريبًا حقيقيًا)
+
+    NOTE: This registers a model configuration with a custom system prompt
+    derived from the dataset. No weight updates or gradient-based learning
+    occurs. The resulting job will have status CONFIGURED, not COMPLETED.
 
     Args:
-        dataset: Training dataset
-        base_model: Base model to fine-tune
-        output_model: Name for output model
+        dataset: Training dataset (used to build the system prompt)
+        base_model: Base model to configure on top of
+        output_model: Name for the configured model
 
     Returns:
-        TrainingJob
+        TrainingJob with status CONFIGURED
     """
+    logger.warning(
+        "train_code_fixer() registers a model configuration via Ollama, "
+        "not actual fine-tuning. For real training, use external infrastructure."
+    )
     trainer = ModelTrainer()
 
     config = TrainingConfig(

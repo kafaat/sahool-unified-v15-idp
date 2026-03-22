@@ -2,14 +2,19 @@
 Tests for SAHOOL MCP Server
 """
 
+import os
+import sys
+
 import pytest
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 try:
     from fastapi.testclient import TestClient
+    from src.main import app
 except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
-from src.main import app
+    pytest.skip("mcp-server dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
 @pytest.fixture

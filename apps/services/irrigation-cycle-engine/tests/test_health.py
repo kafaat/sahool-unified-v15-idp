@@ -4,14 +4,14 @@ import sys
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from src.main import app
+try:
+    from fastapi.testclient import TestClient
+    from src.main import app
+except ImportError:
+    pytest.skip("irrigation-cycle-engine dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
 @pytest.fixture

@@ -66,6 +66,7 @@ class TestNDVIClient:
     def test_client_initialization(self):
         """Test NDVIClient initialization"""
         client = NDVIClient()
+        # ndvi-engine deprecated → vegetation-analysis-service
         assert client.base_url == "http://vegetation-analysis-service:8090"
         assert client.timeout == 30.0
 

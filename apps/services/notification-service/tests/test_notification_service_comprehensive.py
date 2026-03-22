@@ -426,7 +426,8 @@ class TestWeatherAlerts:
 class TestNATSIntegration:
     """Test NATS event integration"""
 
-    def test_create_notification_from_nats_event(self):
+    @pytest.mark.asyncio
+    async def test_create_notification_from_nats_event(self):
         """Test creating notification from NATS event"""
         from src.main import create_notification_from_nats
 
@@ -444,9 +445,10 @@ class TestNATSIntegration:
         }
 
         with patch("src.main.create_notification", new=AsyncMock()):
-            create_notification_from_nats(nats_event)
+            await create_notification_from_nats(nats_event)
 
-    def test_create_notification_from_nats_invalid_data(self):
+    @pytest.mark.asyncio
+    async def test_create_notification_from_nats_invalid_data(self):
         """Test NATS event with invalid data"""
         from src.main import create_notification_from_nats
 
@@ -454,7 +456,7 @@ class TestNATSIntegration:
 
         # Should not raise exception, just log error
         try:
-            create_notification_from_nats(invalid_event)
+            await create_notification_from_nats(invalid_event)
         except Exception as e:
             pytest.fail(f"Should handle invalid data gracefully: {e}")
 

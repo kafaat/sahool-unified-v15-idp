@@ -7,11 +7,11 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+    from src.main import app, get_current_user, get_db
+    from src.models.inventory import Base
 except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from src.main import app, get_current_user, get_db
-from src.models.inventory import Base
+    pytest.skip("inventory-service dependencies not installed", allow_module_level=True)
 
 # Test database URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"

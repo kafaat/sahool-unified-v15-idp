@@ -3,8 +3,8 @@
 // Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from "@nestjs/common";
-import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, ForbiddenException } from "@nestjs/common";
+import { JwtAuthGuard, TenantGuard } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { LAIService, StressDetectionResponse } from "./lai.service";
 import {
@@ -17,7 +17,7 @@ import {
 
 @ApiTags("lai")
 @Controller("api/v1/lai")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, TenantGuard)
 export class LAIController {
   constructor(private readonly laiService: LAIService) {}
 
@@ -36,16 +36,24 @@ export class LAIController {
   @ApiQuery({ name: "date", required: false, type: String })
   @ApiResponse({ status: 200, description: "LAI estimation result" })
   async estimateLAI(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("dataSource") dataSource?: DataSource,
     @Query("cropType") cropType?: CropType,
     @Query("date") date?: string,
   ) {
+    // Tenant ID must come from JWT only - no query param or header fallback
+    // to prevent tenant isolation bypass (security fix B3)
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
     return this.laiService.estimateLAI(
       fieldId,
       dataSource || DataSource.FUSION,
       cropType,
       date,
+      tenantId,
     );
   }
 
@@ -84,16 +92,24 @@ export class LAIController {
   @ApiQuery({ name: "dataSource", enum: DataSource, required: false })
   @ApiResponse({ status: 200, description: "LAI time series data" })
   async getLAITimeSeries(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("startDate") startDate?: string,
     @Query("endDate") endDate?: string,
     @Query("dataSource") dataSource?: DataSource,
   ) {
+    // Tenant ID must come from JWT only - no query param or header fallback
+    // to prevent tenant isolation bypass (security fix B3)
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
     return this.laiService.getLAITimeSeries(
       fieldId,
       startDate,
       endDate,
       dataSource || DataSource.PLANETSCOPE,
+      tenantId,
     );
   }
 
@@ -110,10 +126,17 @@ export class LAIController {
   @ApiQuery({ name: "cropType", enum: CropType, required: false })
   @ApiResponse({ status: 200, description: "LAI comparison result" })
   async compareLAI(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
   ) {
-    return this.laiService.compareLAI(fieldId, cropType || CropType.SOYBEAN);
+    // Tenant ID must come from JWT only - no query param or header fallback
+    // to prevent tenant isolation bypass (security fix B3)
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
+    return this.laiService.compareLAI(fieldId, cropType || CropType.SOYBEAN, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -143,7 +166,6 @@ export class LAIController {
   })
   @ApiQuery({ name: "cropType", enum: CropType, required: false })
   @ApiQuery({ name: "farmerId", required: false })
-  @ApiQuery({ name: "tenantId", required: false })
   @ApiResponse({
     status: 200,
     description: "Stress detection with ActionTemplate",
@@ -153,9 +175,13 @@ export class LAIController {
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
-    @Query("tenantId") queryTenantId?: string,
   ): Promise<StressDetectionResponse> {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    // Tenant ID must come from JWT only - no query param or header fallback
+    // to prevent tenant isolation bypass (security fix B3)
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
     return this.laiService.detectStressWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,
@@ -175,14 +201,19 @@ export class LAIController {
     description: "فحص شذوذ LAI مع توصيات عملية",
   })
   @ApiQuery({ name: "cropType", enum: CropType, required: false })
+  @ApiQuery({ name: "farmerId", required: false })
   async checkAnomaly(
     @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
-    @Query("tenantId") queryTenantId?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    // Tenant ID must come from JWT only - no query param or header fallback
+    // to prevent tenant isolation bypass (security fix B3)
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
     return this.laiService.checkAnomalyWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,

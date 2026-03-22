@@ -6,7 +6,11 @@ Unit Tests for LLM Providers
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from src.llm.multi_provider import MultiProviderLLM
+
+try:
+    from src.llm.multi_provider import MultiProviderLLM
+except ImportError:
+    pytest.skip("ai-advisor dependencies not installed", allow_module_level=True)
 
 
 class TestMultiProviderLLM:

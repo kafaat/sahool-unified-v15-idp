@@ -52,6 +52,7 @@ import {
   Radio,
   Search,
   Bot,
+  FileCode2,
   CalendarDays,
   CloudSun,
   FileBarChart,
@@ -128,6 +129,7 @@ const managementNav = [
 // AI & Technology section (admin-only features)
 const aiTechNav = [
   { name: "المساعد الذكي", href: "/copilot", icon: Bot },
+  { name: "مراجعات الكود", href: "/code-review", icon: FileCode2 },
   { name: "الرؤية الحاسوبية", href: "/vision", icon: Eye },
   { name: "الطائرات المسيّرة", href: "/drone", icon: Plane },
   { name: "أجهزة الحافة", href: "/edge-devices", icon: Radio },

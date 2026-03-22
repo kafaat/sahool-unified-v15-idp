@@ -1509,7 +1509,7 @@ async def register_farmer(profile: FarmerProfile):
         }
     except Exception as e:
         logger.error(f"Error registering farmer: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to register farmer")
 
 
 @app.put("/{farmer_id}/preferences")

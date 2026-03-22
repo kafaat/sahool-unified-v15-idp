@@ -19,6 +19,15 @@ from src.utils.leveling_algorithms import (
 
 
 @pytest.fixture
+def auth_headers():
+    """Headers with tenant and auth for API requests."""
+    return {
+        "X-Tenant-ID": "test-tenant-001",
+        "Authorization": "Bearer test-token-for-unit-tests",
+    }
+
+
+@pytest.fixture
 def client():
     """Create test client."""
     return TestClient(app)
@@ -83,9 +92,9 @@ class TestHealthEndpoints:
         assert data["status"] == "ok"
         assert "components" in data
 
-    def test_root(self, client):
+    def test_root(self, client, auth_headers):
         """Test root endpoint."""
-        response = client.get("/")
+        response = client.get("/", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert "service" in data
@@ -153,7 +162,7 @@ class TestLevelingAlgorithms:
         assert stats["min_elevation"] == 100.0
         assert stats["max_elevation"] == 100.4
         assert stats["point_count"] == 5
-        assert stats["elevation_range"] == 0.4
+        assert stats["elevation_range"] == pytest.approx(0.4)
         assert "std_dev" in stats
 
     def test_optimize_for_irrigation(self, optimizer, sample_points):

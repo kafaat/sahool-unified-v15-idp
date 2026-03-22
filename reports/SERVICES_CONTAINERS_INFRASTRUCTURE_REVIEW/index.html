@@ -1,0 +1,1605 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Services & Containers Infrastructure Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#services-containers-infrastructure-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Services &amp; Containers Infrastructure Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="services-containers-infrastructure-review-report">Services &amp; Containers Infrastructure Review Report<a class="headerlink" href="#services-containers-infrastructure-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Scope</strong>: 72 service Dockerfiles, docker-compose files, Helm charts, CI/CD workflows, port/health cross-reference
+<strong>Reviewer</strong>: Automated Infrastructure Audit (8 parallel agents)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>A comprehensive audit of all SAHOOL platform services and container infrastructure uncovered <strong>78 issues</strong> across 8 areas. The most critical findings include <strong>missing shared module copies causing runtime import failures</strong>, <strong>swallowed test failures in release pipeline</strong>, <strong>inverted production approval gate logic</strong>, and <strong>HEALTHCHECK syntax errors preventing container health monitoring</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Dockerfiles</th>
+<th>Compose</th>
+<th>Helm</th>
+<th>CI/CD</th>
+<th>Ports</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical</td>
+<td>8</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td><strong>11</strong></td>
+</tr>
+<tr>
+<td>High</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td><strong>12</strong></td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>14</td>
+<td>1</td>
+<td>5</td>
+<td>3</td>
+<td>1</td>
+<td><strong>24</strong></td>
+</tr>
+<tr>
+<td>Low</td>
+<td>8</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td><strong>11</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>40</strong></td>
+<td><strong>3</strong></td>
+<td><strong>7</strong></td>
+<td><strong>7</strong></td>
+<td><strong>1</strong></td>
+<td><strong>78</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Positive Finding</strong>: Port consistency is excellent — 66 services verified with zero conflicts across governance, docker-compose, and TypeScript contracts.</p>
+<hr />
+<h2 id="1-python-service-dockerfiles-47-services-reviewed">1. Python Service Dockerfiles (47 services reviewed)<a class="headerlink" href="#1-python-service-dockerfiles-47-services-reviewed" title="Permanent link">&para;</a></h2>
+<h3 id="critical-runtime-import-failures">CRITICAL — Runtime Import Failures<a class="headerlink" href="#critical-runtime-import-failures" title="Permanent link">&para;</a></h3>
+<h4 id="11-missing-root-shared-module-copy-5-services">1.1 Missing Root shared/ Module Copy (5 services)<a class="headerlink" href="#11-missing-root-shared-module-copy-5-services" title="Permanent link">&para;</a></h4>
+<p>These services copy <code>apps/services/shared/</code> but NOT the root <code>shared/</code> directory, causing <code>ImportError</code> at startup:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>File</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alert-service</td>
+<td><code>apps/services/alert-service/Dockerfile</code></td>
+<td>71</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td><code>apps/services/irrigation-smart/Dockerfile</code></td>
+<td>58</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td><code>apps/services/drone-service/Dockerfile</code></td>
+<td>33-37</td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td><code>apps/services/virtual-sensors/Dockerfile</code></td>
+<td>72</td>
+</tr>
+<tr>
+<td>provider-config</td>
+<td><code>apps/services/provider-config/Dockerfile</code></td>
+<td>68-75 (wrong path)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fix</strong>: Add <code>COPY shared/ ./shared/</code> before <code>COPY apps/services/shared/ ./shared/</code>.</p>
+<h4 id="12-healthcheck-port-not-expanded-2-services">1.2 HEALTHCHECK ${PORT} Not Expanded (2 services)<a class="headerlink" href="#12-healthcheck-port-not-expanded-2-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>llm-orchestrator-service/Dockerfile:117</strong> — <code>${PORT}</code> in Python string not expanded (HEALTHCHECK CMD doesn't use shell)</li>
+<li><strong>crop-intelligence-service/Dockerfile:113</strong> — ENV definition order issue with HEALTHCHECK</li>
+</ul>
+<p><strong>Fix</strong>: Use <code>os.environ.get("PORT", "8164")</code> inside Python code.</p>
+<h4 id="13-missing-httpx-dependency-for-healthcheck">1.3 Missing httpx Dependency for HEALTHCHECK<a class="headerlink" href="#13-missing-httpx-dependency-for-healthcheck" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>astronomical-calendar/requirements.txt</strong> — HEALTHCHECK uses <code>httpx</code> but it's not in requirements.txt.</li>
+</ul>
+<h3 id="high-missing-tini-pid-1-signal-handling">HIGH — Missing Tini (PID 1 Signal Handling)<a class="headerlink" href="#high-missing-tini-pid-1-signal-handling" title="Permanent link">&para;</a></h3>
+<p><strong>14+ services</strong> run Python directly as PID 1 without tini, causing zombie process accumulation and failed graceful shutdown:</p>
+<p>alert-service, billing-core, cooperative-service, crm-service, crop-intelligence-service, equipment-service, indicators-service, inventory-service, irrigation-smart, notification-service, task-service, vegetation-analysis-service, weather-service, and more.</p>
+<p><strong>Fix</strong>: Install tini and add <code>ENTRYPOINT ["/usr/bin/tini", "--"]</code>.</p>
+<h3 id="high-broken-healthcheck-syntax">HIGH — Broken HEALTHCHECK Syntax<a class="headerlink" href="#high-broken-healthcheck-syntax" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>File</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iot-gateway</td>
+<td>Dockerfile:82</td>
+<td>Missing <code>|| exit 1</code></td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>Dockerfile:87</td>
+<td>Broken quote escaping in shell</td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium">MEDIUM<a class="headerlink" href="#medium" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Services Affected</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing PYTHONPATH=/app</td>
+<td>crm-service, indicators-service</td>
+<td>Add to ENV</td>
+</tr>
+<tr>
+<td>pip.conf in /root/.pip (wrong user)</td>
+<td>ws-gateway</td>
+<td>Move to /home/sahool/.pip</td>
+</tr>
+<tr>
+<td>Missing --create-home in useradd</td>
+<td>fertigation-engine, irrigation-cycle-engine, digital-twin-engine</td>
+<td>Add --create-home flag</td>
+</tr>
+<tr>
+<td>Wrong base image (slim vs slim-bookworm)</td>
+<td>agro-rules</td>
+<td>Use python:3.11-slim-bookworm</td>
+</tr>
+<tr>
+<td>Missing PYTHONDONTWRITEBYTECODE</td>
+<td>code-review-service</td>
+<td>Add to ENV</td>
+</tr>
+<tr>
+<td>Inconsistent UID/GID (no explicit 1000)</td>
+<td>ai-agents-core, logistics-service</td>
+<td>Add --uid 1000 --gid 1000</td>
+</tr>
+<tr>
+<td>Uses --user pip instead of venv</td>
+<td>astronomical-calendar, provider-config</td>
+<td>Switch to venv pattern</td>
+</tr>
+<tr>
+<td>Hardcoded HEALTHCHECK port vs ${PORT} CMD</td>
+<td>inventory-service, ws-gateway</td>
+<td>Make consistent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-dependency-issues">LOW — Dependency Issues<a class="headerlink" href="#low-dependency-issues" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>asyncpg unbounded upper (missing <code>&lt;1.0.0</code>)</td>
+<td>indicators-service</td>
+</tr>
+<tr>
+<td>apscheduler unpinned (vs ==3.11.2)</td>
+<td>inventory-service</td>
+</tr>
+<tr>
+<td>tensorflow-cpu unbounded upper</td>
+<td>ai-agents-core</td>
+</tr>
+<tr>
+<td>astroid/pylint unbounded upper</td>
+<td>code-fix-agent</td>
+</tr>
+<tr>
+<td>SQLAlchemy capitalization inconsistency</td>
+<td>equipment-service vs alert-service</td>
+</tr>
+<tr>
+<td>Unnecessary curl install</td>
+<td>crm-service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-nestjs-service-dockerfiles-10-services-reviewed">2. NestJS Service Dockerfiles (10 services reviewed)<a class="headerlink" href="#2-nestjs-service-dockerfiles-10-services-reviewed" title="Permanent link">&para;</a></h2>
+<h3 id="critical">CRITICAL<a class="headerlink" href="#critical" title="Permanent link">&para;</a></h3>
+<h4 id="21-healthcheck-syntax-errors-2-services">2.1 HEALTHCHECK Syntax Errors (2 services)<a class="headerlink" href="#21-healthcheck-syntax-errors-2-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>crop-growth-model/Dockerfile:154</strong> — HEALTHCHECK written on single line without proper continuation</li>
+<li><strong>disaster-assessment/Dockerfile:141</strong> — Same issue</li>
+</ul>
+<p><strong>Fix</strong>: Add backslash continuation: <code>HEALTHCHECK ... \n    CMD ...</code></p>
+<h4 id="22-iot-service-dependency-resolution-failure">2.2 iot-service Dependency Resolution Failure<a class="headerlink" href="#22-iot-service-dependency-resolution-failure" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/iot-service/Dockerfile</code>, lines 37, 100, 129</li>
+<li><strong>Issue</strong>: <code>@sahool/shared-events</code> deleted from package.json in production stage, then manually copied to node_modules without proper package.json entry. <code>require('@sahool/shared-events')</code> will fail.</li>
+</ul>
+<h4 id="23-code-review-agent-missing-entry-point">2.3 code-review-agent Missing Entry Point<a class="headerlink" href="#23-code-review-agent-missing-entry-point" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/code-review-agent/Dockerfile:92</code></li>
+<li><strong>Issue</strong>: <code>CMD ["node", "dist/production-agent.js"]</code> references file that may not exist after <code>tsc</code> compilation.</li>
+</ul>
+<hr />
+<h2 id="3-docker-compose-files-13-files-reviewed">3. Docker Compose Files (13 files reviewed)<a class="headerlink" href="#3-docker-compose-files-13-files-reviewed" title="Permanent link">&para;</a></h2>
+<h3 id="high">HIGH<a class="headerlink" href="#high" title="Permanent link">&para;</a></h3>
+<h4 id="31-etcd-perms-init-missing-healthcheck">3.1 etcd-perms-init Missing Healthcheck<a class="headerlink" href="#31-etcd-perms-init-missing-healthcheck" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>docker-compose.yml</code>, lines 933-971</li>
+<li><strong>Issue</strong>: <code>etcd</code> depends on <code>etcd-perms-init</code> with <code>condition: service_completed_successfully</code>, but the init service has no healthcheck. Docker Compose cannot determine completion.</li>
+</ul>
+<h3 id="medium_1">MEDIUM<a class="headerlink" href="#medium_1" title="Permanent link">&para;</a></h3>
+<h4 id="32-test_runner-short-form-depends_on">3.2 test_runner Short-Form depends_on<a class="headerlink" href="#32-test_runner-short-form-depends_on" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>docker-compose.test.yml</code>, lines 163-168</li>
+<li><strong>Issue</strong>: Uses short form <code>depends_on</code> (startup order only) instead of <code>condition: service_healthy</code>. Tests may start before services are ready.</li>
+</ul>
+<h3 id="port-consistency-passed">PORT CONSISTENCY: PASSED<a class="headerlink" href="#port-consistency-passed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>66 services verified across governance/services.yaml, docker-compose.yml, and TypeScript contracts</li>
+<li>Zero port conflicts found</li>
+<li>Zero duplicate port assignments</li>
+</ul>
+<hr />
+<h2 id="4-helm-charts-kubernetes">4. Helm Charts &amp; Kubernetes<a class="headerlink" href="#4-helm-charts-kubernetes" title="Permanent link">&para;</a></h2>
+<h3 id="high_1">HIGH<a class="headerlink" href="#high_1" title="Permanent link">&para;</a></h3>
+<h4 id="41-nats-statefulset-missing-security-context">4.1 NATS StatefulSet Missing Security Context<a class="headerlink" href="#41-nats-statefulset-missing-security-context" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>helm/sahool/templates/infrastructure/nats-statefulset.yaml</code>, lines 40-47</li>
+<li><strong>Issue</strong>: No podSecurityContext, no container securityContext, no automountServiceAccountToken. PostgreSQL and Redis have proper contexts but NATS does not.</li>
+</ul>
+<h3 id="medium_2">MEDIUM<a class="headerlink" href="#medium_2" title="Permanent link">&para;</a></h3>
+<h4 id="42-prometheus-metrics-port-annotation-mismatch">4.2 Prometheus Metrics Port Annotation Mismatch<a class="headerlink" href="#42-prometheus-metrics-port-annotation-mismatch" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>helm/sahool/values.yaml</code>, line 42</li>
+<li><strong>Issue</strong>: Default <code>prometheus.io/port: "8080"</code> but no services use port 8080. Metrics collection fails silently.</li>
+</ul>
+<h4 id="43-kong-missing-poddisruptionbudget">4.3 Kong Missing PodDisruptionBudget<a class="headerlink" href="#43-kong-missing-poddisruptionbudget" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>helm/sahool/templates/pdb.yaml</code></li>
+<li><strong>Issue</strong>: PDB template only covers <code>.Values.services</code>, not infrastructure. Kong (3 replicas in production) has no PDB — all pods can be evicted during maintenance.</li>
+</ul>
+<h4 id="44-infrastructure-vpa-templates-not-rendered">4.4 Infrastructure VPA Templates Not Rendered<a class="headerlink" href="#44-infrastructure-vpa-templates-not-rendered" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>helm/sahool/templates/vpa.yaml</code>, lines 8-41</li>
+<li><strong>Issue</strong>: VPA template loops <code>.Values.services</code> only. PostgreSQL, Redis, NATS, Kong have VPA settings in values.yaml but VPA resources are never created.</li>
+</ul>
+<h4 id="45-postgresqlredis-readonlyrootfilesystem-conflict">4.5 PostgreSQL/Redis readOnlyRootFilesystem Conflict<a class="headerlink" href="#45-postgresqlredis-readonlyrootfilesystem-conflict" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: postgres-statefulset.yaml:52, redis-deployment.yaml:51</li>
+<li><strong>Issue</strong>: <code>readOnlyRootFilesystem: true</code> set but these services need write access to data directories. Missing emptyDir volumes for /tmp.</li>
+</ul>
+<h4 id="46-kong-tls-configuration-unclear">4.6 Kong TLS Configuration Unclear<a class="headerlink" href="#46-kong-tls-configuration-unclear" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>helm/sahool/templates/infrastructure/kong-deployment.yaml</code>, lines 10-19</li>
+<li><strong>Issue</strong>: Service type LoadBalancer exposes port 443 → container 8443, but no TLS certificate configuration visible.</li>
+</ul>
+<h3 id="low">LOW<a class="headerlink" href="#low" title="Permanent link">&para;</a></h3>
+<h4 id="47-missing-tmp-volumes-in-stateful-services">4.7 Missing tmp Volumes in Stateful Services<a class="headerlink" href="#47-missing-tmp-volumes-in-stateful-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li>PostgreSQL and Redis deployments lack emptyDir for /tmp (unlike application services).</li>
+</ul>
+<hr />
+<h2 id="5-cicd-workflows">5. CI/CD Workflows<a class="headerlink" href="#5-cicd-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="critical_1">CRITICAL<a class="headerlink" href="#critical_1" title="Permanent link">&para;</a></h3>
+<h4 id="51-production-approval-gate-logic-bug">5.1 Production Approval Gate Logic Bug<a class="headerlink" href="#51-production-approval-gate-logic-bug" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/cd-production.yml</code>, line 150</li>
+<li><strong>Issue</strong>: <code>if: skip_approval != 'true' || hotfix_justification == ''</code> — OR logic allows bypass. Should use AND.</li>
+<li><strong>Impact</strong>: Production deployments can accidentally skip approval.</li>
+</ul>
+<h4 id="52-release-pipeline-swallows-test-failures">5.2 Release Pipeline Swallows Test Failures<a class="headerlink" href="#52-release-pipeline-swallows-test-failures" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/release.yml</code>, line 214</li>
+<li><strong>Issue</strong>: <code>pytest --tb=short || true</code> — all test failures ignored. Releases created with untested code.</li>
+</ul>
+<h3 id="medium_3">MEDIUM<a class="headerlink" href="#medium_3" title="Permanent link">&para;</a></h3>
+<h4 id="53-docker-buildx-single-platform-default">5.3 Docker Buildx Single-Platform Default<a class="headerlink" href="#53-docker-buildx-single-platform-default" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/docker-buildx.yml</code>, line 240</li>
+<li>Default <code>linux/amd64</code> only. ARM64 users get no image.</li>
+</ul>
+<h4 id="54-unset-turbo-cache-secret">5.4 Unset Turbo Cache Secret<a class="headerlink" href="#54-unset-turbo-cache-secret" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/ci.yml</code>, line 67</li>
+<li><code>TURBO_REMOTE_CACHE_SIGNATURE_KEY</code> silently empty if secret not configured.</li>
+</ul>
+<h4 id="55-deprecated-safety-security-scanner">5.5 Deprecated Safety Security Scanner<a class="headerlink" href="#55-deprecated-safety-security-scanner" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/security-checks.yml</code>, line 190</li>
+<li><code>safety scan</code> deprecated since June 2024, may not work without API key.</li>
+</ul>
+<h3 id="low_1">LOW<a class="headerlink" href="#low_1" title="Permanent link">&para;</a></h3>
+<h4 id="56-unquoted-bash-variable-in-cd">5.6 Unquoted Bash Variable in CD<a class="headerlink" href="#56-unquoted-bash-variable-in-cd" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/cd-production.yml</code>, line 132</li>
+</ul>
+<h4 id="57-prerelease-tag-condition">5.7 Prerelease Tag Condition<a class="headerlink" href="#57-prerelease-tag-condition" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/release.yml</code>, line 312</li>
+</ul>
+<hr />
+<h2 id="6-service-port-health-cross-reference">6. Service Port &amp; Health Cross-Reference<a class="headerlink" href="#6-service-port-health-cross-reference" title="Permanent link">&para;</a></h2>
+<h3 id="result-98-consistent">RESULT: 98% CONSISTENT<a class="headerlink" href="#result-98-consistent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Port conflicts</td>
+<td><strong>NONE</strong> — all 66 services have unique ports</td>
+</tr>
+<tr>
+<td>Governance ↔ Docker-Compose sync</td>
+<td><strong>100%</strong> (66/66 active services)</td>
+</tr>
+<tr>
+<td>Governance ↔ TypeScript contracts</td>
+<td><strong>100%</strong> (66/66)</td>
+</tr>
+<tr>
+<td>Kong routes ↔ service ports</td>
+<td><strong>100%</strong> (71/71 routes)</td>
+</tr>
+<tr>
+<td>Health endpoints consistent</td>
+<td><strong>98%</strong> (81/82 use <code>/healthz</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="issues-found">Issues Found<a class="headerlink" href="#issues-found" title="Permanent link">&para;</a></h3>
+<h4 id="61-vllm-deepseek-not-deployed">6.1 vllm-deepseek Not Deployed<a class="headerlink" href="#61-vllm-deepseek-not-deployed" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Active in governance/services.yaml (port 8270) but NOT in docker-compose.yml.</li>
+<li><strong>Fix</strong>: Add to docker-compose or mark inactive in governance.</li>
+</ul>
+<h4 id="62-user-service-non-standard-health-endpoint">6.2 user-service Non-Standard Health Endpoint<a class="headerlink" href="#62-user-service-non-standard-health-endpoint" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Uses <code>/api/v1/health</code> instead of platform standard <code>/healthz</code>.</li>
+</ul>
+<hr />
+<h2 id="priority-action-plan">Priority Action Plan<a class="headerlink" href="#priority-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="week-1-critical-fixes-11-issues">Week 1 — Critical Fixes (11 issues)<a class="headerlink" href="#week-1-critical-fixes-11-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fix 5 services missing root shared/ copy</strong> — runtime import failures</li>
+<li><strong>Fix HEALTHCHECK syntax</strong> in crop-growth-model, disaster-assessment, iot-gateway, virtual-sensors, llm-orchestrator, crop-intelligence</li>
+<li><strong>Fix production approval gate logic</strong> in cd-production.yml</li>
+<li><strong>Remove <code>|| true</code> from pytest</strong> in release.yml</li>
+<li><strong>Fix iot-service shared-events dependency</strong></li>
+<li><strong>Add httpx to astronomical-calendar requirements</strong></li>
+</ol>
+<h3 id="week-2-high-priority-12-issues">Week 2 — High Priority (12 issues)<a class="headerlink" href="#week-2-high-priority-12-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Add tini to 14+ Python services</li>
+<li>Fix etcd-perms-init healthcheck dependency</li>
+<li>Add NATS security context in Helm</li>
+<li>Fix code-review-agent entry point</li>
+</ol>
+<h3 id="week-3-medium-priority-24-issues">Week 3 — Medium Priority (24 issues)<a class="headerlink" href="#week-3-medium-priority-24-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Add PYTHONPATH to crm-service, indicators-service</li>
+<li>Fix pip.conf location in ws-gateway</li>
+<li>Add --create-home to 3 services</li>
+<li>Fix Prometheus port annotation in Helm</li>
+<li>Add Kong PDB</li>
+<li>Fix VPA template for infrastructure</li>
+<li>Fix PostgreSQL/Redis readOnlyRootFilesystem</li>
+<li>Fix docker-buildx multi-platform default</li>
+<li>Use proper base image in agro-rules</li>
+</ol>
+<h3 id="backlog-low-priority-11-issues">Backlog — Low Priority (11 issues)<a class="headerlink" href="#backlog-low-priority-11-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Pin dependency upper bounds</li>
+<li>Standardize user-service health endpoint</li>
+<li>Add vllm-deepseek to docker-compose</li>
+<li>Fix unquoted bash variables in CI</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

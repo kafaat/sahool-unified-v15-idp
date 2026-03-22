@@ -1,0 +1,1616 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Deep Verification of Critical Issues — Final Verdict - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deep-verification-of-critical-issues-final-verdict" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Deep Verification of Critical Issues — Final Verdict
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="deep-verification-of-critical-issues-final-verdict">Deep Verification of Critical Issues — Final Verdict<a class="headerlink" href="#deep-verification-of-critical-issues-final-verdict" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Method</strong>: 6 parallel agents reading exact source code, showing evidence line-by-line
+<strong>Scope</strong>: All 25 critical issues from Master Audit Report + 5 additional issues</p>
+<hr />
+<h2 id="verification-results-summary">Verification Results Summary<a class="headerlink" href="#verification-results-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Verdict</th>
+<th>Count</th>
+<th>Issues</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CONFIRMED</strong></td>
+<td>21</td>
+<td>Real bugs verified with exact code evidence</td>
+</tr>
+<tr>
+<td><strong>FALSE POSITIVE</strong></td>
+<td>5</td>
+<td>Issues that were incorrectly reported</td>
+</tr>
+<tr>
+<td><strong>PARTIALLY CONFIRMED</strong></td>
+<td>4</td>
+<td>Nuanced — issue exists but impact differs from report</td>
+</tr>
+<tr>
+<td><strong>Total Verified</strong></td>
+<td>30</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="false-positives-identified-5">FALSE POSITIVES IDENTIFIED (5)<a class="headerlink" href="#false-positives-identified-5" title="Permanent link">&para;</a></h2>
+<h3 id="fp-1-4-nestjs-services-missing-jwt-auth-false-positive">FP-1: "4 NestJS services missing JWT auth" → FALSE POSITIVE<a class="headerlink" href="#fp-1-4-nestjs-services-missing-jwt-auth-false-positive" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Original claim</strong>: chat, marketplace, iot, disaster-assessment have NO JWT auth</li>
+<li><strong>Reality</strong>: All 4 services use <code>@UseGuards(JwtAuthGuard)</code> at controller/method level</li>
+<li><strong>Evidence</strong>: chat-service has 8 guarded endpoints, marketplace has 28+, iot has 10, disaster-assessment has class-level guards</li>
+<li><strong>Design</strong>: Intentional — allows health endpoints to remain unguarded</li>
+<li><strong>Status</strong>: Auth IS present. Not a vulnerability.</li>
+</ul>
+<h3 id="fp-2-production-approval-gate-logic-bug-or-instead-of-and-false-positive">FP-2: "Production approval gate logic bug (OR instead of AND)" → FALSE POSITIVE<a class="headerlink" href="#fp-2-production-approval-gate-logic-bug-or-instead-of-and-false-positive" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Original claim</strong>: OR logic allows bypass of production deployment approval</li>
+<li><strong>Reality</strong>: Logic <code>skip_approval != 'true' || justification == ''</code> is correct by De Morgan's law</li>
+<li><strong>Equivalent to</strong>: <code>!(skip_approval == 'true' &amp;&amp; justification != '')</code> — approval required unless BOTH conditions met</li>
+<li><strong>Status</strong>: Logic is correct as written.</li>
+</ul>
+<h3 id="fp-3-30-40-event-loss-during-network-glitches-false-positive-as-systemic-claim">FP-3: "30-40% event loss during network glitches" → FALSE POSITIVE (as systemic claim)<a class="headerlink" href="#fp-3-30-40-event-loss-during-network-glitches-false-positive-as-systemic-claim" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Original claim</strong>: Systemic 30-40% event loss across platform</li>
+<li><strong>Reality</strong>: Shared <code>EventPublisher</code> uses JetStream with ACK confirmation — NOT fire-and-forget</li>
+<li><strong>Real issue</strong>: Only CRM-service bypasses EventPublisher and uses raw NATS core publish</li>
+<li><strong>Status</strong>: Event loss is real in CRM-service only, not platform-wide.</li>
+</ul>
+<h3 id="fp-4-5-services-missing-root-shared-copy-in-dockerfile-mostly-false-positive">FP-4: "5 services missing root shared/ copy in Dockerfile" → MOSTLY FALSE POSITIVE<a class="headerlink" href="#fp-4-5-services-missing-root-shared-copy-in-dockerfile-mostly-false-positive" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Original claim</strong>: alert-service, irrigation-smart, drone-service, virtual-sensors, provider-config</li>
+<li><strong>Reality</strong>: Only drone-service has a real (degraded) issue. Other 4 resolve imports from <code>apps/services/shared/</code></li>
+<li><strong>Status</strong>: 4/5 are false positives. drone-service confirmed with graceful degradation.</li>
+</ul>
+<h3 id="fp-5-weather-api-double-path-causes-404-false-positive-intentional-workaround">FP-5: "Weather API double-path causes 404" → FALSE POSITIVE (intentional workaround)<a class="headerlink" href="#fp-5-weather-api-double-path-causes-404-false-positive-intentional-workaround" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Original claim</strong>: <code>/api/v1/weather/weather/current</code> causes 404</li>
+<li><strong>Reality</strong>: Deliberate workaround for Kong strip_path — Kong strips <code>/api/v1/weather</code>, leaving <code>/weather/current</code> which matches backend</li>
+<li><strong>Status</strong>: Works as intended, but fragile coupling. Not a 404 bug.</li>
+</ul>
+<hr />
+<h2 id="confirmed-critical-issues-21">CONFIRMED CRITICAL ISSUES (21)<a class="headerlink" href="#confirmed-critical-issues-21" title="Permanent link">&para;</a></h2>
+<h3 id="authentication-authorization">Authentication &amp; Authorization<a class="headerlink" href="#authentication-authorization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>JWT issuer mismatch</strong></td>
+<td><code>shared/security/jwt.py:52</code> defaults <code>"sahool-idp"</code>, all other components use <code>"sahool-platform"</code></td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>JWT audience mismatch</strong></td>
+<td><code>shared/security/jwt.py:53</code> defaults <code>"sahool-platform"</code>, all others use <code>"sahool-api"</code></td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>JWT tenant claim mismatch</strong></td>
+<td>Python creates <code>tid</code>, web middleware expects <code>tenant_id</code> only (<code>jwt-middleware.ts:116</code>)</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>A2A endpoints zero auth</strong></td>
+<td><code>shared/a2a/server.py</code> — 7 endpoints, zero <code>Depends(get_current_user)</code></td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>MCP server zero auth</strong></td>
+<td><code>mcp-server/src/main.py</code> — all endpoints unauthenticated</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>WebSocket no JWT</strong></td>
+<td><code>apps/web/src/lib/ws/index.ts:85</code> — <code>new WebSocket(url)</code> with no token</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Token revocation fail-open</strong></td>
+<td><code>revocation_middleware.py:54</code> — <code>fail_open: bool = True</code> default</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>CSRF no backend validation</strong></td>
+<td>Zero CSRF middleware in any Python service despite frontend generating tokens</td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tenant-isolation-attack-chain">Tenant Isolation (Attack Chain)<a class="headerlink" href="#tenant-isolation-attack-chain" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td><strong>RLS never enforced</strong></td>
+<td><code>shared/db/tenant_connection.py</code> exists but imported by ZERO services</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>X-Tenant-ID header bypass</strong></td>
+<td><code>tenant.guard.ts:79</code> — <code>userTenantId \|\| headerTenantId</code> fallback</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>LAI service query param tenant</strong></td>
+<td><code>lai.controller.ts:158</code> — <code>req.user?.tenantId \|\| headers \|\| queryTenantId</code></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Kong doesn't strip X-Tenant-ID</strong></td>
+<td><code>kong-security.yml</code> strips 3 headers, X-Tenant-ID NOT among them</td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="computer-vision-ai">Computer Vision &amp; AI<a class="headerlink" href="#computer-vision-ai" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13</td>
+<td><strong>All YOLO models missing</strong></td>
+<td><code>ls models/</code> — only <code>.gitkeep</code>. Falls back to <code>YOLO("yolov8m.pt")</code> at line 334</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>AI guardrails not integrated</strong></td>
+<td>grep for guardrails in all <code>main.py</code> — ZERO matches</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>RAG retriever crashes</strong></td>
+<td><code>retriever.py:182</code> uses <code>result.vector</code> but field is <code>result.embedding</code></td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>Ground-vision NATS hardcoded</strong></td>
+<td><code>main.py:731</code> — NATS event always sends <code>"wheat"</code>, <code>"tillering"</code>, <code>0.85</code></td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-integrity">Data Integrity<a class="headerlink" href="#data-integrity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>17</td>
+<td><strong>4 table ownership conflicts</strong></td>
+<td>tasks (UUID vs VARCHAR PK), equipment (UUID vs VARCHAR + different columns), alerts (category vs type), tenants (flat vs JSONB)</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>irrigation-smart missing tables</strong></td>
+<td>Queries 5 tables, zero CREATE TABLE anywhere in codebase</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Flutter migration data loss</strong></td>
+<td><code>migration_strategy.dart:205</code> drops <code>fields</code> table, <code>:219</code> drops <code>outbox</code> table</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Login response mismatch</strong></td>
+<td>api-client: <code>token</code>, backend: <code>access_token</code> — 3 conflicting definitions</td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-crypto">Security &amp; Crypto<a class="headerlink" href="#security-crypto" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>21</td>
+<td><strong>AES-GCM deterministic IV</strong></td>
+<td><code>field-encryption.ts:227</code> uses <code>aes-256-gcm</code> with HMAC-derived IV</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Flutter infinite recursion</strong></td>
+<td><code>main.dart:185</code> — <code>main()</code> calls itself in <code>onContinueAnyway</code></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>Release pytest || true</strong></td>
+<td><code>release.yml:214</code> — test failures silently swallowed</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>Marketplace missing sahool. prefix</strong></td>
+<td><code>events.service.ts:112</code> — <code>"order.placed"</code> not <code>"sahool.marketplace.order.placed"</code></td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="partially-confirmed-4">PARTIALLY CONFIRMED (4)<a class="headerlink" href="#partially-confirmed-4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Actual Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Ground-vision hardcoded</strong></td>
+<td>HTTP response is correct, NATS event is hardcoded — partial impact</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Kong strip_path breaks routes</strong></td>
+<td>Confirmed for billing-core, advisory (partial). Weather works by double-path workaround</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>drone-service missing shared/</strong></td>
+<td>Gracefully degraded — falls back to hardcoded strings instead of centralized subjects</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>traceability-service missing tables</strong></td>
+<td>Migration SQL exists but outside standard init pipeline — requires manual execution</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="revised-priority-top-15-verified-critical-issues">Revised Priority — Top 15 Verified Critical Issues<a class="headerlink" href="#revised-priority-top-15-verified-critical-issues" title="Permanent link">&para;</a></h2>
+<h3 id="must-fix-before-production-verified-with-code-evidence">Must Fix Before Production (Verified with Code Evidence)<a class="headerlink" href="#must-fix-before-production-verified-with-code-evidence" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Issue</th>
+<th>Fix Complexity</th>
+<th>Files to Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>JWT issuer: change <code>shared/security/jwt.py:52</code> default to <code>"sahool-platform"</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>JWT audience: change <code>shared/security/jwt.py:53</code> default to <code>"sahool-api"</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>JWT tenant: add <code>tid</code> support in <code>apps/web/src/lib/security/jwt-middleware.ts:116</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>A2A auth: add <code>Depends(get_current_user)</code> to <code>shared/a2a/server.py</code> endpoints</td>
+<td>7 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>MCP auth: add auth middleware to <code>mcp-server/src/main.py</code></td>
+<td>5 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>RLS enforcement: import <code>tenant_connection</code> in service DB initialization</td>
+<td>~20 lines</td>
+<td>10+ files</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>Kong strip X-Tenant-ID: add to <code>kong-security.yml</code> request-transformer remove list</td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>RAG fix: change <code>result.vector</code> to <code>result.embedding</code> in <code>retriever.py:182,197</code></td>
+<td>2 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Table conflicts: rename task-service table to <code>task_assignments</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>irrigation-smart: create migration for 5 missing tables</td>
+<td>~50 lines</td>
+<td>1 new file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>WebSocket auth: send JWT in WebSocket handshake</td>
+<td>~5 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Token revocation: change <code>fail_open</code> default to <code>False</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Marketplace events: add <code>sahool.marketplace.</code> prefix</td>
+<td>5 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Flutter recursion: replace <code>main()</code> call with navigator restart</td>
+<td>~3 lines</td>
+<td>1 file</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>AES-GCM: change <code>encryptDeterministic</code> to use <code>aes-256-ctr</code></td>
+<td>1 line</td>
+<td>1 file</td>
+</tr>
+</tbody>
+</table>
+<h3 id="estimated-total-fix-effort">Estimated Total Fix Effort<a class="headerlink" href="#estimated-total-fix-effort" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>P0 fixes</strong>: ~40 lines of code across ~15 files — <strong>1-2 days</strong></li>
+<li><strong>P1 fixes</strong>: ~65 lines across ~5 files — <strong>2-3 days</strong></li>
+<li><strong>P2 fixes</strong>: ~10 lines across ~3 files — <strong>1 day</strong></li>
+<li><strong>Total</strong>: ~115 lines of code — <strong>~1 week</strong> to fix all verified critical issues</li>
+</ul>
+<hr />
+<h2 id="corrections-to-master-audit-report">Corrections to Master Audit Report<a class="headerlink" href="#corrections-to-master-audit-report" title="Permanent link">&para;</a></h2>
+<p>The Master Audit Report should be updated to reflect:</p>
+<ol>
+<li><strong>Remove Issue #1</strong> (NestJS JWT missing) — FALSE POSITIVE, auth present via controller guards</li>
+<li><strong>Downgrade "30-40% event loss"</strong> — only CRM-service affected, not platform-wide</li>
+<li><strong>Remove "5 services missing shared/"</strong> — only drone-service confirmed (degraded)</li>
+<li><strong>Reclassify weather double-path</strong> — intentional workaround, not a 404 bug</li>
+<li><strong>Remove approval gate logic bug</strong> — logic is correct</li>
+<li><strong>Revise total critical count</strong>: ~121 → ~116 (5 false positives removed)</li>
+<li><strong>Add note</strong>: ground-vision hardcoded is NATS-only (HTTP response correct)</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

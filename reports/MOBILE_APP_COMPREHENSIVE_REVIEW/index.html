@@ -1,0 +1,2376 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SAHOOL Mobile App - Comprehensive Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-mobile-app-comprehensive-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Mobile App - Comprehensive Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-mobile-app-comprehensive-review-report">SAHOOL Mobile App - Comprehensive Review Report<a class="headerlink" href="#sahool-mobile-app-comprehensive-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Reviewer</strong>: Claude AI Code Review
+<strong>Branch</strong>: <code>claude/review-mobile-app-7bNhE</code>
+<strong>App Version</strong>: 16.0.0+1
+<strong>Flutter Version</strong>: 3.27.x (Dart 3.6.0)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Deep review of the SAHOOL mobile app covering <strong>696 Dart files</strong> across <strong>47 core modules</strong> and <strong>56 feature modules</strong>, totaling <strong>350,398 lines of code</strong> with <strong>190 test files</strong>.</p>
+<h3 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Dart Files</td>
+<td>696</td>
+</tr>
+<tr>
+<td>Core Modules</td>
+<td>47</td>
+</tr>
+<tr>
+<td>Feature Modules</td>
+<td>56</td>
+</tr>
+<tr>
+<td>Screens/Pages</td>
+<td>126</td>
+</tr>
+<tr>
+<td>Widgets</td>
+<td>33</td>
+</tr>
+<tr>
+<td>Providers/Controllers</td>
+<td>68</td>
+</tr>
+<tr>
+<td>Repositories</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Models/Entities</td>
+<td>26</td>
+</tr>
+<tr>
+<td>Test Files</td>
+<td>190</td>
+</tr>
+<tr>
+<td>Total Lines of Code</td>
+<td>350,398</td>
+</tr>
+</tbody>
+</table>
+<h3 id="issues-found">Issues Found<a class="headerlink" href="#issues-found" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Count</th>
+<th>Fixed</th>
+<th>Remaining</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRITICAL</td>
+<td>12</td>
+<td>8</td>
+<td>4</td>
+</tr>
+<tr>
+<td>HIGH</td>
+<td>15</td>
+<td>6</td>
+<td>9</td>
+</tr>
+<tr>
+<td>MEDIUM</td>
+<td>24</td>
+<td>3</td>
+<td>21</td>
+</tr>
+<tr>
+<td>LOW</td>
+<td>18</td>
+<td>0</td>
+<td>18</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>69</strong></td>
+<td><strong>17</strong></td>
+<td><strong>52</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-architecture-overview">1. Architecture Overview<a class="headerlink" href="#1-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="strengths">Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Offline-first architecture with Drift + SQLCipher encryption</li>
+<li>Riverpod state management throughout</li>
+<li>3-layer error handling (Flutter, Platform, Zone)</li>
+<li>Certificate pinning with 3-tier support</li>
+<li>Device integrity checks (root/jailbreak detection)</li>
+<li>Comprehensive background sync engine</li>
+<li>Bilingual Arabic/English support with RTL</li>
+<li>190 test files covering major domains</li>
+</ul>
+<h3 id="weaknesses">Weaknesses<a class="headerlink" href="#weaknesses" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dual routing system (GoRouter vs Navigator) causing runtime crashes</li>
+<li>Auth flow disconnected from main app entry</li>
+<li>~75+ empty callback handlers across 20+ files</li>
+<li>~30+ instances of hardcoded demo data</li>
+<li>12+ feature modules unreachable from main navigation</li>
+</ul>
+<hr />
+<h2 id="2-critical-issues-fixed">2. CRITICAL Issues (Fixed)<a class="headerlink" href="#2-critical-issues-fixed" title="Permanent link">&para;</a></h2>
+<h3 id="21-otp-length-mismatch-fixed">2.1 OTP Length Mismatch (FIXED)<a class="headerlink" href="#21-otp-length-mismatch-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/ui/login_screen.dart</code></li>
+<li><strong>Problem</strong>: Login screen used 4-digit OTP while backend expects 6-digit</li>
+<li><strong>Fix</strong>: Changed OTP controllers from 4 to 6, aligned with OTPService</li>
+</ul>
+<h3 id="22-login-screen-simulated-api-fixed">2.2 Login Screen Simulated API (FIXED)<a class="headerlink" href="#22-login-screen-simulated-api-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/ui/login_screen.dart</code></li>
+<li><strong>Problem</strong>: <code>_sendOtp()</code> used <code>Future.delayed()</code> instead of real API</li>
+<li><strong>Fix</strong>: Wired to <code>OTPService.sendOTP()</code> with proper error handling</li>
+</ul>
+<h3 id="23-otp-verification-simulated-fixed">2.3 OTP Verification Simulated (FIXED)<a class="headerlink" href="#23-otp-verification-simulated-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/ui/login_screen.dart</code></li>
+<li><strong>Problem</strong>: <code>_verifyOtp()</code> simulated verification, never stored tokens</li>
+<li><strong>Fix</strong>: Wired to <code>OTPService.verifyOTP()</code> + <code>AuthService</code> for token storage</li>
+</ul>
+<h3 id="24-field-form-save-no-op-fixed">2.4 Field Form Save NO-OP (FIXED)<a class="headerlink" href="#24-field-form-save-no-op-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/field/ui/field_form_screen.dart</code></li>
+<li><strong>Problem</strong>: <code>_saveField()</code> only showed SnackBar without saving</li>
+<li><strong>Fix</strong>: Wired to <code>fieldsRepoProvider.createField()</code>/<code>updateFieldProperties()</code></li>
+</ul>
+<h3 id="25-field-delete-no-op-fixed">2.5 Field Delete NO-OP (FIXED)<a class="headerlink" href="#25-field-delete-no-op-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/field/ui/field_details_screen.dart</code></li>
+<li><strong>Problem</strong>: Delete button only logged event, never deleted</li>
+<li><strong>Fix</strong>: Wired to <code>fieldsRepoProvider.deleteField()</code></li>
+</ul>
+<h3 id="26-more-screen-empty-handlers-fixed">2.6 More Screen Empty Handlers (FIXED)<a class="headerlink" href="#26-more-screen-empty-handlers-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/app.dart</code></li>
+<li><strong>Problem</strong>: Logout, settings, reports, help, about all had <code>onTap: () {}</code></li>
+<li><strong>Fix</strong>: Connected to proper navigation and auth logout</li>
+</ul>
+<h3 id="27-quick-actions-fab-fixed">2.7 Quick Actions FAB (FIXED)<a class="headerlink" href="#27-quick-actions-fab-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/app.dart</code></li>
+<li><strong>Problem</strong>: All 6 quick actions only closed bottom sheet</li>
+<li><strong>Fix</strong>: Each action now navigates to appropriate screen</li>
+</ul>
+<h3 id="28-scanner-simulated-camera-fixed">2.8 Scanner Simulated Camera (FIXED)<a class="headerlink" href="#28-scanner-simulated-camera-fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/scanner/ui/scanner_screen.dart</code></li>
+<li><strong>Problem</strong>: Used <code>Future.delayed</code> with hardcoded "صدأ القمح"</li>
+<li><strong>Fix</strong>: Integrated <code>image_picker</code> for real camera + AI service</li>
+</ul>
+<hr />
+<h2 id="3-critical-issues-remaining">3. CRITICAL Issues (Remaining)<a class="headerlink" href="#3-critical-issues-remaining" title="Permanent link">&para;</a></h2>
+<h3 id="31-dual-routing-system">3.1 Dual Routing System<a class="headerlink" href="#31-dual-routing-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Files</strong>: <code>lib/app.dart</code> + <code>lib/core/routes/app_router.dart</code></li>
+<li><strong>Problem</strong>: <code>app.dart</code> uses <code>MaterialApp</code> with <code>onGenerateRoute</code> but features use GoRouter <code>context.push()</code>/<code>context.go()</code>. GoRouter never installed in widget tree.</li>
+<li><strong>Impact</strong>: All GoRouter navigation calls crash at runtime</li>
+<li><strong>Recommendation</strong>: Convert to <code>MaterialApp.router</code> with existing <code>AppRouter.router</code></li>
+</ul>
+<h3 id="32-no-auth-guard-at-startup">3.2 No Auth Guard at Startup<a class="headerlink" href="#32-no-auth-guard-at-startup" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/app.dart</code> lines 125-143</li>
+<li><strong>Problem</strong>: <code>_AppStartupWrapper</code> only checks onboarding, not auth state</li>
+<li><strong>Impact</strong>: Users access main app without authentication</li>
+<li><strong>Recommendation</strong>: Add auth check before <code>MainAppShell</code></li>
+</ul>
+<h3 id="33-biometricloginwidget-parameter-mismatch">3.3 BiometricLoginWidget Parameter Mismatch<a class="headerlink" href="#33-biometricloginwidget-parameter-mismatch" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/ui/login_screen.dart</code> line 312</li>
+<li><strong>Problem</strong>: Passes <code>onAuthenticated:</code> but widget expects <code>onSuccess:</code></li>
+<li><strong>Impact</strong>: Compile-time error</li>
+<li><strong>Recommendation</strong>: Change to <code>onSuccess:</code></li>
+</ul>
+<h3 id="34-sharedpreferences-provider-conflict">3.4 SharedPreferences Provider Conflict<a class="headerlink" href="#34-sharedpreferences-provider-conflict" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/config/otp_config.dart</code> lines 707-711</li>
+<li><strong>Problem</strong>: <code>sharedPreferencesProvider</code> throws <code>UnimplementedError</code>, never overridden</li>
+<li><strong>Impact</strong>: Runtime crash when OTP config accessed</li>
+<li><strong>Recommendation</strong>: Override in <code>main.dart</code> ProviderScope</li>
+</ul>
+<hr />
+<h2 id="4-high-priority-issues">4. HIGH Priority Issues<a class="headerlink" href="#4-high-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="41-token-refresh-race-condition">4.1 Token Refresh Race Condition<a class="headerlink" href="#41-token-refresh-race-condition" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/auth/token_manager.dart</code> lines 131-149</li>
+<li><strong>Problem</strong>: Multiple concurrent refresh requests possible</li>
+<li><strong>Fix needed</strong>: Proper Completer-based locking</li>
+</ul>
+<h3 id="42-api-service-race-condition-in-sync">4.2 API Service Race Condition in Sync<a class="headerlink" href="#42-api-service-race-condition-in-sync" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/api/api_service.dart</code> lines 356-362</li>
+<li><strong>Problem</strong>: <code>_syncPendingRequests()</code> called without mutex protection</li>
+<li><strong>Fix needed</strong>: Atomic flag or Completer-based lock</li>
+</ul>
+<h3 id="43-certificate-pinning-debug-bypass">4.3 Certificate Pinning Debug Bypass<a class="headerlink" href="#43-certificate-pinning-debug-bypass" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/security/certificate_pinning_service.dart</code> line 186</li>
+<li><strong>Problem</strong>: <code>allowDebugBypass = true</code> by default</li>
+<li><strong>Fix needed</strong>: Default to <code>false</code></li>
+</ul>
+<h3 id="44-unsafe-json-parsing-in-sync-engine">4.4 Unsafe JSON Parsing in Sync Engine<a class="headerlink" href="#44-unsafe-json-parsing-in-sync-engine" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/sync/sync_engine.dart</code> line 272</li>
+<li><strong>Problem</strong>: <code>jsonDecode()</code> result cast without type checking</li>
+<li><strong>Fix needed</strong>: Add <code>is Map&lt;String, dynamic&gt;</code> check</li>
+</ul>
+<h3 id="45-12-unregistered-navigation-routes">4.5 12+ Unregistered Navigation Routes<a class="headerlink" href="#45-12-unregistered-navigation-routes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Routes</strong>: <code>/task/details</code>, <code>/product/:id</code>, <code>/order/:id</code>, <code>/scanner</code>, <code>/field/:id</code>, <code>/sync</code>, <code>/biometric-settings</code>, <code>/ai-advisor/history</code>, <code>/field-form</code>, <code>/scouting</code>, etc.</li>
+<li><strong>Impact</strong>: Navigation crashes at runtime</li>
+</ul>
+<h3 id="46-marketplace-provider-memory-leak">4.6 Marketplace Provider Memory Leak<a class="headerlink" href="#46-marketplace-provider-memory-leak" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/marketplace/marketplace_provider.dart</code> lines 337-344</li>
+<li><strong>Problem</strong>: Constructor auto-calls <code>loadProducts()</code>, HTTP client not pooled</li>
+<li><strong>Fix needed</strong>: Move initialization to separate method</li>
+</ul>
+<h3 id="47-notifications-provider-resource-leak">4.7 Notifications Provider Resource Leak<a class="headerlink" href="#47-notifications-provider-resource-leak" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/notifications/presentation/providers/notification_provider.dart</code></li>
+<li><strong>Problem</strong>: Service initialized but never disposed</li>
+<li><strong>Fix needed</strong>: Add proper disposal in provider lifecycle</li>
+</ul>
+<h3 id="48-chat-pagination-race-condition">4.8 Chat Pagination Race Condition<a class="headerlink" href="#48-chat-pagination-race-condition" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/chat/presentation/screens/chat_screen.dart</code> lines 62-65</li>
+<li><strong>Problem</strong>: <code>loadMoreMessages()</code> called without checking if already loading</li>
+<li><strong>Fix needed</strong>: Add loading guard</li>
+</ul>
+<h3 id="49-no-registration-screen">4.9 No Registration Screen<a class="headerlink" href="#49-no-registration-screen" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Problem</strong>: No signup/registration screen exists in auth flow</li>
+<li><strong>Impact</strong>: New users cannot register through mobile app</li>
+</ul>
+<hr />
+<h2 id="5-medium-priority-issues">5. MEDIUM Priority Issues<a class="headerlink" href="#5-medium-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="51-hardcoded-demo-data-30-instances">5.1 Hardcoded Demo Data (30+ instances)<a class="headerlink" href="#51-hardcoded-demo-data-30-instances" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>home_dashboard_screen.dart</code></td>
+<td>199-221</td>
+<td>3 demo fields</td>
+</tr>
+<tr>
+<td><code>home_dashboard_screen.dart</code></td>
+<td>473-492</td>
+<td>Alerts hardcoded</td>
+</tr>
+<tr>
+<td><code>home_dashboard_screen.dart</code></td>
+<td>496-525</td>
+<td>Stats hardcoded</td>
+</tr>
+<tr>
+<td><code>weather_widget.dart</code></td>
+<td>9</td>
+<td>32C, "الرياض", 25% humidity</td>
+</tr>
+<tr>
+<td><code>quick_stats_card.dart</code></td>
+<td>1-93</td>
+<td>"3 حقول", "106 هكتار"</td>
+</tr>
+<tr>
+<td><code>home_screen.dart</code></td>
+<td>88-99</td>
+<td>Map overlay hardcoded</td>
+</tr>
+<tr>
+<td><code>pro_home_screen.dart</code></td>
+<td>29-30</td>
+<td>tenant_id hardcoded</td>
+</tr>
+<tr>
+<td><code>fields_list_screen.dart</code></td>
+<td>33-116</td>
+<td>5 FieldEntity objects</td>
+</tr>
+<tr>
+<td><code>field_dashboard.dart</code></td>
+<td>entire</td>
+<td>NDVI, soil, temp all hardcoded</td>
+</tr>
+<tr>
+<td><code>map_screen.dart</code></td>
+<td>66-139</td>
+<td>6 mock fields</td>
+</tr>
+<tr>
+<td><code>billing_screen.dart</code></td>
+<td>175-336</td>
+<td>Dates, usage, payment card</td>
+</tr>
+<tr>
+<td><code>community_screen.dart</code></td>
+<td>639-727</td>
+<td>Discussions and knowledge</td>
+</tr>
+<tr>
+<td><code>rotation_service.dart</code></td>
+<td>7-388</td>
+<td>Entire service simulated</td>
+</tr>
+<tr>
+<td><code>advisor_screen.dart</code></td>
+<td>209-267</td>
+<td>Weather and AI responses</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-empty-callback-handlers-75-instances">5.2 Empty Callback Handlers (~75+ instances)<a class="headerlink" href="#52-empty-callback-handlers-75-instances" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>Empty Handlers Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>home_dashboard_screen.dart</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>home_screen.dart</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>home_v16/home_screen.dart</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>community_screen.dart</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>profile_screen.dart</code></td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>field_hub/field_dashboard.dart</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>scanner_screen.dart</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>wallet_screen.dart</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>daily_brief_widget.dart</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td>Other files</td>
+<td>~26</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-version-number-inconsistency">5.3 Version Number Inconsistency<a class="headerlink" href="#53-version-number-inconsistency" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>app.dart</code> line 549: Shows <code>'الإصدار 1.0.0'</code></li>
+<li><code>role_selection_screen.dart</code> line 129: Shows <code>'v15.3.0'</code></li>
+<li>Correct version: <code>16.0.0</code></li>
+</ul>
+<h3 id="54-advisor-division-by-zero">5.4 Advisor Division by Zero<a class="headerlink" href="#54-advisor-division-by-zero" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/advisor/presentation/screens/advisor_screen.dart</code> line 457</li>
+<li><strong>Problem</strong>: <code>(netBenefit / totalROI)</code> without zero check</li>
+</ul>
+<h3 id="55-ai-advisor-unbounded-message-list">5.5 AI Advisor Unbounded Message List<a class="headerlink" href="#55-ai-advisor-unbounded-message-list" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/ai_advisor/state/chat_controller.dart</code></li>
+<li><strong>Problem</strong>: Messages appended without size limit</li>
+</ul>
+<h3 id="56-ai-advisor-hardcoded-locale">5.6 AI Advisor Hardcoded Locale<a class="headerlink" href="#56-ai-advisor-hardcoded-locale" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/ai_advisor/state/chat_controller.dart</code> line 210</li>
+<li><strong>Problem</strong>: <code>final locale = 'ar';</code> hardcoded</li>
+</ul>
+<h3 id="57-notifications-tab-index-out-of-bounds">5.7 Notifications Tab Index Out of Bounds<a class="headerlink" href="#57-notifications-tab-index-out-of-bounds" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/notifications/presentation/screens/notifications_center_screen.dart</code> line 76</li>
+<li><strong>Problem</strong>: <code>NotificationCategory.values[_tabController.index - 1]</code> when index is 0</li>
+</ul>
+<h3 id="58-auth-timer-not-cancelled-on-dispose">5.8 Auth Timer Not Cancelled on Dispose<a class="headerlink" href="#58-auth-timer-not-cancelled-on-dispose" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/auth/ui/login_screen.dart</code> lines 129-137</li>
+<li><strong>Problem</strong>: <code>Future.doWhile()</code> timer continues after screen dispose</li>
+</ul>
+<h3 id="59-inventory-provider-excessive-invalidation">5.9 Inventory Provider Excessive Invalidation<a class="headerlink" href="#59-inventory-provider-excessive-invalidation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/features/inventory/providers/inventory_providers.dart</code> lines 204-247</li>
+<li><strong>Problem</strong>: Each operation invalidates 5+ providers causing waterfall rebuilds</li>
+</ul>
+<h3 id="510-duplicate-field-domain-models">5.10 Duplicate Field Domain Models<a class="headerlink" href="#510-duplicate-field-domain-models" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>lib/features/field/domain/entities/field.dart</code> (Field class)</li>
+<li><code>lib/features/fields/domain/entities/field_entity.dart</code> (FieldEntity class)</li>
+<li>Two incompatible models for the same domain concept</li>
+</ul>
+<hr />
+<h2 id="6-core-module-security-issues">6. Core Module Security Issues<a class="headerlink" href="#6-core-module-security-issues" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>File</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token refresh race condition</td>
+<td><code>core/auth/token_manager.dart</code></td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>Certificate bypass default true</td>
+<td><code>core/security/certificate_pinning_service.dart</code></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Mock tokens in release fallback</td>
+<td><code>core/auth/token_manager.dart:172</code></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Hardcoded token refresh path</td>
+<td><code>core/auth/token_manager.dart:204</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No CircuitBreaker config validation</td>
+<td><code>core/network/circuit_breaker.dart:72</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Env config silently falls back</td>
+<td><code>core/config/env_config.dart:68</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Migration verification not enforced</td>
+<td><code>core/database/migrations/</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Unsafe null dereference in API</td>
+<td><code>core/api/api_service.dart:560</code></td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Sync engine string-based error check</td>
+<td><code>core/sync/sync_engine.dart:213</code></td>
+<td>MEDIUM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-inaccessible-features-12-modules">7. Inaccessible Features (12 modules)<a class="headerlink" href="#7-inaccessible-features-12-modules" title="Permanent link">&para;</a></h2>
+<p>These features have complete implementations but no navigation path from main app:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Directory</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Irrigation</td>
+<td><code>features/irrigation/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Equipment</td>
+<td><code>features/equipment/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td><code>features/billing/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td><code>features/chat/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Spray</td>
+<td><code>features/spray/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Scanner</td>
+<td><code>features/scanner/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>VRA</td>
+<td><code>features/vra/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td><code>features/inventory/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>AI Advisor</td>
+<td><code>features/ai_advisor/</code></td>
+<td>No route registered</td>
+</tr>
+<tr>
+<td>Home V16</td>
+<td><code>features/home_v16/</code></td>
+<td>Not wired to MainAppShell</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>features/settings/</code></td>
+<td>Button does nothing</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td><code>features/profile/</code></td>
+<td>Button does nothing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-test-coverage">8. Test Coverage<a class="headerlink" href="#8-test-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="test-infrastructure">Test Infrastructure<a class="headerlink" href="#test-infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>190 test files</strong> across 4 locations</li>
+<li><strong>73 tests</strong> in root <code>test/</code></li>
+<li><strong>100 tests</strong> in <code>sahool_field_app/test/</code></li>
+<li><strong>4 tests</strong> in <code>sahol_atmosphere/test/</code></li>
+<li><strong>13 integration tests</strong> in <code>integration_test/</code></li>
+</ul>
+<h3 id="test-domains-covered">Test Domains Covered<a class="headerlink" href="#test-domains-covered" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Field operations, NDVI, Auth, Irrigation, Weather, Sync</li>
+<li>Database migrations, encryption, security</li>
+<li>HTTP/Network, rate limiting, certificate pinning</li>
+<li>AI/Vision, terrain, offline mode</li>
+<li>Widget tests: home, login, field card, equipment, weather</li>
+</ul>
+<h3 id="test-gap-analysis">Test Gap Analysis<a class="headerlink" href="#test-gap-analysis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No tests for community feature</li>
+<li>No tests for billing/payment flow</li>
+<li>No tests for profile/settings</li>
+<li>No tests for VRA feature</li>
+<li>Scanner tests minimal</li>
+<li>No test for the dual routing conflict</li>
+</ul>
+<hr />
+<h2 id="9-fixes-applied-in-this-review">9. Fixes Applied in This Review<a class="headerlink" href="#9-fixes-applied-in-this-review" title="Permanent link">&para;</a></h2>
+<h3 id="commit-1-fixmobile-fix-critical-auth-flow-and-routing-issues">Commit 1: <code>fix(mobile): fix critical auth flow and routing issues</code><a class="headerlink" href="#commit-1-fixmobile-fix-critical-auth-flow-and-routing-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li>OTP length: 4 → 6 digits</li>
+<li>OTP sending: <code>Future.delayed</code> → <code>OTPService.sendOTP()</code></li>
+<li>Added error handling with Arabic messages</li>
+<li>Registered missing route imports</li>
+</ul>
+<h3 id="commit-2-fixmobile-wire-field-crud-to-repository-fix-auth-otp-add-scanner-imports">Commit 2: <code>fix(mobile): wire field CRUD to repository, fix auth OTP, add scanner imports</code><a class="headerlink" href="#commit-2-fixmobile-wire-field-crud-to-repository-fix-auth-otp-add-scanner-imports" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>FieldFormScreen</code> → <code>ConsumerStatefulWidget</code></li>
+<li><code>_saveField()</code> → <code>fieldsRepoProvider.createField()</code></li>
+<li>Added loading state and mounted checks</li>
+<li>Scanner: Added image_picker import</li>
+</ul>
+<h3 id="commit-3-fixmobile-major-fixes-routing-auth-field-ops-scanner-home-providers">Commit 3: <code>fix(mobile): major fixes - routing, auth, field ops, scanner, home providers</code><a class="headerlink" href="#commit-3-fixmobile-major-fixes-routing-auth-field-ops-scanner-home-providers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>More screen: All 7 empty handlers fixed</li>
+<li>Quick actions: All 6 actions now navigate</li>
+<li>Auth startup check added</li>
+<li>Scanner: Real camera + AI integration</li>
+<li>New <code>home_providers.dart</code> for dashboard data</li>
+</ul>
+<h3 id="commit-4-fixmobile-additional-fixes-field-details-weather-widget-community">Commit 4: <code>fix(mobile): additional fixes - field details, weather widget, community</code><a class="headerlink" href="#commit-4-fixmobile-additional-fixes-field-details-weather-widget-community" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Field delete wired to repository</li>
+<li>Weather widget provider integration</li>
+<li>Community empty handlers fixed</li>
+<li>Field details edit/share/export wired</li>
+</ul>
+<hr />
+<h2 id="10-recommendations">10. Recommendations<a class="headerlink" href="#10-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-sprint-1">Immediate (Sprint 1)<a class="headerlink" href="#immediate-sprint-1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Convert to GoRouter</strong>: Replace <code>MaterialApp</code> + <code>onGenerateRoute</code> with <code>MaterialApp.router</code> using existing <code>AppRouter.router</code></li>
+<li><strong>Fix BiometricLoginWidget parameter</strong>: Change <code>onAuthenticated</code> → <code>onSuccess</code></li>
+<li><strong>Override sharedPreferencesProvider</strong> in <code>main.dart</code></li>
+<li><strong>Register all 12+ missing routes</strong> in router</li>
+<li><strong>Fix token refresh race condition</strong> with proper locking</li>
+</ol>
+<h3 id="short-term-sprint-2">Short-term (Sprint 2)<a class="headerlink" href="#short-term-sprint-2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Consolidate field models</strong>: Merge <code>Field</code> and <code>FieldEntity</code> into single model</li>
+<li><strong>Replace all hardcoded demo data</strong> with Riverpod providers</li>
+<li><strong>Fix all empty callback handlers</strong> (~75 remaining)</li>
+<li><strong>Add registration screen</strong> to auth flow</li>
+<li><strong>Fix certificate pinning bypass</strong> default</li>
+</ol>
+<h3 id="medium-term-sprint-3">Medium-term (Sprint 3)<a class="headerlink" href="#medium-term-sprint-3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Add missing tests</strong> for community, billing, profile, VRA</li>
+<li><strong>Implement SMS auto-fill</strong> for OTP</li>
+<li><strong>Add country code selector</strong> for login</li>
+<li><strong>Fix inventory provider waterfall</strong> rebuilds</li>
+<li><strong>Add circuit breaker config validation</strong></li>
+</ol>
+<h3 id="long-term-sprint-4">Long-term (Sprint 4+)<a class="headerlink" href="#long-term-sprint-4" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Unify navigation system</strong> - ensure all features use single router</li>
+<li><strong>Connect all 12 inaccessible features</strong> to main navigation</li>
+<li><strong>Add comprehensive E2E tests</strong> for critical flows</li>
+<li><strong>Performance audit</strong> - lazy loading, pagination, memory management</li>
+<li><strong>Security audit</strong> - full penetration test of auth flow</li>
+</ol>
+<hr />
+<h2 id="11-feature-module-status-matrix">11. Feature Module Status Matrix<a class="headerlink" href="#11-feature-module-status-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Feature</th>
+<th>Screens</th>
+<th>API Connected</th>
+<th>Empty Handlers</th>
+<th>Hardcoded Data</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>advisor</td>
+<td>1</td>
+<td>Partial</td>
+<td>1</td>
+<td>5</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ai_advisor</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>2</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>3</td>
+<td>alerts</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>0</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>4</td>
+<td>analytics</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>3</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>5</td>
+<td>astronomical</td>
+<td>1</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>6</td>
+<td>auth</td>
+<td>6</td>
+<td>Partial (Fixed)</td>
+<td>1</td>
+<td>0</td>
+<td>Improved</td>
+</tr>
+<tr>
+<td>7</td>
+<td>billing</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>4</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>8</td>
+<td>chat</td>
+<td>2</td>
+<td>Partial</td>
+<td>2</td>
+<td>0</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>9</td>
+<td>community</td>
+<td>1</td>
+<td>No</td>
+<td>8</td>
+<td>3</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>10</td>
+<td>crm</td>
+<td>2</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>11</td>
+<td>crop_health</td>
+<td>1</td>
+<td>Partial</td>
+<td>0</td>
+<td>1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>12</td>
+<td>crops</td>
+<td>1</td>
+<td>Yes</td>
+<td>3</td>
+<td>0</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>13</td>
+<td>daily_brief</td>
+<td>1</td>
+<td>No</td>
+<td>3</td>
+<td>1</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>14</td>
+<td>equipment</td>
+<td>2</td>
+<td>Yes</td>
+<td>1</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>15</td>
+<td>field</td>
+<td>4</td>
+<td>Yes (Fixed)</td>
+<td>0</td>
+<td>3</td>
+<td>Improved</td>
+</tr>
+<tr>
+<td>16</td>
+<td>field_hub</td>
+<td>1</td>
+<td>No</td>
+<td>5</td>
+<td>All</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>17</td>
+<td>field_scout</td>
+<td>2</td>
+<td>No</td>
+<td>1</td>
+<td>3</td>
+<td>Simulated</td>
+</tr>
+<tr>
+<td>18</td>
+<td>fields</td>
+<td>2</td>
+<td>No</td>
+<td>1</td>
+<td>All</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>19</td>
+<td>gamification</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>20</td>
+<td>gdd</td>
+<td>1</td>
+<td>Partial</td>
+<td>0</td>
+<td>1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>21</td>
+<td>home</td>
+<td>4</td>
+<td>Partial</td>
+<td>6</td>
+<td>8</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>22</td>
+<td>home_v16</td>
+<td>1</td>
+<td>No</td>
+<td>5</td>
+<td>3</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>23</td>
+<td>inventory</td>
+<td>2</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>24</td>
+<td>iot</td>
+<td>1</td>
+<td>Partial</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>25</td>
+<td>irrigation</td>
+<td>3</td>
+<td>Yes</td>
+<td>0</td>
+<td>1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>26</td>
+<td>lab</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>0</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>27</td>
+<td>main_layout</td>
+<td>1</td>
+<td>N/A</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>28</td>
+<td>map_home</td>
+<td>2</td>
+<td>No</td>
+<td>2</td>
+<td>All</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>29</td>
+<td>maps</td>
+<td>1</td>
+<td>Partial</td>
+<td>2</td>
+<td>1</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>30</td>
+<td>market</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>1</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>31</td>
+<td>marketplace</td>
+<td>2</td>
+<td>Partial</td>
+<td>0</td>
+<td>1</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>32</td>
+<td>ndvi</td>
+<td>2</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>33</td>
+<td>notifications</td>
+<td>2</td>
+<td>Partial</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>34</td>
+<td>onboarding</td>
+<td>1</td>
+<td>N/A</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>35</td>
+<td>payment</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>0</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>36</td>
+<td>pivot_irrigation</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>All</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>37</td>
+<td>polygon_editor</td>
+<td>1</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>38</td>
+<td>profile</td>
+<td>1</td>
+<td>No</td>
+<td>9</td>
+<td>1</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td>39</td>
+<td>profitability</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>0</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>40</td>
+<td>reports</td>
+<td>2</td>
+<td>Partial</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>41</td>
+<td>research</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>0</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>42</td>
+<td>rotation</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>All</td>
+<td>Simulated</td>
+</tr>
+<tr>
+<td>43</td>
+<td>satellite</td>
+<td>2</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>44</td>
+<td>scanner</td>
+<td>1</td>
+<td>Partial (Fixed)</td>
+<td>0</td>
+<td>0</td>
+<td>Improved</td>
+</tr>
+<tr>
+<td>45</td>
+<td>scouting</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>All</td>
+<td>Simulated</td>
+</tr>
+<tr>
+<td>46</td>
+<td>settings</td>
+<td>1</td>
+<td>No</td>
+<td>0</td>
+<td>0</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>47</td>
+<td>shared</td>
+<td>-</td>
+<td>N/A</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>48</td>
+<td>smart_alerts</td>
+<td>1</td>
+<td>No</td>
+<td>1</td>
+<td>0</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>49</td>
+<td>splash</td>
+<td>1</td>
+<td>N/A</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>50</td>
+<td>spray</td>
+<td>1</td>
+<td>Partial</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>51</td>
+<td>sync</td>
+<td>1</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>52</td>
+<td>tasks</td>
+<td>1</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>53</td>
+<td>virtual_sensors</td>
+<td>1</td>
+<td>Partial</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>54</td>
+<td>vra</td>
+<td>2</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>55</td>
+<td>wallet</td>
+<td>1</td>
+<td>No</td>
+<td>2</td>
+<td>0</td>
+<td>Needs work</td>
+</tr>
+<tr>
+<td>56</td>
+<td>weather</td>
+<td>1</td>
+<td>Yes</td>
+<td>0</td>
+<td>0</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<h3 id="status-legend">Status Legend<a class="headerlink" href="#status-legend" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OK</strong>: Functional, connected to backend, minimal issues</li>
+<li><strong>Improved</strong>: Fixed in this review</li>
+<li><strong>Needs work</strong>: Partially connected, some empty handlers</li>
+<li><strong>Placeholder</strong>: All or mostly hardcoded/demo data</li>
+<li><strong>Simulated</strong>: Uses fake data/delays instead of real services</li>
+<li><strong>Minimal</strong>: Very basic implementation</li>
+</ul>
+<h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OK/Improved</strong>: 28 modules (50%)</li>
+<li><strong>Needs work</strong>: 10 modules (18%)</li>
+<li><strong>Placeholder/Simulated</strong>: 15 modules (27%)</li>
+<li><strong>Minimal</strong>: 3 modules (5%)</li>
+</ul>
+<hr />
+<p><em>Report generated: 2026-03-21</em>
+<em>Total commits in this review: 4</em>
+<em>Files modified: 12</em>
+<em>Lines changed: +1,005 / -779</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

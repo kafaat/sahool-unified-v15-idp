@@ -1,0 +1,1462 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Frontend Infrastructure Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#frontend-infrastructure-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Frontend Infrastructure Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="frontend-infrastructure-review-report">Frontend Infrastructure Review Report<a class="headerlink" href="#frontend-infrastructure-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Scope</strong>: apps/web, apps/admin, shared frontend packages
+<strong>Reviewer</strong>: Automated Infrastructure Audit</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>A comprehensive review of the SAHOOL platform frontend infrastructure uncovered <strong>40+ issues</strong> across the web app, admin app, and shared packages. The most critical findings include port mismatches in Docker configuration, dependency conflicts, TypeScript misconfigurations, and build pipeline gaps.</p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Web App</th>
+<th>Admin App</th>
+<th>Packages</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical</td>
+<td>3</td>
+<td>1</td>
+<td>4</td>
+<td><strong>8</strong></td>
+</tr>
+<tr>
+<td>High</td>
+<td>3</td>
+<td>4</td>
+<td>2</td>
+<td><strong>9</strong></td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>5</td>
+<td>5</td>
+<td>2</td>
+<td><strong>12</strong></td>
+</tr>
+<tr>
+<td>Low</td>
+<td>7</td>
+<td>4</td>
+<td>1</td>
+<td><strong>12</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>18</strong></td>
+<td><strong>14</strong></td>
+<td><strong>9</strong></td>
+<td><strong>41</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-web-app-appsweb-issues">1. Web App (apps/web) Issues<a class="headerlink" href="#1-web-app-appsweb-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical">CRITICAL<a class="headerlink" href="#critical" title="Permanent link">&para;</a></h3>
+<h4 id="11-conflicting-react-query-dependencies">1.1 Conflicting React Query Dependencies<a class="headerlink" href="#11-conflicting-react-query-dependencies" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/package.json</code>, lines 35-36</li>
+<li><strong>Issue</strong>: <code>@tanstack/query-core</code> uses caret range (<code>^5.90.20</code>) while <code>@tanstack/react-query</code> is pinned to <code>5.90.21</code>. Can cause version mismatch at install time.</li>
+<li><strong>Fix</strong>: Pin both to <code>5.90.21</code> or use consistent range strategy.</li>
+</ul>
+<h4 id="12-sentry-in-optionaldependencies-but-hard-errors-if-missing">1.2 Sentry in optionalDependencies but Hard-Errors if Missing<a class="headerlink" href="#12-sentry-in-optionaldependencies-but-hard-errors-if-missing" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/package.json</code> (lines 89-92) + <code>apps/web/next.config.js</code> (lines 14-17)</li>
+<li><strong>Issue</strong>: <code>@sentry/nextjs</code> is optional, but <code>next.config.js</code> throws a hard error if <code>NEXT_PUBLIC_SENTRY_DSN</code> is set and the package is missing. Production builds will crash.</li>
+<li><strong>Fix</strong>: Move <code>@sentry/nextjs</code> to <code>dependencies</code> or make the config gracefully degrade.</li>
+</ul>
+<h4 id="13-noimplicitany-disabled-despite-strict-true">1.3 noImplicitAny Disabled Despite strict: true<a class="headerlink" href="#13-noimplicitany-disabled-despite-strict-true" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/tsconfig.json</code>, line 8</li>
+<li><strong>Issue</strong>: <code>"noImplicitAny": false</code> explicitly overrides <code>"strict": true</code>, silently allowing untyped code.</li>
+<li><strong>Fix</strong>: Remove <code>"noImplicitAny": false</code> and let <code>strict</code> handle it.</li>
+</ul>
+<h3 id="high">HIGH<a class="headerlink" href="#high" title="Permanent link">&para;</a></h3>
+<h4 id="14-build-errors-fully-suppressed">1.4 Build Errors Fully Suppressed<a class="headerlink" href="#14-build-errors-fully-suppressed" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/next.config.js</code>, lines 49-57</li>
+<li><strong>Issue</strong>: Both <code>eslint.ignoreDuringBuilds</code> and <code>typescript.ignoreBuildErrors</code> are <code>true</code>. Real errors are masked.</li>
+</ul>
+<h4 id="15-empty-sentry-shim-causes-runtime-crashes">1.5 Empty Sentry Shim Causes Runtime Crashes<a class="headerlink" href="#15-empty-sentry-shim-causes-runtime-crashes" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/lib/sentry-shim.ts</code></li>
+<li><strong>Issue</strong>: Exports only <code>export {}</code>. Any code calling <code>Sentry.captureException()</code> will throw at runtime when Sentry is aliased to this shim.</li>
+<li><strong>Fix</strong>: Export stub functions for all used Sentry APIs.</li>
+</ul>
+<h4 id="16-ioredis-in-client-bundle">1.6 ioredis in Client Bundle<a class="headerlink" href="#16-ioredis-in-client-bundle" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/package.json</code>, line 42</li>
+<li><strong>Issue</strong>: <code>ioredis</code> (Node.js-only) is in <code>dependencies</code>, risking accidental client-side import and webpack warnings.</li>
+</ul>
+<h3 id="medium">MEDIUM<a class="headerlink" href="#medium" title="Permanent link">&para;</a></h3>
+<h4 id="17-no-vitest-coverage-thresholds">1.7 No Vitest Coverage Thresholds<a class="headerlink" href="#17-no-vitest-coverage-thresholds" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/vitest.config.ts</code>, lines 13-16</li>
+<li><strong>Issue</strong>: No <code>thresholds</code> configured. Platform minimum is 5% (per CLAUDE.md) but not enforced.</li>
+</ul>
+<h4 id="18-hardcoded-locale-list-in-middleware">1.8 Hardcoded Locale List in Middleware<a class="headerlink" href="#18-hardcoded-locale-list-in-middleware" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/middleware.ts</code>, line 36</li>
+<li><strong>Issue</strong>: <code>const locales = ["ar", "en"]</code> is duplicated from <code>packages/i18n</code>, with a comment warning they must stay in sync. No import; silent drift risk.</li>
+</ul>
+<h4 id="19-36-hardcoded-protected-routes">1.9 36 Hardcoded Protected Routes<a class="headerlink" href="#19-36-hardcoded-protected-routes" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/middleware.ts</code>, lines 68-103</li>
+<li><strong>Issue</strong>: Manual route list is error-prone and scales poorly. Should use a shared configuration.</li>
+</ul>
+<h4 id="110-csrf-token-regenerated-every-request">1.10 CSRF Token Regenerated Every Request<a class="headerlink" href="#110-csrf-token-regenerated-every-request" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/middleware.ts</code>, lines 279-284</li>
+<li><strong>Issue</strong>: Token is regenerated on every request instead of being cached per session, causing potential mid-session validation failures.</li>
+</ul>
+<h4 id="111-opentelemetry-warning-suppression">1.11 OpenTelemetry Warning Suppression<a class="headerlink" href="#111-opentelemetry-warning-suppression" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/next.config.js</code>, lines 245-255</li>
+<li><strong>Issue</strong>: Critical dependency warnings for <code>@opentelemetry</code> and <code>@sentry</code> are unconditionally suppressed.</li>
+</ul>
+<h3 id="low">LOW<a class="headerlink" href="#low" title="Permanent link">&para;</a></h3>
+<h4 id="112-outdated-axios-1136">1.12 Outdated Axios (1.13.6)<a class="headerlink" href="#112-outdated-axios-1136" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/package.json</code>, line 37</li>
+</ul>
+<h4 id="113-deprecated-playwright-headlessnew-flag">1.13 Deprecated Playwright --headless=new Flag<a class="headerlink" href="#113-deprecated-playwright-headlessnew-flag" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/playwright.config.ts</code>, line 76</li>
+</ul>
+<h4 id="114-all-console-errors-silenced-in-tests">1.14 All Console Errors Silenced in Tests<a class="headerlink" href="#114-all-console-errors-silenced-in-tests" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/__tests__/setup.ts</code>, lines 97-98</li>
+</ul>
+<h4 id="115-unnecessary-react-global-in-eslint">1.15 Unnecessary React Global in ESLint<a class="headerlink" href="#115-unnecessary-react-global-in-eslint" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/eslint.config.mjs</code>, line 44</li>
+<li><strong>Issue</strong>: <code>React: "readonly"</code> is unnecessary with React 19 automatic JSX transform.</li>
+</ul>
+<h4 id="116-tailwind-content-pattern-uses-negation-extglob">1.16 Tailwind Content Pattern Uses Negation Extglob<a class="headerlink" href="#116-tailwind-content-pattern-uses-negation-extglob" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/tailwind.config.ts</code>, lines 13-14</li>
+</ul>
+<h4 id="117-missing-image-optimization-constraints">1.17 Missing Image Optimization Constraints<a class="headerlink" href="#117-missing-image-optimization-constraints" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/next.config.js</code>, lines 63-85</li>
+</ul>
+<h4 id="118-missing-csp-report-endpoint">1.18 Missing CSP Report Endpoint<a class="headerlink" href="#118-missing-csp-report-endpoint" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/web/src/middleware.ts</code>, line 324 references <code>/monitoring</code> tunnel route with no handler.</li>
+</ul>
+<hr />
+<h2 id="2-admin-app-appsadmin-issues">2. Admin App (apps/admin) Issues<a class="headerlink" href="#2-admin-app-appsadmin-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical_1">CRITICAL<a class="headerlink" href="#critical_1" title="Permanent link">&para;</a></h3>
+<h4 id="21-docker-port-mismatch">2.1 Docker Port Mismatch<a class="headerlink" href="#21-docker-port-mismatch" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/Dockerfile</code>, line 116</li>
+<li><strong>Issue</strong>: <code>EXPOSE 3001</code> but package.json scripts use port <code>3002</code> (<code>next dev -p 3002</code>, <code>next start -p 3002</code>). Container health checks and networking will fail.</li>
+<li><strong>Fix</strong>: Change Dockerfile to <code>EXPOSE 3002</code>.</li>
+</ul>
+<h3 id="high_1">HIGH<a class="headerlink" href="#high_1" title="Permanent link">&para;</a></h3>
+<h4 id="22-outdated-axios-1136">2.2 Outdated Axios (1.13.6)<a class="headerlink" href="#22-outdated-axios-1136" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/package.json</code>, line 24</li>
+</ul>
+<h4 id="23-sentry-release-fallback-version-mismatch">2.3 Sentry Release Fallback Version Mismatch<a class="headerlink" href="#23-sentry-release-fallback-version-mismatch" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/sentry.client.config.ts</code>, line 31</li>
+<li><strong>Issue</strong>: Fallback is <code>"1.0.0"</code> but package version is <code>16.0.0</code>.</li>
+</ul>
+<h4 id="24-typescript-build-errors-ignored">2.4 TypeScript Build Errors Ignored<a class="headerlink" href="#24-typescript-build-errors-ignored" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/next.config.js</code>, line 160</li>
+<li><strong>Issue</strong>: <code>ignoreBuildErrors: true</code> masks TypeScript errors during build.</li>
+</ul>
+<h4 id="25-test-setup-top-level-await">2.5 Test Setup Top-Level Await<a class="headerlink" href="#25-test-setup-top-level-await" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/src/__tests__/setup.ts</code>, lines 12-14</li>
+<li><strong>Issue</strong>: Uses top-level <code>await</code> for dynamic imports which may cause issues with older Node.js/Vitest configs.</li>
+</ul>
+<h3 id="medium_1">MEDIUM<a class="headerlink" href="#medium_1" title="Permanent link">&para;</a></h3>
+<h4 id="26-tsconfig-path-duplication">2.6 tsconfig Path Duplication<a class="headerlink" href="#26-tsconfig-path-duplication" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/tsconfig.json</code>, lines 62-67</li>
+<li><strong>Issue</strong>: Both <code>@sahool/shared-types</code> and <code>@sahool/shared-types/*</code> are mapped; the wildcard variant is redundant.</li>
+</ul>
+<h4 id="27-bundle-analyzer-version-mismatch">2.7 Bundle Analyzer Version Mismatch<a class="headerlink" href="#27-bundle-analyzer-version-mismatch" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/package.json</code>, line 42</li>
+<li><strong>Issue</strong>: <code>@next/bundle-analyzer: "^15.0.0"</code> should match Next.js <code>^15.5.12</code>.</li>
+</ul>
+<h4 id="28-eslint-ignores-missing-configts">2.8 ESLint Ignores Missing *.config.ts<a class="headerlink" href="#28-eslint-ignores-missing-configts" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/eslint.config.mjs</code></li>
+<li><strong>Issue</strong>: Ignores <code>*.config.js</code> and <code>*.config.mjs</code> but not <code>*.config.ts</code>.</li>
+</ul>
+<h4 id="29-missing-environment-variables-in-envexample">2.9 Missing Environment Variables in .env.example<a class="headerlink" href="#29-missing-environment-variables-in-envexample" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Variables used in code but not documented: <code>NEXT_PUBLIC_COPILOT_API_URL</code>, <code>NEXT_PUBLIC_WS_URL</code>, <code>ANALYZE</code>, <code>SENTRY_AUTH_TOKEN</code>.</li>
+</ul>
+<h4 id="210-deprecated-api-constant-without-removal-version">2.10 Deprecated API Constant Without Removal Version<a class="headerlink" href="#210-deprecated-api-constant-without-removal-version" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/src/config/api.ts</code>, lines 45-47</li>
+<li><strong>Issue</strong>: <code>API_URL</code> alias is marked deprecated but no sunset version specified.</li>
+</ul>
+<h3 id="low_1">LOW<a class="headerlink" href="#low_1" title="Permanent link">&para;</a></h3>
+<h4 id="211-empty-turbopack-config">2.11 Empty Turbopack Config<a class="headerlink" href="#211-empty-turbopack-config" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/next.config.js</code>, lines 187-190</li>
+</ul>
+<h4 id="212-dockerfile-comment-inconsistency">2.12 Dockerfile Comment Inconsistency<a class="headerlink" href="#212-dockerfile-comment-inconsistency" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/Dockerfile</code>, line 142</li>
+</ul>
+<h4 id="213-commonjs-require-in-esm-test-file">2.13 CommonJS require() in ESM Test File<a class="headerlink" href="#213-commonjs-require-in-esm-test-file" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/src/components/ui/__tests__/ui-components.test.tsx</code>, line 35</li>
+</ul>
+<h4 id="214-postcss-config-lacks-error-handling">2.14 PostCSS Config Lacks Error Handling<a class="headerlink" href="#214-postcss-config-lacks-error-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/admin/postcss.config.js</code></li>
+</ul>
+<hr />
+<h2 id="3-shared-frontend-packages-issues">3. Shared Frontend Packages Issues<a class="headerlink" href="#3-shared-frontend-packages-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical_2">CRITICAL<a class="headerlink" href="#critical_2" title="Permanent link">&para;</a></h3>
+<h4 id="31-design-system-noemit-conflicts-with-build-output">3.1 design-system: noEmit Conflicts with Build Output<a class="headerlink" href="#31-design-system-noemit-conflicts-with-build-output" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>packages/design-system/tsconfig.json</code>, line 16</li>
+<li><strong>Issue</strong>: <code>"noEmit": true</code> prevents TypeScript from emitting files, but package.json references <code>dist/index.js</code>, <code>dist/index.mjs</code>, <code>dist/index.d.ts</code>.</li>
+<li><strong>Note</strong>: Build uses <code>tsup</code> (not <code>tsc</code>) so actual builds work, but <code>tsc</code> invocations will produce nothing.</li>
+</ul>
+<h4 id="32-design-system-source-paths-in-package-exports">3.2 design-system: Source Paths in Package Exports<a class="headerlink" href="#32-design-system-source-paths-in-package-exports" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>packages/design-system/package.json</code>, lines 18, 24, 30, 36</li>
+<li><strong>Issue</strong>: Four export entries use <code>"default": "./src/themes/..."</code> pointing to raw TypeScript instead of compiled output. Breaks in non-TypeScript consumers.</li>
+<li><strong>Affected</strong>: <code>./themes</code>, <code>./themes/dark</code>, <code>./themes/light</code>, <code>./tokens</code></li>
+</ul>
+<h4 id="33-api-client-path-alias-points-to-dist-instead-of-src">3.3 api-client: Path Alias Points to dist/ Instead of src/<a class="headerlink" href="#33-api-client-path-alias-points-to-dist-instead-of-src" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>packages/api-client/tsconfig.json</code>, lines 7-9</li>
+<li><strong>Issue</strong>: <code>"@sahool/shared-types": ["../shared-types/dist"]</code> requires pre-built dependency. Breaks on fresh monorepo setup.</li>
+</ul>
+<h4 id="34-inconsistent-path-alias-strategy-across-packages">3.4 Inconsistent Path Alias Strategy Across Packages<a class="headerlink" href="#34-inconsistent-path-alias-strategy-across-packages" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Issue</strong>: <code>api-client</code> maps to <code>dist/</code>, <code>shared-ui</code> maps to <code>src/</code>. No consistent convention.</li>
+<li><strong>Impact</strong>: Developer confusion and potential build order issues.</li>
+</ul>
+<h3 id="high_2">HIGH<a class="headerlink" href="#high_2" title="Permanent link">&para;</a></h3>
+<h4 id="35-i18n-missing-module-field">3.5 i18n: Missing module Field<a class="headerlink" href="#35-i18n-missing-module-field" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>packages/i18n/package.json</code></li>
+<li><strong>Issue</strong>: No <code>"module"</code> field defined. All other packages have it. Tree-shaking won't work optimally.</li>
+</ul>
+<h4 id="36-shared-types-inconsistent-main-path-format">3.6 shared-types: Inconsistent Main Path Format<a class="headerlink" href="#36-shared-types-inconsistent-main-path-format" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>packages/shared-types/package.json</code>, lines 5-6</li>
+<li><strong>Issue</strong>: Uses <code>"main": "./dist/index.js"</code> (with <code>./</code>) while all other packages use <code>"main": "dist/index.js"</code>.</li>
+</ul>
+<h3 id="medium_2">MEDIUM<a class="headerlink" href="#medium_2" title="Permanent link">&para;</a></h3>
+<h4 id="37-inconsistent-vitestglobals-type-inclusion">3.7 Inconsistent vitest/globals Type Inclusion<a class="headerlink" href="#37-inconsistent-vitestglobals-type-inclusion" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: Only <code>shared-hooks</code> and <code>shared-utils</code> include <code>"types": ["vitest/globals"]</code> in tsconfig; other packages with tests don't.</li>
+</ul>
+<hr />
+<h2 id="recommended-priority-actions">Recommended Priority Actions<a class="headerlink" href="#recommended-priority-actions" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-blocks-production-or-causes-runtime-errors">Immediate (blocks production or causes runtime errors)<a class="headerlink" href="#immediate-blocks-production-or-causes-runtime-errors" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Fix admin Dockerfile port: <code>EXPOSE 3001</code> → <code>EXPOSE 3002</code></li>
+<li>Fix Sentry optional dependency hard-error in web app</li>
+<li>Fix design-system package exports pointing to source files</li>
+<li>Fix empty Sentry shim to export stub functions</li>
+</ol>
+<h3 id="short-term-consistency-and-correctness">Short-Term (consistency and correctness)<a class="headerlink" href="#short-term-consistency-and-correctness" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Pin React Query versions consistently</li>
+<li>Enable <code>noImplicitAny</code> (remove the override)</li>
+<li>Standardize path alias strategy across packages (all <code>src/</code> or all <code>dist/</code>)</li>
+<li>Add <code>module</code> field to i18n package.json</li>
+<li>Fix Sentry release version fallback in admin app</li>
+<li>Update Axios across both apps</li>
+</ol>
+<h3 id="medium-term-quality-and-maintainability">Medium-Term (quality and maintainability)<a class="headerlink" href="#medium-term-quality-and-maintainability" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Re-enable TypeScript/ESLint build checks (or document CI enforcement)</li>
+<li>Add Vitest coverage thresholds</li>
+<li>Import locale list from shared i18n package</li>
+<li>Refactor protected routes to configuration-driven approach</li>
+<li>Standardize ESLint ignore patterns across apps</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1712 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Backend Infrastructure Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#backend-infrastructure-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Backend Infrastructure Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="backend-infrastructure-review-report">Backend Infrastructure Review Report<a class="headerlink" href="#backend-infrastructure-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Scope</strong>: Python FastAPI services, NestJS services, shared modules, database, Docker/deployment, NATS messaging
+<strong>Reviewer</strong>: Automated Infrastructure Audit (6 parallel agents)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>A comprehensive audit of the SAHOOL platform backend infrastructure uncovered <strong>100+ issues</strong> across 6 layers. The most critical findings include <strong>missing JWT authentication in 4 NestJS services</strong>, <strong>30-40% estimated event loss during network glitches</strong>, <strong>tenant isolation bypass</strong>, <strong>token revocation fail-open default</strong>, and <strong>PgBouncer pool exhaustion risk</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>FastAPI</th>
+<th>NestJS</th>
+<th>Shared Modules</th>
+<th>Database</th>
+<th>Docker</th>
+<th>NATS</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical</td>
+<td>1</td>
+<td>4</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>6</td>
+<td><strong>17</strong></td>
+</tr>
+<tr>
+<td>High</td>
+<td>5</td>
+<td>7</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td><strong>20</strong></td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>4</td>
+<td>4</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td><strong>32</strong></td>
+</tr>
+<tr>
+<td>Low</td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td><strong>8</strong></td>
+</tr>
+<tr>
+<td>Architectural</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>12</strong></td>
+<td><strong>15</strong></td>
+<td><strong>16</strong></td>
+<td><strong>14</strong></td>
+<td><strong>8</strong></td>
+<td><strong>16</strong></td>
+<td><strong>81</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-python-fastapi-services">1. Python FastAPI Services<a class="headerlink" href="#1-python-fastapi-services" title="Permanent link">&para;</a></h2>
+<h3 id="critical">CRITICAL<a class="headerlink" href="#critical" title="Permanent link">&para;</a></h3>
+<h4 id="11-unhandled-connection-pool-closure-in-notification-service">1.1 Unhandled Connection Pool Closure in Notification Service<a class="headerlink" href="#11-unhandled-connection-pool-closure-in-notification-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/notification-service/src/main.py</code>, lines 934-1070</li>
+<li><strong>Issue</strong>: <code>delivery_tracker</code> and <code>queue_processor</code> initialized as local variables, not stored in <code>app.state</code>. Shutdown calls <code>get_delivery_tracker()</code> again which may return a different instance.</li>
+<li><strong>Fix</strong>: Store all initialized components in <code>app.state</code>.</li>
+</ul>
+<h3 id="high">HIGH<a class="headerlink" href="#high" title="Permanent link">&para;</a></h3>
+<h4 id="12-incorrect-pgbouncer-ssl-mode-multiple-services">1.2 Incorrect PgBouncer SSL Mode (Multiple Services)<a class="headerlink" href="#12-incorrect-pgbouncer-ssl-mode-multiple-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: <code>crop-intelligence-service</code>, <code>crm-service</code>, <code>cooperative-service</code>, <code>community-service</code></li>
+<li><strong>Issue</strong>: <code>ssl_mode = "disable" if ":6432" in db_url else "require"</code> — PgBouncer (port 6432) connections set to <code>sslmode=disable</code>, violating TLS requirement.</li>
+<li><strong>Impact</strong>: Unencrypted database connections in production.</li>
+<li><strong>Fix</strong>: Always use <code>sslmode=require</code> regardless of port.</li>
+</ul>
+<h4 id="13-missing-tenant-enforcement-in-weather-service">1.3 Missing Tenant Enforcement in Weather Service<a class="headerlink" href="#13-missing-tenant-enforcement-in-weather-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/weather-service/src/main.py</code>, lines 150-160</li>
+<li><strong>Issue</strong>: <code>_enforce_tenant()</code> function defined but not consistently called on all endpoints.</li>
+</ul>
+<h4 id="14-hardcoded-database-defaults-in-billing-service">1.4 Hardcoded Database Defaults in Billing Service<a class="headerlink" href="#14-hardcoded-database-defaults-in-billing-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/billing-core/src/database.py</code>, lines 36-44</li>
+<li><strong>Issue</strong>: Fallback to <code>localhost:5432</code> with password <code>postgres</code> if <code>DATABASE_URL</code> not set. Should error in production.</li>
+</ul>
+<h4 id="15-unprotected-close-calls-in-advisory-service">1.5 Unprotected close() Calls in Advisory Service<a class="headerlink" href="#15-unprotected-close-calls-in-advisory-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/advisory-service/src/main.py</code>, lines 119-122</li>
+<li><strong>Issue</strong>: Sequential close() without try-except. If first close fails, second resource leaks.</li>
+</ul>
+<h4 id="16-bare-exception-handling-masks-errors-crop-intelligence">1.6 Bare Exception Handling Masks Errors (Crop Intelligence)<a class="headerlink" href="#16-bare-exception-handling-masks-errors-crop-intelligence" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/crop-intelligence-service/src/main.py</code>, multiple locations</li>
+<li><strong>Issue</strong>: Failed imports silently set modules to <code>None</code>, causing runtime crashes later.</li>
+</ul>
+<h3 id="medium">MEDIUM<a class="headerlink" href="#medium" title="Permanent link">&para;</a></h3>
+<h4 id="17-unguarded-appstate-access-in-alert-service-shutdown">1.7 Unguarded app.state Access in Alert Service Shutdown<a class="headerlink" href="#17-unguarded-appstate-access-in-alert-service-shutdown" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/alert-service/src/main.py</code>, lines 183-186</li>
+<li>Use <code>getattr(app.state, "publisher", None)</code> instead of direct access.</li>
+</ul>
+<h4 id="18-database-pool-creation-error-handling">1.8 Database Pool Creation Error Handling<a class="headerlink" href="#18-database-pool-creation-error-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/crop-intelligence-service/src/main.py</code>, lines 585-590</li>
+<li>Failed <code>create_pool()</code> leaves <code>app.state.db_pool</code> undefined, causing AttributeError in shutdown.</li>
+</ul>
+<h4 id="19-late-logging-configuration-override">1.9 Late Logging Configuration Override<a class="headerlink" href="#19-late-logging-configuration-override" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/billing-core/src/main.py</code>, lines 72-78</li>
+<li><code>logging.basicConfig(force=True)</code> runs after shared modules configure structlog.</li>
+</ul>
+<h4 id="110-missing-ssl-enforcement-in-crop-intelligence">1.10 Missing SSL Enforcement in Crop Intelligence<a class="headerlink" href="#110-missing-ssl-enforcement-in-crop-intelligence" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/crop-intelligence-service/src/main.py</code>, lines 578-586</li>
+<li>PgBouncer port detection logic disables SSL incorrectly.</li>
+</ul>
+<hr />
+<h2 id="2-nestjs-services">2. NestJS Services<a class="headerlink" href="#2-nestjs-services" title="Permanent link">&para;</a></h2>
+<h3 id="critical_1">CRITICAL<a class="headerlink" href="#critical_1" title="Permanent link">&para;</a></h3>
+<h4 id="21-missing-jwt-authentication-in-chat-service">2.1 Missing JWT Authentication in Chat Service<a class="headerlink" href="#21-missing-jwt-authentication-in-chat-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/chat-service/src/app.module.ts</code>, lines 42-57</li>
+<li><strong>Issue</strong>: No <code>JwtAuthGuard</code> registered. Only <code>ThrottlerGuard</code> and <code>TenantGuard</code> exist. REST API endpoints have NO authentication.</li>
+<li><strong>Impact</strong>: Any attacker can read/write messages with arbitrary <code>X-Tenant-ID</code>.</li>
+</ul>
+<h4 id="22-missing-jwt-authentication-in-marketplace-service">2.2 Missing JWT Authentication in Marketplace Service<a class="headerlink" href="#22-missing-jwt-authentication-in-marketplace-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/marketplace-service/src/app.module.ts</code>, lines 67-78</li>
+<li><strong>Issue</strong>: <code>JwtAuthGuard</code> provided but NOT registered as <code>APP_GUARD</code>. All endpoints without explicit <code>@UseGuards</code> are public.</li>
+<li><strong>Impact</strong>: Financial endpoints (wallet, loans, credit reports, transactions) accessible without auth.</li>
+</ul>
+<h4 id="23-missing-jwt-authentication-in-iot-service">2.3 Missing JWT Authentication in IoT Service<a class="headerlink" href="#23-missing-jwt-authentication-in-iot-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/iot-service/src/app.module.ts</code>, lines 13-50</li>
+<li><strong>Issue</strong>: No JWT guard registered. IoT device endpoints unprotected.</li>
+</ul>
+<h4 id="24-missing-jwt-authentication-in-disaster-assessment">2.4 Missing JWT Authentication in Disaster Assessment<a class="headerlink" href="#24-missing-jwt-authentication-in-disaster-assessment" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/disaster-assessment/src/app.module.ts</code>, lines 40-54</li>
+<li><strong>Issue</strong>: No JWT guard. Emergency response endpoints accessible without auth.</li>
+</ul>
+<h3 id="high_1">HIGH<a class="headerlink" href="#high_1" title="Permanent link">&para;</a></h3>
+<h4 id="25-tenant-id-spoofing-in-marketplace">2.5 Tenant ID Spoofing in Marketplace<a class="headerlink" href="#25-tenant-id-spoofing-in-marketplace" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/marketplace-service/src/app.controller.ts</code>, lines 93-94</li>
+<li><strong>Issue</strong>: <code>const tenantId = req.user?.tenantId || req.headers['x-tenant-id']</code> — without JWT guard, <code>req.user</code> is always undefined, so <code>X-Tenant-ID</code> header is trusted completely.</li>
+<li><strong>Impact</strong>: Cross-tenant financial data access.</li>
+</ul>
+<h4 id="26-websocket-tenant-validation-gap-in-chat">2.6 WebSocket Tenant Validation Gap in Chat<a class="headerlink" href="#26-websocket-tenant-validation-gap-in-chat" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/chat-service/src/chat/chat.gateway.ts</code>, lines 168-173</li>
+<li><strong>Issue</strong>: Empty string accepted for <code>tenantId</code> from token. Cross-tenant messages possible.</li>
+</ul>
+<h4 id="27-no-request-body-size-limits-all-nestjs-services">2.7 No Request Body Size Limits (All NestJS Services)<a class="headerlink" href="#27-no-request-body-size-limits-all-nestjs-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Issue</strong>: No <code>bodyParser</code> limits configured. Default 100KB insufficient for some operations, and no protection against large payload DoS.</li>
+</ul>
+<h4 id="28-helmet-default-configuration-all-services">2.8 Helmet Default Configuration (All Services)<a class="headerlink" href="#28-helmet-default-configuration-all-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Issue</strong>: <code>app.use(helmet())</code> without HSTS, custom CSP, or security header tuning.</li>
+</ul>
+<h4 id="29-guard-execution-order-not-guaranteed">2.9 Guard Execution Order Not Guaranteed<a class="headerlink" href="#29-guard-execution-order-not-guaranteed" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/marketplace-service/src/app.module.ts</code></li>
+<li>TenantGuard may execute before JwtAuthGuard.</li>
+</ul>
+<h4 id="210-tenant-guard-decorator-import-issues">2.10 Tenant Guard Decorator Import Issues<a class="headerlink" href="#210-tenant-guard-decorator-import-issues" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: <code>iot-service</code>, <code>disaster-assessment</code> tenant guards</li>
+<li><code>IS_PUBLIC_KEY</code> import may reference non-existent file.</li>
+</ul>
+<h4 id="211-unauthenticated-marketplace-financial-endpoints">2.11 Unauthenticated Marketplace Financial Endpoints<a class="headerlink" href="#211-unauthenticated-marketplace-financial-endpoints" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/marketplace-service/src/app.controller.ts</code></li>
+<li>10+ GET endpoints exposing wallet balances, credit reports, loan details, transaction history without auth.</li>
+</ul>
+<h3 id="medium_1">MEDIUM<a class="headerlink" href="#medium_1" title="Permanent link">&para;</a></h3>
+<h4 id="212-jwt-algorithm-inconsistency-across-services">2.12 JWT Algorithm Inconsistency Across Services<a class="headerlink" href="#212-jwt-algorithm-inconsistency-across-services" title="Permanent link">&para;</a></h4>
+<ul>
+<li>field-management allows HS256 only; marketplace/chat allow HS256-RS512.</li>
+</ul>
+<h4 id="213-missing-correlation-ids-in-security-logs">2.13 Missing Correlation IDs in Security Logs<a class="headerlink" href="#213-missing-correlation-ids-in-security-logs" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Tenant guard warnings don't include request IDs for audit trail.</li>
+</ul>
+<h4 id="214-postgis-unsupported-type-in-prisma">2.14 PostGIS Unsupported Type in Prisma<a class="headerlink" href="#214-postgis-unsupported-type-in-prisma" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/field-management-service/prisma/schema.prisma</code></li>
+<li><code>Unsupported("geometry")</code> disables Prisma type safety for spatial queries.</li>
+</ul>
+<h4 id="215-missing-helmet-csp-enforcement">2.15 Missing Helmet CSP Enforcement<a class="headerlink" href="#215-missing-helmet-csp-enforcement" title="Permanent link">&para;</a></h4>
+<ul>
+<li>CSP not enabled in default helmet configuration.</li>
+</ul>
+<hr />
+<h2 id="3-shared-python-modules">3. Shared Python Modules<a class="headerlink" href="#3-shared-python-modules" title="Permanent link">&para;</a></h2>
+<h3 id="critical_2">CRITICAL<a class="headerlink" href="#critical_2" title="Permanent link">&para;</a></h3>
+<h4 id="31-token-revocation-fail-open-by-default">3.1 Token Revocation Fail-Open by Default<a class="headerlink" href="#31-token-revocation-fail-open-by-default" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/revocation_middleware.py</code>, line 54</li>
+<li><strong>Issue</strong>: <code>fail_open: bool = True</code> — when Redis unavailable, revoked tokens are accepted.</li>
+<li><strong>Impact</strong>: Compromised tokens usable during Redis downtime.</li>
+<li><strong>Fix</strong>: Change default to <code>fail_open: False</code>.</li>
+</ul>
+<h4 id="32-token-revocation-redis-initialization-race-condition">3.2 Token Revocation Redis Initialization Race Condition<a class="headerlink" href="#32-token-revocation-redis-initialization-race-condition" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/token_revocation.py</code>, lines 92-113</li>
+<li><strong>Issue</strong>: If Redis fails during init, <code>_initialized=False</code> but later calls attempt auto-init. Race condition between init and usage.</li>
+</ul>
+<h3 id="high_2">HIGH<a class="headerlink" href="#high_2" title="Permanent link">&para;</a></h3>
+<h4 id="33-dual-jwt-implementations">3.3 Dual JWT Implementations<a class="headerlink" href="#33-dual-jwt-implementations" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Files</strong>: <code>shared/auth/jwt_handler.py</code> vs <code>shared/security/jwt.py</code></li>
+<li>Different algorithm whitelists and validation logic. Fragmented security.</li>
+</ul>
+<h4 id="34-synchronous-token-verification-in-async-context">3.4 Synchronous Token Verification in Async Context<a class="headerlink" href="#34-synchronous-token-verification-in-async-context" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/security/jwt.py</code>, lines 164-204</li>
+<li><code>verify_token()</code> is synchronous but calls blocking Redis I/O for revocation check. Blocks event loop.</li>
+</ul>
+<h4 id="35-in-memory-rate-limiting-not-distributed">3.5 In-Memory Rate Limiting (Not Distributed)<a class="headerlink" href="#35-in-memory-rate-limiting-not-distributed" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/dependencies.py</code>, lines 431-494</li>
+<li>Per-instance counters. Bypassed by distributing requests across instances.</li>
+</ul>
+<h4 id="36-redis-sentinel-connection-cleanup-missing">3.6 Redis Sentinel Connection Cleanup Missing<a class="headerlink" href="#36-redis-sentinel-connection-cleanup-missing" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/cache/redis_sentinel.py</code>, lines 283-286</li>
+<li>Context manager <code>finally: pass</code> — no connection health check.</li>
+</ul>
+<h3 id="medium_2">MEDIUM<a class="headerlink" href="#medium_2" title="Permanent link">&para;</a></h3>
+<h4 id="37-mcp-command-path-traversal-incomplete">3.7 MCP Command Path Traversal Incomplete<a class="headerlink" href="#37-mcp-command-path-traversal-incomplete" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/mcp/client.py</code>, lines 68-81</li>
+<li>Only checks <code>..</code> and <code>/</code> prefix. <code>./../../bin/bash</code> not blocked. Shell metacharacters not filtered.</li>
+</ul>
+<h4 id="38-rbac-missing-permission-inheritance-validation">3.8 RBAC Missing Permission Inheritance Validation<a class="headerlink" href="#38-rbac-missing-permission-inheritance-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/security/rbac.py</code>, lines 87-244</li>
+<li>Role permissions manually copied, no programmatic hierarchy enforcement.</li>
+</ul>
+<h4 id="39-admin-bypass-without-audit-logging">3.9 Admin Bypass Without Audit Logging<a class="headerlink" href="#39-admin-bypass-without-audit-logging" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/security/rbac.py</code>, lines 288-293</li>
+<li>Admin permission bypass has no audit trail.</li>
+</ul>
+<h4 id="310-database-ssl-configuration-not-enforced">3.10 Database SSL Configuration Not Enforced<a class="headerlink" href="#310-database-ssl-configuration-not-enforced" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/libs/database.py</code>, lines 106-121</li>
+<li>SSL config commented out. No validation that production URLs include <code>sslmode=require</code>.</li>
+</ul>
+<h4 id="311-cache-json-deserialization-without-schema-validation">3.11 Cache JSON Deserialization Without Schema Validation<a class="headerlink" href="#311-cache-json-deserialization-without-schema-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/user_cache.py</code>, lines 69-80</li>
+<li><code>json.loads()</code> on Redis data without Pydantic validation.</li>
+</ul>
+<h4 id="312-jwt-dual-config-keys-deprecated-current">3.12 JWT Dual Config Keys (Deprecated + Current)<a class="headerlink" href="#312-jwt-dual-config-keys-deprecated-current" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/config.py</code>, lines 46, 101-103</li>
+<li>Both <code>JWT_SECRET_KEY</code> and <code>JWT_SECRET</code> accepted. Deprecated key not enforced.</li>
+</ul>
+<h3 id="low">LOW<a class="headerlink" href="#low" title="Permanent link">&para;</a></h3>
+<h4 id="313-rate-limiter-memory-leak-violation_count">3.13 Rate Limiter Memory Leak (violation_count)<a class="headerlink" href="#313-rate-limiter-memory-leak-violation_count" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/dependencies.py</code>, lines 437-487</li>
+<li><code>violation_count</code> dict grows unbounded.</li>
+</ul>
+<h4 id="314-2fa-backup-code-confusing-characters">3.14 2FA Backup Code Confusing Characters<a class="headerlink" href="#314-2fa-backup-code-confusing-characters" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/twofa_service.py</code>, lines 177-184</li>
+<li>Removes O/0 but not I/l/1.</li>
+</ul>
+<h4 id="315-csp-form-action-too-permissive">3.15 CSP Form-Action Too Permissive<a class="headerlink" href="#315-csp-form-action-too-permissive" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/middleware/security_headers.py</code></li>
+<li><code>form-action 'self'</code> allows forms to any same-origin endpoint.</li>
+</ul>
+<h4 id="316-token-revocation-ttl-fixed-at-24h">3.16 Token Revocation TTL Fixed at 24h<a class="headerlink" href="#316-token-revocation-ttl-fixed-at-24h" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/auth/token_revocation.py</code>, lines 163-164</li>
+<li>Should match token's actual expiration.</li>
+</ul>
+<hr />
+<h2 id="4-database-infrastructure">4. Database Infrastructure<a class="headerlink" href="#4-database-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="critical_3">CRITICAL<a class="headerlink" href="#critical_3" title="Permanent link">&para;</a></h3>
+<h4 id="41-missing-foreign-key-constraints-research-tables">4.1 Missing Foreign Key Constraints (Research Tables)<a class="headerlink" href="#41-missing-foreign-key-constraints-research-tables" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/postgres/init/01-research-expansion.sql</code></li>
+<li>FK constraints to <code>users(id)</code> removed with comment "added post-startup" but no migration exists.</li>
+</ul>
+<h4 id="42-pgbouncer-pool-exhaustion-risk">4.2 PgBouncer Pool Exhaustion Risk<a class="headerlink" href="#42-pgbouncer-pool-exhaustion-risk" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>docker-compose.yml</code>, lines 92-96</li>
+<li><code>MAX_DB_CONNECTIONS=250</code> with <code>DEFAULT_POOL_SIZE=30</code>. 39 services × 30 = 1,170 &gt;&gt; 250.</li>
+<li><strong>Fix</strong>: Reduce <code>DEFAULT_POOL_SIZE</code> to 8.</li>
+</ul>
+<h3 id="high_3">HIGH<a class="headerlink" href="#high_3" title="Permanent link">&para;</a></h3>
+<h4 id="43-unsafe-cascade-delete-on-financial-data">4.3 Unsafe Cascade Delete on Financial Data<a class="headerlink" href="#43-unsafe-cascade-delete-on-financial-data" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/marketplace-service/prisma/schema.prisma</code>, lines 159-160</li>
+<li>OrderItems cascade-delete on Order deletion. Destroys financial audit trail.</li>
+</ul>
+<h4 id="44-development-password-in-envexample">4.4 Development Password in .env.example<a class="headerlink" href="#44-development-password-in-envexample" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.env.example</code>, line 51</li>
+<li><code>POSTGRES_PASSWORD=change_this_postgres_dev_password</code> — weak placeholder.</li>
+</ul>
+<h4 id="45-ssltls-disabled-by-default">4.5 SSL/TLS Disabled by Default<a class="headerlink" href="#45-ssltls-disabled-by-default" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>.env.example</code>, line 55</li>
+<li><code>POSTGRES_SSL_MODE=disable</code> with no production guidance.</li>
+</ul>
+<h4 id="46-pgbouncer-transaction-mode-constraints">4.6 PgBouncer Transaction Mode Constraints<a class="headerlink" href="#46-pgbouncer-transaction-mode-constraints" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/pgbouncer/pgbouncer.ini</code>, lines 71-77</li>
+<li>Prepared statements and temp tables won't work. <code>statement_timeout</code> ignored globally.</li>
+</ul>
+<h3 id="medium_3">MEDIUM<a class="headerlink" href="#medium_3" title="Permanent link">&para;</a></h3>
+<h4 id="47-missing-index-on-chat-message-senderid">4.7 Missing Index on Chat Message senderId<a class="headerlink" href="#47-missing-index-on-chat-message-senderid" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/chat-service/prisma/schema.prisma</code></li>
+</ul>
+<h4 id="48-n1-query-risk-in-marketplace-orderitems">4.8 N+1 Query Risk in Marketplace OrderItems<a class="headerlink" href="#48-n1-query-risk-in-marketplace-orderitems" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Missing composite index <code>@@index([orderId, productId])</code>.</li>
+</ul>
+<h4 id="49-demo-data-loaded-in-all-environments">4.9 Demo Data Loaded in All Environments<a class="headerlink" href="#49-demo-data-loaded-in-all-environments" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/postgres/init/03-demo-data.sql</code></li>
+<li>No environment check. Demo tenant appears in production.</li>
+</ul>
+<h4 id="410-tenant-isolation-not-enforced-at-db-level">4.10 Tenant Isolation Not Enforced at DB Level<a class="headerlink" href="#410-tenant-isolation-not-enforced-at-db-level" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/postgres/migrations/V20260303__schema_isolation_phase1.sql</code></li>
+<li>RLS policies defined but not enforced by default.</li>
+</ul>
+<h4 id="411-pgbouncer-plaintext-credentials">4.11 PgBouncer Plaintext Credentials<a class="headerlink" href="#411-pgbouncer-plaintext-credentials" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/pgbouncer/pgbouncer.ini</code></li>
+<li>Auth file with plaintext passwords on tmpfs.</li>
+</ul>
+<h4 id="412-redis-aof-persistence-disabled">4.12 Redis AOF Persistence Disabled<a class="headerlink" href="#412-redis-aof-persistence-disabled" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Only RDB snapshots. Up to 15 minutes of data loss possible.</li>
+</ul>
+<h3 id="low_1">LOW<a class="headerlink" href="#low_1" title="Permanent link">&para;</a></h3>
+<h4 id="413-unused-pgbouncer-user-created">4.13 Unused pgbouncer User Created<a class="headerlink" href="#413-unused-pgbouncer-user-created" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>infrastructure/core/postgres/init/02-pgbouncer-user.sql</code></li>
+</ul>
+<h4 id="414-duplicate-disaster-table-definitions">4.14 Duplicate Disaster Table Definitions<a class="headerlink" href="#414-duplicate-disaster-table-definitions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Both <code>005_disaster_tables.sql</code> and versioned migration create same tables.</li>
+</ul>
+<hr />
+<h2 id="5-docker-deployment-infrastructure">5. Docker &amp; Deployment Infrastructure<a class="headerlink" href="#5-docker-deployment-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="critical_4">CRITICAL<a class="headerlink" href="#critical_4" title="Permanent link">&para;</a></h3>
+<h4 id="51-yolo26-vision-service-missing-tini-in-production">5.1 YOLO26 Vision Service Missing Tini in Production<a class="headerlink" href="#51-yolo26-vision-service-missing-tini-in-production" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/yolo26-vision-service/Dockerfile</code>, lines 115-172</li>
+<li>Runs Python as PID 1. Zombie process accumulation and failed graceful shutdown.</li>
+</ul>
+<h4 id="52-yolo26-development-stage-runs-as-root">5.2 YOLO26 Development Stage Runs as Root<a class="headerlink" href="#52-yolo26-development-stage-runs-as-root" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/yolo26-vision-service/Dockerfile</code>, lines 177-206</li>
+<li>Switches to root for dependencies, never switches back.</li>
+</ul>
+<h3 id="medium_4">MEDIUM<a class="headerlink" href="#medium_4" title="Permanent link">&para;</a></h3>
+<h4 id="53-redis-health-check-credential-exposure">5.3 Redis Health Check Credential Exposure<a class="headerlink" href="#53-redis-health-check-credential-exposure" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>docker-compose.yml</code>, lines 202-206</li>
+<li>Credentials visible in process listings.</li>
+</ul>
+<h4 id="54-edge-orchestrator-development-stage-root-user">5.4 Edge Orchestrator Development Stage Root User<a class="headerlink" href="#54-edge-orchestrator-development-stage-root-user" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/edge-orchestrator-service/Dockerfile</code></li>
+</ul>
+<h4 id="55-31-services-missing-tini-process-manager">5.5 31+ Services Missing Tini Process Manager<a class="headerlink" href="#55-31-services-missing-tini-process-manager" title="Permanent link">&para;</a></h4>
+<ul>
+<li>No proper signal handling or zombie reaping.</li>
+</ul>
+<h4 id="56-helm-charts-missing-resource-limits-32">5.6 Helm Charts Missing Resource Limits (32+)<a class="headerlink" href="#56-helm-charts-missing-resource-limits-32" title="Permanent link">&para;</a></h4>
+<ul>
+<li>No CPU/memory constraints on services.</li>
+</ul>
+<h4 id="57-mlflow-runtime-pip-install">5.7 MLflow Runtime Pip Install<a class="headerlink" href="#57-mlflow-runtime-pip-install" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Dependencies installed at startup instead of build time.</li>
+</ul>
+<h4 id="58-kong-worker-configuration-missing">5.8 Kong Worker Configuration Missing<a class="headerlink" href="#58-kong-worker-configuration-missing" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Worker processes not configured for Kong gateway.</li>
+</ul>
+<hr />
+<h2 id="6-nats-event-system-messaging">6. NATS Event System &amp; Messaging<a class="headerlink" href="#6-nats-event-system-messaging" title="Permanent link">&para;</a></h2>
+<h3 id="critical-message-loss">CRITICAL (Message Loss)<a class="headerlink" href="#critical-message-loss" title="Permanent link">&para;</a></h3>
+<h4 id="61-fire-and-forget-publishing-crm-service">6.1 Fire-and-Forget Publishing (CRM Service)<a class="headerlink" href="#61-fire-and-forget-publishing-crm-service" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/crm-service/src/main.py</code>, lines 193-209</li>
+<li>Events published without delivery verification. Silent loss.</li>
+</ul>
+<h4 id="62-dlq-ack-before-verification">6.2 DLQ ACK Before Verification<a class="headerlink" href="#62-dlq-ack-before-verification" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/events/subscriber_dlq.py</code>, lines 231-244</li>
+<li>Original message ACKed before DLQ publish confirmed. Double loss possible.</li>
+</ul>
+<h4 id="63-publisher-reconnection-race-condition">6.3 Publisher Reconnection Race Condition<a class="headerlink" href="#63-publisher-reconnection-race-condition" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/events/publisher.py</code>, lines 545-558</li>
+<li>Messages lost during network reconnection window.</li>
+</ul>
+<h4 id="64-weather-service-no-error-handling">6.4 Weather Service No Error Handling<a class="headerlink" href="#64-weather-service-no-error-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>apps/services/weather-service/publish.py</code>, lines 97-137</li>
+<li>100% event loss if NATS unavailable. No retry, no error logging.</li>
+</ul>
+<h4 id="65-subscriber-reconnection-loses-subscriptions">6.5 Subscriber Reconnection Loses Subscriptions<a class="headerlink" href="#65-subscriber-reconnection-loses-subscriptions" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/events/subscriber.py</code>, lines 740-760</li>
+<li>After network disconnect, subscriptions not re-established. Messages missed.</li>
+</ul>
+<h4 id="66-dedup-lru-eviction-bug">6.6 Dedup LRU Eviction Bug<a class="headerlink" href="#66-dedup-lru-eviction-bug" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>File</strong>: <code>shared/events/subscriber.py</code>, lines 620-627</li>
+<li>Evicts by insertion order, not timestamp. Duplicate processing after 50K events.</li>
+</ul>
+<h3 id="medium_5">MEDIUM<a class="headerlink" href="#medium_5" title="Permanent link">&para;</a></h3>
+<h4 id="67-no-backpressure-handling">6.7 No Backpressure Handling<a class="headerlink" href="#67-no-backpressure-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li>10 concurrent messages limit but unbounded NATS buffer growth.</li>
+</ul>
+<h4 id="68-tenant-id-not-sanitized-in-event-subjects">6.8 Tenant ID Not Sanitized in Event Subjects<a class="headerlink" href="#68-tenant-id-not-sanitized-in-event-subjects" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Multi-tenancy isolation breach via subject injection.</li>
+</ul>
+<h4 id="69-weather-service-tenant-event-leak">6.9 Weather Service Tenant Event Leak<a class="headerlink" href="#69-weather-service-tenant-event-leak" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Tenant ID in JSON payload, not subject. All tenants see all weather events.</li>
+</ul>
+<h4 id="610-recursive-retry-without-depth-limit">6.10 Recursive Retry Without Depth Limit<a class="headerlink" href="#610-recursive-retry-without-depth-limit" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Stack overflow risk on repeated failures.</li>
+</ul>
+<h4 id="611-silent-crm-event-loss">6.11 Silent CRM Event Loss<a class="headerlink" href="#611-silent-crm-event-loss" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Caller ignores publish return value.</li>
+</ul>
+<h4 id="612-exponential-backoff-precision-issues">6.12 Exponential Backoff Precision Issues<a class="headerlink" href="#612-exponential-backoff-precision-issues" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Retry delay calculation with large exponents.</li>
+</ul>
+<h3 id="architectural">ARCHITECTURAL<a class="headerlink" href="#architectural" title="Permanent link">&para;</a></h3>
+<h4 id="613-no-outbox-pattern">6.13 No Outbox Pattern<a class="headerlink" href="#613-no-outbox-pattern" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Database/event sync lost if service crashes after DB write but before event publish.</li>
+</ul>
+<h4 id="614-no-circuit-breaker-for-nats">6.14 No Circuit Breaker for NATS<a class="headerlink" href="#614-no-circuit-breaker-for-nats" title="Permanent link">&para;</a></h4>
+<ul>
+<li>5-second hangs per attempt if NATS down. Cascading timeouts.</li>
+</ul>
+<h4 id="615-no-event-versioning">6.15 No Event Versioning<a class="headerlink" href="#615-no-event-versioning" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Schema evolution will break consumers. No version field in events.</li>
+</ul>
+<h4 id="616-jetstream-consumers-not-cleaned-up">6.16 JetStream Consumers Not Cleaned Up<a class="headerlink" href="#616-jetstream-consumers-not-cleaned-up" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Memory leak from abandoned consumer subscriptions.</li>
+</ul>
+<hr />
+<h2 id="priority-action-plan">Priority Action Plan<a class="headerlink" href="#priority-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="week-1-critical-security-fixes">Week 1 — Critical Security Fixes<a class="headerlink" href="#week-1-critical-security-fixes" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Add JWT auth guard to <strong>chat-service</strong>, <strong>marketplace-service</strong>, <strong>iot-service</strong>, <strong>disaster-assessment</strong> (Issues 2.1-2.4)</li>
+<li>Fix token revocation fail-open default (Issue 3.1)</li>
+<li>Fix PgBouncer SSL mode to <code>require</code> across all services (Issue 1.2)</li>
+<li>Fix tenant ID spoofing in marketplace (Issue 2.5)</li>
+<li>Fix YOLO26 Dockerfile — add tini, fix root user (Issues 5.1-5.2)</li>
+</ol>
+<h3 id="week-2-message-reliability">Week 2 — Message Reliability<a class="headerlink" href="#week-2-message-reliability" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Add error handling to weather service event publishing (Issue 6.4)</li>
+<li>Fix DLQ ACK-before-verify (Issue 6.2)</li>
+<li>Fix publisher reconnection race condition (Issue 6.3)</li>
+<li>Fix subscriber reconnection subscription loss (Issue 6.5)</li>
+<li>Implement fire-and-forget → at-least-once for CRM events (Issue 6.1)</li>
+</ol>
+<h3 id="week-3-database-resource-management">Week 3 — Database &amp; Resource Management<a class="headerlink" href="#week-3-database-resource-management" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Fix PgBouncer pool sizing (Issue 4.2)</li>
+<li>Add missing FK constraints for research tables (Issue 4.1)</li>
+<li>Separate demo data from production init (Issue 4.9)</li>
+<li>Fix cascade delete on financial data (Issue 4.3)</li>
+<li>Enforce SSL in production DATABASE_URL (Issue 4.5)</li>
+</ol>
+<h3 id="month-2-hardening">Month 2 — Hardening<a class="headerlink" href="#month-2-hardening" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Consolidate dual JWT implementations (Issue 3.3)</li>
+<li>Create async JWT verification (Issue 3.4)</li>
+<li>Implement distributed rate limiting with Redis (Issue 3.5)</li>
+<li>Add tini to 31+ services (Issue 5.5)</li>
+<li>Implement outbox pattern for critical events (Issue 6.13)</li>
+<li>Add event versioning (Issue 6.15)</li>
+<li>Add Helm chart resource limits (Issue 5.6)</li>
+<li>Enable Redis AOF persistence (Issue 4.12)</li>
+</ol>
+<h3 id="estimated-impact">Estimated Impact<a class="headerlink" href="#estimated-impact" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Security</strong>: 4 services with no authentication → fully secured</li>
+<li><strong>Data Integrity</strong>: 30-40% event loss → &lt;0.1% with at-least-once guarantees</li>
+<li><strong>Reliability</strong>: Pool exhaustion risk eliminated</li>
+<li><strong>Compliance</strong>: TLS enforced across all connections</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1520 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Flutter Mobile App Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flutter-mobile-app-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flutter Mobile App Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="flutter-mobile-app-review-report">Flutter Mobile App Review Report<a class="headerlink" href="#flutter-mobile-app-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-21
+<strong>Scope</strong>: 335,301 LOC Flutter app — architecture, auth, security, Riverpod, API, database, sync, build, maps, sensors
+<strong>Reviewer</strong>: Automated Mobile Audit (8 parallel agents)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>A comprehensive audit of the SAHOOL Flutter mobile app (335K LOC, 57 feature modules) uncovered <strong>95+ issues</strong> across 8 subsystems. The most critical findings include <strong>infinite recursion on security bypass</strong>, <strong>SyncEngine never disposed</strong> (resource leaks), <strong>SQL injection via ATTACH DATABASE</strong>, <strong>certificate pinning bypassed in debug mode</strong>, and <strong>root detection that defaults to "not rooted" on timeout</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Critical</th>
+<th>High</th>
+<th>Medium</th>
+<th>Low</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture &amp; Lifecycle</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>Auth &amp; Security</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>3</td>
+<td><strong>12</strong></td>
+</tr>
+<tr>
+<td>Riverpod State Management</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>API Client &amp; Networking</td>
+<td>2</td>
+<td>6</td>
+<td>4</td>
+<td>3</td>
+<td><strong>15</strong></td>
+</tr>
+<tr>
+<td>Database &amp; Sync</td>
+<td>3</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td><strong>13</strong></td>
+</tr>
+<tr>
+<td>Build Config &amp; CI</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>Maps, Geo &amp; Sensors</td>
+<td>2</td>
+<td>1</td>
+<td>5</td>
+<td>2</td>
+<td><strong>10</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>14</strong></td>
+<td><strong>17</strong></td>
+<td><strong>25</strong></td>
+<td><strong>12</strong></td>
+<td><strong>68</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-architecture-lifecycle-7-issues">1. Architecture &amp; Lifecycle (7 issues)<a class="headerlink" href="#1-architecture-lifecycle-7-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-infinite-recursion-on-security-bypass">CRITICAL: Infinite Recursion on Security Bypass<a class="headerlink" href="#critical-infinite-recursion-on-security-bypass" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/main.dart:185</code></li>
+<li><code>main()</code> calls itself recursively when user bypasses security warning → stack overflow</li>
+</ul>
+<h3 id="critical-syncengine-never-disposed">CRITICAL: SyncEngine Never Disposed<a class="headerlink" href="#critical-syncengine-never-disposed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/main.dart:248-372, 466-470</code></li>
+<li>Timer, StreamSubscription, StreamControllers never cleaned up</li>
+<li>Database connection never closed on app exit</li>
+</ul>
+<h3 id="high-duplicate-databaseprovider-definitions">HIGH: Duplicate databaseProvider Definitions<a class="headerlink" href="#high-duplicate-databaseprovider-definitions" title="Permanent link">&para;</a></h3>
+<ul>
+<li>3 separate definitions in <code>providers.dart:82</code>, <code>main.dart:408</code>, <code>tasks_provider.dart:10</code></li>
+<li>Each creates different instance → data inconsistency</li>
+</ul>
+<h3 id="high-reflisten-in-build-method">HIGH: ref.listen() in build() Method<a class="headerlink" href="#high-reflisten-in-build-method" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/app.dart:34-38</code></li>
+<li>Creates new listener every rebuild → multiple navigation triggers</li>
+</ul>
+<h3 id="medium-hardcoded-arabic-locale">MEDIUM: Hardcoded Arabic Locale<a class="headerlink" href="#medium-hardcoded-arabic-locale" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/app.dart:45</code> — <code>locale: const Locale('ar')</code> ignores device preference</li>
+</ul>
+<h3 id="medium-double-crash-reporting">MEDIUM: Double Crash Reporting<a class="headerlink" href="#medium-double-crash-reporting" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/main.dart:376-389</code> — same error sent to legacy + new reporter</li>
+</ul>
+<h3 id="medium-missing-manager-disposal">MEDIUM: Missing Manager Disposal<a class="headerlink" href="#medium-missing-manager-disposal" title="Permanent link">&para;</a></h3>
+<ul>
+<li>AppStateManager, PreferencesManager initialized but never disposed</li>
+</ul>
+<hr />
+<h2 id="2-auth-security-12-issues">2. Auth &amp; Security (12 issues)<a class="headerlink" href="#2-auth-security-12-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-certificate-pinning-bypassed-in-debug-mode">CRITICAL: Certificate Pinning Bypassed in Debug Mode<a class="headerlink" href="#critical-certificate-pinning-bypassed-in-debug-mode" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/security/certificate_pinning_service.dart:316-326</code></li>
+<li><code>allowDebugBypass=true</code> by default — all connections accepted in debug builds</li>
+</ul>
+<h3 id="critical-root-detection-defaults-to-not-rooted-on-timeout">CRITICAL: Root Detection Defaults to "Not Rooted" on Timeout<a class="headerlink" href="#critical-root-detection-defaults-to-not-rooted-on-timeout" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/security/device_integrity_service.dart:146-151</code></li>
+<li><code>onTimeout: () =&gt; false</code> — rooted devices pass security check if detection slow</li>
+</ul>
+<h3 id="high-frida-detection-returns-false-always">HIGH: Frida Detection Returns False Always<a class="headerlink" href="#high-frida-detection-returns-false-always" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/security/device_integrity_service.dart:271-288</code></li>
+<li><code>_detectFrida()</code> returns <code>false</code> for both Android and iOS — zero protection</li>
+</ul>
+<h3 id="high-device-security-policy-disabled-by-default">HIGH: Device Security Policy Disabled by Default<a class="headerlink" href="#high-device-security-policy-disabled-by-default" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/security/device_security.dart:488-489</code></li>
+<li><code>DeviceSecurityPolicy.disabled</code> — production devices never blocked</li>
+</ul>
+<h3 id="high-weak-pin-expiry-validation">HIGH: Weak Pin Expiry Validation<a class="headerlink" href="#high-weak-pin-expiry-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Expired pins skipped instead of causing immediate rejection</li>
+</ul>
+<h3 id="medium-offline-sync-conflict-resolution-server-always-wins">MEDIUM: Offline Sync Conflict Resolution — Server Always Wins<a class="headerlink" href="#medium-offline-sync-conflict-resolution-server-always-wins" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sync_conflict_resolver.dart:91-111</code> — local changes silently discarded</li>
+<li>No user-facing conflict resolution UI</li>
+</ul>
+<h3 id="medium-outbox-missing-idempotency-keys">MEDIUM: Outbox Missing Idempotency Keys<a class="headerlink" href="#medium-outbox-missing-idempotency-keys" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Duplicate operations possible if response lost during sync</li>
+</ul>
+<h3 id="medium-token-refresh-edge-cases">MEDIUM: Token Refresh Edge Cases<a class="headerlink" href="#medium-token-refresh-edge-cases" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No distinction between expired vs revoked tokens</li>
+</ul>
+<h3 id="medium-biometric-auth-no-timeout">MEDIUM: Biometric Auth No Timeout<a class="headerlink" href="#medium-biometric-auth-no-timeout" title="Permanent link">&para;</a></h3>
+<ul>
+<li>User can be stuck indefinitely on fingerprint screen</li>
+</ul>
+<h3 id="low-hardcoded-production-certificate-pins-in-source">LOW: Hardcoded Production Certificate Pins in Source<a class="headerlink" href="#low-hardcoded-production-certificate-pins-in-source" title="Permanent link">&para;</a></h3>
+<h3 id="low-session-clear-doesnt-clear-cached-tokens">LOW: Session Clear Doesn't Clear Cached Tokens<a class="headerlink" href="#low-session-clear-doesnt-clear-cached-tokens" title="Permanent link">&para;</a></h3>
+<h3 id="low-queue-items-not-encrypted-in-sharedpreferences">LOW: Queue Items Not Encrypted in SharedPreferences<a class="headerlink" href="#low-queue-items-not-encrypted-in-sharedpreferences" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="3-riverpod-state-management-7-issues">3. Riverpod State Management (7 issues)<a class="headerlink" href="#3-riverpod-state-management-7-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-duplicate-provider-definitions-4-locations">CRITICAL: Duplicate Provider Definitions (4+ locations)<a class="headerlink" href="#critical-duplicate-provider-definitions-4-locations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>apiClientProvider</code> defined in 4 files — each creates separate instance</li>
+</ul>
+<h3 id="critical-asyncvaluewhendata-state-mutations">CRITICAL: AsyncValue.whenData() State Mutations<a class="headerlink" href="#critical-asyncvaluewhendata-state-mutations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>ai_advisor_providers.dart:83-85</code></li>
+<li>Messages silently dropped if state is loading/error — user sees response without question</li>
+</ul>
+<h3 id="high-missing-autodispose-on-websocket-providers">HIGH: Missing .autoDispose on WebSocket Providers<a class="headerlink" href="#high-missing-autodispose-on-websocket-providers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>websocket_provider.dart:54,84,134</code></li>
+<li>Field/chat/IoT stream subscriptions never cleaned up on navigation</li>
+</ul>
+<h3 id="high-unbounded-chat-message-retention">HIGH: Unbounded Chat Message Retention<a class="headerlink" href="#high-unbounded-chat-message-retention" title="Permanent link">&para;</a></h3>
+<ul>
+<li>500 messages × 5+ sessions = 2500+ messages in memory</li>
+</ul>
+<h3 id="medium-circular-provider-dependencies">MEDIUM: Circular Provider Dependencies<a class="headerlink" href="#medium-circular-provider-dependencies" title="Permanent link">&para;</a></h3>
+<ul>
+<li>WebSocket ↔ Auth state listening creates invalidation loops</li>
+</ul>
+<h3 id="medium-asyncvalue-type-mismatches">MEDIUM: AsyncValue Type Mismatches<a class="headerlink" href="#medium-asyncvalue-type-mismatches" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>filteredAdvisoriesProvider</code> declares <code>AsyncValue&lt;List&gt;</code> but <code>.whenData()</code> returns <code>List</code></li>
+</ul>
+<h3 id="medium-missing-error-context-in-diagnosis">MEDIUM: Missing Error Context in Diagnosis<a class="headerlink" href="#medium-missing-error-context-in-diagnosis" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>crop_health_providers.dart</code> ignores error code from failure callback</li>
+</ul>
+<hr />
+<h2 id="4-api-client-networking-15-issues">4. API Client &amp; Networking (15 issues)<a class="headerlink" href="#4-api-client-networking-15-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-missing-uploadfile-in-konggatewayclient">CRITICAL: Missing <code>uploadFile()</code> in KongGatewayClient<a class="headerlink" href="#critical-missing-uploadfile-in-konggatewayclient" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Feature APIs call <code>_gateway.uploadFile()</code> — method doesn't exist → <code>NoSuchMethodError</code></li>
+</ul>
+<h3 id="critical-missing-kongservicescopilot-definition">CRITICAL: Missing <code>KongServices.copilot</code> Definition<a class="headerlink" href="#critical-missing-kongservicescopilot-definition" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Code references <code>KongServices.copilot</code> but only <code>KongServices.ai</code> exists</li>
+</ul>
+<h3 id="high-certificate-pinning-missing-in-konggatewayclient">HIGH: Certificate Pinning Missing in KongGatewayClient<a class="headerlink" href="#high-certificate-pinning-missing-in-konggatewayclient" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ApiClient</code> has pinning, <code>KongGatewayClient</code> does NOT — MITM vulnerability</li>
+</ul>
+<h3 id="high-dart-contracts-out-of-sync-with-typescript">HIGH: Dart Contracts Out of Sync with TypeScript<a class="headerlink" href="#high-dart-contracts-out-of-sync-with-typescript" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Missing endpoints: <code>CROP_HEALTH_ENDPOINTS.DECISION</code>, <code>IRRIGATION_ENDPOINTS.WATER_BALANCE</code></li>
+</ul>
+<h3 id="high-rate-limiter-queue-completer-never-completed">HIGH: Rate Limiter Queue Completer Never Completed<a class="headerlink" href="#high-rate-limiter-queue-completer-never-completed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Callers waiting on <code>queueRequest()</code> hang indefinitely</li>
+</ul>
+<h3 id="high-tenant-id-exposed-in-websocket-url-query-parameter">HIGH: Tenant ID Exposed in WebSocket URL Query Parameter<a class="headerlink" href="#high-tenant-id-exposed-in-websocket-url-query-parameter" title="Permanent link">&para;</a></h3>
+<h3 id="high-public-endpoint-detection-uses-loose-contains">HIGH: Public Endpoint Detection Uses Loose <code>.contains()</code><a class="headerlink" href="#high-public-endpoint-detection-uses-loose-contains" title="Permanent link">&para;</a></h3>
+<h3 id="high-health-check-endpoint-path-wrong-apiv1fieldshealthz-instead-of-healthz">HIGH: Health Check Endpoint Path Wrong (<code>/api/v1/fields/healthz</code> instead of <code>/healthz</code>)<a class="headerlink" href="#high-health-check-endpoint-path-wrong-apiv1fieldshealthz-instead-of-healthz" title="Permanent link">&para;</a></h3>
+<h3 id="medium-duplicate-apiservice-and-apiclient-classes-1825-total-loc">MEDIUM: Duplicate ApiService and ApiClient Classes (1,825 total LOC)<a class="headerlink" href="#medium-duplicate-apiservice-and-apiclient-classes-1825-total-loc" title="Permanent link">&para;</a></h3>
+<h3 id="medium-inconsistent-error-code-mapping-between-clients">MEDIUM: Inconsistent Error Code Mapping Between Clients<a class="headerlink" href="#medium-inconsistent-error-code-mapping-between-clients" title="Permanent link">&para;</a></h3>
+<h3 id="medium-websocket-url-hardcoded-for-development">MEDIUM: WebSocket URL Hardcoded for Development<a class="headerlink" href="#medium-websocket-url-hardcoded-for-development" title="Permanent link">&para;</a></h3>
+<h3 id="low-no-exponential-backoff-for-health-checks">LOW: No Exponential Backoff for Health Checks<a class="headerlink" href="#low-no-exponential-backoff-for-health-checks" title="Permanent link">&para;</a></h3>
+<h3 id="low-missing-request-id-in-token-refresh">LOW: Missing Request ID in Token Refresh<a class="headerlink" href="#low-missing-request-id-in-token-refresh" title="Permanent link">&para;</a></h3>
+<h3 id="low-rate-limiter-uses-busy-wait-polling">LOW: Rate Limiter Uses Busy-Wait Polling<a class="headerlink" href="#low-rate-limiter-uses-busy-wait-polling" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="5-database-sync-13-issues">5. Database &amp; Sync (13 issues)<a class="headerlink" href="#5-database-sync-13-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-sql-injection-via-attach-database">CRITICAL: SQL Injection via ATTACH DATABASE<a class="headerlink" href="#critical-sql-injection-via-attach-database" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>lib/core/storage/database.dart:762</code></li>
+<li>Encryption key interpolated via string split — fragile and injectable</li>
+</ul>
+<h3 id="critical-data-loss-in-v1v2-migration">CRITICAL: Data Loss in v1→v2 Migration<a class="headerlink" href="#critical-data-loss-in-v1v2-migration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>migration_strategy.dart:205</code></li>
+<li>Drops and recreates <code>fields</code> table — ALL local field data permanently lost</li>
+</ul>
+<h3 id="critical-data-loss-in-v3v4-migration">CRITICAL: Data Loss in v3→v4 Migration<a class="headerlink" href="#critical-data-loss-in-v3v4-migration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>migration_strategy.dart:219</code></li>
+<li>Drops <code>outbox</code> table — ALL pending sync operations lost</li>
+</ul>
+<h3 id="high-unsafe-string-replacement-in-schema-migration">HIGH: Unsafe String Replacement in Schema Migration<a class="headerlink" href="#high-unsafe-string-replacement-in-schema-migration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>migration_strategy.dart:793,808</code> — <code>replaceFirst('CREATE TABLE', ...)</code> on DDL</li>
+</ul>
+<h3 id="high-unparameterized-drop-table-and-alter-table">HIGH: Unparameterized DROP TABLE and ALTER TABLE<a class="headerlink" href="#high-unparameterized-drop-table-and-alter-table" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Table names interpolated directly into SQL</li>
+</ul>
+<h3 id="medium-incomplete-conflict-resolution-server-always-wins">MEDIUM: Incomplete Conflict Resolution (Server Always Wins)<a class="headerlink" href="#medium-incomplete-conflict-resolution-server-always-wins" title="Permanent link">&para;</a></h3>
+<ul>
+<li>409 Conflict → server version applied, local changes silently discarded</li>
+</ul>
+<h3 id="medium-missing-etag-on-initial-field-sync">MEDIUM: Missing ETag on Initial Field Sync<a class="headerlink" href="#medium-missing-etag-on-initial-field-sync" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fields synced from server have no ETag → conflict detection broken</li>
+</ul>
+<h3 id="medium-database-encryption-key-never-rotated">MEDIUM: Database Encryption Key Never Rotated<a class="headerlink" href="#medium-database-encryption-key-never-rotated" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>rotateKey()</code> exists but never called, doesn't re-encrypt database</li>
+</ul>
+<h3 id="medium-ad-hoc-migration_history-table">MEDIUM: Ad-hoc migration_history Table<a class="headerlink" href="#medium-ad-hoc-migration_history-table" title="Permanent link">&para;</a></h3>
+<h3 id="low-missing-composite-index-on-outbox-issynced-createdat">LOW: Missing Composite Index on Outbox (isSynced, createdAt)<a class="headerlink" href="#low-missing-composite-index-on-outbox-issynced-createdat" title="Permanent link">&para;</a></h3>
+<h3 id="low-insufficient-default-pagination-limits">LOW: Insufficient Default Pagination Limits<a class="headerlink" href="#low-insufficient-default-pagination-limits" title="Permanent link">&para;</a></h3>
+<h3 id="low-no-offsetresume-in-sync-queries">LOW: No Offset/Resume in Sync Queries<a class="headerlink" href="#low-no-offsetresume-in-sync-queries" title="Permanent link">&para;</a></h3>
+<h3 id="low-no-backoff-in-periodic-sync-on-network-restore">LOW: No Backoff in Periodic Sync on Network Restore<a class="headerlink" href="#low-no-backoff-in-periodic-sync-on-network-restore" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="6-build-config-ci-4-issues">6. Build Config &amp; CI (4 issues)<a class="headerlink" href="#6-build-config-ci-4-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-android-sdk-version-mismatch-in-ci">CRITICAL: Android SDK Version Mismatch in CI<a class="headerlink" href="#critical-android-sdk-version-mismatch-in-ci" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>.github/workflows/flutter-apk.yml:28</code></li>
+<li><code>ANDROID_COMPILE_SDK: '35'</code> but <code>build.gradle.kts</code> requires SDK 36</li>
+<li><strong>Impact</strong>: flutter-apk workflow will FAIL to build</li>
+</ul>
+<h3 id="high-certificate-pinning-not-implemented-in-network_security_configxml">HIGH: Certificate Pinning Not Implemented in network_security_config.xml<a class="headerlink" href="#high-certificate-pinning-not-implemented-in-network_security_configxml" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Production domains configured but placeholder pins removed</li>
+</ul>
+<h3 id="medium-sensors_plus-4x7x-breaking-change-sahol_atmosphere">MEDIUM: sensors_plus 4.x→7.x Breaking Change (sahol_atmosphere)<a class="headerlink" href="#medium-sensors_plus-4x7x-breaking-change-sahol_atmosphere" title="Permanent link">&para;</a></h3>
+<h3 id="medium-speech_to_text-6x7x-breaking-change-sahol_atmosphere">MEDIUM: speech_to_text 6.x→7.x Breaking Change (sahol_atmosphere)<a class="headerlink" href="#medium-speech_to_text-6x7x-breaking-change-sahol_atmosphere" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="7-maps-geo-sensors-10-issues">7. Maps, Geo &amp; Sensors (10 issues)<a class="headerlink" href="#7-maps-geo-sensors-10-issues" title="Permanent link">&para;</a></h2>
+<h3 id="critical-websocket-stream-subscription-not-stored">CRITICAL: WebSocket Stream Subscription Not Stored<a class="headerlink" href="#critical-websocket-stream-subscription-not-stored" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>websocket_service.dart:136-140</code></li>
+<li><code>_channel!.stream.listen()</code> return value never captured → memory leak</li>
+</ul>
+<h3 id="critical-fcm-streamcontrollers-not-safely-disposed">CRITICAL: FCM StreamControllers Not Safely Disposed<a class="headerlink" href="#critical-fcm-streamcontrollers-not-safely-disposed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>File</strong>: <code>fcm_service.dart:907-910</code></li>
+<li>No check if already closed, double-dispose throws</li>
+</ul>
+<h3 id="high-no-location-permission-request-implementation">HIGH: No Location Permission Request Implementation<a class="headerlink" href="#high-no-location-permission-request-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Map widget accepts <code>showMyLocation=true</code> but no actual GPS/permission code</li>
+</ul>
+<h3 id="medium-missing-sensor-data-validation-ndvi">MEDIUM: Missing Sensor Data Validation (NDVI)<a class="headerlink" href="#medium-missing-sensor-data-validation-ndvi" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No range check on NDVI input [0.0, 1.0] before adjustment</li>
+</ul>
+<h3 id="medium-ndvi-tile-layer-empty-error-callback">MEDIUM: NDVI Tile Layer Empty Error Callback<a class="headerlink" href="#medium-ndvi-tile-layer-empty-error-callback" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tile load errors silently ignored</li>
+</ul>
+<h3 id="medium-no-microphone-permission-validation-for-voice">MEDIUM: No Microphone Permission Validation for Voice<a class="headerlink" href="#medium-no-microphone-permission-validation-for-voice" title="Permanent link">&para;</a></h3>
+<h3 id="medium-tile-cache-write-not-awaited-fire-and-forget">MEDIUM: Tile Cache Write Not Awaited (fire-and-forget)<a class="headerlink" href="#medium-tile-cache-write-not-awaited-fire-and-forget" title="Permanent link">&para;</a></h3>
+<h3 id="medium-geojson-properties-not-validated-for-pii">MEDIUM: GeoJSON Properties Not Validated for PII<a class="headerlink" href="#medium-geojson-properties-not-validated-for-pii" title="Permanent link">&para;</a></h3>
+<h3 id="low-map-layer-toggle-not-debounced">LOW: Map Layer Toggle Not Debounced<a class="headerlink" href="#low-map-layer-toggle-not-debounced" title="Permanent link">&para;</a></h3>
+<h3 id="low-voice-service-no-speech-timeout-fallback">LOW: Voice Service No Speech Timeout Fallback<a class="headerlink" href="#low-voice-service-no-speech-timeout-fallback" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="priority-action-plan">Priority Action Plan<a class="headerlink" href="#priority-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="week-1-critical-security-crashes">Week 1 — Critical Security &amp; Crashes<a class="headerlink" href="#week-1-critical-security-crashes" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fix infinite recursion</strong> in main.dart security bypass</li>
+<li><strong>Fix SQL injection</strong> in ATTACH DATABASE command</li>
+<li><strong>Add SyncEngine.dispose()</strong> to app lifecycle</li>
+<li><strong>Fix root detection timeout</strong> to fail-closed (return <code>true</code>)</li>
+<li><strong>Enforce cert pinning</strong> in release builds</li>
+<li><strong>Fix CI SDK version</strong> (35→36 in flutter-apk.yml)</li>
+<li><strong>Add <code>uploadFile()</code></strong> to KongGatewayClient</li>
+<li><strong>Store WebSocket StreamSubscription</strong> for proper disposal</li>
+</ol>
+<h3 id="week-2-data-integrity-state-management">Week 2 — Data Integrity &amp; State Management<a class="headerlink" href="#week-2-data-integrity-state-management" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fix data loss migrations</strong> (v1→v2, v3→v4) — backup before delete</li>
+<li><strong>Consolidate duplicate providers</strong> to single source</li>
+<li><strong>Fix AsyncValue.whenData() mutations</strong> — handle loading/error states</li>
+<li><strong>Add .autoDispose</strong> to WebSocket providers</li>
+<li><strong>Add cert pinning</strong> to KongGatewayClient</li>
+<li><strong>Sync Dart contracts</strong> with TypeScript</li>
+</ol>
+<h3 id="week-3-security-hardening">Week 3 — Security Hardening<a class="headerlink" href="#week-3-security-hardening" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Implement Frida detection</strong> (check TCP 27042, <code>/proc/self/maps</code>)</li>
+<li><strong>Enable device security policy</strong> in production builds</li>
+<li><strong>Add idempotency keys</strong> to outbox sync</li>
+<li><strong>Implement conflict resolution UI</strong> for sync conflicts</li>
+<li><strong>Add biometric auth timeout</strong></li>
+<li><strong>Add microphone/location permission handling</strong></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

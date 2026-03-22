@@ -211,7 +211,7 @@ jobs:
       - name: Test
         run: |
           export PYTHONPATH=$PWD
-          pytest --tb=short || true
+          pytest --tb=short
 
   build-images:
     name: Build Images (${{ matrix.service }})

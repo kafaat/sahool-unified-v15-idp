@@ -77,6 +77,7 @@ class WebSocketService {
   static const Duration _reconnectDelay = Duration(seconds: 3);
   static const Duration _pingInterval = Duration(seconds: 30);
 
+  StreamSubscription? _streamSubscription;
   final Set<String> _subscribedRooms = {};
 
   WebSocketService({
@@ -132,8 +133,9 @@ class WebSocketService {
 
       _channel = IOWebSocketChannel(_rawSocket!);
 
-      // Listen to messages
-      _channel!.stream.listen(
+      // Listen to messages - store subscription for proper disposal
+      _streamSubscription?.cancel();
+      _streamSubscription = _channel!.stream.listen(
         _handleMessage,
         onError: _handleError,
         onDone: _handleDisconnect,
@@ -161,6 +163,8 @@ class WebSocketService {
   Future<void> disconnect() async {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
+    await _streamSubscription?.cancel();
+    _streamSubscription = null;
 
     if (_channel != null) {
       await _channel!.sink.close(status.goingAway);
@@ -380,6 +384,8 @@ class WebSocketService {
   void dispose() {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
     _channel?.sink.close();
     _rawSocket?.close();
     _rawSocket = null;

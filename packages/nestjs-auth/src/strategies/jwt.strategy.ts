@@ -23,8 +23,8 @@ export interface JwtPayload {
   roles: string[];
   exp: number;
   iat: number;
-  tid?: string; // tenant_id (legacy short name)
-  tenant_id?: string; // tenant_id (canonical name from Python services)
+  tid: string; // tenant_id (standard claim name across all services)
+  tenant_id?: string; // @deprecated Use tid instead. Kept for backward compatibility.
   jti?: string; // token_id
   type?: string; // access or refresh
   permissions?: string[];
@@ -120,7 +120,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         return {
           id: userId,
           roles: userData.roles || payload.roles || [],
-          tenantId: userData.tenantId || payload.tenant_id || payload.tid,
+          tenantId: userData.tenantId || payload.tid || payload.tenant_id,
           permissions: payload.permissions || [],
           tokenId: payload.jti,
         };
@@ -134,7 +134,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return {
         id: userId,
         roles: payload.roles || [],
-        tenantId: payload.tenant_id || payload.tid,
+        tenantId: payload.tid || payload.tenant_id,
         permissions: payload.permissions || [],
         tokenId: payload.jti,
       };

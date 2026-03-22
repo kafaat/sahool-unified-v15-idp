@@ -49,8 +49,8 @@ def _get_required_env(key: str, default: str | None = None) -> str:
 
 JWT_SECRET_KEY = _get_required_env("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")  # HS256 for symmetric encryption
-JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
-JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
+JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-platform")
+JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-api")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
 JWT_LEEWAY_SECONDS = int(os.getenv("JWT_LEEWAY_SECONDS", "30"))  # Clock skew tolerance

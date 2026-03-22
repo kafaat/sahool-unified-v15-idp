@@ -110,9 +110,9 @@ class IrrigationSubAgent(BaseAutonomousAgent):
             mode=AgentMode.EXECUTE,
             tenant_id=tenant_id,
             llm_manager=llm_manager,
-            parent_agent=parent_agent,
             collaboration_role=CollaborationRole.SPECIALIST,
         )
+        self.parent_agent = parent_agent
 
     def _register_default_tools(self) -> None:
         """Register irrigation-specific tools."""
@@ -344,9 +344,9 @@ class FertilizerSubAgent(BaseAutonomousAgent):
             mode=AgentMode.EXECUTE,
             tenant_id=tenant_id,
             llm_manager=llm_manager,
-            parent_agent=parent_agent,
             collaboration_role=CollaborationRole.SPECIALIST,
         )
+        self.parent_agent = parent_agent
 
     def _register_default_tools(self) -> None:
         """Register fertilizer-specific tools."""
@@ -572,9 +572,9 @@ class PestControlSubAgent(BaseAutonomousAgent):
             mode=AgentMode.EXECUTE,
             tenant_id=tenant_id,
             llm_manager=llm_manager,
-            parent_agent=parent_agent,
             collaboration_role=CollaborationRole.SPECIALIST,
         )
+        self.parent_agent = parent_agent
 
     def _register_default_tools(self) -> None:
         """Register pest control tools."""
@@ -833,9 +833,9 @@ class HarvestPlannerSubAgent(BaseAutonomousAgent):
             mode=AgentMode.EXECUTE,
             tenant_id=tenant_id,
             llm_manager=llm_manager,
-            parent_agent=parent_agent,
             collaboration_role=CollaborationRole.SPECIALIST,
         )
+        self.parent_agent = parent_agent
 
     def _register_default_tools(self) -> None:
         """Register harvest planning tools."""

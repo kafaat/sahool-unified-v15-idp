@@ -30,7 +30,7 @@ interface BaseEvent {
 }
 
 interface OrderPlacedEvent extends BaseEvent {
-  eventType: "order.placed";
+  eventType: "sahool.marketplace.order.placed";
   payload: {
     orderId: string;
     userId: string;
@@ -51,7 +51,7 @@ interface OrderPlacedEvent extends BaseEvent {
 }
 
 interface OrderCompletedEvent extends BaseEvent {
-  eventType: "order.completed";
+  eventType: "sahool.marketplace.order.completed";
   payload: {
     orderId: string;
     userId: string;
@@ -62,7 +62,7 @@ interface OrderCompletedEvent extends BaseEvent {
 }
 
 interface OrderCancelledEvent extends BaseEvent {
-  eventType: "order.cancelled";
+  eventType: "sahool.marketplace.order.cancelled";
   payload: {
     orderId: string;
     userId: string;
@@ -72,7 +72,7 @@ interface OrderCancelledEvent extends BaseEvent {
 }
 
 interface InventoryLowStockEvent extends BaseEvent {
-  eventType: "inventory.low_stock";
+  eventType: "sahool.marketplace.inventory.low_stock";
   payload: {
     productId: string;
     productName: string;
@@ -84,7 +84,7 @@ interface InventoryLowStockEvent extends BaseEvent {
 }
 
 interface InventoryMovementEvent extends BaseEvent {
-  eventType: "inventory.movement";
+  eventType: "sahool.marketplace.inventory.movement";
   payload: {
     movementId: string;
     productId: string;
@@ -109,11 +109,11 @@ type MarketplaceEvent =
 // ============================================================================
 
 const EventSubjects = {
-  ORDER_PLACED: "order.placed",
-  ORDER_COMPLETED: "order.completed",
-  ORDER_CANCELLED: "order.cancelled",
-  INVENTORY_LOW_STOCK: "inventory.low_stock",
-  INVENTORY_MOVEMENT: "inventory.movement",
+  ORDER_PLACED: "sahool.marketplace.order.placed",
+  ORDER_COMPLETED: "sahool.marketplace.order.completed",
+  ORDER_CANCELLED: "sahool.marketplace.order.cancelled",
+  INVENTORY_LOW_STOCK: "sahool.marketplace.inventory.low_stock",
+  INVENTORY_MOVEMENT: "sahool.marketplace.inventory.movement",
 } as const;
 
 type EventSubject = (typeof EventSubjects)[keyof typeof EventSubjects];
@@ -675,7 +675,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     handler: EventHandler,
     options?: SubscribeOptions,
   ): Promise<Subscription | null> {
-    return this.subscribe("order.*", handler, options);
+    return this.subscribe("sahool.marketplace.order.*", handler, options);
   }
 
   /**
@@ -685,7 +685,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     handler: EventHandler,
     options?: SubscribeOptions,
   ): Promise<Subscription | null> {
-    return this.subscribe("inventory.*", handler, options);
+    return this.subscribe("sahool.marketplace.inventory.*", handler, options);
   }
 
   /**

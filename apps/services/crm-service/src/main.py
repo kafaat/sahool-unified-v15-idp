@@ -190,7 +190,7 @@ def check_query_complexity(query: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def publish_event(subject: str, data: dict) -> None:
+async def publish_event(subject: str, data: dict) -> bool:
     """
     Publish an event to NATS.
 
@@ -199,13 +199,33 @@ async def publish_event(subject: str, data: dict) -> None:
     Args:
         subject: Event subject (e.g., "sahool.tenant_id.crm.farmer.created")
         data: Event payload dictionary
+
+    Returns:
+        True if published successfully, False otherwise
     """
-    if app.state.publisher:
-        try:
-            await app.state.publisher.publish(subject, json.dumps(data).encode())
-            logger.info("event_published", subject=subject, event_type=data.get("event_type"))
-        except Exception as e:
-            logger.error("event_publish_failed", subject=subject, error=str(e))
+    if app.state.publisher is None:
+        logger.warning(
+            "nats_publisher_not_initialized",
+            subject=subject,
+            event_type=data.get("event_type"),
+            message="NATS publisher is None - event will be lost. "
+            "Check NATS connection during service startup.",
+        )
+        return False
+
+    try:
+        await app.state.publisher.publish(subject, json.dumps(data).encode())
+        logger.info("event_published", subject=subject, event_type=data.get("event_type"))
+        return True
+    except Exception as e:
+        logger.warning(
+            "event_publish_failed",
+            subject=subject,
+            event_type=data.get("event_type"),
+            error=str(e),
+            message="Failed to publish CRM event to NATS. Event data may be lost.",
+        )
+        return False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

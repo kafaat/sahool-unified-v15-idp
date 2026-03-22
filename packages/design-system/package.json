@@ -15,25 +15,25 @@
       "types": "./dist/themes/index.d.ts",
       "import": "./dist/themes/index.mjs",
       "require": "./dist/themes/index.js",
-      "default": "./src/themes/index.ts"
+      "default": "./dist/themes/index.js"
     },
     "./themes/dark": {
       "types": "./dist/themes/dark.d.ts",
       "import": "./dist/themes/dark.mjs",
       "require": "./dist/themes/dark.js",
-      "default": "./src/themes/dark.ts"
+      "default": "./dist/themes/dark.js"
     },
     "./themes/light": {
       "types": "./dist/themes/light.d.ts",
       "import": "./dist/themes/light.mjs",
       "require": "./dist/themes/light.js",
-      "default": "./src/themes/light.ts"
+      "default": "./dist/themes/light.js"
     },
     "./tokens": {
       "types": "./dist/tokens.d.ts",
       "import": "./dist/tokens.mjs",
       "require": "./dist/tokens.js",
-      "default": "./tokens/tokens.ts"
+      "default": "./dist/tokens.js"
     },
     "./tokens/css": "./tokens/tokens.css",
     "./tokens/tailwind": "./tokens/tailwind.tokens.js"

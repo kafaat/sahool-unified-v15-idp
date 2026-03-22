@@ -14,12 +14,15 @@ import {
   ExecutionContext,
   ForbiddenException,
   BadRequestException,
+  UnauthorizedException,
   Logger,
   SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
 const SKIP_TENANT_KEY = "skipTenantCheck";
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Decorator to skip tenant validation on specific routes
@@ -62,8 +65,18 @@ export class TenantGuard implements CanActivate {
     const user = request.user;
     const headerTenantId = request.headers["x-tenant-id"];
 
+    // Validate that user is authenticated (JWT must have been processed)
+    if (!user) {
+      this.logger.warn(
+        `Unauthenticated request to tenant-protected route [${request.method} ${request.url}]`,
+      );
+      throw new UnauthorizedException(
+        "Authentication required. Provide a valid JWT token.",
+      );
+    }
+
     // Get tenant from JWT user or header
-    const userTenantId = user?.tenantId;
+    const userTenantId = user.tenantId;
     const requestedTenantId = headerTenantId || userTenantId;
 
     if (!requestedTenantId) {
@@ -75,8 +88,18 @@ export class TenantGuard implements CanActivate {
       );
     }
 
+    // Validate Tenant ID format (must be a valid UUID)
+    if (!UUID_REGEX.test(requestedTenantId)) {
+      this.logger.warn(
+        `Invalid Tenant ID format [${request.method} ${request.url}]: tenantId=${requestedTenantId}`,
+      );
+      throw new BadRequestException(
+        "Invalid Tenant ID format. Must be a valid UUID.",
+      );
+    }
+
     // Admin users can access any tenant
-    const isAdmin = user?.roles?.includes("admin");
+    const isAdmin = user.roles?.includes("admin");
 
     if (headerTenantId && userTenantId && headerTenantId !== userTenantId) {
       if (!isAdmin) {

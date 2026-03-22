@@ -904,8 +904,12 @@ class FCMService {
 
   /// Dispose the service
   void dispose() {
-    _notificationController.close();
-    _tokenController.close();
+    if (!_notificationController.isClosed) {
+      _notificationController.close();
+    }
+    if (!_tokenController.isClosed) {
+      _tokenController.close();
+    }
     _instance = null;
     _isInitialized = false;
   }

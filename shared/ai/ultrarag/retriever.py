@@ -179,7 +179,7 @@ class DenseRetriever(Retriever):
             return self._cache[cache_key]
 
         result = await self.embedding_service.embed(text)
-        vector = result.vector
+        vector = result.embedding
 
         # Cache management
         if len(self._cache) >= self._cache_max_size:
@@ -194,7 +194,7 @@ class DenseRetriever(Retriever):
     async def _get_embeddings_batch(self, texts: list[str]) -> list[list[float]]:
         """Get embeddings for multiple texts"""
         results = await self.embedding_service.embed_batch(texts)
-        return [r.vector for r in results]
+        return [r.embedding for r in results]
 
 
 class SparseRetriever(Retriever):

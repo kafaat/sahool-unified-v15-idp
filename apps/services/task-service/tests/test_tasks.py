@@ -9,14 +9,13 @@ from datetime import datetime, timedelta
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import app
+try:
+    from fastapi.testclient import TestClient
+    from src.main import app
+except ImportError:
+    pytest.skip("task-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture

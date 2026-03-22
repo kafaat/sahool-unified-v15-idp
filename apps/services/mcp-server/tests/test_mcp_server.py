@@ -9,15 +9,14 @@ import sys
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.main import app
+try:
+    from fastapi.testclient import TestClient
+    from src.main import app
+except ImportError:
+    pytest.skip("mcp-server dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture

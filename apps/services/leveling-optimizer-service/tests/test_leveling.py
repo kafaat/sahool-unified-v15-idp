@@ -251,7 +251,7 @@ class TestLevelingAPI:
         assert "design_plane" in data
         assert "cut_fill" in data
 
-    def test_get_cost_estimation(self, client):
+    def test_get_cost_estimation(self, client, auth_headers):
         """Test cost estimation endpoint."""
         response = client.get(
             "/api/v1/leveling/cost/FIELD-001",
@@ -261,6 +261,7 @@ class TestLevelingAPI:
                 "field_area_hectares": 2.5,
                 "haul_distance_m": 100,
             },
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -278,7 +279,7 @@ class TestLevelingAPI:
         assert data["total_cost_sar"] > 0
         assert data["cost_per_m3_sar"] > 0
 
-    def test_get_equipment_recommendations(self, client):
+    def test_get_equipment_recommendations(self, client, auth_headers):
         """Test equipment recommendations endpoint."""
         response = client.get(
             "/api/v1/leveling/equipment/FIELD-001",
@@ -287,6 +288,7 @@ class TestLevelingAPI:
                 "haul_distance_m": 150,
                 "method": "single_plane",
             },
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -303,7 +305,7 @@ class TestLevelingAPI:
             assert "cost_per_hour_sar" in equipment
             assert "total_cost_sar" in equipment
 
-    def test_simulate_leveling(self, client, sample_elevation_data):
+    def test_simulate_leveling(self, client, sample_elevation_data, auth_headers):
         """Test leveling simulation endpoint."""
         request_data = {
             "field_id": "FIELD-001",
@@ -314,7 +316,7 @@ class TestLevelingAPI:
             "method": "single_plane",
         }
 
-        response = client.post("/api/v1/leveling/simulate", json=request_data)
+        response = client.post("/api/v1/leveling/simulate", json=request_data, headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()

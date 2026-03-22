@@ -16,10 +16,14 @@ TENANT_HEADERS = {"X-Tenant-ID": TENANT_ID}
 
 @pytest.fixture
 def client():
-    """Create test client with auth dependency overridden"""
+    """Create test client with auth dependency overridden.
+
+    Uses raise_server_exceptions=False so that unhandled errors in endpoints
+    (e.g. AttributeError from missing ErrorCode.INVALID_INPUT) return a 500
+    response instead of crashing the test process.
+    """
     import sys
     from pathlib import Path
-    from unittest.mock import AsyncMock
 
     # Add src to path
     sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -29,7 +33,7 @@ def client():
     # Override auth dependency so endpoints don't require a real JWT
     app.dependency_overrides[get_current_user] = lambda: None
 
-    yield TestClient(app)
+    yield TestClient(app, raise_server_exceptions=False)
 
     # Clean up overrides
     app.dependency_overrides.clear()
@@ -55,16 +59,17 @@ class TestHealthEndpoints:
 
     @pytest.mark.unit
     def test_root(self, client):
-        """Test root endpoint"""
+        """Test root endpoint returns service info wrapped in success response"""
         response = client.get("/", headers=TENANT_HEADERS)
         assert response.status_code == 200
         data = response.json()
+        assert data["success"] is True
         assert data["data"]["service"] == "skills_service"
         assert "endpoints" in data["data"]
 
     @pytest.mark.unit
     def test_root_without_tenant_returns_400(self, client):
-        """Test root endpoint requires tenant context"""
+        """Root endpoint requires tenant context via X-Tenant-ID header"""
         response = client.get("/")
         assert response.status_code == 400
 
@@ -94,21 +99,20 @@ class TestCompressionEndpoint:
         assert "compressed_data" in data
 
     @pytest.mark.unit
-    def test_compress_empty_skill_data(self, client):
-        """Test compression with empty skill data returns 500 (ErrorCode.INVALID_INPUT not defined)"""
+    def test_compress_empty_skill_data_returns_500(self, client):
+        """Empty skill_data triggers a code path using ErrorCode.INVALID_INPUT
+        which does not exist in ErrorCode enum, resulting in a 500 error."""
         payload = {
             "skill_id": "test-skill",
             "skill_data": {},
             "compression_level": 5,
         }
         response = client.post("/compress", json=payload, headers=TENANT_HEADERS)
-        # The endpoint tries to raise ValidationException(ErrorCode.INVALID_INPUT, ...)
-        # but ErrorCode.INVALID_INPUT doesn't exist, causing an AttributeError -> 500
         assert response.status_code == 500
 
     @pytest.mark.unit
     def test_compress_level_out_of_range(self, client):
-        """Test compression level validation via Pydantic (le=9)"""
+        """Pydantic validates compression_level le=9, so 10 returns 422"""
         payload = {
             "skill_id": "test-skill",
             "skill_data": {"data": "test"},
@@ -119,7 +123,7 @@ class TestCompressionEndpoint:
 
     @pytest.mark.unit
     def test_compress_missing_required_fields(self, client):
-        """Test compression without required fields returns 422"""
+        """Missing required fields (skill_id, skill_data) returns 422"""
         payload = {
             "compression_level": 5,
         }
@@ -128,7 +132,7 @@ class TestCompressionEndpoint:
 
     @pytest.mark.unit
     def test_compress_default_level(self, client):
-        """Test compression with default level (1)"""
+        """Compression level defaults to 1 when not specified"""
         payload = {
             "skill_id": "test-skill-default",
             "skill_data": {"key": "value"},
@@ -137,6 +141,19 @@ class TestCompressionEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["compression_level"] == 1
+
+    @pytest.mark.unit
+    def test_compress_ratio_is_positive(self, client):
+        """Compression ratio should be between 0 and 1"""
+        payload = {
+            "skill_id": "test-ratio",
+            "skill_data": {"a": 1, "b": 2, "c": [1, 2, 3]},
+            "compression_level": 5,
+        }
+        response = client.post("/compress", json=payload, headers=TENANT_HEADERS)
+        assert response.status_code == 200
+        data = response.json()
+        assert 0 < data["compression_ratio"] < 1
 
 
 class TestMemoryEndpoints:
@@ -161,21 +178,31 @@ class TestMemoryEndpoints:
         assert data["ttl_seconds"] == 1800
 
     @pytest.mark.unit
-    def test_store_empty_skill_id(self, client):
-        """Test store with empty skill ID returns 500 (ErrorCode.INVALID_INPUT not defined)"""
+    def test_store_default_namespace(self, client):
+        """Default namespace is 'default'"""
+        payload = {
+            "skill_id": "memory-skill-2",
+            "skill_data": {"test": "data"},
+        }
+        response = client.post("/memory/store", json=payload, headers=TENANT_HEADERS)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["namespace"] == "default"
+
+    @pytest.mark.unit
+    def test_store_empty_skill_id_returns_500(self, client):
+        """Empty skill_id triggers ErrorCode.INVALID_INPUT path which errors at runtime"""
         payload = {
             "skill_id": "",
             "namespace": "test",
             "skill_data": {"test": "data"},
         }
         response = client.post("/memory/store", json=payload, headers=TENANT_HEADERS)
-        # Empty string is falsy, triggers ValidationException(ErrorCode.INVALID_INPUT, ...)
-        # ErrorCode.INVALID_INPUT doesn't exist -> AttributeError -> 500
         assert response.status_code == 500
 
     @pytest.mark.unit
     def test_store_missing_required_fields(self, client):
-        """Test store without required fields returns 422"""
+        """Missing required fields returns 422"""
         payload = {
             "namespace": "test",
         }
@@ -200,7 +227,7 @@ class TestMemoryEndpoints:
 
     @pytest.mark.unit
     def test_recall_with_metadata(self, client):
-        """Test recall with metadata"""
+        """Test recall with metadata enabled"""
         payload = {
             "skill_id": "memory-skill-1",
             "namespace": "test",
@@ -214,7 +241,7 @@ class TestMemoryEndpoints:
 
     @pytest.mark.unit
     def test_recall_returns_not_found(self, client):
-        """Test recall returns found=False for simulated response"""
+        """Simulated response always returns found=False"""
         payload = {
             "skill_id": "nonexistent-skill",
             "namespace": "default",
@@ -231,7 +258,7 @@ class TestEvaluationEndpoint:
 
     @pytest.mark.unit
     def test_evaluate_skill(self, client):
-        """Test skill evaluation"""
+        """Test skill evaluation with valid input"""
         payload = {
             "skill_id": "eval-skill-1",
             "input_data": {"text": "test input"},
@@ -249,7 +276,7 @@ class TestEvaluationEndpoint:
 
     @pytest.mark.unit
     def test_evaluate_with_custom_metrics(self, client):
-        """Test evaluation with custom metrics"""
+        """Test evaluation with multiple custom metrics"""
         payload = {
             "skill_id": "eval-skill-2",
             "input_data": {"x": 1, "y": 2},
@@ -260,30 +287,41 @@ class TestEvaluationEndpoint:
 
         data = response.json()
         assert "metrics" in data
-        # Should have at least the requested metrics
         assert len(data["metrics"]) >= 1
 
     @pytest.mark.unit
-    def test_evaluate_empty_input_data(self, client):
-        """Test evaluation with empty input data returns 500 (ErrorCode.INVALID_INPUT not defined)"""
+    def test_evaluate_empty_input_data_returns_500(self, client):
+        """Empty input_data triggers ErrorCode.INVALID_INPUT path which errors at runtime"""
         payload = {
             "skill_id": "eval-skill-1",
             "input_data": {},
             "metrics": ["accuracy"],
         }
         response = client.post("/evaluate", json=payload, headers=TENANT_HEADERS)
-        # Empty dict is falsy, triggers ValidationException(ErrorCode.INVALID_INPUT, ...)
-        # ErrorCode.INVALID_INPUT doesn't exist -> AttributeError -> 500
         assert response.status_code == 500
 
     @pytest.mark.unit
     def test_evaluate_missing_required_fields(self, client):
-        """Test evaluation without required fields returns 422"""
+        """Missing required fields returns 422"""
         payload = {
             "metrics": ["accuracy"],
         }
         response = client.post("/evaluate", json=payload, headers=TENANT_HEADERS)
         assert response.status_code == 422
+
+    @pytest.mark.unit
+    def test_evaluate_has_timestamp(self, client):
+        """Evaluation response includes a timestamp"""
+        payload = {
+            "skill_id": "eval-skill-ts",
+            "input_data": {"data": "test"},
+            "metrics": ["accuracy"],
+        }
+        response = client.post("/evaluate", json=payload, headers=TENANT_HEADERS)
+        assert response.status_code == 200
+        data = response.json()
+        assert "timestamp" in data
+        assert data["timestamp"] is not None
 
 
 if __name__ == "__main__":

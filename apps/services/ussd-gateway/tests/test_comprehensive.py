@@ -382,10 +382,16 @@ class TestHelperFunctions:
         assert lang == "ar"
 
     @pytest.mark.asyncio
-    async def test_get_user_language_no_db_attr(self):
+    async def test_get_user_language_no_db_pool_attr(self):
         from src.main import get_user_language
-        app_mock = MagicMock(spec=[])  # no attributes
-        lang = await get_user_language(app_mock, "+966500000000")
+
+        class FakeState:
+            pass
+
+        class FakeApp:
+            state = FakeState()
+
+        lang = await get_user_language(FakeApp(), "+966500000000")
         assert lang == "ar"
 
     @pytest.mark.asyncio

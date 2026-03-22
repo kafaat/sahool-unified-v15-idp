@@ -91,21 +91,6 @@ export interface ProductSchema {
   };
 }
 
-// JsonLdProps - reserved for future use with children-based rendering
-
-/**
- * Sanitize a JSON-LD string to prevent script injection.
- * Escapes characters that could break out of a <script> context.
- */
-function sanitizeJsonLd(jsonString: string): string {
-  return jsonString
-    .replace(/&/g, '\\u0026')
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/'/g, '\\u0027')
-    .replace(/"/g, '\\u0022');
-}
-
 /**
  * Base component for rendering JSON-LD structured data
  */

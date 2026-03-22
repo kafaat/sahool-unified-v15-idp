@@ -209,9 +209,8 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
           router.push("/dashboard");
         }
       }, 2000);
-    } catch (error) {
+    } catch {
       // Do not expose server error details to the user
-      const _unused = error; // logged server-side; suppress unused var
       showToast({
         type: "error",
         messageAr: "رمز التحقق غير صحيح أو منتهي الصلاحية",
@@ -261,8 +260,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         messageAr: "تم إرسال رمز تحقق جديد",
         message: "New verification code sent",
       });
-    } catch (error) {
-      const _unused = error; // logged server-side; suppress unused var
+    } catch {
       showToast({
         type: "error",
         messageAr: "فشل في إرسال رمز التحقق. الرجاء المحاولة مرة أخرى.",

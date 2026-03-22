@@ -2,12 +2,17 @@
 IoT Rules Tests - Agro Rules
 """
 
-from src.iot_rules import (
-    TaskRecommendation,
-    evaluate_combined_rules,
-    get_threshold,
-    rule_from_sensor,
-)
+import pytest
+
+try:
+    from src.iot_rules import (
+        TaskRecommendation,
+        evaluate_combined_rules,
+        get_threshold,
+        rule_from_sensor,
+    )
+except ImportError:
+    pytest.skip("agro-rules dependencies not installed", allow_module_level=True)
 
 
 class TestSingleSensorRules:

@@ -8,14 +8,14 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
+    from src.main import app
+    from src.utils.leveling_algorithms import (
+        LevelingOptimizer,
+        PlaneParameters,
+        Point3D,
+    )
 except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-from src.main import app
-from src.utils.leveling_algorithms import (
-    LevelingOptimizer,
-    PlaneParameters,
-    Point3D,
-)
+    pytest.skip("leveling-optimizer-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture

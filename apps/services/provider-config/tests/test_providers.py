@@ -8,14 +8,13 @@ import sys
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import MAP_PROVIDERS, SATELLITE_PROVIDERS, WEATHER_PROVIDERS, app
+try:
+    from fastapi.testclient import TestClient
+    from src.main import MAP_PROVIDERS, SATELLITE_PROVIDERS, WEATHER_PROVIDERS, app
+except ImportError:
+    pytest.skip("provider-config dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture

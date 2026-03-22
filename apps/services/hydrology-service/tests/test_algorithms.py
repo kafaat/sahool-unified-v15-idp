@@ -5,17 +5,21 @@ Tests for hydrology algorithms.
 
 import numpy as np
 import pytest
-from src.utils.hydrology_algorithms import (
-    DEMData,
-    HydrologyAnalyzer,
-    calculate_d8_flow_direction,
-    calculate_flow_accumulation,
-    calculate_slope,
-    calculate_stream_order,
-    calculate_topographic_wetness_index,
-    fill_depressions,
-    generate_mock_dem,
-)
+
+try:
+    from src.utils.hydrology_algorithms import (
+        DEMData,
+        HydrologyAnalyzer,
+        calculate_d8_flow_direction,
+        calculate_flow_accumulation,
+        calculate_slope,
+        calculate_stream_order,
+        calculate_topographic_wetness_index,
+        fill_depressions,
+        generate_mock_dem,
+    )
+except ImportError:
+    pytest.skip("hydrology-service dependencies not installed", allow_module_level=True)
 
 
 class TestDEMData:

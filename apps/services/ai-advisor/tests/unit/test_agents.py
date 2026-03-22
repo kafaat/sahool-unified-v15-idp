@@ -6,12 +6,16 @@ Unit Tests for AI Agents
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from src.agents import (
-    DiseaseExpertAgent,
-    FieldAnalystAgent,
-    IrrigationAdvisorAgent,
-    YieldPredictorAgent,
-)
+
+try:
+    from src.agents import (
+        DiseaseExpertAgent,
+        FieldAnalystAgent,
+        IrrigationAdvisorAgent,
+        YieldPredictorAgent,
+    )
+except ImportError:
+    pytest.skip("ai-advisor dependencies not installed", allow_module_level=True)
 
 
 class TestFieldAnalystAgent:

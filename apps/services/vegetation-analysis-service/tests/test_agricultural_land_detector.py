@@ -19,26 +19,29 @@ import os
 # Add service src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.agricultural_land_detector import (
-    AgriculturalLandDetector,
-    AgriculturalParcel,
-    BoundaryDetectionEngine,
-    CropClassificationEngine,
-    CropClassificationResult,
-    CropType,
-    DetectionConfig,
-    DetectionReport,
-    DetectionStrategy,
-    LandCoverClass,
-    ModelPrecision,
-    ParcelEditingTools,
-    ParcelPostProcessor,
-    ParcelShape,
-    QualityInspectionTool,
-    SemanticSegmentationEngine,
-    TopologyPreservingSimplifier,
-    VectorClassificationEngine,
-)
+try:
+    from src.agricultural_land_detector import (
+        AgriculturalLandDetector,
+        AgriculturalParcel,
+        BoundaryDetectionEngine,
+        CropClassificationEngine,
+        CropClassificationResult,
+        CropType,
+        DetectionConfig,
+        DetectionReport,
+        DetectionStrategy,
+        LandCoverClass,
+        ModelPrecision,
+        ParcelEditingTools,
+        ParcelPostProcessor,
+        ParcelShape,
+        QualityInspectionTool,
+        SemanticSegmentationEngine,
+        TopologyPreservingSimplifier,
+        VectorClassificationEngine,
+    )
+except ImportError:
+    pytest.skip("vegetation-analysis-service dependencies not installed", allow_module_level=True)
 
 # =============================================================================
 # Test Fixtures

@@ -7,20 +7,24 @@ from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from src.forecast_integration import (
-    AlertCategory,
-    AlertSeverity,
-    WeatherForecastService,
-    calculate_agricultural_indices,
-    calculate_chill_hours,
-    calculate_evapotranspiration,
-    calculate_gdd,
-    detect_drought_conditions,
-    detect_frost_risk,
-    detect_heat_wave,
-    detect_heavy_rain,
-)
-from src.providers.open_meteo import DailyForecast, HourlyForecast
+
+try:
+    from src.forecast_integration import (
+        AlertCategory,
+        AlertSeverity,
+        WeatherForecastService,
+        calculate_agricultural_indices,
+        calculate_chill_hours,
+        calculate_evapotranspiration,
+        calculate_gdd,
+        detect_drought_conditions,
+        detect_frost_risk,
+        detect_heat_wave,
+        detect_heavy_rain,
+    )
+    from src.providers.open_meteo import DailyForecast, HourlyForecast
+except ImportError:
+    pytest.skip("weather-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture

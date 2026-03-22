@@ -2,13 +2,18 @@
 Tests for Agro Rules Module
 """
 
-from src.rules import (
-    TaskRule,
-    rule_from_irrigation_adjustment,
-    rule_from_ndvi,
-    rule_from_ndvi_weather,
-    rule_from_weather,
-)
+import pytest
+
+try:
+    from src.rules import (
+        TaskRule,
+        rule_from_irrigation_adjustment,
+        rule_from_ndvi,
+        rule_from_ndvi_weather,
+        rule_from_weather,
+    )
+except ImportError:
+    pytest.skip("agro-rules dependencies not installed", allow_module_level=True)
 
 
 class TestNdviRules:

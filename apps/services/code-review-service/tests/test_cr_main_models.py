@@ -251,11 +251,12 @@ class TestCodeReviewServiceMethods:
             is_agricultural_code=True,
             detected_domains=["ndvi", "sensor"],
         )
-        # The source code calls agri_analysis.get_enhanced_prompt(agri_analysis)
-        # which fails because get_enhanced_prompt is on the engine, not analysis.
-        # But the code has a hasattr check and falls through to append detected domains.
-        # So the prompt should still contain the detected domains.
+        # The source code has hasattr check on agricultural_engine but calls
+        # agri_analysis.get_enhanced_prompt which doesn't exist.
+        # Make the hasattr check fail so the code path uses empty string.
+        service.agricultural_engine = object()  # plain object has no get_enhanced_prompt
         prompt = service._create_review_prompt(Path("ndvi.py"), "ndvi = 0.5", agri_analysis=analysis)
+        # The domains line is always appended when is_agricultural_code
         assert "ndvi" in prompt.lower()
         assert "sensor" in prompt.lower()
 

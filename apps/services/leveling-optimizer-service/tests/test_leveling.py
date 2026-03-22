@@ -22,7 +22,7 @@ from src.utils.leveling_algorithms import (
 def auth_headers():
     """Headers with tenant and auth for API requests."""
     return {
-        "X-Tenant-ID": "test-tenant-001",
+        "X-Tenant-ID": "00000000-0000-0000-0000-000000000001",
         "Authorization": "Bearer test-token-for-unit-tests",
     }
 

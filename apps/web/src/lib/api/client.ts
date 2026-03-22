@@ -301,7 +301,7 @@ class SahoolApiClient {
 
     try {
       const response = await unifiedApiClient.post(
-        "/api/v1/crop-health/analyze",
+        "/api/v1/crop-intelligence/analyze",
         formData,
         {
           timeout: 60000, // 60 second timeout for image upload
@@ -743,7 +743,7 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Crop Health API (خدمة مسترجعة من kernel - مع OpenAPI)
+  // Crop Intelligence API (خدمة ذكاء المحاصيل - مع OpenAPI)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getCropHealthDecision(data: {
@@ -752,7 +752,7 @@ class SahoolApiClient {
     weatherConditions: any;
     soilMoisture?: number;
   }) {
-    return this.request<any>("/api/v1/crop-health/decision", {
+    return this.request<any>("/api/v1/crop-intelligence/decision", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -760,7 +760,7 @@ class SahoolApiClient {
 
   async getCropHealthHistory(fieldId: string, days: number = 30) {
     return this.request<any[]>(
-      `/api/v1/crop-health/fields/${fieldId}/history`,
+      `/api/v1/crop-intelligence/fields/${fieldId}/history`,
       {
         params: { days: String(days) },
       },

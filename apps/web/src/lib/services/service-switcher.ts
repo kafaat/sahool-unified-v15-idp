@@ -16,7 +16,7 @@ export type ServiceType =
   | "ndvi"
   | "fertilizer"
   | "irrigation"
-  | "crop-health"
+  | "crop-intelligence"
   | "community"
   | "notifications"
   | "tasks"

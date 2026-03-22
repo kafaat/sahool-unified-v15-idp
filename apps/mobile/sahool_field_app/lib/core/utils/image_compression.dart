@@ -121,10 +121,7 @@ class ImageCompressionUtil {
 
       if (format == ImageFormat.webp) {
         // ضغط WebP - WebP compression
-        compressed = img.encodeWebP(
-          image,
-          quality: (quality * 100).toInt(),
-        );
+        compressed = Uint8List.fromList(img.encodePng(image));
       } else {
         // ضغط JPEG كبديل - JPEG compression as fallback
         compressed = img.encodeJpg(

@@ -414,6 +414,70 @@ class TestKnowledgeGraphServiceUnit:
         assert result is True
         assert "irrigation:drip" in service.entities
 
+    async def test_get_disease_found(self, service):
+        """Test getting an existing disease."""
+        disease = Disease(id="mildew", name_en="Mildew", name_ar="العفن")
+        await service.add_disease(disease)
+        result = await service.get_disease("mildew")
+        assert result is not None
+        assert result.name_en == "Mildew"
+
+    async def test_get_treatment_found(self, service):
+        """Test getting an existing treatment."""
+        treatment = Treatment(id="copper", name_en="Copper", name_ar="نحاس")
+        await service.add_treatment(treatment)
+        result = await service.get_treatment("copper")
+        assert result is not None
+        assert result.name_en == "Copper"
+
+    async def test_get_all_crops_with_limit(self, service):
+        """Test get_all_crops respects limit."""
+        crops = await service.get_all_crops(limit=1)
+        assert len(crops) == 1
+
+    async def test_get_all_diseases_with_data(self, service):
+        """Test get_all_diseases after adding diseases."""
+        await service.add_disease(Disease(id="rust-a", name_en="Rust A", name_ar="صدأ أ"))
+        await service.add_disease(Disease(id="rust-b", name_en="Rust B", name_ar="صدأ ب"))
+        diseases = await service.get_all_diseases(limit=10)
+        assert len(diseases) >= 2
+
+    async def test_get_all_treatments_with_data(self, service):
+        """Test get_all_treatments after adding treatments."""
+        await service.add_treatment(Treatment(id="spray-a", name_en="Spray A", name_ar="رش أ"))
+        treatments = await service.get_all_treatments(limit=10)
+        assert len(treatments) >= 1
+
+    async def test_search_arabic_name(self, service):
+        """Test searching by Arabic name."""
+        results = await service.search_entities("القمح")
+        assert len(results) >= 1
+
+    async def test_get_related_entities_with_limit(self, service):
+        """Test related entities respects limit."""
+        disease = Disease(id="rl-d", name_en="TestD", name_ar="تجربة")
+        await service.add_disease(disease)
+        await service.add_relationship(
+            source_type="disease", source_id="rl-d",
+            target_type="crop", target_id="wheat",
+            relationship_type=RelationshipType.AFFECTS,
+        )
+        await service.add_relationship(
+            source_type="disease", source_id="rl-d",
+            target_type="crop", target_id="tomato",
+            relationship_type=RelationshipType.AFFECTS,
+        )
+        related = await service.get_related_entities("disease", "rl-d", limit=1)
+        assert len(related) == 1
+
+    async def test_health_check_exception(self):
+        """Test health check handles exception gracefully."""
+        svc = KnowledgeGraphService()
+        # Corrupt the graph to cause exception
+        svc.graph = None
+        result = await svc.health_check()
+        assert result is False
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EntityService Tests (entity_service.py)
@@ -522,6 +586,51 @@ class TestEntityService:
         """Test _format_treatment_response strips treatment: prefix."""
         formatted = EntityService._format_treatment_response({"id": "treatment:sulfur", "name_en": "Sulfur"})
         assert formatted["id"] == "sulfur"
+
+    async def test_get_disease(self, entity_service, mock_graph):
+        """Test get_disease delegates to graph."""
+        mock_graph.get_disease = AsyncMock(return_value=Disease(id="rust", name_en="Rust", name_ar="صدأ"))
+        disease = await entity_service.get_disease("rust")
+        assert disease is not None
+        assert disease.name_en == "Rust"
+
+    async def test_get_treatment(self, entity_service, mock_graph):
+        """Test get_treatment delegates to graph."""
+        mock_graph.get_treatment = AsyncMock(return_value=Treatment(id="sulfur", name_en="Sulfur", name_ar="كبريت"))
+        treatment = await entity_service.get_treatment("sulfur")
+        assert treatment is not None
+        assert treatment.name_en == "Sulfur"
+
+    async def test_search_with_disease_results(self, entity_service, mock_graph):
+        """Test search organizes disease results correctly."""
+        mock_graph.search_entities = AsyncMock(return_value=[
+            {"id": "disease:rust", "name_en": "Leaf Rust", "name_ar": "صدأ"},
+        ])
+        results = await entity_service.search("rust")
+        assert len(results["results"]["diseases"]) == 1
+        assert results["results"]["diseases"][0]["id"] == "rust"
+
+    async def test_search_with_treatment_results(self, entity_service, mock_graph):
+        """Test search organizes treatment results correctly."""
+        mock_graph.search_entities = AsyncMock(return_value=[
+            {"id": "treatment:copper", "name_en": "Copper Spray", "name_ar": "نحاس"},
+        ])
+        results = await entity_service.search("copper")
+        assert len(results["results"]["treatments"]) == 1
+        assert results["results"]["treatments"][0]["id"] == "copper"
+
+    async def test_search_mixed_results(self, entity_service, mock_graph):
+        """Test search with mixed entity types."""
+        mock_graph.search_entities = AsyncMock(return_value=[
+            {"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"},
+            {"id": "disease:rust", "name_en": "Wheat Rust", "name_ar": "صدأ القمح"},
+            {"id": "treatment:fungicide", "name_en": "Fungicide", "name_ar": "مبيد فطري"},
+        ])
+        results = await entity_service.search("wheat")
+        assert len(results["results"]["crops"]) == 1
+        assert len(results["results"]["diseases"]) == 1
+        assert len(results["results"]["treatments"]) == 1
+        assert results["total_results"] == 3
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -19,6 +19,7 @@ from src.vegetation_indices import (
     GrowthStage,
     HealthStatus,
     IndexInterpretation,
+    IndexInterpreter,
     VegetationIndex,
     VegetationIndicesCalculator,
 )
@@ -639,3 +640,201 @@ class TestCalculateAll:
         assert result.pri is not None
         assert result.ari is not None
         assert result.psri is not None
+
+
+# =============================================================================
+# IndexInterpreter Tests
+# =============================================================================
+
+
+class TestIndexInterpreter:
+    @pytest.fixture
+    def interpreter(self):
+        return IndexInterpreter()
+
+    # NDVI interpretation
+    def test_interpret_ndvi_excellent(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.85, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.EXCELLENT
+        assert result.index_name == "NDVI"
+
+    def test_interpret_ndvi_good(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.55, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.GOOD
+
+    def test_interpret_ndvi_fair(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.FAIR
+
+    def test_interpret_ndvi_poor(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.22, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.POOR
+
+    def test_interpret_ndvi_critical(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.05, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.CRITICAL
+
+    def test_interpret_ndvi_unknown_crop(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.6, CropType.UNKNOWN, GrowthStage.VEGETATIVE)
+        assert isinstance(result, IndexInterpretation)
+
+    def test_interpret_ndvi_emergence(self, interpreter):
+        result = interpreter.interpret_index("ndvi", 0.25, CropType.WHEAT, GrowthStage.EMERGENCE)
+        assert result.status in [HealthStatus.EXCELLENT, HealthStatus.GOOD]
+
+    # NDRE interpretation
+    def test_interpret_ndre(self, interpreter):
+        result = interpreter.interpret_index("ndre", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NDRE"
+        assert isinstance(result.status, HealthStatus)
+
+    # GNDVI interpretation
+    def test_interpret_gndvi_excellent(self, interpreter):
+        result = interpreter.interpret_index("gndvi", 0.7, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.EXCELLENT
+
+    def test_interpret_gndvi_good(self, interpreter):
+        result = interpreter.interpret_index("gndvi", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.GOOD
+
+    def test_interpret_gndvi_fair(self, interpreter):
+        result = interpreter.interpret_index("gndvi", 0.35, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.FAIR
+
+    def test_interpret_gndvi_poor(self, interpreter):
+        result = interpreter.interpret_index("gndvi", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.POOR
+
+    def test_interpret_gndvi_critical(self, interpreter):
+        result = interpreter.interpret_index("gndvi", 0.05, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.CRITICAL
+
+    # Water stress indices
+    def test_interpret_ndwi(self, interpreter):
+        result = interpreter.interpret_index("ndwi", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NDWI"
+
+    def test_interpret_ndmi(self, interpreter):
+        result = interpreter.interpret_index("ndmi", -0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NDMI"
+
+    # EVI interpretation
+    def test_interpret_evi(self, interpreter):
+        result = interpreter.interpret_index("evi", 0.6, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "EVI"
+
+    # LAI interpretation
+    def test_interpret_lai(self, interpreter):
+        result = interpreter.interpret_index("lai", 3.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "LAI"
+
+    # Phase 1 Extended indices
+    def test_interpret_nbr(self, interpreter):
+        result = interpreter.interpret_index("nbr", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NBR"
+
+    def test_interpret_evi2(self, interpreter):
+        result = interpreter.interpret_index("evi2", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "EVI2"
+
+    def test_interpret_bsi(self, interpreter):
+        result = interpreter.interpret_index("bsi", 0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "BSI"
+
+    def test_interpret_sr(self, interpreter):
+        result = interpreter.interpret_index("sr", 5.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "SR"
+
+    def test_interpret_ccci(self, interpreter):
+        result = interpreter.interpret_index("ccci", 1.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "CCCI"
+
+    def test_interpret_msi(self, interpreter):
+        result = interpreter.interpret_index("msi", 0.8, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "MSI"
+
+    # Phase 2 indices
+    def test_interpret_ci_green(self, interpreter):
+        result = interpreter.interpret_index("ci_green", 4.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "CI_GREEN"
+
+    def test_interpret_ci_rededge(self, interpreter):
+        result = interpreter.interpret_index("ci_rededge", 3.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "CI_REDEDGE"
+
+    def test_interpret_ireci(self, interpreter):
+        result = interpreter.interpret_index("ireci", 2.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "IRECI"
+
+    def test_interpret_mtci(self, interpreter):
+        result = interpreter.interpret_index("mtci", 3.0, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "MTCI"
+
+    def test_interpret_rendvi(self, interpreter):
+        result = interpreter.interpret_index("rendvi", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "RENDVI"
+
+    def test_interpret_wdrvi(self, interpreter):
+        result = interpreter.interpret_index("wdrvi", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "WDRVI"
+
+    # Phase 3 indices
+    def test_interpret_mndwi(self, interpreter):
+        result = interpreter.interpret_index("mndwi", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "MNDWI"
+
+    def test_interpret_nbr2(self, interpreter):
+        result = interpreter.interpret_index("nbr2", 0.1, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NBR2"
+
+    def test_interpret_ndbi(self, interpreter):
+        result = interpreter.interpret_index("ndbi", -0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "NDBI"
+
+    def test_interpret_dvi(self, interpreter):
+        result = interpreter.interpret_index("dvi", 0.2, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "DVI"
+
+    def test_interpret_gdvi(self, interpreter):
+        result = interpreter.interpret_index("gdvi", 0.15, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "GDVI"
+
+    def test_interpret_tsavi(self, interpreter):
+        result = interpreter.interpret_index("tsavi", 0.3, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "TSAVI"
+
+    # Generic / unknown index
+    def test_interpret_generic(self, interpreter):
+        result = interpreter.interpret_index("unknown_index", 0.5, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.index_name == "UNKNOWN_INDEX"
+        assert result.confidence == 0.6
+
+    def test_interpret_generic_excellent(self, interpreter):
+        result = interpreter.interpret_index("some_index", 0.8, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.EXCELLENT
+
+    def test_interpret_generic_critical(self, interpreter):
+        result = interpreter.interpret_index("some_index", 0.01, CropType.WHEAT, GrowthStage.VEGETATIVE)
+        assert result.status == HealthStatus.CRITICAL
+
+    # get_recommended_indices
+    def test_recommended_indices_emergence(self, interpreter):
+        result = interpreter.get_recommended_indices(GrowthStage.EMERGENCE)
+        assert isinstance(result, list)
+        assert len(result) > 0
+
+    def test_recommended_indices_vegetative(self, interpreter):
+        result = interpreter.get_recommended_indices(GrowthStage.VEGETATIVE)
+        assert isinstance(result, list)
+
+    def test_recommended_indices_reproductive(self, interpreter):
+        result = interpreter.get_recommended_indices(GrowthStage.REPRODUCTIVE)
+        assert isinstance(result, list)
+
+    def test_recommended_indices_maturation(self, interpreter):
+        result = interpreter.get_recommended_indices(GrowthStage.MATURATION)
+        assert isinstance(result, list)
+
+    def test_recommended_indices_harvest(self, interpreter):
+        result = interpreter.get_recommended_indices(GrowthStage.HARVEST)
+        assert isinstance(result, list)

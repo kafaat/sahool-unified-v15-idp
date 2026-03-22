@@ -177,14 +177,15 @@ class TestCacheAdapter:
         assert count >= 0
 
     @pytest.mark.asyncio
-    async def test_serialization_error(self):
+    async def test_serialization_fallback(self):
+        """json.dumps with default=str converts any object to string, so set always succeeds."""
         adapter = CacheAdapter(namespace="test")
 
         class Bad:
             pass
 
         result = await adapter.set("key1", Bad())
-        assert result is False
+        assert result is True  # default=str makes serialization always succeed
 
 
 class TestAstronomicalCache:

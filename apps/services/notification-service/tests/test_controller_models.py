@@ -128,6 +128,71 @@ class TestNotificationHistoryResponse:
         assert resp.data is None
 
 
+from src.history_controller import (
+    HistoryStatsResponse,
+    PaginatedHistoryResponse,
+)
+
+
+class TestHistoryStatsResponse:
+    def test_create(self):
+        resp = HistoryStatsResponse(
+            total_notifications=1000,
+            sent=800,
+            failed=50,
+            pending=150,
+            read=600,
+            delivery_rate=80.0,
+            read_rate=75.0,
+        )
+        assert resp.total_notifications == 1000
+        assert resp.delivery_rate == 80.0
+
+
+class TestPaginatedHistoryResponse:
+    def test_create(self):
+        resp = PaginatedHistoryResponse(
+            total=100,
+            page=1,
+            page_size=20,
+            total_pages=5,
+            notifications=[
+                NotificationHistoryResponse(
+                    id="n-1",
+                    user_id="u-1",
+                    title="T",
+                    title_ar="ع",
+                    body="B",
+                    body_ar="ن",
+                    type="system",
+                    priority="low",
+                    channel="in_app",
+                    status="sent",
+                    is_read=True,
+                    created_at=datetime.now(UTC),
+                    sent_at=None,
+                    read_at=None,
+                    expires_at=None,
+                    data=None,
+                )
+            ],
+        )
+        assert resp.total == 100
+        assert resp.total_pages == 5
+        assert len(resp.notifications) == 1
+
+    def test_empty_page(self):
+        resp = PaginatedHistoryResponse(
+            total=0,
+            page=1,
+            page_size=20,
+            total_pages=0,
+            notifications=[],
+        )
+        assert resp.total == 0
+        assert len(resp.notifications) == 0
+
+
 class TestDeliveryLogResponse:
     def test_create(self):
         resp = DeliveryLogResponse(

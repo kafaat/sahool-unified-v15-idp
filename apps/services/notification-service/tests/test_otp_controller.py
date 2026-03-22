@@ -399,3 +399,36 @@ class TestGetOTPMessage:
         msg_en, msg_ar = _get_otp_message("333333", OTPPurpose.TWO_FACTOR, Language.ENGLISH)
         assert "333333" in msg_en
         assert "2FA" in msg_en
+
+
+from src.otp_controller import send_otp_via_channel
+
+
+class TestSendOTPViaChannel:
+    @pytest.mark.asyncio
+    async def test_sms_not_initialized(self):
+        result = await send_otp_via_channel(
+            "+967771234567", "123456", OTPChannel.SMS, OTPPurpose.LOGIN, Language.ARABIC
+        )
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_whatsapp_not_initialized(self):
+        result = await send_otp_via_channel(
+            "+967771234567", "123456", OTPChannel.WHATSAPP, OTPPurpose.LOGIN, Language.ARABIC
+        )
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_telegram_not_initialized(self):
+        result = await send_otp_via_channel(
+            "chat123", "123456", OTPChannel.TELEGRAM, OTPPurpose.LOGIN, Language.ARABIC
+        )
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_email_not_initialized(self):
+        result = await send_otp_via_channel(
+            "test@example.com", "123456", OTPChannel.EMAIL, OTPPurpose.LOGIN, Language.ENGLISH
+        )
+        assert result is False

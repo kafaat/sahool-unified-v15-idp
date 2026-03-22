@@ -242,6 +242,43 @@ class TestNotificationQueueProcessor:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
+class TestQueueProcessorMethods:
+    def test_register_handler(self):
+        processor = NotificationQueueProcessor()
+        async def handler(notif):
+            pass
+        processor.register_handler("push", handler)
+        assert "push" in processor._handlers
+
+    def test_register_multiple_handlers(self):
+        processor = NotificationQueueProcessor()
+        async def push_handler(n): pass
+        async def sms_handler(n): pass
+        processor.register_handler("push", push_handler)
+        processor.register_handler("sms", sms_handler)
+        assert len(processor._handlers) == 2
+
+    @pytest.mark.asyncio
+    async def test_disconnect_without_connection(self):
+        processor = NotificationQueueProcessor()
+        await processor.disconnect()
+        assert processor._redis is None
+
+    @pytest.mark.asyncio
+    async def test_enqueue_without_redis_raises(self):
+        processor = NotificationQueueProcessor()
+        with pytest.raises(RuntimeError, match="Not connected"):
+            await processor.enqueue(
+                user_id="u-1",
+                title="T",
+                title_ar="ع",
+                body="B",
+                body_ar="ن",
+                notification_type="system",
+                channel="push",
+            )
+
+
 class TestGetQueueProcessor:
     def test_returns_singleton(self):
         import src.queue_processor as mod

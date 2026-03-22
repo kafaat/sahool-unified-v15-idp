@@ -2,8 +2,6 @@
 Tests for drone management API endpoints - اختبارات نقاط نهاية إدارة الطائرات
 """
 
-from unittest.mock import AsyncMock, patch
-
 import pytest
 from httpx import ASGITransport, AsyncClient
 from src.api.v1.drones import (

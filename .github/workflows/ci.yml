@@ -284,7 +284,7 @@ jobs:
           pip install --upgrade pip wheel
           # Core test framework and dependencies
           pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout --quiet
-          pip install httpx pyjwt fastapi pydantic jsonschema sqlalchemy structlog redis --quiet
+          pip install httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
           pip install langchain-anthropic --quiet || echo "::warning::langchain-anthropic install failed, some tests may skip"

@@ -146,21 +146,21 @@ jobs:
             --trusted-host pypi.org \
             --trusted-host files.pythonhosted.org \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 

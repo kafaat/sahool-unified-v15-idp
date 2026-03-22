@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 import '../utils/app_logger.dart';
-import '../ai/farm_memory.dart';
 import 'converters/geo_converter.dart';
 import 'database_encryption.dart';
 

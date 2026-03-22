@@ -587,18 +587,7 @@ class TestTokenPayloadIntegrity:
 
         SEVERITY: CRITICAL - Privilege escalation via extra_claims injection.
         """
-        # Test 1: extra_claims={'iss': 'evil'} overwrites issuer - detected by
-        # verify_token's issuer check (this is the SYMPTOM, not a defense)
-        token_evil_iss = create_access_token(
-            user_id="user-001",
-            roles=["farmer"],
-            extra_claims={"iss": "evil"},
-        )
-        with pytest.raises(AuthException) as exc_info:
-            verify_token(token_evil_iss)
-        assert exc_info.value.error.code == "invalid_issuer"
-
-        # Test 2: CRITICAL BUG - extra_claims can overwrite 'sub' to impersonate
+        # CRITICAL BUG TEST: extra_claims can overwrite 'sub' to impersonate
         # any user. Since the issuer stays correct, the token passes verification.
         token_impersonate = create_access_token(
             user_id="innocent-user",
@@ -613,6 +602,21 @@ class TestTokenPayloadIntegrity:
                 "create_access_token() can create a token for ANY user. "
                 "FIX: Filter or reject extra_claims keys that match core JWT fields "
                 "(sub, exp, iat, iss, aud, jti, type, roles)."
+            )
+        # If we get here, sub was NOT overwritten (code is safe for 'sub')
+        # But let's also check if 'roles' can be overwritten for privilege escalation
+        token_escalate = create_access_token(
+            user_id="user-001",
+            roles=["farmer"],
+            extra_claims={"roles": ["admin", "superuser"]},
+        )
+        payload_esc = verify_token(token_escalate)
+        if "admin" in payload_esc.roles:
+            pytest.fail(
+                "BUG CONFIRMED: extra_claims can overwrite 'roles' field, enabling "
+                "privilege escalation. An attacker can elevate to admin via "
+                "extra_claims={'roles': ['admin']}. "
+                "FIX: Reject extra_claims keys matching core JWT fields."
             )
 
     def test_wrong_secret_key_rejected(self):

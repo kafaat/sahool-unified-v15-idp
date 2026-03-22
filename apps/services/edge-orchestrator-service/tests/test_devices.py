@@ -12,6 +12,7 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
+
     from src.main import app
 except ImportError:
     pytest.skip("edge-orchestrator-service dependencies not installed", allow_module_level=True)

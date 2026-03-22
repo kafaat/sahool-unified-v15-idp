@@ -10,8 +10,8 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-from src.main import app
 from src.api.endpoints.leveling import get_current_user
+from src.main import app
 from src.utils.leveling_algorithms import (
     LevelingOptimizer,
     PlaneParameters,

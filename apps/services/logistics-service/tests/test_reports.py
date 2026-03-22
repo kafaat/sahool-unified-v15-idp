@@ -6,7 +6,6 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 # The reports module does `import main as main_mod` (bare import),
 # so we need src/ on sys.path for that to resolve
@@ -36,8 +35,6 @@ from src.api.v1 import (
 # ==========================================================================
 # _to_aware_dt Tests
 # ==========================================================================
-
-
 class TestToAwareDt:
     def test_none_returns_none(self):
         assert _to_aware_dt(None) is None
@@ -68,13 +65,9 @@ class TestToAwareDt:
     def test_non_datetime_non_string_returns_none(self):
         assert _to_aware_dt(12345) is None
         assert _to_aware_dt(True) is None
-
-
 # ==========================================================================
 # _filter_records_by_date Tests
 # ==========================================================================
-
-
 class TestFilterRecordsByDate:
     def test_filter_within_range(self):
         now = datetime.now(UTC)
@@ -111,13 +104,9 @@ class TestFilterRecordsByDate:
             records, now - timedelta(hours=1), now + timedelta(hours=1)
         )
         assert len(result) == 1
-
-
 # ==========================================================================
 # _build_vehicle_summary Tests
 # ==========================================================================
-
-
 class TestBuildVehicleSummary:
     def test_empty_vehicles(self):
         summary = _build_vehicle_summary([])
@@ -147,13 +136,9 @@ class TestBuildVehicleSummary:
         assert summary.active == 0
         assert summary.idle == 2
         assert summary.utilization_rate == 0.0
-
-
 # ==========================================================================
 # _build_shipment_summary Tests
 # ==========================================================================
-
-
 class TestBuildShipmentSummary:
     def test_empty_shipments(self):
         summary = _build_shipment_summary([])
@@ -198,13 +183,9 @@ class TestBuildShipmentSummary:
         ]
         summary = _build_shipment_summary(shipments)
         assert summary.on_time_rate == 0.0
-
-
 # ==========================================================================
 # _build_collection_summary Tests
 # ==========================================================================
-
-
 class TestBuildCollectionSummary:
     def test_empty_collections(self):
         summary = _build_collection_summary([])
@@ -245,13 +226,9 @@ class TestBuildCollectionSummary:
         assert summary.actual_weight_kg == 2550.0
         assert summary.fields_covered == 2
         assert len(summary.by_crop) == 2  # wheat and tomato
-
-
 # ==========================================================================
 # Report Response Model Tests
 # ==========================================================================
-
-
 class TestReportModels:
     def test_vehicle_summary_model(self):
         vs = VehicleSummary(

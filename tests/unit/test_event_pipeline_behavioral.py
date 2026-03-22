@@ -876,7 +876,7 @@ class TestDLQBehavior:
     @pytest.mark.asyncio
     async def test_outbox_relay_dlq_after_max_retries(self):
         """Outbox relay marks event as 'failed' after max retries exhausted."""
-        from shared.events.outbox import OutboxRelay, _MAX_RELAY_RETRIES
+        from shared.events.outbox import _MAX_RELAY_RETRIES, OutboxRelay
 
         mock_conn = AsyncMock()
         mock_conn.fetch = AsyncMock(

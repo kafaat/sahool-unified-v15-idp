@@ -23,6 +23,7 @@ from src.main import (
     app,
     get_db_session,
 )
+
 from shared.auth.dependencies import get_current_user
 
 # Valid UUID for tenant context middleware

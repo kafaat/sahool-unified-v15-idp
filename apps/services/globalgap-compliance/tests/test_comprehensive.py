@@ -5,15 +5,10 @@ Comprehensive unit tests for GlobalGAP Compliance Service.
 Covers: models, services (compliance, checklist, audit), config, NATS publisher, API endpoints.
 """
 
-import sys
-import os
 from datetime import UTC, date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 
 # ---------------------------------------------------------------------------
 # Model Tests
@@ -90,8 +85,6 @@ class TestComplianceModels:
         assert audit.audit_status == "passed"
         assert audit.overall_score == 95.0
         assert audit.follow_up_required is False
-
-
 class TestChecklistModels:
     """Tests for checklist models."""
 
@@ -150,8 +143,6 @@ class TestChecklistModels:
         )
         assert checklist.is_active is True
         assert checklist.total_items == 100
-
-
 class TestCertificateModels:
     """Tests for certificate models."""
 
@@ -245,8 +236,6 @@ class TestCertificateModels:
             compliance_percentage=90.0, minor_must_compliance_percentage=90.0,
         )
         assert cert.is_expiring_soon(days=90) is False
-
-
 # ---------------------------------------------------------------------------
 # Compliance Service Tests
 # ---------------------------------------------------------------------------
@@ -413,8 +402,6 @@ class TestComplianceService:
         trends = await svc.get_compliance_trends("farm_1", "t1", months=6)
         assert len(trends) == 6
         assert "compliance_percentage" in trends[0]
-
-
 # ---------------------------------------------------------------------------
 # Checklist Service Tests
 # ---------------------------------------------------------------------------
@@ -492,8 +479,6 @@ class TestChecklistService:
         summary = await svc.get_assessment_summary("f1", "t1")
         assert summary["total_assessments"] == 0
         assert summary["completion_percentage"] == 0
-
-
 # ---------------------------------------------------------------------------
 # Audit Service Tests
 # ---------------------------------------------------------------------------
@@ -669,8 +654,6 @@ class TestAuditService:
         )
         rec = await svc.generate_audit_certificate_recommendation(audit, cr)
         assert rec["eligible_for_certification"] is False
-
-
 # ---------------------------------------------------------------------------
 # Config Tests
 # ---------------------------------------------------------------------------
@@ -686,8 +669,6 @@ class TestConfig:
         assert s.ifa_version == "6.0"
         assert s.audit_retention_days == 1825
         assert s.certificate_renewal_warning_days == 90
-
-
 # ---------------------------------------------------------------------------
 # NATS Publisher Tests
 # ---------------------------------------------------------------------------
@@ -766,8 +747,6 @@ class TestNatsPublisher:
         set_publisher(None)
         result = await publish_non_conformity_resolved("nc1", "f1", "t1", "Fixed", "auditor")
         assert result is False
-
-
 # ---------------------------------------------------------------------------
 # Compliance Repository Scoring Tests
 # ---------------------------------------------------------------------------
@@ -813,8 +792,6 @@ class TestComplianceRepositoryScoring:
         ]
         scores = repo._calculate_compliance_scores(responses)
         assert scores["overall_compliance"] == 100.0
-
-
 # ---------------------------------------------------------------------------
 # API / Main Module Tests
 # ---------------------------------------------------------------------------
@@ -827,8 +804,9 @@ class TestMainEndpoints:
 
     @pytest.fixture
     def client(self):
-        from src.main import app, get_tenant_id
         from fastapi.testclient import TestClient
+        from src.main import app, get_tenant_id
+
         from shared.auth.dependencies import get_current_user
 
         async def mock_user():
@@ -840,8 +818,8 @@ class TestMainEndpoints:
         app.dependency_overrides[get_current_user] = mock_user
         app.dependency_overrides[get_tenant_id] = mock_tenant
 
-        from src.services.compliance_service import ComplianceService
         from src.services.audit_service import AuditService
+        from src.services.compliance_service import ComplianceService
         app.state.compliance_service = ComplianceService()
         app.state.audit_service = AuditService()
         app.state.nats_publisher = None
@@ -1087,8 +1065,6 @@ class TestMainEndpoints:
             headers=self._HEADERS,
         )
         assert r.status_code == 403
-
-
 class TestDatabaseModule:
     """Tests for database module classes and functions."""
 
@@ -1118,7 +1094,7 @@ class TestDatabaseModule:
         assert repo.table_name == "non_conformances"
 
     def test_singleton_instances(self):
-        from src.database import registrations_repo, compliance_repo, checklist_repo, non_conformance_repo
+        from src.database import checklist_repo, compliance_repo, non_conformance_repo, registrations_repo
         assert registrations_repo is not None
         assert compliance_repo is not None
         assert checklist_repo is not None
@@ -1131,8 +1107,9 @@ class TestDatabaseModule:
         assert "GlobalGAPRegistrationRepository" in __all__
 
     def test_compliance_repository_trend_insufficient_data(self):
-        from src.repositories.compliance_repository import ComplianceRepository
         import asyncio
+
+        from src.repositories.compliance_repository import ComplianceRepository
         repo = ComplianceRepository()
         trend = asyncio.get_event_loop().run_until_complete(
             repo._calculate_compliance_trend([{"audit_date": None}])
@@ -1140,9 +1117,10 @@ class TestDatabaseModule:
         assert trend == "INSUFFICIENT_DATA"
 
     def test_compliance_repository_trend_improving(self):
-        from src.repositories.compliance_repository import ComplianceRepository
-        from datetime import date
         import asyncio
+        from datetime import date
+
+        from src.repositories.compliance_repository import ComplianceRepository
         repo = ComplianceRepository()
         records = [
             {"audit_date": date(2025, 1, 1), "overall_compliance": 70.0},
@@ -1154,9 +1132,10 @@ class TestDatabaseModule:
         assert trend == "IMPROVING"
 
     def test_compliance_repository_trend_declining(self):
-        from src.repositories.compliance_repository import ComplianceRepository
-        from datetime import date
         import asyncio
+        from datetime import date
+
+        from src.repositories.compliance_repository import ComplianceRepository
         repo = ComplianceRepository()
         records = [
             {"audit_date": date(2025, 1, 1), "overall_compliance": 90.0},
@@ -1168,9 +1147,10 @@ class TestDatabaseModule:
         assert trend == "DECLINING"
 
     def test_compliance_repository_trend_stable(self):
-        from src.repositories.compliance_repository import ComplianceRepository
-        from datetime import date
         import asyncio
+        from datetime import date
+
+        from src.repositories.compliance_repository import ComplianceRepository
         repo = ComplianceRepository()
         records = [
             {"audit_date": date(2025, 1, 1), "overall_compliance": 85.0},
@@ -1182,9 +1162,10 @@ class TestDatabaseModule:
         assert trend == "STABLE"
 
     def test_compliance_repository_trend_unknown(self):
-        from src.repositories.compliance_repository import ComplianceRepository
-        from datetime import date
         import asyncio
+        from datetime import date
+
+        from src.repositories.compliance_repository import ComplianceRepository
         repo = ComplianceRepository()
         records = [
             {"audit_date": date(2025, 1, 1), "overall_compliance": None},

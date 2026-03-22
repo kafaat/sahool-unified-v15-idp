@@ -9,10 +9,9 @@ actual hardware or models.
 import pytest
 
 np = pytest.importorskip("numpy", reason="numpy required for vision tests")
+import json
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
-import json
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures
@@ -83,8 +82,8 @@ class TestQuaternionGeoProjector:
     def test_projector_initialization(self, sample_camera_intrinsics):
         """Test projector initialization."""
         from apps.services.ground_vision_service.src.core.geo_projection import (
-            QuaternionGeoProjector,
             CameraIntrinsicsMatrix,
+            QuaternionGeoProjector,
         )
 
         intrinsics = CameraIntrinsicsMatrix(**sample_camera_intrinsics)
@@ -106,8 +105,8 @@ class TestQuaternionGeoProjector:
     def test_pixel_to_geo_conversion(self, sample_camera_intrinsics):
         """Test pixel to geographic coordinate conversion."""
         from apps.services.ground_vision_service.src.core.geo_projection import (
-            QuaternionGeoProjector,
             CameraIntrinsicsMatrix,
+            QuaternionGeoProjector,
         )
 
         intrinsics = CameraIntrinsicsMatrix(**sample_camera_intrinsics)
@@ -133,8 +132,8 @@ class TestQuaternionGeoProjector:
     def test_footprint_polygon_generation(self, sample_camera_intrinsics):
         """Test ground footprint polygon generation."""
         from apps.services.ground_vision_service.src.core.geo_projection import (
-            QuaternionGeoProjector,
             CameraIntrinsicsMatrix,
+            QuaternionGeoProjector,
         )
 
         intrinsics = CameraIntrinsicsMatrix(**sample_camera_intrinsics)
@@ -377,9 +376,9 @@ class TestAnomalyDetector:
         )
         from apps.services.ground_vision_service.src.models.anomaly import (
             AnomalyDetection,
-            AnomalyType,
-            AnomalySeverity,
             AnomalyLocation,
+            AnomalySeverity,
+            AnomalyType,
         )
 
         detector = AnomalyDetector()
@@ -433,13 +432,14 @@ class TestCropTimelineReasoner:
     @pytest.mark.asyncio
     async def test_should_analyze_decision(self, sample_frame):
         """Test should_analyze decision logic."""
+        import io
+
         from apps.services.ground_vision_service.src.intelligence.mllm_reasoner import (
             CropTimelineReasoner,
         )
         from apps.services.ground_vision_service.src.models.timeline import (
             TimeSeriesFrame,
         )
-        import io
         from PIL import Image
 
         reasoner = CropTimelineReasoner(change_threshold=0.15)
@@ -502,10 +502,10 @@ class TestGroundVisionPublisher:
             GroundVisionPublisher,
         )
         from apps.services.ground_vision_service.src.models.detection import (
+            BoundingBox,
+            DetectionConfidence,
             FieldOperationDetection,
             OperationType,
-            DetectionConfidence,
-            BoundingBox,
         )
 
         mock_nc = AsyncMock()
@@ -607,10 +607,10 @@ class TestModels:
     def test_camera_model_creation(self):
         """Test TowerCamera model creation."""
         from apps.services.ground_vision_service.src.models.camera import (
-            TowerCamera,
-            CameraIntrinsics,
             CameraExtrinsics,
+            CameraIntrinsics,
             CameraStatus,
+            TowerCamera,
         )
 
         intrinsics = CameraIntrinsics(
@@ -648,10 +648,10 @@ class TestModels:
     def test_detection_model_arabic_translation(self):
         """Test automatic Arabic translation in detection model."""
         from apps.services.ground_vision_service.src.models.detection import (
+            BoundingBox,
+            DetectionConfidence,
             FieldOperationDetection,
             OperationType,
-            DetectionConfidence,
-            BoundingBox,
         )
 
         detection = FieldOperationDetection(
@@ -673,9 +673,9 @@ class TestModels:
         """Test anomaly severity response time mapping."""
         from apps.services.ground_vision_service.src.models.anomaly import (
             AnomalyDetection,
-            AnomalyType,
-            AnomalySeverity,
             AnomalyLocation,
+            AnomalySeverity,
+            AnomalyType,
         )
 
         critical_anomaly = AnomalyDetection(

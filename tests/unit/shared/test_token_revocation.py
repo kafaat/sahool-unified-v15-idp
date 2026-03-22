@@ -6,7 +6,7 @@ Tests for Redis-based token revocation storage and verification
 import json
 import os
 import time
-from datetime import timezone, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -29,7 +29,6 @@ from shared.auth.token_revocation import (
     revoke_all_user_tokens,
     revoke_token,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

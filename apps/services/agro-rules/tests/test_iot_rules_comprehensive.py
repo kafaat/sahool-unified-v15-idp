@@ -3,13 +3,7 @@ Comprehensive edge case tests for iot_rules.py
 Covers all sensor types, crop-specific thresholds, boundary conditions, combined rules
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.iot_rules import (
     THRESHOLDS,
     TaskRecommendation,
@@ -54,8 +48,6 @@ class TestTaskRecommendationDataclass:
         expected_keys = {"title_ar", "title_en", "description_ar", "description_en",
                          "task_type", "priority", "urgency_hours", "metadata"}
         assert set(d.keys()) == expected_keys
-
-
 class TestGetThreshold:
     """Tests for threshold lookup"""
 
@@ -87,8 +79,6 @@ class TestGetThreshold:
         t = get_threshold("soil_temperature", "coffee")
         assert t["low"] == 18
         assert t["high"] == 28
-
-
 class TestWaterFlowRules:
     """Tests for water flow sensor rules"""
 
@@ -109,8 +99,6 @@ class TestWaterFlowRules:
         rec = rule_from_sensor("water_flow", 0)
         assert rec.metadata["sensor_type"] == "water_flow"
         assert rec.metadata["value"] == 0
-
-
 class TestWaterLevelRules:
     """Tests for water level sensor rules"""
 
@@ -135,8 +123,6 @@ class TestWaterLevelRules:
         """Test full tank returns None"""
         rec = rule_from_sensor("water_level", 90)
         assert rec is None
-
-
 class TestSoilMoistureRulesBoundaries:
     """Boundary tests for soil moisture rules"""
 
@@ -191,8 +177,6 @@ class TestSoilMoistureRulesBoundaries:
         rec = rule_from_sensor("soil_moisture", 25, crop="coffee")
         assert rec is not None
         assert rec.priority == "high"
-
-
 class TestAirTemperatureRulesBoundaries:
     """Boundary tests for air temperature rules"""
 
@@ -246,8 +230,6 @@ class TestAirTemperatureRulesBoundaries:
         rec = rule_from_sensor("air_temperature", 39, crop="tomato")
         assert rec is not None
         assert rec.priority == "urgent"
-
-
 class TestSoilTemperatureRules:
     """Tests for soil temperature rules"""
 
@@ -276,8 +258,6 @@ class TestSoilTemperatureRules:
         rec = rule_from_sensor("soil_temperature", 33, crop="coffee")
         assert rec is not None
         assert rec.task_type == "manual"
-
-
 class TestSoilEcRules:
     """Tests for soil EC (salinity) rules"""
 
@@ -304,8 +284,6 @@ class TestSoilEcRules:
         # 6.0 is NOT > 6.0, falls to high check (> 4.0)
         assert rec is not None
         assert rec.priority == "high"
-
-
 class TestAirHumidityRules:
     """Tests for air humidity rules"""
 
@@ -336,8 +314,6 @@ class TestAirHumidityRules:
         """Test boundary: 30 is NOT < 30"""
         rec = rule_from_sensor("air_humidity", 30)
         assert rec is None
-
-
 class TestUnknownSensorType:
     """Tests for unknown sensor types"""
 
@@ -350,8 +326,6 @@ class TestUnknownSensorType:
         """Test unknown sensor with crop context returns None"""
         rec = rule_from_sensor("uv_index", 10, crop="tomato")
         assert rec is None
-
-
 class TestContextParameter:
     """Tests for context parameter handling"""
 
@@ -365,8 +339,6 @@ class TestContextParameter:
         """Test context dict doesn't break anything"""
         rec = rule_from_sensor("soil_moisture", 5, context={"field_id": "f1"})
         assert rec is not None
-
-
 class TestEvaluateCombinedRules:
     """Additional combined rule tests"""
 

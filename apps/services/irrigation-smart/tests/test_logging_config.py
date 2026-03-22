@@ -3,38 +3,31 @@ Comprehensive tests for irrigation-smart service logging_config.py
 Tests cover: StructuredFormatter, IrrigationLogger, context vars, log_performance decorator
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import asyncio
 import json
 import logging
+import os
 import time
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from src.logging_config import (
     IrrigationLogContext,
-    StructuredFormatter,
     IrrigationLogger,
-    get_irrigation_logger,
-    log_performance,
+    StructuredFormatter,
     _correlation_id,
+    _field_id,
     _tenant_id,
     _user_id,
-    _field_id,
+    get_irrigation_logger,
+    log_performance,
 )
 
 
 # ============================================================================
 # IrrigationLogContext Tests
 # ============================================================================
-
-
 class TestIrrigationLogContext:
     def test_defaults_are_none(self):
         ctx = IrrigationLogContext()
@@ -55,13 +48,9 @@ class TestIrrigationLogContext:
         assert ctx.field_id == "f1"
         assert ctx.crop == "wheat"
         assert ctx.water_amount_m3 == 5.0
-
-
 # ============================================================================
 # StructuredFormatter Tests
 # ============================================================================
-
-
 class TestStructuredFormatter:
     def test_format_produces_json(self):
         formatter = StructuredFormatter("test-service")
@@ -185,13 +174,9 @@ class TestStructuredFormatter:
     def test_default_service_name(self):
         formatter = StructuredFormatter()
         assert formatter.service_name == "irrigation-smart"
-
-
 # ============================================================================
 # IrrigationLogger Tests
 # ============================================================================
-
-
 class TestIrrigationLogger:
     def setup_method(self):
         """Create a fresh logger for each test."""
@@ -294,13 +279,9 @@ class TestIrrigationLogger:
             operation="water_need",
             error="division by zero",
         )
-
-
 # ============================================================================
 # get_irrigation_logger Tests
 # ============================================================================
-
-
 class TestGetIrrigationLogger:
     def test_returns_logger_instance(self):
         # Reset global state
@@ -339,13 +320,9 @@ class TestGetIrrigationLogger:
             assert not isinstance(handler.formatter, StructuredFormatter)
 
         lc._irrigation_logger = None
-
-
 # ============================================================================
 # log_performance Decorator Tests
 # ============================================================================
-
-
 class TestLogPerformance:
     @pytest.mark.asyncio
     async def test_async_function_returns_result(self):

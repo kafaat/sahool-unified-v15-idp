@@ -2,19 +2,12 @@
 Tests for Embedding Service (rag/embeddings.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestEmbeddingProvider:
     def test_all_providers(self):
         from src.rag.embeddings import EmbeddingProvider
@@ -22,8 +15,6 @@ class TestEmbeddingProvider:
         assert EmbeddingProvider.SENTENCE_TRANSFORMERS == "sentence_transformers"
         assert EmbeddingProvider.OLLAMA == "ollama"
         assert EmbeddingProvider.OPENAI == "openai"
-
-
 class TestEmbeddingConfig:
     def test_defaults(self):
         from src.rag.embeddings import EmbeddingConfig, EmbeddingProvider
@@ -33,8 +24,6 @@ class TestEmbeddingConfig:
         assert config.batch_size == 32
         assert config.cache_enabled is True
         assert config.cache_max_size == 10000
-
-
 class TestEmbeddingResult:
     def test_creation(self):
         from src.rag.embeddings import EmbeddingResult
@@ -47,8 +36,6 @@ class TestEmbeddingResult:
         )
         assert r.cached is False
         assert r.dimension == 2
-
-
 class TestEmbeddingService:
     def test_default_dimension(self):
         from src.rag.embeddings import EmbeddingService
@@ -165,8 +152,9 @@ class TestEmbeddingService:
 
     @pytest.mark.asyncio
     async def test_embed_fallback_produces_normalized_vector(self):
-        from src.rag.embeddings import EmbeddingService
         import math
+
+        from src.rag.embeddings import EmbeddingService
 
         service = EmbeddingService()
         await service._fallback_init()
@@ -198,12 +186,10 @@ class TestEmbeddingService:
         assert result is True
         assert service._dimension == 384
         assert service._initialized is True
-
-
 class TestGlobalEmbeddingService:
     def test_get_embedding_service(self):
-        from src.rag.embeddings import EmbeddingService, get_embedding_service
         import src.rag.embeddings as emod
+        from src.rag.embeddings import EmbeddingService, get_embedding_service
 
         emod._embedding_service = None
         s = get_embedding_service()

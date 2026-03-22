@@ -2,17 +2,11 @@
 Tests for FieldOps Client - HTTP client for field-management-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-import pytest
-import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-
+import pytest
+import pytest_asyncio
 from src.fieldops_client import FieldOpsClient, get_fieldops_client
 
 
@@ -33,8 +27,6 @@ class TestFieldOpsClientInit:
         """Test _client starts as None"""
         client = FieldOpsClient()
         assert client._client is None
-
-
 class TestFieldOpsClientGetClient:
     """Tests for lazy HTTP client creation"""
 
@@ -55,8 +47,6 @@ class TestFieldOpsClientGetClient:
         c2 = await client._get_client()
         assert c1 is c2
         await client.close()
-
-
 class TestFieldOpsClientClose:
     """Tests for client cleanup"""
 
@@ -75,8 +65,6 @@ class TestFieldOpsClientClose:
         assert client._client is not None
         await client.close()
         assert client._client is None
-
-
 class TestFieldOpsClientCreateTask:
     """Tests for task creation"""
 
@@ -276,8 +264,6 @@ class TestFieldOpsClientCreateTask:
         payload = mock_http.post.call_args.kwargs["json"]
         assert payload["task_type"] == "emergency"
         assert payload["source"] == "iot_rules"
-
-
 class TestFieldOpsClientUpdateTaskStatus:
     """Tests for task status updates"""
 
@@ -309,8 +295,6 @@ class TestFieldOpsClientUpdateTaskStatus:
 
         result = await client.update_task_status("task-1", "completed")
         assert result["status"] == "error"
-
-
 class TestFieldOpsClientGetTask:
     """Tests for getting a task"""
 
@@ -357,8 +341,6 @@ class TestFieldOpsClientGetTask:
 
         result = await client.get_task("task-1")
         assert result is None
-
-
 class TestFieldOpsClientListTasks:
     """Tests for listing tasks"""
 
@@ -442,8 +424,6 @@ class TestFieldOpsClientListTasks:
 
         result = await client.list_tasks()
         assert result == []
-
-
 class TestFieldOpsClientHealthCheck:
     """Tests for health check"""
 
@@ -488,8 +468,6 @@ class TestFieldOpsClientHealthCheck:
 
         result = await client.health_check()
         assert result is False
-
-
 class TestGetFieldOpsClientSingleton:
     """Tests for the singleton factory"""
 

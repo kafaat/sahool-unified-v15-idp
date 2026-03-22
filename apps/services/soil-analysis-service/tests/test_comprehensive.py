@@ -7,22 +7,16 @@ trends, products, crop requirements, nutrient/pH/EC status, rate calculation),
 Pydantic request models, tenant extraction, and error handling.
 """
 
-import sys
-import os
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Default headers for all requests that need tenant context
 # TenantContextMiddleware requires X-Tenant-ID header with valid UUID format
 _TEST_TENANT = "00000000-0000-0000-0000-000000000001"
 TENANT_HEADERS = {"X-Tenant-Id": _TEST_TENANT}
 AUTH_HEADERS = {"X-Tenant-Id": _TEST_TENANT, "Authorization": "Bearer test-token"}
-
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -34,14 +28,12 @@ def _clear_soil_tests():
     st_mod._soil_tests.clear()
     yield
     st_mod._soil_tests.clear()
-
-
 @pytest.fixture
 def client():
     """Create a FastAPI TestClient with mocked auth via dependency_overrides."""
-    from src.main import app
-    from src.api.v1.soil_tests import get_current_user
     from fastapi.testclient import TestClient
+    from src.api.v1.soil_tests import get_current_user
+    from src.main import app
 
     async def mock_user():
         return {"id": "user1", "sub": "user1"}
@@ -52,8 +44,6 @@ def client():
     c = TestClient(app, raise_server_exceptions=False)
     yield c
     app.dependency_overrides.clear()
-
-
 # ---------------------------------------------------------------------------
 # Request Model Tests
 # ---------------------------------------------------------------------------
@@ -130,8 +120,6 @@ class TestRequestModels:
         from src.api.v1.soil_tests import TrendRequest
         r = TrendRequest(field_id="field_1")
         assert r.field_id == "field_1"
-
-
 # ---------------------------------------------------------------------------
 # Tenant ID Extraction Tests
 # ---------------------------------------------------------------------------
@@ -144,13 +132,11 @@ class TestTenantId:
         assert get_tenant_id("tenant_1") == "tenant_1"
 
     def test_get_tenant_id_missing(self):
-        from src.api.v1.soil_tests import get_tenant_id
         from fastapi import HTTPException
+        from src.api.v1.soil_tests import get_tenant_id
         with pytest.raises(HTTPException) as exc_info:
             get_tenant_id(None)
         assert exc_info.value.status_code == 400
-
-
 # ---------------------------------------------------------------------------
 # Health Endpoint Tests
 # ---------------------------------------------------------------------------
@@ -189,8 +175,6 @@ class TestHealthEndpoints:
         r = client.get("/metrics")
         assert r.status_code == 200
         assert "soil_analysis_service_up 1" in r.text
-
-
 # ---------------------------------------------------------------------------
 # Soil Test CRUD Tests
 # ---------------------------------------------------------------------------
@@ -286,8 +270,6 @@ class TestSoilTestCRUD:
             headers=AUTH_HEADERS,
         )
         assert r.status_code == 404
-
-
 # ---------------------------------------------------------------------------
 # Interpretation Endpoint Tests (with shared module mocked/unavailable)
 # ---------------------------------------------------------------------------

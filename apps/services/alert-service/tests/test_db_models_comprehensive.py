@@ -3,11 +3,6 @@ SAHOOL Alert Service - Comprehensive DB Model Tests
 Tests for Alert and AlertRule SQLAlchemy ORM models, to_dict(), __repr__(), and edge cases.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 try:
@@ -22,8 +17,6 @@ from uuid import UUID, uuid4
 # ═══════════════════════════════════════════════════════════════════════════════
 # Alert Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertModel:
     """Tests for Alert SQLAlchemy model."""
 
@@ -158,13 +151,9 @@ class TestAlertModel:
         # __table_args__ should be a tuple with Index objects
         assert isinstance(Alert.__table_args__, tuple)
         assert len(Alert.__table_args__) >= 5  # 5 indexes defined
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRule Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertRuleModel:
     """Tests for AlertRule SQLAlchemy model."""
 
@@ -249,13 +238,9 @@ class TestAlertRuleModel:
         # Verify they parse back
         datetime.fromisoformat(d["created_at"])
         datetime.fromisoformat(d["updated_at"])
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Base declarative_base Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestBase:
     """Test the SQLAlchemy Base."""
 

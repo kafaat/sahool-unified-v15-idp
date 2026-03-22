@@ -4,15 +4,14 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from src.events.publisher import (
     CRITICAL_PESTS,
     VISION_SUBJECTS,
     _confidence_to_severity,
+    publish_analysis_event,
+    publish_disease_detection,
     publish_event,
     publish_pest_detection,
-    publish_disease_detection,
-    publish_analysis_event,
 )
 
 

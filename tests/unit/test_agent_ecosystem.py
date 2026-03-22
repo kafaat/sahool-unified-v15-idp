@@ -1,11 +1,12 @@
 """Tests for AI agent ecosystem."""
 
 import pytest
+
 from shared.ai.agent_ecosystem import (
-    AgentEcosystem,
-    AgentCategory,
-    AgentStatus,
     AGENT_DEFINITIONS,
+    AgentCategory,
+    AgentEcosystem,
+    AgentStatus,
 )
 
 

@@ -2,13 +2,7 @@
 Tests for Disease Rules Engine - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.engine.disease_rules import (
     DiseaseAssessment,
     _adjust_for_weather,
@@ -55,8 +49,6 @@ class TestDiseaseAssessment:
         )
         assert a.details == {}
         assert a.to_dict()["details"] == {}
-
-
 class TestAssessFromImageEvent:
     """Tests for assess_from_image_event function"""
 
@@ -112,8 +104,6 @@ class TestAssessFromImageEvent:
         assert result is not None
         assert "symptoms_ar" in result.details
         assert "symptoms_en" in result.details
-
-
 class TestAssessFromSymptoms:
     """Tests for assess_from_symptoms function"""
 
@@ -183,8 +173,6 @@ class TestAssessFromSymptoms:
         # wheat_rust should not appear for banana (it is crop=wheat)
         ids = [r.disease_id for r in results]
         assert "wheat_rust" not in ids
-
-
 class TestAdjustForWeather:
     """Tests for _adjust_for_weather function"""
 
@@ -218,8 +206,6 @@ class TestAdjustForWeather:
         severity, urgency = _adjust_for_weather(disease, {"humidity": 90}, "medium", 48)
         assert severity == "medium"
         assert urgency == 48
-
-
 class TestGetActionDetails:
     """Tests for get_action_details function"""
 

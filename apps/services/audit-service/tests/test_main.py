@@ -21,10 +21,10 @@ VALID_TENANT_ID = "00000000-0000-0000-0000-000000000001"
 
 def _make_client():
     """Create a test client with auth dependency overridden."""
+    from src.main import app
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-
-    from src.main import app
 
     # Override the auth dependency so we don't need real JWT tokens
     async def mock_current_user():

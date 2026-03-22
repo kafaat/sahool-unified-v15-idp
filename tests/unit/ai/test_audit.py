@@ -15,15 +15,14 @@ from datetime import datetime
 import pytest
 
 from shared.ai.audit import (
+    LLM_COSTS,
     AIAuditLogger,
     AuditEvent,
     AuditEventType,
     SafetyLevel,
     calculate_cost,
     get_audit_logger,
-    LLM_COSTS,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

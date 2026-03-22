@@ -25,8 +25,8 @@ from sqlalchemy.pool import StaticPool
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # Import AFTER conftest has injected the fake 'database' module
-from src.main import app
 from src.database import get_db
+from src.main import app
 
 # Re-import the Base that models actually use (the one from conftest)
 import database as _db_mod

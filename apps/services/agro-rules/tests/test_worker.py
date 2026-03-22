@@ -2,16 +2,10 @@
 Tests for Agro Rules Worker - event-driven task generation from NDVI/Weather events
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
-
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from src.worker import AgroRulesWorker
 
 
@@ -20,8 +14,6 @@ def _make_msg(data: dict) -> MagicMock:
     msg = MagicMock()
     msg.data = json.dumps(data).encode()
     return msg
-
-
 class TestAgroRulesWorkerInit:
     """Tests for worker initialization"""
 
@@ -34,8 +26,6 @@ class TestAgroRulesWorkerInit:
             assert worker._recent_ndvi == {}
             assert worker._recent_weather == {}
             assert worker._processed_events == set()
-
-
 class TestHandleNdviComputed:
     """Tests for NDVI computed event handler"""
 
@@ -159,8 +149,6 @@ class TestHandleNdviComputed:
 
             # Should not raise
             await worker._handle_ndvi_computed(bad_msg)
-
-
 class TestHandleNdviAnomaly:
     """Tests for NDVI anomaly event handler"""
 
@@ -251,8 +239,6 @@ class TestHandleNdviAnomaly:
             await worker._handle_ndvi_anomaly(msg)
             await worker._handle_ndvi_anomaly(msg)
             assert worker.fieldops.create_task.call_count == 1
-
-
 class TestHandleWeatherAlert:
     """Tests for weather alert event handler"""
 
@@ -324,8 +310,6 @@ class TestHandleWeatherAlert:
 
             await worker._handle_weather_alert(msg)
             worker.fieldops.create_task.assert_not_called()
-
-
 class TestHandleIrrigationAdjustment:
     """Tests for irrigation adjustment event handler"""
 
@@ -380,8 +364,6 @@ class TestHandleIrrigationAdjustment:
 
             await worker._handle_irrigation_adjustment(msg)
             worker.fieldops.create_task.assert_not_called()
-
-
 class TestCreateTask:
     """Tests for internal _create_task method"""
 
@@ -434,8 +416,6 @@ class TestCreateTask:
 
             # Should not raise
             await worker._create_task("t1", "f1", rule, "c1")
-
-
 class TestCleanupProcessedEvents:
     """Tests for event deduplication cleanup"""
 
@@ -454,8 +434,6 @@ class TestCleanupProcessedEvents:
             worker._processed_events = {f"evt-{i}" for i in range(10001)}
             worker._cleanup_processed_events()
             assert len(worker._processed_events) == 5000
-
-
 class TestWorkerStartStop:
     """Tests for worker lifecycle"""
 

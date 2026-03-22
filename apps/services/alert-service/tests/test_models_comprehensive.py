@@ -3,11 +3,6 @@ SAHOOL Alert Service - Comprehensive Model Tests
 Tests for all Pydantic models, enums, validation logic, and edge cases.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 try:
@@ -22,8 +17,6 @@ from uuid import uuid4
 # ═══════════════════════════════════════════════════════════════════════════════
 # Enum Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertTypeEnum:
     """Exhaustive tests for AlertType enum."""
 
@@ -54,8 +47,6 @@ class TestAlertTypeEnum:
         from src.models import AlertType
 
         assert len(AlertType) == 11
-
-
 class TestAlertSeverityEnum:
     """Exhaustive tests for AlertSeverity enum."""
 
@@ -78,8 +69,6 @@ class TestAlertSeverityEnum:
 
         with pytest.raises(ValueError):
             AlertSeverity("ultra_critical")
-
-
 class TestAlertStatusEnum:
     """Exhaustive tests for AlertStatus enum."""
 
@@ -96,8 +85,6 @@ class TestAlertStatusEnum:
         from src.models import AlertStatus
 
         assert len(AlertStatus) == 5
-
-
 class TestConditionOperatorEnum:
     """Tests for ConditionOperator enum."""
 
@@ -115,13 +102,9 @@ class TestConditionOperatorEnum:
         from src.models import ConditionOperator
 
         assert len(ConditionOperator) == 6
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertCreate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertCreateModel:
     """Tests for AlertCreate Pydantic model."""
 
@@ -170,7 +153,6 @@ class TestAlertCreateModel:
 
     def test_title_min_length_validation(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -184,7 +166,6 @@ class TestAlertCreateModel:
 
     def test_title_max_length_validation(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -198,7 +179,6 @@ class TestAlertCreateModel:
 
     def test_message_min_length_validation(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -212,7 +192,6 @@ class TestAlertCreateModel:
 
     def test_message_max_length_validation(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -226,7 +205,6 @@ class TestAlertCreateModel:
 
     def test_missing_required_field_id(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -239,7 +217,6 @@ class TestAlertCreateModel:
 
     def test_missing_required_type(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate
 
         with pytest.raises(ValidationError):
@@ -252,7 +229,6 @@ class TestAlertCreateModel:
 
     def test_invalid_type_value(self):
         from pydantic import ValidationError
-
         from src.models import AlertCreate
 
         with pytest.raises(ValidationError):
@@ -263,13 +239,9 @@ class TestAlertCreateModel:
                 title="title",
                 message="msg",
             )
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertUpdate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertUpdateModel:
     """Tests for AlertUpdate Pydantic model."""
 
@@ -291,7 +263,6 @@ class TestAlertUpdateModel:
 
     def test_resolution_note_max_length(self):
         from pydantic import ValidationError
-
         from src.models import AlertUpdate
 
         with pytest.raises(ValidationError):
@@ -302,13 +273,9 @@ class TestAlertUpdateModel:
 
         update = AlertUpdate(resolution_note="x" * 1000)
         assert len(update.resolution_note) == 1000
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # RuleCondition Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestRuleConditionModel:
     """Tests for RuleCondition Pydantic model."""
 
@@ -334,7 +301,6 @@ class TestRuleConditionModel:
 
     def test_condition_negative_duration_rejected(self):
         from pydantic import ValidationError
-
         from src.models import ConditionOperator, RuleCondition
 
         with pytest.raises(ValidationError):
@@ -344,13 +310,9 @@ class TestRuleConditionModel:
                 value=0.2,
                 duration_minutes=-1,  # ge=0
             )
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRuleConfig Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertRuleConfigModel:
     """Tests for AlertRuleConfig Pydantic model."""
 
@@ -381,7 +343,6 @@ class TestAlertRuleConfigModel:
 
     def test_config_title_max_length(self):
         from pydantic import ValidationError
-
         from src.models import AlertRuleConfig, AlertSeverity, AlertType
 
         with pytest.raises(ValidationError):
@@ -390,13 +351,9 @@ class TestAlertRuleConfigModel:
                 severity=AlertSeverity.LOW,
                 title="x" * 201,
             )
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRuleCreate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertRuleCreateModel:
     """Tests for AlertRuleCreate Pydantic model."""
 
@@ -422,7 +379,6 @@ class TestAlertRuleCreateModel:
 
     def test_rule_name_min_length(self):
         from pydantic import ValidationError
-
         from src.models import (
             AlertRuleConfig,
             AlertRuleCreate,
@@ -442,7 +398,6 @@ class TestAlertRuleCreateModel:
 
     def test_rule_name_max_length(self):
         from pydantic import ValidationError
-
         from src.models import (
             AlertRuleConfig,
             AlertRuleCreate,
@@ -462,7 +417,6 @@ class TestAlertRuleCreateModel:
 
     def test_cooldown_hours_bounds(self):
         from pydantic import ValidationError
-
         from src.models import (
             AlertRuleConfig,
             AlertRuleCreate,
@@ -491,13 +445,9 @@ class TestAlertRuleCreateModel:
                 alert_config=AlertRuleConfig(type=AlertType.GENERAL, severity=AlertSeverity.LOW, title="T"),
                 cooldown_hours=-1,  # ge=0
             )
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Response Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertResponseModel:
     """Tests for AlertResponse Pydantic model."""
 
@@ -534,8 +484,6 @@ class TestAlertResponseModel:
         resp = AlertResponse(**data)
         assert resp.field_id == "field-1"
         assert resp.type == "weather"
-
-
 class TestAlertStatsModel:
     """Tests for AlertStats Pydantic model."""
 
@@ -569,8 +517,6 @@ class TestAlertStatsModel:
             average_resolution_hours=None,
         )
         assert stats.average_resolution_hours is None
-
-
 class TestPaginatedResponseModel:
     """Tests for PaginatedResponse Pydantic model."""
 
@@ -598,8 +544,6 @@ class TestPaginatedResponseModel:
             has_more=True,
         )
         assert resp.has_more is True
-
-
 class TestAlertRuleResponseModel:
     """Tests for AlertRuleResponse Pydantic model."""
 

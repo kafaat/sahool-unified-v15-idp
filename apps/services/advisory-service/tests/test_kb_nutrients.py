@@ -2,13 +2,7 @@
 Tests for Nutrient Knowledge Base - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.kb.nutrients import (
     NUTRIENT_DEFICIENCIES,
     diagnose_from_ndvi,
@@ -37,8 +31,6 @@ class TestGetDeficiency:
             assert "severity_default" in deficiency, f"{def_id} missing severity_default"
             assert "urgency_hours" in deficiency, f"{def_id} missing urgency_hours"
             assert "visual_indicators" in deficiency, f"{def_id} missing visual_indicators"
-
-
 class TestGetDeficiencyByNutrient:
     """Tests for get_deficiency_by_nutrient function"""
 
@@ -60,8 +52,6 @@ class TestGetDeficiencyByNutrient:
 
     def test_unknown_nutrient(self):
         assert get_deficiency_by_nutrient("Xx") is None
-
-
 class TestDiagnoseFromNdvi:
     """Tests for diagnose_from_ndvi function"""
 

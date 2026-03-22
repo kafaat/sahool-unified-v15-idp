@@ -2,16 +2,11 @@
 Tests for database repository module - اختبارات وحدة مستودع قاعدة البيانات
 """
 
-import sys
-import os
 import uuid
 from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.db import DroneRepository, _generate_id, _safe_uuid
 
 
@@ -42,8 +37,6 @@ class TestHelperFunctions:
 
     def test_safe_uuid_integer(self):
         assert _safe_uuid(123) is None
-
-
 def _make_pool():
     """Create a mock asyncpg pool with proper async context manager."""
     conn = AsyncMock()
@@ -55,8 +48,6 @@ def _make_pool():
     pool = MagicMock()
     pool.acquire = acquire
     return pool, conn
-
-
 class TestDroneRepositoryDrones:
     """Test DroneRepository drone operations."""
 
@@ -178,8 +169,6 @@ class TestDroneRepositoryDrones:
         repo = DroneRepository(pool)
         result = await repo.update_drone_status("bad", "t1", "active")
         assert result is None
-
-
 class TestDroneRepositoryFlightPlans:
     """Test DroneRepository flight plan operations."""
 
@@ -235,8 +224,6 @@ class TestDroneRepositoryFlightPlans:
             "waypoints": [{"lat": 24.7, "lng": 46.7}],
         })
         assert result["name"] == "Plan1"
-
-
 class TestDroneRepositoryMissions:
     """Test DroneRepository mission operations."""
 

@@ -19,27 +19,29 @@ Author: SAHOOL QA Team
 Updated: January 2026
 """
 
+from datetime import UTC, datetime, timedelta, timezone
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from datetime import timezone, datetime, timedelta, UTC
-from unittest.mock import Mock, MagicMock, patch
 
 # Check if dependencies are available
 try:
     from fastapi.testclient import TestClient
+
     from shared.auth.auth_api import (
-        router,
         LoginRequest,
         LoginResponse,
         create_temp_token,
-        verify_temp_token,
+        router,
         set_user_service,
+        verify_temp_token,
     )
     from shared.auth.jwt_handler import (
         create_access_token,
         create_refresh_token,
-        verify_token,
         create_token_pair,
         refresh_access_token,
+        verify_token,
     )
     from shared.auth.models import User
 except ImportError as e:
@@ -681,6 +683,7 @@ class TestTokenRefresh:
 
         # Manually modify token to have past expiration
         import jwt
+
         from shared.auth.config import config
 
         payload = jwt.decode(

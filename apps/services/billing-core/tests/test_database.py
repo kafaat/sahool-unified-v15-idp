@@ -3,18 +3,13 @@ Tests for billing-core database module.
 Covers: Engine creation, session management, health checks, init/drop/close.
 """
 
-import sys
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 os.environ["ENVIRONMENT"] = "test"
 os.environ["DATABASE_URL"] = "postgresql+asyncpg://test:test@localhost:5432/test_db"
-
-
 class TestDatabaseConfig:
     """Test database configuration and URL handling"""
 
@@ -22,6 +17,7 @@ class TestDatabaseConfig:
         with patch.dict(os.environ, {"DATABASE_URL": "postgresql+asyncpg://user:pass@host:5432/db"}):
             # Re-import to pick up env var
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -31,6 +27,7 @@ class TestDatabaseConfig:
         """Test that postgresql:// is converted to postgresql+asyncpg://"""
         with patch.dict(os.environ, {"DATABASE_URL": "postgresql://user:pass@host:5432/db"}):
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -40,6 +37,7 @@ class TestDatabaseConfig:
         """Test that psycopg2 driver is converted to asyncpg"""
         with patch.dict(os.environ, {"DATABASE_URL": "postgresql+psycopg2://user:pass@host:5432/db"}):
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -49,6 +47,7 @@ class TestDatabaseConfig:
     def test_is_dev_for_test_env(self):
         with patch.dict(os.environ, {"ENVIRONMENT": "test"}):
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -57,6 +56,7 @@ class TestDatabaseConfig:
     def test_is_dev_for_production_env(self):
         with patch.dict(os.environ, {"ENVIRONMENT": "production", "DATABASE_URL": "postgresql+asyncpg://x:y@h:5432/d"}):
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -74,6 +74,7 @@ class TestDatabaseConfig:
         }
         with patch.dict(os.environ, env, clear=False):
             import importlib
+
             from src import database
 
             importlib.reload(database)
@@ -81,16 +82,13 @@ class TestDatabaseConfig:
             assert "5433" in database.DATABASE_URL
             assert "myuser" in database.DATABASE_URL
             assert "mydb" in database.DATABASE_URL
-
-
 class TestEngineCreation:
     """Test engine and session factory creation"""
 
     def test_get_engine_creates_engine(self):
-        from src.database import _engine
-
         # Reset global state
         import src.database as db_mod
+        from src.database import _engine
 
         db_mod._engine = None
         db_mod._session_factory = None
@@ -136,8 +134,6 @@ class TestEngineCreation:
         result = db_mod.get_session_factory()
         assert result is mock_factory
         db_mod._session_factory = None
-
-
 class TestCloseDb:
     """Test database close/dispose"""
 
@@ -165,8 +161,6 @@ class TestCloseDb:
         # Should not raise
         await db_mod.close_db()
         assert db_mod._engine is None
-
-
 class TestDbHealthCheck:
     """Test database health check"""
 
@@ -197,8 +191,6 @@ class TestDbHealthCheck:
             result = await db_mod.db_health_check()
             assert result["status"] == "unhealthy"
             assert "conn error" in result["error"]
-
-
 class TestCheckDbConnection:
     """Test check_db_connection"""
 

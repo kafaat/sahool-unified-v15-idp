@@ -2,18 +2,11 @@
 Tests for Chat Endpoint helpers (api/v1/chat.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestDetectLanguage:
     def test_english_text(self):
         from src.api.v1.chat import _detect_language
@@ -39,8 +32,6 @@ class TestDetectLanguage:
         from src.api.v1.chat import _detect_language
 
         assert _detect_language("") == "en"
-
-
 class TestBuildSystemPrompt:
     def test_base_prompt_included(self):
         from src.api.v1.chat import _build_system_prompt
@@ -77,8 +68,6 @@ class TestBuildSystemPrompt:
         for agent_type in ("code_fix", "code_review", "field_advisor", "weather_advisor", "irrigation_advisor", "general"):
             prompt = _build_system_prompt(rag_context="", agent_type=agent_type, language="en")
             assert len(prompt) > 100  # Non-trivial prompt
-
-
 class TestGenerateResponse:
     @pytest.mark.asyncio
     async def test_fallback_response_english(self):
@@ -159,8 +148,6 @@ class TestGenerateResponse:
             http_client=mock_client,
         )
         assert result == "Here is the answer."
-
-
 class TestGetHttpClient:
     def test_raises_when_not_initialized(self):
         from src.api.v1.chat import _get_http_client

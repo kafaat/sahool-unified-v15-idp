@@ -128,8 +128,8 @@ def app_client(mock_db):
     with patch("src.main.check_db_connection", return_value=True):
         with patch("src.main.get_publisher", new=AsyncMock()):
             with patch("src.main.get_subscriber", new=AsyncMock()):
-                from src.main import app
                 from src.database import get_db
+                from src.main import app
 
                 # Use FastAPI dependency_overrides so Depends(get_db) returns mock_db
                 app.dependency_overrides[get_db] = lambda: mock_db

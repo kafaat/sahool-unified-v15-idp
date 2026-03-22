@@ -2,11 +2,6 @@
 Tests for event types module - اختبارات وحدة أنواع الأحداث
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.events.types import (
     DRONE_DEREGISTERED,
     DRONE_REGISTERED,
@@ -67,8 +62,6 @@ class TestEventTypeConstants:
 
     def test_subject_prefix(self):
         assert SUBJECT_PREFIX == "sahool.drone"
-
-
 class TestSubjectsMapping:
     """Test NATS subjects mapping."""
 
@@ -92,8 +85,6 @@ class TestSubjectsMapping:
 
     def test_subject_mission_completed(self):
         assert SUBJECTS[MISSION_COMPLETED] == "sahool.drone.mission_completed"
-
-
 class TestVersionsMapping:
     """Test event versions."""
 
@@ -105,8 +96,6 @@ class TestVersionsMapping:
         for v in VERSIONS.values():
             assert isinstance(v, int)
             assert v >= 1
-
-
 class TestGetSubject:
     """Test get_subject helper."""
 
@@ -116,8 +105,6 @@ class TestGetSubject:
     def test_unknown_event_type_fallback(self):
         result = get_subject("unknown_event")
         assert result == "sahool.drone.unknown_event"
-
-
 class TestGetVersion:
     """Test get_version helper."""
 

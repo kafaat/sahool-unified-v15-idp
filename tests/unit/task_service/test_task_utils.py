@@ -10,22 +10,23 @@ Tests:
 - Activity translation
 """
 
-import pytest
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import MagicMock
+
+import pytest
 
 # Import from the src package (conftest.py sets up the path)
 try:
     from src.task_utils import (
-        TaskType,
-        TaskPriority,
         TaskCreateData,
-        generate_task_id,
-        db_task_to_dict,
+        TaskPriority,
+        TaskType,
         calculate_ndvi_priority,
+        db_task_to_dict,
         generate_ndvi_task_content,
-        get_due_date_for_priority,
+        generate_task_id,
         get_activity_translation,
+        get_due_date_for_priority,
         get_task_type_activity,
     )
 except ModuleNotFoundError:

@@ -18,7 +18,6 @@ from shared.ai.knowledge.graph_builder import (
     build_agricultural_knowledge_graph,
 )
 
-
 # ─── Data Class Tests ────────────────────────────────────────────────────────
 
 

@@ -8,13 +8,13 @@ Version: 16.0.0
 import logging
 import os
 import re
-import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path as PathLib
 from uuid import UUID
 
+import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
 # Shared middleware imports

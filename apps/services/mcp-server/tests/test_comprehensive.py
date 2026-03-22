@@ -14,7 +14,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Add service directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 try:
@@ -32,15 +31,10 @@ from src.main import (
     mcp_server,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
-
-
 _TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
-
-
 class _TenantClient:
     """Wrapper that adds X-Tenant-ID header to all requests."""
 
@@ -61,19 +55,13 @@ class _TenantClient:
         headers = kwargs.pop("headers", {})
         headers.update(_TENANT_HEADER)
         return self._client.stream(method, url, headers=headers, **kwargs)
-
-
 @pytest.fixture
 def client():
     """Test client fixture with tenant header."""
     return _TenantClient(TestClient(app))
-
-
 # ---------------------------------------------------------------------------
 # Test Configuration
 # ---------------------------------------------------------------------------
-
-
 class TestConfiguration:
     def test_default_port(self):
         assert PORT == 8201
@@ -94,13 +82,9 @@ class TestConfiguration:
     def test_mcp_server_name(self):
         assert mcp_server.name == "sahool-mcp-server"
         assert mcp_server.version == "16.0.0"
-
-
 # ---------------------------------------------------------------------------
 # Test Health Endpoints
 # ---------------------------------------------------------------------------
-
-
 class TestHealthEndpoints:
     def test_health(self, client):
         response = client.get("/health")
@@ -132,13 +116,9 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ready"
-
-
 # ---------------------------------------------------------------------------
 # Test Root Endpoint
 # ---------------------------------------------------------------------------
-
-
 class TestRootEndpoint:
     def test_root(self, client):
         response = client.get("/")
@@ -169,13 +149,9 @@ class TestRootEndpoint:
         data = client.get("/").json()
         assert "http" in data["transports"]
         assert "sse" in data["transports"]
-
-
 # ---------------------------------------------------------------------------
 # Test MCP JSON-RPC Protocol
 # ---------------------------------------------------------------------------
-
-
 class TestMCPProtocol:
     def test_initialize(self, client):
         request = {
@@ -285,13 +261,9 @@ class TestMCPProtocol:
         assert response.status_code == 200
         data = response.json()
         assert "error" in data
-
-
 # ---------------------------------------------------------------------------
 # Test JSON-RPC Validation
 # ---------------------------------------------------------------------------
-
-
 class TestJSONRPCValidation:
     def test_missing_jsonrpc_version(self, client):
         request = {"id": 1, "method": "tools/list", "params": {}}
@@ -338,13 +310,9 @@ class TestJSONRPCValidation:
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == "my-id"
-
-
 # ---------------------------------------------------------------------------
 # Test Convenience Endpoints
 # ---------------------------------------------------------------------------
-
-
 class TestConvenienceEndpoints:
     def test_list_tools(self, client):
         response = client.get("/tools")
@@ -375,13 +343,9 @@ class TestConvenienceEndpoints:
         ).json()
         mcp_tools = mcp_resp["result"]["tools"]
         assert len(conv_tools) == len(mcp_tools)
-
-
 # ---------------------------------------------------------------------------
 # Test Metrics Endpoint
 # ---------------------------------------------------------------------------
-
-
 class TestMetricsEndpoint:
     def test_metrics(self, client):
         response = client.get("/metrics")
@@ -425,13 +389,9 @@ class TestMetricsEndpoint:
         )
         response = client.get("/metrics")
         assert "mcp_resource_reads_total" in response.text
-
-
 # ---------------------------------------------------------------------------
 # Test SSE Endpoint
 # ---------------------------------------------------------------------------
-
-
 class TestSSEEndpoint:
     def test_sse_endpoint_exists(self, client):
         """Test SSE endpoint is registered on the app."""
@@ -440,16 +400,13 @@ class TestSSEEndpoint:
 
     def test_sse_handler_is_async(self):
         """Verify the SSE handler function is defined."""
-        from src.main import handle_sse
         import asyncio
+
+        from src.main import handle_sse
         assert asyncio.iscoroutinefunction(handle_sse)
-
-
 # ---------------------------------------------------------------------------
 # Test Error Handling
 # ---------------------------------------------------------------------------
-
-
 class TestErrorHandling:
     def test_invalid_json_body(self, client):
         """Malformed JSON should return error response."""

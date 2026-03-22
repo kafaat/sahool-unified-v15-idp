@@ -16,13 +16,12 @@ import pytest
 
 from shared.ai.auto_fix.health_check import (
     ComponentType,
-    HealthCheckResult,
     HealthChecker,
+    HealthCheckResult,
     HealthReport,
     HealthStatus,
     quick_health_check,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test HealthStatus Enum

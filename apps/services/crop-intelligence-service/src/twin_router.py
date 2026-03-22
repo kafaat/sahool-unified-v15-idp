@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from typing import Any
 from uuid import UUID
 

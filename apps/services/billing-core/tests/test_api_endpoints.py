@@ -4,7 +4,6 @@ Covers: health endpoints, plans, tenants, subscriptions, usage, invoices, paymen
 All database and external dependencies are mocked.
 """
 
-import sys
 import os
 import uuid
 from datetime import UTC, date, datetime, timedelta
@@ -13,14 +12,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 os.environ["ENVIRONMENT"] = "test"
 os.environ["DATABASE_URL"] = ""
 os.environ["NATS_URL"] = ""
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
-
-
 def _make_mock_plan(plan_id="starter", tier_value="starter"):
     """Create a mock plan object."""
     plan = MagicMock()
@@ -37,8 +32,6 @@ def _make_mock_plan(plan_id="starter", tier_value="starter"):
     plan.trial_days = 14
     plan.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return plan
-
-
 def _make_mock_subscription(tenant_id="t-001", plan_id="starter"):
     """Create a mock subscription object."""
     sub = MagicMock()
@@ -54,8 +47,6 @@ def _make_mock_subscription(tenant_id="t-001", plan_id="starter"):
     sub.trial_end_date = None
     sub.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return sub
-
-
 def _make_mock_tenant(tenant_id="t-001"):
     """Create a mock tenant object."""
     tenant = MagicMock()
@@ -67,8 +58,6 @@ def _make_mock_tenant(tenant_id="t-001"):
     tenant.is_active = True
     tenant.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return tenant
-
-
 def _make_mock_invoice():
     """Create a mock invoice object."""
     inv = MagicMock()
@@ -92,13 +81,9 @@ def _make_mock_invoice():
     inv.notes_ar = "شكرا"
     inv.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return inv
-
-
 # ============================================================
 # Test Health Endpoints
 # ============================================================
-
-
 class TestHealthEndpoints:
     """Test /healthz and /readyz endpoints"""
 
@@ -115,13 +100,9 @@ class TestHealthEndpoints:
             assert data["status"] == "ok"
             assert data["service"] == "billing-core"
             assert data["version"] == "16.0.0"
-
-
 # ============================================================
 # Test NATS Event Publishing
 # ============================================================
-
-
 class TestNatsPublishing:
     """Test NATS event publishing function"""
 
@@ -151,13 +132,9 @@ class TestNatsPublishing:
         with patch("src.main.js", mock_js):
             # Should not raise
             await publish_event("sahool.billing.test", {"key": "value"})
-
-
 # ============================================================
 # Test DB Model Enums (from models.py)
 # ============================================================
-
-
 class TestDbModelEnums:
     """Test SQLAlchemy model enums from models.py"""
 
@@ -205,13 +182,9 @@ class TestDbModelEnums:
 
         assert PlanTier.FREE == "free"
         assert PlanTier.ENTERPRISE == "enterprise"
-
-
 # ============================================================
 # Test DB Model __repr__
 # ============================================================
-
-
 class TestDbModelRepr:
     """Test __repr__ methods on SQLAlchemy models using MagicMock"""
 
@@ -291,13 +264,9 @@ class TestDbModelRepr:
         r = repr(mock)
         assert "UsageRecord" in r
         assert "api_calls" in r
-
-
 # ============================================================
 # Test Init Module
 # ============================================================
-
-
 class TestInitModule:
     """Test __init__.py"""
 
@@ -305,13 +274,9 @@ class TestInitModule:
         from src import __version__
 
         assert __version__ == "15.6.0"
-
-
 # ============================================================
 # Test Async Helper Functions
 # ============================================================
-
-
 class TestAsyncHelpers:
     """Test async helper functions from main.py"""
 

@@ -5,7 +5,7 @@ Tests for schema validation and outbox event flow
 
 from __future__ import annotations
 
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import pytest

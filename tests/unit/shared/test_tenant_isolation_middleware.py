@@ -28,6 +28,8 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 
+from shared.auth.dependencies import enforce_tenant
+from shared.auth.models import User
 from shared.middleware.tenant_context import (
     TenantContext,
     TenantContextMiddleware,
@@ -37,9 +39,6 @@ from shared.middleware.tenant_context import (
     get_optional_tenant,
     tenant_filter_dict,
 )
-from shared.auth.dependencies import enforce_tenant
-from shared.auth.models import User
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

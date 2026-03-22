@@ -5,19 +5,14 @@ Covers db_models, repository, database, and main (API endpoints).
 Target: >60% code coverage across all source files.
 """
 
-import os
-import sys
 import uuid
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
 # Add service root to path so we can import src modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-
 # ---------------------------------------------------------------------------
 # 1. DB Models tests (db_models.py)
 # ---------------------------------------------------------------------------
@@ -112,8 +107,6 @@ class TestEquipmentDBModel:
         eq.current_lon = Decimal("44.1910456")
         assert eq.purchase_price == Decimal("15000.50")
         assert eq.current_lat == Decimal("15.3694123")
-
-
 class TestMaintenanceRecordDBModel:
     """Tests for the MaintenanceRecord SQLAlchemy model."""
 
@@ -150,8 +143,6 @@ class TestMaintenanceRecordDBModel:
         rec.parts_replaced = ["gasket", "seal"]
         assert rec.parts_replaced == ["gasket", "seal"]
         assert rec.cost == Decimal("500.00")
-
-
 class TestMaintenanceAlertDBModel:
     """Tests for the MaintenanceAlert SQLAlchemy model."""
 
@@ -191,8 +182,6 @@ class TestMaintenanceAlertDBModel:
         alert.created_at = datetime.now(UTC)
         assert alert.priority == "medium"
         assert alert.is_overdue is False
-
-
 class TestBaseDeclarative:
     """Test Base declarative_base export."""
 
@@ -203,8 +192,6 @@ class TestBaseDeclarative:
         assert "equipment" in Base.metadata.tables
         assert "equipment_maintenance" in Base.metadata.tables
         assert "equipment_alerts" in Base.metadata.tables
-
-
 # ---------------------------------------------------------------------------
 # 2. Repository tests (repository.py) - with mocked Session
 # ---------------------------------------------------------------------------
@@ -223,8 +210,6 @@ class TestRepositoryCreateEquipment:
         db.add.assert_called_once_with(eq)
         db.flush.assert_called_once()
         assert result is eq
-
-
 class TestRepositoryGetEquipment:
     """Tests for repository.get_equipment."""
 
@@ -261,8 +246,6 @@ class TestRepositoryGetEquipment:
 
         result = get_equipment(db, equipment_id="nonexistent")
         assert result is None
-
-
 class TestRepositoryGetEquipmentByQR:
     """Tests for repository.get_equipment_by_qr."""
 
@@ -298,8 +281,6 @@ class TestRepositoryGetEquipmentByQR:
 
         result = get_equipment_by_qr(db, qr_code="NONEXISTENT")
         assert result is None
-
-
 class TestRepositoryListEquipment:
     """Tests for repository.list_equipment."""
 
@@ -394,8 +375,6 @@ class TestRepositoryListEquipment:
         equipment_list, total = list_equipment(db, tenant_id="t1")
         assert total == 0
         assert len(equipment_list) == 0
-
-
 class TestRepositoryUpdateEquipment:
     """Tests for repository.update_equipment."""
 
@@ -454,8 +433,6 @@ class TestRepositoryUpdateEquipment:
             db, equipment_id="eq_001", tenant_id="t1", nonexistent_field="val"
         )
         assert result is mock_eq
-
-
 class TestRepositoryDeleteEquipment:
     """Tests for repository.delete_equipment."""
 
@@ -479,8 +456,6 @@ class TestRepositoryDeleteEquipment:
         result = delete_equipment(db, "nonexistent", "t1")
         assert result is False
         db.delete.assert_not_called()
-
-
 class TestRepositoryGetEquipmentStats:
     """Tests for repository.get_equipment_stats."""
 
@@ -520,8 +495,6 @@ class TestRepositoryGetEquipmentStats:
         assert stats["operational"] == 2
         assert stats["maintenance"] == 2  # 1 maintenance + 1 repair
         assert stats["inactive"] == 1
-
-
 class TestRepositoryMaintenanceRecords:
     """Tests for maintenance record repository functions."""
 
@@ -547,8 +520,6 @@ class TestRepositoryMaintenanceRecords:
 
         result = get_maintenance_history(db, equipment_id="eq_001", limit=10)
         assert len(result) == 2
-
-
 class TestRepositoryMaintenanceAlerts:
     """Tests for maintenance alert repository functions."""
 
@@ -632,8 +603,6 @@ class TestRepositoryMaintenanceAlerts:
 
         result = delete_maintenance_alert(db, "nonexistent")
         assert result is False
-
-
 # ---------------------------------------------------------------------------
 # 3. Database module tests (database.py) - mocked engine/session
 # ---------------------------------------------------------------------------
@@ -677,8 +646,6 @@ class TestDatabaseGetDB:
 
             mock_session.rollback.assert_called_once()
             mock_session.close.assert_called_once()
-
-
 class TestDatabaseCheckConnection:
     """Tests for check_db_connection."""
 
@@ -702,8 +669,6 @@ class TestDatabaseCheckConnection:
 
             result = check_db_connection()
             assert result is False
-
-
 class TestDatabaseInitDB:
     """Tests for init_db."""
 
@@ -776,8 +741,6 @@ class TestDatabaseInitDB:
             from src.database import init_db
             # Should not raise
             init_db()
-
-
 class TestDatabaseDropAll:
     """Test drop_all_tables."""
 
@@ -787,8 +750,6 @@ class TestDatabaseDropAll:
             from src.database import drop_all_tables
             drop_all_tables()
             MockBase.metadata.drop_all.assert_called_once_with(bind=mock_engine)
-
-
 # ---------------------------------------------------------------------------
 # 4. Main module tests - Enums, Pydantic models, helpers
 # ---------------------------------------------------------------------------
@@ -841,8 +802,6 @@ class TestEnums:
         assert MaintenanceType.REPAIR == "repair"
         assert MaintenanceType.OTHER == "other"
         assert len(MaintenanceType) == 8
-
-
 class TestPydanticModels:
     """Test Pydantic request/response models."""
 
@@ -916,7 +875,7 @@ class TestPydanticModels:
         assert eu.status is None
 
     def test_equipment_response_model(self):
-        from src.main import Equipment, EquipmentType, EquipmentStatus
+        from src.main import Equipment, EquipmentStatus, EquipmentType
 
         now = datetime.now(UTC)
         eq = Equipment(
@@ -933,7 +892,8 @@ class TestPydanticModels:
         assert eq.qr_code is None
 
     def test_maintenance_record_model(self):
-        from src.main import MaintenanceRecord as MR, MaintenanceType
+        from src.main import MaintenanceRecord as MR
+        from src.main import MaintenanceType
 
         now = datetime.now(UTC)
         rec = MR(
@@ -948,7 +908,8 @@ class TestPydanticModels:
         assert rec.parts_replaced is None
 
     def test_maintenance_alert_model(self):
-        from src.main import MaintenanceAlert as MA, MaintenanceType, MaintenancePriority
+        from src.main import MaintenanceAlert as MA
+        from src.main import MaintenancePriority, MaintenanceType
 
         now = datetime.now(UTC)
         alert = MA(
@@ -963,8 +924,6 @@ class TestPydanticModels:
         assert alert.alert_id == "alert_resp"
         assert alert.is_overdue is False
         assert alert.due_at is None
-
-
 class TestGetTenantId:
     """Test get_tenant_id helper."""
 
@@ -992,8 +951,6 @@ class TestGetTenantId:
         with patch("src.main.AUTH_AVAILABLE", True):
             result = get_tenant_id(user=None)
             assert result == "tenant_demo"
-
-
 class TestSeedDemoData:
     """Test seed_demo_data function."""
 
@@ -1017,8 +974,6 @@ class TestSeedDemoData:
         # Should have called add for 5 equipment + 2 alerts = 7
         assert db.add.call_count == 7
         db.commit.assert_called_once()
-
-
 class TestServiceConstants:
     """Test service-level constants."""
 

@@ -13,7 +13,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Add service directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 # Import source module (shared modules are available in this environment)
@@ -27,21 +26,19 @@ from src.main import (
     SoilType,
     UrgencyLevel,
     WeatherInput,
+    app,
     calculate_available_water,
     calculate_et0_penman_monteith,
     calculate_irrigation_recommendation,
     estimate_soil_moisture,
     get_crop_kc,
     validate_sensor_value,
-    app,
 )
 
 try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -52,8 +49,6 @@ class FakeUser:
     tenant_id = None
     email = "test@test.com"
     role = "admin"
-
-
 class _TenantClient:
     """Wrapper that adds X-Tenant-ID header to all requests."""
 
@@ -69,8 +64,6 @@ class _TenantClient:
         headers = kwargs.pop("headers", {})
         headers.setdefault("X-Tenant-ID", "00000000-0000-0000-0000-000000000001")
         return self._client.post(url, headers=headers, **kwargs)
-
-
 @pytest.fixture
 def client():
     """Create TestClient with mocked auth dependency and tenant header."""
@@ -80,8 +73,6 @@ def client():
     tc = TestClient(app, raise_server_exceptions=False)
     yield _TenantClient(tc)
     app.dependency_overrides.clear()
-
-
 @pytest.fixture
 def sample_weather() -> WeatherInput:
     """Standard weather input for testing."""
@@ -95,8 +86,6 @@ def sample_weather() -> WeatherInput:
         altitude=200,
         calculation_date=date(2025, 7, 15),
     )
-
-
 # ---------------------------------------------------------------------------
 # Test Enums
 # ---------------------------------------------------------------------------
@@ -122,8 +111,6 @@ class TestEnums:
     def test_urgency_level_values(self):
         assert UrgencyLevel.NONE == "none"
         assert UrgencyLevel.CRITICAL == "critical"
-
-
 # ---------------------------------------------------------------------------
 # Test Sensor Value Validation
 # ---------------------------------------------------------------------------
@@ -163,8 +150,6 @@ class TestValidateSensorValue:
         # Exact max
         valid, _ = validate_sensor_value("humidity", 100.0)
         assert valid is True
-
-
 # ---------------------------------------------------------------------------
 # Test Constants / Data Tables
 # ---------------------------------------------------------------------------
@@ -202,8 +187,6 @@ class TestConstants:
             assert "min" in bounds
             assert "max" in bounds
             assert bounds["min"] <= bounds["max"]
-
-
 # ---------------------------------------------------------------------------
 # Test ET0 Calculation (Penman-Monteith)
 # ---------------------------------------------------------------------------
@@ -284,8 +267,6 @@ class TestET0Calculation:
         )
         et0 = calculate_et0_penman_monteith(weather)
         assert et0 >= 0
-
-
 # ---------------------------------------------------------------------------
 # Test Crop Kc
 # ---------------------------------------------------------------------------
@@ -335,8 +316,6 @@ class TestGetCropKc:
             for stage in GrowthStage:
                 kc = get_crop_kc(crop, stage)
                 assert kc > 0, f"kc should be positive for {crop}/{stage}"
-
-
 # ---------------------------------------------------------------------------
 # Test Available Water Calculation
 # ---------------------------------------------------------------------------
@@ -362,8 +341,6 @@ class TestAvailableWater:
             taw, fc_mm, wp_mm = calculate_available_water(soil_type, 1.0)
             assert fc_mm > wp_mm
             assert taw > 0
-
-
 # ---------------------------------------------------------------------------
 # Test Soil Moisture Estimation
 # ---------------------------------------------------------------------------
@@ -430,8 +407,6 @@ class TestEstimateSoilMoisture:
             )
             urgencies.add(result["urgency"])
         assert len(urgencies) >= 2
-
-
 # ---------------------------------------------------------------------------
 # Test Irrigation Recommendation
 # ---------------------------------------------------------------------------
@@ -559,8 +534,6 @@ class TestIrrigationRecommendation:
         )
         # Flood has lower efficiency, so gross should be higher
         assert result_flood["gross_irrigation_mm"] > result_drip["gross_irrigation_mm"]
-
-
 # ---------------------------------------------------------------------------
 # Test WeatherInput Validation
 # ---------------------------------------------------------------------------
@@ -585,8 +558,6 @@ class TestWeatherInputValidation:
                 wind_speed=2.0,
                 latitude=15.0,
             )
-
-
 # ---------------------------------------------------------------------------
 # Test API Endpoints (unauthenticated routes)
 # ---------------------------------------------------------------------------
@@ -603,8 +574,6 @@ class TestHealthEndpoints:
         response = client.get("/readyz")
         assert response.status_code == 200
         assert response.json()["status"] == "ready"
-
-
 class TestInfoEndpoints:
     def test_service_info(self, client):
         response = client.get("/v1/info")

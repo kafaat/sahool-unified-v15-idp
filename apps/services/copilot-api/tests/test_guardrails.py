@@ -2,16 +2,9 @@
 Tests for Tool Guardrails (security/guardrails.py) and Allowlists (security/allowlists.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestAllowlists:
     def test_rag_tools_in_allowlist(self):
         from src.security.allowlists import TOOL_ALLOWLIST
@@ -73,8 +66,6 @@ class TestAllowlists:
         from src.security.allowlists import MAX_PROMPT_CHARS
 
         assert MAX_PROMPT_CHARS > 0
-
-
 class TestGuardDecision:
     def test_to_dict(self):
         from src.security.guardrails import GuardDecision
@@ -92,8 +83,6 @@ class TestGuardDecision:
         assert result["reason_ar"] == "موافق"
         assert result["layer"] == "test"
         assert "timestamp" in result
-
-
 class TestToolGuard:
     def test_allows_safe_tool(self):
         from src.security.guardrails import ToolCallContext, ToolGuard
@@ -219,8 +208,6 @@ class TestToolGuard:
         decision = guard.check(ctx)
         assert decision.allowed is False
         assert decision.layer == "blocked_patterns"
-
-
 class TestConvenienceFunctions:
     def test_guard_tool_call(self):
         from src.security.guardrails import guard_tool_call
@@ -246,8 +233,8 @@ class TestConvenienceFunctions:
         assert is_domain_allowed("127.0.0.1") is True
 
     def test_get_guard_singleton(self):
-        from src.security.guardrails import get_guard
         import src.security.guardrails as gmod
+        from src.security.guardrails import get_guard
 
         gmod._global_guard = None
         g1 = get_guard()

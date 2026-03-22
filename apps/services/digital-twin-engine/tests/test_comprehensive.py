@@ -2,19 +2,16 @@
 Comprehensive unit tests for SAHOOL Digital Twin Engine.
 Targets >60% code coverage across models, engine logic, endpoints, and edge cases.
 """
-
-import os
-import sys
-
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
+import os
+import sys
 from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -26,8 +23,8 @@ except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 from src.main import (
-    DTLevel,
     DigitalTwinEngine,
+    DTLevel,
     FieldState,
     KalmanStateEstimator,
     OptimizationObjective,
@@ -46,27 +43,17 @@ from src.main import (
 # Valid UUID for tenant context middleware
 VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
-
-
 # Override auth dependency for testing
 async def _mock_current_user():
     return {"id": "test-user", "tenant_id": VALID_TENANT}
-
-
 app.dependency_overrides[get_current_user] = _mock_current_user
-
-
 @pytest.fixture
 def client():
     return TestClient(app)
-
-
 @pytest.fixture
 def engine():
     """Create a fresh DigitalTwinEngine for unit tests."""
     return DigitalTwinEngine()
-
-
 @pytest.fixture
 def basic_field_state():
     return FieldState(
@@ -80,13 +67,9 @@ def basic_field_state():
         et0_mm_day=5.0,
         days_after_planting=30,
     )
-
-
 # ---------------------------------------------------------------------------
 # Enum tests
 # ---------------------------------------------------------------------------
-
-
 class TestEnums:
     def test_dt_level_values(self):
         assert DTLevel.L1_MONITORING == "l1_monitoring"
@@ -102,13 +85,9 @@ class TestEnums:
         assert OptimizationObjective.MINIMIZE_WATER == "minimize_water"
         assert OptimizationObjective.MAXIMIZE_YIELD == "maximize_yield"
         assert OptimizationObjective.MINIMIZE_COST == "minimize_cost"
-
-
 # ---------------------------------------------------------------------------
 # Pydantic model tests
 # ---------------------------------------------------------------------------
-
-
 class TestPydanticModels:
     def test_field_state_defaults(self):
         fs = FieldState(field_id="F1")
@@ -159,13 +138,9 @@ class TestPydanticModels:
         assert req.days == 90
         assert OptimizationObjective.BALANCED in req.objectives
         assert req.constraints["max_water_mm"] == 500
-
-
 # ---------------------------------------------------------------------------
 # KalmanStateEstimator tests
 # ---------------------------------------------------------------------------
-
-
 class TestKalmanStateEstimator:
     def test_initial_predict(self):
         kf = KalmanStateEstimator(state_dim=3)
@@ -211,13 +186,9 @@ class TestKalmanStateEstimator:
         # Soil moisture and LAI should remain near original
         assert result[0] == 50.0
         assert abs(result[1] - 1.5) < 1.0
-
-
 # ---------------------------------------------------------------------------
 # DigitalTwinEngine simulation tests
 # ---------------------------------------------------------------------------
-
-
 class TestDigitalTwinEngineSimulation:
     def test_basic_simulation(self, engine, basic_field_state):
         req = SimulationRequest(
@@ -296,13 +267,9 @@ class TestDigitalTwinEngineSimulation:
         )
         result = engine.simulate(req)
         assert result.water_use_efficiency >= 0
-
-
 # ---------------------------------------------------------------------------
 # Scenario comparison tests
 # ---------------------------------------------------------------------------
-
-
 class TestScenarioComparison:
     def test_compare_two_scenarios(self, engine, basic_field_state):
         req = ScenarioRequest(
@@ -337,13 +304,9 @@ class TestScenarioComparison:
         assert result.recommended != ""
         assert result.recommendation_reason != ""
         assert result.recommendation_reason_ar != ""
-
-
 # ---------------------------------------------------------------------------
 # Optimization tests
 # ---------------------------------------------------------------------------
-
-
 class TestOptimization:
     def test_balanced_optimization(self, engine, basic_field_state):
         req = OptimizationRequest(
@@ -444,13 +407,9 @@ class TestOptimization:
             constraints={"max_water_mm": 500, "max_cost_sar": 5000, "min_yield_pct": 80},
         )
         assert score_good > score_bad
-
-
 # ---------------------------------------------------------------------------
 # API endpoint tests
 # ---------------------------------------------------------------------------
-
-
 class TestHealthEndpoints:
     def test_healthz(self, client):
         resp = client.get("/healthz")
@@ -472,8 +431,6 @@ class TestHealthEndpoints:
         assert data["service"] == "digital-twin-engine"
         assert "capabilities" in data
         assert data["dt_level"] == "l3_prediction"
-
-
 class TestSimulationEndpoint:
     def test_simulate_basic(self, client):
         payload = {
@@ -508,8 +465,6 @@ class TestSimulationEndpoint:
         data = resp.json()
         assert data["total_irrigation_mm"] == 40.0
         assert data["total_rainfall_mm"] == 10.0
-
-
 class TestScenariosEndpoint:
     def test_scenarios_valid(self, client):
         payload = {
@@ -549,8 +504,6 @@ class TestScenariosEndpoint:
         }
         resp = client.post("/api/v1/digital-twin/scenarios", json=payload, headers=TENANT_HEADER)
         assert resp.status_code == 400
-
-
 class TestOptimizeEndpoint:
     def test_optimize_balanced(self, client):
         payload = {
@@ -568,8 +521,6 @@ class TestOptimizeEndpoint:
         data = resp.json()
         assert len(data["pareto_solutions"]) > 0
         assert data["metrics"]["score"] > 0
-
-
 class TestStateUpdateEndpoint:
     def test_update_new_field(self, client):
         payload = {
@@ -603,13 +554,9 @@ class TestStateUpdateEndpoint:
         data = resp.json()
         est = data["estimated_state"]["soil_moisture_pct"]
         assert 39.0 < est < 43.0
-
-
 # ---------------------------------------------------------------------------
 # Edge case tests
 # ---------------------------------------------------------------------------
-
-
 class TestEdgeCases:
     def test_simulation_single_day(self, engine, basic_field_state):
         req = SimulationRequest(

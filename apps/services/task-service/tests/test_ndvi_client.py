@@ -4,7 +4,6 @@ Unit Tests for NDVI Client
 
 Tests for the NDVI client integration with task service.
 """
-
 import os
 import sys
 
@@ -51,8 +50,6 @@ class TestFieldHealthData:
         assert result["vegetation_coverage"] == 75.5
         assert "zones" in result
         assert isinstance(result["zones"], dict)
-
-
 class TestHealthStatus:
     """Tests for HealthStatus enum"""
 
@@ -63,8 +60,6 @@ class TestHealthStatus:
         assert HealthStatus.MODERATE.value == "moderate"
         assert HealthStatus.GOOD.value == "good"
         assert HealthStatus.EXCELLENT.value == "excellent"
-
-
 class TestNDVIClient:
     """Tests for NDVIClient class"""
 
@@ -153,8 +148,6 @@ class TestNDVIClient:
         # Different fields should likely have different scores
         # Note: There's a small chance they could be the same
         assert health1.field_id != health2.field_id
-
-
 class TestHelperFunctions:
     """Tests for helper functions"""
 

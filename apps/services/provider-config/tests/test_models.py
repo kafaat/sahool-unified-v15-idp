@@ -3,15 +3,11 @@ Tests for provider-config models.py
 اختبارات نماذج تكوين المزودين
 """
 
-import os
-import sys
 import uuid
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 class TestProviderConfigModel:
@@ -116,8 +112,6 @@ class TestProviderConfigModel:
         assert "idx_tenant_provider_name" in index_names
         assert "idx_tenant_type_enabled" in index_names
         assert "idx_tenant_type_priority" in index_names
-
-
 class TestConfigVersionModel:
     """Tests for the ConfigVersion SQLAlchemy model"""
 
@@ -197,8 +191,6 @@ class TestConfigVersionModel:
         assert "idx_config_version" in index_names
         assert "idx_tenant_changed_at" in index_names
         assert "idx_tenant_provider_changed" in index_names
-
-
 class TestDatabaseClass:
     """Tests for the Database utility class"""
 

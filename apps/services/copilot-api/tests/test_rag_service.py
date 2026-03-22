@@ -2,22 +2,15 @@
 Tests for RAG Service (rag/service.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 def _make_rag_service():
     """Helper to create a RAG service with mocked embedding service."""
-    from src.rag.service import CopilotRAGService, RAGConfig
     from src.rag.embeddings import EmbeddingResult
+    from src.rag.service import CopilotRAGService, RAGConfig
 
     mock_embedding = MagicMock()
     mock_embedding.dimension = 384
@@ -36,8 +29,6 @@ def _make_rag_service():
     config = RAGConfig(use_qdrant=False)
     service = CopilotRAGService(config=config, embedding_service=mock_embedding)
     return service
-
-
 class TestRAGDocument:
     def test_to_dict(self):
         from src.rag.service import RAGDocument
@@ -56,8 +47,6 @@ class TestRAGDocument:
         assert doc.text_ar is None
         assert doc.metadata == {}
         assert doc.embedding is None
-
-
 class TestSearchResult:
     def test_defaults(self):
         from src.rag.service import RAGDocument, SearchResult
@@ -65,8 +54,6 @@ class TestSearchResult:
         doc = RAGDocument(id="1", text="t")
         sr = SearchResult(document=doc, score=0.8)
         assert sr.match_type == "semantic"
-
-
 class TestRAGConfig:
     def test_defaults(self):
         from src.rag.service import RAGConfig
@@ -75,8 +62,6 @@ class TestRAGConfig:
         assert config.default_top_k == 5
         assert config.min_score_threshold == 0.3
         assert config.chunk_size == 500
-
-
 class TestCopilotRAGService:
     @pytest.mark.asyncio
     async def test_initialize(self):
@@ -248,8 +233,6 @@ class TestCopilotRAGService:
         assert stats["total_documents"] == 1
         assert stats["qdrant_available"] is False
         assert stats["embedding_dimension"] == 384
-
-
 class TestFormatContextForPrompt:
     def _make_results(self, count=3):
         from src.rag.service import RAGDocument, SearchResult
@@ -295,8 +278,6 @@ class TestFormatContextForPrompt:
         context = service.format_context_for_prompt(results, language="en")
         assert "[DOC 1]" in context
         assert "[DOC 2]" in context
-
-
 class TestGetRagService:
     def test_singleton(self):
         import src.rag.service as smod

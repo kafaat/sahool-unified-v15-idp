@@ -1,13 +1,14 @@
 """Tests for financial reports module."""
 
 import pytest
+
 from shared.financial_reports import (
-    FinancialReportGenerator,
-    CostEntry,
-    RevenueEntry,
     CostCategory,
-    Season,
+    CostEntry,
     FieldFinancialReport,
+    FinancialReportGenerator,
+    RevenueEntry,
+    Season,
 )
 
 

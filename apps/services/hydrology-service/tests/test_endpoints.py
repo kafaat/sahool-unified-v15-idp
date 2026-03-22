@@ -3,14 +3,12 @@ Tests for Hydrology Service API endpoints.
 اختبارات نقاط نهاية API لخدمة الهيدرولوجيا
 """
 
-import sys
 import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+import sys
+import types
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-import types
 
 
 @pytest.fixture(autouse=True)
@@ -41,8 +39,6 @@ def mock_shared_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, "shared.errors_py", errors_py)
     monkeypatch.setitem(sys.modules, "shared.middleware", middleware)
     monkeypatch.setitem(sys.modules, "shared.middleware.tenant_context", tenant_ctx)
-
-
 @pytest.fixture
 def client(mock_shared_modules):
     """Create a test client for the FastAPI app."""
@@ -60,23 +56,20 @@ def client(mock_shared_modules):
              patch("src.main.nats") as mock_nats, \
              patch("src.api.endpoints.hydrology.logger"):
             from importlib import reload
+
             import src.main
             reload(src.main)
 
-            from src.main import app
             from fastapi.testclient import TestClient
+            from src.main import app
 
             with TestClient(app) as c:
                 yield c
 
         get_settings.cache_clear()
-
-
 # ==============================================================================
 # Health Endpoint Tests
 # ==============================================================================
-
-
 class TestHealthEndpoints:
     """Tests for health check endpoints."""
 
@@ -117,13 +110,9 @@ class TestHealthEndpoints:
         assert "hydrology_database_connected" in content
         assert "hydrology_nats_connected" in content
         assert "hydrology_service_info" in content
-
-
 # ==============================================================================
 # Hydrology API Endpoint Tests
 # ==============================================================================
-
-
 class TestDrainageEndpoint:
     """Tests for drainage network endpoint."""
 
@@ -145,8 +134,6 @@ class TestDrainageEndpoint:
         """Test drainage endpoint requires X-Tenant-Id header."""
         response = client.get("/api/v1/hydrology/drainage/FIELD-001")
         assert response.status_code == 400
-
-
 class TestWetnessEndpoint:
     """Tests for wetness analysis endpoint."""
 
@@ -172,8 +159,6 @@ class TestWetnessEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["data"]["waterlogging_prediction"] is not None
-
-
 class TestDepressionsEndpoint:
     """Tests for depression analysis endpoint."""
 
@@ -188,8 +173,6 @@ class TestDepressionsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_depressions" in data["data"]
-
-
 class TestStreamsEndpoint:
     """Tests for stream detection endpoint."""
 
@@ -204,8 +187,6 @@ class TestStreamsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_streams" in data["data"]
-
-
 class TestBasinsEndpoint:
     """Tests for basin delineation endpoint."""
 
@@ -220,8 +201,6 @@ class TestBasinsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_basins" in data["data"]
-
-
 class TestAnalyzeEndpoint:
     """Tests for full hydrology analysis endpoint."""
 

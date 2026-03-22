@@ -5,11 +5,6 @@ get_rules_ready_to_trigger edge cases, delete_alert_rule with tenant,
 get_active_alerts with tenant, and statistics edge cases.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 try:
@@ -30,8 +25,6 @@ def mock_db():
     session.flush = MagicMock()
     session.execute = MagicMock()
     return session
-
-
 def _make_mock_alert(**kwargs):
     from src.db_models import Alert
 
@@ -63,8 +56,6 @@ def _make_mock_alert(**kwargs):
     )
     defaults.update(kwargs)
     return Alert(**defaults)
-
-
 def _make_mock_rule(**kwargs):
     from src.db_models import AlertRule
 
@@ -85,13 +76,9 @@ def _make_mock_rule(**kwargs):
     )
     defaults.update(kwargs)
     return AlertRule(**defaults)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # update_alert_rule Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestUpdateAlertRule:
     """Tests for update_alert_rule repository function."""
 
@@ -133,13 +120,9 @@ class TestUpdateAlertRule:
         result = update_alert_rule(mock_db, rule_id=rule.id, nonexistent_field="value")
 
         assert result is rule  # Should not crash
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # mark_rule_triggered Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestMarkRuleTriggered:
     """Tests for mark_rule_triggered repository function."""
 
@@ -168,13 +151,9 @@ class TestMarkRuleTriggered:
         assert result is rule
         assert rule.last_triggered_at is not None
         assert rule.last_triggered_at >= before
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_rules_ready_to_trigger Edge Cases
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetRulesReadyToTrigger:
     """Edge case tests for get_rules_ready_to_trigger."""
 
@@ -252,13 +231,9 @@ class TestGetRulesReadyToTrigger:
 
         ready = get_rules_ready_to_trigger(mock_db)
         assert len(ready) == 0
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # delete_alert_rule with tenant Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestDeleteAlertRuleWithTenant:
     """Tests for delete_alert_rule with tenant isolation."""
 
@@ -284,13 +259,9 @@ class TestDeleteAlertRuleWithTenant:
 
         result = delete_alert_rule(mock_db, uuid4(), tenant_id=str(uuid4()))
         assert result is False
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # delete_alert with tenant Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestDeleteAlertWithTenant:
     """Tests for delete_alert with tenant isolation."""
 
@@ -315,13 +286,9 @@ class TestDeleteAlertWithTenant:
 
         result = delete_alert(mock_db, uuid4(), tenant_id=str(uuid4()))
         assert result is False
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_active_alerts Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetActiveAlertsExtended:
     """Extended tests for get_active_alerts with tenant/field filters."""
 
@@ -356,13 +323,9 @@ class TestGetActiveAlertsExtended:
 
         alerts = get_active_alerts(mock_db)
         assert alerts == []
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_alert_statistics Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetAlertStatisticsExtended:
     """Extended tests for statistics calculation."""
 
@@ -438,13 +401,9 @@ class TestGetAlertStatisticsExtended:
         stats = get_alert_statistics(mock_db, field_id="field-1", days=7)
 
         assert stats["total_alerts"] == 0
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # update_alert_status Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestUpdateAlertStatusExtended:
     """Extended tests for update_alert_status."""
 
@@ -503,13 +462,9 @@ class TestUpdateAlertStatusExtended:
         )
         assert result.status == "expired"
         # No special timestamp tracking for expired
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_alert_rule Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetAlertRuleExtended:
     """Extended tests for get_alert_rule."""
 
@@ -534,13 +489,9 @@ class TestGetAlertRuleExtended:
 
         result = get_alert_rule(mock_db, rule_id=uuid4())
         assert result is None
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_enabled_rules Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetEnabledRulesExtended:
     """Extended tests for get_enabled_rules."""
 
@@ -565,13 +516,9 @@ class TestGetEnabledRulesExtended:
 
         rules = get_enabled_rules(mock_db)
         assert rules == []
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # SEVERITY_ORDER Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestSeverityOrder:
     """Tests for the SEVERITY_ORDER constant."""
 

@@ -3,7 +3,6 @@ Tests for billing-core models and enums.
 Covers: Pydantic models, StrEnum classes, feature translations, helper functions.
 """
 
-import sys
 import os
 import uuid
 import warnings
@@ -13,20 +12,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 # We need to mock external dependencies before importing main
 os.environ["ENVIRONMENT"] = "test"
 os.environ["DATABASE_URL"] = ""
 os.environ["NATS_URL"] = ""
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
-
-
 # ============================================================
 # Test Enums
 # ============================================================
-
-
 class TestEnums:
     """Test all StrEnum classes defined in main.py"""
 
@@ -88,13 +81,9 @@ class TestEnums:
 
         assert Currency.USD == "USD"
         assert Currency.YER == "YER"
-
-
 # ============================================================
 # Test Pydantic Models
 # ============================================================
-
-
 class TestPydanticModels:
     """Test Pydantic request/response models"""
 
@@ -142,7 +131,7 @@ class TestPydanticModels:
         assert req.trial_days == 14
 
     def test_create_tenant_request(self):
-        from src.main import CreateTenantRequest, BillingCycle
+        from src.main import BillingCycle, CreateTenantRequest
 
         req = CreateTenantRequest(
             name="Test Farm",
@@ -156,7 +145,7 @@ class TestPydanticModels:
         assert req.billing_cycle == BillingCycle.MONTHLY
 
     def test_update_subscription_request(self):
-        from src.main import UpdateSubscriptionRequest, BillingCycle, PaymentMethod
+        from src.main import BillingCycle, PaymentMethod, UpdateSubscriptionRequest
 
         req = UpdateSubscriptionRequest(
             plan_id="professional",
@@ -237,13 +226,9 @@ class TestPydanticModels:
         )
         assert payload.status == "completed"
         assert payload.currency == "YER"
-
-
 # ============================================================
 # Test Helper Functions
 # ============================================================
-
-
 class TestHelperFunctions:
     """Test utility/helper functions"""
 
@@ -260,49 +245,49 @@ class TestHelperFunctions:
         assert result == Decimal("0")
 
     def test_get_plan_price_monthly(self):
-        from src.main import get_plan_price, BillingCycle
+        from src.main import BillingCycle, get_plan_price
 
         pricing = {"monthly_usd": "29", "quarterly_usd": "79", "yearly_usd": "290"}
         result = get_plan_price(pricing, BillingCycle.MONTHLY)
         assert result == Decimal("29")
 
     def test_get_plan_price_quarterly(self):
-        from src.main import get_plan_price, BillingCycle
+        from src.main import BillingCycle, get_plan_price
 
         pricing = {"monthly_usd": "29", "quarterly_usd": "79", "yearly_usd": "290"}
         result = get_plan_price(pricing, BillingCycle.QUARTERLY)
         assert result == Decimal("79")
 
     def test_get_plan_price_yearly(self):
-        from src.main import get_plan_price, BillingCycle
+        from src.main import BillingCycle, get_plan_price
 
         pricing = {"monthly_usd": "29", "quarterly_usd": "79", "yearly_usd": "290"}
         result = get_plan_price(pricing, BillingCycle.YEARLY)
         assert result == Decimal("290")
 
     def test_get_plan_price_missing_key(self):
-        from src.main import get_plan_price, BillingCycle
+        from src.main import BillingCycle, get_plan_price
 
         pricing = {}
         result = get_plan_price(pricing, BillingCycle.MONTHLY)
         assert result == Decimal("0")
 
     def test_get_billing_period_end_monthly(self):
-        from src.main import get_billing_period_end, BillingCycle
+        from src.main import BillingCycle, get_billing_period_end
 
         start = date(2025, 1, 1)
         end = get_billing_period_end(start, BillingCycle.MONTHLY)
         assert end == date(2025, 1, 31)
 
     def test_get_billing_period_end_quarterly(self):
-        from src.main import get_billing_period_end, BillingCycle
+        from src.main import BillingCycle, get_billing_period_end
 
         start = date(2025, 1, 1)
         end = get_billing_period_end(start, BillingCycle.QUARTERLY)
         assert end == date(2025, 4, 1)
 
     def test_get_billing_period_end_yearly(self):
-        from src.main import get_billing_period_end, BillingCycle
+        from src.main import BillingCycle, get_billing_period_end
 
         start = date(2025, 1, 1)
         end = get_billing_period_end(start, BillingCycle.YEARLY)
@@ -344,13 +329,9 @@ class TestHelperFunctions:
 
         result = _sanitize_log("normal text")
         assert result == "normal text"
-
-
 # ============================================================
 # Test Feature Translations
 # ============================================================
-
-
 class TestFeatureTranslations:
     """Test Arabic translation of feature names"""
 
@@ -389,13 +370,9 @@ class TestFeatureTranslations:
         # "fields_limit" should match partial key "fields"
         result = translate_feature_name("fields_limit")
         assert result == "الحقول"
-
-
 # ============================================================
 # Test Constants and Config
 # ============================================================
-
-
 class TestConstants:
     """Test module-level constants"""
 
@@ -429,13 +406,9 @@ class TestConstants:
 
         assert len(FEATURE_TRANSLATIONS_AR) > 50
         assert "irrigation" in FEATURE_TRANSLATIONS_AR
-
-
 # ============================================================
 # Test Webhook Signature Verification
 # ============================================================
-
-
 class TestWebhookSignatures:
     """Test webhook signature verification"""
 
@@ -487,13 +460,9 @@ class TestWebhookSignatures:
         with patch("src.main.STRIPE_WEBHOOK_SECRET", "secret"):
             result = verify_stripe_signature(b"payload", "")
             assert result is False
-
-
 # ============================================================
 # Test Auth Helpers
 # ============================================================
-
-
 class TestAuthHelpers:
     """Test authentication helper functions"""
 
@@ -547,7 +516,6 @@ class TestAuthHelpers:
 
     def test_require_tenant_or_admin_raises_403(self):
         from fastapi import HTTPException
-
         from src.main import require_tenant_or_admin
 
         with patch("src.main.verify_tenant_access", return_value=False):

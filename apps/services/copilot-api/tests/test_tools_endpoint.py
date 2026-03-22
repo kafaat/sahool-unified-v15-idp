@@ -2,18 +2,11 @@
 Tests for Tool Execution Endpoints helpers (api/v1/tools.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestExecuteTool:
     @pytest.mark.asyncio
     async def test_rag_search_tool(self):
@@ -133,8 +126,6 @@ class TestExecuteTool:
 
         with pytest.raises(ValueError, match="http_client is required"):
             await _execute_tool("weather.forecast", {}, http_client=None)
-
-
 class TestProxyToCodeAgent:
     @pytest.mark.asyncio
     async def test_unknown_action_returns_error(self):
@@ -181,8 +172,6 @@ class TestProxyToCodeAgent:
         result = await _proxy_to_code_agent("code.fix", {}, mock_client)
         assert "error" in result
         assert "unavailable" in result["error"]
-
-
 class TestProxyToFieldService:
     @pytest.mark.asyncio
     async def test_unknown_action(self):
@@ -220,8 +209,6 @@ class TestProxyToFieldService:
 
         result = await _proxy_to_field_service("field.get", {"id": "f1"}, mock_client)
         assert result == {"id": "f1"}
-
-
 class TestProxyToWeatherService:
     @pytest.mark.asyncio
     async def test_unknown_action(self):
@@ -255,8 +242,6 @@ class TestProxyToWeatherService:
         result = await _proxy_to_weather_service("weather.current", {}, mock_client)
         assert "error" in result
         assert "unavailable" in result["error"]
-
-
 class TestHandleDeployTool:
     @pytest.mark.asyncio
     async def test_plan(self):

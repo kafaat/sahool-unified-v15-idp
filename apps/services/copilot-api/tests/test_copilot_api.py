@@ -66,7 +66,6 @@ class TestChatModels:
     def test_chat_request_rejects_empty_messages(self):
         """Test ChatRequest rejects empty messages list."""
         from pydantic import ValidationError
-
         from src.models.schemas import ChatRequest
 
         with pytest.raises(ValidationError):
@@ -75,7 +74,6 @@ class TestChatModels:
     def test_chat_request_validates_last_message_role(self):
         """Test last message must be from user or tool."""
         from pydantic import ValidationError
-
         from src.models.schemas import ChatMessage, ChatRequest, MessageRole
 
         with pytest.raises(ValidationError):
@@ -100,7 +98,6 @@ class TestChatModels:
     def test_chat_message_max_length(self):
         """Test ChatMessage enforces max_length."""
         from pydantic import ValidationError
-
         from src.models.schemas import ChatMessage, MessageRole
 
         with pytest.raises(ValidationError):
@@ -109,7 +106,6 @@ class TestChatModels:
     def test_tool_call_request_validation(self):
         """Test ToolCallRequest validates tool name format."""
         from pydantic import ValidationError
-
         from src.models.schemas import ToolCallRequest
 
         # Valid

@@ -2,18 +2,12 @@
 Tests for Event Publisher - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import pytest_asyncio
-
 from src.events.publish import AdvisorPublisher, EventEnvelope
 
 
@@ -62,8 +56,6 @@ class TestEventEnvelope:
         e1 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         e2 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         assert e1.event_id != e2.event_id
-
-
 class TestAdvisorPublisher:
     """Tests for AdvisorPublisher"""
 

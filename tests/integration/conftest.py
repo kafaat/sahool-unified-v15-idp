@@ -19,7 +19,7 @@ import os
 import time
 from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx

@@ -1,7 +1,6 @@
 """
 Tests for Crop Profitability Analyzer
 """
-
 import os
 import sys
 
@@ -336,7 +335,5 @@ class TestProfitabilityAnalyzer:
         assert result.total_costs > result.total_revenue
         assert result.net_profit < 0
         assert result.gross_margin_percent < 0
-
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -5,6 +5,7 @@ Coverage: Email sending, SMS sending, bulk operations, error handling, bilingual
 """
 
 import asyncio
+import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

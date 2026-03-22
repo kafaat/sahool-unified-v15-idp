@@ -11,7 +11,6 @@ import sys
 
 # Add service root to path for src imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-import sys
 from datetime import date, datetime
 from typing import Generator
 from unittest.mock import AsyncMock, MagicMock, patch

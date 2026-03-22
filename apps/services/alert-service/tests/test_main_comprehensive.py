@@ -4,11 +4,6 @@ Tests for sanitize_log_input, get_tenant_id, event handlers, create_alert_intern
 health endpoints, and lifespan management.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 try:
@@ -25,8 +20,6 @@ from uuid import UUID, uuid4
 # ═══════════════════════════════════════════════════════════════════════════════
 # sanitize_log_input Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestSanitizeLogInput:
     """Tests for the sanitize_log_input function."""
 
@@ -85,13 +78,9 @@ class TestSanitizeLogInput:
         result = sanitize_log_input(malicious)
         assert "\n" not in result
         assert "\\n" in result
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_tenant_id Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetTenantId:
     """Tests for get_tenant_id dependency."""
 
@@ -104,7 +93,6 @@ class TestGetTenantId:
 
     def test_missing_header(self):
         from fastapi import HTTPException
-
         from src.main import get_tenant_id
 
         with pytest.raises(HTTPException) as exc_info:
@@ -114,7 +102,6 @@ class TestGetTenantId:
 
     def test_invalid_uuid_format(self):
         from fastapi import HTTPException
-
         from src.main import get_tenant_id
 
         with pytest.raises(HTTPException) as exc_info:
@@ -124,19 +111,14 @@ class TestGetTenantId:
 
     def test_empty_string(self):
         from fastapi import HTTPException
-
         from src.main import get_tenant_id
 
         with pytest.raises(HTTPException) as exc_info:
             get_tenant_id("")
         assert exc_info.value.status_code == 400
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # _PERIOD_PATTERN Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestPeriodPattern:
     """Tests for the period regex pattern used in stats endpoint."""
 
@@ -159,13 +141,9 @@ class TestPeriodPattern:
         assert not _PERIOD_PATTERN.match("")
         assert not _PERIOD_PATTERN.match("12345d")  # >4 digits
         assert not _PERIOD_PATTERN.match("-7d")
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Event Handler Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestHandleNdviAnomaly:
     """Tests for handle_ndvi_anomaly event handler."""
 
@@ -231,8 +209,6 @@ class TestHandleNdviAnomaly:
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("DB error"))):
             # Should not raise
             await handle_ndvi_anomaly(data)
-
-
 class TestHandleWeatherAlert:
     """Tests for handle_weather_alert event handler."""
 
@@ -322,8 +298,6 @@ class TestHandleWeatherAlert:
 
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("fail"))):
             await handle_weather_alert(data)
-
-
 class TestHandleIotThreshold:
     """Tests for handle_iot_threshold event handler."""
 
@@ -405,20 +379,15 @@ class TestHandleIotThreshold:
 
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("fail"))):
             await handle_iot_threshold(data)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # create_alert_internal Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestCreateAlertInternal:
     """Tests for create_alert_internal helper."""
 
     @pytest.mark.asyncio
     async def test_database_not_available(self):
         from fastapi import HTTPException
-
         from src.main import create_alert_internal
         from src.models import AlertCreate, AlertSeverity, AlertType
 
@@ -520,13 +489,9 @@ class TestCreateAlertInternal:
 
         mock_db.rollback.assert_called_once()
         mock_db.close.assert_called_once()
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # App-Level Tests (health endpoints via TestClient)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 @pytest.fixture
 def mock_db_session():
     session = MagicMock()
@@ -534,8 +499,6 @@ def mock_db_session():
     session.close = MagicMock()
     session.execute = MagicMock()
     return session
-
-
 @pytest.fixture
 def test_client(mock_db_session):
     """Create test client with mocked dependencies."""
@@ -549,8 +512,6 @@ def test_client(mock_db_session):
                 client = TestClient(app, raise_server_exceptions=False)
                 yield client
                 app.dependency_overrides.clear()
-
-
 class TestHealthEndpointsComprehensive:
     """Extended health endpoint tests."""
 
@@ -584,8 +545,6 @@ class TestHealthEndpointsComprehensive:
         data = response.json()
         assert "alerts_count" in data
         assert "rules_count" in data
-
-
 class TestStatsEndpointValidation:
     """Tests for stats endpoint period validation."""
 
@@ -640,8 +599,6 @@ class TestStatsEndpointValidation:
         data = response.json()
         assert data["acknowledged_rate"] == 25.0
         assert data["resolved_rate"] == 50.0
-
-
 class TestTenantValidationEndpoints:
     """Test tenant validation through API endpoints."""
 
@@ -684,8 +641,6 @@ class TestTenantValidationEndpoints:
             headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"},
         )
         assert response.status_code == 400
-
-
 class TestAlertActionEdgeCases:
     """Edge case tests for alert action endpoints."""
 

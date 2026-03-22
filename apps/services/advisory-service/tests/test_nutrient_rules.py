@@ -2,13 +2,7 @@
 Tests for Nutrient Rules Engine - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.engine.nutrient_rules import (
     NutrientAssessment,
     assess_from_ndvi,
@@ -53,8 +47,6 @@ class TestNutrientAssessment:
             urgency_hours=72,
         )
         assert a.details == {}
-
-
 class TestAssessFromNdvi:
     """Tests for assess_from_ndvi function"""
 
@@ -81,8 +73,6 @@ class TestAssessFromNdvi:
         assert len(results) > 0
         assert "diagnosis_reason" in results[0].details
         assert "ndvi_value" in results[0].details
-
-
 class TestAssessFromVisual:
     """Tests for assess_from_visual function"""
 
@@ -152,8 +142,6 @@ class TestAssessFromVisual:
         results = assess_from_visual(indicators, lang="en")
         for r in results:
             assert "symptoms" in r.details
-
-
 class TestAssessFromSoilTest:
     """Tests for assess_from_soil_test function"""
 

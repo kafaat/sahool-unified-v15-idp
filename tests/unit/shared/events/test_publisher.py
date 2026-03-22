@@ -13,21 +13,20 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
 
+from shared.events.contracts import BaseEvent, FieldCreatedEvent
 from shared.events.publisher import (
-    PublisherConfig,
     EventPublisher,
-    get_publisher,
+    PublisherConfig,
     close_publisher,
+    get_publisher,
     publish_event,
 )
-from shared.events.contracts import BaseEvent, FieldCreatedEvent
-
 
 # =============================================================================
 # Test Fixtures

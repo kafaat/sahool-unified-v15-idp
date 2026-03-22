@@ -48,12 +48,12 @@ from shared.ai.agents import (
 )
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.events.contracts import (
     AgentExecutionCompletedEvent,
     AgentExecutionFailedEvent,
     AgentExecutionStartedEvent,
 )
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Database layer
 from . import db

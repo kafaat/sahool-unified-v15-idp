@@ -6,21 +6,22 @@ Tests for the SAHOOL platform event publisher module.
 """
 
 import json
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
+
+from shared.events.contracts import BaseEvent
 
 # Import the module under test
 from shared.events.publisher import (
     EventPublisher,
     PublisherConfig,
-    get_publisher,
     close_publisher,
+    get_publisher,
     publish_event,
 )
-from shared.events.contracts import BaseEvent
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test Fixtures

@@ -7,8 +7,6 @@ Mocks:
 - TenantContextMiddleware (X-Tenant-ID header required)
 """
 
-import os
-import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -17,31 +15,21 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.main import ModelInfo, app, get_service
-from shared.auth.dependencies import get_current_user
 
+from shared.auth.dependencies import get_current_user
 
 # Valid UUID for TenantContextMiddleware
 TEST_TENANT_ID = "00000000-0000-0000-0000-000000000001"
 HEADERS = {"X-Tenant-ID": TEST_TENANT_ID}
-
-
 # Fake user for auth bypass
 class FakeUser:
     id = "test-user"
     tenant_id = TEST_TENANT_ID
     email = "test@example.com"
     roles = ["admin"]
-
-
 async def _fake_current_user():
     return FakeUser()
-
-
-app.dependency_overrides[get_current_user] = _fake_current_user
 
 
 def _make_mock_service():
@@ -63,16 +51,14 @@ def _make_mock_service():
         "cached": False,
     })
     return svc
-
-
 @pytest.fixture
 def client():
     """Create test client with mocked service."""
     mock_svc = _make_mock_service()
+    app.dependency_overrides[get_current_user] = _fake_current_user
     with patch("src.main.get_service", return_value=mock_svc):
         yield TestClient(app, raise_server_exceptions=False)
-
-
+    app.dependency_overrides.clear()
 def test_health_endpoint(client):
     """Test health check endpoint"""
     response = client.get("/health")
@@ -83,8 +69,6 @@ def test_health_endpoint(client):
     assert "status" in data
     assert "ollama_connected" in data
     assert "version" in data
-
-
 def test_review_code_endpoint(client):
     """Test code review endpoint"""
     response = client.post(
@@ -106,8 +90,6 @@ def test_review_code_endpoint(client):
     assert "score" in data
     assert isinstance(data["score"], int)
     assert 0 <= data["score"] <= 100
-
-
 def test_review_code_without_language(client):
     """Test code review without specifying language"""
     response = client.post(
@@ -120,8 +102,6 @@ def test_review_code_without_language(client):
     data = response.json()
     assert "summary" in data
     assert "score" in data
-
-
 def test_review_code_with_all_fields(client):
     """Test code review with all optional fields"""
     response = client.post(
@@ -138,8 +118,6 @@ def test_review_code_with_all_fields(client):
     data = response.json()
     assert data["score"] >= 0
     assert data["score"] <= 100
-
-
 def test_review_file_not_found(client):
     """Test file review with non-existent file"""
     response = client.post(

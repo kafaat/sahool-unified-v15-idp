@@ -2,17 +2,11 @@
 Tests for Task Automation Hook - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from src.hooks.task_automation import (
     ACTION_TASK_MAPPING,
     FieldOpsClient,
@@ -44,8 +38,6 @@ class TestActionTaskMapping:
         ]
         for action in expected:
             assert action in ACTION_TASK_MAPPING
-
-
 class TestFieldOpsClient:
     """Tests for FieldOpsClient"""
 
@@ -79,8 +71,6 @@ class TestFieldOpsClient:
         await client.close()
         mock_http.aclose.assert_called_once()
         assert client._client is None
-
-
 class TestTaskAutomationHook:
     """Tests for TaskAutomationHook"""
 

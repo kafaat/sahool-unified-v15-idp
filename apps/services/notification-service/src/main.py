@@ -18,7 +18,6 @@ Field-First Architecture:
 import asyncio
 import logging
 import os
-import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timezone
@@ -26,6 +25,7 @@ from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports

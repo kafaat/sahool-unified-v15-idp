@@ -5,6 +5,7 @@ Tests MQTT message handling, broker connectivity, message processing
 
 import asyncio
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch

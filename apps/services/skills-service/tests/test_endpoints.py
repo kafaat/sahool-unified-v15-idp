@@ -2,6 +2,8 @@
 Tests for Skills Service endpoints
 """
 
+import sys
+
 import pytest
 
 try:
@@ -23,7 +25,6 @@ def client():
     ValidationError from type mismatches) return a 500 response instead of
     crashing the test process.
     """
-    import sys
     from pathlib import Path
 
     # Add src to path

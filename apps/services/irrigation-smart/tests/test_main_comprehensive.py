@@ -3,14 +3,10 @@ Comprehensive tests for irrigation-smart service main.py
 Tests cover: enums, models, calculation functions, API endpoints, NATS publishing
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
 import math
-from datetime import UTC, date, datetime, timedelta, time
+import sys
+from datetime import UTC, date, datetime, time, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -41,8 +37,6 @@ from starlette.responses import Response
 class _FakeTenantMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         return await call_next(request)
-
-
 _mock_tenant = MagicMock()
 _mock_tenant.TenantContextMiddleware = _FakeTenantMiddleware
 sys.modules["shared.middleware.tenant_context"] = _mock_tenant
@@ -52,42 +46,40 @@ sys.modules.setdefault("shared.contracts.actions", MagicMock())
 
 # Now import the source module
 from src.main import (
+    CROP_TRANSLATIONS,
+    CROP_WATER_REQUIREMENTS,
+    IRRIGATION_EFFICIENCY,
+    METHOD_TRANSLATIONS,
+    SOIL_WATER_CAPACITY,
+    STAGE_TRANSLATIONS,
+    URGENCY_TRANSLATIONS,
+    WATER_COST_PER_M3,
     CropType,
     GrowthStage,
-    SoilType,
+    IrrigationExecution,
     IrrigationMethod,
-    UrgencyLevel,
+    IrrigationPlan,
     IrrigationRequest,
     IrrigationSchedule,
-    IrrigationPlan,
     SoilMoistureReading,
+    SoilType,
+    UrgencyLevel,
     WaterBalance,
-    IrrigationExecution,
-    CROP_TRANSLATIONS,
-    STAGE_TRANSLATIONS,
-    METHOD_TRANSLATIONS,
-    URGENCY_TRANSLATIONS,
-    CROP_WATER_REQUIREMENTS,
-    SOIL_WATER_CAPACITY,
-    IRRIGATION_EFFICIENCY,
-    WATER_COST_PER_M3,
-    calculate_et0,
+    app,
     calculate_crop_et,
+    calculate_duration,
+    calculate_et0,
     calculate_water_need,
     determine_irrigation_time,
-    calculate_duration,
     generate_reasoning,
-    publish_event,
     get_current_user,
-    app,
+    publish_event,
 )
 
 
 # ============================================================================
 # Enum Tests
 # ============================================================================
-
-
 class TestCropTypeEnum:
     """Test CropType string enum values."""
 
@@ -106,8 +98,6 @@ class TestCropTypeEnum:
     def test_crop_is_str(self):
         assert isinstance(CropType.TOMATO, str)
         assert CropType.TOMATO.upper() == "TOMATO"
-
-
 class TestGrowthStageEnum:
     def test_all_stages_defined(self):
         assert len(GrowthStage) == 5
@@ -116,15 +106,11 @@ class TestGrowthStageEnum:
         assert GrowthStage.SEEDLING == "seedling"
         assert GrowthStage.FLOWERING == "flowering"
         assert GrowthStage.MATURITY == "maturity"
-
-
 class TestSoilTypeEnum:
     def test_all_soil_types(self):
         expected = {"sandy", "clay", "loamy", "silt", "rocky"}
         actual = {s.value for s in SoilType}
         assert actual == expected
-
-
 class TestIrrigationMethodEnum:
     def test_all_methods(self):
         assert len(IrrigationMethod) == 5
@@ -133,19 +119,13 @@ class TestIrrigationMethodEnum:
         assert IrrigationMethod.DRIP == "drip"
         assert IrrigationMethod.FLOOD == "flood"
         assert IrrigationMethod.SPRINKLER == "sprinkler"
-
-
 class TestUrgencyLevelEnum:
     def test_urgency_values(self):
         assert UrgencyLevel.LOW == "low"
         assert UrgencyLevel.CRITICAL == "critical"
-
-
 # ============================================================================
 # Translation Dictionary Tests
 # ============================================================================
-
-
 class TestTranslations:
     def test_all_crops_have_translations(self):
         for crop in CropType:
@@ -168,13 +148,9 @@ class TestTranslations:
         assert STAGE_TRANSLATIONS[GrowthStage.FLOWERING] == "إزهار"
         assert METHOD_TRANSLATIONS[IrrigationMethod.DRIP] == "ري بالتنقيط"
         assert URGENCY_TRANSLATIONS[UrgencyLevel.CRITICAL] == "حرج"
-
-
 # ============================================================================
 # Data Constants Tests
 # ============================================================================
-
-
 class TestConstants:
     def test_crop_water_requirements_covers_all_crops(self):
         for crop in CropType:
@@ -198,13 +174,9 @@ class TestConstants:
 
     def test_water_cost_is_positive(self):
         assert WATER_COST_PER_M3 > 0
-
-
 # ============================================================================
 # Calculation Function Tests
 # ============================================================================
-
-
 class TestCalculateET0:
     def test_basic_calculation(self):
         result = calculate_et0(temperature=30, humidity=50, wind_speed=10)
@@ -235,8 +207,6 @@ class TestCalculateET0:
         result = calculate_et0(30, 50, 10)
         # Rounded to 2 decimal places
         assert result == round(result, 2)
-
-
 class TestCalculateCropET:
     def test_basic_calculation(self):
         et0 = 5.0
@@ -279,8 +249,6 @@ class TestCalculateCropET:
     def test_result_rounded(self):
         result = calculate_crop_et(5.123, CropType.TOMATO, GrowthStage.VEGETATIVE)
         assert result == round(result, 2)
-
-
 class TestCalculateWaterNeed:
     def test_basic_calculation(self):
         result = calculate_water_need(
@@ -346,8 +314,6 @@ class TestCalculateWaterNeed:
         result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 2.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3)
         expected_m3 = result["gross_water_mm"] * 2.0 * 10
         assert abs(result["water_m3"] - round(expected_m3, 2)) < 0.15
-
-
 class TestDetermineIrrigationTime:
     def test_very_hot(self):
         assert determine_irrigation_time(CropType.WHEAT, 40) == "05:00"
@@ -363,8 +329,6 @@ class TestDetermineIrrigationTime:
 
     def test_boundary_30(self):
         assert determine_irrigation_time(CropType.WHEAT, 30) == "07:00"
-
-
 class TestCalculateDuration:
     def test_basic_duration(self):
         # 2000 liters at 2000 lph = 1 hour = 60 min
@@ -384,8 +348,6 @@ class TestCalculateDuration:
 
     def test_returns_int(self):
         assert isinstance(calculate_duration(1500), int)
-
-
 class TestGenerateReasoning:
     def test_critical_reasoning(self):
         water_need = {"accumulated_need_mm": 50, "daily_et_mm": 5}
@@ -418,13 +380,9 @@ class TestGenerateReasoning:
         assert len(result) == 2
         assert isinstance(result[0], str)
         assert isinstance(result[1], str)
-
-
 # ============================================================================
 # Pydantic Model Tests
 # ============================================================================
-
-
 class TestIrrigationRequestModel:
     def test_valid_request(self):
         req = IrrigationRequest(
@@ -467,8 +425,6 @@ class TestIrrigationRequestModel:
         assert req.current_soil_moisture is None
         assert req.last_irrigation_date is None
         assert req.weather_forecast is None
-
-
 class TestIrrigationExecutionModel:
     def test_valid_execution(self):
         exe = IrrigationExecution(
@@ -494,8 +450,6 @@ class TestIrrigationExecutionModel:
                 amount_mm=10.0,
                 duration_minutes=0,
             )
-
-
 class TestSoilMoistureReadingModel:
     def test_valid_reading(self):
         reading = SoilMoistureReading(
@@ -508,8 +462,6 @@ class TestSoilMoistureReadingModel:
             ec_ds_m=1.2,
         )
         assert reading.moisture_percent == 45.0
-
-
 class TestWaterBalanceModel:
     def test_valid_balance(self):
         wb = WaterBalance(
@@ -523,13 +475,9 @@ class TestWaterBalanceModel:
             cumulative_deficit_mm=0.0,
         )
         assert wb.et_mm == 5.0
-
-
 # ============================================================================
 # NATS Event Publishing Tests
 # ============================================================================
-
-
 class TestPublishEvent:
     @pytest.mark.asyncio
     async def test_publish_when_connected(self):
@@ -583,8 +531,6 @@ class TestPublishEvent:
         decoded = json.loads(payload_arg.decode())
         assert decoded["field_id"] == "f1"
         assert decoded["amount"] == 25
-
-
 # ============================================================================
 # API Endpoint Tests (using TestClient)
 # ============================================================================
@@ -595,14 +541,10 @@ try:
     HAS_TESTCLIENT = True
 except ImportError:
     HAS_TESTCLIENT = False
-
-
 @pytest.fixture
 def auth_headers():
     """Provide fake auth token for protected endpoints."""
     return {"Authorization": "Bearer fake-token"}
-
-
 @pytest.fixture
 def client():
     """Create a test client with dependency overrides for auth."""
@@ -620,8 +562,6 @@ def client():
 
     # Cleanup overrides
     app.dependency_overrides.clear()
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -639,8 +579,6 @@ class TestHealthEndpoints:
         assert data["status"] == "ready"
         assert "checks" in data
         assert data["crops_supported"] == len(CropType)
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestCropsEndpoint:
     def test_list_crops(self, client, auth_headers):
@@ -656,8 +594,6 @@ class TestCropsEndpoint:
             assert "name_ar" in crop
             assert "id" in crop
             assert "water_requirements_mm_day" in crop
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestMethodsEndpoint:
     def test_list_methods(self, client, auth_headers):
@@ -672,8 +608,6 @@ class TestMethodsEndpoint:
         for method in resp.json()["methods"]:
             assert "efficiency_percent" in method
             assert 0 < method["efficiency_percent"] <= 100
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestCalculateEndpoint:
     def test_calculate_irrigation(self, client, auth_headers):
@@ -731,8 +665,6 @@ class TestCalculateEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["water_savings_m3"] > 0  # flood vs drip savings
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestSensorReadingEndpoint:
     def test_critical_moisture(self, client, auth_headers):
@@ -803,8 +735,6 @@ class TestSensorReadingEndpoint:
         )
         assert resp.status_code == 200
         assert resp.json()["status"] == "high"
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestIrrigationExecutedEndpoint:
     def test_record_execution(self, client, auth_headers):
@@ -825,8 +755,6 @@ class TestIrrigationExecutedEndpoint:
         assert data["amount_mm"] == 25.0
         assert "execution_id" in data
         assert "method_ar" in data
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestEfficiencyReportEndpoint:
     def test_report_traditional(self, client, auth_headers):
@@ -861,8 +789,6 @@ class TestEfficiencyReportEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["roi_months"] is not None
-
-
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestWaterBalanceEndpoint:
     def test_water_balance(self, client, auth_headers):

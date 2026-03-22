@@ -2,17 +2,11 @@
 Tests for IoT Rules Worker - sensor event processing and task creation
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
 from datetime import UTC, datetime, timedelta
-
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from src.iot_worker import IoTRulesWorker
 
 
@@ -21,8 +15,6 @@ def _make_msg(data: dict) -> MagicMock:
     msg = MagicMock()
     msg.data = json.dumps(data).encode()
     return msg
-
-
 class TestIoTRulesWorkerInit:
     """Tests for IoT worker initialization"""
 
@@ -35,8 +27,6 @@ class TestIoTRulesWorkerInit:
             assert worker._recent_readings == {}
             assert worker._recent_tasks == {}
             assert worker._cooldown_minutes == 30
-
-
 class TestHandleSensorReading:
     """Tests for sensor reading handler"""
 
@@ -195,8 +185,6 @@ class TestHandleSensorReading:
             await worker._handle_sensor_reading(msg)
             call_kwargs = worker.fieldops.create_task.call_args.kwargs
             assert call_kwargs["correlation_id"] == "corr-xyz"
-
-
 class TestStoreReading:
     """Tests for _store_reading"""
 
@@ -214,8 +202,6 @@ class TestStoreReading:
             for i in range(15):
                 worker._store_reading("f1", "soil_moisture", float(i), "dev-1", "t1")
             assert len(worker._recent_readings["f1"]) == 10
-
-
 class TestCreateTaskFromRecommendation:
     """Tests for task creation with cooldown"""
 
@@ -348,8 +334,6 @@ class TestCreateTaskFromRecommendation:
 
             # Should not raise
             await worker._create_task_from_recommendation("t1", "f1", rec)
-
-
 class TestIoTWorkerLifecycle:
     """Tests for worker start/stop"""
 

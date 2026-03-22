@@ -2,17 +2,11 @@
 Tests for Rate Limiter - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import time
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 from fastapi import HTTPException
-
 from src.rate_limiter import (
     TIERS,
     AdvisoryRateLimiter,
@@ -40,8 +34,6 @@ def _make_mock_request(tenant_id=None, client_ip="127.0.0.1", is_service=False):
     request.client = MagicMock()
     request.client.host = client_ip
     return request
-
-
 class TestRateLimitTier:
     """Tests for RateLimitTier dataclass"""
 
@@ -50,8 +42,6 @@ class TestRateLimitTier:
         assert tier.requests_per_minute == 30
         assert tier.requests_per_hour == 500
         assert tier.burst_limit == 5
-
-
 class TestTiers:
     """Tests for tier definitions"""
 
@@ -62,8 +52,6 @@ class TestTiers:
 
     def test_lookup_has_highest_limits(self):
         assert TIERS["lookup"].requests_per_minute > TIERS["disease_assess"].requests_per_minute
-
-
 class TestAdvisoryRateLimiter:
     """Tests for AdvisoryRateLimiter class"""
 
@@ -152,8 +140,6 @@ class TestAdvisoryRateLimiter:
         tier = RateLimitTier(requests_per_minute=60, requests_per_hour=1000, burst_limit=5)
         # First request should pass
         assert limiter._check_burst("test_key", tier) is True
-
-
 class TestRateLimitDecorator:
     """Tests for rate_limit decorator"""
 

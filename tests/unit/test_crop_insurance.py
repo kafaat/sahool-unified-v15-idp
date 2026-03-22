@@ -29,55 +29,52 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from shared.crop_insurance.claims import (
+    ClaimProcessor,
+    ClaimStorage,
+    ClaimValidator,
+    PayoutCalculation,
+    PayoutCalculator,
+    ValidationResult,
+)
 from shared.crop_insurance.models import (
-    # Enums
-    InsuranceType,
-    PolicyStatus,
-    ClaimStatus,
-    ClaimType,
-    RiskLevel,
-    CoverageType,
-    PayoutTriggerType,
-    WeatherIndexType,
     # Data classes
     BilingualText,
-    InsuranceProvider,
-    CoverageDetails,
-    WeatherIndex,
-    ParametricTrigger,
-    PolicyPremium,
-    InsurancePolicy,
     ClaimEvidence,
-    InsuranceClaim,
     ClaimPayout,
-    RiskFactor,
+    ClaimStatus,
+    ClaimType,
+    CoverageDetails,
+    CoverageType,
     FieldRiskProfile,
-    PremiumQuote,
+    InsuranceClaim,
     # Errors
     InsuranceErrors,
     InsuranceException,
+    InsurancePolicy,
+    InsuranceProvider,
+    # Enums
+    InsuranceType,
+    ParametricTrigger,
+    PayoutTriggerType,
+    PolicyPremium,
+    PolicyStatus,
+    PremiumQuote,
+    RiskFactor,
+    RiskLevel,
+    WeatherIndex,
+    WeatherIndexType,
 )
-
 from shared.crop_insurance.risk_assessment import (
+    CropRiskProfile,
+    HistoricalYieldAnalyzer,
+    HistoricalYieldData,
     RiskAssessmentEngine,
     RiskCalculator,
-    WeatherRiskAnalyzer,
-    HistoricalYieldAnalyzer,
-    WeatherHistoryData,
     SoilData,
-    HistoricalYieldData,
-    CropRiskProfile,
+    WeatherHistoryData,
+    WeatherRiskAnalyzer,
 )
-
-from shared.crop_insurance.claims import (
-    ClaimProcessor,
-    ClaimValidator,
-    PayoutCalculator,
-    ClaimStorage,
-    ValidationResult,
-    PayoutCalculation,
-)
-
 
 # ============================================================================
 # Test Fixtures

@@ -1,15 +1,8 @@
 """
 Tests for VRA API endpoints - اختبارات نقاط نهاية التطبيق بالمعدل المتغير
 """
-
-import sys
-import os
-
 import pytest
 from httpx import ASGITransport, AsyncClient
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.api.v1.vra import (
     BoundsInput,
     Coordinate,
@@ -52,14 +45,10 @@ class TestVRAModels:
         assert r.base_rate_l_ha == 5.0
         assert r.name == "Spot Spray Map"
         assert r.name_ar == "خريطة الرش النقطي"
-
-
 class TestVRAHelpers:
     def test_raise_not_found(self):
         with pytest.raises(Exception):
             _raise_not_found()
-
-
 def _create_test_app():
     from fastapi import FastAPI
     test_app = FastAPI()
@@ -85,20 +74,14 @@ def _create_test_app():
     test_app.state.db_pool = None
     test_app.state.nc = None
     return test_app
-
-
 @pytest.fixture
 def app():
     return _create_test_app()
-
-
 @pytest.fixture(autouse=True)
 def clear_prescriptions():
     _prescriptions.clear()
     yield
     _prescriptions.clear()
-
-
 @pytest.mark.asyncio
 async def test_list_prescriptions_empty(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -107,8 +90,6 @@ async def test_list_prescriptions_empty(app):
         data = resp.json()
         assert data["prescriptions"] == []
         assert data["count"] == 0
-
-
 @pytest.mark.asyncio
 async def test_list_prescriptions_with_data(app):
     _prescriptions["rx-1"] = {"id": "rx-1", "tenant_id": "test-tenant", "field_id": "f1"}
@@ -119,8 +100,6 @@ async def test_list_prescriptions_with_data(app):
         data = resp.json()
         assert data["count"] == 1
         assert data["prescriptions"][0]["id"] == "rx-1"
-
-
 @pytest.mark.asyncio
 async def test_list_prescriptions_filter_field_id(app):
     _prescriptions["rx-1"] = {"id": "rx-1", "tenant_id": "test-tenant", "field_id": "f1"}
@@ -130,8 +109,6 @@ async def test_list_prescriptions_filter_field_id(app):
         resp = await client.get("/api/v1/vra/prescriptions?field_id=f1")
         data = resp.json()
         assert data["count"] == 1
-
-
 @pytest.mark.asyncio
 async def test_get_prescription(app):
     _prescriptions["rx-1"] = {"id": "rx-1", "tenant_id": "test-tenant", "name": "Test"}
@@ -140,15 +117,11 @@ async def test_get_prescription(app):
         resp = await client.get("/api/v1/vra/prescriptions/rx-1")
         assert resp.status_code == 200
         assert resp.json()["name"] == "Test"
-
-
 @pytest.mark.asyncio
 async def test_get_prescription_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/vra/prescriptions/nonexistent")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_get_prescription_wrong_tenant(app):
     _prescriptions["rx-1"] = {"id": "rx-1", "tenant_id": "other-tenant", "name": "Test"}
@@ -156,8 +129,6 @@ async def test_get_prescription_wrong_tenant(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/vra/prescriptions/rx-1")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_ndvi_prescription_success(app):
     """With shared.drone_integration available, NDVI prescription should succeed."""
@@ -175,8 +146,6 @@ async def test_ndvi_prescription_success(app):
         assert "id" in data
         assert "zones_count" in data
         assert "zones" in data
-
-
 @pytest.mark.asyncio
 async def test_spot_spray_success(app):
     """With shared.drone_integration available, spot spray should succeed."""

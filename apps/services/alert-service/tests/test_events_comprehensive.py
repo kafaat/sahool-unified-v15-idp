@@ -3,11 +3,6 @@ SAHOOL Alert Service - Comprehensive Events Tests
 Tests for AlertEventPublisher, AlertEventSubscriber, singleton helpers, and message handling.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -19,13 +14,9 @@ try:
     import nats  # noqa: F401
 except ImportError:
     pytest.skip("nats not installed", allow_module_level=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertTopics Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertTopics:
     """Test NATS topic constants."""
 
@@ -47,13 +38,9 @@ class TestAlertTopics:
         assert AlertTopics.CROP_HEALTH_ALERT == "sahool.health.crop.alert"
         assert AlertTopics.IRRIGATION_ALERT == "sahool.irrigation.alert"
         assert AlertTopics.VISION_CRITICAL_ALERT == "sahool.vision.critical.alert"
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertEventPublisher Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertEventPublisher:
     """Tests for AlertEventPublisher."""
 
@@ -272,13 +259,9 @@ class TestAlertEventPublisher:
         call_args = pub._nc.publish.call_args
         payload = json.loads(call_args[0][1].decode())
         assert payload["resolution_note"] is None
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertEventSubscriber Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAlertEventSubscriber:
     """Tests for AlertEventSubscriber."""
 
@@ -419,13 +402,9 @@ class TestAlertEventSubscriber:
 
         # Should not raise, just log error
         await sub._message_handler(msg)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Singleton Factory Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestSingletonFactories:
     """Tests for get_publisher and get_subscriber singletons."""
 

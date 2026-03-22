@@ -5,6 +5,7 @@ AI Chat Assistant - Main FastAPI application.
 
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -15,10 +16,10 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
-from src.config import settings
 from src.cache import cache_manager
-from src.llm_client import llm_client
+from src.config import settings
 from src.events import event_handler
+from src.llm_client import llm_client
 
 # Configure logging
 logging.basicConfig(
@@ -87,7 +88,7 @@ async def lifespan(app: FastAPI):
 
 
 # Import unified error handling
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Create FastAPI app
 app = FastAPI(

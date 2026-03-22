@@ -4,6 +4,7 @@ Unit Tests for Multi-Provider LLM Service
 """
 
 import os
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest

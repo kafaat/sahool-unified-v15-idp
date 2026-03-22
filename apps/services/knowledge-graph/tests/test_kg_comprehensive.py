@@ -4,7 +4,6 @@ Comprehensive tests for Knowledge Graph Service
 
 Covers: models, graph_service, entity_service, relationship_service, API endpoints
 """
-
 import os
 import sys
 
@@ -14,6 +13,8 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from unittest.mock import AsyncMock, MagicMock, patch
+
+from services import EntityService, KnowledgeGraphService, RelationshipService
 
 from models import (
     Crop,
@@ -26,14 +27,11 @@ from models import (
     RelationshipType,
     Treatment,
 )
-from services import EntityService, KnowledgeGraphService, RelationshipService
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestModels:
     """Tests for Pydantic models in graph_models.py"""
 
@@ -191,13 +189,9 @@ class TestModels:
         )
         assert resp.status == "healthy"
         assert resp.database is True
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # KnowledgeGraphService Tests (graph_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 @pytest.mark.asyncio
 class TestKnowledgeGraphServiceUnit:
     """Unit tests for KnowledgeGraphService with mocked shared builder."""
@@ -477,13 +471,9 @@ class TestKnowledgeGraphServiceUnit:
         svc.graph = None
         result = await svc.health_check()
         assert result is False
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # EntityService Tests (entity_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 @pytest.mark.asyncio
 class TestEntityService:
     """Tests for EntityService layer."""
@@ -631,13 +621,9 @@ class TestEntityService:
         assert len(results["results"]["diseases"]) == 1
         assert len(results["results"]["treatments"]) == 1
         assert results["total_results"] == 3
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # RelationshipService Tests (relationship_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 @pytest.mark.asyncio
 class TestRelationshipService:
     """Tests for RelationshipService layer."""
@@ -793,7 +779,5 @@ class TestRelationshipService:
         )
         assert result["exists"] is False
         assert "error" in result
-
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

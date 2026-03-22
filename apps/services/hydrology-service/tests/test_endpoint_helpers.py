@@ -3,39 +3,32 @@ Tests for endpoint helper functions (build_*, calculate_*, generate_*, etc.)
 اختبارات الدوال المساعدة لنقاط النهاية
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
 
-from src.utils.hydrology_algorithms import (
-    DEMData,
-    HydrologyAnalyzer,
-    DepressionData,
-    DrainageSegmentData,
-    generate_mock_dem,
-    cells_to_coordinates,
-    classify_drainage_pattern,
-    calculate_slope,
-    calculate_d8_flow_direction,
-)
+import numpy as np
+import pytest
 from src.api.schemas import (
+    WETNESS_LEVEL_AR,
     DepressionRisk,
     DrainageType,
     WetnessLevel,
-    WETNESS_LEVEL_AR,
+)
+from src.utils.hydrology_algorithms import (
+    DEMData,
+    DepressionData,
+    DrainageSegmentData,
+    HydrologyAnalyzer,
+    calculate_d8_flow_direction,
+    calculate_slope,
+    cells_to_coordinates,
+    classify_drainage_pattern,
+    generate_mock_dem,
 )
 
 
 # ==============================================================================
 # Fixtures
 # ==============================================================================
-
-
 @pytest.fixture
 def mock_analyzer():
     """Create a HydrologyAnalyzer with mock data already analyzed."""
@@ -44,8 +37,6 @@ def mock_analyzer():
     analyzer.load_dem(dem)
     analyzer.run_full_analysis(flow_threshold=50, depression_max_depth=2.0, min_basin_cells=50)
     return analyzer, dem
-
-
 @pytest.fixture
 def mock_analyzer_no_bounds():
     """Create an analyzer with DEM that has no bounds."""
@@ -54,13 +45,9 @@ def mock_analyzer_no_bounds():
     analyzer.load_dem(dem)
     analyzer.run_full_analysis(flow_threshold=30, depression_max_depth=2.0, min_basin_cells=30)
     return analyzer, dem
-
-
 # ==============================================================================
 # validate_field_id Tests
 # ==============================================================================
-
-
 class TestValidateFieldId:
     """Tests for SSRF-safe field ID validation."""
 
@@ -83,13 +70,9 @@ class TestValidateFieldId:
             validate_field_id("field id with spaces")
         with pytest.raises(ValueError):
             validate_field_id("field;drop table")
-
-
 # ==============================================================================
 # build_drainage_network Tests
 # ==============================================================================
-
-
 class TestBuildDrainageNetwork:
     """Tests for build_drainage_network helper."""
 
@@ -124,13 +107,9 @@ class TestBuildDrainageNetwork:
         result = build_drainage_network(analyzer, dem, "F1")
 
         assert result.bifurcation_ratio > 0
-
-
 # ==============================================================================
 # build_wetness_analysis Tests
 # ==============================================================================
-
-
 class TestBuildWetnessAnalysis:
     """Tests for build_wetness_analysis helper."""
 
@@ -181,13 +160,9 @@ class TestBuildWetnessAnalysis:
             assert len(zone.level_ar) > 0
             assert len(zone.recommendations_ar) >= 0
             assert len(zone.recommendations_en) >= 0
-
-
 # ==============================================================================
 # build_depression_analysis Tests
 # ==============================================================================
-
-
 class TestBuildDepressionAnalysis:
     """Tests for build_depression_analysis helper."""
 
@@ -241,13 +216,9 @@ class TestBuildDepressionAnalysis:
 
         result = build_depression_analysis(analyzer, dem, "F1")
         assert "critical" in result.summary_en.lower() or "حرج" in result.summary_ar
-
-
 # ==============================================================================
 # build_stream_network Tests
 # ==============================================================================
-
-
 class TestBuildStreamNetwork:
     """Tests for build_stream_network helper."""
 
@@ -274,13 +245,9 @@ class TestBuildStreamNetwork:
                 assert stream.is_perennial is True
             else:
                 assert stream.is_perennial is False
-
-
 # ==============================================================================
 # build_basin_delineation Tests
 # ==============================================================================
-
-
 class TestBuildBasinDelineation:
     """Tests for build_basin_delineation helper."""
 
@@ -309,13 +276,9 @@ class TestBuildBasinDelineation:
         result = build_basin_delineation(analyzer, dem, "F1")
         assert result.total_basins == 0
         assert result.outlet_point is not None  # fallback point
-
-
 # ==============================================================================
 # calculate_flood_risk Tests
 # ==============================================================================
-
-
 class TestCalculateFloodRisk:
     """Tests for flood risk calculation."""
 
@@ -360,13 +323,9 @@ class TestCalculateFloodRisk:
 
         result = calculate_flood_risk(wetness, depressions)
         assert result == DepressionRisk.MEDIUM
-
-
 # ==============================================================================
 # calculate_drainage_quality_score Tests
 # ==============================================================================
-
-
 class TestCalculateDrainageQualityScore:
     """Tests for drainage quality score calculation."""
 
@@ -409,13 +368,9 @@ class TestCalculateDrainageQualityScore:
         score = calculate_drainage_quality_score(drainage, wetness)
         assert score >= 0
         assert score <= 100
-
-
 # ==============================================================================
 # generate_recommendations Tests
 # ==============================================================================
-
-
 class TestGenerateRecommendations:
     """Tests for recommendation generation."""
 
@@ -471,13 +426,9 @@ class TestGenerateRecommendations:
 
         ar, en = generate_recommendations(drainage, wetness, depressions, DepressionRisk.CRITICAL)
         assert any("flood" in r.lower() or "urgent" in r.lower() for r in en)
-
-
 # ==============================================================================
 # Wetness/Depression Recommendations Tests
 # ==============================================================================
-
-
 class TestRecommendationFunctions:
     """Tests for get_wetness_recommendations and get_depression_recommendations."""
 
@@ -512,13 +463,9 @@ class TestRecommendationFunctions:
             recs = get_depression_recommendations_en(risk)
             assert isinstance(recs, list)
             assert len(recs) > 0
-
-
 # ==============================================================================
 # cells_to_coordinates Tests
 # ==============================================================================
-
-
 class TestCellsToCoordinates:
     """Tests for cells_to_coordinates utility."""
 
@@ -546,13 +493,9 @@ class TestCellsToCoordinates:
         cells = [(3, 7)]
         coords = cells_to_coordinates(cells, dem)
         assert coords == [[7, 3]]  # col, row as pixel coords
-
-
 # ==============================================================================
 # classify_drainage_pattern Tests
 # ==============================================================================
-
-
 class TestClassifyDrainagePattern:
     """Tests for drainage pattern classification."""
 
@@ -580,13 +523,9 @@ class TestClassifyDrainagePattern:
         slope = np.ones((10, 10)) * 5.0
         pattern = classify_drainage_pattern(dem, flow_dir, slope)
         assert pattern == "unknown"
-
-
 # ==============================================================================
 # generate_mock_analysis_data Tests
 # ==============================================================================
-
-
 class TestGenerateMockAnalysisData:
     """Tests for mock analysis data generation used by endpoints."""
 
@@ -601,13 +540,9 @@ class TestGenerateMockAnalysisData:
         assert analyzer.dem is not None
         assert analyzer.flow_data is not None
         assert analyzer.twi is not None
-
-
 # ==============================================================================
 # fetch_dem_from_terrain_service Tests
 # ==============================================================================
-
-
 class TestFetchDemFromTerrainService:
     """Tests for terrain service integration."""
 
@@ -621,8 +556,9 @@ class TestFetchDemFromTerrainService:
 
     @pytest.mark.asyncio
     async def test_fetch_dem_connection_error(self):
-        from src.api.endpoints.hydrology import fetch_dem_from_terrain_service
         from unittest.mock import AsyncMock as AM
+
+        from src.api.endpoints.hydrology import fetch_dem_from_terrain_service
 
         class _FakeClient:
             def __init__(self, **kw):

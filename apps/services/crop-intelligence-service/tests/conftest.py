@@ -22,9 +22,10 @@ os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 
 try:
+    from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-    from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
 except Exception:
     get_current_user = None
     User = None

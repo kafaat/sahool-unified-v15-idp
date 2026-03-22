@@ -23,7 +23,6 @@ from shared.ai.knowledge.models import (
     KnowledgeDomain,
 )
 
-
 # ─── Fixtures ────────────────────────────────────────────────────────────────
 
 

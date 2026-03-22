@@ -9,21 +9,21 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from shared.ai.llm_provider import (
-    LLMProviderManager,
-    LLMProvider,
-    LLMConfig,
-    LLMResponse,
-    LLMProviderError,
     AllProvidersFailedError,
-    get_llm_manager,
+    LLMConfig,
+    LLMProvider,
+    LLMProviderError,
+    LLMProviderManager,
+    LLMResponse,
     generate_text,
     generate_with_ollama_fallback,
+    get_llm_manager,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

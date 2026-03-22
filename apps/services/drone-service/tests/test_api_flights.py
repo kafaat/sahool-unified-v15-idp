@@ -1,15 +1,8 @@
 """
 Tests for flight planning API endpoints - اختبارات نقاط نهاية تخطيط الرحلات
 """
-
-import sys
-import os
-
 import pytest
 from httpx import ASGITransport, AsyncClient
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.api.v1.flights import (
     Coordinate,
     MappingFlightRequest,
@@ -63,8 +56,6 @@ class TestFlightModels:
         assert r.spray_rate_l_ha == 10.0
         assert r.tank_capacity_l == 20.0
         assert r.flight_time_per_tank_min == 15.0
-
-
 def _create_test_app():
     from fastapi import FastAPI
     test_app = FastAPI()
@@ -89,20 +80,14 @@ def _create_test_app():
     test_app.dependency_overrides[get_current_user] = fake_user
     test_app.state.db_pool = None
     return test_app
-
-
 @pytest.fixture
 def app():
     return _create_test_app()
-
-
 @pytest.fixture(autouse=True)
 def clear_plans():
     _flight_plans.clear()
     yield
     _flight_plans.clear()
-
-
 @pytest.mark.asyncio
 async def test_weather_check_safe(app):
     """Test weather check with safe conditions."""
@@ -117,8 +102,6 @@ async def test_weather_check_safe(app):
         assert resp.status_code == 200
         data = resp.json()
         assert data["safe_to_fly"] is True
-
-
 @pytest.mark.asyncio
 async def test_weather_check_high_wind(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -132,8 +115,6 @@ async def test_weather_check_high_wind(app):
         data = resp.json()
         assert data["safe_to_fly"] is False
         assert data["condition"] == "prohibited"
-
-
 @pytest.mark.asyncio
 async def test_weather_check_precipitation(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -146,8 +127,6 @@ async def test_weather_check_precipitation(app):
         })
         data = resp.json()
         assert data["safe_to_fly"] is False
-
-
 @pytest.mark.asyncio
 async def test_weather_check_returns_condition(app):
     """Verify the weather check response has expected fields."""
@@ -166,8 +145,6 @@ async def test_weather_check_returns_condition(app):
         assert "message_ar" in data
         assert "warnings" in data
         assert "warnings_ar" in data
-
-
 @pytest.mark.asyncio
 async def test_estimate_resources(app):
     """Test resource estimation (uses shared.drone_integration)."""
@@ -185,8 +162,6 @@ async def test_estimate_resources(app):
         assert data["tank_fills"] == 5
         assert data["batteries_needed"] == 4
         assert data["total_flight_time_min"] == 75
-
-
 @pytest.mark.asyncio
 async def test_estimate_resources_small_area(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -200,8 +175,6 @@ async def test_estimate_resources_small_area(app):
         assert data["total_volume_l"] > 0
         assert data["tank_fills"] >= 1
         assert data["batteries_needed"] >= 1
-
-
 @pytest.mark.asyncio
 async def test_list_flight_plans_empty(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -210,8 +183,6 @@ async def test_list_flight_plans_empty(app):
         data = resp.json()
         assert data["plans"] == []
         assert data["count"] == 0
-
-
 @pytest.mark.asyncio
 async def test_list_flight_plans_with_data(app):
     _flight_plans["FP-1"] = {"id": "FP-1", "tenant_id": "test-tenant", "field_id": "f1", "plan_type": "spray"}
@@ -222,8 +193,6 @@ async def test_list_flight_plans_with_data(app):
         data = resp.json()
         assert data["count"] == 1
         assert data["plans"][0]["id"] == "FP-1"
-
-
 @pytest.mark.asyncio
 async def test_list_flight_plans_filter_field_id(app):
     _flight_plans["FP-1"] = {"id": "FP-1", "tenant_id": "test-tenant", "field_id": "f1", "plan_type": "spray"}
@@ -233,8 +202,6 @@ async def test_list_flight_plans_filter_field_id(app):
         resp = await client.get("/api/v1/flights/plans?field_id=f1")
         data = resp.json()
         assert data["count"] == 1
-
-
 @pytest.mark.asyncio
 async def test_list_flight_plans_filter_plan_type(app):
     _flight_plans["FP-1"] = {"id": "FP-1", "tenant_id": "test-tenant", "field_id": "f1", "plan_type": "spray"}
@@ -245,8 +212,6 @@ async def test_list_flight_plans_filter_plan_type(app):
         data = resp.json()
         assert data["count"] == 1
         assert data["plans"][0]["plan_type"] == "mapping"
-
-
 @pytest.mark.asyncio
 async def test_get_flight_plan(app):
     _flight_plans["FP-1"] = {"id": "FP-1", "tenant_id": "test-tenant", "name": "Plan1"}
@@ -255,15 +220,11 @@ async def test_get_flight_plan(app):
         resp = await client.get("/api/v1/flights/plans/FP-1")
         assert resp.status_code == 200
         assert resp.json()["name"] == "Plan1"
-
-
 @pytest.mark.asyncio
 async def test_get_flight_plan_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/flights/plans/nonexistent")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_get_flight_plan_wrong_tenant(app):
     _flight_plans["FP-1"] = {"id": "FP-1", "tenant_id": "other-tenant", "name": "Plan1"}
@@ -271,8 +232,6 @@ async def test_get_flight_plan_wrong_tenant(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/flights/plans/FP-1")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_spray_flight_plan_success(app):
     """With shared.drone_integration available, spray planning should succeed."""
@@ -296,8 +255,6 @@ async def test_spray_flight_plan_success(app):
         assert data["field_id"] == "f1"
         assert "id" in data
         assert "success" in data
-
-
 @pytest.mark.asyncio
 async def test_mapping_flight_plan_success(app):
     """With shared.drone_integration available, mapping planning should succeed."""

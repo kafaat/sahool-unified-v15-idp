@@ -6,14 +6,10 @@ Tests the repository logic by directly testing the _sanitize_id helper
 and verifying repository operations via mock database sessions.
 """
 
-import sys
-import os
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 class TestSanitizeId:
@@ -74,8 +70,6 @@ class TestSanitizeId:
         assert "\r" not in result
         assert "\n" not in result
         assert "injected_line" in result  # content preserved, just newlines removed
-
-
 class TestRepositoryLogic:
     """Tests for TaskRepository business logic.
 

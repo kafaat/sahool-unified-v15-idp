@@ -10,7 +10,6 @@ Targets >60% code coverage across:
 
 import math
 import os
-import sys
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -18,15 +17,12 @@ import numpy as np
 import pytest
 
 # Ensure service root is on path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars-minimum")
-
-
 # ---------------------------------------------------------------------------
 # Schema enum tests
 # ---------------------------------------------------------------------------
@@ -56,8 +52,6 @@ class TestSchemaEnums:
 
         assert LevelingPriority.MINIMIZE_COST == "minimize_cost"
         assert LevelingPriority.IRRIGATION_EFFICIENCY == "irrigation_efficiency"
-
-
 # ---------------------------------------------------------------------------
 # Schema model validation tests
 # ---------------------------------------------------------------------------
@@ -195,8 +189,6 @@ class TestSchemaValidation:
 
         er = ErrorResponse(error="test", error_ar="اختبار")
         assert er.detail is None
-
-
 # ---------------------------------------------------------------------------
 # Config tests
 # ---------------------------------------------------------------------------
@@ -229,8 +221,6 @@ class TestConfig:
         s = Settings()
         assert s.MIN_DRAINAGE_GRADE == 0.1
         assert s.MAX_IRRIGATION_GRADE == 0.5
-
-
 # ---------------------------------------------------------------------------
 # LevelingOptimizer algorithm tests
 # ---------------------------------------------------------------------------
@@ -418,8 +408,6 @@ class TestLevelingOptimizer:
         assert optimizer.ratio_to_grade_percent(200) == 0.5
         assert optimizer.ratio_to_grade_percent(100) == 1.0
         assert optimizer.ratio_to_grade_percent(0) == 0.0
-
-
 # ---------------------------------------------------------------------------
 # Point3D and PlaneParameters dataclass tests
 # ---------------------------------------------------------------------------
@@ -461,8 +449,6 @@ class TestDataclasses:
         )
         assert cfr.cut_volume == 1000.0
         assert len(cfr.cut_points) == 1
-
-
 # ---------------------------------------------------------------------------
 # Response model tests
 # ---------------------------------------------------------------------------
@@ -536,8 +522,6 @@ class TestResponseModels:
         assert ce.total_cost_sar == 50000.0
         assert "SAR" in ce.summary_en
         assert "ريال" in ce.summary_ar
-
-
 # ---------------------------------------------------------------------------
 # Validation constants tests
 # ---------------------------------------------------------------------------

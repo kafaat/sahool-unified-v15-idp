@@ -6,7 +6,6 @@ Targets >60% code coverage of src/main.py
 """
 
 import json
-import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
@@ -16,9 +15,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Add the service directory to sys.path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-
 # ---------------------------------------------------------------------------
 # Mock all external/shared dependencies before importing source
 # ---------------------------------------------------------------------------
@@ -29,8 +25,6 @@ class _NoopMiddleware:
         self.app = app
     async def __call__(self, scope, receive, send):
         await self.app(scope, receive, send)
-
-
 # Pre-populate sys.modules with mocks for shared packages
 for _mod in [
     "shared", "shared.errors_py", "shared.middleware",
@@ -49,12 +43,8 @@ sys.modules["shared.middleware.tenant_context"].TenantContextMiddleware = _NoopM
 _mock_user = MagicMock()
 _mock_user.tenant_id = "tenant_001"
 _mock_user.roles = ["admin"]
-
-
 async def _fake_get_current_user():
     return _mock_user
-
-
 sys.modules["shared.auth.dependencies"].get_current_user = _fake_get_current_user
 sys.modules["shared.auth.models"].User = type("User", (), {"tenant_id": None, "roles": []})
 
@@ -69,6 +59,7 @@ from src.main import (
     IndicatorCategory,
     IndicatorInput,
     TrendDirection,
+    _enforce_tenant,
     app,
     create_alert_if_needed,
     delete_field_indicators,
@@ -81,14 +72,12 @@ from src.main import (
     get_tenant_indicators,
     publish_event,
     save_indicator,
-    _enforce_tenant,
 )
+
 
 # ---------------------------------------------------------------------------
 # Helpers for creating async-context-manager-compatible mock pools
 # ---------------------------------------------------------------------------
-
-
 def _make_mock_pool(mock_conn):
     """Create a mock asyncpg pool whose acquire() works as an async context manager."""
     mock_pool = MagicMock()
@@ -99,8 +88,6 @@ def _make_mock_pool(mock_conn):
 
     mock_pool.acquire = _acquire
     return mock_pool
-
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -109,8 +96,6 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     TestClient = None  # type: ignore
-
-
 @pytest.fixture(autouse=True)
 def _reset_app_state():
     """Ensure app.state is clean before and after every test."""
@@ -119,21 +104,15 @@ def _reset_app_state():
     yield
     app.state.db_pool = None
     app.state.nc = None
-
-
 @pytest.fixture
 def client():
     """Synchronous TestClient for HTTP endpoint tests."""
     if TestClient is None:
         pytest.skip("fastapi not installed")
     return TestClient(app, raise_server_exceptions=False)
-
-
 # ===========================================================================
 # 1. Enum tests
 # ===========================================================================
-
-
 class TestEnums:
     def test_indicator_category_values(self):
         assert IndicatorCategory.VEGETATION == "vegetation"
@@ -153,13 +132,9 @@ class TestEnums:
         assert AlertSeverity.INFO == "info"
         assert AlertSeverity.WARNING == "warning"
         assert AlertSeverity.CRITICAL == "critical"
-
-
 # ===========================================================================
 # 2. Pydantic model tests
 # ===========================================================================
-
-
 class TestModels:
     def test_indicator_model(self):
         ind = Indicator(
@@ -214,13 +189,9 @@ class TestModels:
             trend=TrendDirection.UP, trend_percent=3.0, tenant_id="t1",
         )
         assert inp.trend == TrendDirection.UP
-
-
 # ===========================================================================
 # 3. determine_status
 # ===========================================================================
-
-
 class TestDetermineStatus:
     def test_optimal_in_range(self):
         assert determine_status(0.6, 0.4, 0.8, -1.0, 1.0) == "optimal"
@@ -257,13 +228,9 @@ class TestDetermineStatus:
     def test_optimal_max_equals_max_val_distance_zero(self):
         # optimal_max == max_val => denominator is 0 => distance = 0 => warning
         assert determine_status(0.9, 0.4, 0.8, -1.0, 0.8) == "warning"
-
-
 # ===========================================================================
 # 4. generate_indicator_value
 # ===========================================================================
-
-
 class TestGenerateIndicatorValue:
     def test_returns_three_tuple(self):
         result = generate_indicator_value(INDICATOR_DEFINITIONS["ndvi"])
@@ -296,13 +263,9 @@ class TestGenerateIndicatorValue:
         defn = INDICATOR_DEFINITIONS["ndvi"]
         val, _, _ = generate_indicator_value(defn, base_health=0.1)
         assert defn["min"] <= val <= defn["max"]
-
-
 # ===========================================================================
 # 5. create_alert_if_needed
 # ===========================================================================
-
-
 def _make_indicator(id_="ndvi", value=0.3, status="warning"):
     return Indicator(
         id=id_, name_ar="ن", name_en="NDVI",
@@ -313,8 +276,6 @@ def _make_indicator(id_="ndvi", value=0.3, status="warning"):
         trend=TrendDirection.STABLE, trend_percent=0,
         status=status, last_updated=datetime.now(UTC),
     )
-
-
 class TestCreateAlertIfNeeded:
     def test_optimal_returns_none(self):
         assert create_alert_if_needed(_make_indicator(status="optimal", value=0.6), "f1") is None
@@ -340,13 +301,9 @@ class TestCreateAlertIfNeeded:
         assert alert.message_en
         assert alert.recommended_action_ar
         assert alert.recommended_action_en
-
-
 # ===========================================================================
 # 6. Recommendation helpers
 # ===========================================================================
-
-
 class TestRecommendations:
     def test_known_ar(self):
         assert len(get_recommendation_ar("ndvi", 0.3, 0.4)) > 0
@@ -370,13 +327,9 @@ class TestRecommendations:
     def test_irrigation_efficiency_en(self):
         rec = get_recommendation_en("irrigation_efficiency", 50, 75)
         assert len(rec) > 0
-
-
 # ===========================================================================
 # 7. INDICATOR_DEFINITIONS validation
 # ===========================================================================
-
-
 class TestIndicatorDefinitions:
     def test_not_empty(self):
         assert len(INDICATOR_DEFINITIONS) > 0
@@ -394,13 +347,9 @@ class TestIndicatorDefinitions:
     def test_min_less_than_max(self):
         for k, d in INDICATOR_DEFINITIONS.items():
             assert d["min"] < d["max"], f"{k}"
-
-
 # ===========================================================================
 # 8. _enforce_tenant
 # ===========================================================================
-
-
 class TestEnforceTenant:
     def test_no_user_raises_401(self):
         from fastapi import HTTPException
@@ -430,13 +379,9 @@ class TestEnforceTenant:
     def test_no_tenant_on_user(self):
         u = MagicMock(tenant_id=None, roles=[])
         _enforce_tenant(u, "t1")
-
-
 # ===========================================================================
 # 9. publish_event
 # ===========================================================================
-
-
 class TestPublishEvent:
     @pytest.mark.asyncio
     async def test_publishes_when_connected(self):
@@ -458,13 +403,9 @@ class TestPublishEvent:
         nc.publish.side_effect = Exception("boom")
         app.state.nc = nc
         await publish_event("sahool.test", {})  # logs warning, no raise
-
-
 # ===========================================================================
 # 10. Database helper functions
 # ===========================================================================
-
-
 class TestSaveIndicator:
     @pytest.mark.asyncio
     async def test_no_pool_returns_false(self):
@@ -483,8 +424,6 @@ class TestSaveIndicator:
         conn.execute.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
         assert await save_indicator("f1", "ndvi", {}) is False
-
-
 class TestGetIndicator:
     @pytest.mark.asyncio
     async def test_no_pool_returns_none(self):
@@ -516,8 +455,6 @@ class TestGetIndicator:
         conn.fetchrow.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
         assert await get_indicator("f1", "ndvi") is None
-
-
 class TestGetAllFieldIndicators:
     @pytest.mark.asyncio
     async def test_no_pool(self):
@@ -541,8 +478,6 @@ class TestGetAllFieldIndicators:
         conn.fetch.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
         assert await get_all_field_indicators("f1") == []
-
-
 class TestGetTenantIndicators:
     @pytest.mark.asyncio
     async def test_no_pool(self):
@@ -568,8 +503,6 @@ class TestGetTenantIndicators:
         conn.fetch.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
         assert await get_tenant_indicators("t1") == []
-
-
 class TestDeleteFieldIndicators:
     @pytest.mark.asyncio
     async def test_no_pool(self):
@@ -587,13 +520,9 @@ class TestDeleteFieldIndicators:
         conn.execute.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
         assert await delete_field_indicators("f1") is False
-
-
 # ===========================================================================
 # 11. HTTP endpoint tests
 # ===========================================================================
-
-
 class TestHealthEndpoints:
     def test_healthz(self, client):
         r = client.get("/healthz")
@@ -618,8 +547,6 @@ class TestHealthEndpoints:
         assert r.status_code == 200
         assert r.json()["checks"]["nats"] == "connected"
         assert r.json()["checks"]["database"] == "connected"
-
-
 class TestDefinitionsEndpoint:
     def test_list_definitions(self, client):
         r = client.get("/v1/indicators/definitions")
@@ -633,8 +560,6 @@ class TestDefinitionsEndpoint:
         for ind in r.json()["indicators"]:
             for key in ("id", "name_ar", "name_en", "category", "unit", "range", "optimal_range"):
                 assert key in ind
-
-
 class TestFieldIndicatorsEndpoint:
     def test_get_vegetation_indicators(self, client):
         """Filter by vegetation category (avoids crop_stage_progress None optimal)."""
@@ -679,8 +604,6 @@ class TestFieldIndicatorsEndpoint:
     def test_crop_health_indicators(self, client):
         r = client.get("/v1/field/f1/indicators?category=crop_health")
         assert r.status_code == 200
-
-
 class TestStoreFieldIndicator:
     def test_invalid_type_returns_400(self, client):
         r = client.post("/v1/field/f1/indicators", json={"indicator_type": "bad", "value": 0.5})
@@ -725,8 +648,6 @@ class TestStoreFieldIndicator:
         app.state.db_pool = _make_mock_pool(conn)
         r = client.post("/v1/field/f1/indicators", json={"indicator_type": "ndvi", "value": 1.0})
         assert r.status_code == 200
-
-
 class TestGetSingleIndicator:
     def test_invalid_type_returns_400(self, client):
         r = client.get("/v1/field/f1/indicator/nonexistent")
@@ -749,8 +670,6 @@ class TestGetSingleIndicator:
         assert d["field_id"] == "f1"
         assert d["indicator"]["id"] == "ndvi"
         assert d["indicator"]["value"] == 0.72
-
-
 class TestDeleteEndpoint:
     def test_no_db_returns_503(self, client):
         r = client.delete("/v1/field/f1/indicators")
@@ -762,8 +681,6 @@ class TestDeleteEndpoint:
         r = client.delete("/v1/field/f1/indicators")
         assert r.status_code == 200
         assert r.json()["status"] == "deleted"
-
-
 class TestTrendsEndpoint:
     def test_invalid_indicator_returns_404(self, client):
         r = client.get("/v1/trends/f1/nonexistent")

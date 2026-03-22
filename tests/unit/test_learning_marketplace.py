@@ -7,11 +7,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import uuid
-from datetime import datetime, timedelta, UTC
-from unittest.mock import AsyncMock, MagicMock, patch
-import tempfile
 import os
+import tempfile
+import uuid
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -38,6 +38,7 @@ from shared.learning_marketplace.models import (
     SkillCategory,
 )
 from shared.learning_marketplace.progress import (
+    XP_REWARDS,
     CourseEnrollment,
     LessonProgress,
     ProgressEvent,
@@ -45,21 +46,19 @@ from shared.learning_marketplace.progress import (
     ProgressStorage,
     ProgressTracker,
     QuizAttempt,
-    XP_REWARDS,
     get_progress_tracker,
 )
 from shared.learning_marketplace.recommendations import (
+    CROP_SKILL_MAPPING,
+    SEASONAL_TOPICS,
     ContentRecommender,
     CourseRecommendation,
     LearningPath,
     RecommendationPriority,
     RecommendationReason,
     RecommendationScore,
-    CROP_SKILL_MAPPING,
-    SEASONAL_TOPICS,
     get_content_recommender,
 )
-
 
 # =============================================================================
 # Test Fixtures

@@ -129,7 +129,5 @@ class TestKnowledgeGraphService:
         """Test health check"""
         health = await graph_service.health_check()
         assert health is True
-
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

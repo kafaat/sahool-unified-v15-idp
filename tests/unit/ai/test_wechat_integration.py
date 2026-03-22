@@ -12,14 +12,13 @@ Updated: January 2026
 
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum, StrEnum
 from typing import Any, Callable
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # WeChat Integration Data Models (Module Under Test)

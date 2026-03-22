@@ -4,12 +4,9 @@ Unit tests for NATS publisher module.
 """
 
 import sys
-import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 # We need to mock the shared.events.publisher import before importing the module
@@ -28,8 +25,6 @@ def mock_shared_events():
         "shared.events.publisher": mock_module,
     }):
         yield mock_publisher_class, mock_config_class
-
-
 class TestNatsPublisher:
     """Tests for NatsPublisher class"""
 
@@ -163,16 +158,13 @@ class TestNatsPublisher:
             payload={"taskId": "t1"},
         )
         assert result is False
-
-
 class TestGlobalPublisher:
     """Tests for global publisher functions"""
 
     def test_get_set_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import get_publisher, set_publisher, NatsPublisher
-
         # Initially None
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import NatsPublisher, get_publisher, set_publisher
         old = module._publisher
         module._publisher = None
 
@@ -184,15 +176,13 @@ class TestGlobalPublisher:
 
         # Restore
         module._publisher = old
-
-
 class TestEventPublishFunctions:
     """Tests for individual event publish functions"""
 
     @pytest.mark.asyncio
     async def test_publish_task_created_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_created
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_created
         old = module._publisher
         module._publisher = None
 
@@ -205,8 +195,8 @@ class TestEventPublishFunctions:
 
     @pytest.mark.asyncio
     async def test_publish_task_updated_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_updated
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_updated
         old = module._publisher
         module._publisher = None
 
@@ -219,8 +209,8 @@ class TestEventPublishFunctions:
 
     @pytest.mark.asyncio
     async def test_publish_task_assigned_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_assigned
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_assigned
         old = module._publisher
         module._publisher = None
 
@@ -233,8 +223,8 @@ class TestEventPublishFunctions:
 
     @pytest.mark.asyncio
     async def test_publish_task_started_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_started
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_started
         old = module._publisher
         module._publisher = None
 
@@ -247,8 +237,8 @@ class TestEventPublishFunctions:
 
     @pytest.mark.asyncio
     async def test_publish_task_completed_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_completed
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_completed
         old = module._publisher
         module._publisher = None
 
@@ -261,8 +251,8 @@ class TestEventPublishFunctions:
 
     @pytest.mark.asyncio
     async def test_publish_task_cancelled_no_publisher(self, mock_shared_events):
-        from src.events.nats_publisher import publish_task_cancelled
         import src.events.nats_publisher as module
+        from src.events.nats_publisher import publish_task_cancelled
         old = module._publisher
         module._publisher = None
 

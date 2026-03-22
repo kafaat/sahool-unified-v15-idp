@@ -13,9 +13,10 @@ PostgreSQL init scripts, PgBouncer, and Kong workers.
 """
 
 import re
+from pathlib import Path
+
 import pytest
 import yaml
-from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 DOCKER_COMPOSE_PATH = REPO_ROOT / "docker-compose.yml"

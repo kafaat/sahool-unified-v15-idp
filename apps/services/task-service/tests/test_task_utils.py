@@ -3,15 +3,10 @@ Comprehensive unit tests for Task Service task_utils module.
 اختبارات شاملة لوحدة أدوات المهام لخدمة المهام
 """
 
-import sys
-import os
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.task_utils import (
     TaskCreateData,
     TaskPriority,
@@ -55,8 +50,6 @@ class TestTaskEnums:
         assert TaskStatus.COMPLETED == "completed"
         assert TaskStatus.CANCELLED == "cancelled"
         assert TaskStatus.OVERDUE == "overdue"
-
-
 class TestGenerateTaskId:
     """Tests for generate_task_id"""
 
@@ -68,8 +61,6 @@ class TestGenerateTaskId:
     def test_uniqueness(self):
         ids = {generate_task_id() for _ in range(100)}
         assert len(ids) == 100
-
-
 class TestTaskCreateData:
     """Tests for TaskCreateData data class"""
 
@@ -117,8 +108,6 @@ class TestTaskCreateData:
         assert data.astronomical_score == 8
         assert data.suggested_by_calendar is True
         assert data.astronomical_warnings == ["warning1"]
-
-
 class TestCreateTaskModel:
     """Tests for create_task_model"""
 
@@ -172,8 +161,6 @@ class TestCreateTaskModel:
         priority_value = data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
         assert task_type_value == "irrigation"
         assert priority_value == "urgent"
-
-
 class TestDbTaskToDict:
     """Tests for db_task_to_dict"""
 
@@ -302,8 +289,6 @@ class TestDbTaskToDict:
         assert result["created_at"] is None
         assert result["completed_at"] is None
         assert result["evidence"] == []
-
-
 class TestCalculateNdviPriority:
     """Tests for calculate_ndvi_priority"""
 
@@ -361,8 +346,6 @@ class TestCalculateNdviPriority:
         # previous_ndvi=0 should not cause division by zero
         result = calculate_ndvi_priority(0.5, previous_ndvi=0.0)
         assert result in [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH, TaskPriority.URGENT]
-
-
 class TestGenerateNdviTaskContent:
     """Tests for generate_ndvi_task_content"""
 
@@ -399,8 +382,6 @@ class TestGenerateNdviTaskContent:
             "drop", 0.5, 0.0, "field_001"
         )
         assert title is not None
-
-
 class TestGetDueDateForPriority:
     """Tests for get_due_date_for_priority"""
 
@@ -426,8 +407,6 @@ class TestGetDueDateForPriority:
         before = datetime.now(UTC)
         result = get_due_date_for_priority(TaskPriority.LOW)
         assert result > before + timedelta(days=1, hours=23)
-
-
 class TestGetActivityTranslation:
     """Tests for get_activity_translation"""
 
@@ -458,8 +437,6 @@ class TestGetActivityTranslation:
         en, ar = get_activity_translation("Planting")
         # The function lowercases
         assert en == "planting"
-
-
 class TestGetTaskTypeActivity:
     """Tests for get_task_type_activity"""
 
@@ -472,8 +449,6 @@ class TestGetTaskTypeActivity:
         assert get_task_type_activity(TaskType.SCOUTING) == "فحص"
         assert get_task_type_activity(TaskType.SAMPLING) == "جمع عينات"
         assert get_task_type_activity(TaskType.OTHER) == "زراعة"
-
-
 class TestEmptyAstronomicalData:
     """Tests for _empty_astronomical_data"""
 

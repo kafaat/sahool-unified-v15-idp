@@ -508,9 +508,9 @@ class TestModuleImportConflicts:
         try:
             from shared.events.subjects import (
                 get_subject_for_event,
+                get_tenant_subject,
                 get_wildcard_subject,
                 is_valid_subject,
-                get_tenant_subject,
                 lookup_subject,
             )
         except ImportError:

@@ -2,11 +2,6 @@
 Tests for SAHOOL MCP Server
 """
 
-import os
-
-# Import after adding to path
-import sys
-
 import pytest
 
 try:
@@ -14,21 +9,13 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from src.main import app
 
-
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
-
-
 @pytest.fixture
 def client():
     """Test client fixture"""
     return TestClient(app, headers=TENANT_HEADER)
-
-
 class TestHealthEndpoints:
     """Test health and status endpoints"""
 
@@ -62,8 +49,6 @@ class TestHealthEndpoints:
         assert data["name"] == "sahool-mcp-server"
         assert "endpoints" in data
         assert "capabilities" in data
-
-
 class TestMCPProtocol:
     """Test MCP protocol endpoints"""
 
@@ -203,8 +188,6 @@ class TestMCPProtocol:
         data = response.json()
         assert data["jsonrpc"] == "2.0"
         assert "error" in data
-
-
 class TestConvenienceEndpoints:
     """Test convenience endpoints"""
 
@@ -225,8 +208,6 @@ class TestConvenienceEndpoints:
         data = response.json()
         assert "prompts" in data
         assert len(data["prompts"]) == 3
-
-
 class TestMetrics:
     """Test metrics endpoint"""
 

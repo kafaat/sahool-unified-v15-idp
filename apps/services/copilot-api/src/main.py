@@ -27,11 +27,12 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.v1 import chat_router, health_router, rag_router, tools_router
 from .core.config import Settings, get_settings
-from .db import init_db, close_db
+from .db import close_db, init_db
 from .rag import get_rag_service
 
 # Import AI Audit Logger for comprehensive logging
@@ -216,7 +217,8 @@ def create_app() -> FastAPI:
     # Setup unified error handling (includes request ID middleware)
     _has_shared_errors = False
     try:
-        from shared.errors_py import add_request_id_middleware as _add_req_id, setup_exception_handlers as _setup_exc
+        from shared.errors_py import add_request_id_middleware as _add_req_id
+        from shared.errors_py import setup_exception_handlers as _setup_exc
 
         _setup_exc(app)
         _add_req_id(app)

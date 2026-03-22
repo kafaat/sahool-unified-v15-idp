@@ -4,16 +4,12 @@ Comprehensive unit tests for Task Service cache module.
 """
 
 import sys
-import os
 import time
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import pytest_asyncio
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.cache import (
     ASTRONOMICAL_CACHE_TTL,
     CACHE_PREFIX,
@@ -97,8 +93,6 @@ class TestInMemoryCache:
         cache.set("list", [1, 2, 3])
         assert cache.get("dict") == {"nested": {"key": "value"}}
         assert cache.get("list") == [1, 2, 3]
-
-
 class TestCacheAdapter:
     """Tests for CacheAdapter class"""
 
@@ -204,8 +198,6 @@ class TestCacheAdapter:
             await adapter.set("k2", "v2")
             count = await adapter.clear_namespace()
             assert count >= 0  # in-memory clears all
-
-
 class TestAstronomicalCache:
     """Tests for AstronomicalCache class"""
 
@@ -251,8 +243,6 @@ class TestAstronomicalCache:
             await cache.set_best_days("test", 7, {"data": True})
             count = await cache.clear()
             assert count >= 0
-
-
 class TestTaskCache:
     """Tests for TaskCache class"""
 
@@ -299,8 +289,6 @@ class TestTaskCache:
             await cache.set_stats("t1", {"total": 5})
             count = await cache.clear()
             assert count >= 0
-
-
 class TestRedisConnection:
     """Tests for Redis connection functions"""
 

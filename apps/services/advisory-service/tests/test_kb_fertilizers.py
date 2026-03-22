@@ -2,13 +2,7 @@
 Tests for Fertilizer Knowledge Base - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.kb.fertilizers import (
     FERTILIZERS,
     calculate_dose,
@@ -37,8 +31,6 @@ class TestGetFertilizer:
             assert "analysis" in fert, f"{fert_id} missing analysis"
             assert "type" in fert, f"{fert_id} missing type"
             assert "application_methods" in fert, f"{fert_id} missing application_methods"
-
-
 class TestGetFertilizersByType:
     """Tests for get_fertilizers_by_type function"""
 
@@ -56,8 +48,6 @@ class TestGetFertilizersByType:
     def test_unknown_type(self):
         results = get_fertilizers_by_type("unknown_type")
         assert len(results) == 0
-
-
 class TestGetFertilizersForNutrient:
     """Tests for get_fertilizers_for_nutrient function"""
 
@@ -75,8 +65,6 @@ class TestGetFertilizersForNutrient:
     def test_unknown_nutrient(self):
         results = get_fertilizers_for_nutrient("Xx")
         assert len(results) == 0
-
-
 class TestCalculateDose:
     """Tests for calculate_dose function"""
 

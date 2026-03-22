@@ -12,8 +12,8 @@ Updated: January 2026
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta, UTC
-from unittest.mock import patch, MagicMock
+from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -24,17 +24,16 @@ os.environ.setdefault("JWT_ISSUER", "sahool-idp")
 os.environ.setdefault("JWT_AUDIENCE", "sahool-platform")
 
 from shared.auth.jwt_handler import (
+    ALLOWED_ALGORITHMS,
     create_access_token,
     create_refresh_token,
     create_token_pair,
-    verify_token,
     decode_token,
     decode_token_unsafe,
     refresh_access_token,
-    ALLOWED_ALGORITHMS,
+    verify_token,
 )
 from shared.auth.models import AuthException, TokenPayload
-
 
 # =============================================================================
 # Test Fixtures

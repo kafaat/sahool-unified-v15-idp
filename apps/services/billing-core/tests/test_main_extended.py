@@ -3,9 +3,9 @@ Extended tests for billing-core main.py.
 Covers: API endpoints, scheduled jobs, startup initialization, payment processing.
 """
 
-import sys
-import os
 import json
+import os
+import sys
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
@@ -13,14 +13,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 os.environ["ENVIRONMENT"] = "test"
 os.environ["DATABASE_URL"] = ""
 os.environ["NATS_URL"] = ""
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
-
-
 # ============================================================
 # Helpers
 # ============================================================
@@ -40,8 +36,6 @@ def _mock_plan(plan_id="starter", tier="starter", pricing=None):
     plan.trial_days = 14
     plan.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return plan
-
-
 def _mock_subscription(tenant_id="t-001", plan_id="starter", status="active"):
     sub = MagicMock()
     sub.id = uuid.uuid4()
@@ -57,8 +51,6 @@ def _mock_subscription(tenant_id="t-001", plan_id="starter", status="active"):
     sub.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     sub.canceled_at = None
     return sub
-
-
 def _mock_tenant(tenant_id="t-001"):
     t = MagicMock()
     t.tenant_id = tenant_id
@@ -69,8 +61,6 @@ def _mock_tenant(tenant_id="t-001"):
     t.is_active = True
     t.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return t
-
-
 def _mock_invoice(status="pending", total=Decimal("29.00")):
     inv = MagicMock()
     inv.id = uuid.uuid4()
@@ -93,10 +83,8 @@ def _mock_invoice(status="pending", total=Decimal("29.00")):
     inv.notes_ar = None
     inv.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return inv
-
-
 def _mock_payment(status="pending"):
-    from src.models import PaymentStatus, PaymentMethod, Currency
+    from src.models import Currency, PaymentMethod, PaymentStatus
     p = MagicMock()
     p.id = uuid.uuid4()
     p.invoice_id = uuid.uuid4()
@@ -109,13 +97,9 @@ def _mock_payment(status="pending"):
     p.stripe_payment_id = None
     p.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     return p
-
-
 # ============================================================
 # Test init_nats
 # ============================================================
-
-
 class TestInitNats:
     """Test NATS initialization"""
 
@@ -147,13 +131,9 @@ class TestInitNats:
         import src.main
         src.main.nats_client = None
         src.main.js = None
-
-
 # ============================================================
 # Test Scheduled Jobs
 # ============================================================
-
-
 class TestScheduledJobs:
     """Test scheduled billing jobs"""
 
@@ -320,13 +300,9 @@ class TestScheduledJobs:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             await job_suspend_past_due()  # Should not raise
-
-
 # ============================================================
 # Test Scheduler
 # ============================================================
-
-
 class TestScheduler:
     """Test scheduler initialization"""
 
@@ -359,13 +335,9 @@ class TestScheduler:
         # Cleanup
         import src.main
         src.main.scheduler = None
-
-
 # ============================================================
 # Test Invoice Generation
 # ============================================================
-
-
 class TestInvoiceGeneration:
     """Test generate_invoice_for_subscription"""
 
@@ -386,8 +358,8 @@ class TestInvoiceGeneration:
 
     @pytest.mark.asyncio
     async def test_generate_invoice_success(self):
-        from src.main import generate_invoice_for_subscription
         import src.models as db_models
+        from src.main import generate_invoice_for_subscription
 
         mock_db = AsyncMock()
         mock_sub = _mock_subscription()
@@ -407,21 +379,16 @@ class TestInvoiceGeneration:
             with patch("src.main.get_next_invoice_number", new_callable=AsyncMock, return_value="SAH-2025-0001"):
                 result = await generate_invoice_for_subscription(mock_db, mock_sub)
                 assert result is not None
-
-
 # ============================================================
 # Test Invoice Sequence
 # ============================================================
-
-
 class TestInvoiceSequence:
     """Test invoice number sequence"""
 
     @pytest.mark.asyncio
     async def test_init_invoice_sequence(self):
-        from src.main import init_invoice_sequence
-
         import src.main
+        from src.main import init_invoice_sequence
         src.main._invoice_sequence_initialized = False
 
         mock_db = AsyncMock()
@@ -438,9 +405,8 @@ class TestInvoiceSequence:
 
     @pytest.mark.asyncio
     async def test_init_invoice_sequence_already_initialized(self):
-        from src.main import init_invoice_sequence
-
         import src.main
+        from src.main import init_invoice_sequence
         src.main._invoice_sequence_initialized = True
 
         # Should return immediately
@@ -451,9 +417,8 @@ class TestInvoiceSequence:
 
     @pytest.mark.asyncio
     async def test_init_invoice_sequence_error(self):
-        from src.main import init_invoice_sequence
-
         import src.main
+        from src.main import init_invoice_sequence
         src.main._invoice_sequence_initialized = False
 
         mock_ctx = AsyncMock()
@@ -497,13 +462,9 @@ class TestInvoiceSequence:
             # Fallback uses 8-char hex suffix
             suffix = result.split("-", 2)[2]
             assert len(suffix) == 8
-
-
 # ============================================================
 # Test init_default_plans_in_db
 # ============================================================
-
-
 class TestInitDefaultPlans:
     """Test default plans initialization"""
 
@@ -560,13 +521,9 @@ class TestInitDefaultPlans:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             await init_default_plans_in_db()  # Should not raise
-
-
 # ============================================================
 # Test call_tharwatt_api
 # ============================================================
-
-
 class TestTharwattApi:
     """Test Tharwatt payment gateway"""
 
@@ -595,9 +552,9 @@ class TestTharwattApi:
 
     @pytest.mark.asyncio
     async def test_call_tharwatt_api_error(self):
-        from src.main import call_tharwatt_api
-        from fastapi import HTTPException
         import httpx
+        from fastapi import HTTPException
+        from src.main import call_tharwatt_api
 
         mock_payment = MagicMock()
         mock_payment.payment_id = "pay-001"
@@ -614,20 +571,16 @@ class TestTharwattApi:
             with pytest.raises(HTTPException) as exc_info:
                 await call_tharwatt_api(mock_payment, "+967123456789")
             assert exc_info.value.status_code == 502
-
-
 # ============================================================
 # Test call_stripe_api
 # ============================================================
-
-
 class TestStripeApi:
     """Test Stripe payment API"""
 
     @pytest.mark.asyncio
     async def test_call_stripe_api_error(self):
-        from src.main import call_stripe_api
         from fastapi import HTTPException
+        from src.main import call_stripe_api
 
         mock_payment = MagicMock()
         mock_payment.amount = Decimal("29.00")
@@ -644,13 +597,9 @@ class TestStripeApi:
                 with pytest.raises(HTTPException) as exc_info:
                     await call_stripe_api(mock_payment, "tok_123")
                 assert exc_info.value.status_code == 502
-
-
 # ============================================================
 # Test publish_event edge cases
 # ============================================================
-
-
 class TestPublishEventEdgeCases:
     """Test publish_event with various data types"""
 
@@ -674,13 +623,9 @@ class TestPublishEventEdgeCases:
                 "id": uuid.uuid4(),
             })
             mock_js.publish.assert_awaited_once()
-
-
 # ============================================================
 # Test DB Model Table Args
 # ============================================================
-
-
 class TestDbModelTableArgs:
     """Test DB model table configurations"""
 
@@ -707,13 +652,9 @@ class TestDbModelTableArgs:
     def test_usage_record_tablename(self):
         from src.models import UsageRecord
         assert UsageRecord.__tablename__ == "usage_records"
-
-
 # ============================================================
 # Test check_usage_limit_db - plan not found
 # ============================================================
-
-
 class TestCheckUsageLimitPlanNotFound:
     """Test check_usage_limit_db when plan is not found"""
 
@@ -732,20 +673,16 @@ class TestCheckUsageLimitPlanNotFound:
             result = await check_usage_limit_db(mock_db, "t-001", "fields")
             assert result["allowed"] is False
             assert "Plan not found" in result["reason"]
-
-
 # ============================================================
 # Test Subscription get_by_tenant with status filter
 # ============================================================
-
-
 class TestSubscriptionGetByTenant:
     """Test subscription get_by_tenant with various params"""
 
     @pytest.mark.asyncio
     async def test_get_by_tenant_with_status(self):
-        from src.repository import SubscriptionRepository
         from src.models import SubscriptionStatus
+        from src.repository import SubscriptionRepository
 
         mock_db = AsyncMock()
         mock_result = MagicMock()
@@ -768,13 +705,9 @@ class TestSubscriptionGetByTenant:
         repo = SubscriptionRepository(mock_db)
         result = await repo.get_by_tenant("t-001")
         assert result is None
-
-
 # ============================================================
 # Test Invoice list_by_tenant with various filters
 # ============================================================
-
-
 class TestInvoiceListFilters:
     """Test invoice listing with various filters"""
 
@@ -795,8 +728,8 @@ class TestInvoiceListFilters:
 
     @pytest.mark.asyncio
     async def test_list_by_tenant_with_status(self):
-        from src.repository import InvoiceRepository
         from src.models import InvoiceStatus
+        from src.repository import InvoiceRepository
 
         mock_db = AsyncMock()
         mock_scalars = MagicMock()

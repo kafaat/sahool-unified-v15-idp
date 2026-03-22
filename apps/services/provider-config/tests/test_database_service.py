@@ -4,24 +4,17 @@ Tests for provider-config database_service.py
 """
 
 import json
-import os
-import sys
 import uuid
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.database_service import CacheManager, ProviderConfigService
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CACHE MANAGER TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestCacheManagerInit:
     """Tests for CacheManager initialization"""
 
@@ -36,8 +29,6 @@ class TestCacheManagerInit:
         """Test default cache TTL is 300 seconds"""
         cm = CacheManager("redis://localhost:6379/0")
         assert cm.cache_ttl == 300
-
-
 class TestCacheManagerGetKey:
     """Tests for CacheManager._get_key"""
 
@@ -58,8 +49,6 @@ class TestCacheManagerGetKey:
         cm = CacheManager("redis://localhost:6379/0")
         key = cm._get_key("tenant-001", None)
         assert key == "provider_config:tenant-001:all"
-
-
 class TestCacheManagerInitialize:
     """Tests for CacheManager.initialize"""
 
@@ -86,8 +75,6 @@ class TestCacheManagerInitialize:
             await cm.initialize()
 
         assert cm.redis_client is None
-
-
 class TestCacheManagerClose:
     """Tests for CacheManager.close"""
 
@@ -107,8 +94,6 @@ class TestCacheManagerClose:
         cm = CacheManager("redis://localhost:6379/0")
         cm.redis_client = None
         await cm.close()  # Should not raise
-
-
 class TestCacheManagerGet:
     """Tests for CacheManager.get"""
 
@@ -150,8 +135,6 @@ class TestCacheManagerGet:
 
         result = await cm.get("tenant-001", "map")
         assert result is None
-
-
 class TestCacheManagerSet:
     """Tests for CacheManager.set"""
 
@@ -187,8 +170,6 @@ class TestCacheManagerSet:
 
         result = await cm.set("tenant-001", {"data": "test"})
         assert result is False
-
-
 class TestCacheManagerInvalidate:
     """Tests for CacheManager.invalidate"""
 
@@ -247,13 +228,9 @@ class TestCacheManagerInvalidate:
         cm.redis_client.scan = AsyncMock(side_effect=Exception("Redis error"))
 
         await cm.invalidate("tenant-001")  # Should not raise
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # PROVIDER CONFIG SERVICE TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestProviderConfigServiceCreate:
     """Tests for ProviderConfigService.create_config"""
 
@@ -317,8 +294,6 @@ class TestProviderConfigServiceCreate:
                 provider_name="openstreetmap",
             )
         mock_session.rollback.assert_called_once()
-
-
 class TestProviderConfigServiceRead:
     """Tests for ProviderConfigService read methods"""
 
@@ -412,8 +387,6 @@ class TestProviderConfigServiceRead:
 
         result = service.get_enabled_providers(mock_session, "tenant-001", "map")
         assert result == [mock_config]
-
-
 class TestProviderConfigServiceUpdate:
     """Tests for ProviderConfigService.update_config"""
 
@@ -493,8 +466,6 @@ class TestProviderConfigServiceUpdate:
                 service.update_config(mock_session, "t", "map", "osm", priority="secondary")
 
         mock_session.rollback.assert_called_once()
-
-
 class TestProviderConfigServiceDelete:
     """Tests for ProviderConfigService.delete_config"""
 
@@ -539,8 +510,6 @@ class TestProviderConfigServiceDelete:
                 service.delete_config(mock_session, "t", "map", "osm")
 
         mock_session.rollback.assert_called_once()
-
-
 class TestProviderConfigServiceHistory:
     """Tests for ProviderConfigService version history methods"""
 

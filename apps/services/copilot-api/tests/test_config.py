@@ -2,16 +2,9 @@
 Tests for Copilot API Configuration (core/config.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestSettings:
     def test_default_service_name(self):
         from src.core.config import Settings
@@ -108,8 +101,6 @@ class TestSettings:
         assert s.qdrant_host == "localhost"
         assert s.qdrant_port == 6333
         assert s.use_qdrant is True
-
-
 class TestServiceVersion:
     def test_version_constant(self):
         from src.core.config import SERVICE_VERSION
@@ -121,8 +112,6 @@ class TestServiceVersion:
 
         s = Settings()
         assert s.service_version == SERVICE_VERSION
-
-
 class TestGetSettings:
     def test_get_settings_returns_settings(self):
         from src.core.config import Settings, get_settings

@@ -3,21 +3,22 @@ Tests for Embeddings Adapter Module
 اختبارات وحدة محول التضمينات
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 import math
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from shared.ai.embeddings import (
-    EmbeddingsAdapter,
-    EmbeddingConfig,
-    EmbeddingResult,
     BatchEmbeddingResult,
+    EmbeddingCache,
+    EmbeddingConfig,
     EmbeddingProvider,
     EmbeddingProviderError,
-    EmbeddingCache,
-    get_embeddings_adapter,
+    EmbeddingResult,
+    EmbeddingsAdapter,
     embed_text,
     embed_texts,
+    get_embeddings_adapter,
     text_similarity,
 )
 

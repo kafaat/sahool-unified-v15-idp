@@ -2,22 +2,16 @@
 Tests for Main Application (main.py) - create_app and helpers
 """
 
-import sys
 import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestGetAvailableProviders:
     def test_always_includes_ollama(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings()
         providers = _get_available_providers(settings)
@@ -27,8 +21,8 @@ class TestGetAvailableProviders:
         assert ollama[0]["priority"] == 1
 
     def test_claude_included_when_api_key_set(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings(enable_external=True)
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -38,8 +32,8 @@ class TestGetAvailableProviders:
             assert claude[0]["available"] is True
 
     def test_claude_not_included_without_api_key(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings()
         with patch.dict(os.environ, {}, clear=True):
@@ -50,8 +44,8 @@ class TestGetAvailableProviders:
             assert len(claude) == 0
 
     def test_openai_included_when_configured(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings(
             enable_external=True,
@@ -63,8 +57,8 @@ class TestGetAvailableProviders:
         assert len(openai) == 1
 
     def test_gemini_included_when_api_key_set(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings(enable_external=True)
         with patch.dict(os.environ, {"GOOGLE_API_KEY": "test-key"}):
@@ -73,16 +67,14 @@ class TestGetAvailableProviders:
             assert len(gemini) == 1
 
     def test_deepseek_included_when_api_key_set(self):
-        from src.main import _get_available_providers
         from src.core.config import Settings
+        from src.main import _get_available_providers
 
         settings = Settings(enable_external=True)
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}):
             providers = _get_available_providers(settings)
             ds = [p for p in providers if p["name"] == "DeepSeek"]
             assert len(ds) == 1
-
-
 class TestCreateApp:
     def test_app_created_successfully(self):
         from src.core.config import get_settings

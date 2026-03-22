@@ -2,29 +2,23 @@
 Tests for Cache Layer - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import asyncio
 import time
 from unittest.mock import patch
 
 import pytest
-
 from src.cache_layer import (
     AdvisoryCache,
     _generate_cache_key,
     cache_async_result,
+    cache_crop_requirements,
     cache_disease_lookup,
     cache_fertilizer_plan,
-    cache_crop_requirements,
     get_advisory_cache,
     invalidate_all_caches,
+    invalidate_crop_cache,
     invalidate_disease_cache,
     invalidate_fertilizer_cache,
-    invalidate_crop_cache,
 )
 
 
@@ -127,8 +121,6 @@ class TestAdvisoryCache:
         assert stats["hits"] == 1
         assert stats["misses"] == 1
         assert stats["hit_rate_percent"] == 50.0
-
-
 class TestCacheKeyGeneration:
     """Tests for _generate_cache_key function"""
 
@@ -145,8 +137,6 @@ class TestCacheKeyGeneration:
     def test_key_length(self):
         key = _generate_cache_key("func", "arg1")
         assert len(key) == 32
-
-
 class TestCacheDecorators:
     """Tests for cache decorators"""
 
@@ -217,8 +207,6 @@ class TestCacheDecorators:
         lookup_none("a")
         lookup_none("a")
         assert call_count == 2  # None should not be cached
-
-
 class TestCacheAsyncResult:
     """Tests for cache_async_result function"""
 
@@ -265,8 +253,6 @@ class TestCacheAsyncResult:
         await cache_async_result("none_key", 300, compute_none)
         await cache_async_result("none_key", 300, compute_none)
         assert call_count == 2
-
-
 class TestCacheInvalidation:
     """Tests for cache invalidation functions"""
 

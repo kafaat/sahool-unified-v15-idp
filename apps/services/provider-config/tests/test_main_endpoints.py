@@ -4,14 +4,10 @@ Tests for provider-config main.py - enums, provider data, API endpoints, helper 
 """
 
 import json
-import os
-import sys
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 try:
     from fastapi.testclient import TestClient
@@ -34,8 +30,8 @@ from src.main import (
     ProviderStatus,
     ProviderStatusResponse,
     ProviderType,
-    SMSProviderName,
     SatelliteProviderName,
+    SMSProviderName,
     TenantProviderConfig,
     WeatherProviderName,
     app,
@@ -49,8 +45,6 @@ from src.main import (
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENUM TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestProviderTypeEnum:
     """Tests for ProviderType enum"""
 
@@ -64,8 +58,6 @@ class TestProviderTypeEnum:
 
     def test_provider_type_count(self):
         assert len(ProviderType) == 6
-
-
 class TestProviderPriorityEnum:
     """Tests for ProviderPriority enum"""
 
@@ -74,8 +66,6 @@ class TestProviderPriorityEnum:
         assert ProviderPriority.SECONDARY == "secondary"
         assert ProviderPriority.TERTIARY == "tertiary"
         assert ProviderPriority.DISABLED == "disabled"
-
-
 class TestProviderStatusEnum:
     """Tests for ProviderStatus enum"""
 
@@ -85,8 +75,6 @@ class TestProviderStatusEnum:
         assert ProviderStatus.RATE_LIMITED == "rate_limited"
         assert ProviderStatus.ERROR == "error"
         assert ProviderStatus.CHECKING == "checking"
-
-
 class TestMapProviderNameEnum:
     """Tests for MapProviderName enum"""
 
@@ -105,8 +93,6 @@ class TestMapProviderNameEnum:
 
     def test_count(self):
         assert len(MapProviderName) == 10
-
-
 class TestWeatherProviderNameEnum:
     """Tests for WeatherProviderName enum"""
 
@@ -115,8 +101,6 @@ class TestWeatherProviderNameEnum:
         assert WeatherProviderName.OPENWEATHERMAP == "openweathermap"
         assert WeatherProviderName.WEATHER_API == "weather_api"
         assert WeatherProviderName.VISUAL_CROSSING == "visual_crossing"
-
-
 class TestSatelliteProviderNameEnum:
     """Tests for SatelliteProviderName enum"""
 
@@ -128,8 +112,6 @@ class TestSatelliteProviderNameEnum:
 
     def test_includes_copernicus(self):
         assert SatelliteProviderName.COPERNICUS == "copernicus"
-
-
 class TestPaymentProviderNameEnum:
     """Tests for PaymentProviderName enum"""
 
@@ -140,28 +122,20 @@ class TestPaymentProviderNameEnum:
 
     def test_count(self):
         assert len(PaymentProviderName) == 8
-
-
 class TestSMSProviderNameEnum:
     """Tests for SMSProviderName enum"""
 
     def test_includes_regional(self):
         assert SMSProviderName.UNIFONIC == "unifonic"
         assert SMSProviderName.YAMAMAH == "yamamah"
-
-
 class TestNotificationProviderNameEnum:
     """Tests for NotificationProviderName enum"""
 
     def test_count(self):
         assert len(NotificationProviderName) == 5  # firebase, onesignal, pusher, twilio, vonage
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # PROVIDER DATA STRUCTURE TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestMapProvidersData:
     """Tests for MAP_PROVIDERS dictionary"""
 
@@ -182,8 +156,6 @@ class TestMapProvidersData:
 
     def test_map_provider_count(self):
         assert len(MAP_PROVIDERS) == 10
-
-
 class TestWeatherProvidersData:
     """Tests for WEATHER_PROVIDERS dictionary"""
 
@@ -198,8 +170,6 @@ class TestWeatherProvidersData:
         assert om["requires_api_key"] is False
         assert om["forecast_days"] == 16
         assert om["cost_per_1k_requests"] == 0
-
-
 class TestSatelliteProvidersData:
     """Tests for SATELLITE_PROVIDERS dictionary"""
 
@@ -213,8 +183,6 @@ class TestSatelliteProvidersData:
         ls = SATELLITE_PROVIDERS[SatelliteProviderName.LANDSAT]
         assert ls["requires_api_key"] is False
         assert ls["cost_per_km2"] == 0
-
-
 class TestPaymentProvidersData:
     """Tests for PAYMENT_PROVIDERS dictionary"""
 
@@ -232,8 +200,6 @@ class TestPaymentProvidersData:
     def test_moyasar_supports_mada(self):
         m = PAYMENT_PROVIDERS[PaymentProviderName.MOYASAR]
         assert m.get("supports_mada") is True
-
-
 class TestSMSProvidersData:
     """Tests for SMS_PROVIDERS dictionary"""
 
@@ -244,21 +210,15 @@ class TestSMSProvidersData:
     def test_unifonic_supports_arabic_sender(self):
         u = SMS_PROVIDERS[SMSProviderName.UNIFONIC]
         assert u.get("supports_arabic_sender") is True
-
-
 class TestNotificationProvidersData:
     """Tests for NOTIFICATION_PROVIDERS dictionary"""
 
     def test_firebase_is_free(self):
         fcm = NOTIFICATION_PROVIDERS[NotificationProviderName.FIREBASE_FCM]
         assert fcm["cost_per_1k_notifications"] == 0
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # PYDANTIC MODEL TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestPydanticModels:
     """Tests for Pydantic request/response models"""
 
@@ -307,13 +267,9 @@ class TestPydanticModels:
         assert resp.status == ProviderStatus.AVAILABLE
         assert resp.response_time_ms == 42.5
         assert resp.error_message is None
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # NATS PUBLISH FUNCTION TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestPublishConfigUpdated:
     """Tests for publish_config_updated"""
 
@@ -346,8 +302,6 @@ class TestPublishConfigUpdated:
         with patch("src.main.nc", mock_nc):
             await publish_config_updated("t1", "map", "osm")
         # Should not raise
-
-
 class TestPublishProviderStatusChanged:
     """Tests for publish_provider_status_changed"""
 
@@ -374,13 +328,9 @@ class TestPublishProviderStatusChanged:
         mock_nc.publish.side_effect = Exception("NATS down")
         with patch("src.main.nc", mock_nc):
             await publish_provider_status_changed("t1", "map", "osm", True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEALTH CHECK FUNCTION TESTS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestCheckMapProviderHealth:
     """Tests for check_map_provider_health"""
 
@@ -464,8 +414,6 @@ class TestCheckMapProviderHealth:
         # Verify the URL contained the api key
         call_url = mock_client.head.call_args[0][0]
         assert "test-key" in call_url
-
-
 class TestCheckWeatherProviderHealth:
     """Tests for check_weather_provider_health"""
 
@@ -514,22 +462,14 @@ class TestCheckWeatherProviderHealth:
             result = await check_weather_provider_health(WeatherProviderName.OPEN_METEO)
 
         assert result.status == ProviderStatus.RATE_LIMITED
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # API ENDPOINT TESTS (using TestClient, no auth/DB needed for public endpoints)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 TENANT_HEADERS = {"X-Tenant-Id": "test-tenant"}
-
-
 @pytest.fixture
 def client():
     """Test client fixture"""
     return TestClient(app, headers=TENANT_HEADERS)
-
-
 class TestPublicEndpoints:
     """Tests for unauthenticated public endpoints"""
 
@@ -610,8 +550,6 @@ class TestPublicEndpoints:
         data = response.json()
         assert "free_providers" in data
         assert "firebase_fcm" in data["free_providers"]
-
-
 class TestSelectProviderEndpoint:
     """Tests for /providers/select/{provider_type}"""
 
@@ -649,8 +587,6 @@ class TestSelectProviderEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["fallback_providers"] == []
-
-
 class TestFailoverChainEndpoint:
     """Tests for /providers/failover-chain/{provider_type}"""
 
@@ -681,8 +617,6 @@ class TestFailoverChainEndpoint:
         priority_order = {"primary": 0, "secondary": 1, "tertiary": 2}
         mapped = [priority_order[p] for p in priorities]
         assert mapped == sorted(mapped)
-
-
 class TestRecommendProviderEndpoint:
     """Tests for /providers/recommend"""
 
@@ -719,8 +653,6 @@ class TestRecommendProviderEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["offline_required"] is True
-
-
 class TestCheckProviderEndpoint:
     """Tests for /providers/check"""
 
@@ -775,8 +707,6 @@ class TestCheckProviderEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "available"
-
-
 class TestGetDbSessionDependency:
     """Tests for get_db_session dependency"""
 

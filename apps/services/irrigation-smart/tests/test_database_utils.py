@@ -3,30 +3,24 @@ Comprehensive tests for irrigation-smart service database_utils.py
 Tests cover: PoolConfig, IrrigationDatabase methods, with_retry, create_pool
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import asyncio
+import os
+import sys
 from datetime import UTC, date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from src.database_utils import (
-    PoolConfig,
     IrrigationDatabase,
-    with_retry,
+    PoolConfig,
     create_pool,
+    with_retry,
 )
 
 
 # ============================================================================
 # PoolConfig Tests
 # ============================================================================
-
-
 class TestPoolConfig:
     def test_default_values(self):
         config = PoolConfig()
@@ -66,13 +60,9 @@ class TestPoolConfig:
             assert config.max_connections == 25
             assert config.command_timeout == 90
             assert config.idle_timeout == 500
-
-
 # ============================================================================
 # Helper: Mock pool/connection
 # ============================================================================
-
-
 class MockAsyncContextManager:
     """Helper that works as an async context manager returning a given value."""
 
@@ -84,8 +74,6 @@ class MockAsyncContextManager:
 
     async def __aexit__(self, *args):
         return False
-
-
 def make_mock_pool():
     """Create a mock asyncpg pool with acquire context manager."""
     mock_conn = AsyncMock()
@@ -95,8 +83,6 @@ def make_mock_pool():
     mock_pool.acquire.return_value = MockAsyncContextManager(mock_conn)
 
     return mock_pool, mock_conn
-
-
 def make_mock_pool_with_transaction():
     """Create a mock pool where conn also supports transaction()."""
     mock_conn = AsyncMock()
@@ -106,13 +92,9 @@ def make_mock_pool_with_transaction():
     mock_pool = MagicMock()
     mock_pool.acquire.return_value = MockAsyncContextManager(mock_conn)
     return mock_pool, mock_conn
-
-
 # ============================================================================
 # IrrigationDatabase Tests
 # ============================================================================
-
-
 class TestGetFieldIrrigationHistory:
     @pytest.mark.asyncio
     async def test_returns_history(self):
@@ -136,8 +118,6 @@ class TestGetFieldIrrigationHistory:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_field_irrigation_history("f1")
         assert result == []
-
-
 class TestGetSensorReadingsSummary:
     @pytest.mark.asyncio
     async def test_returns_summary(self):
@@ -190,8 +170,6 @@ class TestGetSensorReadingsSummary:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_sensor_readings_summary("f1")
         assert result == {}
-
-
 class TestSaveIrrigationPlan:
     @pytest.mark.asyncio
     async def test_saves_plan_successfully(self):
@@ -237,8 +215,6 @@ class TestSaveIrrigationPlan:
         db = IrrigationDatabase(mock_pool)
         result = await db.save_irrigation_plan("p1", "f1", "wheat", "veg", 5.0, 750.0, [])
         assert result is False
-
-
 class TestSaveIrrigationExecution:
     @pytest.mark.asyncio
     async def test_saves_execution(self):
@@ -268,8 +244,6 @@ class TestSaveIrrigationExecution:
             "e1", "f1", None, None, 25.0, 45, "drip", datetime.now(UTC)
         )
         assert result is False
-
-
 class TestBatchSaveSensorReadings:
     @pytest.mark.asyncio
     async def test_saves_batch(self):
@@ -306,8 +280,6 @@ class TestBatchSaveSensorReadings:
         db = IrrigationDatabase(mock_pool)
         result = await db.batch_save_sensor_readings([{"id": "r1"}])
         assert result == 0
-
-
 class TestGetWaterBalanceSummary:
     @pytest.mark.asyncio
     async def test_returns_summary(self):
@@ -360,13 +332,9 @@ class TestGetWaterBalanceSummary:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_water_balance_summary("f1")
         assert result == {}
-
-
 # ============================================================================
 # with_retry Tests
 # ============================================================================
-
-
 class TestWithRetry:
     @pytest.mark.asyncio
     async def test_succeeds_first_try(self):
@@ -395,13 +363,9 @@ class TestWithRetry:
         with pytest.raises(Exception, match="fail"):
             await with_retry(func, max_attempts=1, delay=0.01)
         assert func.call_count == 1
-
-
 # ============================================================================
 # create_pool Tests
 # ============================================================================
-
-
 class TestCreatePool:
     @pytest.mark.asyncio
     async def test_creates_pool_successfully(self):

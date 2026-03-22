@@ -4,21 +4,16 @@ Covers: BillingRepository facade, all sub-repository classes.
 All database calls are mocked via AsyncSession.
 """
 
-import sys
 import os
 import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 os.environ["ENVIRONMENT"] = "test"
 os.environ["DATABASE_URL"] = ""
-
-
 def make_mock_session():
     """Create a mock AsyncSession with common behaviors."""
     session = AsyncMock()
@@ -28,13 +23,9 @@ def make_mock_session():
     session.execute = AsyncMock()
     session.rollback = AsyncMock()
     return session
-
-
 # ============================================================
 # Test BillingRepository Facade
 # ============================================================
-
-
 class TestBillingRepository:
     """Test the combined BillingRepository facade"""
 
@@ -79,20 +70,16 @@ class TestBillingRepository:
         mock_instance = MagicMock()
         await repo.refresh(mock_instance)
         mock_db.refresh.assert_awaited_once_with(mock_instance)
-
-
 # ============================================================
 # Test PlanRepository
 # ============================================================
-
-
 class TestPlanRepository:
     """Test PlanRepository CRUD operations"""
 
     @pytest.mark.asyncio
     async def test_create_plan(self):
-        from src.repository import PlanRepository
         from src.models import PlanTier
+        from src.repository import PlanRepository
 
         mock_db = make_mock_session()
         repo = PlanRepository(mock_db)
@@ -208,13 +195,9 @@ class TestPlanRepository:
         repo = PlanRepository(mock_db)
         result = await repo.delete("nonexistent")
         assert result is False
-
-
 # ============================================================
 # Test TenantRepository
 # ============================================================
-
-
 class TestTenantRepository:
     """Test TenantRepository operations"""
 
@@ -272,20 +255,16 @@ class TestTenantRepository:
         repo = TenantRepository(mock_db)
         result = await repo.delete("t-001")
         assert result is True
-
-
 # ============================================================
 # Test SubscriptionRepository
 # ============================================================
-
-
 class TestSubscriptionRepository:
     """Test SubscriptionRepository operations"""
 
     @pytest.mark.asyncio
     async def test_create_subscription(self):
-        from src.repository import SubscriptionRepository
         from src.models import BillingCycle
+        from src.repository import SubscriptionRepository
 
         mock_db = make_mock_session()
         repo = SubscriptionRepository(mock_db)
@@ -345,8 +324,8 @@ class TestSubscriptionRepository:
 
     @pytest.mark.asyncio
     async def test_count_by_status(self):
-        from src.repository import SubscriptionRepository
         from src.models import SubscriptionStatus
+        from src.repository import SubscriptionRepository
 
         mock_db = make_mock_session()
         mock_result = MagicMock()
@@ -373,20 +352,16 @@ class TestSubscriptionRepository:
         repo = SubscriptionRepository(mock_db)
         counts = await repo.count_by_plan()
         assert counts["starter"] == 5
-
-
 # ============================================================
 # Test InvoiceRepository
 # ============================================================
-
-
 class TestInvoiceRepository:
     """Test InvoiceRepository operations"""
 
     @pytest.mark.asyncio
     async def test_create_invoice(self):
-        from src.repository import InvoiceRepository
         from src.models import Currency
+        from src.repository import InvoiceRepository
 
         mock_db = make_mock_session()
         repo = InvoiceRepository(mock_db)
@@ -407,8 +382,8 @@ class TestInvoiceRepository:
 
     @pytest.mark.asyncio
     async def test_mark_paid_full(self):
-        from src.repository import InvoiceRepository
         from src.models import InvoiceStatus
+        from src.repository import InvoiceRepository
 
         mock_db = make_mock_session()
         invoice_id = uuid.uuid4()
@@ -484,8 +459,8 @@ class TestInvoiceRepository:
 
     @pytest.mark.asyncio
     async def test_get_total_revenue_with_filters(self):
-        from src.repository import InvoiceRepository
         from src.models import Currency
+        from src.repository import InvoiceRepository
 
         mock_db = make_mock_session()
         mock_result = MagicMock()
@@ -499,20 +474,16 @@ class TestInvoiceRepository:
             currency=Currency.USD,
         )
         assert total == Decimal("500.00")
-
-
 # ============================================================
 # Test PaymentRepository
 # ============================================================
-
-
 class TestPaymentRepository:
     """Test PaymentRepository operations"""
 
     @pytest.mark.asyncio
     async def test_create_payment(self):
-        from src.repository import PaymentRepository
         from src.models import Currency, PaymentMethod
+        from src.repository import PaymentRepository
 
         mock_db = make_mock_session()
         repo = PaymentRepository(mock_db)
@@ -554,8 +525,8 @@ class TestPaymentRepository:
 
     @pytest.mark.asyncio
     async def test_get_total_by_method(self):
-        from src.repository import PaymentRepository
         from src.models import PaymentMethod
+        from src.repository import PaymentRepository
 
         mock_db = make_mock_session()
         mock_result = MagicMock()
@@ -585,13 +556,9 @@ class TestPaymentRepository:
             end_date=date(2025, 12, 31),
         )
         assert totals == {}
-
-
 # ============================================================
 # Test UsageRecordRepository
 # ============================================================
-
-
 class TestUsageRecordRepository:
     """Test UsageRecordRepository operations"""
 

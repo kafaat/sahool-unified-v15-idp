@@ -3,16 +3,15 @@ Async unit tests for Task Service task_utils module.
 اختبارات غير متزامنة لوحدة أدوات المهام
 """
 
-import sys
-import os
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
+from src.exceptions import (
+    AstronomicalServiceError,
+    AstronomicalServiceTimeoutError,
+)
 from src.task_utils import (
     TaskCreateData,
     TaskPriority,
@@ -23,10 +22,6 @@ from src.task_utils import (
     fetch_astronomical_data,
     fetch_field_manager,
     send_task_notification,
-)
-from src.exceptions import (
-    AstronomicalServiceError,
-    AstronomicalServiceTimeoutError,
 )
 
 
@@ -123,8 +118,6 @@ class TestFetchFieldManager:
 
             result = await fetch_field_manager("field_001", "tenant_1")
             assert result is None
-
-
 class TestFetchAstronomicalBestDays:
     """Tests for fetch_astronomical_best_days"""
 
@@ -196,8 +189,6 @@ class TestFetchAstronomicalBestDays:
 
                 with pytest.raises(AstronomicalServiceTimeoutError):
                     await fetch_astronomical_best_days("زراعة", 30)
-
-
 class TestFetchAstronomicalDailyData:
     """Tests for fetch_astronomical_daily_data"""
 
@@ -234,8 +225,6 @@ class TestFetchAstronomicalDailyData:
         with patch("src.cache.astronomical_cache", mock_cache):
             result = await fetch_astronomical_daily_data("2025-06-15")
             assert result == cached
-
-
 class TestFetchAstronomicalData:
     """Tests for fetch_astronomical_data"""
 
@@ -322,8 +311,6 @@ class TestFetchAstronomicalData:
             result = await fetch_astronomical_data(due_date, TaskType.OTHER)
             assert result["score"] is None
             assert result["warnings"] == []
-
-
 class TestEnrichTaskWithAstronomy:
     """Tests for enrich_task_with_astronomy"""
 
@@ -361,8 +348,6 @@ class TestEnrichTaskWithAstronomy:
             assert result.astronomical_score == 9
             assert result.moon_phase_at_due_date == "هلال متزايد"
             assert result.optimal_time_of_day == "07:00-10:00"
-
-
 class TestSendTaskNotification:
     """Tests for send_task_notification"""
 

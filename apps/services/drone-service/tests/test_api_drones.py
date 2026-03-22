@@ -2,15 +2,10 @@
 Tests for drone management API endpoints - اختبارات نقاط نهاية إدارة الطائرات
 """
 
-import sys
-import os
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from src.api.v1.drones import (
     DroneCreate,
     DroneResponse,
@@ -49,8 +44,6 @@ class TestDroneModels:
         d = DroneResponse(id="1", name="D", model="M", serial_number="S", drone_type="custom")
         assert d.status == "active"
         assert d.tenant_id is None
-
-
 class TestHelpers:
     """Test helper functions."""
 
@@ -72,8 +65,6 @@ class TestHelpers:
     def test_raise_not_found(self):
         with pytest.raises(Exception):
             _raise_not_found()
-
-
 # --- API endpoint tests using httpx AsyncClient ---
 
 def _create_test_app():
@@ -105,28 +96,20 @@ def _create_test_app():
     test_app.state.db_pool = None
 
     return test_app
-
-
 @pytest.fixture
 def app():
     return _create_test_app()
-
-
 @pytest.fixture(autouse=True)
 def clear_drones():
     _drones.clear()
     yield
     _drones.clear()
-
-
 @pytest.mark.asyncio
 async def test_list_drones_empty(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/drones/")
         assert resp.status_code == 200
         assert resp.json() == []
-
-
 @pytest.mark.asyncio
 async def test_register_and_list_drone(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -142,8 +125,6 @@ async def test_register_and_list_drone(app):
 
         list_resp = await client.get("/api/v1/drones/")
         assert len(list_resp.json()) == 1
-
-
 @pytest.mark.asyncio
 async def test_get_drone(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -155,15 +136,11 @@ async def test_get_drone(app):
         get_resp = await client.get(f"/api/v1/drones/{drone_id}")
         assert get_resp.status_code == 200
         assert get_resp.json()["id"] == drone_id
-
-
 @pytest.mark.asyncio
 async def test_get_drone_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/drones/nonexistent")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_update_drone(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -177,8 +154,6 @@ async def test_update_drone(app):
         })
         assert update_resp.status_code == 200
         assert update_resp.json()["name"] == "Updated"
-
-
 @pytest.mark.asyncio
 async def test_update_drone_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -186,8 +161,6 @@ async def test_update_drone_not_found(app):
             "name": "X", "model": "M", "serial_number": "S",
         })
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_delete_drone(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -201,15 +174,11 @@ async def test_delete_drone(app):
 
         get_resp = await client.get(f"/api/v1/drones/{drone_id}")
         assert get_resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_delete_drone_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.delete("/api/v1/drones/nonexistent")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_get_drone_status(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -224,15 +193,11 @@ async def test_get_drone_status(app):
         assert data["drone_id"] == drone_id
         assert data["status"] == "active"
         assert "battery_percent" in data
-
-
 @pytest.mark.asyncio
 async def test_get_drone_status_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/drones/nonexistent/status")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_get_drone_telemetry(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -246,15 +211,11 @@ async def test_get_drone_telemetry(app):
         data = tel_resp.json()
         assert data["drone_id"] == drone_id
         assert "telemetry" in data
-
-
 @pytest.mark.asyncio
 async def test_get_drone_telemetry_not_found(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.get("/api/v1/drones/nonexistent/telemetry")
         assert resp.status_code == 404
-
-
 @pytest.mark.asyncio
 async def test_list_drones_with_status_filter(app):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:

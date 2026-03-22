@@ -1,13 +1,9 @@
 """Tests for Pydantic schemas in Supply Chain Service."""
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from datetime import datetime
+from uuid import UUID, uuid4
 
 import pytest
-from datetime import datetime
-from uuid import uuid4, UUID
 
 
 class TestProductCategory:
@@ -25,8 +21,6 @@ class TestProductCategory:
 
         assert isinstance(ProductCategory.SEEDS.value, str)
         assert ProductCategory.SEEDS == "seeds"
-
-
 class TestOrderStatus:
     """Tests for OrderStatus enum."""
 
@@ -42,8 +36,6 @@ class TestOrderStatus:
 
         assert OrderStatus.PENDING == "pending"
         assert OrderStatus.CANCELLED == "cancelled"
-
-
 class TestDeliveryStatusEnum:
     """Tests for DeliveryStatusEnum."""
 
@@ -53,8 +45,6 @@ class TestDeliveryStatusEnum:
         expected = ["preparing", "picked_up", "in_transit", "out_for_delivery", "delivered", "failed"]
         for s in expected:
             assert s in [ds.value for ds in DeliveryStatusEnum]
-
-
 class TestPaymentMethod:
     """Tests for PaymentMethod enum."""
 
@@ -65,8 +55,6 @@ class TestPaymentMethod:
         assert PaymentMethod.CREDIT_CARD == "credit_card"
         assert PaymentMethod.BANK_TRANSFER == "bank_transfer"
         assert PaymentMethod.DIGITAL_WALLET == "digital_wallet"
-
-
 class TestProductSchema:
     """Tests for Product schema."""
 
@@ -88,8 +76,8 @@ class TestProductSchema:
         assert product.image_url is None
 
     def test_product_price_must_be_non_negative(self):
-        from src.api.schemas import Product, ProductCategory
         from pydantic import ValidationError
+        from src.api.schemas import Product, ProductCategory
 
         with pytest.raises(ValidationError):
             Product(
@@ -104,8 +92,8 @@ class TestProductSchema:
             )
 
     def test_product_name_min_length(self):
-        from src.api.schemas import Product, ProductCategory
         from pydantic import ValidationError
+        from src.api.schemas import Product, ProductCategory
 
         with pytest.raises(ValidationError):
             Product(
@@ -118,13 +106,11 @@ class TestProductSchema:
                 price_min=10.0,
                 price_max=20.0,
             )
-
-
 class TestProductCreate:
     """Tests for ProductCreate schema."""
 
     def test_create_valid(self):
-        from src.api.schemas import ProductCreate, ProductCategory
+        from src.api.schemas import ProductCategory, ProductCreate
 
         pc = ProductCreate(
             name="Test",
@@ -138,13 +124,11 @@ class TestProductCreate:
         assert pc.description is None
 
     def test_invalid_missing_required(self):
-        from src.api.schemas import ProductCreate
         from pydantic import ValidationError
+        from src.api.schemas import ProductCreate
 
         with pytest.raises(ValidationError):
             ProductCreate(name="Test", name_ar="اختبار")
-
-
 class TestSupplierSchema:
     """Tests for Supplier schema."""
 
@@ -168,8 +152,8 @@ class TestSupplierSchema:
         assert supplier.products == []
 
     def test_supplier_rating_bounds(self):
-        from src.api.schemas import Supplier
         from pydantic import ValidationError
+        from src.api.schemas import Supplier
 
         with pytest.raises(ValidationError):
             Supplier(
@@ -185,8 +169,8 @@ class TestSupplierSchema:
             )
 
     def test_supplier_latitude_bounds(self):
-        from src.api.schemas import Supplier
         from pydantic import ValidationError
+        from src.api.schemas import Supplier
 
         with pytest.raises(ValidationError):
             Supplier(
@@ -200,8 +184,6 @@ class TestSupplierSchema:
                 rating=4.0,
                 delivery_time_days=1,
             )
-
-
 class TestSupplierSummary:
     """Tests for SupplierSummary schema."""
 
@@ -218,8 +200,6 @@ class TestSupplierSummary:
             is_verified=True,
         )
         assert summary.is_verified is True
-
-
 class TestOrderSchemas:
     """Tests for Order-related schemas."""
 
@@ -230,15 +210,15 @@ class TestOrderSchemas:
         assert item.quantity == 10.0
 
     def test_order_item_create_quantity_must_be_positive(self):
-        from src.api.schemas import OrderItemCreate
         from pydantic import ValidationError
+        from src.api.schemas import OrderItemCreate
 
         with pytest.raises(ValidationError):
             OrderItemCreate(product_id=uuid4(), quantity=0)
 
     def test_order_create_min_items(self):
-        from src.api.schemas import OrderCreate, OrderItemCreate, PaymentMethod
         from pydantic import ValidationError
+        from src.api.schemas import OrderCreate, OrderItemCreate, PaymentMethod
 
         with pytest.raises(ValidationError):
             OrderCreate(
@@ -249,8 +229,8 @@ class TestOrderSchemas:
             )
 
     def test_order_create_delivery_address_min_length(self):
-        from src.api.schemas import OrderCreate, OrderItemCreate, PaymentMethod
         from pydantic import ValidationError
+        from src.api.schemas import OrderCreate, OrderItemCreate, PaymentMethod
 
         with pytest.raises(ValidationError):
             OrderCreate(
@@ -289,8 +269,6 @@ class TestOrderSchemas:
         assert order.delivery_fee == 0
         assert order.tax == 0
         assert order.payment_status == "pending"
-
-
 class TestPurchaseRecommendation:
     """Tests for PurchaseRecommendation schema."""
 
@@ -313,8 +291,8 @@ class TestPurchaseRecommendation:
         assert rec.recommended_by == "advisory-service"
 
     def test_invalid_priority(self):
-        from src.api.schemas import PurchaseRecommendation
         from pydantic import ValidationError
+        from src.api.schemas import PurchaseRecommendation
 
         with pytest.raises(ValidationError):
             PurchaseRecommendation(
@@ -330,8 +308,6 @@ class TestPurchaseRecommendation:
                 priority="invalid_priority",
                 valid_until=datetime.utcnow(),
             )
-
-
 class TestAutoPurchaseSchemas:
     """Tests for auto-purchase schemas."""
 
@@ -344,7 +320,7 @@ class TestAutoPurchaseSchemas:
         assert req.payment_method == PaymentMethod.CASH_ON_DELIVERY
 
     def test_bulk_purchase_request(self):
-        from src.api.schemas import BulkPurchaseRequest, BulkPurchaseItem, PaymentMethod
+        from src.api.schemas import BulkPurchaseItem, BulkPurchaseRequest, PaymentMethod
 
         req = BulkPurchaseRequest(
             items=[BulkPurchaseItem(product_id=uuid4(), quantity=50)],
@@ -354,8 +330,8 @@ class TestAutoPurchaseSchemas:
         assert req.payment_method == PaymentMethod.CASH_ON_DELIVERY
 
     def test_bulk_purchase_invalid_optimize(self):
-        from src.api.schemas import BulkPurchaseRequest, BulkPurchaseItem
         from pydantic import ValidationError
+        from src.api.schemas import BulkPurchaseItem, BulkPurchaseRequest
 
         with pytest.raises(ValidationError):
             BulkPurchaseRequest(
@@ -363,8 +339,6 @@ class TestAutoPurchaseSchemas:
                 delivery_address="Test",
                 optimize_for="invalid",
             )
-
-
 class TestDeliveryStatus:
     """Tests for DeliveryStatus schema."""
 
@@ -379,8 +353,6 @@ class TestDeliveryStatus:
         assert ds.eta is None
         assert ds.tracking_url is None
         assert ds.driver_name is None
-
-
 class TestFarmerProfile:
     """Tests for FarmerProfile schema."""
 
@@ -400,8 +372,6 @@ class TestFarmerProfile:
         assert fp.total_orders == 0
         assert fp.preferred_suppliers == []
         assert fp.payment_methods == []
-
-
 class TestResponseSchemas:
     """Tests for list response schemas."""
 
@@ -422,8 +392,6 @@ class TestResponseSchemas:
 
         resp = OrderListResponse(items=[], total=0, page=1, page_size=20)
         assert resp.page_size == 20
-
-
 class TestSupplierQuote:
     """Tests for SupplierQuote schema."""
 
@@ -448,8 +416,8 @@ class TestSupplierQuote:
         assert quote.notes is None
 
     def test_invalid_availability(self):
-        from src.api.schemas import SupplierQuote
         from pydantic import ValidationError
+        from src.api.schemas import SupplierQuote
 
         with pytest.raises(ValidationError):
             SupplierQuote(
@@ -467,8 +435,6 @@ class TestSupplierQuote:
                 availability="invalid_status",
                 valid_until=datetime.utcnow(),
             )
-
-
 class TestQuoteRequest:
     """Tests for QuoteRequest schema."""
 
@@ -479,13 +445,11 @@ class TestQuoteRequest:
         assert qr.delivery_address is None
 
     def test_quantity_must_be_positive(self):
-        from src.api.schemas import QuoteRequest
         from pydantic import ValidationError
+        from src.api.schemas import QuoteRequest
 
         with pytest.raises(ValidationError):
             QuoteRequest(product_id=uuid4(), quantity=-10)
-
-
 class TestSupplierComparison:
     """Tests for SupplierComparison schema."""
 
@@ -502,8 +466,6 @@ class TestSupplierComparison:
         assert comp.best_price_supplier_id is None
         assert comp.fastest_delivery_supplier_id is None
         assert comp.best_rated_supplier_id is None
-
-
 class TestBulkPurchaseResult:
     """Tests for BulkPurchaseResult schema."""
 

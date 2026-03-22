@@ -12,13 +12,12 @@ Updated: January 2026
 
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum, StrEnum
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Router Data Models (Module Under Test)

@@ -56,6 +56,7 @@ app.add_middleware(TenantContextMiddleware)
 # Rate Limiting - Critical for AI agent endpoints
 try:
     from fastapi import Request
+
     from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def ai_agents_tier_func(request: Request) -> RateLimitTier:

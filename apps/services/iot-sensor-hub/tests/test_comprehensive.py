@@ -13,7 +13,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Add service directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 from src.main import (
@@ -40,13 +39,9 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
-
-
 @pytest.fixture(autouse=True)
 def reset_engine():
     """Reset engine state before each test."""
@@ -59,8 +54,6 @@ def reset_engine():
     iot_engine.stats["filtered_readings"] = 0
     iot_engine.stats["alerts_generated"] = 0
     yield
-
-
 class _TenantClient:
     """Wrapper that adds X-Tenant-ID header to all requests."""
 
@@ -76,13 +69,9 @@ class _TenantClient:
         headers = kwargs.pop("headers", {})
         headers.setdefault("X-Tenant-ID", "00000000-0000-0000-0000-000000000001")
         return self._client.post(url, headers=headers, **kwargs)
-
-
 @pytest.fixture
 def client():
     return _TenantClient(TestClient(app))
-
-
 @pytest.fixture
 def sample_node_reg() -> NodeRegistration:
     return NodeRegistration(
@@ -97,8 +86,6 @@ def sample_node_reg() -> NodeRegistration:
         firmware_version="1.0.0",
         battery_level=95.0,
     )
-
-
 @pytest.fixture
 def sample_reading() -> SensorReading:
     return SensorReading(
@@ -108,8 +95,6 @@ def sample_reading() -> SensorReading:
         unit="%",
         quality=0.9,
     )
-
-
 # ---------------------------------------------------------------------------
 # Test Enums
 # ---------------------------------------------------------------------------
@@ -127,8 +112,6 @@ class TestEnums:
     def test_alert_severity_values(self):
         assert AlertSeverity.CRITICAL == "critical"
         assert AlertSeverity.INFO == "info"
-
-
 # ---------------------------------------------------------------------------
 # Test KalmanFilter
 # ---------------------------------------------------------------------------
@@ -171,8 +154,6 @@ class TestKalmanFilter:
         assert kf.process_var == 0.1
         assert kf.measurement_var == 1.0
         assert kf.initialized is False
-
-
 # ---------------------------------------------------------------------------
 # Test OfflineCache
 # ---------------------------------------------------------------------------
@@ -216,8 +197,6 @@ class TestOfflineCache:
         assert cache.size == 0
         cache.store({"value": 1})
         assert cache.size == 1
-
-
 # ---------------------------------------------------------------------------
 # Test IoTSensorEngine
 # ---------------------------------------------------------------------------
@@ -339,8 +318,6 @@ class TestIoTSensorEngine:
         engine = IoTSensorEngine()
         result = engine.process_reading(sample_reading)
         assert result["status"] == "accepted"
-
-
 # ---------------------------------------------------------------------------
 # Test WDI Calculation
 # ---------------------------------------------------------------------------
@@ -428,8 +405,6 @@ class TestWDICalculation:
         result = engine.calculate_wdi(req)
         assert len(result.decision) > 0
         assert len(result.decision_ar) > 0
-
-
 # ---------------------------------------------------------------------------
 # Test Pydantic Models
 # ---------------------------------------------------------------------------
@@ -485,8 +460,6 @@ class TestModels:
             timestamp=datetime.utcnow(),
         )
         assert alert.severity == AlertSeverity.WARNING
-
-
 # ---------------------------------------------------------------------------
 # Test Sensor Ranges & Alert Thresholds Constants
 # ---------------------------------------------------------------------------
@@ -503,8 +476,6 @@ class TestSensorRangesAndThresholds:
     def test_alert_thresholds_subset_of_sensor_types(self):
         for key in ALERT_THRESHOLDS:
             assert key in SENSOR_RANGES
-
-
 # ---------------------------------------------------------------------------
 # Test API Endpoints
 # ---------------------------------------------------------------------------

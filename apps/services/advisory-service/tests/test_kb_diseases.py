@@ -2,13 +2,7 @@
 Tests for Disease Knowledge Base - advisory-service
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
-
 from src.kb.diseases import (
     DISEASES,
     get_disease,
@@ -39,8 +33,6 @@ class TestGetDisease:
             assert "actions" in disease, f"{disease_id} missing actions"
             assert "severity_default" in disease, f"{disease_id} missing severity_default"
             assert "urgency_hours" in disease, f"{disease_id} missing urgency_hours"
-
-
 class TestGetDiseasesByCrop:
     """Tests for get_diseases_by_crop function"""
 
@@ -66,8 +58,6 @@ class TestGetDiseasesByCrop:
         diseases = get_diseases_by_crop("wheat")
         for d in diseases:
             assert "id" in d
-
-
 class TestSearchDiseases:
     """Tests for search_diseases function"""
 

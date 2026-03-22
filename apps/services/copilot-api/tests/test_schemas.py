@@ -2,17 +2,10 @@
 Tests for Copilot API Pydantic schemas (models/schemas.py)
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import pytest
 from pydantic import ValidationError
 
 pytestmark = [pytest.mark.unit]
-
-
 class TestMessageRole:
     def test_all_roles_exist(self):
         from src.models.schemas import MessageRole
@@ -21,8 +14,6 @@ class TestMessageRole:
         assert MessageRole.USER == "user"
         assert MessageRole.ASSISTANT == "assistant"
         assert MessageRole.TOOL == "tool"
-
-
 class TestCopilotMode:
     def test_all_modes_exist(self):
         from src.models.schemas import CopilotMode
@@ -30,8 +21,6 @@ class TestCopilotMode:
         assert CopilotMode.OFFLINE == "offline"
         assert CopilotMode.HYBRID == "hybrid"
         assert CopilotMode.ONLINE == "online"
-
-
 class TestChatMessage:
     def test_valid_message(self):
         from src.models.schemas import ChatMessage, MessageRole
@@ -60,8 +49,6 @@ class TestChatMessage:
         msg = ChatMessage(role=MessageRole.TOOL, content="result", name="my_tool", tool_call_id="tc_123")
         assert msg.name == "my_tool"
         assert msg.tool_call_id == "tc_123"
-
-
 class TestChatRequest:
     def test_valid_request(self):
         from src.models.schemas import ChatMessage, ChatRequest, MessageRole
@@ -111,8 +98,6 @@ class TestChatRequest:
             context={"field_id": "F001"},
         )
         assert req.context["field_id"] == "F001"
-
-
 class TestToolCallRequest:
     def test_valid_tool_name(self):
         from src.models.schemas import ToolCallRequest
@@ -155,8 +140,6 @@ class TestToolCallRequest:
 
         req = ToolCallRequest(tool="rag.list")
         assert req.session_id is None
-
-
 class TestToolCallResponse:
     def test_success_response(self):
         from src.models.schemas import ToolCallResponse
@@ -181,8 +164,6 @@ class TestToolCallResponse:
         )
         assert resp.success is False
         assert resp.error == "Connection failed"
-
-
 class TestGuardDecision:
     def test_allowed_decision(self):
         from src.models.schemas import GuardDecision
@@ -195,8 +176,6 @@ class TestGuardDecision:
 
         d = GuardDecision(allowed=False, reason="Blocked", details={"layer": "allowlist"})
         assert d.details["layer"] == "allowlist"
-
-
 class TestRAGDocument:
     def test_basic_creation(self):
         from src.models.schemas import RAGDocument
@@ -212,8 +191,6 @@ class TestRAGDocument:
 
         doc = RAGDocument(id="d2", text="hello", text_ar="مرحبا")
         assert doc.text_ar == "مرحبا"
-
-
 class TestRAGSearchResult:
     def test_creation(self):
         from src.models.schemas import RAGSearchResult
@@ -222,8 +199,6 @@ class TestRAGSearchResult:
             documents=[], query="test", total_found=0, search_time_ms=1.0
         )
         assert result.total_found == 0
-
-
 class TestHealthResponse:
     def test_defaults(self):
         from src.models.schemas import HealthResponse
@@ -240,8 +215,6 @@ class TestHealthResponse:
         hr = HealthResponse(components={"rag": True, "nats": False})
         assert hr.components["rag"] is True
         assert hr.components["nats"] is False
-
-
 class TestChatResponse:
     def test_creation(self):
         from src.models.schemas import ChatMessage, ChatResponse, CopilotMode, MessageRole

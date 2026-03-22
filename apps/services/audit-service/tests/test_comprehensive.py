@@ -2,10 +2,6 @@
 Comprehensive unit tests for SAHOOL Audit Service.
 Targets >60% code coverage across models, endpoints, helpers, and edge cases.
 """
-
-import os
-import sys
-
 # Ensure test environment
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
@@ -13,9 +9,10 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
+import os
+import sys
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -26,7 +23,6 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-from shared.auth.dependencies import get_current_user
 from src.main import (
     AuditLogQuery,
     AuditLogResponse,
@@ -41,37 +37,27 @@ from src.main import (
     sanitize_log_input,
 )
 
+from shared.auth.dependencies import get_current_user
+
 # Valid UUID for tenant context middleware
 VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
-
-
 # Override auth dependency for testing
 async def _mock_current_user():
     return {"id": "test-user", "tenant_id": VALID_TENANT}
-
-
 app.dependency_overrides[get_current_user] = _mock_current_user
-
-
 @pytest.fixture(autouse=True)
 def clear_audit_logs():
     """Clear in-memory audit logs before each test."""
     _audit_logs.clear()
     yield
     _audit_logs.clear()
-
-
 @pytest.fixture
 def client():
     return TestClient(app)
-
-
 # ---------------------------------------------------------------------------
 # Helper / utility function tests
 # ---------------------------------------------------------------------------
-
-
 class TestSanitizeLogInput:
     """Tests for the sanitize_log_input helper function."""
 
@@ -94,8 +80,6 @@ class TestSanitizeLogInput:
 
     def test_sanitize_clean_string(self):
         assert sanitize_log_input("hello world") == "hello world"
-
-
 class TestGetTenantId:
     """Tests for the get_tenant_id dependency."""
 
@@ -110,8 +94,6 @@ class TestGetTenantId:
             get_tenant_id(None)
         assert exc.value.status_code == 400
         assert "X-Tenant-Id" in str(exc.value.detail)
-
-
 class TestGetLogsForTenant:
     """Tests for the _get_logs_for_tenant helper."""
 
@@ -125,13 +107,9 @@ class TestGetLogsForTenant:
         logs = _get_logs_for_tenant("existing")
         assert len(logs) == 1
         assert logs[0]["id"] == "1"
-
-
 # ---------------------------------------------------------------------------
 # Pydantic model tests
 # ---------------------------------------------------------------------------
-
-
 class TestPydanticModels:
     """Tests for Pydantic request/response models."""
 
@@ -198,13 +176,9 @@ class TestPydanticModels:
             has_more=False,
         )
         assert r.has_more is False
-
-
 # ---------------------------------------------------------------------------
 # Health endpoint tests
 # ---------------------------------------------------------------------------
-
-
 class TestHealthEndpoints:
     def test_health_returns_service_info(self, client):
         resp = client.get("/health")
@@ -225,13 +199,9 @@ class TestHealthEndpoints:
         assert "status" in data
         assert "database" in data
         assert "nats" in data
-
-
 # ---------------------------------------------------------------------------
 # Audit log endpoint tests with data
 # ---------------------------------------------------------------------------
-
-
 def _seed_logs(tenant_id: str, count: int = 5):
     """Seed in-memory audit logs for testing."""
     now = datetime.now(UTC)
@@ -254,8 +224,6 @@ def _seed_logs(tenant_id: str, count: int = 5):
                 "details": {"ip": "10.0.0.1"},
             }
         )
-
-
 class TestAuditLogEndpoints:
     def test_get_logs_empty(self, client):
         resp = client.get("/api/v1/audit/logs", headers=TENANT_HEADER)
@@ -343,8 +311,6 @@ class TestAuditLogEndpoints:
     def test_get_specific_log_not_found(self, client):
         resp = client.get("/api/v1/audit/logs/nonexistent", headers=TENANT_HEADER)
         assert resp.status_code == 404
-
-
 class TestUserAuditTrail:
     def test_user_trail(self, client):
         _seed_logs(VALID_TENANT, 6)
@@ -364,8 +330,6 @@ class TestUserAuditTrail:
             headers=TENANT_HEADER,
         )
         assert resp.status_code == 200
-
-
 class TestResourceAuditTrail:
     def test_resource_trail(self, client):
         _seed_logs(VALID_TENANT, 5)
@@ -377,13 +341,9 @@ class TestResourceAuditTrail:
         data = resp.json()
         assert all(item["resource_type"] == "field" for item in data["items"])
         assert all(item["resource_id"] == "field-2" for item in data["items"])
-
-
 # ---------------------------------------------------------------------------
 # Hash chain validation tests
 # ---------------------------------------------------------------------------
-
-
 class TestHashChainValidation:
     def test_validate_empty_chain(self, client):
         resp = client.get("/api/v1/audit/chain/validate", headers=TENANT_HEADER)
@@ -417,13 +377,9 @@ class TestHashChainValidation:
         assert data["total_entries"] == 5
         assert data["entries_with_hash"] > 0
         assert data["chain_coverage_percent"] > 0
-
-
 # ---------------------------------------------------------------------------
 # Compliance reporting tests
 # ---------------------------------------------------------------------------
-
-
 class TestComplianceReport:
     def test_compliance_report_empty(self, client):
         resp = client.get(
@@ -469,13 +425,9 @@ class TestComplianceReport:
         )
         assert resp.status_code == 200
         assert resp.json()["framework"] == "SOC2"
-
-
 # ---------------------------------------------------------------------------
 # Statistics tests
 # ---------------------------------------------------------------------------
-
-
 class TestAuditStats:
     def test_stats_empty(self, client):
         resp = client.get(
@@ -507,13 +459,9 @@ class TestAuditStats:
             headers=TENANT_HEADER,
         )
         assert resp.status_code == 200
-
-
 # ---------------------------------------------------------------------------
 # Security events / failed logins tests
 # ---------------------------------------------------------------------------
-
-
 class TestSecurityEndpoints:
     def test_security_events_empty(self, client):
         resp = client.get("/api/v1/audit/security-events", headers=TENANT_HEADER)
@@ -543,13 +491,9 @@ class TestSecurityEndpoints:
         assert resp.status_code == 200
         data = resp.json()
         assert all(item["action"] == "auth.login.failed" for item in data["items"])
-
-
 # ---------------------------------------------------------------------------
 # Export tests
 # ---------------------------------------------------------------------------
-
-
 class TestExport:
     def test_export_json_empty(self, client):
         resp = client.get(
@@ -603,13 +547,9 @@ class TestExport:
             headers=TENANT_HEADER,
         )
         assert resp.status_code == 200
-
-
 # ---------------------------------------------------------------------------
 # Missing tenant header tests
 # ---------------------------------------------------------------------------
-
-
 class TestMissingTenantHeader:
     def test_logs_no_tenant(self, client):
         resp = client.get("/api/v1/audit/logs")

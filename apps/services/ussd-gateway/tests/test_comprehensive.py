@@ -7,16 +7,11 @@ WhatsApp webhook/send, USSD menu navigation, action handlers, SMS keyword
 processing, helper functions, and API v1 status/menus/keywords.
 """
 
-import sys
-import os
 import json
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -25,8 +20,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 @pytest.fixture
 def client():
     """Create a TestClient with the real app (shared modules are available)."""
-    from src.main import app
     from fastapi.testclient import TestClient
+    from src.main import app
 
     app.state.db_pool = None
     app.state.db_connected = False
@@ -34,13 +29,9 @@ def client():
     app.state.nats_connected = False
 
     return TestClient(app, raise_server_exceptions=False)
-
-
 # Default headers for requests that pass through tenant middleware
 # TenantContextMiddleware requires valid UUID in X-Tenant-Id header
 TENANT_HEADERS = {"X-Tenant-Id": "00000000-0000-0000-0000-000000000001"}
-
-
 # ---------------------------------------------------------------------------
 # USSD Action Handler Tests
 # ---------------------------------------------------------------------------
@@ -288,8 +279,6 @@ class TestUssdActions:
         ]
         for action in expected_actions:
             assert action in USSD_ACTIONS, f"Missing action: {action}"
-
-
 # ---------------------------------------------------------------------------
 # USSD Menu Structure Tests
 # ---------------------------------------------------------------------------
@@ -321,8 +310,6 @@ class TestUssdMenus:
         for name, menu in USSD_MENUS.items():
             assert "title_en" in menu, f"Menu {name} missing title_en"
             assert "title_ar" in menu, f"Menu {name} missing title_ar"
-
-
 # ---------------------------------------------------------------------------
 # Process USSD Input Tests
 # ---------------------------------------------------------------------------
@@ -370,8 +357,6 @@ class TestProcessUssdInput:
         response, end = await process_ussd_input(app_mock, "sess1", "+966500000000", "", "ar")
         assert "الطقس" in response
         assert "حقولي" in response
-
-
 # ---------------------------------------------------------------------------
 # Execute USSD Action Tests
 # ---------------------------------------------------------------------------
@@ -396,8 +381,6 @@ class TestExecuteUssdAction:
         from src.main import execute_ussd_action
         result = await execute_ussd_action(MagicMock(), "unknown_action", "+966500000000", "en")
         assert "not available" in result
-
-
 # ---------------------------------------------------------------------------
 # SMS Keyword Processing Tests
 # ---------------------------------------------------------------------------
@@ -459,8 +442,6 @@ class TestSmsKeywordProcessing:
         app_mock.state.db_pool = None
         result = await process_sms_keyword(app_mock, "+966500000000", "PRICE")
         assert result is not None
-
-
 # ---------------------------------------------------------------------------
 # Helper Function Tests
 # ---------------------------------------------------------------------------
@@ -622,8 +603,6 @@ class TestHelperFunctions:
         app_mock.state.db_pool = None
         result = await process_sms_keyword(app_mock, "+966500000000", "حقل")
         assert result is not None
-
-
 # ---------------------------------------------------------------------------
 # Health Endpoint Tests (via TestClient)
 # ---------------------------------------------------------------------------
@@ -652,8 +631,6 @@ class TestHealthEndpoints:
     def test_health_ready(self, client):
         r = client.get("/health/ready")
         assert r.status_code == 200
-
-
 # ---------------------------------------------------------------------------
 # USSD Callback Endpoint Tests
 # ---------------------------------------------------------------------------
@@ -689,8 +666,6 @@ class TestUssdCallbackEndpoint:
         data = r.json()
         assert "response" in data
         assert data["end_session"] is False
-
-
 # ---------------------------------------------------------------------------
 # SMS Endpoint Tests
 # ---------------------------------------------------------------------------
@@ -762,8 +737,6 @@ class TestSmsEndpoints:
         assert r.status_code == 200
         data = r.json()
         assert data["success"] is False
-
-
 # ---------------------------------------------------------------------------
 # WhatsApp Endpoint Tests
 # ---------------------------------------------------------------------------
@@ -821,8 +794,6 @@ class TestWhatsAppEndpoints:
         assert r.status_code == 200
         data = r.json()
         assert data["success"] is False
-
-
 # ---------------------------------------------------------------------------
 # API v1 Endpoint Tests
 # ---------------------------------------------------------------------------

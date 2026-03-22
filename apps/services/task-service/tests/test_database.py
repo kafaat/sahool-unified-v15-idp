@@ -3,13 +3,10 @@ Unit tests for Task Service database module.
 اختبارات وحدة قاعدة البيانات لخدمة المهام
 """
 
-import sys
 import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 class TestGetDatabaseUrl:
@@ -83,8 +80,6 @@ class TestGetDatabaseUrl:
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         assert url == "postgresql://user:pass@host:5432/db"
-
-
 class TestDemoDataConfig:
     """Tests for demo data initialization config"""
 
@@ -105,8 +100,6 @@ class TestDemoDataConfig:
         with patch.dict(os.environ, {"SEED_DEMO_DATA": "true"}):
             seed = os.getenv("SEED_DEMO_DATA", "true").lower() == "true"
             assert seed is True
-
-
 class TestDatabaseSessionLogic:
     """Tests for database session management logic patterns"""
 

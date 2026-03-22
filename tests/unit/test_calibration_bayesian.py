@@ -25,7 +25,6 @@ from shared.calibration.types import (
 from shared.calibration.validation import validate_holdout
 from shared.process_models.uncertainty import QualityFlag, ValueWithUncertainty
 
-
 # ---------------------------------------------------------------------------
 # ValueWithUncertainty
 # ---------------------------------------------------------------------------

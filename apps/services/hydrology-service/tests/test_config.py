@@ -3,13 +3,10 @@ Tests for Hydrology Service configuration.
 اختبارات إعدادات خدمة الهيدرولوجيا
 """
 
-import sys
 import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import patch
 
 
 class TestSettings:

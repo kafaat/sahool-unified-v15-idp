@@ -4,21 +4,14 @@ Tests for database configuration, get_db generator, init_db, drop_all_tables,
 check_db_connection, and SessionLocal behavior.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from unittest.mock import MagicMock, patch
 
 import pytest
-
-from unittest.mock import MagicMock, patch
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # check_db_connection Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestCheckDbConnection:
     """Tests for check_db_connection function."""
 
@@ -51,13 +44,9 @@ class TestCheckDbConnection:
 
             result = check_db_connection()
             assert result is False
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_db Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGetDb:
     """Tests for get_db generator function."""
 
@@ -106,13 +95,9 @@ class TestGetDb:
 
             mock_session.rollback.assert_called_once()
             mock_session.close.assert_called_once()
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # init_db Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestInitDb:
     """Tests for init_db function."""
 
@@ -132,13 +117,9 @@ class TestInitDb:
 
                 init_db()
                 mock_base.metadata.create_all.assert_called_once_with(bind=mock_engine)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # drop_all_tables Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestDropAllTables:
     """Tests for drop_all_tables function."""
 
@@ -158,13 +139,9 @@ class TestDropAllTables:
 
                 drop_all_tables()
                 mock_base.metadata.drop_all.assert_called_once_with(bind=mock_engine)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Module-level Configuration Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestDatabaseModuleConfig:
     """Tests for module-level database configuration."""
 

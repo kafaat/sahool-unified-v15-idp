@@ -1,7 +1,6 @@
 """Tests for YOLO26 Vision Service error handling."""
 
 import pytest
-
 from src.core.errors import (
     CircuitBreaker,
     ErrorCategory,

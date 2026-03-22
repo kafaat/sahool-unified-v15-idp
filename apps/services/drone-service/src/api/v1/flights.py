@@ -125,7 +125,8 @@ async def create_spray_flight_plan(
 ):
     """Create spray flight plan - إنشاء خطة رحلة رش"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, create_spray_flight_plan
+        from shared.drone_integration import Coordinate as DCoord
+        from shared.drone_integration import create_spray_flight_plan
     except ImportError:
         raise HTTPException(
             status_code=503,
@@ -219,7 +220,8 @@ async def create_mapping_flight_plan(
 ):
     """Create mapping flight plan - إنشاء خطة رحلة تصوير"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, create_mapping_flight_plan
+        from shared.drone_integration import Coordinate as DCoord
+        from shared.drone_integration import create_mapping_flight_plan
     except ImportError:
         raise HTTPException(
             status_code=503,

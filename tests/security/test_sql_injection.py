@@ -4,10 +4,10 @@ SQL Injection Prevention Tests for SAHOOL Platform.
 Tests validate parameterized queries and input sanitization.
 """
 
-import pytest
-from unittest.mock import AsyncMock
 from typing import Any, Dict, List
+from unittest.mock import AsyncMock
 
+import pytest
 
 SQL_INJECTION_PAYLOADS = [
     "'; DROP TABLE users; --",

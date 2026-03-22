@@ -4,14 +4,14 @@ Authentication Bypass Prevention Tests for SAHOOL Platform.
 Tests validate JWT security, token handling, and authentication edge cases.
 """
 
-import pytest
-import jwt
-import time
 import base64
 import json
+import time
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
+import jwt
+import pytest
 
 TEST_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars"
 TEST_ALGORITHM = "HS256"

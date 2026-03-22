@@ -8,22 +8,17 @@ Covers: cache, agricultural_rules, github_integration, main service logic, model
 import hashlib
 import json
 import os
-import sys
 import time
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+
 # Add service directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Cache Tests (cache.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestGenerateCacheKey:
     """Tests for the generate_cache_key function."""
 
@@ -59,8 +54,6 @@ class TestGenerateCacheKey:
 
         key = generate_cache_key("some code", "py", "model")
         assert len(key) == 32
-
-
 @pytest.mark.asyncio
 class TestMemoryCache:
     """Tests for MemoryCache backend."""
@@ -128,8 +121,6 @@ class TestMemoryCache:
     async def test_stats_no_accesses(self, cache):
         stats = await cache.stats()
         assert stats["hit_rate"] == "0.0%"
-
-
 class TestCreateCacheBackend:
     """Tests for create_cache_backend factory."""
 
@@ -163,8 +154,6 @@ class TestCreateCacheBackend:
 
         backend = create_cache_backend("unknown_backend")
         assert isinstance(backend, MemoryCache)
-
-
 @pytest.mark.asyncio
 class TestFileCache:
     """Tests for FileCache backend."""
@@ -213,13 +202,9 @@ class TestFileCache:
         assert stats["backend"] == "file"
         assert stats["hits"] == 1
         assert stats["misses"] == 1
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Agricultural Rules Tests (agricultural_rules.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestAgriculturalIssue:
     """Tests for AgriculturalIssue dataclass."""
 
@@ -241,8 +226,6 @@ class TestAgriculturalIssue:
         assert "NDVI خارج النطاق" in d["message"]
         assert d["line"] == 10
         assert d["snippet"] == "ndvi = 2.0"
-
-
 class TestAgriculturalAnalysis:
     """Tests for AgriculturalAnalysis dataclass."""
 
@@ -284,8 +267,6 @@ class TestAgriculturalAnalysis:
         msgs = analysis.get_issue_messages()
         assert len(msgs) == 1
         assert "Range issue" in msgs[0]
-
-
 class TestAgriculturalRulesEngine:
     """Tests for AgriculturalRulesEngine."""
 
@@ -441,13 +422,9 @@ class TestAgriculturalRulesEngine:
         analysis = AgriculturalAnalysis(is_agricultural_code=False)
         prompt = engine.get_enhanced_prompt(analysis)
         assert prompt == ""
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # GitHub Integration Tests (github_integration.py)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestPRReviewResult:
     """Tests for PRReviewResult class."""
 
@@ -525,8 +502,6 @@ class TestPRReviewResult:
         result = PRReviewResult(pr_number=1, owner="o", repo="r")
         result.add_file_review("a.py", {"score": 80, "security_concerns": []})
         assert result.has_security_concerns() is False
-
-
 class TestGitHubIntegration:
     """Tests for GitHubIntegration class."""
 
@@ -614,15 +589,11 @@ class TestGitHubIntegration:
 
         gh = GitHubIntegration(token="tok", api_url="https://api.github.com/")
         assert gh.api_url == "https://api.github.com"
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Main Service Logic Tests - _parse_response and _create_review_prompt
 # These test the methods directly on a manually-constructed service instance
 # to avoid import issues from src.main (which has heavy dependencies).
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestParseResponse:
     """Tests for CodeReviewService._parse_response logic (inline reimplementation)."""
 
@@ -689,8 +660,6 @@ class TestParseResponse:
         assert result["security_concerns"] == []
         assert result["agricultural_issues"] == []
         assert result["score"] == 75
-
-
 class TestCreateReviewPromptLogic:
     """Tests for review prompt generation logic."""
 
@@ -725,13 +694,9 @@ class TestCreateReviewPromptLogic:
         long_code = "x = 1\n" * 10000
         prompt = self._create_prompt("big.py", long_code)
         assert len(prompt) < len(long_code)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Tests (mock-based - no real Redis needed)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestRedisCacheKeyPrefixing:
     """Test RedisCache key prefixing logic."""
 
@@ -746,13 +711,9 @@ class TestRedisCacheKeyPrefixing:
 
         cache = RedisCache(redis_url="redis://localhost:6379", prefix="test_prefix:")
         assert cache._make_key("key") == "test_prefix:key"
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Settings Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
-
 class TestSettings:
     """Tests for Settings config class."""
 
@@ -795,7 +756,5 @@ class TestSettings:
             assert settings.cache_backend == "memory"
             assert settings.enable_agricultural_rules is True
             assert settings.max_retries == 3
-
-
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

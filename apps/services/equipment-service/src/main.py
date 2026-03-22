@@ -15,12 +15,11 @@ import uuid
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 
+import structlog
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-
-import structlog
 
 logger = structlog.get_logger()
 

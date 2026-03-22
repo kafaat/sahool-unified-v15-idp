@@ -3,17 +3,15 @@ Tests for Hydrology Service main module - lifecycle, events, and database helper
 اختبارات الوحدة الرئيسية لخدمة الهيدرولوجيا
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import json
+import os
+import sys
 import types
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 @pytest.fixture(autouse=True)
@@ -42,8 +40,6 @@ def mock_shared_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, "shared.errors_py", errors_py)
     monkeypatch.setitem(sys.modules, "shared.middleware", middleware)
     monkeypatch.setitem(sys.modules, "shared.middleware.tenant_context", tenant_ctx)
-
-
 class _AsyncCtxMgr:
     """Helper async context manager for mocking pool.acquire()."""
     def __init__(self, return_value):
@@ -54,8 +50,6 @@ class _AsyncCtxMgr:
 
     async def __aexit__(self, *args):
         return False
-
-
 @pytest.fixture
 def app_instance(mock_shared_modules):
     """Get the FastAPI app instance."""
@@ -67,13 +61,9 @@ def app_instance(mock_shared_modules):
         app.state.nc = None
         yield app
         get_settings.cache_clear()
-
-
 # ==============================================================================
 # publish_event tests
 # ==============================================================================
-
-
 class TestPublishEvent:
     """Tests for the publish_event helper."""
 
@@ -113,13 +103,9 @@ class TestPublishEvent:
 
         # Should not raise
         await publish_event("sahool.hydrology.test", {"field_id": "F1"})
-
-
 # ==============================================================================
 # save_analysis tests
 # ==============================================================================
-
-
 class TestSaveAnalysis:
     """Tests for the save_analysis database helper."""
 
@@ -167,13 +153,9 @@ class TestSaveAnalysis:
 
         result = await save_analysis("F1", "drainage", {"test": True})
         assert result is False
-
-
 # ==============================================================================
 # get_analysis tests
 # ==============================================================================
-
-
 class TestGetAnalysis:
     """Tests for the get_analysis database helper."""
 

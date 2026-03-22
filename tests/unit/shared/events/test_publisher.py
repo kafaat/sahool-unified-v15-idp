@@ -239,10 +239,11 @@ class TestEventPublisherPublishing:
 
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, publisher, sample_field_event):
-        """Test publishing when not connected."""
+        """Test publishing when not connected buffers the message."""
         result = await publisher.publish_event("test.subject", sample_field_event)
 
-        assert result is False
+        # When not connected, messages are buffered for retry (returns True if buffered)
+        assert result is True
 
     @pytest.mark.asyncio
     async def test_publish_event_success(self, publisher, sample_field_event, mock_nats_client):

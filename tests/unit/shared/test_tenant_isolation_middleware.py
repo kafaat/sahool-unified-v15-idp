@@ -48,12 +48,12 @@ from shared.auth.models import User
 
 @pytest.fixture
 def tenant_a_id() -> str:
-    return f"tenant-a-{uuid.uuid4().hex[:8]}"
+    return str(uuid.uuid4())
 
 
 @pytest.fixture
 def tenant_b_id() -> str:
-    return f"tenant-b-{uuid.uuid4().hex[:8]}"
+    return str(uuid.uuid4())
 
 
 @pytest.fixture

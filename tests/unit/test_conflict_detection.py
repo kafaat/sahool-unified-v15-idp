@@ -589,8 +589,9 @@ class TestNATSSubjectUtilities:
         except ImportError:
             pytest.skip("Module not available")
             return
-        result = get_tenant_subject("org_123", "field", "created")
-        assert result == "sahool.tenant.org_123.field.created"
+        test_uuid = "00000000-0000-0000-0000-000000000123"
+        result = get_tenant_subject(test_uuid, "field", "created")
+        assert result == f"sahool.tenant.{test_uuid}.field.created"
 
     def test_tenant_subject_requires_tenant_id(self):
         """get_tenant_subject must reject empty tenant_id."""
@@ -609,8 +610,9 @@ class TestNATSSubjectUtilities:
         except ImportError:
             pytest.skip("Module not available")
             return
-        result = get_tenant_wildcard("org_123")
-        assert result == "sahool.tenant.org_123.>"
+        test_uuid = "00000000-0000-0000-0000-000000000123"
+        result = get_tenant_wildcard(test_uuid)
+        assert result == f"sahool.tenant.{test_uuid}.>"
 
     def test_tenant_wildcard_specific_domain(self):
         """Tenant wildcard with specific domain should use '.>' suffix."""
@@ -619,8 +621,9 @@ class TestNATSSubjectUtilities:
         except ImportError:
             pytest.skip("Module not available")
             return
-        result = get_tenant_wildcard("org_123", "field")
-        assert result == "sahool.tenant.org_123.field.>"
+        test_uuid = "00000000-0000-0000-0000-000000000123"
+        result = get_tenant_wildcard(test_uuid, "field")
+        assert result == f"sahool.tenant.{test_uuid}.field.>"
 
     def test_lookup_subject_known(self):
         """lookup_subject should resolve known event types from registry."""

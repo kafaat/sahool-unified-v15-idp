@@ -11,11 +11,17 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 from src.main import app
+from src.api.endpoints.leveling import get_current_user
 from src.utils.leveling_algorithms import (
     LevelingOptimizer,
     PlaneParameters,
     Point3D,
 )
+
+
+def _mock_current_user():
+    """Mock user for testing."""
+    return {"id": "test-user", "tenant_id": "00000000-0000-0000-0000-000000000001"}
 
 
 @pytest.fixture
@@ -29,8 +35,11 @@ def auth_headers():
 
 @pytest.fixture
 def client():
-    """Create test client."""
-    return TestClient(app)
+    """Create test client with auth override."""
+    app.dependency_overrides[get_current_user] = _mock_current_user
+    c = TestClient(app)
+    yield c
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

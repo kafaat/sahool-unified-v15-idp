@@ -193,7 +193,7 @@ class NetworkConnectivityService {
     // Listen for connectivity changes
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
-      onError: (error) {
+      onError: (Object error) {
         AppLogger.e('Connectivity stream error',
             tag: 'NetworkConnectivity', error: error);
       },

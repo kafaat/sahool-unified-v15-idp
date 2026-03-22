@@ -70,7 +70,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       // Listen for incoming links while app is running
       _linkSubscription = _appLinks.uriLinkStream.listen(
         _handleUri,
-        onError: (error) {
+        onError: (Object error) {
           AppLogger.e(
             'Deep link stream error',
             tag: 'DEEPLINK',

@@ -134,6 +134,29 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# CORS - Secure configuration
+try:
+    from starlette.middleware.cors import CORSMiddleware
+
+    try:
+        from shared.cors_config import CORS_SETTINGS
+
+        app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    except ImportError:
+        ALLOWED_ORIGINS = os.getenv(
+            "CORS_ORIGINS",
+            "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+        ).split(",")
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=ALLOWED_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+        )
+except ImportError:
+    pass
+
 # Add token revocation middleware
 if REVOCATION_AVAILABLE:
     app.add_middleware(

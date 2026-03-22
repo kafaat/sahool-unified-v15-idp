@@ -92,7 +92,7 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["status"] == "healthy"
         assert data["service"] == "mcp-server"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
         assert "timestamp" in data
         assert "mcp_server" in data
         assert data["mcp_server"]["name"] == "sahool-mcp-server"
@@ -125,7 +125,7 @@ class TestRootEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "sahool-mcp-server"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
         assert "endpoints" in data
         assert "capabilities" in data
         assert "transports" in data

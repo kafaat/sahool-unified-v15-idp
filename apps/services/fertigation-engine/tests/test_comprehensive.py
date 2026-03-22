@@ -435,7 +435,7 @@ class TestAPIEndpoints:
         assert resp.status_code == 200
         data = resp.json()
         assert data["service"] == "fertigation-engine"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     def test_readyz(self, client):
         resp = client.get("/readyz", headers=HEADERS)

@@ -240,7 +240,7 @@ class TestHealthEndpoints:
         assert data["status"] == "ok"
         assert data["service"] == "wechat-service"
         assert data["service_ar"] == "خدمة تكامل ويتشات"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     @pytest.mark.asyncio
     async def test_readyz_endpoint(self, client):

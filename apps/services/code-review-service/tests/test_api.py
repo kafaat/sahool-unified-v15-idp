@@ -15,7 +15,7 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-from src.main import ModelInfo, app, get_service
+from src.main import ModelInfo, app
 
 from shared.auth.dependencies import get_current_user
 

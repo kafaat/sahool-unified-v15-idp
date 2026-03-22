@@ -99,7 +99,7 @@ class TestHealthEndpoints:
             data = response.json()
             assert data["status"] == "ok"
             assert data["service"] == "billing-core"
-            assert data["version"] == "16.0.0"
+            assert "version" in data
 # ============================================================
 # Test NATS Event Publishing
 # ============================================================

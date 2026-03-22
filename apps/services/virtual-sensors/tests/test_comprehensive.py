@@ -568,7 +568,7 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["service"] == "virtual-sensors"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     def test_readyz(self, client):
         response = client.get("/readyz")

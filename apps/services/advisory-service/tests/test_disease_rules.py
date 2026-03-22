@@ -71,7 +71,7 @@ class TestAssessFromImageEvent:
         assert "Suspected" in result.title_en
 
     def test_boundary_confidence_060(self):
-        # Exactly 0.60 should be accepted (>= 0.60 fails, < 0.60)
+        # Exactly 0.60 meets the threshold (confidence >= 0.60 is accepted)
         result = assess_from_image_event("tomato_late_blight", confidence=0.60)
         assert result is not None
 

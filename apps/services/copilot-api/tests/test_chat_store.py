@@ -36,11 +36,14 @@ class TestInitDb:
         cs._pool = None
         cs._initialized = False
 
-        # Instead of mocking __import__ (which breaks structlog), test
-        # that a connection error returns False.
-        result = await cs.init_db("postgresql://nonexistent-host:1/test")
-        assert result is False
-        assert cs._initialized is False
+        # Mock asyncpg to avoid real network call
+        mock_asyncpg = MagicMock()
+        mock_asyncpg.create_pool = AsyncMock(side_effect=OSError("mocked connection refused"))
+
+        with patch.dict("sys.modules", {"asyncpg": mock_asyncpg}):
+            result = await cs.init_db("postgresql://localhost/test")
+            assert result is False
+            assert cs._initialized is False
 
     @pytest.mark.asyncio
     async def test_returns_false_on_connection_error(self):

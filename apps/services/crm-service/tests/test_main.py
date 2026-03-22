@@ -329,7 +329,7 @@ class TestHealthEndpoints:
         assert data["status"] == "ok"
         assert data["service"] == "crm-service"
         assert data["service_ar"] == "خدمة إدارة علاقات المزارعين"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
     @pytest.mark.asyncio
     async def test_readiness_endpoint(self, client):

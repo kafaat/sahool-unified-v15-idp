@@ -22,12 +22,15 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any
 from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums | التعدادات
@@ -400,6 +403,16 @@ class AuditEntry:
             return hmac.new(
                 secret.encode(), hash_string, hashlib.sha256
             ).hexdigest()
+        env = os.getenv("ENVIRONMENT", "development").lower()
+        if env == "production":
+            raise RuntimeError(
+                "AUDIT_HMAC_SECRET must be set in production. "
+                "Cannot fall back to plain SHA-256 for audit records."
+            )
+        logger.warning(
+            "AUDIT_HMAC_SECRET is not set — falling back to plain SHA-256. "
+            "This is acceptable in development but MUST be configured in production."
+        )
         return hashlib.sha256(hash_string).hexdigest()
 
     def to_dict(self) -> dict[str, Any]:

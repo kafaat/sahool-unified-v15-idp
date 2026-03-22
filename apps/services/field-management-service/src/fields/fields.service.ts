@@ -368,6 +368,8 @@ export class FieldsService {
           ...(dto.plantingDate && { plantingDate: new Date(dto.plantingDate) }),
           ...(dto.expectedHarvest && { expectedHarvest: new Date(dto.expectedHarvest) }),
           ...(dto.metadata && { metadata: dto.metadata }),
+          version: { increment: 1 },
+          serverUpdatedAt: new Date(),
         },
       });
 

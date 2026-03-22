@@ -758,8 +758,16 @@ Future<void> _migrateToEncryptedDatabase(
 
     try {
       // Attach new encrypted database
+      // Sanitize path and key to prevent SQL injection via ATTACH DATABASE
+      final sanitizedPath = tempNewPath.replaceAll("'", "''");
       final pragma = encryption.getSqlCipherPragma(encryptionKey);
-      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('"')[1]}\";");
+      final rawKey = pragma.split('"')[1];
+      // Validate key contains only expected hex/alphanumeric characters
+      if (!RegExp(r'^[a-fA-F0-9x]+$').hasMatch(rawKey)) {
+        throw StateError('Invalid encryption key format - potential injection');
+      }
+      final sanitizedKey = rawKey.replaceAll('"', '""');
+      oldDb.execute("ATTACH DATABASE '$sanitizedPath' AS encrypted KEY \"$sanitizedKey\";");
 
       // Configure SQLCipher settings for the attached database
       oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');

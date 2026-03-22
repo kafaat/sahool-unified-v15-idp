@@ -250,6 +250,12 @@ class EventPublisher:
         self._publish_count = 0
         self._error_count = 0
 
+        # Reconnection message buffer (max 1000 messages)
+        self._pending_buffer: list[tuple[str, bytes, float, bool, dict | None]] = []
+        self._pending_buffer_max_size: int = 1000
+        self._buffered_count = 0
+        self._buffer_overflow_count = 0
+
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS."""
@@ -262,6 +268,9 @@ class EventPublisher:
             "connected": self._connected,
             "publish_count": self._publish_count,
             "error_count": self._error_count,
+            "buffered_count": self._buffered_count,
+            "pending_buffer_size": len(self._pending_buffer),
+            "buffer_overflow_count": self._buffer_overflow_count,
             "service_name": self.service_name,
             "service_version": self.service_version,
         }
@@ -355,8 +364,8 @@ class EventPublisher:
             True if published successfully, False otherwise
         """
         if not self.is_connected:
-            logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
-            return False
+            # Buffer the message for retry when reconnected instead of dropping
+            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # ── Metadata enrichment ──────────────────────────────────────────
         if not event.source_service:
@@ -539,6 +548,91 @@ class EventPublisher:
         return event.model_dump_json().encode("utf-8")
 
     # ─────────────────────────────────────────────────────────────────────────
+    # Reconnection Message Buffer
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _buffer_message(
+        self,
+        subject: str,
+        event: BaseEvent,
+        timeout: float | None,
+        use_jetstream: bool | None,
+    ) -> bool:
+        """
+        Buffer a message for retry when reconnected instead of dropping it.
+        تخزين الرسالة مؤقتا لإعادة المحاولة عند إعادة الاتصال
+
+        Returns:
+            True if buffered successfully, False if buffer is full
+        """
+        if len(self._pending_buffer) >= self._pending_buffer_max_size:
+            self._buffer_overflow_count += 1
+            logger.error(
+                f"Pending buffer full ({self._pending_buffer_max_size}). "
+                f"Dropping message for {subject}. "
+                f"Overflow count: {self._buffer_overflow_count}"
+            )
+            self._error_count += 1
+            return False
+
+        # Serialize eagerly so we fail fast on bad data
+        try:
+            data = self._serialize_event(event)
+        except (json.JSONDecodeError, TypeError, ValueError, AttributeError) as e:
+            logger.error(f"Failed to serialize event for buffering: {e}")
+            self._error_count += 1
+            return False
+
+        headers = _build_nats_headers(event)
+        effective_timeout = timeout or self.config.default_timeout
+        effective_js = use_jetstream if use_jetstream is not None else self.config.enable_jetstream
+
+        self._pending_buffer.append((subject, data, effective_timeout, effective_js, headers))
+        self._buffered_count += 1
+        logger.warning(
+            f"Buffered message for {subject} (buffer size: {len(self._pending_buffer)}). "
+            f"Will flush on reconnection."
+        )
+        return True
+
+    async def _flush_buffer(self) -> int:
+        """
+        Flush all buffered messages after reconnection.
+        إرسال جميع الرسائل المخزنة مؤقتا بعد إعادة الاتصال
+
+        Returns:
+            Number of successfully flushed messages
+        """
+        if not self._pending_buffer:
+            return 0
+
+        buffer_size = len(self._pending_buffer)
+        logger.info(f"Flushing {buffer_size} buffered messages after reconnection")
+
+        flushed = 0
+        failed: list[tuple[str, bytes, float, bool, dict | None]] = []
+
+        for subject, data, timeout, use_jetstream, headers in self._pending_buffer:
+            try:
+                if use_jetstream and self._js:
+                    await self._publish_jetstream(subject, data, timeout, headers=headers)
+                else:
+                    await self._publish_core(subject, data, timeout, headers=headers)
+                flushed += 1
+                self._publish_count += 1
+            except Exception as e:
+                logger.warning(f"Failed to flush buffered message to {subject}: {e}")
+                failed.append((subject, data, timeout, use_jetstream, headers))
+
+        self._pending_buffer = failed
+
+        logger.info(
+            f"Buffer flush complete: {flushed}/{buffer_size} sent, "
+            f"{len(failed)} remaining"
+        )
+        return flushed
+
+    # ─────────────────────────────────────────────────────────────────────────
     # Callbacks
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -553,9 +647,24 @@ class EventPublisher:
         self._connected = False
 
     async def _reconnected_callback(self):
-        """Handle reconnection."""
+        """Handle reconnection and flush buffered messages."""
         logger.info("✅ NATS reconnected successfully")
         self._connected = True
+
+        # Re-initialize JetStream context after reconnection
+        if self.config.enable_jetstream and self._nc:
+            try:
+                self._js = self._nc.jetstream(domain=self.config.jetstream_domain)
+            except Exception as e:
+                logger.warning(f"Failed to re-initialize JetStream after reconnection: {e}")
+
+        # Flush buffered messages
+        try:
+            flushed = await self._flush_buffer()
+            if flushed > 0:
+                logger.info(f"Flushed {flushed} buffered messages after reconnection")
+        except Exception as e:
+            logger.error(f"Error flushing buffer after reconnection: {e}")
 
     async def _closed_callback(self):
         """Handle connection closure."""

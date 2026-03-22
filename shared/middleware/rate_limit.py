@@ -14,7 +14,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from collections import defaultdict
+from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps
@@ -77,13 +77,48 @@ class TokenBucket:
         self.last_refill = now
 
 
+class LRUDict(OrderedDict):
+    """OrderedDict with a maximum size, evicting oldest entries when full."""
+
+    def __init__(self, maxsize: int = 10000, *args, **kwargs):
+        self._maxsize = maxsize
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.move_to_end(key)
+        super().__setitem__(key, value)
+        while len(self) > self._maxsize:
+            oldest_key = next(iter(self))
+            del self[oldest_key]
+
+    def __missing__(self, key):
+        """Auto-create empty list for missing keys (replaces defaultdict behaviour)."""
+        self[key] = []
+        return self[key]
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+    def get(self, key, default=None):
+        if key in self:
+            self.move_to_end(key)
+            return super().__getitem__(key)
+        return default
+
+
 class RateLimiter:
     """Rate limiter with sliding window and token bucket"""
 
+    # Maximum number of unique client keys to track before evicting oldest
+    MAX_ENTRIES = 10000
+
     def __init__(self, tier_config: TierConfig | None = None):
         self.tier_config = tier_config or TierConfig()
-        self._buckets: dict[str, TokenBucket] = {}
-        self._request_counts: dict[str, list[float]] = defaultdict(list)
+        self._buckets: LRUDict = LRUDict(maxsize=self.MAX_ENTRIES)
+        self._request_counts: LRUDict = LRUDict(maxsize=self.MAX_ENTRIES)
         self._lock = asyncio.Lock()
 
     def _get_bucket(self, key: str, config: RateLimitConfig) -> TokenBucket:

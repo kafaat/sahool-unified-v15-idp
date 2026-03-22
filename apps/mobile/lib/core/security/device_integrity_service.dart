@@ -146,8 +146,8 @@ class DeviceIntegrityService {
           isRooted = await SafeDevice.isJailBroken.timeout(
             const Duration(seconds: 5),
             onTimeout: () {
-              AppLogger.w('Root detection timed out', tag: 'Security');
-              return false;
+              AppLogger.w('Root detection timed out - assuming rooted (fail-secure)', tag: 'Security');
+              return true;
             },
           );
           if (isRooted) {

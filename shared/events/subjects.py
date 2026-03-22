@@ -20,6 +20,13 @@ Usage:
     await nats.publish(SAHOOL_FIELD_CREATED, event_data)
 """
 
+import re
+
+_TENANT_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Field Subjects - موضوعات الحقول
 # ─────────────────────────────────────────────────────────────────────────────
@@ -949,6 +956,20 @@ def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
     """
     if not tenant_id:
         raise ValueError("tenant_id is required for tenant-scoped subjects")
+
+    # Validate tenant_id is a valid UUID format
+    if not _TENANT_UUID_RE.match(tenant_id):
+        raise ValueError(
+            f"tenant_id must be a valid UUID, got: {tenant_id!r}"
+        )
+
+    # Reject NATS wildcard characters to prevent subject injection
+    for char in ("*", ">", "."):
+        if char in tenant_id:
+            raise ValueError(
+                f"tenant_id contains illegal NATS wildcard character '{char}': {tenant_id!r}"
+            )
+
     return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 
 

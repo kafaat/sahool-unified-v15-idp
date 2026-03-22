@@ -36,6 +36,14 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection
 from ..deps import get_current_user
 
+# Import guardrails for input/output validation
+try:
+    from shared.guardrails import input_filter, TrustLevel
+
+    HAS_GUARDRAILS = True
+except ImportError:
+    HAS_GUARDRAILS = False
+
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])
 
@@ -102,6 +110,35 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
                 "pattern": pattern_name,
             },
         )
+
+    # Guardrails input validation
+    if HAS_GUARDRAILS:
+        try:
+            guard_result = input_filter.filter_input(
+                text=user_query,
+                trust_level=TrustLevel.BASIC,
+                mask_pii=True,
+            )
+            if not guard_result.is_safe:
+                logger.warning(
+                    "Guardrails blocked input",
+                    session_id=request.session_id,
+                    violations=[str(v) for v in guard_result.violations],
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Input blocked by safety guardrails",
+                        "error_ar": "تم حظر الإدخال بواسطة حواجز الأمان",
+                        "violations": [str(v) for v in guard_result.violations],
+                    },
+                )
+            # Use the filtered (PII-masked) text for downstream processing
+            user_query = guard_result.filtered_text
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("Guardrails input validation error, proceeding with caution", error=str(e))
 
     # Publish chat_started event
     nc = getattr(req.app.state, "nc", None)

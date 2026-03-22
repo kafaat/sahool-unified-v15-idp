@@ -620,10 +620,15 @@ class EventSubscriber:
                 # ── 5. Record processed event_id ───────────────────────
                 if eid:
                     self._processed_event_ids[eid] = asyncio.get_event_loop().time()
-                    # Evict oldest entries when over limit
+                    # Evict entries with oldest timestamp when over limit
                     if len(self._processed_event_ids) > self._dedup_max_size:
                         excess = len(self._processed_event_ids) - self._dedup_max_size
-                        for old_key in list(self._processed_event_ids)[:excess]:
+                        # Sort by timestamp (value) and evict the oldest
+                        oldest_keys = sorted(
+                            self._processed_event_ids,
+                            key=lambda k: self._processed_event_ids[k],
+                        )[:excess]
+                        for old_key in oldest_keys:
                             del self._processed_event_ids[old_key]
 
                 # ── 6. ACK only after full success ─────────────────────
@@ -750,9 +755,46 @@ class EventSubscriber:
         self._connected = False
 
     async def _reconnected_callback(self):
-        """Handle reconnection."""
+        """Handle reconnection and re-establish all subscriptions."""
         logger.info("✅ NATS reconnected successfully")
         self._connected = True
+
+        # Re-initialize JetStream context after reconnection
+        if self.config.enable_jetstream and self._nc:
+            try:
+                self._js = self._nc.jetstream(domain=self.config.jetstream_domain)
+            except Exception as e:
+                logger.warning(f"Failed to re-initialize JetStream after reconnection: {e}")
+
+        # Re-establish all subscriptions from the handlers registry
+        if self._handlers:
+            logger.info(f"Re-establishing {len(self._handlers)} subscriptions after reconnection")
+            old_handlers = dict(self._handlers)
+            self._subscriptions.clear()
+            self._handlers.clear()
+
+            resubscribed = 0
+            for subject, subscription in old_handlers.items():
+                try:
+                    success = await self.subscribe(
+                        subject=subscription.subject,
+                        handler=subscription.handler,
+                        event_class=subscription.event_class,
+                        queue_group=subscription.queue_group,
+                        durable_name=subscription.durable_name,
+                        auto_ack=subscription.auto_ack,
+                    )
+                    if success:
+                        resubscribed += 1
+                    else:
+                        logger.error(f"Failed to re-subscribe to {subject}")
+                except Exception as e:
+                    logger.error(f"Error re-subscribing to {subject}: {e}")
+
+            logger.info(
+                f"Re-established {resubscribed}/{len(old_handlers)} subscriptions "
+                f"after reconnection"
+            )
 
     async def _closed_callback(self):
         """Handle connection closure."""

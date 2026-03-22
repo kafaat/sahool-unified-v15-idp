@@ -19,11 +19,16 @@ datasource db {
 }
 
 // User Role Enum
+// Synced with legacy SQL user_role enum in 00-init-sahool.sql
+// SQL values: super_admin, admin, manager, agronomist, field_worker, researcher, viewer
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
   MANAGER
+  AGRONOMIST
   FARMER
   WORKER
+  RESEARCHER
   VIEWER
 }
 

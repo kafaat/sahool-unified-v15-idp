@@ -5,7 +5,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Step 1: Create enums
-CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'MANAGER', 'FARMER', 'WORKER', 'VIEWER');
+CREATE TYPE "UserRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'AGRONOMIST', 'FARMER', 'WORKER', 'RESEARCHER', 'VIEWER');
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING');
 
 -- Step 2: Create users table

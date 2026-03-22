@@ -3,11 +3,14 @@ Event Publisher - SAHOOL Weather Core
 """
 
 import json
+import logging
 import os
 import uuid
 from datetime import UTC, datetime, timezone
 
 from nats.aio.client import Client as NATS
+
+logger = logging.getLogger(__name__)
 
 from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
@@ -131,9 +134,16 @@ class WeatherPublisher:
         )
 
         subject = get_subject(WEATHER_ALERT)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish weather_alert event: subject=%s, field=%s, error=%s",
+                subject, field_id, str(e),
+            )
+            raise
 
-        print(f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}")
+        logger.info("Published weather_alert: field=%s, type=%s, severity=%s", field_id, alert_type, severity)
         return env.event_id
 
     async def publish_forecast_issued(
@@ -164,9 +174,16 @@ class WeatherPublisher:
         )
 
         subject = get_subject(WEATHER_FORECAST_ISSUED)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish forecast_issued event: subject=%s, field=%s, error=%s",
+                subject, field_id, str(e),
+            )
+            raise
 
-        print(f"📋 Published forecast_issued: field={field_id}, provider={provider}, days={days}")
+        logger.info("Published forecast_issued: field=%s, provider=%s, days=%d", field_id, provider, days)
         return env.event_id
 
     async def publish_irrigation_adjustment(
@@ -199,9 +216,16 @@ class WeatherPublisher:
         )
 
         subject = get_subject(IRRIGATION_ADJUSTMENT)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish irrigation_adjustment event: subject=%s, field=%s, error=%s",
+                subject, field_id, str(e),
+            )
+            raise
 
-        print(f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}")
+        logger.info("Published irrigation_adjustment: field=%s, factor=%s", field_id, adjustment_factor)
         return env.event_id
 
 

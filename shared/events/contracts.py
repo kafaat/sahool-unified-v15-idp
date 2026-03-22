@@ -20,10 +20,54 @@ Usage:
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
+import structlog
 from pydantic import BaseModel, ConfigDict, Field
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Payload Validation - التحقق من صحة حمولة الأحداث
+# ─────────────────────────────────────────────────────────────────────────────
+
+_logger = structlog.get_logger(__name__) if "structlog" in dir() else logging.getLogger(__name__)
+
+# Required base fields for all SAHOOL events published over NATS.
+# الحقول الأساسية المطلوبة لجميع أحداث سهول المنشورة عبر NATS.
+REQUIRED_EVENT_FIELDS: frozenset[str] = frozenset({
+    "event_id",
+    "timestamp",
+    "tenant_id",
+    "source_service",
+})
+
+
+def validate_event_payload(subject: str, payload: dict) -> bool:
+    """Validate event payload has required base fields.
+
+    All SAHOOL events must include: event_id, timestamp, tenant_id, source_service.
+    Does not block event publishing — only logs warnings for missing fields.
+
+    التحقق من أن حمولة الحدث تحتوي على الحقول الأساسية المطلوبة.
+    لا يمنع نشر الأحداث — يسجل تحذيرات فقط للحقول المفقودة.
+
+    Args:
+        subject: NATS subject the event is published to (e.g. "sahool.field.created").
+        payload: Event payload as a dictionary.
+
+    Returns:
+        True if all required fields are present, False otherwise.
+    """
+    missing = REQUIRED_EVENT_FIELDS - set(payload.keys())
+    if missing:
+        _logger.warning(
+            "event_missing_required_fields",
+            subject=subject,
+            missing=sorted(missing),
+        )
+        return False
+    return True
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model - النموذج الأساسي للأحداث
@@ -873,4 +917,7 @@ __all__ = [
     "WeChatContactAddedEvent",
     "WeChatMomentPublishedEvent",
     "WeChatChatSummarizedEvent",
+    # Validation utilities
+    "validate_event_payload",
+    "REQUIRED_EVENT_FIELDS",
 ]

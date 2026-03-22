@@ -758,10 +758,26 @@ class HealthStatus(BaseModel):
 class ReadinessStatus(BaseModel):
     """Readiness check status with component details."""
 
-    status: str = Field(..., description="Overall status")
+    status: str = Field(..., description="Overall status (ok, degraded, unhealthy)")
     database: bool = Field(..., description="Database connection status")
     nats: bool = Field(..., description="NATS connection status")
     redis: bool = Field(..., description="Redis connection status")
     models_loaded: bool = Field(..., description="Model loading status")
     gpu_available: bool = Field(..., description="GPU availability status")
     models: dict[str, bool] = Field(default_factory=dict, description="Individual model status")
+    agricultural_models_loaded: bool = Field(
+        default=True,
+        description="Whether agricultural-trained models are loaded (False = using generic fallback)",
+    )
+    degraded_tasks: list[str] = Field(
+        default_factory=list,
+        description="List of tasks running with generic fallback models instead of agricultural models",
+    )
+    degraded_message: str | None = Field(
+        default=None,
+        description="Human-readable degradation message (English)",
+    )
+    degraded_message_ar: str | None = Field(
+        default=None,
+        description="Human-readable degradation message (Arabic)",
+    )

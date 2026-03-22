@@ -6,18 +6,26 @@ This module publishes ground vision events to the NATS message bus
 for consumption by other services.
 """
 
-import json
 import logging
-from datetime import UTC, datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
+from enum import Enum, StrEnum
 
 from pydantic import BaseModel
 
-from ..models.anomaly import AnomalyAlert, AnomalyDetection
+from ..models.anomaly import AnomalyDetection
 from ..models.detection import FieldOperationDetection
-from ..models.timeline import CropTimelineAnalysis, CropTimelineEntry
+from ..models.timeline import CropTimelineAnalysis
 
 logger = logging.getLogger(__name__)
+
+
+class EventSource(StrEnum):
+    """Source of event data - distinguishes real detections from synthetic/test data."""
+
+    REAL = "real"
+    SYNTHETIC = "synthetic"
+    TEST = "test"
+    REPLAY = "replay"
 
 
 class EventPayload(BaseModel):
@@ -27,6 +35,7 @@ class EventPayload(BaseModel):
     event_type: str
     timestamp: str
     tenant_id: str
+    source: EventSource = EventSource.REAL
     data: dict
 
 
@@ -46,14 +55,16 @@ class GroundVisionPublisher:
     SUBJECT_TIMELINE_UPDATED = "sahool.{tenant_id}.ground_vision.timeline_updated"
     SUBJECT_CAMERA_STATUS = "sahool.{tenant_id}.ground_vision.camera_status"
 
-    def __init__(self, nc=None):
+    def __init__(self, nc=None, source: EventSource = EventSource.REAL):
         """
         Initialize publisher.
 
         Args:
             nc: NATS connection (async)
+            source: Data source type (real, synthetic, test, replay)
         """
         self.nc = nc
+        self.source = source
         self._event_counter = 0
 
     def set_connection(self, nc):
@@ -91,16 +102,18 @@ class GroundVisionPublisher:
             event_type="frame_captured",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=tenant_id,
+            source=self.source,
             data={
                 "camera_id": camera_id,
                 "frame_id": frame_id,
                 "geo_bounds": geo_bounds,
                 "metadata": metadata or {},
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
-        logger.debug(f"Published frame_captured event for {frame_id}")
+        logger.debug(f"Published frame_captured event for {frame_id} (source={self.source.value})")
 
     async def publish_operation_detected(
         self,
@@ -111,7 +124,29 @@ class GroundVisionPublisher:
 
         Args:
             detection: Field operation detection result
+
+        Raises:
+            ValueError: If detection data is missing required fields
         """
+        # Validate detection data is not empty/default
+        if not detection.detection_id or not detection.field_id:
+            logger.error(
+                "publish_operation_detected_validation_failed",
+                detection_id=detection.detection_id,
+                field_id=detection.field_id,
+                message="Detection data missing required fields (detection_id, field_id)",
+            )
+            raise ValueError("Cannot publish operation_detected event: detection_id and field_id are required")
+
+        if detection.confidence <= 0.0:
+            logger.warning(
+                "publish_operation_detected_zero_confidence",
+                detection_id=detection.detection_id,
+                confidence=detection.confidence,
+                message="Detection has zero or negative confidence, skipping publish",
+            )
+            return
+
         subject = self.SUBJECT_OPERATION_DETECTED.format(tenant_id=detection.tenant_id)
 
         payload = EventPayload(
@@ -119,6 +154,7 @@ class GroundVisionPublisher:
             event_type="operation_detected",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=detection.tenant_id,
+            source=self.source,
             data={
                 "detection_id": detection.detection_id,
                 "field_id": detection.field_id,
@@ -133,11 +169,15 @@ class GroundVisionPublisher:
                 "center_lon": detection.center_lon,
                 "detected_at": detection.detected_at.isoformat(),
                 "source_frame_id": detection.source_frame_id,
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
-        logger.info(f"Published operation_detected: {detection.operation_type.value} in {detection.field_id}")
+        logger.info(
+            f"Published operation_detected: {detection.operation_type.value} in {detection.field_id} "
+            f"(source={self.source.value})"
+        )
 
     async def publish_growth_stage_changed(
         self,
@@ -167,6 +207,35 @@ class GroundVisionPublisher:
             confidence: Confidence in transition
             evidence_frames: Frame IDs supporting the transition
         """
+        # Validate required fields
+        if not field_id or not tenant_id:
+            logger.error(
+                "publish_growth_stage_changed_validation_failed",
+                field_id=field_id,
+                tenant_id=tenant_id,
+                message="Growth stage change missing required fields (field_id, tenant_id)",
+            )
+            raise ValueError("Cannot publish growth_stage_changed event: field_id and tenant_id are required")
+
+        if not from_stage or not to_stage:
+            logger.error(
+                "publish_growth_stage_changed_missing_stages",
+                field_id=field_id,
+                from_stage=from_stage,
+                to_stage=to_stage,
+                message="Growth stage change missing stage information",
+            )
+            raise ValueError("Cannot publish growth_stage_changed event: from_stage and to_stage are required")
+
+        if confidence <= 0.0:
+            logger.warning(
+                "publish_growth_stage_changed_zero_confidence",
+                field_id=field_id,
+                confidence=confidence,
+                message="Growth stage change has zero or negative confidence, skipping publish",
+            )
+            return
+
         subject = self.SUBJECT_GROWTH_STAGE_CHANGED.format(tenant_id=tenant_id)
 
         payload = EventPayload(
@@ -174,6 +243,7 @@ class GroundVisionPublisher:
             event_type="growth_stage_changed",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=tenant_id,
+            source=self.source,
             data={
                 "field_id": field_id,
                 "crop_type": crop_type,
@@ -184,11 +254,15 @@ class GroundVisionPublisher:
                 "to_stage_ar": to_stage_ar,
                 "confidence": confidence,
                 "evidence_frames": evidence_frames,
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
-        logger.info(f"Published growth_stage_changed: {from_stage} -> {to_stage} for {field_id}")
+        logger.info(
+            f"Published growth_stage_changed: {from_stage} -> {to_stage} for {field_id} "
+            f"(source={self.source.value})"
+        )
 
     async def publish_anomaly_detected(
         self,
@@ -200,6 +274,25 @@ class GroundVisionPublisher:
         Args:
             anomaly: Anomaly detection result
         """
+        # Validate anomaly data is not empty/default
+        if not anomaly.anomaly_id or not anomaly.field_id:
+            logger.error(
+                "publish_anomaly_detected_validation_failed",
+                anomaly_id=anomaly.anomaly_id,
+                field_id=anomaly.field_id,
+                message="Anomaly data missing required fields (anomaly_id, field_id)",
+            )
+            raise ValueError("Cannot publish anomaly_detected event: anomaly_id and field_id are required")
+
+        if anomaly.confidence <= 0.0:
+            logger.warning(
+                "publish_anomaly_detected_zero_confidence",
+                anomaly_id=anomaly.anomaly_id,
+                confidence=anomaly.confidence,
+                message="Anomaly detection has zero or negative confidence, skipping publish",
+            )
+            return
+
         subject = self.SUBJECT_ANOMALY_DETECTED.format(tenant_id=anomaly.tenant_id)
 
         payload = EventPayload(
@@ -207,6 +300,7 @@ class GroundVisionPublisher:
             event_type="anomaly_detected",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=anomaly.tenant_id,
+            source=self.source,
             data={
                 "anomaly_id": anomaly.anomaly_id,
                 "field_id": anomaly.field_id,
@@ -225,12 +319,14 @@ class GroundVisionPublisher:
                 },
                 "detected_at": anomaly.detected_at.isoformat(),
                 "response_deadline_hours": anomaly.response_deadline_hours,
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
         logger.warning(
-            f"Published anomaly_detected: {anomaly.anomaly_type.value} ({anomaly.severity.value}) in {anomaly.field_id}"
+            f"Published anomaly_detected: {anomaly.anomaly_type.value} ({anomaly.severity.value}) "
+            f"in {anomaly.field_id} (source={self.source.value})"
         )
 
     async def publish_timeline_updated(
@@ -243,6 +339,25 @@ class GroundVisionPublisher:
         Args:
             analysis: Crop timeline analysis result
         """
+        # Validate timeline analysis data
+        if not analysis.analysis_id or not analysis.field_id:
+            logger.error(
+                "publish_timeline_updated_validation_failed",
+                analysis_id=analysis.analysis_id,
+                field_id=analysis.field_id,
+                message="Timeline analysis missing required fields (analysis_id, field_id)",
+            )
+            raise ValueError("Cannot publish timeline_updated event: analysis_id and field_id are required")
+
+        if analysis.stage_confidence <= 0.0:
+            logger.warning(
+                "publish_timeline_updated_zero_confidence",
+                analysis_id=analysis.analysis_id,
+                stage_confidence=analysis.stage_confidence,
+                message="Timeline analysis has zero or negative stage confidence, skipping publish",
+            )
+            return
+
         subject = self.SUBJECT_TIMELINE_UPDATED.format(tenant_id=analysis.tenant_id)
 
         payload = EventPayload(
@@ -250,6 +365,7 @@ class GroundVisionPublisher:
             event_type="timeline_updated",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=analysis.tenant_id,
+            source=self.source,
             data={
                 "analysis_id": analysis.analysis_id,
                 "field_id": analysis.field_id,
@@ -264,13 +380,15 @@ class GroundVisionPublisher:
                 "recommendations": analysis.recommendations,
                 "recommendations_ar": analysis.recommendations_ar,
                 "analyzed_at": analysis.analyzed_at.isoformat(),
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
         logger.info(
             f"Published timeline_updated for {analysis.field_id}: "
-            f"{analysis.crop_type.value} at {analysis.current_stage.value}"
+            f"{analysis.crop_type.value} at {analysis.current_stage.value} "
+            f"(source={self.source.value})"
         )
 
     async def publish_camera_status(
@@ -298,16 +416,18 @@ class GroundVisionPublisher:
             event_type="camera_status",
             timestamp=datetime.now(UTC).isoformat(),
             tenant_id=tenant_id,
+            source=self.source,
             data={
                 "camera_id": camera_id,
                 "status": status,
                 "status_ar": status_ar,
                 "details": details or {},
+                "source": self.source.value,
             },
         )
 
         await self._publish(subject, payload)
-        logger.info(f"Published camera_status: {camera_id} is {status}")
+        logger.info(f"Published camera_status: {camera_id} is {status} (source={self.source.value})")
 
     async def _publish(self, subject: str, payload: EventPayload):
         """

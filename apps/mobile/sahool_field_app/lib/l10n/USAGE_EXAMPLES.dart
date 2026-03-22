@@ -2,7 +2,8 @@
 // This file demonstrates how to use the localization system
 
 import 'package:flutter/material.dart';
-import 'l10n.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n.dart' hide AppLocalizations;
 
 // ============================================================================
 // EXAMPLE 1: Basic Text Localization
@@ -14,7 +15,7 @@ class BasicLocalizationExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get localization instance
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +42,7 @@ class LocalizedNavigationMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Drawer(
       child: ListView(
@@ -118,7 +119,7 @@ class RTLAwareLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final layout = LocalizedLayout(context);
 
     return Container(
@@ -164,7 +165,7 @@ class NumberFormattingExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final numberFormat = LocalizedNumberFormat(Localizations.localeOf(context));
 
     return Column(
@@ -216,7 +217,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return PopupMenuButton<Locale>(
       icon: const Icon(Icons.language),
@@ -274,7 +275,7 @@ class _LocalizedFormState extends State<LocalizedForm> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Form(
       key: _formKey,
@@ -342,9 +343,9 @@ class _LocalizedFormState extends State<LocalizedForm> {
 // ============================================================================
 
 void showLocalizedDialog(BuildContext context) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
 
-  showDialog(
+  showDialog<void>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -406,7 +407,7 @@ class WeatherWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final numberFormat = LocalizedNumberFormat(Localizations.localeOf(context));
 
     return Card(
@@ -478,7 +479,7 @@ class YemenCropsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final crops = [
       l10n.wheat,
@@ -522,7 +523,7 @@ class ErrorHandlingExample extends StatelessWidget {
   const ErrorHandlingExample({super.key});
 
   void handleError(BuildContext context, Exception error) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String message;
 
     if (error is NetworkException) {

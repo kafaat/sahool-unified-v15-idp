@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'notification_types.dart';
 
 /// Callback for handling notification taps
@@ -91,16 +92,10 @@ class LocalNotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
-    final darwinSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (older iOS versions)
-        if (kDebugMode) {
-          debugPrint('iOS Notification: $title - $body');
-        }
-      },
     );
 
     final initSettings = InitializationSettings(
@@ -308,7 +303,7 @@ class LocalNotificationService {
       notificationId,
       title,
       body,
-      TZDateTime.from(scheduledDate, local),
+      tz.TZDateTime.from(scheduledDate, tz.local),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
@@ -416,44 +411,3 @@ class LocalNotificationService {
   }
 }
 
-/// Simple TZDateTime implementation for scheduling
-/// In production, use the timezone package for proper timezone handling
-class TZDateTime extends DateTime {
-  TZDateTime(
-    super.year, [
-    super.month,
-    super.day,
-    super.hour,
-    super.minute,
-    super.second,
-    super.millisecond,
-    super.microsecond,
-  ]);
-
-  factory TZDateTime.from(DateTime dateTime, Location location) {
-    return TZDateTime(
-      dateTime.year,
-      dateTime.month,
-      dateTime.day,
-      dateTime.hour,
-      dateTime.minute,
-      dateTime.second,
-      dateTime.millisecond,
-      dateTime.microsecond,
-    );
-  }
-
-  factory TZDateTime.now(Location location) {
-    final now = DateTime.now();
-    return TZDateTime.from(now, location);
-  }
-}
-
-/// Simple Location class for timezone
-class Location {
-  final String name;
-  const Location(this.name);
-}
-
-/// Local timezone
-const local = Location('local');

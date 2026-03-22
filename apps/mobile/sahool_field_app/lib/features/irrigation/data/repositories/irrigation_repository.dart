@@ -16,7 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../remote/irrigation_api.dart';
 import '../../domain/services/water_calculator.dart';
 import '../../domain/services/irrigation_scheduler.dart';
-import '../../../advisor/data/models/irrigation_models.dart';
+import '../../../advisor/data/models/irrigation_models.dart'
+    hide IrrigationCalculation, IrrigationSchedule, IrrigationEvent;
 
 /// Irrigation Repository
 /// مستودع الري

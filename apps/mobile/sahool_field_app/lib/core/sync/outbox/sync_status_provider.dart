@@ -245,9 +245,9 @@ final forceSyncProvider =
 });
 
 /// Retry failed operations
-final retryFailedProvider = FutureProvider.family<int, void>((ref, _) async {
+final retryFailedProvider = FutureProvider.family<void, void>((ref, _) async {
   final outboxService = ref.read(outboxServiceProvider);
-  return outboxService.resetFailedEntries();
+  await outboxService.resetFailedEntries();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -10,7 +10,8 @@
 library;
 
 import '../../data/remote/irrigation_api.dart';
-import '../../../advisor/data/models/irrigation_models.dart';
+import '../../../advisor/data/models/irrigation_models.dart'
+    hide IrrigationCalculation, IrrigationSchedule, IrrigationEvent;
 import 'water_calculator.dart';
 
 /// Irrigation Scheduler Service

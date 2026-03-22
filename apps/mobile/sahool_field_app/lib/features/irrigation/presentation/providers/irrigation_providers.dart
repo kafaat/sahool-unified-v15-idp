@@ -15,7 +15,8 @@ import '../../data/repositories/irrigation_repository.dart';
 import '../../domain/services/water_calculator.dart';
 import '../../domain/services/irrigation_scheduler.dart';
 import '../../domain/services/weather_irrigation_integration.dart';
-import '../../../advisor/data/models/irrigation_models.dart';
+import '../../../advisor/data/models/irrigation_models.dart'
+    hide IrrigationCalculation, IrrigationSchedule, IrrigationEvent;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Core Providers - المزودون الأساسيون
@@ -397,8 +398,8 @@ class SmartScheduleParams {
 
 /// Parameters for weather alerts
 class WeatherAlertParams {
-  final WeatherData currentWeather;
-  final List<WeatherData> forecast;
+  final IrrigationWeatherData currentWeather;
+  final List<IrrigationWeatherData> forecast;
 
   const WeatherAlertParams({
     required this.currentWeather,

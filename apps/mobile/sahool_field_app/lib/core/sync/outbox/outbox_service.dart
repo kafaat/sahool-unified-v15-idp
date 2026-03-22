@@ -387,15 +387,14 @@ class OutboxService {
   }
 
   /// Reset failed entries for retry
-  Future<int> resetFailedEntries() async {
-    final result = await _db.customStatement(
+  Future<void> resetFailedEntries() async {
+    await _db.customStatement(
       'UPDATE outbox SET retry_count = 0 WHERE is_synced = 0 AND retry_count > 0',
       [],
     );
     _invalidateStatsCache();
 
     AppLogger.i('Reset failed entries for retry', tag: 'OUTBOX');
-    return result;
   }
 
   /// Cancel pending operations for an entity
@@ -500,21 +499,19 @@ class OutboxService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Clean up completed entries
-  Future<int> cleanupCompleted() async {
-    final result = await _db.cleanupOutbox();
+  Future<void> cleanupCompleted() async {
+    await _db.cleanupOutbox();
     _invalidateStatsCache();
 
     AppLogger.d('Cleaned up completed outbox entries', tag: 'OUTBOX');
-    return result;
   }
 
   /// Clean up old entries
-  Future<int> cleanupOld({Duration olderThan = const Duration(days: 7)}) async {
-    final result = await _db.cleanupOldOutbox(olderThan: olderThan);
+  Future<void> cleanupOld({Duration olderThan = const Duration(days: 7)}) async {
+    await _db.cleanupOldOutbox(olderThan: olderThan);
     _invalidateStatsCache();
 
     AppLogger.d('Cleaned up old outbox entries', tag: 'OUTBOX');
-    return result;
   }
 
   /// Clear all entries (use with caution)

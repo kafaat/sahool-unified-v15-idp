@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../weather/presentation/providers/weather_provider.dart';
 import '../../market/data/market_repository.dart';
+import '../../market/data/market_models.dart';
 import '../../../core/network/api_result.dart';
 
 /// SAHOOL Home Dashboard Screen - الشاشة الرئيسية المذهلة
@@ -211,7 +212,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
     return _buildWeatherCard(
       temp: data.current.temperature.round(),
-      description: data.current.description,
+      description: data.current.condition,
       humidity: data.current.humidity.round(),
       windSpeed: data.current.windSpeed,
       city: 'صنعاء',

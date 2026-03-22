@@ -63,7 +63,7 @@ void main() {
       }
 
       // Verify local cache
-      final fields = await db.getFieldsForTenant('tenant-001');
+      final fields = await db.getAllFields('tenant-001');
       expect(fields.length, equals(3));
       expect(fields.every((f) => f.synced), isTrue);
       expect(fields.every((f) => f.tenantId == 'tenant-001'), isTrue);

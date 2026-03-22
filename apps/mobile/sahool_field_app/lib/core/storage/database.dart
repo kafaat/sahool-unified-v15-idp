@@ -141,6 +141,79 @@ class SyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// AI Skills Memory Table - stores skill invocations and responses
+@TableIndex(name: 'ai_memory_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'ai_memory_field_idx', columns: {#fieldId})
+@TableIndex(name: 'ai_memory_skill_idx', columns: {#skillName})
+@TableIndex(name: 'ai_memory_synced_idx', columns: {#synced})
+@TableIndex(
+  name: 'ai_memory_tenant_skill_idx',
+  columns: {#tenantId, #skillName},
+)
+@TableIndex(name: 'ai_memory_created_idx', columns: {#createdAt})
+class AiMemoryTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tenantId => text()();
+  TextColumn get fieldId => text().nullable()();
+  TextColumn get farmId => text().nullable()();
+  TextColumn get skillName => text()();
+  TextColumn get skillVersion => text().withDefault(const Constant('1.0.0'))();
+  TextColumn get request => text()();
+  TextColumn get response => text().nullable()();
+  IntColumn get executionTimeMs => integer().nullable()();
+  RealColumn get confidence => real().nullable()();
+  TextColumn get status =>
+      text().withDefault(const Constant('pending'))();
+  TextColumn get errorMessage => text().nullable()();
+  TextColumn get errorStack => text().nullable()();
+  BoolColumn get synced => boolean().withDefault(const Constant(false))();
+  TextColumn get syncChecksum => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+  DateTimeColumn get syncedAt => dateTime().nullable()();
+}
+
+/// AI Context Cache Table - stores compressed context snapshots
+@TableIndex(name: 'ai_context_cache_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'ai_context_cache_field_idx', columns: {#fieldId})
+@TableIndex(name: 'ai_context_cache_ttl_idx', columns: {#expiresAt})
+class AiContextCacheTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tenantId => text()();
+  TextColumn get fieldId => text()();
+  TextColumn get context => text()();
+  TextColumn get contextHash => text()();
+  IntColumn get sizeBytes => integer()();
+  RealColumn get compressionRatio => real().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get expiresAt => dateTime()();
+  BoolColumn get isExpired => boolean().withDefault(const Constant(false))();
+  IntColumn get accessCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastAccessedAt => dateTime().nullable()();
+}
+
+/// AI Knowledge Base Table - stores learned patterns from skills
+@TableIndex(name: 'ai_kb_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'ai_kb_type_idx', columns: {#knowledgeType})
+@TableIndex(name: 'ai_kb_accuracy_idx', columns: {#accuracy})
+class AiKnowledgeBaseTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tenantId => text()();
+  TextColumn get knowledgeType => text()();
+  TextColumn get domain => text().nullable()();
+  TextColumn get condition => text()();
+  TextColumn get recommendation => text()();
+  TextColumn get reasoning => text().nullable()();
+  RealColumn get accuracy => real()();
+  IntColumn get applicableCount => integer().withDefault(const Constant(0))();
+  IntColumn get successCount => integer().withDefault(const Constant(0))();
+  TextColumn get sourceSkill => text()();
+  TextColumn get metadata => text().nullable()();
+  DateTimeColumn get discoveredAt =>
+      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get lastValidatedAt => dateTime().nullable()();
+}
+
 @DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents, AiMemoryTable, AiContextCacheTable, AiKnowledgeBaseTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());

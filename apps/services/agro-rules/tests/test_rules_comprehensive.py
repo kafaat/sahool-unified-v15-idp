@@ -55,7 +55,7 @@ class TestTaskRuleDataclass:
 
     def test_equality(self):
         """Test dataclass equality"""
-        kwargs = dict(
+        kwargs = dict(  # noqa: C408
             title_ar="x", title_en="y",
             description_ar="a", description_en="b",
             task_type="t", priority="p", urgency_hours=1,

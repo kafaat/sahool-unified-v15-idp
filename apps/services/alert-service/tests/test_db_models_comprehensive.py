@@ -30,7 +30,7 @@ class TestAlertModel:
     def _make_alert(self, **overrides):
         from src.db_models import Alert
 
-        defaults = dict(
+        defaults = dict(  # noqa: C408
             id=uuid4(),
             field_id="field-001",
             tenant_id=uuid4(),
@@ -172,7 +172,7 @@ class TestAlertRuleModel:
         from src.db_models import AlertRule
 
         now = datetime.now(UTC)
-        defaults = dict(
+        defaults = dict(  # noqa: C408
             id=uuid4(),
             field_id="field-001",
             tenant_id=uuid4(),

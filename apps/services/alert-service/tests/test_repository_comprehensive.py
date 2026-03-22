@@ -35,7 +35,7 @@ def mock_db():
 def _make_mock_alert(**kwargs):
     from src.db_models import Alert
 
-    defaults = dict(
+    defaults = dict(  # noqa: C408
         id=uuid4(),
         field_id="field-001",
         tenant_id=uuid4(),
@@ -69,7 +69,7 @@ def _make_mock_rule(**kwargs):
     from src.db_models import AlertRule
 
     now = datetime.now(UTC)
-    defaults = dict(
+    defaults = dict(  # noqa: C408
         id=uuid4(),
         field_id="field-001",
         tenant_id=uuid4(),

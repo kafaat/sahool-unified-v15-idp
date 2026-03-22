@@ -337,7 +337,7 @@ class TestET0PenmanMonteith:
 
     def test_higher_wind_increases_et0(self, engine):
         """Higher wind speed should generally increase ET0."""
-        common = dict(
+        common = dict(  # noqa: C408
             temp_min=20.0,
             temp_max=35.0,
             humidity_min=30.0,

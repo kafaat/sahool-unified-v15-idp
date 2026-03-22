@@ -63,7 +63,7 @@ sys.modules["database"] = _fake_database
 # ARRAY(Text) -> JSON (stored as JSON list in SQLite)
 import sqlalchemy.dialects.postgresql as _pg
 
-_orig_ARRAY = _pg.ARRAY
+_orig_array = _pg.ARRAY  # noqa: N816
 
 
 class _FakeARRAY(TypeDecorator):
@@ -82,7 +82,7 @@ _pg.ARRAY = _FakeARRAY
 _pg.JSONB = JSON
 
 # UUID -> String for SQLite
-_orig_UUID = _pg.UUID
+_orig_uuid = _pg.UUID  # noqa: N816
 
 
 class _FakeUUID(TypeDecorator):

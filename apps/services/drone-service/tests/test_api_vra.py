@@ -2,6 +2,7 @@
 Tests for VRA API endpoints - اختبارات نقاط نهاية التطبيق بالمعدل المتغير
 """
 import pytest
+from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
 from src.api.v1.vra import (
     BoundsInput,
@@ -47,8 +48,10 @@ class TestVRAModels:
         assert r.name_ar == "خريطة الرش النقطي"
 class TestVRAHelpers:
     def test_raise_not_found(self):
-        with pytest.raises((ValueError, Exception)):
+        with pytest.raises(HTTPException) as exc_info:
             _raise_not_found()
+        assert exc_info.value.status_code == 404
+        assert "not found" in str(exc_info.value.detail).lower()
 def _create_test_app():
     from fastapi import FastAPI
     test_app = FastAPI()

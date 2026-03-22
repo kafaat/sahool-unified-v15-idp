@@ -15,7 +15,7 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 from src.main import app
 
@@ -24,7 +24,7 @@ VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
 @pytest.fixture
 def client():
-    return TestClient(app)
+    return TestClient(app, headers=TENANT_HEADER)
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):

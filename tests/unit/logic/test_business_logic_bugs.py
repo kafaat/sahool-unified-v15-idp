@@ -179,47 +179,48 @@ class TestFertilizerCalculatorEdgeCases:
         assert result.total_n_kg_ha >= 5.0  # At least target met
 
     def test_cost_analysis_zero_area(self):
-        """BUG FOUND: CostAnalysis dataclass has broken default_factory.
+        """BUG FIXED: CostAnalysis dataclass default_factory now uses lambda correctly.
 
-        In models.py, `analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))`
-        evaluates datetime.now() at class definition time, producing a datetime OBJECT.
-        When the dataclass __init__ tries to call it as a factory, it fails with
-        TypeError: 'datetime.datetime' object is not callable.
+        Previously, `analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))`
+        evaluated at class definition time. Now fixed with lambda wrapper.
 
-        This bug affects ALL dataclasses in fertilizer_management/models.py that use
-        this pattern (at least 10 fields across multiple classes).
-
-        FIX: Change to `field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))`
+        Tests that zero area cost analysis works correctly with no applications.
         """
         from shared.fertilizer_management.calculator import FertilizerCalculator
 
         calc = FertilizerCalculator()
-        # This will fail with TypeError because CostAnalysis has the broken default_factory
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.calculate_cost_analysis(
-                field_id="FIELD-001",
-                season="winter-2025",
-                area_ha=0.0,
-                applications=[],
-            )
+        result = calc.calculate_cost_analysis(
+            field_id="FIELD-001",
+            season="winter-2025",
+            area_ha=0.0,
+            applications=[],
+        )
+        assert result.field_id == "FIELD-001"
+        assert result.season == "winter-2025"
+        assert result.area_ha == 0.0
+        assert result.total_cost == Decimal("0.00")
+        assert result.cost_per_ha == Decimal("0.00")
 
     def test_dataclass_default_factory_bug(self):
-        """BUG FOUND: FertilizerApplication cannot be created without explicit application_date.
+        """BUG FIXED: FertilizerApplication can now be created without explicit application_date.
 
-        This is the root cause bug - default_factory receives a datetime object instead
-        of a callable lambda. Same bug exists in SoilTest, EnvironmentalCompliance,
-        CostAnalysis, NutrientBalance, and all other dataclasses in models.py.
+        The default_factory now correctly uses lambda wrapper. Verify that
+        FertilizerApplication creates successfully with a valid default date.
         """
         from shared.fertilizer_management.models import FertilizerApplication
 
-        with pytest.raises(TypeError, match="object is not callable"):
-            FertilizerApplication(
-                id="FA-001",
-                tenant_id="T-001",
-                field_id="FIELD-001",
-                fertilizer_id="urea",
-                # Omit application_date to trigger the broken default_factory
-            )
+        app = FertilizerApplication(
+            id="FA-001",
+            tenant_id="T-001",
+            field_id="FIELD-001",
+            fertilizer_id="urea",
+            # Omit application_date to use the default_factory
+        )
+        assert app.id == "FA-001"
+        assert app.field_id == "FIELD-001"
+        assert isinstance(app.application_date, datetime)
+        assert isinstance(app.created_at, datetime)
+        assert isinstance(app.updated_at, datetime)
 
 
 # =============================================================================
@@ -531,48 +532,81 @@ class TestEnvironmentalCompliance:
     """BUG TARGET: Compliance thresholds at exact boundaries."""
 
     def test_nitrogen_exactly_at_limit(self):
-        """BUG FOUND: EnvironmentalCompliance has broken default_factory for assessment_date.
-        Also FertilizerApplication has broken defaults for application_date, created_at, updated_at.
-        All use `field(default_factory=datetime.now(UTC).replace(tzinfo=None))` which
-        evaluates at class definition time, making default_factory a datetime, not callable.
+        """BUG FIXED: EnvironmentalCompliance default_factory now uses lambda correctly.
 
-        SECONDARY BUG TO TEST (once fixed): N exactly at 200 kg/ha limit behavior.
+        Tests that N exactly at 200 kg/ha limit is compliant (not a violation).
         """
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        # check_environmental_compliance internally creates EnvironmentalCompliance(field_id=...)
-        # which triggers the broken default_factory on assessment_date
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.check_environmental_compliance("FIELD-001", [])
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=200.0,
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        # Exactly at limit should NOT be a violation (only > limit is violation)
+        assert result.n_compliance != ComplianceLevel.VIOLATION
+        assert result.overall_status != ComplianceLevel.VIOLATION
 
     def test_nitrogen_above_limit_is_violation(self):
-        """BUG FOUND: Same default_factory bug blocks all compliance testing."""
+        """BUG FIXED: Tests that N above 200 kg/ha limit is flagged as violation."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.check_environmental_compliance("FIELD-001", [])
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=250.0,
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        assert result.n_compliance == ComplianceLevel.VIOLATION
+        assert result.overall_status == ComplianceLevel.VIOLATION
+        assert len(result.violations_en) >= 1
 
     def test_nitrogen_at_80_percent_is_warning(self):
-        """BUG FOUND: Same default_factory bug blocks all compliance testing."""
+        """BUG FIXED: Tests that N above 80% of limit (160 kg/ha) triggers warning."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.check_environmental_compliance("FIELD-001", [])
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=170.0,  # Above 80% (160) but below 200
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        assert result.n_compliance == ComplianceLevel.WARNING
+        assert result.overall_status == ComplianceLevel.WARNING
 
     def test_water_body_too_close_is_violation(self):
-        """BUG FOUND: Same default_factory bug in EnvironmentalCompliance."""
+        """BUG FIXED: Tests that water body proximity below buffer zone triggers violation."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel
 
         calc = FertilizerCalculator()
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.check_environmental_compliance(
-                "FIELD-001",
-                applications=[],
-                water_body_distance_m=5.0,
-            )
+        result = calc.check_environmental_compliance(
+            "FIELD-001",
+            applications=[],
+            water_body_distance_m=5.0,  # Below 10m buffer zone
+        )
+        assert result.buffer_compliance == ComplianceLevel.VIOLATION
+        assert result.overall_status == ComplianceLevel.VIOLATION
+        assert len(result.violations_en) >= 1
 
 
 # =============================================================================
@@ -584,9 +618,11 @@ class TestNutrientBalance:
     """BUG TARGET: Edge cases in nutrient balance calculations."""
 
     def test_balance_with_zero_target_yield(self):
-        """Bug: SoilTest has broken default_factory for created_at field.
-        Same bug as FertilizerApplication - datetime.now(UTC) is evaluated at
-        class definition time. We must provide created_at explicitly."""
+        """BUG FIXED: SoilTest and NutrientBalance default_factory now use lambda correctly.
+
+        Tests that zero target yield produces a valid nutrient balance with
+        zero crop requirements.
+        """
         from shared.fertilizer_management.calculator import FertilizerCalculator
         from shared.fertilizer_management.models import SoilTest
 
@@ -600,24 +636,24 @@ class TestNutrientBalance:
             phosphorus_ppm=15.0,
             potassium_ppm=150.0,
             ph=7.0,
-            created_at=datetime.now(UTC).replace(tzinfo=None),
         )
-        # calculate_nutrient_balance creates NutrientBalance internally which
-        # also has broken default_factory (calculation_date)
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.calculate_nutrient_balance(
-                field_id="FIELD-001",
-                season="winter-2025",
-                crop="wheat",
-                crop_ar="قمح",
-                soil_test=soil_test,
-                target_yield_tons_ha=0.0,
-                applications=[],
-            )
+        result = calc.calculate_nutrient_balance(
+            field_id="FIELD-001",
+            season="winter-2025",
+            crop="wheat",
+            crop_ar="قمح",
+            soil_test=soil_test,
+            target_yield_tons_ha=0.0,
+            applications=[],
+        )
+        assert result.crop_n_requirement_kg_ha == 0.0
+        assert result.crop_p_requirement_kg_ha == 0.0
+        assert result.crop_k_requirement_kg_ha == 0.0
+        # With zero requirements, soil nutrients create surplus
+        assert result.n_balance_kg_ha >= 0.0
 
     def test_balance_with_unknown_crop_uses_defaults(self):
-        """Bug: Unknown crop type should use default factors, not crash.
-        NOTE: Blocked by same default_factory bug in NutrientBalance."""
+        """BUG FIXED: Unknown crop type uses default nutrient factors without crashing."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
         from shared.fertilizer_management.models import SoilTest
 
@@ -631,35 +667,40 @@ class TestNutrientBalance:
             phosphorus_ppm=15.0,
             potassium_ppm=150.0,
             ph=7.0,
-            created_at=datetime.now(UTC).replace(tzinfo=None),
         )
-        with pytest.raises(TypeError, match="object is not callable"):
-            calc.calculate_nutrient_balance(
-                field_id="FIELD-001",
-                season="winter-2025",
-                crop="saffron",
-                crop_ar="زعفران",
-                soil_test=soil_test,
-                target_yield_tons_ha=2.0,
-                applications=[],
-            )
+        result = calc.calculate_nutrient_balance(
+            field_id="FIELD-001",
+            season="winter-2025",
+            crop="saffron",
+            crop_ar="زعفران",
+            soil_test=soil_test,
+            target_yield_tons_ha=2.0,
+            applications=[],
+        )
+        # Unknown crop "saffron" should use default factors: N=20, P=10, K=15
+        assert result.crop_n_requirement_kg_ha == 20 * 2.0  # 40.0
+        assert result.crop_p_requirement_kg_ha == 10 * 2.0  # 20.0
+        assert result.crop_k_requirement_kg_ha == 15 * 2.0  # 30.0
 
     def test_nutrient_status_determination(self):
-        """Bug: SoilTest default_factory is broken, preventing NutrientBalance creation.
-        Same dataclass bug as above."""
-        from shared.fertilizer_management.calculator import FertilizerCalculator
+        """BUG FIXED: SoilTest can now be created without explicit created_at.
+
+        Verifies that SoilTest default_factory works correctly and produces
+        a valid datetime for created_at.
+        """
         from shared.fertilizer_management.models import SoilTest
 
-        # Verify the SoilTest default_factory bug directly
-        with pytest.raises(TypeError, match="object is not callable"):
-            SoilTest(
-                id="ST-001",
-                tenant_id="T-001",
-                field_id="FIELD-001",
-                sample_date=datetime.now(UTC),
-                nitrogen_ppm=20.0,
-                phosphorus_ppm=15.0,
-                potassium_ppm=150.0,
-                ph=7.0,
-                # Omit created_at to trigger broken default_factory
-            )
+        soil_test = SoilTest(
+            id="ST-001",
+            tenant_id="T-001",
+            field_id="FIELD-001",
+            sample_date=datetime.now(UTC),
+            nitrogen_ppm=20.0,
+            phosphorus_ppm=15.0,
+            potassium_ppm=150.0,
+            ph=7.0,
+            # Omit created_at to use the fixed default_factory
+        )
+        assert soil_test.id == "ST-001"
+        assert isinstance(soil_test.created_at, datetime)
+        assert soil_test.nitrogen_ppm == 20.0

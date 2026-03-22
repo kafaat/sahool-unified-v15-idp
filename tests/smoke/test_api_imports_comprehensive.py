@@ -43,10 +43,10 @@ class TestSharedModuleImports:
         assert hasattr(subjects, "get_tenant_subject")
         # Tenant subject should return formatted string
         result = subjects.get_tenant_subject(
-            "tenant-id-123", "field", "created"
+            "00000000-0000-0000-0000-000000000123", "field", "created"
         )
         assert isinstance(result, str)
-        assert "tenant-id-123" in result
+        assert "00000000-0000-0000-0000-000000000123" in result
 
     def test_shared_contracts_imports(self):
         """shared.contracts module imports correctly"""
@@ -409,7 +409,7 @@ class TestNATSEventSubjects:
         """get_tenant_subject generates correct tenant-scoped subjects"""
         from shared.events.subjects import get_tenant_subject
 
-        tenant_id = "test-tenant-uuid"
+        tenant_id = "00000000-0000-0000-0000-000000000456"
         subject = get_tenant_subject(tenant_id, "field", "created")
         assert isinstance(subject, str)
         assert tenant_id in subject

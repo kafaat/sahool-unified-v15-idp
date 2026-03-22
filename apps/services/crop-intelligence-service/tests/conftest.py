@@ -31,7 +31,7 @@ def _fake_current_user():
         id="test-user-001",
         email="test@sahool.sa",
         roles=["farmer"],
-        tenant_id="test_tenant",
+        tenant_id="00000000-0000-0000-0000-000000000001",
     )
 
 
@@ -66,7 +66,7 @@ def client(setup_test_data):
 
     app.dependency_overrides[get_current_user] = _fake_current_user
     test_client = TestClient(app)
-    test_client.headers["X-Tenant-ID"] = "test_tenant"
+    test_client.headers["X-Tenant-ID"] = "00000000-0000-0000-0000-000000000001"
     yield test_client
     app.dependency_overrides.clear()
 

@@ -72,7 +72,7 @@ def app():
             id="test-user-001",
             email="test@sahool.sa",
             roles=["farmer"],
-            tenant_id="tenant-123",
+            tenant_id="00000000-0000-0000-0000-000000000123",
         )
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
@@ -84,7 +84,7 @@ def app():
 def client(app):
     """Create test client with tenant context"""
     c = TestClient(app)
-    c.headers["X-Tenant-ID"] = "tenant-123"
+    c.headers["X-Tenant-ID"] = "00000000-0000-0000-0000-000000000123"
     return c
 
 
@@ -139,7 +139,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -157,7 +157,7 @@ class TestCurrentWeatherEndpoint:
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "lat": 95.0,  # Invalid latitude
                 "lon": 44.20,
@@ -192,7 +192,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-789",
                     "lat": 13.58,
                     "lon": 44.02,
@@ -208,7 +208,7 @@ class TestCurrentWeatherEndpoint:
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 # Missing field_id, lat, lon
             },
         )
@@ -233,7 +233,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=7",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -260,7 +260,7 @@ class TestForecastEndpoint:
                 response = client.post(
                     f"/weather/forecast?days={days}",
                     json={
-                        "tenant_id": "tenant-123",
+                        "tenant_id": "00000000-0000-0000-0000-000000000123",
                         "field_id": "field-456",
                         "lat": 15.35,
                         "lon": 44.20,
@@ -282,7 +282,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=30",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -301,7 +301,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -322,7 +322,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 42.0,
                 "humidity_pct": 30.0,
@@ -346,7 +346,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 85.0,
@@ -370,7 +370,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 # Optional fields omitted
@@ -390,7 +390,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -411,7 +411,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 38.0,
                 "humidity_pct": 25.0,
@@ -430,7 +430,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 75.0,
@@ -652,7 +652,7 @@ class TestCorrelationID:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,

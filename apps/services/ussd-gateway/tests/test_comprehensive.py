@@ -382,11 +382,19 @@ class TestHelperFunctions:
         assert lang == "ar"
 
     @pytest.mark.asyncio
+    async def test_get_user_language_no_db_attr(self):
+        from src.main import get_user_language
+        app_mock = MagicMock(spec=[])  # no attributes
+        lang = await get_user_language(app_mock, "+966500000000")
+        assert lang == "ar"
+
+    @pytest.mark.asyncio
     async def test_send_sms_via_provider(self):
         from src.main import send_sms_via_provider
         result = await send_sms_via_provider("+966500000000", "Test message")
         assert result["success"] is True
         assert "message_id" in result
+        assert result["provider"] is not None
 
     @pytest.mark.asyncio
     async def test_send_whatsapp_via_provider(self):
@@ -396,12 +404,20 @@ class TestHelperFunctions:
         assert "message_id" in result
 
     @pytest.mark.asyncio
+    async def test_send_whatsapp_via_provider_with_template(self):
+        from src.main import send_whatsapp_via_provider
+        result = await send_whatsapp_via_provider(
+            "+966500000000", "Message", template="alert_template",
+            buttons=[{"id": "btn1", "title": "OK"}], language="en",
+        )
+        assert result["success"] is True
+
+    @pytest.mark.asyncio
     async def test_handle_alert_for_sms_no_sms_channel(self):
         from src.main import handle_alert_for_sms
         app_mock = MagicMock()
         msg = MagicMock()
         msg.data = json.dumps({"channels": ["push"], "tenant_id": "t1"}).encode()
-        # Should not raise
         await handle_alert_for_sms(app_mock, msg)
 
     @pytest.mark.asyncio
@@ -417,8 +433,93 @@ class TestHelperFunctions:
             "title_ar": "تنبيه",
             "message_ar": "رسالة تنبيه",
         }).encode()
-        # Should not raise (no db to query phone numbers)
         await handle_alert_for_sms(app_mock, msg)
+
+    @pytest.mark.asyncio
+    async def test_handle_alert_for_sms_bad_json(self):
+        from src.main import handle_alert_for_sms
+        app_mock = MagicMock()
+        msg = MagicMock()
+        msg.data = b"not json"
+        # Should not raise
+        await handle_alert_for_sms(app_mock, msg)
+
+    @pytest.mark.asyncio
+    async def test_process_whatsapp_message(self):
+        from src.main import process_whatsapp_message
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        await process_whatsapp_message(app_mock, "+966500000000", "WEATHER")
+
+    @pytest.mark.asyncio
+    async def test_process_whatsapp_message_unknown(self):
+        from src.main import process_whatsapp_message
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        await process_whatsapp_message(app_mock, "+966500000000", "XYZABC")
+
+    @pytest.mark.asyncio
+    async def test_process_whatsapp_button(self):
+        from src.main import process_whatsapp_button
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        await process_whatsapp_button(app_mock, "+966500000000", "weather_today")
+
+    @pytest.mark.asyncio
+    async def test_process_whatsapp_button_unknown(self):
+        from src.main import process_whatsapp_button
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        await process_whatsapp_button(app_mock, "+966500000000", "unknown_btn")
+
+    @pytest.mark.asyncio
+    async def test_process_sms_keyword_register(self):
+        from src.main import process_sms_keyword
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        result = await process_sms_keyword(app_mock, "+966500000000", "REGISTER")
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_process_sms_keyword_arabic_water(self):
+        from src.main import process_sms_keyword
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        result = await process_sms_keyword(app_mock, "+966500000000", "ماء")
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_process_sms_keyword_ndvi(self):
+        from src.main import process_sms_keyword
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        result = await process_sms_keyword(app_mock, "+966500000000", "NDVI")
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_process_sms_keyword_rain_arabic(self):
+        from src.main import process_sms_keyword
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        result = await process_sms_keyword(app_mock, "+966500000000", "مطر")
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_process_sms_keyword_arabic_field(self):
+        from src.main import process_sms_keyword
+        app_mock = MagicMock()
+        app_mock.state = MagicMock()
+        app_mock.state.db_pool = None
+        result = await process_sms_keyword(app_mock, "+966500000000", "حقل")
+        assert result is not None
 
 
 # ---------------------------------------------------------------------------

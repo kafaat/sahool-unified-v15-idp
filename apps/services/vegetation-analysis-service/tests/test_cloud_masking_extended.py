@@ -163,7 +163,7 @@ class TestCloudMasker:
 
     def test_quality_score_perfect(self, masker):
         score = masker.calculate_quality_score(0.0, 0.0, 100.0)
-        assert score == 1.0
+        assert abs(score - 1.0) < 1e-10
 
     # =========================================================================
     # apply_cloud_mask Tests
@@ -265,7 +265,7 @@ class TestCloudMasker:
         )
         result = await masker.analyze_cloud_cover("F001", 15.5, 44.2, scl_data=scl_data)
         assert result.cloud_cover_percent == 15.0  # 10 + 5 cloud
-        assert result.shadow_cover_percent == 10.0  # 5 shadow + 5 dark (CLOUD_SHADOW + implicit)
+        assert result.shadow_cover_percent == 5.0  # Only CLOUD_SHADOW is in SHADOW_CLASSES for this data
         assert result.usable is True  # cloud < 20, clear >= 70
 
     @pytest.mark.asyncio

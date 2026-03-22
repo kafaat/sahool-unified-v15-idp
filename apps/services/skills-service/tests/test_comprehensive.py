@@ -2,16 +2,15 @@
 Comprehensive unit tests for SAHOOL Skills Service.
 Targets >60% code coverage across models, endpoints, helpers, and edge cases.
 """
+
+
+# Patch TokenRevocationMiddleware before importing main to avoid init error with exempt_paths
+import os
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-
-# Patch TokenRevocationMiddleware before importing main to avoid init error with exempt_paths
-import os
 import sys
 
 from shared.auth.revocation_middleware import TokenRevocationMiddleware

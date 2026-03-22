@@ -2,6 +2,9 @@
 Comprehensive unit tests for SAHOOL Audit Service.
 Targets >60% code coverage across models, endpoints, helpers, and edge cases.
 """
+
+import os
+
 # Ensure test environment
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
@@ -9,9 +12,7 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-import os
 import sys
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch

@@ -195,7 +195,7 @@ class TestLevelingAlgorithms:
 class TestLevelingAPI:
     """Test leveling API endpoints."""
 
-    def test_analyze_field_leveling(self, client, sample_elevation_data):
+    def test_analyze_field_leveling(self, client, sample_elevation_data, auth_headers):
         """Test field leveling analysis endpoint."""
         request_data = {
             "field_id": "FIELD-001",
@@ -206,7 +206,7 @@ class TestLevelingAPI:
             "include_cost_estimate": True,
         }
 
-        response = client.post("/api/v1/leveling/analyze", json=request_data)
+        response = client.post("/api/v1/leveling/analyze", json=request_data, headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -223,7 +223,7 @@ class TestLevelingAPI:
         assert "summary_en" in plan
         assert "summary_ar" in plan
 
-    def test_analyze_field_with_target_grades(self, client, sample_elevation_data):
+    def test_analyze_field_with_target_grades(self, client, sample_elevation_data, auth_headers):
         """Test analysis with specified target grades."""
         request_data = {
             "field_id": "FIELD-002",
@@ -234,15 +234,15 @@ class TestLevelingAPI:
             "priority": "irrigation_efficiency",
         }
 
-        response = client.post("/api/v1/leveling/analyze", json=request_data)
+        response = client.post("/api/v1/leveling/analyze", json=request_data, headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
 
-    def test_get_leveling_plan(self, client):
+    def test_get_leveling_plan(self, client, auth_headers):
         """Test get leveling plan endpoint."""
-        response = client.get("/api/v1/leveling/plan/FIELD-001")
+        response = client.get("/api/v1/leveling/plan/FIELD-001", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()

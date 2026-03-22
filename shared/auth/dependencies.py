@@ -4,6 +4,7 @@ Dependency injection for authentication and authorization
 """
 
 import logging
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
@@ -441,6 +442,7 @@ class RateLimiter:
     ):
         self.requests = requests
         self.window_seconds = window_seconds
+        self._lock = threading.Lock()
         self.storage: dict = defaultdict(list)
         self.violation_count: dict = defaultdict(int)
 
@@ -457,34 +459,37 @@ class RateLimiter:
         now = time.time()
         window_start = now - self.window_seconds
 
-        # Clean old requests
-        self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
+        with self._lock:
+            # Clean old requests
+            self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
 
-        current_count = len(self.storage[key])
-        remaining = max(0, self.requests - current_count)
+            current_count = len(self.storage[key])
+            remaining = max(0, self.requests - current_count)
 
-        # Check limit
-        if current_count >= self.requests:
-            self.violation_count[key] += 1
-            logger.warning(
-                f"Rate limit exceeded for {key}: "
-                f"{current_count}/{self.requests} requests in {self.window_seconds}s "
-                f"(violation #{self.violation_count[key]})"
-            )
-            return False, 0
+            # Check limit
+            if current_count >= self.requests:
+                self.violation_count[key] += 1
+                logger.warning(
+                    f"Rate limit exceeded for {key}: "
+                    f"{current_count}/{self.requests} requests in {self.window_seconds}s "
+                    f"(violation #{self.violation_count[key]})"
+                )
+                return False, 0
 
-        # Add current request
-        self.storage[key].append(now)
-        return True, remaining - 1
+            # Add current request
+            self.storage[key].append(now)
+            return True, remaining - 1
 
     def get_violation_count(self, key: str) -> int:
         """Get number of rate limit violations for a key"""
-        return self.violation_count.get(key, 0)
+        with self._lock:
+            return self.violation_count.get(key, 0)
 
     def reset_violations(self, key: str) -> None:
         """Reset violation count for a key"""
-        if key in self.violation_count:
-            del self.violation_count[key]
+        with self._lock:
+            if key in self.violation_count:
+                del self.violation_count[key]
 
 
 # Global rate limiter instance

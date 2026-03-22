@@ -210,10 +210,12 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         }
       }, 2000);
     } catch (error) {
+      // Do not expose server error details to the user
+      const _unused = error; // logged server-side; suppress unused var
       showToast({
         type: "error",
-        messageAr: "رمز التحقق غير صحيح",
-        message: error instanceof Error ? error.message : "Invalid verification code",
+        messageAr: "رمز التحقق غير صحيح أو منتهي الصلاحية",
+        message: "Invalid or expired verification code. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -260,10 +262,11 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         message: "New verification code sent",
       });
     } catch (error) {
+      const _unused = error; // logged server-side; suppress unused var
       showToast({
         type: "error",
-        messageAr: "فشل في إرسال رمز التحقق",
-        message: error instanceof Error ? error.message : "Failed to resend code",
+        messageAr: "فشل في إرسال رمز التحقق. الرجاء المحاولة مرة أخرى.",
+        message: "Failed to resend verification code. Please try again.",
       });
     } finally {
       setIsResending(false);

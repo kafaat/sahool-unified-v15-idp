@@ -113,7 +113,12 @@ class InputSanitizationMiddleware(BaseHTTPMiddleware):
                 request.state.sanitized_body = sanitized_body
             except Exception:
                 # If body parsing fails, let the endpoint handler deal with it
-                pass
+                logger.warning(
+                    "Input sanitization failed: could not parse JSON body for %s %s",
+                    request.method,
+                    request.url.path,
+                    exc_info=True,
+                )
 
         return await call_next(request)
 

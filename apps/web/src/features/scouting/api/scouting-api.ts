@@ -26,6 +26,16 @@ import type {
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient({ timeout: 15000 });
 
+// Cache configuration
+const CACHE_KEY = "scouting_offline_cache";
+const MAX_CACHE_SIZE = 100; // Maximum number of cached observations
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days TTL
+
+interface CachedObservation extends Observation {
+  _offline?: boolean;
+  _cachedAt?: string;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages
 // ═══════════════════════════════════════════════════════════════════════════
@@ -111,36 +121,89 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
 }
 
 /**
+ * Validate that a cached observation has the expected shape.
+ */
+function isValidCachedObservation(item: unknown): item is CachedObservation {
+  if (!item || typeof item !== "object") return false;
+  const obj = item as Record<string, unknown>;
+  return (
+    typeof obj.id === "string" &&
+    typeof obj.sessionId === "string" &&
+    typeof obj.category === "string" &&
+    typeof obj.createdAt === "string"
+  );
+}
+
+/**
  * Store observation in offline cache
  */
 function cacheObservation(observation: Observation): void {
   if (typeof window === "undefined") return;
 
   try {
-    const cached = localStorage.getItem("scouting_offline_cache");
-    const cache = cached ? JSON.parse(cached) : [];
+    const cached = localStorage.getItem(CACHE_KEY);
+    let cache: CachedObservation[] = [];
+
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed)) {
+        cache = parsed.filter(isValidCachedObservation);
+      }
+    }
+
+    // Enforce max cache size - remove oldest entries if at limit
+    if (cache.length >= MAX_CACHE_SIZE) {
+      cache = cache.slice(cache.length - MAX_CACHE_SIZE + 1);
+    }
+
     cache.push({
       ...observation,
       _offline: true,
       _cachedAt: new Date().toISOString(),
     });
-    localStorage.setItem("scouting_offline_cache", JSON.stringify(cache));
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
   } catch (error) {
     logger.warn("Failed to cache observation:", error);
   }
 }
 
 /**
- * Get offline cached observations
+ * Get offline cached observations, filtering out expired entries.
  */
 function getCachedObservations(): Observation[] {
   if (typeof window === "undefined") return [];
 
   try {
-    const cached = localStorage.getItem("scouting_offline_cache");
-    return cached ? JSON.parse(cached) : [];
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return [];
+
+    const parsed = JSON.parse(cached);
+    if (!Array.isArray(parsed)) {
+      logger.warn("Invalid scouting cache format, clearing");
+      localStorage.removeItem(CACHE_KEY);
+      return [];
+    }
+
+    const now = Date.now();
+    const valid = parsed.filter((item: unknown) => {
+      if (!isValidCachedObservation(item)) return false;
+      // Check TTL expiration
+      if (item._cachedAt) {
+        const cachedTime = new Date(item._cachedAt).getTime();
+        if (now - cachedTime > CACHE_TTL_MS) return false;
+      }
+      return true;
+    });
+
+    // Update cache if expired entries were removed
+    if (valid.length !== parsed.length) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(valid));
+    }
+
+    return valid;
   } catch (error) {
     logger.warn("Failed to get cached observations:", error);
+    localStorage.removeItem(CACHE_KEY);
     return [];
   }
 }

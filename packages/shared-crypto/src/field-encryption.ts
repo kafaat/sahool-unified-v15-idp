@@ -15,6 +15,27 @@ import * as crypto from "crypto";
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Constant-time string comparison to prevent timing side-channel attacks.
+ * Uses crypto.timingSafeEqual under the hood.
+ */
+function constantTimeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, "utf8");
+  const bufB = Buffer.from(b, "utf8");
+  if (bufA.length !== bufB.length) {
+    // Pad shorter buffer to prevent length leak through timingSafeEqual
+    const maxLen = Math.max(bufA.length, bufB.length);
+    const paddedA = Buffer.alloc(maxLen);
+    const paddedB = Buffer.alloc(maxLen);
+    bufA.copy(paddedA);
+    bufB.copy(paddedB);
+    // Always run timingSafeEqual to avoid early return timing leak
+    crypto.timingSafeEqual(paddedA, paddedB);
+    return false;
+  }
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16; // 128 bits
 const AUTH_TAG_LENGTH = 16; // 128 bits
@@ -387,16 +408,37 @@ export function decryptSearchable(
 
     // Verify the decrypted text matches the hint (CTR mode will always
     // "decrypt" something — we need to confirm it's correct)
-    if (decrypted !== hint) {
+    // Use constant-time comparison to prevent timing side-channel attacks
+    if (!constantTimeEqual(decrypted, hint)) {
       throw new Error("Searchable decryption: hint does not match");
     }
 
     return decrypted;
   }
 
-  // Legacy format (no prefix): compare encrypted values
-  // Re-encrypt with legacy function and compare against stored data
-  if (encryptedData === encryptLegacySearchable(hint)) {
+  // Legacy format with random salt: "s1:<salt>:<ciphertext>"
+  if (encryptedData.startsWith("s1:")) {
+    const parts = encryptedData.split(":");
+    if (parts.length !== 3) {
+      throw new Error("Invalid s1 encrypted data format");
+    }
+    const key = getDeterministicKey();
+    const salt = Buffer.from(parts[1], "base64");
+    const iv = crypto.pbkdf2Sync(hint, salt, 1000, IV_LENGTH, "sha256");
+    const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
+    let decrypted = decipher.update(parts[2], "base64", "utf8");
+    decrypted += decipher.final("utf8");
+    // Use constant-time comparison to prevent timing side-channel attacks
+    if (!constantTimeEqual(decrypted, hint)) {
+      throw new Error("Searchable decryption: hint does not match");
+    }
+    return decrypted;
+  }
+
+  // Legacy format (no prefix, fixed salt): compare encrypted values
+  // Re-encrypt with fixed-salt legacy function and compare against stored data
+  // Use constant-time comparison to prevent timing side-channel attacks
+  if (constantTimeEqual(encryptedData, verifyFixedSaltLegacy(hint))) {
     return hint;
   }
 
@@ -407,14 +449,32 @@ export function decryptSearchable(
 
 /**
  * Legacy searchable encryption (v1) using fixed salt.
- * Used only for verifying/migrating old encrypted data.
- * @internal
+ * @deprecated Use encryptSearchable() for new encryption operations.
+ * This function now generates a random salt per operation and stores it
+ * alongside the encrypted data. Format: "s1:<base64 salt>:<base64 ciphertext>"
  */
 export function encryptLegacySearchable(plaintext: string): string {
   if (!plaintext) {
     return plaintext;
   }
 
+  const key = getDeterministicKey();
+  const salt = crypto.randomBytes(SALT_LENGTH);
+  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
+  const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+
+  let encrypted = cipher.update(plaintext, "utf8", "base64");
+  encrypted += cipher.final("base64");
+
+  return `s1:${salt.toString("base64")}:${encrypted}`;
+}
+
+/**
+ * Verify legacy v1 encrypted data that used the old fixed salt.
+ * Used only for migration/verification of pre-existing encrypted data.
+ * @internal
+ */
+function verifyFixedSaltLegacy(plaintext: string): string {
   const key = getDeterministicKey();
   const salt = Buffer.from("sahool-deterministic-salt");
   const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
@@ -557,8 +617,8 @@ export function migrateSearchableEncryption(
     return legacyCiphertext;
   }
 
-  // Verify that the plaintext matches the legacy ciphertext
-  const reEncrypted = encryptLegacySearchable(plaintext);
+  // Verify that the plaintext matches the legacy ciphertext (fixed-salt format)
+  const reEncrypted = verifyFixedSaltLegacy(plaintext);
   if (reEncrypted !== legacyCiphertext) {
     return null; // plaintext doesn't match
   }
@@ -574,8 +634,8 @@ export function isLegacySearchable(encryptedData: string): boolean {
   if (!encryptedData || typeof encryptedData !== "string") {
     return false;
   }
-  // v2 values start with "s2:", legacy values are raw base64
-  return !encryptedData.startsWith("s2:") && !encryptedData.includes(":");
+  // v2 values start with "s2:", s1 values start with "s1:", legacy (fixed-salt) values are raw base64
+  return !encryptedData.startsWith("s2:") && !encryptedData.startsWith("s1:") && !encryptedData.includes(":");
 }
 
 export default {

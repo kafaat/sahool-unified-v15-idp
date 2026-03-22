@@ -11,10 +11,13 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationInfo, field_validator
 
@@ -38,6 +41,16 @@ def _compute_integrity_hash(data: dict) -> str:
     secret = os.getenv("GLOBALGAP_HMAC_SECRET", "")
     if secret:
         return hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    if env == "production":
+        raise RuntimeError(
+            "GLOBALGAP_HMAC_SECRET must be set in production. "
+            "Cannot fall back to plain SHA-256 for compliance records."
+        )
+    logger.warning(
+        "GLOBALGAP_HMAC_SECRET is not set — falling back to plain SHA-256. "
+        "This is acceptable in development but MUST be configured in production."
+    )
     return hashlib.sha256(payload).hexdigest()
 
 

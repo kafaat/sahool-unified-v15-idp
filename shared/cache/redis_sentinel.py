@@ -52,6 +52,12 @@ class RedisSentinelConfig:
         # Redis configuration
         self.password = os.getenv("REDIS_PASSWORD")
         if not self.password:
+            env = os.getenv("ENVIRONMENT", "development").lower()
+            if env == "production":
+                raise RuntimeError(
+                    "REDIS_PASSWORD must be set in production. "
+                    "Redis cannot operate without authentication in a production environment."
+                )
             logger.warning(
                 "REDIS_PASSWORD environment variable is not set. Redis authentication will fail in production."
             )

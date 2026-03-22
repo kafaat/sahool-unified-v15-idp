@@ -268,7 +268,8 @@ resource "aws_eks_cluster" "main" {
   vpc_config {
     subnet_ids              = concat(aws_subnet.private[*].id, aws_subnet.public[*].id)
     endpoint_private_access = true
-    endpoint_public_access  = true
+    endpoint_public_access  = var.eks_public_access_enabled
+    public_access_cidrs     = var.eks_public_access_cidrs
     security_group_ids      = [aws_security_group.eks_cluster.id]
   }
 
@@ -368,6 +369,31 @@ resource "aws_iam_role_policy" "eks_s3_access" {
 # ======================================================================
 # مجموعة من خوادم العمل لتشغيل الحاويات
 # Group of worker nodes for running containers
+# ======================================================================
+# قالب الإطلاق مع IMDSv2 (Launch Template with IMDSv2 enforcement)
+# ======================================================================
+# فرض استخدام IMDSv2 لمنع هجمات SSRF على بيانات الاعتماد
+# Enforce IMDSv2 to prevent SSRF attacks on instance credentials
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix = "${var.cluster_name}-node-"
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = merge(
+      var.tags,
+      {
+        Name = "${var.cluster_name}-node"
+      }
+    )
+  }
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.cluster_name}-node-group"
@@ -375,6 +401,11 @@ resource "aws_eks_node_group" "main" {
   subnet_ids      = aws_subnet.private[*].id
 
   instance_types = [var.node_instance_type]
+
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
+  }
 
   scaling_config {
     desired_size = var.desired_nodes
@@ -774,6 +805,31 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "ai_models" {
 
 # مفتاح KMS لتشفير S3
 # KMS key for S3 encryption
+# ======================================================================
+# حظر الوصول العام لحاويات S3 (S3 Public Access Block)
+# ======================================================================
+# منع أي وصول عام عرضي للبيانات الحساسة
+# Block any accidental public access to sensitive data
+resource "aws_s3_bucket_public_access_block" "satellite_imagery" {
+  count  = var.enable_satellite_bucket ? 1 : 0
+  bucket = aws_s3_bucket.satellite_imagery[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_public_access_block" "ai_models" {
+  count  = var.enable_model_bucket ? 1 : 0
+  bucket = aws_s3_bucket.ai_models[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_kms_key" "s3" {
   description             = "KMS key for S3 encryption in ${var.region_name}"
   deletion_window_in_days = 10

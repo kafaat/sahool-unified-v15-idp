@@ -50,11 +50,16 @@ async def require_auth(request: Request):
     Require authentication for MCP endpoints.
     طلب المصادقة لنقاط نهاية MCP.
 
-    Falls back to no-op if auth module is not available (test environments).
-    يعود إلى عدم التشغيل إذا لم تكن وحدة المصادقة متاحة (بيئات الاختبار).
+    Fails closed if auth module is unavailable unless AUTH_DISABLED_FOR_DEV is set.
+    يفشل بشكل مغلق إذا لم تكن وحدة المصادقة متاحة ما لم يتم تعيين AUTH_DISABLED_FOR_DEV.
     """
     if not _auth_available:
-        return None
+        if os.getenv("AUTH_DISABLED_FOR_DEV", "").lower() in ("1", "true", "yes"):
+            return None
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication module unavailable and AUTH_DISABLED_FOR_DEV not set",
+        )
     auth_header = request.headers.get("authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(

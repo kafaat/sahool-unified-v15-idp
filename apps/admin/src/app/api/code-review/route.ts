@@ -14,11 +14,11 @@ import { logger } from "@/lib/logger";
 const CODE_REVIEW_SERVICE_URL =
   process.env.CODE_REVIEW_SERVICE_URL || "http://code-review-service:8102";
 
-async function getAuthHeaders(): Promise<Record<string, string>> {
+async function getAuthHeaders(): Promise<Record<string, string> | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("sahool_admin_token")?.value;
-    if (!token) return {};
+    if (!token) return null;
 
     const user = await getUserFromToken(token);
     const headers: Record<string, string> = {
@@ -30,13 +30,16 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
     }
     return headers;
   } catch {
-    return { "Content-Type": "application/json" };
+    return null;
   }
 }
 
 async function proxyGet(path: string): Promise<NextResponse> {
   try {
     const headers = await getAuthHeaders();
+    if (!headers) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
     const response = await fetch(`${CODE_REVIEW_SERVICE_URL}${path}`, {
       headers,
       signal: AbortSignal.timeout(15000),
@@ -58,6 +61,9 @@ async function proxyPost(
 ): Promise<NextResponse> {
   try {
     const headers = await getAuthHeaders();
+    if (!headers) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
     const response = await fetch(`${CODE_REVIEW_SERVICE_URL}${path}`, {
       method: "POST",
       headers,

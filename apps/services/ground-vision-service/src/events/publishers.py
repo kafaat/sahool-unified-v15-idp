@@ -132,18 +132,18 @@ class GroundVisionPublisher:
         if not detection.detection_id or not detection.field_id:
             logger.error(
                 "publish_operation_detected_validation_failed",
-                detection_id=detection.detection_id,
-                field_id=detection.field_id,
-                message="Detection data missing required fields (detection_id, field_id)",
+                "Detection data missing required fields (detection_id=%s, field_id=%s)",
+                detection.detection_id,
+                detection.field_id,
             )
             raise ValueError("Cannot publish operation_detected event: detection_id and field_id are required")
 
         if detection.confidence <= 0.0:
             logger.warning(
                 "publish_operation_detected_zero_confidence",
-                detection_id=detection.detection_id,
-                confidence=detection.confidence,
-                message="Detection has zero or negative confidence, skipping publish",
+                "Detection has zero or negative confidence, skipping publish (detection_id=%s, confidence=%s)",
+                detection.detection_id,
+                detection.confidence,
             )
             return
 
@@ -211,28 +211,28 @@ class GroundVisionPublisher:
         if not field_id or not tenant_id:
             logger.error(
                 "publish_growth_stage_changed_validation_failed",
-                field_id=field_id,
-                tenant_id=tenant_id,
-                message="Growth stage change missing required fields (field_id, tenant_id)",
+                "Growth stage change missing required fields (field_id=%s, tenant_id=%s)",
+                field_id,
+                tenant_id,
             )
             raise ValueError("Cannot publish growth_stage_changed event: field_id and tenant_id are required")
 
         if not from_stage or not to_stage:
             logger.error(
                 "publish_growth_stage_changed_missing_stages",
-                field_id=field_id,
-                from_stage=from_stage,
-                to_stage=to_stage,
-                message="Growth stage change missing stage information",
+                "Growth stage change missing stage information (field_id=%s, from=%s, to=%s)",
+                field_id,
+                from_stage,
+                to_stage,
             )
             raise ValueError("Cannot publish growth_stage_changed event: from_stage and to_stage are required")
 
         if confidence <= 0.0:
             logger.warning(
                 "publish_growth_stage_changed_zero_confidence",
-                field_id=field_id,
-                confidence=confidence,
-                message="Growth stage change has zero or negative confidence, skipping publish",
+                "Growth stage change has zero or negative confidence, skipping publish (field_id=%s, confidence=%s)",
+                field_id,
+                confidence,
             )
             return
 
@@ -278,18 +278,18 @@ class GroundVisionPublisher:
         if not anomaly.anomaly_id or not anomaly.field_id:
             logger.error(
                 "publish_anomaly_detected_validation_failed",
-                anomaly_id=anomaly.anomaly_id,
-                field_id=anomaly.field_id,
-                message="Anomaly data missing required fields (anomaly_id, field_id)",
+                "Anomaly data missing required fields (anomaly_id=%s, field_id=%s)",
+                anomaly.anomaly_id,
+                anomaly.field_id,
             )
             raise ValueError("Cannot publish anomaly_detected event: anomaly_id and field_id are required")
 
         if anomaly.confidence <= 0.0:
             logger.warning(
                 "publish_anomaly_detected_zero_confidence",
-                anomaly_id=anomaly.anomaly_id,
-                confidence=anomaly.confidence,
-                message="Anomaly detection has zero or negative confidence, skipping publish",
+                "Anomaly detection has zero or negative confidence, skipping publish (anomaly_id=%s, confidence=%s)",
+                anomaly.anomaly_id,
+                anomaly.confidence,
             )
             return
 
@@ -343,18 +343,18 @@ class GroundVisionPublisher:
         if not analysis.analysis_id or not analysis.field_id:
             logger.error(
                 "publish_timeline_updated_validation_failed",
-                analysis_id=analysis.analysis_id,
-                field_id=analysis.field_id,
-                message="Timeline analysis missing required fields (analysis_id, field_id)",
+                "Timeline analysis missing required fields (analysis_id=%s, field_id=%s)",
+                analysis.analysis_id,
+                analysis.field_id,
             )
             raise ValueError("Cannot publish timeline_updated event: analysis_id and field_id are required")
 
         if analysis.stage_confidence <= 0.0:
             logger.warning(
                 "publish_timeline_updated_zero_confidence",
-                analysis_id=analysis.analysis_id,
-                stage_confidence=analysis.stage_confidence,
-                message="Timeline analysis has zero or negative stage confidence, skipping publish",
+                "Timeline analysis has zero or negative stage confidence, skipping publish (analysis_id=%s, confidence=%s)",
+                analysis.analysis_id,
+                analysis.stage_confidence,
             )
             return
 

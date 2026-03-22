@@ -9,7 +9,6 @@ Covers:
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
 
 from src.sms_providers import (
     SMSProvider,

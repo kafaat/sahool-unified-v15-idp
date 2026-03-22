@@ -96,3 +96,10 @@ class _FakeUUID(TypeDecorator):
 
 
 _pg.UUID = _FakeUUID
+
+# Register Python uuid.UUID adapter for sqlite3 so it can bind UUID values
+import sqlite3
+import uuid as _uuid
+
+sqlite3.register_adapter(_uuid.UUID, lambda u: str(u))
+sqlite3.register_converter("UUID", lambda b: _uuid.UUID(b.decode()))

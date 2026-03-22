@@ -219,7 +219,7 @@ describe("JwtAuthGuard enforcement", () => {
       const user = {
         id: "user-abc-123",
         roles: ["farmer"],
-        tenantId: "tenant-001",
+        tenantId: "00000000-0000-0000-0000-000000000001",
         permissions: ["field:read"],
       };
 
@@ -291,7 +291,7 @@ describe("TenantGuard enforcement", () => {
   describe("authenticated users accessing their own tenant data", () => {
     it("should allow access when user.tenantId matches request", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" },
+        user: { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" },
         headers: {},
       });
 
@@ -300,20 +300,20 @@ describe("TenantGuard enforcement", () => {
 
     it("should attach tenantId to the request object", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" },
+        user: { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" },
         headers: {},
       });
 
       guard.canActivate(context);
 
       const request = context.switchToHttp().getRequest() as any;
-      expect(request.tenantId).toBe("tenant-001");
+      expect(request.tenantId).toBe("00000000-0000-0000-0000-000000000001");
     });
 
     it("should allow when header and JWT tenantId match", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" },
-        headers: { "x-tenant-id": "tenant-001" },
+        user: { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000001" },
       });
 
       expect(guard.canActivate(context)).toBe(true);
@@ -323,8 +323,8 @@ describe("TenantGuard enforcement", () => {
   describe("x-tenant-id header cannot override JWT tenant for non-admin users", () => {
     it("should throw ForbiddenException when header tenantId differs from JWT", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" },
-        headers: { "x-tenant-id": "tenant-002" },
+        user: { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000002" },
       });
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -332,8 +332,8 @@ describe("TenantGuard enforcement", () => {
 
     it("should include tenant mismatch in error message", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" },
-        headers: { "x-tenant-id": "tenant-999" },
+        user: { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000999" },
       });
 
       try {
@@ -347,8 +347,8 @@ describe("TenantGuard enforcement", () => {
 
     it("should reject override attempt for user role", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["user"], tenantId: "tenant-A" },
-        headers: { "x-tenant-id": "tenant-B" },
+        user: { id: "user-1", roles: ["user"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+        headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
       });
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -356,8 +356,8 @@ describe("TenantGuard enforcement", () => {
 
     it("should reject override attempt for manager role (non-admin)", () => {
       const context = createMockContext({
-        user: { id: "user-1", roles: ["manager"], tenantId: "tenant-A" },
-        headers: { "x-tenant-id": "tenant-B" },
+        user: { id: "user-1", roles: ["manager"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+        headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
       });
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -367,8 +367,8 @@ describe("TenantGuard enforcement", () => {
   describe("admin users can access other tenants", () => {
     it("should allow admin to use x-tenant-id header for different tenant", () => {
       const context = createMockContext({
-        user: { id: "admin-1", roles: ["admin"], tenantId: "tenant-001" },
-        headers: { "x-tenant-id": "tenant-002" },
+        user: { id: "admin-1", roles: ["admin"], tenantId: "00000000-0000-0000-0000-000000000001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000002" },
       });
 
       expect(guard.canActivate(context)).toBe(true);
@@ -376,14 +376,14 @@ describe("TenantGuard enforcement", () => {
 
     it("should attach the header tenantId for admin cross-tenant access", () => {
       const context = createMockContext({
-        user: { id: "admin-1", roles: ["admin"], tenantId: "tenant-001" },
-        headers: { "x-tenant-id": "tenant-002" },
+        user: { id: "admin-1", roles: ["admin"], tenantId: "00000000-0000-0000-0000-000000000001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000002" },
       });
 
       guard.canActivate(context);
 
       const request = context.switchToHttp().getRequest() as any;
-      expect(request.tenantId).toBe("tenant-002");
+      expect(request.tenantId).toBe("00000000-0000-0000-0000-000000000002");
     });
   });
 
@@ -396,7 +396,7 @@ describe("TenantGuard enforcement", () => {
       // if a tenantId is derivable. Real rejection happens via JwtAuthGuard.
       const context = createMockContext({
         user: null,
-        headers: { "x-tenant-id": "tenant-001" },
+        headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000001" },
       });
 
       // TenantGuard allows it because it finds a tenantId from the header.
@@ -761,7 +761,7 @@ describe("Guard composition: JwtAuthGuard + TenantGuard", () => {
   });
 
   it("should pass both guards when authenticated with tenant", () => {
-    const user = { id: "user-1", roles: ["farmer"], tenantId: "tenant-001" };
+    const user = { id: "user-1", roles: ["farmer"], tenantId: "00000000-0000-0000-0000-000000000001" };
     const context = createMockContext({
       user,
       headers: {},

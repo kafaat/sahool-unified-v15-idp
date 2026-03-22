@@ -370,9 +370,10 @@ def generate_ndvi_task_content(
 
         title = f"Vegetation Decline Detected - Field {safe_field_id}{zone_text}"
         title_ar = f"تم اكتشاف تراجع نباتي - الحقل {safe_field_id}{zone_text_ar}"
+        prev_str = f"{previous_ndvi:.3f}" if previous_ndvi is not None else "N/A"
         description = (
             f"Vegetation index dropped {drop_pct:.1f}% "
-            f"(from {previous_ndvi:.3f} to {ndvi_value:.3f}). "
+            f"(from {prev_str} to {ndvi_value:.3f}). "
             f"Scout the field to identify:\n"
             f"• Early signs of stress\n"
             f"• Irrigation effectiveness\n"
@@ -381,7 +382,7 @@ def generate_ndvi_task_content(
         )
         description_ar = (
             f"انخفض مؤشر الغطاء النباتي بنسبة {drop_pct:.1f}% "
-            f"(من {previous_ndvi:.3f} إلى {ndvi_value:.3f}). "
+            f"(من {prev_str} إلى {ndvi_value:.3f}). "
             f"افحص الحقل لتحديد:\n"
             f"• علامات الإجهاد المبكرة\n"
             f"• فعالية الري\n"

@@ -215,7 +215,7 @@ class TestSecretManagerVault:
                 assert manager.config.backend == SecretBackend.ENVIRONMENT
 
     def test_vault_init_no_addr_no_fallback_raises(self):
-        """No vault addr and no fallback raises ValueError"""
+        """No vault addr and no fallback raises RuntimeError (wraps ValueError)"""
         mock_hvac = MagicMock()
         config = SecretConfig(
             backend=SecretBackend.VAULT,
@@ -225,7 +225,7 @@ class TestSecretManagerVault:
         with patch.dict("sys.modules", {"hvac": mock_hvac}):
             with patch.dict(os.environ, {}, clear=False):
                 os.environ.pop("VAULT_ADDR", None)
-                with pytest.raises(ValueError, match="Vault address not configured"):
+                with pytest.raises(RuntimeError, match="Failed to initialize Vault"):
                     SecretManager(config)
 
     def test_vault_init_token_auth(self):
@@ -285,7 +285,7 @@ class TestSecretManagerVault:
                 assert manager.config.backend == SecretBackend.ENVIRONMENT
 
     def test_vault_init_no_auth_no_fallback_raises(self):
-        """No vault auth and no fallback raises ValueError"""
+        """No vault auth and no fallback raises RuntimeError (wraps ValueError)"""
         mock_hvac_module = MagicMock()
         mock_client = MagicMock()
         mock_hvac_module.Client.return_value = mock_client
@@ -299,7 +299,7 @@ class TestSecretManagerVault:
             with patch.dict(os.environ, {}, clear=False):
                 os.environ.pop("VAULT_TOKEN", None)
                 os.environ.pop("VAULT_ROLE_ID", None)
-                with pytest.raises(ValueError, match="Vault authentication not configured"):
+                with pytest.raises(RuntimeError, match="Failed to initialize Vault"):
                     SecretManager(config)
 
     def test_vault_init_auth_failed_with_fallback(self):
@@ -333,7 +333,7 @@ class TestSecretManagerVault:
             allow_env_fallback=False,
         )
         with patch.dict("sys.modules", {"hvac": mock_hvac_module}):
-            with pytest.raises(RuntimeError, match="Vault authentication failed"):
+            with pytest.raises(RuntimeError, match="Failed to initialize Vault"):
                 SecretManager(config)
 
     def test_vault_init_generic_exception_with_fallback(self):
@@ -557,11 +557,13 @@ class TestGetConfig:
 
     def test_default_value(self):
         with patch.dict(os.environ, {"SECRET_BACKEND": "environment"}):
-            result = get_config("NONEXISTENT", default="fallback", cast_type=int)
-            assert result == int("fallback") if "fallback".isdigit() else True
-            # Actually "fallback" can't cast to int, let's test with numeric default
-            result2 = get_config("NONEXISTENT", default="42", cast_type=int)
-            assert result2 == 42
+            result = get_config("NONEXISTENT", default="42", cast_type=int)
+            assert result == 42
+
+    def test_default_value_string(self):
+        with patch.dict(os.environ, {"SECRET_BACKEND": "environment"}):
+            result = get_config("NONEXISTENT", default="fallback")
+            assert result == "fallback"
 
 
 # ---------------------------------------------------------------------------

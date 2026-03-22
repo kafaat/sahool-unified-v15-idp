@@ -188,3 +188,76 @@ class TestGetSecurityHeadersConfig:
         assert config["hsts_enabled"] == "auto"
         assert config["csp_enabled"] == "true"
         assert config["csp_policy"] == "default"
+
+    def test_returns_custom_csp_policy_from_env(self, monkeypatch):
+        monkeypatch.setenv("CSP_POLICY", "default-src 'none'")
+        config = get_security_headers_config()
+        assert config["csp_policy"] == "default-src 'none'"
+
+    def test_returns_env_overrides(self, monkeypatch):
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        monkeypatch.setenv("ENABLE_HSTS", "true")
+        monkeypatch.setenv("ENABLE_CSP", "false")
+        config = get_security_headers_config()
+        assert config["environment"] == "production"
+        assert config["hsts_enabled"] == "true"
+        assert config["csp_enabled"] == "false"
+
+
+class TestSetupSecurityHeadersEdgeCases:
+    """Additional edge cases for setup_security_headers."""
+
+    def test_setup_csp_policy_from_env(self, monkeypatch):
+        monkeypatch.setenv("ENVIRONMENT", "development")
+        monkeypatch.delenv("ENABLE_CSP", raising=False)
+        monkeypatch.setenv("CSP_POLICY", "default-src 'none'")
+        app = FastAPI()
+
+        @app.get("/test")
+        def endpoint():
+            return {"ok": True}
+
+        setup_security_headers(app)
+        client = TestClient(app)
+        resp = client.get("/test")
+        assert resp.headers["Content-Security-Policy"] == "default-src 'none'"
+
+    def test_setup_hsts_env_yes(self, monkeypatch):
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        monkeypatch.setenv("ENABLE_HSTS", "yes")
+        app = FastAPI()
+
+        @app.get("/test")
+        def endpoint():
+            return {"ok": True}
+
+        setup_security_headers(app)
+        client = TestClient(app)
+        resp = client.get("/test")
+        assert "Strict-Transport-Security" in resp.headers
+
+    def test_setup_hsts_env_no(self, monkeypatch):
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        monkeypatch.setenv("ENABLE_HSTS", "no")
+        app = FastAPI()
+
+        @app.get("/test")
+        def endpoint():
+            return {"ok": True}
+
+        setup_security_headers(app)
+        client = TestClient(app)
+        resp = client.get("/test")
+        assert "Strict-Transport-Security" not in resp.headers
+
+    def test_default_csp_contains_all_directives(self):
+        """Verify all expected CSP directives in default policy."""
+        app = _make_app()
+        client = TestClient(app)
+        resp = client.get("/test")
+        csp = resp.headers["Content-Security-Policy"]
+        assert "script-src 'self'" in csp
+        assert "style-src 'self'" in csp
+        assert "frame-ancestors 'none'" in csp
+        assert "object-src 'none'" in csp
+        assert "upgrade-insecure-requests" in csp

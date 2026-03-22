@@ -194,3 +194,107 @@ class TestGlobalFunctions:
         from shared.libs.database import close_db
 
         await close_db()  # Should not raise
+
+    @pytest.mark.asyncio
+    async def test_database_lifespan(self):
+        import shared.libs.database as db_mod
+        from shared.libs.database import database_lifespan
+
+        with patch.object(db_mod, "init_db", new_callable=AsyncMock) as mock_init, \
+             patch.object(db_mod, "close_db", new_callable=AsyncMock) as mock_close:
+            async with database_lifespan():
+                mock_init.assert_awaited_once()
+                mock_close.assert_not_awaited()
+            mock_close.assert_awaited_once()
+
+
+class TestDatabaseManagerExtended:
+    """Extended tests for DatabaseManager session, health check, pool status."""
+
+    def _make_manager(self):
+        from shared.libs.database import DatabaseConfig, DatabaseManager
+
+        config = DatabaseConfig(url="postgresql+asyncpg://u:p@localhost/db")
+        return DatabaseManager(config)
+
+    @pytest.mark.asyncio
+    async def test_session_context_manager_commits(self):
+        manager = self._make_manager()
+
+        mock_session = AsyncMock()
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+        mock_session.commit = AsyncMock()
+        mock_session.rollback = AsyncMock()
+
+        mock_factory = MagicMock(return_value=mock_session)
+        manager._session_factory = mock_factory
+
+        async with manager.session() as session:
+            pass  # Simulate normal use
+
+        mock_session.commit.assert_awaited_once()
+        mock_session.rollback.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_session_context_manager_rolls_back_on_error(self):
+        manager = self._make_manager()
+
+        mock_session = AsyncMock()
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+        mock_session.commit = AsyncMock()
+        mock_session.rollback = AsyncMock()
+
+        mock_factory = MagicMock(return_value=mock_session)
+        manager._session_factory = mock_factory
+
+        with pytest.raises(ValueError):
+            async with manager.session() as session:
+                raise ValueError("test error")
+
+        mock_session.rollback.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_session_raises_if_not_initialized(self):
+        manager = self._make_manager()
+        with pytest.raises(RuntimeError, match="not initialized"):
+            async with manager.session():
+                pass
+
+    @pytest.mark.asyncio
+    async def test_health_check_returns_false_on_error(self):
+        manager = self._make_manager()
+
+        mock_session = AsyncMock()
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+        mock_session.execute = AsyncMock(side_effect=RuntimeError("conn failed"))
+        mock_session.commit = AsyncMock()
+        mock_session.rollback = AsyncMock()
+
+        mock_factory = MagicMock(return_value=mock_session)
+        manager._session_factory = mock_factory
+
+        result = await manager.health_check()
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_get_pool_status_returns_stats(self):
+        manager = self._make_manager()
+        mock_pool = MagicMock()
+        mock_pool.size.return_value = 20
+        mock_pool.checkedin.return_value = 18
+        mock_pool.checkedout.return_value = 2
+        mock_pool.overflow.return_value = 0
+
+        mock_engine = MagicMock()
+        mock_engine.pool = mock_pool
+        manager._engine = mock_engine
+
+        status = await manager.get_pool_status()
+        assert status["size"] == 20
+        assert status["checked_in"] == 18
+        assert status["checked_out"] == 2
+        assert status["overflow"] == 0
+        assert status["total"] == 20

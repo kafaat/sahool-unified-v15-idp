@@ -186,3 +186,97 @@ class TestIsCurrentUserAdmin:
         resp = client.get("/admin-check")
         assert resp.status_code == 200
         assert resp.json()["is_admin"] is True
+
+    def test_super_admin_role_detected(self):
+        app = FastAPI()
+        app.add_middleware(TenantContextMiddleware, require_tenant=False)
+
+        @app.get("/admin-check")
+        def check():
+            return {"is_admin": is_current_user_admin()}
+
+        @app.middleware("http")
+        async def set_principal(request, call_next):
+            request.state.principal = {
+                "tid": VALID_UUID,
+                "sub": "user-2",
+                "roles": ["super_admin"],
+            }
+            return await call_next(request)
+
+        client = TestClient(app)
+        resp = client.get("/admin-check")
+        assert resp.status_code == 200
+        assert resp.json()["is_admin"] is True
+
+    def test_non_admin_role(self):
+        app = FastAPI()
+        app.add_middleware(TenantContextMiddleware, require_tenant=False)
+
+        @app.get("/admin-check")
+        def check():
+            return {"is_admin": is_current_user_admin()}
+
+        @app.middleware("http")
+        async def set_principal(request, call_next):
+            request.state.principal = {
+                "tid": VALID_UUID,
+                "sub": "user-3",
+                "roles": ["viewer"],
+            }
+            return await call_next(request)
+
+        client = TestClient(app)
+        resp = client.get("/admin-check")
+        assert resp.status_code == 200
+        assert resp.json()["is_admin"] is False
+
+
+class TestGetCurrentTenantId:
+    """Test get_current_tenant_id helper."""
+
+    def test_returns_tenant_id_in_request(self):
+        app = _make_app(require_tenant=True)
+
+        @app.get("/tid")
+        def tid():
+            return {"tid": get_current_tenant_id()}
+
+        client = TestClient(app)
+        resp = client.get("/tid", headers={"X-Tenant-ID": VALID_UUID})
+        assert resp.status_code == 200
+        assert resp.json()["tid"] == VALID_UUID
+
+    def test_raises_outside_request(self):
+        with pytest.raises(RuntimeError):
+            get_current_tenant_id()
+
+
+class TestTenantContextFromJWT:
+    """Test tenant extraction from JWT principal."""
+
+    def test_tenant_extracted_from_principal(self):
+        app = FastAPI()
+        app.add_middleware(TenantContextMiddleware, require_tenant=True)
+
+        @app.get("/info")
+        def info():
+            ctx = get_current_tenant()
+            return {"tid": ctx.id, "uid": ctx.user_id, "roles": ctx.roles}
+
+        @app.middleware("http")
+        async def set_principal(request, call_next):
+            request.state.principal = {
+                "tid": VALID_UUID,
+                "sub": "user-42",
+                "roles": ["admin", "editor"],
+            }
+            return await call_next(request)
+
+        client = TestClient(app)
+        resp = client.get("/info")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["tid"] == VALID_UUID
+        assert data["uid"] == "user-42"
+        assert data["roles"] == ["admin", "editor"]

@@ -12,18 +12,21 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.event_subscribers import (
-    _ack,
-    _check_processed,
-    _extract_headers,
-    _handle_calibration_succeeded,
-    _handle_ndvi_computed,
-    _handle_weather_forecast,
-    _mark_processed,
-    _nak,
-    _trigger_assimilation,
-    setup_nats_subscriptions,
-)
+try:
+    from src.event_subscribers import (
+        _ack,
+        _check_processed,
+        _extract_headers,
+        _handle_calibration_succeeded,
+        _handle_ndvi_computed,
+        _handle_weather_forecast,
+        _mark_processed,
+        _nak,
+        _trigger_assimilation,
+        setup_nats_subscriptions,
+    )
+except ImportError:
+    pytest.skip("crop-intelligence-service dependencies not installed", allow_module_level=True)
 
 
 # ---------------------------------------------------------------------------

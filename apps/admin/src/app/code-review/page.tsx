@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Gauge,
   RefreshCw,
-  Search,
   Send,
   Loader2,
   CheckCircle2,
@@ -150,7 +149,7 @@ function StatCard({
         </div>
         <div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{labelAr}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400" title={label}>{labelAr}</p>
         </div>
       </div>
     </div>

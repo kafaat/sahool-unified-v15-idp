@@ -661,3 +661,159 @@ async def run_quality_scan(
         timeout=timeout,
     )
     return await orchestrator.run_all_layers()
+
+
+def generate_markdown_report(report: QualityReport) -> str:
+    """
+    Generate a markdown report from a QualityReport.
+    توليد تقرير Markdown من تقرير الجودة
+
+    Args:
+        report: QualityReport instance
+
+    Returns:
+        Markdown-formatted string
+    """
+    lines: list[str] = []
+    icon = ":white_check_mark:" if report.overall_passed else ":x:"
+    lines.append(f"## {icon} Quality Orchestrator Report")
+    lines.append("")
+    lines.append(f"**Score**: {report.overall_score:.1f}/100 | "
+                 f"**Issues**: {report.total_issues} | "
+                 f"**Errors**: {report.total_errors} | "
+                 f"**Warnings**: {report.total_warnings} | "
+                 f"**Duration**: {report.duration_ms / 1000:.1f}s")
+    lines.append("")
+    lines.append("| # | Layer | Status | Issues | Errors | Warnings | Duration |")
+    lines.append("|---|-------|--------|--------|--------|----------|----------|")
+
+    for i, lr in enumerate(report.layers, 1):
+        status = ":white_check_mark:" if lr.passed else ":x:"
+        lines.append(
+            f"| {i} | {lr.layer.value} | {status} | "
+            f"{lr.total_issues} | {lr.errors} | {lr.warnings} | "
+            f"{lr.duration_ms / 1000:.1f}s |"
+        )
+
+    lines.append("")
+
+    # Add details for layers with issues
+    for lr in report.layers:
+        if lr.total_issues > 0 and lr.details:
+            lines.append(f"### {lr.layer.value}")
+            lines.append("")
+            if lr.summary:
+                lines.append(f"> {lr.summary}")
+                lines.append("")
+            for tool, info in lr.details.items():
+                if isinstance(info, dict) and info.get("issues"):
+                    lines.append(f"**{tool}**: {len(info['issues'])} issues")
+                elif isinstance(info, dict) and info.get("count"):
+                    lines.append(f"**{tool}**: {info['count']} issues")
+            lines.append("")
+
+    return "\n".join(lines)
+
+
+def _aggregate_reports_from_dir(reports_dir: str) -> QualityReport:
+    """
+    Aggregate individual layer JSON reports from a directory.
+    تجميع تقارير الطبقات الفردية من مجلد
+
+    Args:
+        reports_dir: Directory containing layer report JSON files
+
+    Returns:
+        QualityReport aggregated from individual reports
+    """
+    from pathlib import Path
+    import uuid
+
+    report = QualityReport(
+        id=str(uuid.uuid4()),
+        target=reports_dir,
+    )
+
+    reports_path = Path(reports_dir)
+    if not reports_path.exists():
+        return report
+
+    for json_file in sorted(reports_path.glob("*.json")):
+        try:
+            data = json.loads(json_file.read_text())
+            # Try to parse as a layer result
+            if isinstance(data, dict):
+                layer_name = data.get("layer", json_file.stem)
+                try:
+                    layer_enum = QualityLayer(layer_name)
+                except ValueError:
+                    layer_enum = QualityLayer.LINT_FORMAT
+
+                errors = data.get("errors", 0)
+                warnings = data.get("warnings", 0)
+                infos = data.get("infos", 0)
+                lr = LayerResult(
+                    layer=layer_enum,
+                    passed=data.get("passed", errors == 0),
+                    total_issues=data.get("total_issues", errors + warnings + infos),
+                    errors=errors,
+                    warnings=warnings,
+                    infos=infos,
+                    tools_run=data.get("tools_run", []),
+                    tools_skipped=data.get("tools_skipped", []),
+                    duration_ms=data.get("duration_ms", 0),
+                    details=data.get("details", {}),
+                    summary=data.get("summary", ""),
+                    summary_ar=data.get("summary_ar", ""),
+                )
+                report.add_layer_result(lr)
+        except (json.JSONDecodeError, KeyError):
+            logging.warning("Failed to parse report: %s", json_file)
+
+    return report
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="SAHOOL 8-Layer Quality Orchestrator"
+    )
+    parser.add_argument(
+        "--reports-dir",
+        default="reports/",
+        help="Directory containing layer report JSON files",
+    )
+    parser.add_argument(
+        "--output",
+        default="quality-report.md",
+        help="Output markdown report path",
+    )
+    parser.add_argument(
+        "--scan",
+        action="store_true",
+        help="Run a full quality scan instead of aggregating reports",
+    )
+    parser.add_argument(
+        "--working-dir",
+        default=".",
+        help="Project root directory (used with --scan)",
+    )
+    args = parser.parse_args()
+
+    if args.scan:
+        report = asyncio.run(run_quality_scan(working_dir=args.working_dir))
+    else:
+        report = _aggregate_reports_from_dir(args.reports_dir)
+
+    md = generate_markdown_report(report)
+
+    from pathlib import Path
+    Path(args.output).write_text(md)
+
+    print(f"Quality report written to {args.output}")
+    print(f"Score: {report.overall_score:.1f}/100 | Issues: {report.total_issues}")
+
+    # Exit with non-zero if failed
+    if not report.overall_passed:
+        raise SystemExit(1)

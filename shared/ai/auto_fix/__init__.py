@@ -88,6 +88,7 @@ from .quality_layers import (
     QualityLayer,
     QualityOrchestrator,
     QualityReport,
+    generate_markdown_report,
     run_quality_scan,
 )
 from .models import (
@@ -164,6 +165,7 @@ __all__ = [
     "QualityLayer",
     "LayerResult",
     "run_quality_scan",
+    "generate_markdown_report",
     # Frontend Advanced
     "FrontendAdvancedRunner",
     "MobileAdvancedRunner",

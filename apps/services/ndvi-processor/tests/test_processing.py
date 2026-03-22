@@ -22,43 +22,46 @@ _service_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _service_root not in sys.path:
     sys.path.insert(0, _service_root)
 
-from src.models import (
-    ChangeAnalysisResponse,
-    CompositeMethod,
-    CompositeResponse,
-    DateRange,
-    ExportFormat,
-    FileUrls,
-    JobResponse,
-    JobStatus,
-    NDVIResult,
-    NDVIStatistics,
-    ProcessingInfo,
-    ProcessRequest,
-    QualityMetrics,
-    SatelliteSource,
-    SeasonalAnalysisResponse,
-    SourceInfo,
-    TimeseriesPoint,
-    TimeseriesResponse,
-    TrendDirection,
-    ZoneChange,
-)
-from src.processing import (
-    analyze_change,
-    analyze_seasonal,
-    cancel_job,
-    create_job,
-    detect_anomaly,
-    get_composites,
-    get_field_ndvi,
-    get_job,
-    get_ndvi_timeseries,
-    list_jobs,
-    process_ndvi_mock,
-    update_job_status,
-)
-from src.store import _composites, _jobs, _results
+try:
+    from src.models import (
+        ChangeAnalysisResponse,
+        CompositeMethod,
+        CompositeResponse,
+        DateRange,
+        ExportFormat,
+        FileUrls,
+        JobResponse,
+        JobStatus,
+        NDVIResult,
+        NDVIStatistics,
+        ProcessingInfo,
+        ProcessRequest,
+        QualityMetrics,
+        SatelliteSource,
+        SeasonalAnalysisResponse,
+        SourceInfo,
+        TimeseriesPoint,
+        TimeseriesResponse,
+        TrendDirection,
+        ZoneChange,
+    )
+    from src.processing import (
+        analyze_change,
+        analyze_seasonal,
+        cancel_job,
+        create_job,
+        detect_anomaly,
+        get_composites,
+        get_field_ndvi,
+        get_job,
+        get_ndvi_timeseries,
+        list_jobs,
+        process_ndvi_mock,
+        update_job_status,
+    )
+    from src.store import _composites, _jobs, _results
+except ImportError:
+    pytest.skip("ndvi-processor dependencies not installed", allow_module_level=True)
 
 # ---------------------------------------------------------------------------
 # Helpers

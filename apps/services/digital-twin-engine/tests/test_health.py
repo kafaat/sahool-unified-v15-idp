@@ -10,21 +10,25 @@ import sys
 
 import pytest
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+
 try:
     from fastapi.testclient import TestClient
+    from src.main import app
 except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-
-from src.main import app
+    pytest.skip("digital-twin-engine dependencies not installed", allow_module_level=True)
 
 # Valid UUID for tenant context middleware
 VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
+
+
 @pytest.fixture
 def client():
     return TestClient(app, headers=TENANT_HEADER)
+
+
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -46,6 +50,8 @@ class TestHealthEndpoints:
         data = response.json()
         assert "capabilities" in data
         assert data["dt_level"] == "l3_prediction"
+
+
 @pytest.mark.unit
 class TestSimulation:
     def test_basic_simulation(self, client):
@@ -96,6 +102,8 @@ class TestSimulation:
         assert response.status_code == 200
         data = response.json()
         assert data["crop"] == "date_palm"
+
+
 @pytest.mark.unit
 class TestScenarios:
     def test_scenario_comparison(self, client):
@@ -151,6 +159,8 @@ class TestScenarios:
             },
         )
         assert response.status_code == 400
+
+
 @pytest.mark.unit
 class TestOptimization:
     def test_balanced_optimization(self, client):
@@ -195,6 +205,8 @@ class TestOptimization:
             },
         )
         assert response.status_code == 200
+
+
 @pytest.mark.unit
 class TestStateUpdate:
     def test_update_state(self, client):
@@ -232,6 +244,8 @@ class TestStateUpdate:
         est = data["estimated_state"]["soil_moisture_pct"]
         # Should be close to the last few values
         assert 39.0 < est < 43.0
+
+
 @pytest.mark.unit
 class TestSimulationEdgeCases:
     def test_simulation_high_salinity(self, client):

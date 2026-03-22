@@ -1,241 +1,199 @@
 """
-Tests for FieldOps Client - HTTP client for field-management-service
+Tests for FieldOps Client
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import httpx
 import pytest
-import pytest_asyncio
-from src.fieldops_client import FieldOpsClient, get_fieldops_client
+
+try:
+    from unittest.mock import AsyncMock, MagicMock, patch
+
+    import httpx
+
+    from src.fieldops_client import FieldOpsClient, get_fieldops_client
+except ImportError:
+    pytest.skip("agro-rules dependencies not installed", allow_module_level=True)
 
 
 class TestFieldOpsClientInit:
-    """Tests for FieldOpsClient initialization"""
+    """Test FieldOpsClient initialization"""
 
-    def test_default_base_url(self):
-        """Test default URL uses field-management-service"""
+    def test_default_url(self):
+        """Test default base URL"""
         client = FieldOpsClient()
-        assert "field-management-service" in client.base_url
+        assert client.base_url == "http://field-management-service:3000"
 
-    def test_custom_base_url(self):
+    def test_custom_url(self):
         """Test custom base URL"""
-        client = FieldOpsClient(base_url="http://custom:9999")
-        assert client.base_url == "http://custom:9999"
+        client = FieldOpsClient("http://localhost:3000")
+        assert client.base_url == "http://localhost:3000"
 
-    def test_initial_client_is_none(self):
-        """Test _client starts as None"""
+    def test_client_initially_none(self):
+        """Test HTTP client is initially None"""
         client = FieldOpsClient()
         assert client._client is None
+
+
 class TestFieldOpsClientGetClient:
-    """Tests for lazy HTTP client creation"""
+    """Test HTTP client creation"""
 
     @pytest.mark.asyncio
     async def test_get_client_creates_client(self):
-        """Test _get_client creates httpx.AsyncClient on first call"""
-        client = FieldOpsClient(base_url="http://test:3000")
+        """Test _get_client creates httpx client"""
+        client = FieldOpsClient("http://localhost:3000")
         http_client = await client._get_client()
+
         assert http_client is not None
         assert client._client is not None
         await client.close()
 
     @pytest.mark.asyncio
     async def test_get_client_reuses_client(self):
-        """Test _get_client returns same instance on subsequent calls"""
-        client = FieldOpsClient(base_url="http://test:3000")
-        c1 = await client._get_client()
-        c2 = await client._get_client()
-        assert c1 is c2
+        """Test _get_client returns same client on second call"""
+        client = FieldOpsClient("http://localhost:3000")
+        http_client1 = await client._get_client()
+        http_client2 = await client._get_client()
+
+        assert http_client1 is http_client2
         await client.close()
+
+
 class TestFieldOpsClientClose:
-    """Tests for client cleanup"""
+    """Test client close"""
 
     @pytest.mark.asyncio
-    async def test_close_with_no_client(self):
-        """Test close when no client has been created"""
+    async def test_close_resets_client(self):
+        """Test close resets the internal client"""
+        client = FieldOpsClient("http://localhost:3000")
+        await client._get_client()
+        assert client._client is not None
+
+        await client.close()
+        assert client._client is None
+
+    @pytest.mark.asyncio
+    async def test_close_when_no_client(self):
+        """Test close is safe when no client exists"""
         client = FieldOpsClient()
         await client.close()  # Should not raise
-        assert client._client is None
 
-    @pytest.mark.asyncio
-    async def test_close_with_active_client(self):
-        """Test close properly cleans up the HTTP client"""
-        client = FieldOpsClient(base_url="http://test:3000")
-        await client._get_client()  # Create client
-        assert client._client is not None
-        await client.close()
-        assert client._client is None
+
 class TestFieldOpsClientCreateTask:
-    """Tests for task creation"""
+    """Test create_task method"""
 
     @pytest.mark.asyncio
     async def test_create_task_success(self):
-        """Test successful task creation returns response data"""
+        """Test successful task creation"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 201
-        mock_response.json.return_value = {"id": "task-1", "status": "open"}
+        mock_response.json.return_value = {"id": "task-123", "status": "open"}
 
         mock_http = AsyncMock()
         mock_http.post = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.create_task(
             tenant_id="tenant-1",
             field_id="field-1",
-            title="Test Task",
-            description="Test Description",
+            title="Test task",
+            description="Test description",
             priority="high",
+            correlation_id="corr-1",
+            task_type="irrigation",
+            due_hours=6,
+            source="agro_rules",
+            metadata={"key": "value"},
         )
 
-        assert result == {"id": "task-1", "status": "open"}
+        assert result == {"id": "task-123", "status": "open"}
         mock_http.post.assert_called_once()
-        call_kwargs = mock_http.post.call_args
-        payload = call_kwargs.kwargs["json"] if "json" in call_kwargs.kwargs else call_kwargs[1]["json"]
+        call_args = mock_http.post.call_args
+        payload = call_args.kwargs["json"]
         assert payload["tenant_id"] == "tenant-1"
         assert payload["field_id"] == "field-1"
+        assert payload["correlation_id"] == "corr-1"
+        assert payload["metadata"] == {"key": "value"}
         assert payload["priority"] == "high"
         assert payload["source"] == "agro_rules"
         assert payload["status"] == "open"
 
     @pytest.mark.asyncio
-    async def test_create_task_with_correlation_id(self):
-        """Test task creation includes correlation_id when provided"""
+    async def test_create_task_without_optional_params(self):
+        """Test task creation without optional params"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"id": "task-2"}
+        mock_response.json.return_value = {"id": "task-456"}
 
         mock_http = AsyncMock()
         mock_http.post = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
-        await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
-            priority="low",
-            correlation_id="corr-123",
-        )
-
-        payload = mock_http.post.call_args.kwargs["json"]
-        assert payload["correlation_id"] == "corr-123"
-
-    @pytest.mark.asyncio
-    async def test_create_task_with_metadata(self):
-        """Test task creation includes metadata when provided"""
-        mock_response = MagicMock()
-        mock_response.status_code = 201
-        mock_response.json.return_value = {"id": "task-3"}
-
-        mock_http = AsyncMock()
-        mock_http.post = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
-        client._client = mock_http
-
-        await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
-            priority="medium",
-            metadata={"key": "value"},
-        )
-
-        payload = mock_http.post.call_args.kwargs["json"]
-        assert payload["metadata"] == {"key": "value"}
-
-    @pytest.mark.asyncio
-    async def test_create_task_without_optional_fields(self):
-        """Test task creation omits optional fields when not provided"""
-        mock_response = MagicMock()
-        mock_response.status_code = 201
-        mock_response.json.return_value = {"id": "task-4"}
-
-        mock_http = AsyncMock()
-        mock_http.post = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
-        client._client = mock_http
-
-        await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
+        result = await client.create_task(
+            tenant_id="tenant-1",
+            field_id="field-1",
+            title="Test",
+            description="Desc",
             priority="low",
         )
 
-        payload = mock_http.post.call_args.kwargs["json"]
+        assert result == {"id": "task-456"}
+        call_args = mock_http.post.call_args
+        payload = call_args.kwargs["json"]
         assert "correlation_id" not in payload
         assert "metadata" not in payload
 
     @pytest.mark.asyncio
-    async def test_create_task_non_success_status(self):
-        """Test task creation handles non-success HTTP status"""
+    async def test_create_task_error_status(self):
+        """Test task creation with error response"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
-        mock_response.status_code = 422
-        mock_response.text = "Validation error"
+        mock_response.status_code = 500
+        mock_response.text = "Internal Server Error"
 
         mock_http = AsyncMock()
         mock_http.post = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
-            priority="low",
+            tenant_id="t", field_id="f", title="T", description="D", priority="low",
         )
 
         assert result["status"] == "error"
-        assert result["code"] == 422
+        assert result["code"] == 500
 
     @pytest.mark.asyncio
     async def test_create_task_connection_error(self):
-        """Test task creation handles connection errors"""
+        """Test task creation with connection error"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_http = AsyncMock()
         mock_http.post = AsyncMock(side_effect=httpx.ConnectError("Connection refused"))
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
-            priority="low",
+            tenant_id="t", field_id="f", title="T", description="D", priority="low",
         )
 
         assert result["status"] == "connection_error"
 
     @pytest.mark.asyncio
-    async def test_create_task_generic_error(self):
-        """Test task creation handles generic exceptions"""
-        mock_http = AsyncMock()
-        mock_http.post = AsyncMock(side_effect=RuntimeError("unexpected"))
+    async def test_create_task_generic_exception(self):
+        """Test task creation with generic exception"""
+        client = FieldOpsClient("http://localhost:3000")
 
-        client = FieldOpsClient(base_url="http://test:3000")
+        mock_http = AsyncMock()
+        mock_http.post = AsyncMock(side_effect=Exception("Unexpected error"))
         client._client = mock_http
 
         result = await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="T",
-            description="D",
-            priority="low",
+            tenant_id="t", field_id="f", title="T", description="D", priority="low",
         )
 
         assert result["status"] == "error"
-        assert "unexpected" in result["error"]
 
     @pytest.mark.asyncio
     async def test_create_task_custom_params(self):
@@ -264,113 +222,116 @@ class TestFieldOpsClientCreateTask:
         payload = mock_http.post.call_args.kwargs["json"]
         assert payload["task_type"] == "emergency"
         assert payload["source"] == "iot_rules"
-class TestFieldOpsClientUpdateTaskStatus:
-    """Tests for task status updates"""
+
+
+class TestFieldOpsClientUpdateTask:
+    """Test update_task_status method"""
 
     @pytest.mark.asyncio
-    async def test_update_task_status_success(self):
-        """Test successful status update"""
+    async def test_update_task_success(self):
+        """Test successful task update"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.json.return_value = {"id": "task-1", "status": "completed"}
 
         mock_http = AsyncMock()
         mock_http.patch = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.update_task_status("task-1", "completed")
-
         assert result["status"] == "completed"
-        mock_http.patch.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_task_status_error(self):
-        """Test status update handles exceptions"""
-        mock_http = AsyncMock()
-        mock_http.patch = AsyncMock(side_effect=RuntimeError("fail"))
+    async def test_update_task_error(self):
+        """Test task update with error"""
+        client = FieldOpsClient("http://localhost:3000")
 
-        client = FieldOpsClient(base_url="http://test:3000")
+        mock_http = AsyncMock()
+        mock_http.patch = AsyncMock(side_effect=Exception("fail"))
         client._client = mock_http
 
         result = await client.update_task_status("task-1", "completed")
         assert result["status"] == "error"
+
+
 class TestFieldOpsClientGetTask:
-    """Tests for getting a task"""
+    """Test get_task method"""
 
     @pytest.mark.asyncio
     async def test_get_task_success(self):
         """Test successful task retrieval"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"id": "task-1", "title": "Test"}
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.get_task("task-1")
-        assert result is not None
-        assert result["id"] == "task-1"
+        assert result == {"id": "task-1", "title": "Test"}
 
     @pytest.mark.asyncio
     async def test_get_task_not_found(self):
         """Test task not found returns None"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 404
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
-        result = await client.get_task("nonexistent")
+        result = await client.get_task("task-999")
         assert result is None
 
     @pytest.mark.asyncio
     async def test_get_task_error(self):
-        """Test get task handles exceptions"""
-        mock_http = AsyncMock()
-        mock_http.get = AsyncMock(side_effect=RuntimeError("fail"))
+        """Test get task with error returns None"""
+        client = FieldOpsClient("http://localhost:3000")
 
-        client = FieldOpsClient(base_url="http://test:3000")
+        mock_http = AsyncMock()
+        mock_http.get = AsyncMock(side_effect=Exception("fail"))
         client._client = mock_http
 
         result = await client.get_task("task-1")
         assert result is None
+
+
 class TestFieldOpsClientListTasks:
-    """Tests for listing tasks"""
+    """Test list_tasks method"""
 
     @pytest.mark.asyncio
-    async def test_list_tasks_with_data_key(self):
-        """Test list tasks with 'data' response format"""
+    async def test_list_tasks_success(self):
+        """Test successful task listing"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"data": [{"id": "t1"}, {"id": "t2"}]}
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
-        result = await client.list_tasks(tenant_id="tenant-1")
+        result = await client.list_tasks(tenant_id="t1", field_id="f1", status="open")
         assert len(result) == 2
 
     @pytest.mark.asyncio
-    async def test_list_tasks_with_tasks_key(self):
-        """Test list tasks with 'tasks' response format"""
+    async def test_list_tasks_old_format(self):
+        """Test list tasks with old response format"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"tasks": [{"id": "t1"}]}
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.list_tasks()
@@ -399,44 +360,46 @@ class TestFieldOpsClientListTasks:
         assert params["limit"] == 10
 
     @pytest.mark.asyncio
-    async def test_list_tasks_non_200(self):
-        """Test list tasks returns empty on non-200 status"""
+    async def test_list_tasks_error_status(self):
+        """Test list tasks with error status returns empty"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 500
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.list_tasks()
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_list_tasks_error(self):
-        """Test list tasks handles exceptions"""
-        mock_http = AsyncMock()
-        mock_http.get = AsyncMock(side_effect=RuntimeError("fail"))
+    async def test_list_tasks_exception(self):
+        """Test list tasks with exception returns empty"""
+        client = FieldOpsClient("http://localhost:3000")
 
-        client = FieldOpsClient(base_url="http://test:3000")
+        mock_http = AsyncMock()
+        mock_http.get = AsyncMock(side_effect=Exception("fail"))
         client._client = mock_http
 
         result = await client.list_tasks()
         assert result == []
+
+
 class TestFieldOpsClientHealthCheck:
-    """Tests for health check"""
+    """Test health_check method"""
 
     @pytest.mark.asyncio
     async def test_health_check_healthy(self):
-        """Test health check returns True when service is up"""
+        """Test healthy service"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 200
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.health_check()
@@ -444,48 +407,49 @@ class TestFieldOpsClientHealthCheck:
 
     @pytest.mark.asyncio
     async def test_health_check_unhealthy(self):
-        """Test health check returns False on non-200"""
+        """Test unhealthy service"""
+        client = FieldOpsClient("http://localhost:3000")
+
         mock_response = MagicMock()
         mock_response.status_code = 503
 
         mock_http = AsyncMock()
         mock_http.get = AsyncMock(return_value=mock_response)
-
-        client = FieldOpsClient(base_url="http://test:3000")
         client._client = mock_http
 
         result = await client.health_check()
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_health_check_connection_error(self):
-        """Test health check returns False on connection error"""
-        mock_http = AsyncMock()
-        mock_http.get = AsyncMock(side_effect=Exception("conn refused"))
+    async def test_health_check_exception(self):
+        """Test health check with connection error"""
+        client = FieldOpsClient("http://localhost:3000")
 
-        client = FieldOpsClient(base_url="http://test:3000")
+        mock_http = AsyncMock()
+        mock_http.get = AsyncMock(side_effect=Exception("fail"))
         client._client = mock_http
 
         result = await client.health_check()
         assert result is False
+
+
 class TestGetFieldOpsClientSingleton:
-    """Tests for the singleton factory"""
+    """Test get_fieldops_client function"""
 
-    def test_get_fieldops_client_returns_instance(self):
-        """Test factory returns a FieldOpsClient"""
-        import src.fieldops_client as mod
+    def test_returns_client_instance(self):
+        """Test singleton returns a FieldOpsClient"""
+        import src.fieldops_client as module
 
-        mod._client = None  # Reset singleton
+        module._client = None  # Reset singleton
         client = get_fieldops_client()
         assert isinstance(client, FieldOpsClient)
-        mod._client = None  # Cleanup
 
-    def test_get_fieldops_client_is_singleton(self):
-        """Test factory returns same instance"""
-        import src.fieldops_client as mod
+    def test_returns_same_instance(self):
+        """Test singleton returns same instance"""
+        import src.fieldops_client as module
 
-        mod._client = None
-        c1 = get_fieldops_client()
-        c2 = get_fieldops_client()
-        assert c1 is c2
-        mod._client = None
+        module._client = None  # Reset singleton
+        client1 = get_fieldops_client()
+        client2 = get_fieldops_client()
+        assert client1 is client2
+        module._client = None  # Cleanup

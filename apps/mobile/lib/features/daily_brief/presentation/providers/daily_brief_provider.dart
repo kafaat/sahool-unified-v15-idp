@@ -1,14 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/http/api_client.dart';
+import '../../../../core/di/providers.dart' show apiClientProvider;
 
 /// Daily Brief Provider
 /// موفر بيانات الملخص اليومي
 
-/// API client provider for daily brief
-final _apiClientProvider = Provider.autoDispose<ApiClient>((ref) => ApiClient());
-
 final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
-  final apiClient = ref.watch(_apiClientProvider);
+  final apiClient = ref.watch(apiClientProvider);
 
   try {
     final response = await apiClient.get('/api/v1/daily-brief');

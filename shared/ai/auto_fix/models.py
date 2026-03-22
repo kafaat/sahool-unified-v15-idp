@@ -62,14 +62,54 @@ class FixConfidence(StrEnum):
 class ToolType(StrEnum):
     """Types of linting/analysis tools."""
 
-    RUFF = "ruff"  # Python linter
+    # Layer 1: Code Quality & Static Analysis | جودة الكود والتحليل الثابت
+    RUFF = "ruff"  # Python linter/formatter
     ESLINT = "eslint"  # JavaScript/TypeScript linter
+    BIOME = "biome"  # Fast unified linter + formatter
+    OXLINT = "oxlint"  # Ultra-fast JS linter (Rust)
+    PYLINT = "pylint"  # Python deep linter
+
+    # Layer 2: Type Checking | فحص الأنواع
     MYPY = "mypy"  # Python type checker
+    PYRIGHT = "pyright"  # Python type checker (fast)
+    TYPESCRIPT = "typescript"  # TypeScript compiler
+
+    # Layer 3: Security SAST | فحص الأمان
     BANDIT = "bandit"  # Python security linter
     SEMGREP = "semgrep"  # Pattern-based scanner
-    PYLINT = "pylint"  # Python linter
-    TYPESCRIPT = "typescript"  # TypeScript compiler
+    CODEQL = "codeql"  # Semantic security analysis
+    TRIVY = "trivy"  # Container & config scanner
+
+    # Layer 4: Dependency & Supply Chain | التبعيات وسلسلة التوريد
+    NPM_AUDIT = "npm_audit"  # npm vulnerability audit
+    PIP_AUDIT = "pip_audit"  # Python dependency audit
+
+    # Layer 5: Architecture & Dependencies | الهندسة المعمارية والتبعيات
+    KNIP = "knip"  # Dead code detection (JS/TS)
+    MADGE = "madge"  # Circular dependency detection
+    DEPCHECK = "depcheck"  # Unused dependency detection
+    VULTURE = "vulture"  # Dead code detection (Python)
+    RADON = "radon"  # Code complexity analysis (Python)
+
+    # Layer 6: Mobile | التطبيق المحمول
     DART_ANALYZE = "dart_analyze"  # Dart/Flutter analyzer
+
+    # Layer 7: Container & Infrastructure | الحاويات والبنية التحتية
+    HADOLINT = "hadolint"  # Dockerfile linter
+    DETECT_SECRETS = "detect_secrets"  # Secret detection
+
+
+class QualityLayer(StrEnum):
+    """Quality analysis layers for enterprise platforms."""
+
+    LINT_FORMAT = "lint_format"  # الطبقة 1: التنسيق والتدقيق
+    TYPE_CHECK = "type_check"  # الطبقة 2: فحص الأنواع
+    SECURITY_SAST = "security_sast"  # الطبقة 3: الأمان
+    DEPENDENCY_SECURITY = "dependency_security"  # الطبقة 4: أمان التبعيات
+    ARCHITECTURE = "architecture"  # الطبقة 5: الهندسة المعمارية
+    DEAD_CODE = "dead_code"  # الطبقة 6: الكود الميت والتعقيد
+    TESTING = "testing"  # الطبقة 7: الاختبارات
+    CONTAINER = "container"  # الطبقة 8: الحاويات والبنية التحتية
 
 
 @dataclass

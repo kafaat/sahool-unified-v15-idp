@@ -3,7 +3,7 @@ Comprehensive Weather Service API Tests
 Tests for weather API endpoints, external provider integration, and error handling
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -27,7 +27,7 @@ def mock_weather_data():
         "cloud_cover_pct": 25.0,
         "pressure_hpa": 1013.0,
         "uv_index": 8.0,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -130,7 +130,7 @@ class TestCurrentWeatherEndpoint:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider
@@ -184,7 +184,7 @@ class TestCurrentWeatherEndpoint:
                 cloud_cover_pct=30.0,
                 pressure_hpa=1012.0,
                 uv_index=7.5,
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
             )
             mock_multi.get_current = AsyncMock(return_value=mock_result)
             mock_state.multi_provider = mock_multi
@@ -642,7 +642,7 @@ class TestCorrelationID:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider

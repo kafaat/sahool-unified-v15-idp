@@ -9,32 +9,39 @@ Tests cover:
 """
 
 import math
+import os
+import sys
 from datetime import datetime
 
 import numpy as np
 import pytest
 
 # Add service src to path
-from src.agricultural_land_detector import (
-    AgriculturalLandDetector,
-    AgriculturalParcel,
-    BoundaryDetectionEngine,
-    CropClassificationEngine,
-    CropClassificationResult,
-    CropType,
-    DetectionConfig,
-    DetectionReport,
-    DetectionStrategy,
-    LandCoverClass,
-    ModelPrecision,
-    ParcelEditingTools,
-    ParcelPostProcessor,
-    ParcelShape,
-    QualityInspectionTool,
-    SemanticSegmentationEngine,
-    TopologyPreservingSimplifier,
-    VectorClassificationEngine,
-)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+try:
+    from src.agricultural_land_detector import (
+        AgriculturalLandDetector,
+        AgriculturalParcel,
+        BoundaryDetectionEngine,
+        CropClassificationEngine,
+        CropClassificationResult,
+        CropType,
+        DetectionConfig,
+        DetectionReport,
+        DetectionStrategy,
+        LandCoverClass,
+        ModelPrecision,
+        ParcelEditingTools,
+        ParcelPostProcessor,
+        ParcelShape,
+        QualityInspectionTool,
+        SemanticSegmentationEngine,
+        TopologyPreservingSimplifier,
+        VectorClassificationEngine,
+    )
+except ImportError:
+    pytest.skip("vegetation-analysis-service dependencies not installed", allow_module_level=True)
 
 
 # =============================================================================

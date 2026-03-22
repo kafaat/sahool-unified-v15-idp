@@ -11,8 +11,10 @@
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
+.PHONY: quality-full quality-lint quality-types quality-security quality-deps quality-arch quality-deadcode quality-tests quality-containers
+.PHONY: quality-quick quality-orchestrate quality-report quality-install
 .PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
-.PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full
+.PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full-legacy quality-quick-legacy
 .PHONY: service-health check-services db-migrate-all db-generate logs-all
 .PHONY: dev-ai dev-agents build-ai test-ai
 .PHONY: pr-merge pr-merge-all pr-status pr-monitor pr-help
@@ -379,6 +381,100 @@ fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Compreh
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
 	@$(PYTHON) -m tools.fixops --dry-run --json
 
+# ============================================================================
+# Quality Orchestrator - 8 Layer Enterprise Quality Stack
+# منظومة الجودة المتكاملة - 8 طبقات للفحص الشامل
+# ============================================================================
+
+## Run all 8 quality layers | تشغيل جميع طبقات الجودة
+quality-full: quality-lint quality-types quality-security quality-deps quality-arch quality-deadcode quality-tests quality-containers
+	@echo "✅ All 8 quality layers completed | اكتملت جميع طبقات الجودة الثمانية"
+
+## Layer 1: Lint & Format | الطبقة 1: التنسيق والتدقيق
+quality-lint:
+	@echo "🔍 Layer 1: Lint & Format | الطبقة 1: التنسيق والتدقيق"
+	@mkdir -p reports
+	-ruff check apps/ shared/ --output-format json > reports/ruff.json 2>/dev/null
+	-npx biome check . --reporter json > reports/biome.json 2>/dev/null
+	-npx oxlint . > reports/oxlint.txt 2>/dev/null
+	@echo "  ✅ Lint & Format complete"
+
+## Layer 2: Type Checking | الطبقة 2: فحص الأنواع
+quality-types:
+	@echo "🔍 Layer 2: Type Checking | الطبقة 2: فحص الأنواع"
+	@mkdir -p reports
+	-cd apps/web && npx tsc --noEmit 2> ../../reports/tsc-web.txt
+	-cd apps/admin && npx tsc --noEmit 2> ../../reports/tsc-admin.txt
+	-mypy shared/ai/ --ignore-missing-imports > reports/mypy.txt 2>/dev/null || true
+	@echo "  ✅ Type checking complete"
+
+## Layer 3: Security SAST | الطبقة 3: فحص الأمان
+quality-security:
+	@echo "🔍 Layer 3: Security SAST | الطبقة 3: فحص الأمان"
+	@mkdir -p reports
+	-bandit -r apps/ shared/ -f json -o reports/bandit.json 2>/dev/null
+	-detect-secrets scan --all-files > reports/secrets.json 2>/dev/null || true
+	@echo "  ✅ Security scan complete"
+
+## Layer 4: Dependency Security | الطبقة 4: أمان التبعيات
+quality-deps:
+	@echo "🔍 Layer 4: Dependency Security | الطبقة 4: أمان التبعيات"
+	@mkdir -p reports
+	-npm audit --json > reports/npm-audit.json 2>/dev/null || true
+	-pip-audit --format json -o reports/pip-audit.json 2>/dev/null || true
+	@echo "  ✅ Dependency audit complete"
+
+## Layer 5: Architecture Analysis | الطبقة 5: تحليل الهندسة المعمارية
+quality-arch:
+	@echo "🔍 Layer 5: Architecture | الطبقة 5: الهندسة المعمارية"
+	@mkdir -p reports
+	-npx madge --circular --json apps/web/src > reports/madge-circular.json 2>/dev/null || true
+	-npx knip --reporter json > reports/knip.json 2>/dev/null || true
+	-npx depcheck --json > reports/depcheck.json 2>/dev/null || true
+	@echo "  ✅ Architecture analysis complete"
+
+## Layer 6: Dead Code & Complexity | الطبقة 6: الكود الميت والتعقيد
+quality-deadcode:
+	@echo "🔍 Layer 6: Dead Code & Complexity | الطبقة 6: الكود الميت والتعقيد"
+	@mkdir -p reports
+	-vulture apps/ shared/ --min-confidence 80 > reports/vulture.txt 2>/dev/null || true
+	-radon cc apps/ shared/ -j -n C > reports/radon.json 2>/dev/null || true
+	@echo "  ✅ Dead code & complexity analysis complete"
+
+## Layer 7: Test Suite | الطبقة 7: الاختبارات
+quality-tests:
+	@echo "🔍 Layer 7: Tests | الطبقة 7: الاختبارات"
+	@mkdir -p reports
+	-npx vitest run --reporter json > reports/vitest.json 2>/dev/null || true
+	-python -m pytest tests/unit/ tests/smoke/ --tb=short -q > reports/pytest.txt 2>/dev/null || true
+	@echo "  ✅ Test suite complete"
+
+## Layer 8: Container & Infrastructure | الطبقة 8: الحاويات والبنية التحتية
+quality-containers:
+	@echo "🔍 Layer 8: Containers | الطبقة 8: الحاويات"
+	@mkdir -p reports
+	-trivy config . --format json > reports/trivy-config.json 2>/dev/null || true
+	@echo "  ✅ Container scan complete"
+
+## Quick quality scan (Layers 1-3 only) | فحص جودة سريع
+quality-quick: quality-lint quality-types quality-security
+	@echo "✅ Quick quality scan complete (3 layers) | اكتمل الفحص السريع"
+
+## Quality scan with Python orchestrator | فحص الجودة عبر المنسق
+quality-orchestrate:
+	python -m shared.ai.auto_fix.quality_layers
+
+## Quality report generation | توليد تقرير الجودة
+quality-report:
+	python -m shared.ai.auto_fix.quality_layers --output reports/quality-report.md
+	@echo "📊 Quality report generated at reports/quality-report.md"
+
+## Install all quality tools | تثبيت جميع أدوات الجودة
+quality-install:
+	pip install ruff bandit mypy vulture radon detect-secrets pip-audit pyright
+	npm install
+	@echo "✅ All quality tools installed | تم تثبيت جميع أدوات الجودة"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Monitoring - المراقبة
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -484,7 +580,7 @@ benchmark: ## اختبار الأداء - Run benchmarks
 	@echo "$(BLUE)⏱️ اختبار الأداء - Running benchmarks...$(RESET)"
 	@pytest tests/ -v --benchmark-only --benchmark-sort=mean 2>/dev/null | head -40 || echo "No benchmarks found"
 
-quality-full: ## فحص جودة شامل - Full quality scan (all tools)
+quality-full-legacy: ## فحص جودة شامل (قديم) - Legacy full quality scan (all tools)
 	@echo "$(BLUE)🎯 فحص جودة شامل - Full Quality Scan$(RESET)"
 	@echo ""
 	@$(MAKE) --no-print-directory dead-code
@@ -521,7 +617,7 @@ quality: ## حزام الجودة الموحد - Run unified quality belt (all p
 	@echo "$(BLUE)🎯 حزام الجودة الموحد - Quality Belt$(RESET)"
 	@./scripts/quality-belt.sh all
 
-quality-quick: ## فحص سريع - Quick quality check (no tests)
+quality-quick-legacy: ## فحص سريع (قديم) - Legacy quick quality check (no tests)
 	@echo "$(BLUE)⚡ فحص سريع - Quick Quality Check$(RESET)"
 	@./scripts/quality-belt.sh quick
 

@@ -9,22 +9,20 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import (
-    MAP_PROVIDERS,
-    SATELLITE_PROVIDERS,
-    WEATHER_PROVIDERS,
-    app,
-    get_db_session,
-)
-
-from shared.auth.dependencies import get_current_user
+try:
+    from fastapi.testclient import TestClient
+    from src.main import (
+        MAP_PROVIDERS,
+        SATELLITE_PROVIDERS,
+        WEATHER_PROVIDERS,
+        app,
+        get_db_session,
+    )
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    pytest.skip("provider-config dependencies not installed", allow_module_level=True)
 
 # Valid UUID for tenant context middleware
 TEST_TENANT_ID = "00000000-0000-0000-0000-000000000001"

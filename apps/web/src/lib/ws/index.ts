@@ -64,6 +64,7 @@ class WebSocketClient {
   private reconnectDelay = 2000;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private subscriptions: string[] = [];
+  private authToken: string | null = null;
   private shouldReconnect = true;
 
   constructor(url: string) {
@@ -72,6 +73,7 @@ class WebSocketClient {
 
   connect(
     subscriptions: string[] = ["tasks.*", "diagnosis.*", "weather.*", "ndvi.*"],
+    token?: string,
   ) {
     if (typeof window === "undefined") return; // SSR check
     if (this.ws?.readyState === WebSocket.OPEN) {
@@ -81,8 +83,25 @@ class WebSocketClient {
     this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
+    // Resolve authentication token: use explicit parameter, or fall back to
+    // sessionStorage / localStorage (JWT stored by the auth layer).
+    const authToken =
+      token ??
+      (typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("sahool_token")
+        : null) ??
+      (typeof localStorage !== "undefined"
+        ? localStorage.getItem("sahool_token")
+        : null);
+    this.authToken = authToken;
+
     try {
-      this.ws = new WebSocket(`${this.url}/events`);
+      let wsUrl = `${this.url}/events`;
+      if (authToken) {
+        const separator = wsUrl.includes("?") ? "&" : "?";
+        wsUrl = `${wsUrl}${separator}token=${encodeURIComponent(authToken)}`;
+      }
+      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         logger.log("🔌 WebSocket connected");
@@ -156,7 +175,7 @@ class WebSocketClient {
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
-      this.connect(this.subscriptions);
+      this.connect(this.subscriptions, this.authToken ?? undefined);
     }, delay);
   }
 

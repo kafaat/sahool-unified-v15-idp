@@ -8,15 +8,16 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
+    from src.main import app
+    from src.utils.leveling_algorithms import (
+        LevelingOptimizer,
+        PlaneParameters,
+        Point3D,
+    )
 except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
+    pytest.skip("leveling-optimizer-service dependencies not installed", allow_module_level=True)
+
 from src.api.endpoints.leveling import get_current_user
-from src.main import app
-from src.utils.leveling_algorithms import (
-    LevelingOptimizer,
-    PlaneParameters,
-    Point3D,
-)
 
 
 def _mock_current_user():

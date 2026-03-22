@@ -29,10 +29,45 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from prometheus_client import Counter, Histogram, generate_latest
+
+# Authentication imports - optional for environments without auth module
+# استيراد المصادقة - اختياري للبيئات بدون وحدة المصادقة
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    _auth_available = True
+except ImportError:
+    _auth_available = False
+
+
+async def require_auth(request: Request):
+    """
+    Require authentication for MCP endpoints.
+    طلب المصادقة لنقاط نهاية MCP.
+
+    Falls back to no-op if auth module is not available (test environments).
+    يعود إلى عدم التشغيل إذا لم تكن وحدة المصادقة متاحة (بيئات الاختبار).
+    """
+    if not _auth_available:
+        return None
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or invalid authorization header",
+        )
+    try:
+        return await get_current_user(request)
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+        )
 
 # Add parent directories to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
@@ -206,7 +241,7 @@ async def metrics():
 
 
 @app.get("/")
-async def root():
+async def root(user=Depends(require_auth)):
     """Root endpoint with server information"""
     return {
         "name": mcp_server.name,
@@ -229,7 +264,7 @@ async def root():
 
 
 @app.post("/mcp")
-async def handle_mcp_request(request: Request):
+async def handle_mcp_request(request: Request, user=Depends(require_auth)):
     """Handle MCP JSON-RPC request"""
     start_time = asyncio.get_event_loop().time()
 
@@ -320,7 +355,7 @@ async def handle_mcp_request(request: Request):
 
 
 @app.get("/mcp/sse")
-async def handle_sse(request: Request):
+async def handle_sse(request: Request, user=Depends(require_auth)):
     """Handle Server-Sent Events for streaming MCP"""
     import json
 
@@ -359,7 +394,7 @@ async def handle_sse(request: Request):
 
 
 @app.get("/tools")
-async def list_tools():
+async def list_tools(user=Depends(require_auth)):
     """List available tools (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 
@@ -373,7 +408,7 @@ async def list_tools():
 
 
 @app.get("/resources")
-async def list_resources():
+async def list_resources(user=Depends(require_auth)):
     """List available resources (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 
@@ -387,7 +422,7 @@ async def list_resources():
 
 
 @app.get("/prompts")
-async def list_prompts():
+async def list_prompts(user=Depends(require_auth)):
     """List available prompts (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 

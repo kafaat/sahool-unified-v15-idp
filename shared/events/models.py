@@ -68,13 +68,17 @@ EventMetadata = EventMetadataDTO
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model
+# Re-export canonical BaseEvent from contracts to avoid duplicate definitions.
 # ─────────────────────────────────────────────────────────────────────────────
 
+try:
+    from shared.events.contracts import BaseEvent  # noqa: F811 — canonical definition
+except ImportError:
+    # Fallback: define minimal BaseEvent when contracts module is unavailable
+    class BaseEvent(BaseModel):  # type: ignore[no-redef]
+        """Base class for all SAHOOL events with common metadata (fallback)."""
 
-class BaseEvent(BaseModel):
-    """Base class for all SAHOOL events with common metadata."""
-
-    model_config = ConfigDict()
+        model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

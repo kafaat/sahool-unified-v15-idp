@@ -20,7 +20,7 @@ except ImportError:
 def mock_db():
     """Mock database connection"""
     with (
-        patch("src.database.init_db", new=AsyncMock()),
+        patch("src.database.init_notification_db", new=AsyncMock()),
         patch(
             "src.database.check_db_health",
             new=AsyncMock(return_value={"status": "healthy", "connected": True}),

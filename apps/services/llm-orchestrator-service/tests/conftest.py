@@ -30,7 +30,10 @@ os.environ["NATS_URL"] = ""
 os.environ["REDIS_URL"] = ""
 os.environ["LOG_LEVEL"] = "WARNING"
 
-from src.main import app
+try:
+    from src.main import app
+except ImportError:
+    pytest.skip("llm-orchestrator-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture(scope="session", autouse=True)

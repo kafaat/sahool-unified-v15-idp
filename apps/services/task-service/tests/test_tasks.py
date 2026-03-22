@@ -246,6 +246,7 @@ class TestTaskCRUD:
         assert response.status_code == 200
         assert response.json()["task_id"] == task_id
 
+
     def test_get_task_not_found(self, client):
         """Test getting non-existent task"""
         response = client.get("/api/v1/tasks/nonexistent_id", headers=HEADERS)
@@ -313,6 +314,7 @@ class TestTaskWorkflow:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "cancelled"
+        # cancel_reason is stored in task_metadata, exposed as metadata
         assert data["metadata"]["cancel_reason"] == "Weather conditions"
 
     def test_start_non_pending_task_fails(self, client, sample_task):
@@ -321,7 +323,7 @@ class TestTaskWorkflow:
         task_id = create_response.json()["task_id"]
         client.post(f"/api/v1/tasks/{task_id}/start", headers=HEADERS)
 
-        # Try to start again
+        # Try to start again - should fail with 400
         response = client.post(f"/api/v1/tasks/{task_id}/start", headers=HEADERS)
         assert response.status_code == 400
 

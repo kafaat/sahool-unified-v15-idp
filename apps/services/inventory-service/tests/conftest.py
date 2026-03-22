@@ -17,6 +17,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import StaticPool
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+# Clear cached src module to avoid cross-service contamination in CI
+for _mod in list(sys.modules):
+    if _mod == "src" or _mod.startswith("src."):
+        del sys.modules[_mod]
 from sqlalchemy.orm import DeclarativeBase
 
 

@@ -10,12 +10,16 @@ import asyncio
 import os
 import sys
 from collections.abc import Generator
-
-# Add service root to path for src imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from uuid import uuid4
 
 import pytest
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Clear cached src module to avoid cross-service contamination in CI
+for _mod in list(sys.modules):
+    if _mod == "src" or _mod.startswith("src."):
+        del sys.modules[_mod]
 
 # Set test environment variables before importing app
 os.environ["ENVIRONMENT"] = "test"

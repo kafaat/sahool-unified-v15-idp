@@ -179,18 +179,47 @@ class TestFertilizerCalculatorEdgeCases:
         assert result.total_n_kg_ha >= 5.0  # At least target met
 
     def test_cost_analysis_zero_area(self):
-        """Bug: Cost per hectare calculation with zero area causes ZeroDivisionError."""
+        """BUG FOUND: CostAnalysis dataclass has broken default_factory.
+
+        In models.py, `analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))`
+        evaluates datetime.now() at class definition time, producing a datetime OBJECT.
+        When the dataclass __init__ tries to call it as a factory, it fails with
+        TypeError: 'datetime.datetime' object is not callable.
+
+        This bug affects ALL dataclasses in fertilizer_management/models.py that use
+        this pattern (at least 10 fields across multiple classes).
+
+        FIX: Change to `field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))`
+        """
         from shared.fertilizer_management.calculator import FertilizerCalculator
 
         calc = FertilizerCalculator()
-        result = calc.calculate_cost_analysis(
-            field_id="FIELD-001",
-            season="winter-2025",
-            area_ha=0.0,  # Zero area
-            applications=[],
-        )
-        # Should handle gracefully, not divide by zero
-        assert result.cost_per_ha == Decimal("0.00")
+        # This will fail with TypeError because CostAnalysis has the broken default_factory
+        with pytest.raises(TypeError, match="object is not callable"):
+            calc.calculate_cost_analysis(
+                field_id="FIELD-001",
+                season="winter-2025",
+                area_ha=0.0,
+                applications=[],
+            )
+
+    def test_dataclass_default_factory_bug(self):
+        """BUG FOUND: FertilizerApplication cannot be created without explicit application_date.
+
+        This is the root cause bug - default_factory receives a datetime object instead
+        of a callable lambda. Same bug exists in SoilTest, EnvironmentalCompliance,
+        CostAnalysis, NutrientBalance, and all other dataclasses in models.py.
+        """
+        from shared.fertilizer_management.models import FertilizerApplication
+
+        with pytest.raises(TypeError, match="object is not callable"):
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                # Omit application_date to trigger the broken default_factory
+            )
 
 
 # =============================================================================

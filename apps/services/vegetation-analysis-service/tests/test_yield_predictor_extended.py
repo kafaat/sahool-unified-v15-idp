@@ -6,7 +6,7 @@ yield predictions, growth stage, confidence, and recommendations.
 
 import sys
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, UTC
 
 import pytest
 
@@ -212,22 +212,22 @@ class TestEstimateGrowthStage:
         assert days is None
 
     def test_germination(self, predictor):
-        planting = datetime.now(timezone.utc) - timedelta(days=5)
+        planting = datetime.now(UTC) - timedelta(days=5)
         stage, days = predictor.estimate_growth_stage(planting, 50, "WHEAT", None)
         assert stage == "germination"
 
     def test_vegetative(self, predictor):
-        planting = datetime.now(timezone.utc) - timedelta(days=25)
+        planting = datetime.now(UTC) - timedelta(days=25)
         stage, days = predictor.estimate_growth_stage(planting, 300, "WHEAT", None)
         assert stage == "vegetative"
 
     def test_flowering(self, predictor):
-        planting = datetime.now(timezone.utc) - timedelta(days=50)
+        planting = datetime.now(UTC) - timedelta(days=50)
         stage, days = predictor.estimate_growth_stage(planting, 800, "WHEAT", None)
         assert stage == "flowering"
 
     def test_harvest_ready(self, predictor):
-        planting = datetime.now(timezone.utc) - timedelta(days=200)
+        planting = datetime.now(UTC) - timedelta(days=200)
         stage, days = predictor.estimate_growth_stage(planting, 2000, "WHEAT", None)
         assert stage == "harvest_ready"
         assert days == 0
@@ -309,7 +309,7 @@ class TestPredictYield:
                 "precipitation_mm": 200.0,
             },
             soil_moisture=0.5,
-            planting_date=datetime.now(timezone.utc) - timedelta(days=90),
+            planting_date=datetime.now(UTC) - timedelta(days=90),
         )
         assert isinstance(result, YieldPrediction)
         assert result.field_id == "F001"

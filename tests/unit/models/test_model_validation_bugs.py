@@ -271,7 +271,7 @@ class TestAuthErrorsAndException:
             assert isinstance(err, AuthErrorMessage), f"{err} is not an AuthErrorMessage"
             assert err.en, f"Missing English message for code={err.code}"
             assert err.ar, f"Missing Arabic message for code={err.code}"
-            assert err.code, f"Missing error code"
+            assert err.code, "Missing error code"
 
     def test_auth_exception_to_dict_english(self):
         """AuthException.to_dict should return English by default."""

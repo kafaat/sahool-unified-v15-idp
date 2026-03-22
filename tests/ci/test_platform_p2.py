@@ -269,10 +269,10 @@ class TestE2ECompleteFarmerJourney:
             return {"field_id": field_id, "yield_kg": yield_kg, "status": "recorded"}
 
     @pytest.fixture
-    def platform(self) -> "TestE2ECompleteFarmerJourney.FarmPlatform":
+    def platform(self) -> TestE2ECompleteFarmerJourney.FarmPlatform:
         return self.FarmPlatform()
 
-    def test_e2e_complete_farmer_journey(self, platform: "TestE2ECompleteFarmerJourney.FarmPlatform"):
+    def test_e2e_complete_farmer_journey(self, platform: TestE2ECompleteFarmerJourney.FarmPlatform):
         """
         Full in-process farmer journey: register → login → create field →
         schedule task → NDVI → complete task → record harvest.
@@ -322,7 +322,7 @@ class TestE2ECompleteFarmerJourney:
         assert harvest["field_id"] == field_id
         assert harvest["yield_kg"] > 0
 
-    def test_e2e_duplicate_registration_rejected(self, platform: "TestE2ECompleteFarmerJourney.FarmPlatform"):
+    def test_e2e_duplicate_registration_rejected(self, platform: TestE2ECompleteFarmerJourney.FarmPlatform):
         """Duplicate e-mail registration must return 409."""
         email = "dup@e2e.sahool.app"
         tenant_id = str(uuid.uuid4())
@@ -330,7 +330,7 @@ class TestE2ECompleteFarmerJourney:
         result = platform.register(email, "Pass123!", tenant_id)
         assert result["status"] == 409
 
-    def test_e2e_field_belongs_to_correct_tenant(self, platform: "TestE2ECompleteFarmerJourney.FarmPlatform"):
+    def test_e2e_field_belongs_to_correct_tenant(self, platform: TestE2ECompleteFarmerJourney.FarmPlatform):
         """Field created by tenant A must not be visible to tenant B."""
         tenant_a = str(uuid.uuid4())
         tenant_b = str(uuid.uuid4())
@@ -344,7 +344,7 @@ class TestE2ECompleteFarmerJourney:
             "Tenant B must not see Tenant A's field"
         )
 
-    def test_e2e_ndvi_history_accumulates(self, platform: "TestE2ECompleteFarmerJourney.FarmPlatform"):
+    def test_e2e_ndvi_history_accumulates(self, platform: TestE2ECompleteFarmerJourney.FarmPlatform):
         """NDVI observations must accumulate over time for a field."""
         field_id = str(uuid.uuid4())
         for ndvi in [0.40, 0.55, 0.68, 0.72]:

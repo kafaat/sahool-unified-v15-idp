@@ -316,7 +316,7 @@ class TestValidateEventPayload:
     def test_required_fields_constant_matches_docs(self):
         """REQUIRED_EVENT_FIELDS must contain exactly the documented fields."""
         expected = {"event_id", "timestamp", "tenant_id", "source_service"}
-        assert REQUIRED_EVENT_FIELDS == expected, (
+        assert expected == REQUIRED_EVENT_FIELDS, (
             f"REQUIRED_EVENT_FIELDS mismatch: got {REQUIRED_EVENT_FIELDS}, expected {expected}"
         )
 

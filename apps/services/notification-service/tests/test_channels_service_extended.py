@@ -23,7 +23,7 @@ def _mock_channel(**overrides):
     ch.channel = overrides.get("channel", ChannelType.PUSH)
     ch.address = overrides.get("address", "token-abc")
     ch.verified = overrides.get("verified", True)
-    ch.verified_at = overrides.get("verified_at", None)
+    ch.verified_at = overrides.get("verified_at")
     ch.enabled = overrides.get("enabled", True)
     ch.metadata = overrides.get("metadata", {})
     ch.created_at = MagicMock()

@@ -211,7 +211,7 @@ class TestServiceDependencies:
                             violations.append(f"{svc_name} -> {dep_name}: service_started")
 
         assert len(violations) == 0, (
-            f"Services using service_started for infrastructure dependencies:\n"
+            "Services using service_started for infrastructure dependencies:\n"
             + "\n".join(f"  - {v}" for v in violations)
             + "\nUse service_healthy instead to avoid race conditions."
         )
@@ -249,7 +249,7 @@ class TestServiceDependencies:
                 missing.append(svc_name)
 
         assert len(missing) == 0, (
-            f"Prisma services missing DATABASE_URL_DIRECT:\n"
+            "Prisma services missing DATABASE_URL_DIRECT:\n"
             + "\n".join(f"  - {s}" for s in sorted(missing))
             + "\nPgBouncer transaction mode breaks prisma migrate deploy. "
             "Add DATABASE_URL_DIRECT pointing to postgres:5432."

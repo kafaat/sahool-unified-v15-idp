@@ -57,14 +57,14 @@ class TestEnums:
 
 class TestDailyWeather:
     def _make_weather(self, **kwargs):
-        defaults = dict(
-            date=date(2026, 3, 15),
-            tmax_c=30.0,
-            tmin_c=15.0,
-            solar_radiation_mj_m2=20.0,
-            relative_humidity_pct=50.0,
-            wind_speed_m_s=3.0,
-        )
+        defaults = {
+            "date": date(2026, 3, 15),
+            "tmax_c": 30.0,
+            "tmin_c": 15.0,
+            "solar_radiation_mj_m2": 20.0,
+            "relative_humidity_pct": 50.0,
+            "wind_speed_m_s": 3.0,
+        }
         defaults.update(kwargs)
         return DailyWeather(**defaults)
 

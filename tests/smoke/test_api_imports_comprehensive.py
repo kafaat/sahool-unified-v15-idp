@@ -314,7 +314,7 @@ class TestContractEventSchemas:
                 return {"field_id": self.field_id}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent:
                 return cls(
                     tenant_id=uuid4(),
                     field_id=data.get("payload", {}).get("field_id", ""),
@@ -342,7 +342,7 @@ class TestContractEventSchemas:
                 return {"field_id": self.field_id}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent2":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent2:
                 return cls(
                     tenant_id=uuid4(),
                     field_id=data.get("payload", {}).get("field_id", ""),
@@ -372,7 +372,7 @@ class TestContractEventSchemas:
                 return {"value": self.value}
 
             @classmethod
-            def from_dict(cls, data: dict[str, Any]) -> "SimpleTestEvent3":
+            def from_dict(cls, data: dict[str, Any]) -> SimpleTestEvent3:
                 return cls(
                     tenant_id=uuid4(),
                     value=data.get("payload", {}).get("value", ""),
@@ -450,7 +450,7 @@ class TestSharedAuthModels:
         # Check for common required fields
         params = sig.parameters
         # User should have id, email or username fields
-        user_attrs = {name.lower() for name in params.keys()}
+        user_attrs = {name.lower() for name in params}
         # At least some core fields should be present
         assert len(user_attrs) > 1, "User model should have multiple fields"
 

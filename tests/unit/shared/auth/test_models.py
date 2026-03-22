@@ -7,7 +7,7 @@ AuthErrors, and AuthException classes.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import pytest
 
@@ -100,7 +100,7 @@ class TestTokenPayload:
 
     @pytest.fixture
     def now(self):
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
 
     @pytest.fixture
     def sample_payload(self, now):

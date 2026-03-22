@@ -254,11 +254,11 @@ class TestTraditionalSeasonInfo:
 
 class TestSeasonDefinition:
     def _make_season(self, **kwargs):
-        defaults = dict(
-            season=AgriculturalSeason.WINTER,
-            region=Region.RIYADH,
-            climate_zone=ClimateZone.ARID_HOT,
-        )
+        defaults = {
+            "season": AgriculturalSeason.WINTER,
+            "region": Region.RIYADH,
+            "climate_zone": ClimateZone.ARID_HOT,
+        }
         defaults.update(kwargs)
         return SeasonDefinition(**defaults)
 
@@ -310,10 +310,10 @@ class TestSeasonDefinition:
 
 class TestPlantingWindow:
     def _make_window(self, **kwargs):
-        defaults = dict(
-            crop_type=CropType.WHEAT,
-            region=Region.QASSIM,
-        )
+        defaults = {
+            "crop_type": CropType.WHEAT,
+            "region": Region.QASSIM,
+        }
         defaults.update(kwargs)
         return PlantingWindow(**defaults)
 

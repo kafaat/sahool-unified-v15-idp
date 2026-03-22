@@ -172,7 +172,7 @@ class TestNoForeignKeysToPrismaTables:
                 violations.append(f"{filename}: REFERENCES {match}(...)")
 
         assert len(violations) == 0, (
-            f"Found FK references to Prisma-managed tables in init scripts:\n"
+            "Found FK references to Prisma-managed tables in init scripts:\n"
             + "\n".join(f"  - {v}" for v in violations)
         )
 

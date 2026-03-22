@@ -6,7 +6,7 @@ Tests for event enums, metadata, and Pydantic event models.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import UUID, uuid4
 
 import pytest
@@ -113,7 +113,7 @@ class TestFieldCreatedEvent:
             "farm_id": str(uuid4()),
             "name": "Wheat Field North",
             "geometry_wkt": "POLYGON((46.7 24.7, 46.8 24.7, 46.8 24.8, 46.7 24.8, 46.7 24.7))",
-            "created_at": datetime.now(timezone.utc),
+            "created_at": datetime.now(UTC),
         }
 
     def test_valid_creation(self, valid_field_event_data):
@@ -176,7 +176,7 @@ class TestFieldUpdatedEvent:
     def test_minimal_creation(self):
         event = FieldUpdatedEvent(
             field_id=str(uuid4()),
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
         assert event.name is None
         assert event.ndvi_value is None
@@ -185,7 +185,7 @@ class TestFieldUpdatedEvent:
         event = FieldUpdatedEvent(
             field_id=str(uuid4()),
             ndvi_value=0.72,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
         assert event.ndvi_value == 0.72
 
@@ -194,7 +194,7 @@ class TestFieldUpdatedEvent:
             FieldUpdatedEvent(
                 field_id=str(uuid4()),
                 ndvi_value=-1.5,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
 
     def test_ndvi_above_one_fails(self):
@@ -202,7 +202,7 @@ class TestFieldUpdatedEvent:
             FieldUpdatedEvent(
                 field_id=str(uuid4()),
                 ndvi_value=1.5,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
 
     def test_ndvi_boundary_values(self):
@@ -210,12 +210,12 @@ class TestFieldUpdatedEvent:
         event_min = FieldUpdatedEvent(
             field_id=str(uuid4()),
             ndvi_value=-1.0,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
         event_max = FieldUpdatedEvent(
             field_id=str(uuid4()),
             ndvi_value=1.0,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
         assert event_min.ndvi_value == -1.0
         assert event_max.ndvi_value == 1.0
@@ -236,7 +236,7 @@ class TestFarmCreatedEvent:
             name="Al-Rashid Farm",
             location_lat=24.7,
             location_lon=46.7,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.name == "Al-Rashid Farm"
         assert event.location_lat == 24.7
@@ -249,7 +249,7 @@ class TestFarmCreatedEvent:
             name_ar="الراشد",
             location_lat=24.7,
             location_lon=46.7,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.name_ar == "الراشد"
 
@@ -261,7 +261,7 @@ class TestFarmCreatedEvent:
                 name="Farm",
                 location_lat=91.0,
                 location_lon=46.7,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_longitude_out_of_range(self):
@@ -272,7 +272,7 @@ class TestFarmCreatedEvent:
                 name="Farm",
                 location_lat=24.7,
                 location_lon=181.0,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
 
@@ -288,14 +288,14 @@ class TestCropPlantedEvent:
         event = CropPlantedEvent(
             field_id=str(uuid4()),
             crop_type="wheat",
-            planting_date=datetime.now(timezone.utc),
+            planting_date=datetime.now(UTC),
         )
         assert event.crop_type == "wheat"
         assert event.variety is None
         assert event.expected_harvest_date is None
 
     def test_with_all_fields(self):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         event = CropPlantedEvent(
             field_id=str(uuid4()),
             crop_type="date_palm",
@@ -312,7 +312,7 @@ class TestCropPlantedEvent:
             CropPlantedEvent(
                 field_id=str(uuid4()),
                 crop_type="",
-                planting_date=datetime.now(timezone.utc),
+                planting_date=datetime.now(UTC),
             )
 
 
@@ -330,7 +330,7 @@ class TestTaskCreatedEvent:
             tenant_id=str(uuid4()),
             title="Apply fertilizer to Field 3",
             priority="high",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.title == "Apply fertilizer to Field 3"
         assert event.priority == "high"
@@ -343,7 +343,7 @@ class TestTaskCreatedEvent:
                 tenant_id=str(uuid4()),
                 title="Test task",
                 priority="invalid_priority",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_valid_priorities(self):
@@ -354,7 +354,7 @@ class TestTaskCreatedEvent:
                 tenant_id=str(uuid4()),
                 title="Test",
                 priority=priority,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
             assert event.priority == priority
 
@@ -365,7 +365,7 @@ class TestTaskCreatedEvent:
                 tenant_id=str(uuid4()),
                 title="",
                 priority="low",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
 
@@ -381,7 +381,7 @@ class TestTaskCompletedEvent:
         event = TaskCompletedEvent(
             task_id=str(uuid4()),
             completed_by=str(uuid4()),
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
         )
         assert event.evidence_notes is None
 
@@ -389,7 +389,7 @@ class TestTaskCompletedEvent:
         event = TaskCompletedEvent(
             task_id=str(uuid4()),
             completed_by=str(uuid4()),
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
             evidence_notes="Applied 46kg/ha Urea successfully",
         )
         assert "Urea" in event.evidence_notes
@@ -413,7 +413,7 @@ class TestAdvisorRecommendationEvent:
             description="Soil moisture below threshold",
             priority="high",
             confidence_score=0.85,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.confidence_score == 0.85
         assert event.recommendation_type == "irrigation"
@@ -429,7 +429,7 @@ class TestAdvisorRecommendationEvent:
                 description="Test",
                 priority="low",
                 confidence_score=0.5,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_valid_recommendation_types(self):
@@ -443,7 +443,7 @@ class TestAdvisorRecommendationEvent:
                 description="Test",
                 priority="low",
                 confidence_score=0.5,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
             assert event.recommendation_type == rtype
 
@@ -458,7 +458,7 @@ class TestAdvisorRecommendationEvent:
                 description="Test",
                 priority="low",
                 confidence_score=-0.1,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_confidence_above_one_fails(self):
@@ -472,7 +472,7 @@ class TestAdvisorRecommendationEvent:
                 description="Test",
                 priority="low",
                 confidence_score=1.1,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_bilingual_fields(self):
@@ -487,7 +487,7 @@ class TestAdvisorRecommendationEvent:
             description_ar="تم اكتشاف نقص النيتروجين",
             priority="high",
             confidence_score=0.9,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.title_ar == "تطبيق النيتروجين"
         assert event.description_ar == "تم اكتشاف نقص النيتروجين"
@@ -509,7 +509,7 @@ class TestAlertCreatedEvent:
             severity="critical",
             title="Frost Alert",
             message="Temperature expected to drop below 0C",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.severity == "critical"
         assert event.field_id is None
@@ -523,7 +523,7 @@ class TestAlertCreatedEvent:
                 severity="info",
                 title="Test",
                 message="Test",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_valid_alert_types(self):
@@ -535,7 +535,7 @@ class TestAlertCreatedEvent:
                 severity="info",
                 title="Test",
                 message="Test",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
             assert event.alert_type == atype
 
@@ -548,7 +548,7 @@ class TestAlertCreatedEvent:
                 severity=severity,
                 title="Test",
                 message="Test",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
             assert event.severity == severity
 
@@ -561,7 +561,7 @@ class TestAlertCreatedEvent:
                 severity="low",
                 title="Test",
                 message="Test",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def test_bilingual_alert(self):
@@ -574,6 +574,6 @@ class TestAlertCreatedEvent:
             title_ar="تم اكتشاف سوسة النخيل الحمراء",
             message="RPW detected in Block B",
             message_ar="تم اكتشاف سوسة النخيل الحمراء في القطاع ب",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert event.title_ar == "تم اكتشاف سوسة النخيل الحمراء"

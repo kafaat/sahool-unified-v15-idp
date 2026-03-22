@@ -19,7 +19,7 @@ import os
 import time
 from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Any
 
 import httpx
@@ -69,7 +69,7 @@ except ImportError:
         def iso8601(self) -> str:
             from datetime import datetime, timezone
 
-            return datetime.now(tz=timezone.utc).isoformat()
+            return datetime.now(tz=UTC).isoformat()
 
         def date_this_year(self) -> Any:
             from datetime import date

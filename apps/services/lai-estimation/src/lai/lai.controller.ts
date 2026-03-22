@@ -53,6 +53,7 @@ export class LAIController {
       dataSource || DataSource.FUSION,
       cropType,
       date,
+      tenantId,
     );
   }
 
@@ -108,6 +109,7 @@ export class LAIController {
       startDate,
       endDate,
       dataSource || DataSource.PLANETSCOPE,
+      tenantId,
     );
   }
 
@@ -134,7 +136,7 @@ export class LAIController {
     if (!tenantId) {
       throw new ForbiddenException("Tenant ID must be provided via JWT token");
     }
-    return this.laiService.compareLAI(fieldId, cropType || CropType.SOYBEAN);
+    return this.laiService.compareLAI(fieldId, cropType || CropType.SOYBEAN, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

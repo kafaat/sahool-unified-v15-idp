@@ -244,6 +244,9 @@ class TestGenerateReasoning:
 # ---------------------------------------------------------------------------
 
 
+TENANT_HEADERS = {"X-Tenant-ID": "test-tenant-001"}
+
+
 @pytest.fixture
 def client():
     """Create test client against the real FastAPI app with auth overridden."""
@@ -261,7 +264,7 @@ def client():
 
     # Override auth dependency to bypass JWT for testing
     async def mock_user():
-        return {"sub": "test-user", "tid": "test-tenant", "role": "admin"}
+        return {"sub": "test-user", "tid": "test-tenant-001", "role": "admin"}
 
     app.dependency_overrides[get_current_user] = mock_user
 
@@ -292,7 +295,7 @@ class TestListCrops:
     """Test GET /v1/crops endpoint."""
 
     def test_list_crops(self, client):
-        response = client.get("/v1/crops")
+        response = client.get("/v1/crops", headers=TENANT_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert "crops" in data
@@ -307,7 +310,7 @@ class TestListMethods:
     """Test GET /v1/methods endpoint."""
 
     def test_list_methods(self, client):
-        response = client.get("/v1/methods")
+        response = client.get("/v1/methods", headers=TENANT_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert "methods" in data
@@ -324,6 +327,7 @@ class TestCalculateEndpoint:
     def test_calculate_irrigation_plan(self, client):
         response = client.post(
             "/v1/calculate",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_001",
                 "crop": "wheat",
@@ -344,6 +348,7 @@ class TestCalculateEndpoint:
     def test_calculate_with_soil_moisture(self, client):
         response = client.post(
             "/v1/calculate",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_002",
                 "crop": "tomato",
@@ -357,6 +362,7 @@ class TestCalculateEndpoint:
     def test_calculate_invalid_crop_returns_422(self, client):
         response = client.post(
             "/v1/calculate",
+            headers=TENANT_HEADERS,
             json={
                 "field_id": "field_001",
                 "crop": "invalid_crop",

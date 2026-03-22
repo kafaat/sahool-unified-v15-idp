@@ -2,18 +2,20 @@
 Conftest for task-service tests.
 Provides mock 'database' module so that src.models and src.database
 can import Base, TenantMixin, TimestampMixin without the shared package.
+Also sets up an in-memory SQLite database for integration-style tests.
 """
 
 import sys
 import types
 from datetime import UTC, datetime
-from unittest.mock import MagicMock
 
-from sqlalchemy import DateTime, String, event
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import JSON, DateTime, String, Text, TypeDecorator, create_engine, event
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
+# ---------------------------------------------------------------------------
+# 1. Fake 'database' module with real SQLAlchemy Base + mixins
+# ---------------------------------------------------------------------------
 
-# Build a fake 'database' module with real SQLAlchemy Base and mixins
 _fake_database = types.ModuleType("database")
 
 
@@ -51,5 +53,27 @@ _fake_database.Base = _Base
 _fake_database.TimestampMixin = _TimestampMixin
 _fake_database.TenantMixin = _TenantMixin
 
-# Inject into sys.modules before anything imports it
+# Inject before anything from src is imported
 sys.modules["database"] = _fake_database
+
+
+# ---------------------------------------------------------------------------
+# 2. Patch PostgreSQL-only types so SQLite works
+# ---------------------------------------------------------------------------
+# ARRAY(Text) -> JSON (stored as JSON list in SQLite)
+import sqlalchemy.dialects.postgresql as _pg
+
+_orig_ARRAY = _pg.ARRAY
+
+
+class _FakeARRAY(TypeDecorator):
+    """Store ARRAY columns as JSON in SQLite."""
+
+    impl = JSON
+    cache_ok = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+
+_pg.ARRAY = _FakeARRAY

@@ -180,6 +180,102 @@ class TestUssdActions:
         result = await help_register(MagicMock(), "+966500000000", "ar")
         assert "تسجيل مزرعة" in result
 
+    @pytest.mark.asyncio
+    async def test_weather_rain_english(self):
+        from src.handlers.ussd_actions import weather_rain
+        result = await weather_rain(MagicMock(), "+966500000000", "en")
+        assert "Rain Alerts" in result
+
+    @pytest.mark.asyncio
+    async def test_field_ndvi_english(self):
+        from src.handlers.ussd_actions import field_ndvi
+        result = await field_ndvi(MagicMock(), "+966500000000", "en")
+        assert "Crop Health" in result
+
+    @pytest.mark.asyncio
+    async def test_field_alerts_arabic(self):
+        from src.handlers.ussd_actions import field_alerts
+        result = await field_alerts(MagicMock(), "+966500000000", "ar")
+        assert "التنبيهات الأخيرة" in result
+
+    @pytest.mark.asyncio
+    async def test_irr_today_english(self):
+        from src.handlers.ussd_actions import irr_today
+        result = await irr_today(MagicMock(), "+966500000000", "en")
+        assert "Irrigation Schedule" in result
+
+    @pytest.mark.asyncio
+    async def test_irr_moisture_arabic(self):
+        from src.handlers.ussd_actions import irr_moisture
+        result = await irr_moisture(MagicMock(), "+966500000000", "ar")
+        assert "رطوبة التربة" in result
+
+    @pytest.mark.asyncio
+    async def test_irr_start_english(self):
+        from src.handlers.ussd_actions import irr_start
+        result = await irr_start(MagicMock(), "+966500000000", "en")
+        assert "Start Irrigation" in result
+
+    @pytest.mark.asyncio
+    async def test_irr_stop_arabic(self):
+        from src.handlers.ussd_actions import irr_stop
+        result = await irr_stop(MagicMock(), "+966500000000", "ar")
+        assert "إيقاف الري" in result
+
+    @pytest.mark.asyncio
+    async def test_alerts_unread_english(self):
+        from src.handlers.ussd_actions import alerts_unread
+        result = await alerts_unread(MagicMock(), "+966500000000", "en")
+        assert "Unread Alerts" in result
+
+    @pytest.mark.asyncio
+    async def test_alerts_critical_arabic(self):
+        from src.handlers.ussd_actions import alerts_critical
+        result = await alerts_critical(MagicMock(), "+966500000000", "ar")
+        assert "التنبيهات الحرجة" in result
+
+    @pytest.mark.asyncio
+    async def test_price_wheat_english(self):
+        from src.handlers.ussd_actions import price_wheat
+        result = await price_wheat(MagicMock(), "+966500000000", "en")
+        assert "Wheat Prices" in result
+
+    @pytest.mark.asyncio
+    async def test_price_barley_arabic(self):
+        from src.handlers.ussd_actions import price_barley
+        result = await price_barley(MagicMock(), "+966500000000", "ar")
+        assert "أسعار الشعير" in result
+
+    @pytest.mark.asyncio
+    async def test_price_dates_english(self):
+        from src.handlers.ussd_actions import price_dates
+        result = await price_dates(MagicMock(), "+966500000000", "en")
+        assert "Dates Prices" in result
+
+    @pytest.mark.asyncio
+    async def test_price_vegetables_arabic(self):
+        from src.handlers.ussd_actions import price_vegetables
+        result = await price_vegetables(MagicMock(), "+966500000000", "ar")
+        assert "أسعار الخضروات" in result
+
+    @pytest.mark.asyncio
+    async def test_help_usage_english(self):
+        from src.handlers.ussd_actions import help_usage
+        result = await help_usage(MagicMock(), "+966500000000", "en")
+        assert "How to Use" in result
+
+    @pytest.mark.asyncio
+    async def test_help_contact_arabic(self):
+        from src.handlers.ussd_actions import help_contact
+        result = await help_contact(MagicMock(), "+966500000000", "ar")
+        assert "تواصل معنا" in result
+
+    @pytest.mark.asyncio
+    async def test_help_register_english(self):
+        from src.handlers.ussd_actions import help_register
+        result = await help_register(MagicMock(), "+966500000000", "en")
+        assert "Register New Farm" in result
+
     def test_ussd_actions_registry_complete(self):
         from src.handlers.ussd_actions import USSD_ACTIONS
         expected_actions = [

@@ -335,7 +335,7 @@ class TestLevelingAPI:
         # Verify simulation results
         assert len(data["simulated_points"]) == len(sample_elevation_data)
 
-    def test_analyze_insufficient_points(self, client):
+    def test_analyze_insufficient_points(self, client, auth_headers):
         """Test analysis with insufficient elevation points."""
         request_data = {
             "field_id": "FIELD-001",
@@ -346,7 +346,7 @@ class TestLevelingAPI:
             "method": "single_plane",
         }
 
-        response = client.post("/api/v1/leveling/analyze", json=request_data)
+        response = client.post("/api/v1/leveling/analyze", json=request_data, headers=auth_headers)
 
         # Should fail validation (min_length=4)
         assert response.status_code == 422
@@ -355,7 +355,7 @@ class TestLevelingAPI:
 class TestBilingualOutput:
     """Test bilingual (Arabic/English) output."""
 
-    def test_bilingual_cost_estimate(self, client):
+    def test_bilingual_cost_estimate(self, client, auth_headers):
         """Test bilingual cost estimate output."""
         response = client.get(
             "/api/v1/leveling/cost/FIELD-001",
@@ -364,6 +364,7 @@ class TestBilingualOutput:
                 "fill_volume_m3": 1000,
                 "field_area_hectares": 1.0,
             },
+            headers=auth_headers,
         )
 
         assert response.status_code == 200

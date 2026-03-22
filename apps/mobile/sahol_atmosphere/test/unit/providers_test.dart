@@ -14,7 +14,7 @@ void main() {
       final notifier = ThemeModeNotifier();
 
       // Assert
-      expect(notifier.debugState, ThemeMode.system);
+      expect(notifier.state, ThemeMode.system);
     });
 
     test('setThemeMode updates state to light', () async {
@@ -56,7 +56,7 @@ void main() {
       }
 
       // system is not dark, so toggleTheme sets to dark
-      expect(notifier.debugState, ThemeMode.dark);
+      expect(notifier.state, ThemeMode.dark);
     });
 
     test('toggleTheme toggles from dark to light', () async {
@@ -67,14 +67,14 @@ void main() {
         await notifier.setThemeMode(ThemeMode.dark);
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.dark);
+      expect(notifier.state, ThemeMode.dark);
 
       // Toggle should switch to light
       try {
         await notifier.toggleTheme();
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.light);
+      expect(notifier.state, ThemeMode.light);
     });
 
     test('toggleTheme toggles from light to dark', () async {
@@ -85,14 +85,14 @@ void main() {
         await notifier.setThemeMode(ThemeMode.light);
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.light);
+      expect(notifier.state, ThemeMode.light);
 
       // Toggle should switch to dark
       try {
         await notifier.toggleTheme();
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.dark);
+      expect(notifier.state, ThemeMode.dark);
     });
 
     test('useSystemTheme sets state to ThemeMode.system', () async {
@@ -103,14 +103,14 @@ void main() {
         await notifier.setThemeMode(ThemeMode.dark);
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.dark);
+      expect(notifier.state, ThemeMode.dark);
 
       // Reset to system
       try {
         await notifier.useSystemTheme();
       } catch (_) {}
 
-      expect(notifier.debugState, ThemeMode.system);
+      expect(notifier.state, ThemeMode.system);
     });
   });
 

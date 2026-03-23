@@ -60,7 +60,7 @@ describe("Service Switcher", () => {
         "ndvi",
         "fertilizer",
         "irrigation",
-        "crop-health",
+        "crop-intelligence",
         "community",
         "notifications",
         "tasks",
@@ -81,7 +81,7 @@ describe("Service Switcher", () => {
       expect(SERVICE_REGISTRY.ndvi.modern.port).toBe(8090); // vegetation-analysis-service
       expect(SERVICE_REGISTRY.fertilizer.modern.port).toBe(8093); // advisory-service
       expect(SERVICE_REGISTRY.irrigation.modern.port).toBe(8094); // irrigation-smart
-      expect(SERVICE_REGISTRY["crop-health"].modern.port).toBe(8095); // crop-intelligence-service
+      expect(SERVICE_REGISTRY["crop-intelligence"].modern.port).toBe(8095); // crop-intelligence-service
       expect(SERVICE_REGISTRY.community.modern.port).toBe(8115); // chat-service
       expect(SERVICE_REGISTRY.notifications.modern.port).toBe(8110); // notification-service
       expect(SERVICE_REGISTRY.tasks.modern.port).toBe(8103); // task-service

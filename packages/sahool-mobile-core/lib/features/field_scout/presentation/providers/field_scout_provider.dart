@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/config/api_config.dart';
 import '../../../../core/utils/app_logger.dart';

@@ -451,13 +451,51 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             _mapController.move(_mapController.camera.center, zoom - 1);
           }),
           const SizedBox(height: 16),
-          _buildMapControlButton(Icons.my_location, 'موقعي', () {
-            // TODO: Use geolocator package to get actual GPS position
-            // For now, center on the first field location or default
-            final center = _fieldLocations.isNotEmpty
-                ? _fieldLocations.first
-                : const LatLng(15.3694, 44.1910);
-            _mapController.move(center, 14);
+          _buildMapControlButton(Icons.my_location, 'موقعي', () async {
+            try {
+              final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+              if (!serviceEnabled) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('خدمات الموقع غير مفعلة')),
+                  );
+                }
+                return;
+              }
+              var permission = await Geolocator.checkPermission();
+              if (permission == LocationPermission.denied) {
+                permission = await Geolocator.requestPermission();
+                if (permission == LocationPermission.denied) return;
+              }
+              if (permission == LocationPermission.deniedForever) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('يرجى تفعيل إذن الموقع من الإعدادات')),
+                  );
+                }
+                return;
+              }
+              final position = await Geolocator.getCurrentPosition(
+                locationSettings: const LocationSettings(
+                  accuracy: LocationAccuracy.high,
+                  timeLimit: Duration(seconds: 10),
+                ),
+              );
+              if (mounted) {
+                _mapController.move(
+                  LatLng(position.latitude, position.longitude),
+                  14,
+                );
+              }
+            } catch (e) {
+              // Fallback to first field or default on GPS error
+              final center = _fieldLocations.isNotEmpty
+                  ? _fieldLocations.first
+                  : const LatLng(15.3694, 44.1910);
+              if (mounted) {
+                _mapController.move(center, 14);
+              }
+            }
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {

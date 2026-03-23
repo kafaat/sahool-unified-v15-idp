@@ -8,7 +8,10 @@ import os
 import uuid
 from datetime import UTC, datetime, timezone
 
-from nats.aio.client import Client as NATS
+try:
+    from nats.aio.client import Client as NATS
+except ImportError:
+    NATS = None  # Optional: not available in test environments
 
 logger = logging.getLogger(__name__)
 
@@ -79,17 +82,25 @@ class WeatherPublisher:
 
     def __init__(self, nats_url: str = None):
         self.nats_url = nats_url or NATS_URL
-        self.nc: NATS | None = None
+        self.nc = None
         self._connected = False
 
     async def connect(self):
         """Connect to NATS"""
         if self._connected:
             return
+        if NATS is None:
+            logger.warning("nats-py not installed, event publishing disabled")
+            return
         self.nc = NATS()
         await self.nc.connect(self.nats_url)
         self._connected = True
-        print("📡 Weather Publisher connected to NATS")
+        logger.info("Weather Publisher connected to NATS")
+
+    @property
+    def _is_available(self) -> bool:
+        """Check if NATS publishing is available"""
+        return NATS is not None and self.nc is not None and self._connected
 
     async def close(self):
         """Close connection"""
@@ -111,6 +122,10 @@ class WeatherPublisher:
         """Publish weather alert event"""
         if not self._connected:
             await self.connect()
+
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping weather_alert publish for field=%s", field_id)
+            return str(uuid.uuid4())
 
         payload = {
             "field_id": field_id,
@@ -158,6 +173,10 @@ class WeatherPublisher:
         if not self._connected:
             await self.connect()
 
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping forecast_issued publish for field=%s", field_id)
+            return str(uuid.uuid4())
+
         payload = {
             "field_id": field_id,
             "provider": provider,
@@ -199,6 +218,10 @@ class WeatherPublisher:
         if not self._connected:
             await self.connect()
 
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping irrigation_adjustment publish for field=%s", field_id)
+            return str(uuid.uuid4())
+
         payload = {
             "field_id": field_id,
             "adjustment_factor": adjustment_factor,
@@ -237,5 +260,8 @@ async def get_publisher() -> WeatherPublisher:
     global _publisher
     if _publisher is None:
         _publisher = WeatherPublisher()
-        await _publisher.connect()
+        try:
+            await _publisher.connect()
+        except Exception as e:
+            logger.warning("Failed to connect to NATS: %s", e)
     return _publisher

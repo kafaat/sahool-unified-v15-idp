@@ -69,12 +69,18 @@ def app():
     from shared.auth.models import User
 
     def fake_current_user():
-        return User(
-            id="test-user-001",
-            email="test@sahool.sa",
-            roles=["farmer"],
-            tenant_id="00000000-0000-0000-0000-000000000123",
-        )
+        # Use hashed_password if required by service-level User model
+        import inspect
+        user_params = inspect.signature(User).parameters
+        kwargs = {
+            "id": "test-user-001",
+            "email": "test@sahool.sa",
+            "roles": ["farmer"],
+            "tenant_id": "00000000-0000-0000-0000-000000000123",
+        }
+        if "hashed_password" in user_params:
+            kwargs["hashed_password"] = "hashed_test_password"
+        return User(**kwargs)
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
     yield weather_app

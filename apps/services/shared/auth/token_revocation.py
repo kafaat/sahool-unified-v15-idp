@@ -13,9 +13,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-import redis.asyncio as redis
-from redis.asyncio import Redis
-from redis.exceptions import RedisError
+try:
+    import redis.asyncio as redis
+    from redis.asyncio import Redis
+    from redis.exceptions import RedisError
+except ImportError:
+    redis = None  # type: ignore[assignment]
+    Redis = None  # type: ignore[assignment,misc]
+    RedisError = Exception  # type: ignore[assignment,misc]
 
 logger = logging.getLogger(__name__)
 

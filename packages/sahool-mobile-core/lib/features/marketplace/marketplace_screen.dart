@@ -97,6 +97,15 @@ class MarketplaceScreen extends ConsumerWidget {
               ? const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
                 )
+              : marketState.error != null
+                  ? SliverFillRemaining(
+                      child: SahoolErrorState(
+                        message: marketState.error,
+                        messageEn: 'Failed to load products',
+                        icon: Icons.storefront_rounded,
+                        onRetry: () => ref.invalidate(marketplaceProvider),
+                      ),
+                    )
               : marketState.products.isEmpty
                   ? const SliverFillRemaining(
                       child: _EmptyProductsView(),

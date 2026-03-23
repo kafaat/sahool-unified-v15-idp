@@ -371,6 +371,14 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
   /// شبكة المؤشرات
   Widget _buildMetricsGrid(double soilMoisture, String nitrogenStatus) {
     final showNitrogenWarning = nitrogenStatus == 'منخفض';
+    final weatherState = ref.watch(weatherProvider);
+    final currentWeather = weatherState.data?.current;
+    final tempDisplay = currentWeather != null
+        ? '${currentWeather.temperature.round()}°'
+        : '--';
+    final tempSubtitle = currentWeather != null
+        ? currentWeather.conditionAr
+        : 'جاري التحميل';
 
     return GridView.count(
       shrinkWrap: true,
@@ -396,10 +404,10 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
         ),
         _buildMetricCard(
           'الطقس',
-          '--',
+          tempDisplay,
           Icons.wb_sunny,
           Colors.amber,
-          subtitle: 'جاري التحميل',
+          subtitle: tempSubtitle,
         ),
         _buildMetricCard(
           'التراكم الحراري',
@@ -777,6 +785,8 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
 
   /// توقعات الطقس
   Widget _buildWeatherForecast() {
+    final weatherState = ref.watch(weatherProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -792,20 +802,47 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
             borderRadius: SahoolRadius.largeRadius,
             boxShadow: SahoolShadows.small,
           ),
-          // TODO: Wire to weather service for real forecast data
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildWeatherDay('اليوم', Icons.wb_sunny, '--', '--'),
-              _buildWeatherDay('غداً', Icons.wb_cloudy, '--', '--'),
-              _buildWeatherDay('الأربعاء', Icons.grain, '--', '--'),
-              _buildWeatherDay('الخميس', Icons.wb_sunny, '--', '--'),
-              _buildWeatherDay('الجمعة', Icons.wb_sunny, '--', '--'),
-            ],
-          ),
+          child: weatherState.data != null && weatherState.data!.daily.isNotEmpty
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: weatherState.data!.daily.take(5).map((day) {
+                    return _buildWeatherDay(
+                      day.dayName,
+                      _weatherIcon(day.condition),
+                      '${day.tempMax.round()}°',
+                      '${day.tempMin.round()}°',
+                    );
+                  }).toList(),
+                )
+              : weatherState.isLoading
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildWeatherDay('اليوم', Icons.wb_sunny, '--', '--'),
+                        _buildWeatherDay('غداً', Icons.wb_cloudy, '--', '--'),
+                        _buildWeatherDay('--', Icons.grain, '--', '--'),
+                        _buildWeatherDay('--', Icons.wb_sunny, '--', '--'),
+                        _buildWeatherDay('--', Icons.wb_sunny, '--', '--'),
+                      ],
+                    ),
         ),
       ],
     );
+  }
+
+  IconData _weatherIcon(String condition) {
+    final lower = condition.toLowerCase();
+    if (lower.contains('rain') || lower.contains('مطر')) return Icons.grain;
+    if (lower.contains('cloud') || lower.contains('غائم')) return Icons.wb_cloudy;
+    if (lower.contains('storm') || lower.contains('عاصف')) return Icons.thunderstorm;
+    if (lower.contains('wind') || lower.contains('رياح')) return Icons.air;
+    return Icons.wb_sunny;
   }
 
   Widget _buildWeatherDay(String day, IconData icon, String high, String low) {

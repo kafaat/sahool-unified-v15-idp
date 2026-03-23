@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
+import '../../../../core/widgets/error_state.dart';
 import '../providers/billing_provider.dart';
 import '../widgets/plan_card.dart';
 

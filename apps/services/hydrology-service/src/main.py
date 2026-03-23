@@ -30,6 +30,7 @@ from fastapi import FastAPI
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
+from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -91,30 +92,12 @@ async def lifespan(app: FastAPI):
             )
             logger.info("Connected to database")
 
-            # Create tables if not exists
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS hydrology_analyses (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        tenant_id VARCHAR(255),
-                        analysis_type VARCHAR(100) NOT NULL,
-                        result JSONB NOT NULL,
-                        dem_source VARCHAR(100),
-                        resolution_m FLOAT,
-                        analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        UNIQUE(field_id, analysis_type, tenant_id)
-                    )
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_hydrology_field_id
-                    ON hydrology_analyses(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_hydrology_tenant_id
-                    ON hydrology_analyses(tenant_id)
-                """)
-            logger.info("Database tables initialized")
+            # Run versioned migrations
+            migration_runner = SimpleMigrationRunner(
+                app.state.db_pool, service_name="hydrology-service"
+            )
+            await migration_runner.run(MIGRATIONS)
+            logger.info("Database migrations applied")
 
         except Exception as e:
             logger.warning(

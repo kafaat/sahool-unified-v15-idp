@@ -1,8 +1,15 @@
+// @deprecated Use wallet_screen.dart instead
+// This file contains a legacy StatefulWidget implementation with mock data.
+// The primary implementation is in ../wallet_screen.dart which uses Riverpod
+// for proper state management, pull-to-refresh, error handling, and bilingual support.
+// This file will be removed in a future release.
+
 import 'package:flutter/material.dart';
 import '../../../core/theme/sahool_theme.dart';
 
-/// شاشة المحفظة المالية - تصميم Fintech احترافي
-/// Professional Fintech Wallet Screen
+/// @deprecated Use [WalletScreen] from `../wallet_screen.dart` instead.
+/// This legacy implementation uses hardcoded mock data and lacks proper state management.
+@Deprecated('Use WalletScreen from wallet_screen.dart instead')
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
 

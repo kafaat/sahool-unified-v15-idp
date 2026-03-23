@@ -9,7 +9,7 @@
 
 # Database & ORM
 asyncpg==0.31.0
-tortoise-orm==1.1.6
+tortoise-orm==1.1.7
 # aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.6
 
 # NATS Messaging

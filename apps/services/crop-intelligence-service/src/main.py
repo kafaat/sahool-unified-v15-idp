@@ -1071,12 +1071,17 @@ async def publish_health_assessed(
     health_score_ar: str,
     issues: list[str],
     zone_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Publish health assessment event
     نشر حدث تقييم الصحة
 
-    Subject: sahool.crop.health_assessed
+    Uses tenant-scoped subject when tenant_id is available for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Subject (global): sahool.crop.health_assessed
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.health_assessed
     """
     data = {
         "field_id": field_id,
@@ -1084,9 +1089,18 @@ async def publish_health_assessed(
         "health_score_ar": health_score_ar,
         "issues": issues,
         "zone_id": zone_id,
+        "tenant_id": tenant_id,
         "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
-    return await publish_event("sahool.crop.health_assessed", data)
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+        subject = get_tenant_subject(tenant_id, "crop", "health_assessed")
+    else:
+        # TODO: Ensure tenant_id is always passed for full tenant isolation
+        # TODO: التأكد من تمرير معرف المستأجر دائماً لعزل البيانات الكامل
+        subject = "sahool.crop.health_assessed"
+    return await publish_event(subject, data)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

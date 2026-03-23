@@ -189,9 +189,9 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
         return;
       }
     } on DioException catch (e) {
-      AppLogger.warning('Community API unavailable, using mock data: $e');
+      AppLogger.w('Community API unavailable, using mock data: $e');
     } catch (e) {
-      AppLogger.warning('Community posts parse error, using mock data: $e');
+      AppLogger.w('Community posts parse error, using mock data: $e');
     }
     // Offline fallback
     state = state.copyWith(posts: _getMockPosts(), isLoading: false);
@@ -272,7 +272,7 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
         },
       );
     } catch (e) {
-      AppLogger.warning('Create post API error (post kept locally): $e');
+      AppLogger.w('Create post API error (post kept locally): $e');
     }
   }
 

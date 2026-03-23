@@ -366,7 +366,7 @@ class BillingNotifier extends StateNotifier<BillingState> {
         isLoading: false,
       );
     } catch (e) {
-      AppLogger.warning('Billing API unavailable, using mock data: $e');
+      AppLogger.w('Billing API unavailable, using mock data: $e');
       // Offline fallback - use mock data
       state = state.copyWith(
         currentPlan: _mockPlans[1],
@@ -447,7 +447,7 @@ class BillingNotifier extends StateNotifier<BillingState> {
       state = state.copyWith(currentPlan: newPlan, isLoading: false);
       return true;
     } on DioException catch (e) {
-      AppLogger.warning('Change plan API error, applying locally: $e');
+      AppLogger.w('Change plan API error, applying locally: $e');
       // Apply locally on API failure for offline-first UX
       state = state.copyWith(currentPlan: newPlan, isLoading: false);
       return true;
@@ -473,7 +473,7 @@ class BillingNotifier extends StateNotifier<BillingState> {
           data: {'invoice_id': invoiceId, 'method': 'manual'},
         );
       } on DioException catch (e) {
-        AppLogger.warning('Payment API error, updating locally: $e');
+        AppLogger.w('Payment API error, updating locally: $e');
         // Continue with local state update for offline-first
       }
 
@@ -533,7 +533,7 @@ class BillingNotifier extends StateNotifier<BillingState> {
           : _mockInvoices;
       state = state.copyWith(invoices: invoices, isLoading: false);
     } catch (e) {
-      AppLogger.warning('Invoices API unavailable, using mock data: $e');
+      AppLogger.w('Invoices API unavailable, using mock data: $e');
       state = state.copyWith(invoices: _mockInvoices, isLoading: false);
     }
   }

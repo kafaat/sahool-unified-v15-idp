@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/pivot_models.dart';
+import '../providers/pivot_provider.dart';
 import '../widgets/pivot_visualization.dart';
 import '../widgets/pivot_control_panel.dart';
 import 'sector_management_screen.dart';

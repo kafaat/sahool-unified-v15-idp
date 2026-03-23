@@ -387,11 +387,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           TextButton(
             onPressed: () {
-              // Navigate to product or order details based on conversation context
+              // Navigate to marketplace for product context
               if (conversation.productId != null) {
-                context.push('/product/${conversation.productId}');
+                context.push('/market');
               } else if (conversation.orderId != null) {
-                context.push('/order/${conversation.orderId}');
+                context.push('/market');
               }
             },
             child: const Text('عرض'),
@@ -482,13 +482,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       case 'view_product':
         if (conversation.productId != null) {
-          context.push('/product/${conversation.productId}');
+          context.push('/market');
         }
         break;
 
       case 'view_order':
         if (conversation.orderId != null) {
-          context.push('/order/${conversation.orderId}');
+          context.push('/market');
         }
         break;
 

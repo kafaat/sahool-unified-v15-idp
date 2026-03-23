@@ -655,10 +655,10 @@ class _NotificationDetailsScreenState
     }
 
     final route = switch (type.toLowerCase()) {
-      'field' => '/fields/$id',
-      'task' => '/tasks/$id',
-      'irrigation' => '/irrigation/$id',
-      'alert' => '/alerts/$id',
+      'field' => '/field/$id',
+      'task' => '/task/$id',
+      'irrigation' => '/irrigation',
+      'alert' => '/alert/$id',
       'equipment' => '/equipment/$id',
       _ => null,
     };

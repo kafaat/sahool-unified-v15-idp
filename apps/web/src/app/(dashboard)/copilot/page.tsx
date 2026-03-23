@@ -172,6 +172,7 @@ export default function CopilotPage() {
     ) => {
       const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           session_id: sessionId,
@@ -253,6 +254,7 @@ export default function CopilotPage() {
           `${COPILOT_API_BASE}/api/v1/chat/stream`,
           {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
               Accept: "text/event-stream",

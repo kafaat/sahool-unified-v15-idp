@@ -3514,6 +3514,9 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_BASE_URL=http://ollama:11434
     ports:
       - "127.0.0.1:8088:8088"
     depends_on:
@@ -3527,6 +3530,8 @@ services:
         condition: service_healthy
       # FIX: Add missing dependency - copilot-api references LLM_ORCHESTRATOR_URL
       llm-orchestrator-service:
+        condition: service_healthy
+      qdrant:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]

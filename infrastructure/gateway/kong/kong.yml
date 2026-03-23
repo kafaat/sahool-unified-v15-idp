@@ -629,6 +629,7 @@ services:
   # -----------------------------
 
   # Audit Service - Compliance logging
+  # خدمة التدقيق - تسجيل الامتثال
   - name: audit-service
     host: audit-service
     port: 8114  # Container internal port (Dockerfile EXPOSE 8114, docker-compose PORT=8114)
@@ -638,6 +639,17 @@ services:
         paths: ["/api/v1/audit", "/audit"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
 
   # REMOVED: crop-health (deprecated → crop-intelligence-service port 8095)
 
@@ -835,7 +847,7 @@ services:
     routes:
       - name: copilot-api-route
         paths: ["/api/v1/copilot", "/copilot"]
-        strip_path: true
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting

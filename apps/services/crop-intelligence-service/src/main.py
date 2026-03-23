@@ -2294,6 +2294,7 @@ async def comprehensive_analysis(
         overall_status = "good"
 
     if field_id:
+        # Publish events with tenant isolation | نشر الأحداث مع عزل المستأجر
         if diseases:
             for disease in diseases:
                 await publish_disease_detected(
@@ -2301,6 +2302,7 @@ async def comprehensive_analysis(
                     disease=disease.disease_type.value,
                     confidence=disease.confidence,
                     severity=disease.severity.value if disease.severity else None,
+                    tenant_id=tenant_id,
                 )
 
         all_issues = []
@@ -2313,6 +2315,7 @@ async def comprehensive_analysis(
             health_score=overall_status,
             health_score_ar=health_ar,
             issues=all_issues,
+            tenant_id=tenant_id,
         )
 
     return {

@@ -245,12 +245,78 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   // تتبع GPS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  void _startTracking() {
-    // In real implementation, use geolocator package
-    _trackingTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _recordTrackPoint(),
-    );
+  Future<void> _startTracking() async {
+    // Verify location permissions before starting GPS stream
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        AppLogger.w('Location services disabled', tag: 'SCOUT');
+        // Fall back to timer-based polling in case stream is unavailable
+        _trackingTimer = Timer.periodic(
+          const Duration(seconds: 5),
+          (_) => _recordTrackPoint(),
+        );
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        AppLogger.w('Location permission denied', tag: 'SCOUT');
+        _trackingTimer = Timer.periodic(
+          const Duration(seconds: 5),
+          (_) => _recordTrackPoint(),
+        );
+        return;
+      }
+
+      // Use position stream for continuous GPS tracking
+      _locationSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 5, // meters - record when moved 5m
+        ),
+      ).listen(
+        (position) {
+          if (state.currentSession == null) return;
+
+          final newPoint = GeoPoint(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            accuracy: position.accuracy,
+            timestamp: DateTime.now(),
+          );
+
+          final updatedTrackPoints = [
+            ...state.currentSession!.trackPoints,
+            newPoint,
+          ];
+
+          state = state.copyWith(
+            currentSession: state.currentSession!.copyWith(
+              trackPoints: updatedTrackPoints,
+            ),
+            currentLocation: newPoint,
+          );
+        },
+        onError: (e) {
+          AppLogger.w('GPS stream error: $e', tag: 'SCOUT');
+        },
+      );
+
+      AppLogger.i('GPS stream tracking started', tag: 'SCOUT');
+    } catch (e) {
+      AppLogger.w('Failed to start GPS tracking: $e', tag: 'SCOUT');
+      // Fallback to timer-based polling
+      _trackingTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) => _recordTrackPoint(),
+      );
+    }
   }
 
   void _stopTracking() {
@@ -264,31 +330,17 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     if (state.currentSession == null) return;
 
     try {
-      // Use geolocator to get real GPS coordinates
-      // Import: import 'package:geolocator/geolocator.dart';
-      // final position = await Geolocator.getCurrentPosition(
-      //   desiredAccuracy: LocationAccuracy.high,
-      // );
-      // final newPoint = GeoPoint(
-      //   latitude: position.latitude,
-      //   longitude: position.longitude,
-      //   accuracy: position.accuracy,
-      //   timestamp: DateTime.now(),
-      // );
-
-      // TODO: Replace with Geolocator.getCurrentPosition() once geolocator
-      // permission flow is integrated. For now, skip recording if no real
-      // location is available.
-      final currentLocation = state.currentLocation;
-      if (currentLocation == null) {
-        AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
-        return;
-      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
 
       final newPoint = GeoPoint(
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        accuracy: currentLocation.accuracy,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracy: position.accuracy,
         timestamp: DateTime.now(),
       );
 

@@ -1618,6 +1618,7 @@ class DiseaseDetectionRequest(BaseModel):
 async def detect_crop_diseases(
     body: DiseaseDetectionRequest,
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    tenant_id: str | None = Query(default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"),
 ):
     """
     كشف الأمراض المحتملة من المؤشرات النباتية

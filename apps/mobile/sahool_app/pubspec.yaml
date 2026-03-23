@@ -1,0 +1,91 @@
+name: sahool_app
+description: "SAHOOL - التطبيق الزراعي الذكي الموحد | Unified Smart Agriculture App"
+publish_to: 'none'
+version: 16.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'  # Flutter 3.27.x uses Dart 3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Core Package - الحزمة الأساسية المشتركة
+  sahool_mobile_core:
+    path: ../../../packages/sahool-mobile-core
+
+  # State Management - إدارة الحالة (needed for ProviderScope in main)
+  flutter_riverpod: ^2.6.1
+
+  # Crash Reporting - تقارير الأعطال (needed for Sentry init in main)
+  sentry_flutter: ^8.11.0
+
+  # Environment Configuration - إعدادات البيئة (needed for dotenv in main)
+  flutter_dotenv: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # App Branding
+  flutter_launcher_icons: ^0.14.2
+  flutter_native_splash: ^2.4.3
+
+dependency_overrides:
+  record_platform_interface: 1.2.0
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#2E7D32"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  min_sdk_android: 23
+
+# Splash Screen Configuration
+flutter_native_splash:
+  color: "#2E7D32"
+  image: assets/icon/splash_logo.png
+  color_dark: "#1B5E20"
+  image_dark: assets/icon/splash_logo.png
+  android_12:
+    color: "#2E7D32"
+    icon_background_color: "#2E7D32"
+    image: assets/icon/splash_logo.png
+  ios: true
+  web: false
+
+flutter:
+  uses-material-design: true
+  generate: true  # Enable code generation for l10n
+
+  assets:
+    - .env.example
+    - assets/images/
+    - assets/icons/
+    - assets/icon/
+    - assets/fonts/
+    - assets/avatars/
+
+  # Local Arabic fonts - faster app startup, smaller APK
+  fonts:
+    - family: IBMPlexSansArabic
+      fonts:
+        - asset: assets/fonts/IBMPlexSansArabic-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/IBMPlexSansArabic-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/IBMPlexSansArabic-Light.ttf
+          weight: 300
+        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
+          weight: 700

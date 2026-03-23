@@ -901,7 +901,7 @@ async def get_field_indicators(
             }
             await save_indicator(field_id, ind_id, indicator_data, tenant_id)
 
-            # Publish event for newly computed indicator
+            # Publish event for newly computed indicator | نشر حدث المؤشر المحسوب مع عزل المستأجر
             await publish_event(
                 "sahool.indicators.computed",
                 {
@@ -912,6 +912,7 @@ async def get_field_indicators(
                     "trend": trend.value,
                     "timestamp": timestamp,
                 },
+                tenant_id=tenant_id,
             )
 
         indicator = Indicator(
@@ -941,7 +942,7 @@ async def get_field_indicators(
     optimal_count = sum(1 for ind in indicators if ind.status == "optimal")
     overall_score = (optimal_count / len(indicators)) * 100 if indicators else 0
 
-    # Publish field indicators summary event
+    # Publish field indicators summary event | نشر ملخص مؤشرات الحقل مع عزل المستأجر
     await publish_event(
         "sahool.indicators.field_summary",
         {
@@ -951,6 +952,7 @@ async def get_field_indicators(
             "alerts_count": len(alerts),
             "timestamp": timestamp,
         },
+        tenant_id=tenant_id,
     )
 
     return FieldIndicators(

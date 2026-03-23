@@ -1,19 +1,21 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../data/scanner_repository.dart';
 
 /// Disease Scanner Screen - الماسح الضوئي للأمراض
 /// واجهة الكاميرا مع إطار المسح والنتائج
-class ScannerScreen extends StatefulWidget {
+class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
 
   @override
-  State<ScannerScreen> createState() => _ScannerScreenState();
+  ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen>
+class _ScannerScreenState extends ConsumerState<ScannerScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final ImagePicker _imagePicker = ImagePicker();
@@ -75,39 +77,57 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Future<void> _analyzeImage(File imageFile) async {
-    // TODO: Replace with actual API call to crop_vision / yolo26-vision-service
-    // POST /api/v1/detect/disease with multipart image upload
-    // final dio = Dio();
-    // final formData = FormData.fromMap({
-    //   'image': await MultipartFile.fromFile(imageFile.path),
-    //   'confidence_threshold': 0.25,
-    // });
-    // final response = await dio.post(
-    //   'http://vision-service:8150/api/v1/detect/disease',
-    //   data: formData,
-    // );
-    // Parse response.data['detections'] for results.
+    // Call yolo26-vision-service: POST /api/v1/detect/disease with multipart upload
+    final repository = ref.read(scannerRepositoryProvider);
+    final apiResult = await repository.detectDisease(imageFile);
 
-    // Offline-first fallback: simulate analysis while API is not wired
-    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
 
-    if (mounted) {
-      final result = _ScanResult(
-        disease: 'صدأ القمح',
-        confidence: 0.95,
-        severity: 'متوسط',
-        treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
-        prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
-        imagePath: imageFile.path,
-        scannedAt: DateTime.now(),
-      );
-      setState(() {
-        _isScanning = false;
-        _hasResult = true;
-        _result = result;
-        _scanHistory.insert(0, result);
-      });
-    }
+    apiResult.when(
+      success: (detection) {
+        final result = _ScanResult(
+          disease: detection.disease,
+          confidence: detection.confidence,
+          severity: detection.severity,
+          treatment: detection.treatment,
+          prevention: detection.prevention,
+          imagePath: imageFile.path,
+          scannedAt: detection.scannedAt,
+        );
+        setState(() {
+          _isScanning = false;
+          _hasResult = true;
+          _result = result;
+          _scanHistory.insert(0, result);
+        });
+      },
+      failure: (message, statusCode) {
+        // Offline-first fallback: use hardcoded result when API is unavailable
+        final result = _ScanResult(
+          disease: 'صدأ القمح',
+          confidence: 0.95,
+          severity: 'متوسط',
+          treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
+          prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
+          imagePath: imageFile.path,
+          scannedAt: DateTime.now(),
+        );
+        setState(() {
+          _isScanning = false;
+          _hasResult = true;
+          _result = result;
+          _scanHistory.insert(0, result);
+        });
+        // Show non-blocking snackbar indicating offline mode
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('وضع عدم الاتصال: $message'),
+            backgroundColor: SahoolColors.warning,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      },
+    );
   }
 
   void _showScanHistory() {

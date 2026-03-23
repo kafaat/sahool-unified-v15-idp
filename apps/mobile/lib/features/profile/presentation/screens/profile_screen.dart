@@ -525,17 +525,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _showEditProfile() {
+    final profile = ref.read(profileProvider);
+    final nameController = TextEditingController(
+      text: profile.userNameAr.isNotEmpty ? profile.userNameAr : profile.userName,
+    );
+    final phoneController = TextEditingController(text: profile.phone);
+    final farmController = TextEditingController(
+      text: profile.farmNameAr.isNotEmpty ? profile.farmNameAr : profile.farmName,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Directionality(
+      builder: (sheetContext) => Directionality(
         textDirection: TextDirection.rtl,
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
             left: 16,
             right: 16,
             top: 16,
@@ -552,7 +561,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 24),
               TextFormField(
-                initialValue: 'أحمد محمد',
+                controller: nameController,
                 decoration: const InputDecoration(
                   labelText: 'الاسم',
                   prefixIcon: Icon(Icons.person_outline),
@@ -560,19 +569,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                initialValue: 'ahmed@sahool.sa',
+                controller: phoneController,
                 decoration: const InputDecoration(
-                  labelText: 'البريد الإلكتروني',
-                  prefixIcon: Icon(Icons.email_outlined),
+                  labelText: 'رقم الهاتف',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: farmController,
+                decoration: const InputDecoration(
+                  labelText: 'اسم المزرعة',
+                  prefixIcon: Icon(Icons.agriculture_outlined),
                 ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
+                  ref.read(profileProvider.notifier).updateProfile(
+                    userName: nameController.text,
+                    phone: phoneController.text,
+                    farmName: farmController.text,
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('تم حفظ التغييرات'),
+                      content: Text('جارٍ حفظ التغييرات...'),
                       backgroundColor: Color(0xFF367C2B),
                     ),
                   );

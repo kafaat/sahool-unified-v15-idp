@@ -3,6 +3,7 @@
 ///
 /// Tests CropHealthRepository methods including disease lookup, crop listing,
 /// treatment retrieval, health check, and error handling.
+library;
 
 import 'dart:convert';
 import 'dart:io';

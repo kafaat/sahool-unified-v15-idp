@@ -86,7 +86,17 @@ class TestGetCurrentUser:
     @patch("shared.auth.dependencies.get_user_repository")
     async def test_valid_token_returns_user(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that valid token returns user."""
-        mock_cache.return_value = None  # No cache
+        # Provide a cache that returns active user status with email
+        # to avoid User.__post_init__ rejecting empty email from token-only path
+        cache = AsyncMock()
+        cache.get_user_status.return_value = {
+            "is_active": True,
+            "is_verified": True,
+            "email": "test@example.com",
+            "roles": ["farmer", "admin"],
+            "tenant_id": "tenant456",
+        }
+        mock_cache.return_value = cache
         mock_repo.return_value = None  # No repository
 
         user = await get_current_user(
@@ -103,7 +113,16 @@ class TestGetCurrentUser:
     @patch("shared.auth.dependencies.get_user_repository")
     async def test_user_stored_in_request_state(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that user is stored in request state."""
-        mock_cache.return_value = None
+        # Provide a cache that returns active user status with email
+        cache = AsyncMock()
+        cache.get_user_status.return_value = {
+            "is_active": True,
+            "is_verified": True,
+            "email": "test@example.com",
+            "roles": ["farmer", "admin"],
+            "tenant_id": "tenant456",
+        }
+        mock_cache.return_value = cache
         mock_repo.return_value = None
 
         user = await get_current_user(
@@ -393,6 +412,7 @@ class TestGetOptionalUser:
         token = create_access_token(
             user_id="user123",
             roles=["farmer"],
+            extra_claims={"email": "test@sahool.sa"},
         )
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer",

@@ -276,7 +276,7 @@ class OutboxRepository {
     if (pending.length <= 1) return;
 
     // Merge all updates into one
-    Map<String, dynamic> mergedData = {};
+    final Map<String, dynamic> mergedData = {};
     for (final entry in pending) {
       mergedData.addAll(entry.data);
     }

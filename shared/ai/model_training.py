@@ -680,8 +680,7 @@ class ModelTrainer:
             self._notify_progress(job)
 
             logger.info(
-                "Model '%s' configured (not fine-tuned) from base '%s'. "
-                "Configuration-based evaluation accuracy: %.2f",
+                "Model '%s' configured (not fine-tuned) from base '%s'. Configuration-based evaluation accuracy: %.2f",
                 job.config.output_model,
                 job.config.base_model,
                 eval_result.accuracy,

@@ -10,6 +10,8 @@ import pytest
 
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test_db")
+
+
 class TestDatabaseConfig:
     """Test database configuration and URL handling"""
 
@@ -82,6 +84,8 @@ class TestDatabaseConfig:
             assert "5433" in database.DATABASE_URL
             assert "myuser" in database.DATABASE_URL
             assert "mydb" in database.DATABASE_URL
+
+
 class TestEngineCreation:
     """Test engine and session factory creation"""
 
@@ -134,6 +138,8 @@ class TestEngineCreation:
         result = db_mod.get_session_factory()
         assert result is mock_factory
         db_mod._session_factory = None
+
+
 class TestCloseDb:
     """Test database close/dispose"""
 
@@ -161,6 +167,8 @@ class TestCloseDb:
         # Should not raise
         await db_mod.close_db()
         assert db_mod._engine is None
+
+
 class TestDbHealthCheck:
     """Test database health check"""
 
@@ -185,12 +193,12 @@ class TestDbHealthCheck:
     async def test_db_health_check_exception(self):
         import src.database as db_mod
 
-        with patch.object(
-            db_mod, "check_db_connection", new_callable=AsyncMock, side_effect=Exception("conn error")
-        ):
+        with patch.object(db_mod, "check_db_connection", new_callable=AsyncMock, side_effect=Exception("conn error")):
             result = await db_mod.db_health_check()
             assert result["status"] == "unhealthy"
             assert "conn error" in result["error"]
+
+
 class TestCheckDbConnection:
     """Test check_db_connection"""
 

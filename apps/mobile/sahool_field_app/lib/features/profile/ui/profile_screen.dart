@@ -17,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
             expandedHeight: 200,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
+              background: DecoratedBox(
                 decoration: const BoxDecoration(
                   gradient: SahoolColors.primaryGradient,
                 ),
@@ -306,7 +306,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),

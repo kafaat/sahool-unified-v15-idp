@@ -1338,9 +1338,7 @@ class RevenueService:
         """
         # SECURITY: Verify caller belongs to this cooperative
         if requesting_cooperative_id != self.cooperative_id:
-            raise PermissionError(
-                "Cannot access member statements from a different cooperative"
-            )
+            raise PermissionError("Cannot access member statements from a different cooperative")
 
         payments = await self.list_payments(member_id=member_id)
 

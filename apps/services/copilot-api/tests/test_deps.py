@@ -10,8 +10,14 @@ import pytest
 from fastapi import HTTPException
 
 pytestmark = [pytest.mark.unit]
-def _make_token(payload: dict, secret: str = "test-secret-key-for-unit-tests-only-32chars", algorithm: str = "HS256") -> str:
+
+
+def _make_token(
+    payload: dict, secret: str = "test-secret-key-for-unit-tests-only-32chars", algorithm: str = "HS256"
+) -> str:
     return pyjwt.encode(payload, secret, algorithm=algorithm)
+
+
 class TestValidateJwtConfig:
     def test_production_with_short_key_raises(self):
         from src.api.deps import validate_jwt_config
@@ -31,6 +37,8 @@ class TestValidateJwtConfig:
 
         with patch("src.api.deps.JWT_SECRET_KEY", ""):
             validate_jwt_config("development")  # Should not raise, just warns
+
+
 class TestGetCurrentUser:
     @pytest.mark.asyncio
     async def test_no_credentials_raises_401(self):
@@ -115,6 +123,8 @@ class TestGetCurrentUser:
             with pytest.raises(HTTPException) as exc_info:
                 await get_current_user(creds)
             assert exc_info.value.status_code == 401
+
+
 class TestGetOptionalUser:
     @pytest.mark.asyncio
     async def test_no_credentials_returns_none(self):

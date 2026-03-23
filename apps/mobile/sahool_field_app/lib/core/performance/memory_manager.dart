@@ -1,6 +1,8 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'dart:ui' show AppLifecycleState;
+import 'package:flutter/painting.dart' show PaintingBinding;
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import '../utils/app_logger.dart';
 
 /// SAHOOL Memory Manager
@@ -167,7 +169,7 @@ class MemoryInfo {
 
 /// Mixin لإدارة الذاكرة في StatefulWidget
 mixin MemoryAwareMixin<T extends StatefulWidget> on State<T> {
-  late final void Function(MemoryPressureLevel) _memoryCallback;
+  late final MemoryPressureCallback _memoryCallback;
 
   @override
   void initState() {

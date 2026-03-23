@@ -4,7 +4,7 @@ import '../models/rotation_models.dart';
 import '../providers/rotation_provider.dart';
 
 class CropCompatibilityScreen extends ConsumerStatefulWidget {
-  const CropCompatibilityScreen({Key? key}) : super(key: key);
+  const CropCompatibilityScreen({super.key});
 
   @override
   ConsumerState<CropCompatibilityScreen> createState() =>

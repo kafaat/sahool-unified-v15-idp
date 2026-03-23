@@ -10,6 +10,7 @@
 /// - Request logging and verification
 /// - Network error simulation
 /// - Slow network simulation
+library;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../integration_test/helpers/mock_server.dart';

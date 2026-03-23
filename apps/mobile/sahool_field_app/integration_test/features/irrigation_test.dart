@@ -8,6 +8,7 @@
 /// - Water usage statistics
 /// - Soil moisture display
 /// - Manual irrigation trigger UI
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -70,17 +71,17 @@ void main() {
     });
 
     testWidgets('Irrigation next scheduled date is displayed', (tester) async {
-      await tester.pumpWidget(ProviderScope(
+      await tester.pumpWidget(const ProviderScope(
         child: MaterialApp(
-          locale: const Locale('ar'),
+          locale: Locale('ar'),
           home: Scaffold(
             body: Card(
-              margin: const EdgeInsets.all(16),
+              margin: EdgeInsets.all(16),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text('الري القادم',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
@@ -193,7 +194,7 @@ void main() {
 
     testWidgets('Recommendation shows soil moisture gauge', (tester) async {
       const soilMoisture = 35.0;
-      final moistureColor = soilMoisture < 30
+      const moistureColor = soilMoisture < 30
           ? Colors.red
           : soilMoisture < 50
               ? Colors.orange
@@ -216,7 +217,7 @@ void main() {
                     minHeight: 12,
                   ),
                   const SizedBox(height: 4),
-                  Text('$soilMoisture%'),
+                  const Text('$soilMoisture%'),
                 ],
               ),
             ),
@@ -231,15 +232,15 @@ void main() {
     });
 
     testWidgets('Weather context is shown in recommendation', (tester) async {
-      await tester.pumpWidget(ProviderScope(
+      await tester.pumpWidget(const ProviderScope(
         child: MaterialApp(
-          locale: const Locale('ar'),
+          locale: Locale('ar'),
           home: Scaffold(
             body: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text('السياق الجوي',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),

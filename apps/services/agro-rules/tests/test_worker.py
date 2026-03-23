@@ -45,16 +45,18 @@ class TestAgroRulesWorkerHandleNdviComputed:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-1",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "ndvi_mean": 0.15,
-                "ndvi_trend_7d": -0.20,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-1",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "ndvi_mean": 0.15,
+                    "ndvi_trend_7d": -0.20,
+                },
+            }
+        ).encode()
 
         await worker._handle_ndvi_computed(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -70,13 +72,15 @@ class TestAgroRulesWorkerHandleNdviComputed:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-dup",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"ndvi_mean": 0.15, "ndvi_trend_7d": -0.20},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-dup",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"ndvi_mean": 0.15, "ndvi_trend_7d": -0.20},
+            }
+        ).encode()
 
         await worker._handle_ndvi_computed(msg)
         await worker._handle_ndvi_computed(msg)
@@ -91,13 +95,15 @@ class TestAgroRulesWorkerHandleNdviComputed:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-2",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"ndvi_mean": 0.7, "ndvi_trend_7d": 0.05},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-2",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"ndvi_mean": 0.7, "ndvi_trend_7d": 0.05},
+            }
+        ).encode()
 
         await worker._handle_ndvi_computed(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -117,13 +123,15 @@ class TestAgroRulesWorkerHandleNdviComputed:
         }
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-3",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"ndvi_mean": 0.3, "ndvi_trend_7d": -0.10},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-3",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"ndvi_mean": 0.3, "ndvi_trend_7d": -0.10},
+            }
+        ).encode()
 
         await worker._handle_ndvi_computed(msg)
         # Should create at least one task (NDVI rule) and possibly combined rule
@@ -146,12 +154,14 @@ class TestAgroRulesWorkerHandleNdviComputed:
         worker = AgroRulesWorker()
         worker.fieldops = AsyncMock()
 
-        msg = _make_msg({
-            "event_id": "evt-store",
-            "tenant_id": "t1",
-            "aggregate_id": "field-1",
-            "payload": {"ndvi_mean": 0.6, "ndvi_trend_7d": 0.02},
-        })
+        msg = _make_msg(
+            {
+                "event_id": "evt-store",
+                "tenant_id": "t1",
+                "aggregate_id": "field-1",
+                "payload": {"ndvi_mean": 0.6, "ndvi_trend_7d": 0.02},
+            }
+        )
 
         await worker._handle_ndvi_computed(msg)
         assert "field-1" in worker._recent_ndvi
@@ -167,17 +177,19 @@ class TestAgroRulesWorkerHandleNdviAnomaly:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-a1",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "anomaly_type": "sudden_drop",
-                "severity": "high",
-                "z_score": 3.5,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-a1",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "anomaly_type": "sudden_drop",
+                    "severity": "high",
+                    "z_score": 3.5,
+                },
+            }
+        ).encode()
 
         await worker._handle_ndvi_anomaly(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -192,17 +204,19 @@ class TestAgroRulesWorkerHandleNdviAnomaly:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-a2",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "anomaly_type": "gradual_decline",
-                "severity": "medium",
-                "z_score": 2.0,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-a2",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "anomaly_type": "gradual_decline",
+                    "severity": "medium",
+                    "z_score": 2.0,
+                },
+            }
+        ).encode()
 
         await worker._handle_ndvi_anomaly(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -216,17 +230,19 @@ class TestAgroRulesWorkerHandleNdviAnomaly:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-a3",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "anomaly_type": "minor",
-                "severity": "low",
-                "z_score": 1.0,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-a3",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "anomaly_type": "minor",
+                    "severity": "low",
+                    "z_score": 1.0,
+                },
+            }
+        ).encode()
 
         await worker._handle_ndvi_anomaly(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -247,12 +263,14 @@ class TestAgroRulesWorkerHandleNdviAnomaly:
         worker = AgroRulesWorker()
         worker.fieldops = AsyncMock()
 
-        msg = _make_msg({
-            "event_id": "evt-dup-anomaly",
-            "tenant_id": "t1",
-            "aggregate_id": "field-1",
-            "payload": {"anomaly_type": "x", "severity": "high", "z_score": -2.0},
-        })
+        msg = _make_msg(
+            {
+                "event_id": "evt-dup-anomaly",
+                "tenant_id": "t1",
+                "aggregate_id": "field-1",
+                "payload": {"anomaly_type": "x", "severity": "high", "z_score": -2.0},
+            }
+        )
 
         await worker._handle_ndvi_anomaly(msg)
         await worker._handle_ndvi_anomaly(msg)
@@ -269,18 +287,20 @@ class TestAgroRulesWorkerHandleWeatherAlert:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-w1",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "alert_type": "heat_stress",
-                "severity": "critical",
-                "temp_c": 45,
-                "humidity_pct": 20,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-w1",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "alert_type": "heat_stress",
+                    "severity": "critical",
+                    "temp_c": 45,
+                    "humidity_pct": 20,
+                },
+            }
+        ).encode()
 
         await worker._handle_weather_alert(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -294,18 +314,20 @@ class TestAgroRulesWorkerHandleWeatherAlert:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-w2",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {
-                "alert_type": "frost",
-                "severity": "critical",
-                "temp_c": -2,
-                "humidity_pct": 90,
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-w2",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "alert_type": "frost",
+                    "severity": "critical",
+                    "temp_c": -2,
+                    "humidity_pct": 90,
+                },
+            }
+        ).encode()
 
         await worker._handle_weather_alert(msg)
         assert "field-1" in worker._recent_weather
@@ -318,13 +340,15 @@ class TestAgroRulesWorkerHandleWeatherAlert:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-w3",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"alert_type": "heat_stress", "severity": "low"},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-w3",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"alert_type": "heat_stress", "severity": "low"},
+            }
+        ).encode()
 
         await worker._handle_weather_alert(msg)
         worker.fieldops.create_task.assert_not_called()
@@ -350,13 +374,15 @@ class TestAgroRulesWorkerHandleIrrigationAdjustment:
         worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-i1",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"adjustment_factor": 1.5},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-i1",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"adjustment_factor": 1.5},
+            }
+        ).encode()
 
         await worker._handle_irrigation_adjustment(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -367,12 +393,14 @@ class TestAgroRulesWorkerHandleIrrigationAdjustment:
         worker = AgroRulesWorker()
         worker.fieldops = AsyncMock()
 
-        msg = _make_msg({
-            "event_id": "evt-irr-2",
-            "tenant_id": "t1",
-            "aggregate_id": "field-1",
-            "payload": {"adjustment_factor": 0.5},
-        })
+        msg = _make_msg(
+            {
+                "event_id": "evt-irr-2",
+                "tenant_id": "t1",
+                "aggregate_id": "field-1",
+                "payload": {"adjustment_factor": 0.5},
+            }
+        )
 
         await worker._handle_irrigation_adjustment(msg)
         worker.fieldops.create_task.assert_called_once()
@@ -384,13 +412,15 @@ class TestAgroRulesWorkerHandleIrrigationAdjustment:
         worker.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "event_id": "evt-i2",
-            "tenant_id": "tenant-1",
-            "aggregate_id": "field-1",
-            "correlation_id": "corr-1",
-            "payload": {"adjustment_factor": 1.0},
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "event_id": "evt-i2",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {"adjustment_factor": 1.0},
+            }
+        ).encode()
 
         await worker._handle_irrigation_adjustment(msg)
         worker.fieldops.create_task.assert_not_called()

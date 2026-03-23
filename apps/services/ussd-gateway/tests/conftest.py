@@ -1,4 +1,5 @@
 """Test configuration for ussd-gateway."""
+
 import os
 import sys
 

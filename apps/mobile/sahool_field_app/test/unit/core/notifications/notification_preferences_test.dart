@@ -2,6 +2,7 @@
 /// اختبارات تفضيلات الإشعارات
 ///
 /// Tests for NotificationPreferences model, filtering logic, and serialization
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

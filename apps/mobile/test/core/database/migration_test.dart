@@ -3,9 +3,8 @@
 ///
 /// These tests verify the database migration system works correctly,
 /// including schema upgrades, data preservation, and rollback support.
+library;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart' hide isNull, isNotNull;
-import 'package:drift/native.dart';
 
 // Import the migration system
 import 'package:sahool_field_app/core/database/schema_version.dart';

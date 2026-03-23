@@ -7,14 +7,14 @@ void main() {
   group('Weather Widget', () {
     testWidgets('should display temperature', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text('32°C',
                         style: TextStyle(
                             fontSize: 48, fontWeight: FontWeight.bold)),
@@ -33,14 +33,14 @@ void main() {
 
     testWidgets('should display weather condition', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.wb_sunny, color: Colors.orange),
                     SizedBox(width: 8),
                     Text('مشمس'),
@@ -58,14 +58,14 @@ void main() {
 
     testWidgets('should display humidity', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.water_drop, color: Colors.blue),
                     SizedBox(width: 8),
                     Text('45%'),
@@ -86,14 +86,14 @@ void main() {
 
     testWidgets('should display wind speed', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.air, color: Colors.grey),
                     SizedBox(width: 8),
                     Text('15 كم/س'),
@@ -160,14 +160,14 @@ void main() {
 
     testWidgets('should display rain chance', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.umbrella, color: Colors.indigo),
                     SizedBox(width: 8),
                     Text('20%'),

@@ -34,10 +34,10 @@ class TestFertilizerPlan:
         assert d["notes"] == ["note1"]
 
     def test_default_notes(self):
-        plan = FertilizerPlan(
-            crop="wheat", stage="planting", field_size_ha=1.0, applications=[]
-        )
+        plan = FertilizerPlan(crop="wheat", stage="planting", field_size_ha=1.0, applications=[])
         assert plan.notes == []
+
+
 class TestFertilizerPlanFunction:
     """Tests for fertilizer_plan function"""
 
@@ -85,6 +85,8 @@ class TestFertilizerPlanFunction:
             plan = fertilizer_plan(crop, stages[0])
             assert plan is not None
             assert plan.crop == crop
+
+
 class TestSelectFertilizers:
     """Tests for _select_fertilizers function"""
 
@@ -119,6 +121,8 @@ class TestSelectFertilizers:
         apps = _select_fertilizers(needs, 1.0, "drip", None)
         # Should include K fertilizer
         assert len(apps) > 0
+
+
 class TestDefaultPlan:
     """Tests for _default_plan function"""
 
@@ -134,6 +138,8 @@ class TestDefaultPlan:
     def test_has_advisory_notes(self):
         plan = _default_plan("crop", "stage", 1.0)
         assert len(plan.notes) >= 2  # Arabic and English
+
+
 class TestGetStageTimeline:
     """Tests for get_stage_timeline function"""
 

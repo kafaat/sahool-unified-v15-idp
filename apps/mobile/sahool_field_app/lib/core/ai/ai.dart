@@ -30,6 +30,7 @@
 ///   executionTime: Duration(milliseconds: 500),
 /// );
 /// ```
+library;
 
 export 'context_compressor.dart';
 export 'farm_memory.dart';

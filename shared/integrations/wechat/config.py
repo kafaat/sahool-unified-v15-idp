@@ -337,10 +337,7 @@ class WeChatConfig:
                     f"يجب أن يستخدم عنوان MCP بروتوكول http/https"
                 )
             if not parsed.hostname:
-                errors.append(
-                    "mcp_url must have a valid hostname | "
-                    "يجب أن يحتوي عنوان MCP على اسم مضيف صالح"
-                )
+                errors.append("mcp_url must have a valid hostname | يجب أن يحتوي عنوان MCP على اسم مضيف صالح")
 
         # Validate timeouts
         if self.connect_timeout <= 0:

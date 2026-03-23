@@ -2,7 +2,7 @@
  * SAHOOL Admin - Weather data hooks
  * خطافات بيانات الطقس
  *
- * Hooks for weather-service and weather-core endpoints.
+ * Hooks for weather-service endpoints.
  */
 
 "use client";
@@ -19,7 +19,7 @@ import {
 } from "@/lib/api";
 
 /**
- * Current weather by coordinates (weather-core, POST)
+ * Current weather by coordinates (weather-service, POST)
  */
 export function useWeatherCurrent(
   lat: number,

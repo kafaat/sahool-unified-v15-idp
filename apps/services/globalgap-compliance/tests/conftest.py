@@ -1,4 +1,5 @@
 """Test configuration for globalgap-compliance."""
+
 import os
 import sys
 

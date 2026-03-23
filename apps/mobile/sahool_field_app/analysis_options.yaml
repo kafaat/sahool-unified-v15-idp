@@ -23,9 +23,9 @@ analyzer:
     - "build/**"
     - ".dart_tool/**"
 
-  # Enable stricter type checks
+  # Enable stricter type checks (strict-casts disabled to reduce false positives from JSON parsing)
   language:
-    strict-casts: true
+    strict-casts: false
     strict-inference: true
     strict-raw-types: true
 

@@ -35,6 +35,8 @@ from src.main import (
 # Fixtures
 # ---------------------------------------------------------------------------
 _TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
+
 class _TenantClient:
     """Wrapper that adds X-Tenant-ID header to all requests."""
 
@@ -55,10 +57,14 @@ class _TenantClient:
         headers = kwargs.pop("headers", {})
         headers.update(_TENANT_HEADER)
         return self._client.stream(method, url, headers=headers, **kwargs)
+
+
 @pytest.fixture
 def client():
     """Test client fixture with tenant header."""
     return _TenantClient(TestClient(app))
+
+
 # ---------------------------------------------------------------------------
 # Test Configuration
 # ---------------------------------------------------------------------------
@@ -82,6 +88,8 @@ class TestConfiguration:
     def test_mcp_server_name(self):
         assert mcp_server.name == "sahool-mcp-server"
         assert mcp_server.version == "16.0.0"
+
+
 # ---------------------------------------------------------------------------
 # Test Health Endpoints
 # ---------------------------------------------------------------------------
@@ -116,6 +124,8 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ready"
+
+
 # ---------------------------------------------------------------------------
 # Test Root Endpoint
 # ---------------------------------------------------------------------------
@@ -149,6 +159,8 @@ class TestRootEndpoint:
         data = client.get("/").json()
         assert "http" in data["transports"]
         assert "sse" in data["transports"]
+
+
 # ---------------------------------------------------------------------------
 # Test MCP JSON-RPC Protocol
 # ---------------------------------------------------------------------------
@@ -261,6 +273,8 @@ class TestMCPProtocol:
         assert response.status_code == 200
         data = response.json()
         assert "error" in data
+
+
 # ---------------------------------------------------------------------------
 # Test JSON-RPC Validation
 # ---------------------------------------------------------------------------
@@ -310,6 +324,8 @@ class TestJSONRPCValidation:
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == "my-id"
+
+
 # ---------------------------------------------------------------------------
 # Test Convenience Endpoints
 # ---------------------------------------------------------------------------
@@ -343,6 +359,8 @@ class TestConvenienceEndpoints:
         ).json()
         mcp_tools = mcp_resp["result"]["tools"]
         assert len(conv_tools) == len(mcp_tools)
+
+
 # ---------------------------------------------------------------------------
 # Test Metrics Endpoint
 # ---------------------------------------------------------------------------
@@ -389,6 +407,8 @@ class TestMetricsEndpoint:
         )
         response = client.get("/metrics")
         assert "mcp_resource_reads_total" in response.text
+
+
 # ---------------------------------------------------------------------------
 # Test SSE Endpoint
 # ---------------------------------------------------------------------------
@@ -403,7 +423,10 @@ class TestSSEEndpoint:
         import asyncio
 
         from src.main import handle_sse
+
         assert asyncio.iscoroutinefunction(handle_sse)
+
+
 # ---------------------------------------------------------------------------
 # Test Error Handling
 # ---------------------------------------------------------------------------

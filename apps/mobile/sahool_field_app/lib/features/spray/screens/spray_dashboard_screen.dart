@@ -15,9 +15,9 @@ class SprayDashboardScreen extends ConsumerStatefulWidget {
   final String fieldId;
 
   const SprayDashboardScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayDashboardScreen> createState() =>
@@ -422,7 +422,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                   ),
                   const Spacer(),
                   if (recommendation.priority >= 4)
-                    Icon(Icons.priority_high, color: Colors.red, size: 20),
+                    const Icon(Icons.priority_high, color: Colors.red, size: 20),
                 ],
               ),
               const SizedBox(height: 8),
@@ -464,7 +464,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.schedule, size: 16, color: Colors.green),
+                    const Icon(Icons.schedule, size: 16, color: Colors.green),
                     const SizedBox(width: 8),
                     Text(
                       '${isArabic ? 'النافذة التالية: ' : 'Next window: '}${_formatWindowTime(recommendation.nextOptimalWindow!)}',
@@ -577,7 +577,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               const SizedBox(height: 8),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

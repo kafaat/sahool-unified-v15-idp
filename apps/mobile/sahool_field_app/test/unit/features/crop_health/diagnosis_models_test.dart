@@ -3,6 +3,7 @@
 ///
 /// Tests Freezed model creation, JSON serialization/deserialization,
 /// enum values, and model properties.
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/crop_health/data/models/diagnosis_models.dart';

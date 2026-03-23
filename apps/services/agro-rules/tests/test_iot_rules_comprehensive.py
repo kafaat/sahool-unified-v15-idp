@@ -19,9 +19,13 @@ class TestTaskRecommendationDataclass:
     def test_to_dict_with_metadata(self):
         """Test to_dict includes metadata"""
         rec = TaskRecommendation(
-            title_ar="أ", title_en="A",
-            description_ar="ب", description_en="B",
-            task_type="t", priority="p", urgency_hours=1,
+            title_ar="أ",
+            title_en="A",
+            description_ar="ب",
+            description_en="B",
+            task_type="t",
+            priority="p",
+            urgency_hours=1,
             metadata={"key": "val"},
         )
         d = rec.to_dict()
@@ -30,9 +34,13 @@ class TestTaskRecommendationDataclass:
     def test_to_dict_default_metadata(self):
         """Test to_dict returns empty dict when metadata is None"""
         rec = TaskRecommendation(
-            title_ar="أ", title_en="A",
-            description_ar="ب", description_en="B",
-            task_type="t", priority="p", urgency_hours=1,
+            title_ar="أ",
+            title_en="A",
+            description_ar="ب",
+            description_en="B",
+            task_type="t",
+            priority="p",
+            urgency_hours=1,
         )
         d = rec.to_dict()
         assert d["metadata"] == {}
@@ -40,14 +48,28 @@ class TestTaskRecommendationDataclass:
     def test_to_dict_all_keys(self):
         """Test to_dict has all expected keys"""
         rec = TaskRecommendation(
-            title_ar="أ", title_en="A",
-            description_ar="ب", description_en="B",
-            task_type="irrigation", priority="high", urgency_hours=6,
+            title_ar="أ",
+            title_en="A",
+            description_ar="ب",
+            description_en="B",
+            task_type="irrigation",
+            priority="high",
+            urgency_hours=6,
         )
         d = rec.to_dict()
-        expected_keys = {"title_ar", "title_en", "description_ar", "description_en",
-                         "task_type", "priority", "urgency_hours", "metadata"}
+        expected_keys = {
+            "title_ar",
+            "title_en",
+            "description_ar",
+            "description_en",
+            "task_type",
+            "priority",
+            "urgency_hours",
+            "metadata",
+        }
         assert set(d.keys()) == expected_keys
+
+
 class TestGetThreshold:
     """Tests for threshold lookup"""
 
@@ -79,6 +101,8 @@ class TestGetThreshold:
         t = get_threshold("soil_temperature", "coffee")
         assert t["low"] == 18
         assert t["high"] == 28
+
+
 class TestWaterFlowRules:
     """Tests for water flow sensor rules"""
 
@@ -99,6 +123,8 @@ class TestWaterFlowRules:
         rec = rule_from_sensor("water_flow", 0)
         assert rec.metadata["sensor_type"] == "water_flow"
         assert rec.metadata["value"] == 0
+
+
 class TestWaterLevelRules:
     """Tests for water level sensor rules"""
 
@@ -123,6 +149,8 @@ class TestWaterLevelRules:
         """Test full tank returns None"""
         rec = rule_from_sensor("water_level", 90)
         assert rec is None
+
+
 class TestSoilMoistureRulesBoundaries:
     """Boundary tests for soil moisture rules"""
 
@@ -177,6 +205,8 @@ class TestSoilMoistureRulesBoundaries:
         rec = rule_from_sensor("soil_moisture", 25, crop="coffee")
         assert rec is not None
         assert rec.priority == "high"
+
+
 class TestAirTemperatureRulesBoundaries:
     """Boundary tests for air temperature rules"""
 
@@ -230,6 +260,8 @@ class TestAirTemperatureRulesBoundaries:
         rec = rule_from_sensor("air_temperature", 39, crop="tomato")
         assert rec is not None
         assert rec.priority == "urgent"
+
+
 class TestSoilTemperatureRules:
     """Tests for soil temperature rules"""
 
@@ -258,6 +290,8 @@ class TestSoilTemperatureRules:
         rec = rule_from_sensor("soil_temperature", 33, crop="coffee")
         assert rec is not None
         assert rec.task_type == "manual"
+
+
 class TestSoilEcRules:
     """Tests for soil EC (salinity) rules"""
 
@@ -284,6 +318,8 @@ class TestSoilEcRules:
         # 6.0 is NOT > 6.0, falls to high check (> 4.0)
         assert rec is not None
         assert rec.priority == "high"
+
+
 class TestAirHumidityRules:
     """Tests for air humidity rules"""
 
@@ -314,6 +350,8 @@ class TestAirHumidityRules:
         """Test boundary: 30 is NOT < 30"""
         rec = rule_from_sensor("air_humidity", 30)
         assert rec is None
+
+
 class TestUnknownSensorType:
     """Tests for unknown sensor types"""
 
@@ -326,6 +364,8 @@ class TestUnknownSensorType:
         """Test unknown sensor with crop context returns None"""
         rec = rule_from_sensor("uv_index", 10, crop="tomato")
         assert rec is None
+
+
 class TestContextParameter:
     """Tests for context parameter handling"""
 
@@ -339,6 +379,8 @@ class TestContextParameter:
         """Test context dict doesn't break anything"""
         rec = rule_from_sensor("soil_moisture", 5, context={"field_id": "f1"})
         assert rec is not None
+
+
 class TestEvaluateCombinedRules:
     """Additional combined rule tests"""
 
@@ -356,7 +398,7 @@ class TestEvaluateCombinedRules:
         """Test boundary: temp exactly at high, moisture exactly at low"""
         readings = [
             {"sensor_type": "air_temperature", "value": 38},  # >= 38
-            {"sensor_type": "soil_moisture", "value": 19},     # < 20
+            {"sensor_type": "soil_moisture", "value": 19},  # < 20
         ]
         result = evaluate_combined_rules(readings)
         assert len(result) >= 1
@@ -414,7 +456,7 @@ class TestEvaluateCombinedRules:
         """Test combined rules with crop-specific thresholds"""
         readings = [
             {"sensor_type": "air_temperature", "value": 33},  # Tomato high = 32
-            {"sensor_type": "soil_moisture", "value": 20},     # Tomato low = 25
+            {"sensor_type": "soil_moisture", "value": 20},  # Tomato low = 25
         ]
         result = evaluate_combined_rules(readings, crop="tomato")
         assert len(result) >= 1

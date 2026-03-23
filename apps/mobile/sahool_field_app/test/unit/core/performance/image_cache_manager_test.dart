@@ -2,8 +2,8 @@
 /// اختبارات مدير كاش الصور
 ///
 /// Tests the SahoolImageCacheManager singleton and CacheInfo model
+library;
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/performance/image_cache_manager.dart';
 

@@ -153,8 +153,8 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
       children: [
         FlutterMap(
           mapController: _mapController,
-          options: MapOptions(
-            initialCenter: const LatLng(24.7136, 46.6753),
+          options: const MapOptions(
+            initialCenter: LatLng(24.7136, 46.6753),
             initialZoom: 13,
             interactionOptions: InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,

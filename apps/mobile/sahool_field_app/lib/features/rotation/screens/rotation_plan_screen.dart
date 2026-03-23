@@ -11,9 +11,9 @@ class RotationPlanScreen extends ConsumerStatefulWidget {
   final String fieldId;
 
   const RotationPlanScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<RotationPlanScreen> createState() => _RotationPlanScreenState();

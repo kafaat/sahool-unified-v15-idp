@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import '../utils/app_logger.dart';
 
 /// SSL Certificate Pinning Service
@@ -347,7 +346,7 @@ class CertificatePinningService {
                 AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {
                   'pins': _getPinsForHost(host)
                       .map((p) => p.value.substring(0, 16))
-                      .join(", ")
+                      .join(', ')
                 });
               }
             }
@@ -363,7 +362,7 @@ class CertificatePinningService {
               tag: 'CertificatePinning');
           AppLogger.i('Configured domains',
               tag: 'CertificatePinning',
-              data: {'domains': getConfiguredDomains().join(", ")});
+              data: {'domains': getConfiguredDomains().join(', ')});
         }
       } else {
         if (kDebugMode) {
@@ -655,7 +654,7 @@ Certificate Info:
             tag: 'CertificatePinning');
         AppLogger.i('Configured domains',
             tag: 'CertificatePinning',
-            data: {'domains': getConfiguredDomains().join(", ")});
+            data: {'domains': getConfiguredDomains().join(', ')});
         for (final domain in getConfiguredDomains()) {
           final pins = _certificatePins[domain]!;
           AppLogger.d('Domain pins',

@@ -263,7 +263,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
 
     // Loading state
     if (widget.isLoading) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: SahoolColors.paleOlive,
           borderRadius: BorderRadius.circular(20),
@@ -288,7 +288,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
 
     // Empty state
     if (widget.zones.isEmpty) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: SahoolColors.paleOlive,
           borderRadius: BorderRadius.circular(20),
@@ -363,7 +363,6 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
                     color: color.withOpacity(isSelected ? 0.5 : 0.3),
                     borderColor: color,
                     borderStrokeWidth: isSelected ? 3 : 2,
-                    isFilled: true,
                   );
                 }).toList(),
               ),

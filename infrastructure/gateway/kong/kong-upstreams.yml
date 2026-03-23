@@ -406,7 +406,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         timeout: 5
         healthy:
           interval: 10
@@ -966,33 +966,7 @@ upstreams:
   # Community Services - خدمات المجتمع
   # ============================================================================
 
-  # Community Chat - دردشة المجتمع
-  - name: community-chat-upstream
-    algorithm: round-robin
-    slots: 10000
-    healthchecks:
-      active:
-        type: http
-        http_path: /health
-        timeout: 5
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          http_failures: 3
-          interval: 10
-      passive:
-        type: http
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-    targets:
-      - target: community-chat:8097
-        weight: 100
-        tags:
-          - community
-          - tier-1
+  # REMOVED: community-chat-upstream (deprecated → chat-service, sunset 2026-02)
 
   # Chat Service - خدمة المحادثة
   - name: chat-service-upstream
@@ -1022,33 +996,7 @@ upstreams:
           - community
           - tier-2
 
-  # Field Chat - دردشة الحقول
-  - name: field-chat-upstream
-    algorithm: round-robin
-    slots: 10000
-    healthchecks:
-      active:
-        type: http
-        http_path: /health
-        timeout: 5
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          http_failures: 3
-          interval: 10
-      passive:
-        type: http
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-    targets:
-      - target: field-chat:8099
-        weight: 100
-        tags:
-          - community
-          - tier-2
+  # REMOVED: field-chat-upstream (deprecated → chat-service, sunset 2026-02)
 
   # ============================================================================
   # Compliance & Traceability - الامتثال والتتبع

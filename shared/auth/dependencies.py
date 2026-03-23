@@ -586,7 +586,7 @@ def get_optional_user(
 
         return User(
             id=payload.user_id,
-            email="",
+            email=payload.user_id,  # Use user_id as fallback when email not in token
             roles=payload.roles,
             tenant_id=payload.tenant_id,
             permissions=payload.permissions,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
-import '../../field/domain/entities/field.dart' as domain;
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
 import '../services/task_reminder_service.dart';

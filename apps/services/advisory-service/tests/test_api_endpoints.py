@@ -70,9 +70,7 @@ class TestTenantEnforcement:
         try:
             user = User(id="u1", email="t@t.com", roles=[], tenant_id=None)
         except TypeError:
-            user = User(
-                id="u1", email="t@t.com", hashed_password="x", roles=[], tenant_id=None
-            )
+            user = User(id="u1", email="t@t.com", hashed_password="x", roles=[], tenant_id=None)
         _enforce_tenant(user, "any_tenant")  # should not raise
 
 

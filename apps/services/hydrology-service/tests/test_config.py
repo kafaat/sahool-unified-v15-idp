@@ -15,6 +15,7 @@ class TestSettings:
     def _create_settings(self, env_overrides=None):
         """Create fresh settings with optional env overrides."""
         from src.core.config import Settings
+
         env = {
             "DATABASE_URL": "",
             "NATS_URL": "",
@@ -69,13 +70,15 @@ class TestSettings:
 
     def test_env_override(self):
         """Test environment variable overrides."""
-        s = self._create_settings({
-            "PORT": "9999",
-            "HOST": "127.0.0.1",
-            "LOG_LEVEL": "DEBUG",
-            "DEFAULT_DEM_RESOLUTION": "10.0",
-            "FLOW_ACCUMULATION_THRESHOLD": "200",
-        })
+        s = self._create_settings(
+            {
+                "PORT": "9999",
+                "HOST": "127.0.0.1",
+                "LOG_LEVEL": "DEBUG",
+                "DEFAULT_DEM_RESOLUTION": "10.0",
+                "FLOW_ACCUMULATION_THRESHOLD": "200",
+            }
+        )
         assert s.port == 9999
         assert s.host == "127.0.0.1"
         assert s.log_level == "DEBUG"
@@ -85,6 +88,7 @@ class TestSettings:
     def test_get_settings_cached(self):
         """Test that get_settings returns cached instance."""
         from src.core.config import get_settings
+
         get_settings.cache_clear()
         with patch.dict(os.environ, {"ENVIRONMENT": "test", "DATABASE_URL": "", "NATS_URL": ""}):
             s1 = get_settings()

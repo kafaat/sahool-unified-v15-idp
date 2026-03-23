@@ -29,6 +29,8 @@ class TestEventConstants:
     def test_all_versions_positive(self):
         for event_type, version in VERSIONS.items():
             assert version >= 1, f"{event_type} version < 1"
+
+
 class TestGetSubject:
     """Tests for get_subject function"""
 
@@ -51,6 +53,8 @@ class TestGetSubject:
     def test_unknown_event_type_fallback(self):
         subject = get_subject("unknown_event")
         assert subject == "sahool.advisory.unknown_event"
+
+
 class TestGetVersion:
     """Tests for get_version function"""
 

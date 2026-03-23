@@ -30,12 +30,18 @@ from src.main import (
 
 TENANT_UUID = "00000000-0000-0000-0000-000000000001"
 HEADERS = {"X-Tenant-Id": TENANT_UUID}
+
+
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
 @pytest.fixture
 def engine():
     return FertigationEngine()
+
+
 # ==========================================================================
 # Enum Tests
 # ==========================================================================
@@ -62,6 +68,8 @@ class TestEnums:
         assert GrowthPhase.FLOWERING == "flowering"
         assert GrowthPhase.RIPENING == "ripening"
         assert GrowthPhase.HARVEST == "harvest"
+
+
 # ==========================================================================
 # Fertilizer Database Tests
 # ==========================================================================
@@ -100,6 +108,8 @@ class TestFertilizerDB:
         kno3 = FERTILIZER_DB[FertilizerType.POTASSIUM_NITRATE]
         assert kno3["n"] == 13.0
         assert kno3["k"] == 46.0
+
+
 # ==========================================================================
 # Crop NPK Requirements Tests
 # ==========================================================================
@@ -130,6 +140,8 @@ class TestCropNPKRequirements:
             )
             assert total_pct >= 80, f"Crop '{crop_name}' phase sum {total_pct}% is low"
             assert total_pct <= 110, f"Crop '{crop_name}' phase sum {total_pct}% is too high"
+
+
 # ==========================================================================
 # FertigationEngine Unit Tests
 # ==========================================================================
@@ -276,6 +288,8 @@ class TestFertigationEngineUnit:
         plan = engine.calculate_fertigation(req)
         expected_cost_per_ha = plan.total_cost_sar / 3.0
         assert abs(plan.cost_per_ha_sar - expected_cost_per_ha) < 0.1
+
+
 # ==========================================================================
 # N / P Loss Risk Assessment Tests
 # ==========================================================================
@@ -306,45 +320,74 @@ class TestRiskAssessment:
     def test_p_loss_low(self, engine):
         risk, risk_ar = engine._assess_p_loss_risk(10)
         assert risk == "low"
+
+
 # ==========================================================================
 # Recommendation Generation Tests
 # ==========================================================================
 class TestRecommendations:
     def test_ec_exceeded_recommendation(self, engine):
         recs, recs_ar = engine._generate_recommendations(
-            n=30, p=15, k=25, ec_total=3.0, max_ec=2.5,
-            phase=GrowthPhase.VEGETATIVE, crop="wheat",
+            n=30,
+            p=15,
+            k=25,
+            ec_total=3.0,
+            max_ec=2.5,
+            phase=GrowthPhase.VEGETATIVE,
+            crop="wheat",
         )
         assert any("EC" in r for r in recs)
         assert any("الموصلية" in r for r in recs_ar)
 
     def test_high_n_recommendation(self, engine):
         recs, recs_ar = engine._generate_recommendations(
-            n=70, p=15, k=25, ec_total=1.5, max_ec=2.5,
-            phase=GrowthPhase.VEGETATIVE, crop="wheat",
+            n=70,
+            p=15,
+            k=25,
+            ec_total=1.5,
+            max_ec=2.5,
+            phase=GrowthPhase.VEGETATIVE,
+            crop="wheat",
         )
         assert any("morning" in r.lower() for r in recs)
 
     def test_flowering_recommendation(self, engine):
         recs, recs_ar = engine._generate_recommendations(
-            n=30, p=15, k=25, ec_total=1.5, max_ec=2.5,
-            phase=GrowthPhase.FLOWERING, crop="wheat",
+            n=30,
+            p=15,
+            k=25,
+            ec_total=1.5,
+            max_ec=2.5,
+            phase=GrowthPhase.FLOWERING,
+            crop="wheat",
         )
         assert any("flowering" in r.lower() for r in recs)
 
     def test_fruit_development_recommendation(self, engine):
         recs, recs_ar = engine._generate_recommendations(
-            n=30, p=15, k=25, ec_total=1.5, max_ec=2.5,
-            phase=GrowthPhase.FRUIT_DEVELOPMENT, crop="tomato",
+            n=30,
+            p=15,
+            k=25,
+            ec_total=1.5,
+            max_ec=2.5,
+            phase=GrowthPhase.FRUIT_DEVELOPMENT,
+            crop="tomato",
         )
         assert any("fruit development" in r.lower() for r in recs)
 
     def test_no_recommendations_normal_conditions(self, engine):
         recs, recs_ar = engine._generate_recommendations(
-            n=20, p=10, k=15, ec_total=1.0, max_ec=2.5,
-            phase=GrowthPhase.SEEDLING, crop="wheat",
+            n=20,
+            p=10,
+            k=15,
+            ec_total=1.0,
+            max_ec=2.5,
+            phase=GrowthPhase.SEEDLING,
+            crop="wheat",
         )
         assert len(recs) == 0
+
+
 # ==========================================================================
 # Nutrient Balance Tests
 # ==========================================================================
@@ -426,6 +469,8 @@ class TestNutrientBalance:
         )
         result = engine.calculate_nutrient_balance(req)
         assert any("groundwater" in r.lower() for r in result.recommendations)
+
+
 # ==========================================================================
 # API Endpoint Tests
 # ==========================================================================
@@ -531,6 +576,8 @@ class TestAPIEndpoints:
         assert "germination" in data["phases"]
         assert "harvest" in data["phases"]
         assert len(data["phases"]) == len(GrowthPhase)
+
+
 # ==========================================================================
 # Pydantic Model Validation Tests
 # ==========================================================================

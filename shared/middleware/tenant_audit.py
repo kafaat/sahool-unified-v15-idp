@@ -81,11 +81,7 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
         accessed_tenant_id = request.headers.get("X-Tenant-ID")
 
         # If no cross-tenant access, proceed normally
-        if (
-            not user_tenant_id
-            or not accessed_tenant_id
-            or user_tenant_id == accessed_tenant_id
-        ):
+        if not user_tenant_id or not accessed_tenant_id or user_tenant_id == accessed_tenant_id:
             return await call_next(request)
 
         # Cross-tenant access detected - this should only be allowed for admins

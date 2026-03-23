@@ -6,7 +6,6 @@ library;
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -289,7 +288,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
     with WidgetsBindingObserver {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
-  bool _isProcessingFrame = false;
+  final bool _isProcessingFrame = false;
   Timer? _processingTimer;
 
   @override
@@ -534,9 +533,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
 
             // Loading indicator
             if (state.isDetecting)
-              Container(
+              const ColoredBox(
                 color: Colors.black54,
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -634,7 +633,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -734,11 +733,11 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),

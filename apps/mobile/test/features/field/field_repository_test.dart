@@ -6,16 +6,14 @@
 /// - Offline-first behavior
 /// - GeoJSON transformation
 /// - Outbox queuing
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:sahool_field_app/features/field/data/repo/fields_repo.dart';
-import 'package:sahool_field_app/features/field/data/remote/fields_api.dart';
 import 'package:sahool_field_app/features/field/domain/entities/field.dart' as domain;
-import 'package:sahool_field_app/core/storage/database.dart';
-import 'package:sahool_field_app/core/sync/network_status.dart';
 
 import 'fixtures/field_fixtures.dart';
 import 'fixtures/field_mocks.dart';
@@ -86,7 +84,7 @@ void main() {
       test('should map all field properties correctly', () async {
         // Arrange
         final boundary = FieldTestFixtures.simpleRectangleBoundary;
-        final centroid = const LatLng(15.3725, 44.1925);
+        const centroid = LatLng(15.3725, 44.1925);
         final dbField = createMockDbField(
           id: 'field_001',
           remoteId: 'remote_001',

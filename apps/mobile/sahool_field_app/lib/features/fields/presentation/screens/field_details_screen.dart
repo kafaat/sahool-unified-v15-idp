@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/config/env_config.dart';
-import '../../../field/domain/mappers/field_mapper.dart';
 import '../../../field/presentation/providers/field_controller.dart';
 import '../../domain/entities/field_entity.dart';
 
@@ -80,7 +78,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       backgroundColor: const Color(0xFF367C2B),
       foregroundColor: Colors.white,
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
+        background: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -178,7 +176,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                     children: [
                       _buildQuickStat(
                         icon: Icons.square_foot,
-                        value: '${_field.areaHectares.toStringAsFixed(1)}',
+                        value: _field.areaHectares.toStringAsFixed(1),
                         label: 'هكتار',
                       ),
                       const SizedBox(width: 24),

@@ -187,7 +187,7 @@ class KongServices {
   );
 
   static const yield_ = KongService(
-    name: 'yield-engine',
+    name: 'yield-prediction-service',
     nameAr: 'الإنتاج',
     basePath: '/api/v1/yield',
   );

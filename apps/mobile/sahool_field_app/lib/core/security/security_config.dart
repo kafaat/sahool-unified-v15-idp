@@ -266,6 +266,25 @@ class SecurityConfig {
     }
   }
 
+  /// Whether screen security is enabled
+  /// هل أمان الشاشة مفعل
+  bool get screenSecurityEnabled =>
+      screenshotPolicy != ScreenshotPolicy.disabled;
+
+  /// Set of screen types that should be secured
+  /// مجموعة أنواع الشاشات المحمية
+  Set<String> get securedScreenTypes => screenSecurityEnabled
+      ? const {'authentication', 'wallet', 'personalData', 'taskEvidence', 'financial'}
+      : const {};
+
+  /// Check if a specific screen type should be secured
+  /// التحقق مما إذا كان يجب تأمين نوع شاشة معين
+  bool shouldSecureScreen(dynamic screenType) {
+    if (!screenSecurityEnabled) return false;
+    final typeName = screenType.toString().split('.').last;
+    return securedScreenTypes.contains(typeName);
+  }
+
   /// Whether screenshot prevention is enabled
   /// هل منع لقطات الشاشة مفعل
   bool get isScreenshotPreventionEnabled =>

@@ -4,6 +4,7 @@ Comprehensive tests for Knowledge Graph Service
 
 Covers: models, graph_service, entity_service, relationship_service, API endpoints
 """
+
 import os
 import sys
 
@@ -189,6 +190,8 @@ class TestModels:
         )
         assert resp.status == "healthy"
         assert resp.database is True
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # KnowledgeGraphService Tests (graph_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -452,13 +455,17 @@ class TestKnowledgeGraphServiceUnit:
         disease = Disease(id="rl-d", name_en="TestD", name_ar="تجربة")
         await service.add_disease(disease)
         await service.add_relationship(
-            source_type="disease", source_id="rl-d",
-            target_type="crop", target_id="wheat",
+            source_type="disease",
+            source_id="rl-d",
+            target_type="crop",
+            target_id="wheat",
             relationship_type=RelationshipType.AFFECTS,
         )
         await service.add_relationship(
-            source_type="disease", source_id="rl-d",
-            target_type="crop", target_id="tomato",
+            source_type="disease",
+            source_id="rl-d",
+            target_type="crop",
+            target_id="tomato",
             relationship_type=RelationshipType.AFFECTS,
         )
         related = await service.get_related_entities("disease", "rl-d", limit=1)
@@ -471,6 +478,8 @@ class TestKnowledgeGraphServiceUnit:
         svc.graph = None
         result = await svc.health_check()
         assert result is False
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # EntityService Tests (entity_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -491,9 +500,11 @@ class TestEntityService:
         graph.get_all_crops = AsyncMock(return_value=[{"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"}])
         graph.get_all_diseases = AsyncMock(return_value=[])
         graph.get_all_treatments = AsyncMock(return_value=[])
-        graph.search_entities = AsyncMock(return_value=[
-            {"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"},
-        ])
+        graph.search_entities = AsyncMock(
+            return_value=[
+                {"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"},
+            ]
+        )
         return graph
 
     @pytest.fixture
@@ -593,34 +604,42 @@ class TestEntityService:
 
     async def test_search_with_disease_results(self, entity_service, mock_graph):
         """Test search organizes disease results correctly."""
-        mock_graph.search_entities = AsyncMock(return_value=[
-            {"id": "disease:rust", "name_en": "Leaf Rust", "name_ar": "صدأ"},
-        ])
+        mock_graph.search_entities = AsyncMock(
+            return_value=[
+                {"id": "disease:rust", "name_en": "Leaf Rust", "name_ar": "صدأ"},
+            ]
+        )
         results = await entity_service.search("rust")
         assert len(results["results"]["diseases"]) == 1
         assert results["results"]["diseases"][0]["id"] == "rust"
 
     async def test_search_with_treatment_results(self, entity_service, mock_graph):
         """Test search organizes treatment results correctly."""
-        mock_graph.search_entities = AsyncMock(return_value=[
-            {"id": "treatment:copper", "name_en": "Copper Spray", "name_ar": "نحاس"},
-        ])
+        mock_graph.search_entities = AsyncMock(
+            return_value=[
+                {"id": "treatment:copper", "name_en": "Copper Spray", "name_ar": "نحاس"},
+            ]
+        )
         results = await entity_service.search("copper")
         assert len(results["results"]["treatments"]) == 1
         assert results["results"]["treatments"][0]["id"] == "copper"
 
     async def test_search_mixed_results(self, entity_service, mock_graph):
         """Test search with mixed entity types."""
-        mock_graph.search_entities = AsyncMock(return_value=[
-            {"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"},
-            {"id": "disease:rust", "name_en": "Wheat Rust", "name_ar": "صدأ القمح"},
-            {"id": "treatment:fungicide", "name_en": "Fungicide", "name_ar": "مبيد فطري"},
-        ])
+        mock_graph.search_entities = AsyncMock(
+            return_value=[
+                {"id": "crop:wheat", "name_en": "Wheat", "name_ar": "القمح"},
+                {"id": "disease:rust", "name_en": "Wheat Rust", "name_ar": "صدأ القمح"},
+                {"id": "treatment:fungicide", "name_en": "Fungicide", "name_ar": "مبيد فطري"},
+            ]
+        )
         results = await entity_service.search("wheat")
         assert len(results["results"]["crops"]) == 1
         assert len(results["results"]["diseases"]) == 1
         assert len(results["results"]["treatments"]) == 1
         assert results["total_results"] == 3
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # RelationshipService Tests (relationship_service.py)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -632,16 +651,20 @@ class TestRelationshipService:
     def mock_graph(self):
         graph = AsyncMock()
         graph.add_relationship = AsyncMock(return_value=True)
-        graph.get_related_entities = AsyncMock(return_value=[
-            {"id": "crop:wheat", "name_en": "Wheat", "relationship": {"type": "affects", "confidence": 0.9}},
-        ])
-        graph.find_shortest_path = AsyncMock(return_value=PathResponse(
-            start_node=GraphNode(id="a", node_type="disease", label="A"),
-            end_node=GraphNode(id="b", node_type="treatment", label="B"),
-            path=["a", "b"],
-            length=1,
-            edges=[],
-        ))
+        graph.get_related_entities = AsyncMock(
+            return_value=[
+                {"id": "crop:wheat", "name_en": "Wheat", "relationship": {"type": "affects", "confidence": 0.9}},
+            ]
+        )
+        graph.find_shortest_path = AsyncMock(
+            return_value=PathResponse(
+                start_node=GraphNode(id="a", node_type="disease", label="A"),
+                end_node=GraphNode(id="b", node_type="treatment", label="B"),
+                path=["a", "b"],
+                length=1,
+                edges=[],
+            )
+        )
         graph.relationships = {}
         return graph
 
@@ -724,10 +747,12 @@ class TestRelationshipService:
         assert isinstance(results, list)
 
     async def test_get_diseases_affecting_crop(self, rel_service, mock_graph):
-        mock_graph.get_related_entities = AsyncMock(return_value=[
-            {"id": "disease:rust"},
-            {"id": "crop:barley"},
-        ])
+        mock_graph.get_related_entities = AsyncMock(
+            return_value=[
+                {"id": "disease:rust"},
+                {"id": "crop:barley"},
+            ]
+        )
         results = await rel_service.get_diseases_affecting_crop("wheat")
         assert len(results) == 1
         assert results[0]["id"] == "disease:rust"
@@ -779,5 +804,7 @@ class TestRelationshipService:
         )
         assert result["exists"] is False
         assert "error" in result
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

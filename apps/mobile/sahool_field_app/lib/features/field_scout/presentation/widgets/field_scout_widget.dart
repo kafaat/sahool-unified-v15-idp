@@ -266,7 +266,7 @@ class _SessionStats extends StatelessWidget {
           ),
           _StatItem(
             icon: Icons.straighten,
-            value: '${(session.distanceMeters / 1000).toStringAsFixed(1)}',
+            value: (session.distanceMeters / 1000).toStringAsFixed(1),
             label: 'كم',
           ),
           _StatItem(
@@ -528,7 +528,7 @@ class _ControlButtons extends ConsumerWidget {
     );
   }
 
-  void _endSession(BuildContext context, WidgetRef ref) async {
+  Future<void> _endSession(BuildContext context, WidgetRef ref) async {
     final session = await ref.read(fieldScoutProvider.notifier).endSession();
     if (context.mounted) {
       _showSessionSummary(context, session);

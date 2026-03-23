@@ -42,7 +42,7 @@ NdviAnalysis _sampleNdviAnalysis({String fieldId = 'field_001'}) {
     ],
     analyzedAt: DateTime(2026, 2, 27, 10, 0),
     imageUrl: 'https://example.com/ndvi_map.png',
-    indices: {'NDVI': 0.72, 'NDWI': 0.35, 'EVI': 0.55},
+    indices: const {'NDVI': 0.72, 'NDWI': 0.35, 'EVI': 0.55},
   );
 }
 
@@ -67,7 +67,7 @@ FieldHealth _sampleFieldHealth({String fieldId = 'field_001'}) {
         affectedZone: 'zone_B',
       ),
     ],
-    recommendations: [
+    recommendations: const [
       Recommendation(
         id: 'rec_001',
         type: RecommendationType.irrigation,
@@ -81,7 +81,7 @@ FieldHealth _sampleFieldHealth({String fieldId = 'field_001'}) {
       ),
     ],
     assessedAt: DateTime(2026, 2, 27, 8, 0),
-    zoneScores: {'zone_A': 85.0, 'zone_B': 62.0, 'zone_C': 80.0},
+    zoneScores: const {'zone_A': 85.0, 'zone_B': 62.0, 'zone_C': 80.0},
   );
 }
 
@@ -96,7 +96,7 @@ PhenologyData _samplePhenologyData({String fieldId = 'field_001'}) {
     daysToHarvest: 45,
     plantingDate: DateTime(2025, 11, 15),
     expectedHarvestDate: DateTime(2026, 4, 12),
-    stages: [
+    stages: const [
       GrowthStageInfo(
         stage: GrowthStage.germination,
         name: 'Germination',
@@ -114,8 +114,8 @@ PhenologyData _samplePhenologyData({String fieldId = 'field_001'}) {
         isCurrent: true,
       ),
     ],
-    currentTasks: ['Monitor pollination', 'Check for rust'],
-    currentTasksAr: [
+    currentTasks: const ['Monitor pollination', 'Check for rust'],
+    currentTasksAr: const [
       '\u0645\u0631\u0627\u0642\u0628\u0629 \u0627\u0644\u062a\u0644\u0642\u064a\u062d',
       '\u0641\u062d\u0635 \u0627\u0644\u0635\u062f\u0623',
     ],
@@ -136,7 +136,7 @@ WeatherSummary _sampleWeatherSummary({String fieldId = 'field_001'}) {
     condition: 'Sunny',
     conditionAr: '\u0645\u0634\u0645\u0633',
     updatedAt: DateTime(2026, 2, 27, 10, 0),
-    forecast: [],
+    forecast: const [],
   );
 }
 

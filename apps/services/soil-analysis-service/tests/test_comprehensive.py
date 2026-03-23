@@ -21,13 +21,17 @@ AUTH_HEADERS = {"X-Tenant-Id": _TEST_TENANT, "Authorization": "Bearer test-token
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(autouse=True)
 def _clear_soil_tests():
     """Clear in-memory store between tests."""
     from src.api.v1 import soil_tests as st_mod
+
     st_mod._soil_tests.clear()
     yield
     st_mod._soil_tests.clear()
+
+
 @pytest.fixture
 def client():
     """Create a FastAPI TestClient with mocked auth via dependency_overrides."""
@@ -44,38 +48,50 @@ def client():
     c = TestClient(app, raise_server_exceptions=False)
     yield c
     app.dependency_overrides.clear()
+
+
 # ---------------------------------------------------------------------------
 # Request Model Tests
 # ---------------------------------------------------------------------------
+
 
 class TestRequestModels:
     """Validate Pydantic request models."""
 
     def test_macronutrients_input_valid(self):
         from src.api.v1.soil_tests import MacronutrientsInput
+
         m = MacronutrientsInput(nitrogen_nitrate_ppm=25.0, phosphorus_ppm=15.0, potassium_ppm=200.0)
         assert m.nitrogen_nitrate_ppm == 25.0
 
     def test_macronutrients_input_optional_fields(self):
         from src.api.v1.soil_tests import MacronutrientsInput
+
         m = MacronutrientsInput(
-            nitrogen_nitrate_ppm=10.0, phosphorus_ppm=8.0, potassium_ppm=100.0,
-            calcium_ppm=500.0, magnesium_ppm=50.0, sulfur_ppm=10.0,
+            nitrogen_nitrate_ppm=10.0,
+            phosphorus_ppm=8.0,
+            potassium_ppm=100.0,
+            calcium_ppm=500.0,
+            magnesium_ppm=50.0,
+            sulfur_ppm=10.0,
         )
         assert m.calcium_ppm == 500.0
 
     def test_soil_properties_input_valid(self):
         from src.api.v1.soil_tests import SoilPropertiesInput
+
         sp = SoilPropertiesInput(ph=7.2, ec_ds_m=1.5, organic_matter_percent=3.0)
         assert sp.ph == 7.2
 
     def test_soil_properties_input_boundary(self):
         from src.api.v1.soil_tests import SoilPropertiesInput
+
         sp = SoilPropertiesInput(ph=0.0, ec_ds_m=0.0, organic_matter_percent=0.0)
         assert sp.ph == 0.0
 
     def test_soil_test_create_request(self):
         from src.api.v1.soil_tests import MacronutrientsInput, SoilPropertiesInput, SoilTestCreateRequest
+
         req = SoilTestCreateRequest(
             field_id="field_1",
             macronutrients=MacronutrientsInput(nitrogen_nitrate_ppm=20.0, phosphorus_ppm=10.0, potassium_ppm=150.0),
@@ -86,11 +102,13 @@ class TestRequestModels:
 
     def test_interpret_request(self):
         from src.api.v1.soil_tests import InterpretRequest
+
         r = InterpretRequest(test_id="ST-ABC", crop="wheat")
         assert r.crop == "wheat"
 
     def test_amendment_plan_request_defaults(self):
         from src.api.v1.soil_tests import AmendmentPlanRequest
+
         r = AmendmentPlanRequest(test_id="ST-ABC")
         assert r.crop == "wheat"
         assert r.target_yield_t_ha == 5.0
@@ -98,48 +116,61 @@ class TestRequestModels:
 
     def test_nutrient_status_request(self):
         from src.api.v1.soil_tests import NutrientStatusRequest
+
         r = NutrientStatusRequest(nutrient="N", value=25.0)
         assert r.extraction_method == "olsen"
 
     def test_ph_status_request(self):
         from src.api.v1.soil_tests import PhStatusRequest
+
         r = PhStatusRequest(ph=6.8)
         assert r.ph == 6.8
 
     def test_ec_status_request(self):
         from src.api.v1.soil_tests import EcStatusRequest
+
         r = EcStatusRequest(ec_ds_m=2.5)
         assert r.ec_ds_m == 2.5
 
     def test_fertilizer_rate_request(self):
         from src.api.v1.soil_tests import FertilizerRateRequest
+
         r = FertilizerRateRequest(nutrient_needed_kg_ha=50.0, fertilizer_nutrient_percent=46.0)
         assert r.fertilizer_nutrient_percent == 46.0
 
     def test_trend_request(self):
         from src.api.v1.soil_tests import TrendRequest
+
         r = TrendRequest(field_id="field_1")
         assert r.field_id == "field_1"
+
+
 # ---------------------------------------------------------------------------
 # Tenant ID Extraction Tests
 # ---------------------------------------------------------------------------
+
 
 class TestTenantId:
     """Test tenant ID header extraction."""
 
     def test_get_tenant_id_present(self):
         from src.api.v1.soil_tests import get_tenant_id
+
         assert get_tenant_id("tenant_1") == "tenant_1"
 
     def test_get_tenant_id_missing(self):
         from fastapi import HTTPException
         from src.api.v1.soil_tests import get_tenant_id
+
         with pytest.raises(HTTPException) as exc_info:
             get_tenant_id(None)
         assert exc_info.value.status_code == 400
+
+
 # ---------------------------------------------------------------------------
 # Health Endpoint Tests
 # ---------------------------------------------------------------------------
+
 
 class TestHealthEndpoints:
     """Test service health endpoints."""
@@ -175,9 +206,12 @@ class TestHealthEndpoints:
         r = client.get("/metrics")
         assert r.status_code == 200
         assert "soil_analysis_service_up 1" in r.text
+
+
 # ---------------------------------------------------------------------------
 # Soil Test CRUD Tests
 # ---------------------------------------------------------------------------
+
 
 class TestSoilTestCRUD:
     """Test soil test create/read/delete operations."""
@@ -270,9 +304,12 @@ class TestSoilTestCRUD:
             headers=AUTH_HEADERS,
         )
         assert r.status_code == 404
+
+
 # ---------------------------------------------------------------------------
 # Interpretation Endpoint Tests (with shared module mocked/unavailable)
 # ---------------------------------------------------------------------------
+
 
 class TestInterpretation:
     """Tests for interpretation endpoints with ImportError fallback."""

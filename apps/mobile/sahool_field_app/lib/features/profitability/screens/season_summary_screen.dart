@@ -343,10 +343,10 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                   ),
                   numeric: true,
                 ),
-                DataColumn(
+                const DataColumn(
                   label: Text(
                     'ROI',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   numeric: true,
                 ),
@@ -509,7 +509,7 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -568,7 +568,7 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),

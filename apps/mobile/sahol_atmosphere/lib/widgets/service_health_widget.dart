@@ -283,7 +283,7 @@ class _ServiceHealthWidgetState extends State<ServiceHealthWidget> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'صحة الخدمات',
                     style: AtmosphereTypography.headlineSmall,
                   ),

@@ -33,7 +33,7 @@ class DriftRiskCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -242,7 +242,7 @@ class DriftRiskCard extends StatelessWidget {
       DriftRiskLevel level, ThemeData theme, bool isArabic) {
     String recommendation;
     IconData icon;
-    Color color;
+    MaterialColor color;
 
     switch (level) {
       case DriftRiskLevel.low:

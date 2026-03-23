@@ -280,11 +280,11 @@ class _FieldNameDialogState extends State<_FieldNameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
           Icon(Icons.grass, color: SahoolColors.primary),
-          const SizedBox(width: 8),
-          const Text('اسم الحقل'),
+          SizedBox(width: 8),
+          Text('اسم الحقل'),
         ],
       ),
       content: TextField(

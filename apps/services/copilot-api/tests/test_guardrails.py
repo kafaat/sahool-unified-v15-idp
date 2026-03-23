@@ -5,6 +5,8 @@ Tests for Tool Guardrails (security/guardrails.py) and Allowlists (security/allo
 import pytest
 
 pytestmark = [pytest.mark.unit]
+
+
 class TestAllowlists:
     def test_rag_tools_in_allowlist(self):
         from src.security.allowlists import TOOL_ALLOWLIST
@@ -66,6 +68,8 @@ class TestAllowlists:
         from src.security.allowlists import MAX_PROMPT_CHARS
 
         assert MAX_PROMPT_CHARS > 0
+
+
 class TestGuardDecision:
     def test_to_dict(self):
         from src.security.guardrails import GuardDecision
@@ -83,6 +87,8 @@ class TestGuardDecision:
         assert result["reason_ar"] == "موافق"
         assert result["layer"] == "test"
         assert "timestamp" in result
+
+
 class TestToolGuard:
     def test_allows_safe_tool(self):
         from src.security.guardrails import ToolCallContext, ToolGuard
@@ -208,6 +214,8 @@ class TestToolGuard:
         decision = guard.check(ctx)
         assert decision.allowed is False
         assert decision.layer == "blocked_patterns"
+
+
 class TestConvenienceFunctions:
     def test_guard_tool_call(self):
         from src.security.guardrails import guard_tool_call

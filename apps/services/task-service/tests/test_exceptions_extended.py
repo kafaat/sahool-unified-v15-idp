@@ -40,15 +40,30 @@ from src.exceptions import (
 class TestErrorCode:
     def test_all_error_codes_exist(self):
         codes = [
-            "TASK_NOT_FOUND", "TASK_ALREADY_EXISTS", "TASK_INVALID_STATUS",
-            "TASK_INVALID_TRANSITION", "TASK_CREATION_FAILED", "TASK_UPDATE_FAILED",
-            "VALIDATION_ERROR", "INVALID_FIELD_ID", "INVALID_DATE_FORMAT",
-            "INVALID_TIME_FORMAT", "INVALID_PRIORITY", "METADATA_TOO_LARGE",
-            "ASTRONOMICAL_SERVICE_ERROR", "ASTRONOMICAL_SERVICE_TIMEOUT",
-            "FIELD_SERVICE_ERROR", "NOTIFICATION_SERVICE_ERROR", "NDVI_SERVICE_ERROR",
-            "DATABASE_ERROR", "DATABASE_CONNECTION_ERROR",
-            "CACHE_ERROR", "CACHE_CONNECTION_ERROR",
-            "UNAUTHORIZED", "FORBIDDEN", "INVALID_TENANT",
+            "TASK_NOT_FOUND",
+            "TASK_ALREADY_EXISTS",
+            "TASK_INVALID_STATUS",
+            "TASK_INVALID_TRANSITION",
+            "TASK_CREATION_FAILED",
+            "TASK_UPDATE_FAILED",
+            "VALIDATION_ERROR",
+            "INVALID_FIELD_ID",
+            "INVALID_DATE_FORMAT",
+            "INVALID_TIME_FORMAT",
+            "INVALID_PRIORITY",
+            "METADATA_TOO_LARGE",
+            "ASTRONOMICAL_SERVICE_ERROR",
+            "ASTRONOMICAL_SERVICE_TIMEOUT",
+            "FIELD_SERVICE_ERROR",
+            "NOTIFICATION_SERVICE_ERROR",
+            "NDVI_SERVICE_ERROR",
+            "DATABASE_ERROR",
+            "DATABASE_CONNECTION_ERROR",
+            "CACHE_ERROR",
+            "CACHE_CONNECTION_ERROR",
+            "UNAUTHORIZED",
+            "FORBIDDEN",
+            "INVALID_TENANT",
         ]
         for code in codes:
             assert hasattr(ErrorCode, code)
@@ -231,7 +246,8 @@ class TestExternalServiceError:
 
     def test_with_details(self):
         exc = ExternalServiceError(
-            service_name="S", message="err",
+            service_name="S",
+            message="err",
             details={"extra": 1},
         )
         assert exc.details["extra"] == 1

@@ -78,7 +78,6 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                 color: widget.polygonColor.withOpacity(0.3),
                 borderColor: widget.polygonColor,
                 borderStrokeWidth: 3,
-                isFilled: true,
               ),
             ],
           ),
@@ -218,7 +217,7 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
         height: 24,
         child: GestureDetector(
           onTap: () => widget.editorState.insertPoint(j, midpoint),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
               shape: BoxShape.circle,
@@ -258,16 +257,18 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
 
     // Project current point to screen coordinates
     final screenPoint =
-        widget.mapController.camera.latLngToScreenPoint(currentPoint);
+        widget.mapController.camera.getOffsetFromOrigin(currentPoint);
 
     // Apply delta
-    final newScreenPoint = Point<double>(
-      screenPoint.x + details.delta.dx,
-      screenPoint.y + details.delta.dy,
+    final newScreenOffset = Offset(
+      screenPoint.dx + details.delta.dx,
+      screenPoint.dy + details.delta.dy,
     );
 
     // Unproject back to LatLng
-    var newLatLng = widget.mapController.camera.pointToLatLng(newScreenPoint);
+    var newLatLng = widget.mapController.camera.unprojectAtZoom(
+      newScreenOffset + widget.mapController.camera.pixelOrigin,
+    );
 
     // Snap to vertex if enabled
     if (widget.enableSnap) {
@@ -377,12 +378,12 @@ class PolygonEditorToolbar extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.straighten,
+                      const Icon(Icons.straighten,
                           size: 20, color: SahoolColors.success),
                       const SizedBox(width: 8),
                       Text(
                         '${area.toStringAsFixed(2)} ${areaUnit.label}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: SahoolColors.success,

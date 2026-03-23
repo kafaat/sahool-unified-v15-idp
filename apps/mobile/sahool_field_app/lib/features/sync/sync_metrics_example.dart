@@ -2,6 +2,7 @@
 ///
 /// This file demonstrates how to set up and use the sync metrics monitoring system.
 /// DO NOT import this file directly - it's for reference only.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,13 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/storage/database.dart';
 import '../../core/sync/sync_metrics_service.dart';
 import '../../core/sync/sync_metrics_providers.dart';
+import '../../main.dart' show databaseProvider;
 import 'ui/sync_metrics_widget.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// STEP 1: Initialize in main.dart
 /// ═══════════════════════════════════════════════════════════════════════════
 
-void mainExample() async {
+Future<void> mainExample() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize SharedPreferences
@@ -46,9 +48,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'SAHOOL Field App',
-      home: const HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }
@@ -79,10 +81,10 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
+      body: const Column(
         children: [
           // Compact metrics widget in dashboard
-          const SyncMetricsWidget(isCompact: true),
+          SyncMetricsWidget(isCompact: true),
           // ... rest of your home screen content
         ],
       ),

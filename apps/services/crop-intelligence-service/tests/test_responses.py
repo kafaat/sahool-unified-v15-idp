@@ -420,7 +420,9 @@ class TestHelperFunctions:
 
     def test_create_error_response_with_details(self):
         r = create_error_response(
-            "E1002", "Error", "خطأ",
+            "E1002",
+            "Error",
+            "خطأ",
             details={"field": "name", "reason": "required"},
         )
         assert r["error"]["details"]["field"] == "name"

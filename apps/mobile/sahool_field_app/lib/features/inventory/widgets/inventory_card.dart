@@ -2,7 +2,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../data/inventory_models.dart';
 import 'stock_level_indicator.dart';

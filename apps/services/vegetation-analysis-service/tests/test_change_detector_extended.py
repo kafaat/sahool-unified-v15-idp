@@ -429,9 +429,7 @@ class TestChangeDetector:
 
     def test_summary_with_critical(self, detector):
         events = [self._make_event(SeverityLevel.CRITICAL, ChangeType.CROP_DAMAGE)]
-        ar, en = detector._generate_summary(
-            events, -0.01, TrendDirection.DECLINING, date(2025, 1, 1), date(2025, 3, 1)
-        )
+        ar, en = detector._generate_summary(events, -0.01, TrendDirection.DECLINING, date(2025, 1, 1), date(2025, 3, 1))
         assert "critical" in en.lower()
 
     def test_summary_with_high(self, detector):
@@ -540,9 +538,13 @@ class TestChangeDetector:
     @pytest.mark.asyncio
     async def test_compare_dates_increase(self, detector):
         event = await detector.compare_dates(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 1, 20),
-            0.3, 0.55,
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 1, 20),
+            0.3,
+            0.55,
         )
         assert event.change_type == ChangeType.VEGETATION_INCREASE
         assert event.ndvi_change > 0
@@ -550,19 +552,28 @@ class TestChangeDetector:
     @pytest.mark.asyncio
     async def test_compare_dates_decrease(self, detector):
         event = await detector.compare_dates(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 1, 20),
-            0.6, 0.35,
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 1, 20),
+            0.6,
+            0.35,
         )
         assert event.ndvi_change < 0
 
     @pytest.mark.asyncio
     async def test_compare_dates_with_ndwi(self, detector):
         event = await detector.compare_dates(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 1, 20),
-            0.6, 0.3,
-            ndwi1=0.3, ndwi2=0.1,
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 1, 20),
+            0.6,
+            0.3,
+            ndwi1=0.3,
+            ndwi2=0.1,
         )
         assert event.additional_metrics is not None
         assert "ndwi_change" in event.additional_metrics
@@ -570,9 +581,13 @@ class TestChangeDetector:
     @pytest.mark.asyncio
     async def test_compare_dates_zero_before(self, detector):
         event = await detector.compare_dates(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 1, 20),
-            0.0, 0.3,
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 1, 20),
+            0.0,
+            0.3,
         )
         assert event.change_percent == 0  # Avoid division by zero
 
@@ -582,9 +597,7 @@ class TestChangeDetector:
 
     @pytest.mark.asyncio
     async def test_detect_changes_no_data(self, detector):
-        report = await detector.detect_changes(
-            "F001", 15.5, 44.2, date(2025, 1, 1), date(2025, 3, 1)
-        )
+        report = await detector.detect_changes("F001", 15.5, 44.2, date(2025, 1, 1), date(2025, 3, 1))
         assert report.field_id == "F001"
         assert report.overall_trend == TrendDirection.STABLE
         assert "Insufficient" in report.summary_en
@@ -599,8 +612,11 @@ class TestChangeDetector:
             NDVIDataPoint(date=date(2025, 3, 1), ndvi=0.5),
         ]
         report = await detector.detect_changes(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 3, 1),
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 3, 1),
             ndvi_timeseries=timeseries,
         )
         assert report.field_id == "F001"
@@ -615,8 +631,11 @@ class TestChangeDetector:
             NDVIDataPoint(date=date(2025, 2, 15), ndvi=0.7),
         ]
         report = await detector.detect_changes(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 3, 1),
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 3, 1),
             crop_type="wheat",
             ndvi_timeseries=timeseries,
         )
@@ -630,8 +649,11 @@ class TestChangeDetector:
             NDVIDataPoint(date=date(2025, 1, 20), ndvi=0.55, cloud_cover=10),
         ]
         report = await detector.detect_changes(
-            "F001", 15.5, 44.2,
-            date(2025, 1, 1), date(2025, 2, 1),
+            "F001",
+            15.5,
+            44.2,
+            date(2025, 1, 1),
+            date(2025, 2, 1),
             ndvi_timeseries=timeseries,
         )
         # With only 2 clean points, should return empty report

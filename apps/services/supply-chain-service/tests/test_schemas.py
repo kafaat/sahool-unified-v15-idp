@@ -21,6 +21,8 @@ class TestProductCategory:
 
         assert isinstance(ProductCategory.SEEDS.value, str)
         assert ProductCategory.SEEDS == "seeds"
+
+
 class TestOrderStatus:
     """Tests for OrderStatus enum."""
 
@@ -36,6 +38,8 @@ class TestOrderStatus:
 
         assert OrderStatus.PENDING == "pending"
         assert OrderStatus.CANCELLED == "cancelled"
+
+
 class TestDeliveryStatusEnum:
     """Tests for DeliveryStatusEnum."""
 
@@ -45,6 +49,8 @@ class TestDeliveryStatusEnum:
         expected = ["preparing", "picked_up", "in_transit", "out_for_delivery", "delivered", "failed"]
         for s in expected:
             assert s in [ds.value for ds in DeliveryStatusEnum]
+
+
 class TestPaymentMethod:
     """Tests for PaymentMethod enum."""
 
@@ -55,6 +61,8 @@ class TestPaymentMethod:
         assert PaymentMethod.CREDIT_CARD == "credit_card"
         assert PaymentMethod.BANK_TRANSFER == "bank_transfer"
         assert PaymentMethod.DIGITAL_WALLET == "digital_wallet"
+
+
 class TestProductSchema:
     """Tests for Product schema."""
 
@@ -106,6 +114,8 @@ class TestProductSchema:
                 price_min=10.0,
                 price_max=20.0,
             )
+
+
 class TestProductCreate:
     """Tests for ProductCreate schema."""
 
@@ -129,6 +139,8 @@ class TestProductCreate:
 
         with pytest.raises(ValidationError):
             ProductCreate(name="Test", name_ar="اختبار")
+
+
 class TestSupplierSchema:
     """Tests for Supplier schema."""
 
@@ -184,6 +196,8 @@ class TestSupplierSchema:
                 rating=4.0,
                 delivery_time_days=1,
             )
+
+
 class TestSupplierSummary:
     """Tests for SupplierSummary schema."""
 
@@ -200,6 +214,8 @@ class TestSupplierSummary:
             is_verified=True,
         )
         assert summary.is_verified is True
+
+
 class TestOrderSchemas:
     """Tests for Order-related schemas."""
 
@@ -269,6 +285,8 @@ class TestOrderSchemas:
         assert order.delivery_fee == 0
         assert order.tax == 0
         assert order.payment_status == "pending"
+
+
 class TestPurchaseRecommendation:
     """Tests for PurchaseRecommendation schema."""
 
@@ -308,6 +326,8 @@ class TestPurchaseRecommendation:
                 priority="invalid_priority",
                 valid_until=datetime.utcnow(),
             )
+
+
 class TestAutoPurchaseSchemas:
     """Tests for auto-purchase schemas."""
 
@@ -339,6 +359,8 @@ class TestAutoPurchaseSchemas:
                 delivery_address="Test",
                 optimize_for="invalid",
             )
+
+
 class TestDeliveryStatus:
     """Tests for DeliveryStatus schema."""
 
@@ -353,6 +375,8 @@ class TestDeliveryStatus:
         assert ds.eta is None
         assert ds.tracking_url is None
         assert ds.driver_name is None
+
+
 class TestFarmerProfile:
     """Tests for FarmerProfile schema."""
 
@@ -372,6 +396,8 @@ class TestFarmerProfile:
         assert fp.total_orders == 0
         assert fp.preferred_suppliers == []
         assert fp.payment_methods == []
+
+
 class TestResponseSchemas:
     """Tests for list response schemas."""
 
@@ -392,6 +418,8 @@ class TestResponseSchemas:
 
         resp = OrderListResponse(items=[], total=0, page=1, page_size=20)
         assert resp.page_size == 20
+
+
 class TestSupplierQuote:
     """Tests for SupplierQuote schema."""
 
@@ -435,6 +463,8 @@ class TestSupplierQuote:
                 availability="invalid_status",
                 valid_until=datetime.utcnow(),
             )
+
+
 class TestQuoteRequest:
     """Tests for QuoteRequest schema."""
 
@@ -450,6 +480,8 @@ class TestQuoteRequest:
 
         with pytest.raises(ValidationError):
             QuoteRequest(product_id=uuid4(), quantity=-10)
+
+
 class TestSupplierComparison:
     """Tests for SupplierComparison schema."""
 
@@ -466,6 +498,8 @@ class TestSupplierComparison:
         assert comp.best_price_supplier_id is None
         assert comp.fastest_delivery_supplier_id is None
         assert comp.best_rated_supplier_id is None
+
+
 class TestBulkPurchaseResult:
     """Tests for BulkPurchaseResult schema."""
 

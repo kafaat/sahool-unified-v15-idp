@@ -41,7 +41,7 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
 
   Future<void> _loadSettings() async {
     final settingsAsync = ref.read(gddSettingsProvider(widget.fieldId));
-    await settingsAsync.whenOrNull(
+    settingsAsync.whenOrNull(
       data: (settings) {
         if (settings != null) {
           setState(() {
@@ -262,7 +262,7 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
                 },
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 24),
 
           // تاريخ الزراعة
@@ -406,15 +406,13 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
 
   Future<void> _loadCropDefaults(CropType cropType) async {
     final requirementsAsync = ref.read(cropGDDRequirementsProvider(cropType));
-    await requirementsAsync.whenOrNull(
+    requirementsAsync.whenOrNull(
       data: (requirements) {
-        if (requirements != null) {
-          setState(() {
-            _baseTemperature = requirements.baseTemperature;
-            _upperThreshold = requirements.upperThreshold;
-          });
-        }
-      },
+        setState(() {
+          _baseTemperature = requirements.baseTemperature;
+          _upperThreshold = requirements.upperThreshold;
+        });
+            },
     );
   }
 

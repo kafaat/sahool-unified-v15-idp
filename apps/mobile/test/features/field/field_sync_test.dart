@@ -7,17 +7,14 @@
 /// - Conflict detection
 /// - Network status handling
 /// - Outbox queue management
+library;
 
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:sahool_field_app/features/field/data/repo/fields_repo.dart';
 import 'package:sahool_field_app/features/field/data/remote/fields_api.dart';
-import 'package:sahool_field_app/features/field/domain/entities/field.dart' as domain;
 import 'package:sahool_field_app/core/storage/database.dart';
-import 'package:sahool_field_app/core/sync/network_status.dart';
 
 import 'fixtures/field_fixtures.dart';
 import 'fixtures/field_mocks.dart';

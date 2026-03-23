@@ -35,12 +35,14 @@ _logger = structlog.get_logger(__name__) if "structlog" in dir() else logging.ge
 
 # Required base fields for all SAHOOL events published over NATS.
 # الحقول الأساسية المطلوبة لجميع أحداث سهول المنشورة عبر NATS.
-REQUIRED_EVENT_FIELDS: frozenset[str] = frozenset({
-    "event_id",
-    "timestamp",
-    "tenant_id",
-    "source_service",
-})
+REQUIRED_EVENT_FIELDS: frozenset[str] = frozenset(
+    {
+        "event_id",
+        "timestamp",
+        "tenant_id",
+        "source_service",
+    }
+)
 
 
 def validate_event_payload(subject: str, payload: dict) -> bool:
@@ -68,6 +70,7 @@ def validate_event_payload(subject: str, payload: dict) -> bool:
         )
         return False
     return True
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model - النموذج الأساسي للأحداث

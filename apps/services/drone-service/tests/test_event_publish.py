@@ -17,6 +17,8 @@ from src.events.publish import (
 )
 
 VALID_TENANT_ID = str(uuid.uuid4())
+
+
 class TestEventEnvelope:
     """Test EventEnvelope data class."""
 
@@ -63,6 +65,8 @@ class TestEventEnvelope:
         e1 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         e2 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         assert e1.event_id != e2.event_id
+
+
 class TestDronePublisher:
     """Test DronePublisher class."""
 
@@ -176,6 +180,8 @@ class TestDronePublisher:
         pub.nc = mock_nc
         result = await pub.publish_prescription_created(VALID_TENANT_ID, "rx-1", "field-1", "ndvi")
         assert result != ""
+
+
 class TestGetTenantSubject:
     """Test _get_tenant_subject helper."""
 
@@ -190,6 +196,8 @@ class TestGetTenantSubject:
         tid = str(uuid.uuid4())
         result = _get_tenant_subject(tid, "registered")
         assert tid in result
+
+
 class TestPublishEvent:
     """Test backward-compatible publish_event helper."""
 
@@ -220,6 +228,8 @@ class TestPublishEvent:
         nc = AsyncMock()
         nc.publish = AsyncMock(side_effect=Exception("fail"))
         await publish_event(nc, "subject", {})  # should not raise
+
+
 class TestPublishDroneEvent:
     """Test backward-compatible publish_drone_event helper."""
 
@@ -230,6 +240,8 @@ class TestPublishDroneEvent:
         await publish_drone_event(nc, "sahool.drone.registered", VALID_TENANT_ID, drone_id="d1")
         # publish_event is called twice (global + tenant)
         assert nc.publish.call_count == 2
+
+
 class TestSubscribeCrossServiceEvents:
     """Test cross-service event subscriptions."""
 

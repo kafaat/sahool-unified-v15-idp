@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -86,7 +85,7 @@ class MockWorkmanager {
   Future<bool> executeTask(String taskName, Map<String, dynamic>? inputData) async {
     final callback = _taskCallbacks['default'];
     if (callback != null) {
-      return await callback(taskName, inputData);
+      return callback(taskName, inputData);
     }
     return false;
   }

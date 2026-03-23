@@ -5,6 +5,8 @@ Tests for Agent Router (core/agents.py)
 import pytest
 
 pytestmark = [pytest.mark.unit]
+
+
 class TestAgentType:
     def test_all_agent_types(self):
         from src.core.agents import AgentType
@@ -15,6 +17,8 @@ class TestAgentType:
         assert AgentType.WEATHER_ADVISOR == "weather_advisor"
         assert AgentType.IRRIGATION_ADVISOR == "irrigation_advisor"
         assert AgentType.GENERAL == "general"
+
+
 class TestAgentRoute:
     def test_dataclass_creation(self):
         from src.core.agents import AgentRoute, AgentType
@@ -29,6 +33,8 @@ class TestAgentRoute:
         assert route.agent_type == AgentType.GENERAL
         assert route.priority == 5
         assert route.service_url is None
+
+
 class TestRoutingResult:
     def test_dataclass_defaults(self):
         from src.core.agents import AgentType, RoutingResult
@@ -36,6 +42,8 @@ class TestRoutingResult:
         result = RoutingResult(agent_type=AgentType.GENERAL, confidence=0.5)
         assert result.matched_patterns == []
         assert result.matched_keywords == []
+
+
 class TestAgentRouter:
     def test_initialization(self):
         from src.core.agents import AgentRouter
@@ -147,6 +155,8 @@ class TestAgentRouter:
         # Pass a string that's not a valid AgentType - should fallback to GENERAL
         desc = router.get_agent_description("nonexistent")
         assert "en" in desc
+
+
 class TestGlobalRouter:
     def test_get_agent_router_singleton(self):
         import src.core.agents as agents_mod

@@ -31,13 +31,19 @@ class TestActionTaskMapping:
 
     def test_known_actions_present(self):
         expected = [
-            "spray_copper", "spray_mancozeb", "spray_sulfur",
-            "spray_neem_oil", "remove_infected_parts",
-            "improve_air_circulation", "avoid_overhead_irrigation",
+            "spray_copper",
+            "spray_mancozeb",
+            "spray_sulfur",
+            "spray_neem_oil",
+            "remove_infected_parts",
+            "improve_air_circulation",
+            "avoid_overhead_irrigation",
             "use_yellow_sticky_traps",
         ]
         for action in expected:
             assert action in ACTION_TASK_MAPPING
+
+
 class TestFieldOpsClient:
     """Tests for FieldOpsClient"""
 
@@ -71,6 +77,8 @@ class TestFieldOpsClient:
         await client.close()
         mock_http.aclose.assert_called_once()
         assert client._client is None
+
+
 class TestTaskAutomationHook:
     """Tests for TaskAutomationHook"""
 
@@ -81,19 +89,21 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "correlation_id": "c1",
-            "payload": {
-                "field_id": "f1",
-                "actions": ["spray_copper", "remove_infected_parts"],
-                "severity": "high",
-                "title_ar": "اشتباه مرض",
-                "confidence": 0.85,
-                "category": "disease",
-                "details": {"urgency_hours": 24},
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "correlation_id": "c1",
+                "payload": {
+                    "field_id": "f1",
+                    "actions": ["spray_copper", "remove_infected_parts"],
+                    "severity": "high",
+                    "title_ar": "اشتباه مرض",
+                    "confidence": 0.85,
+                    "category": "disease",
+                    "details": {"urgency_hours": 24},
+                },
+            }
+        ).encode()
 
         await hook._handle_recommendation(msg)
         assert hook.fieldops.create_task.call_count == 2
@@ -105,14 +115,16 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock()
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "actions": ["unknown_action"],
-                "severity": "medium",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "actions": ["unknown_action"],
+                    "severity": "medium",
+                },
+            }
+        ).encode()
 
         await hook._handle_recommendation(msg)
         hook.fieldops.create_task.assert_not_called()
@@ -124,18 +136,22 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "actions": [
-                    "spray_copper", "spray_mancozeb",
-                    "remove_infected_parts", "avoid_overhead_irrigation",
-                    "improve_air_circulation",
-                ],
-                "severity": "medium",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "actions": [
+                        "spray_copper",
+                        "spray_mancozeb",
+                        "remove_infected_parts",
+                        "avoid_overhead_irrigation",
+                        "improve_air_circulation",
+                    ],
+                    "severity": "medium",
+                },
+            }
+        ).encode()
 
         await hook._handle_recommendation(msg)
         # Max 3 tasks from actions[:3]
@@ -148,18 +164,34 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "crop": "tomato",
-                "stage": "vegetative",
-                "plan": [
-                    {"product": "Urea", "product_ar": "يوريا", "dose_kg_per_ha": 50, "total_kg": 50, "method": "broadcast", "timing_days": 0},
-                    {"product": "DAP", "product_ar": "داب", "dose_kg_per_ha": 30, "total_kg": 30, "method": "banding", "timing_days": 3},
-                ],
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "crop": "tomato",
+                    "stage": "vegetative",
+                    "plan": [
+                        {
+                            "product": "Urea",
+                            "product_ar": "يوريا",
+                            "dose_kg_per_ha": 50,
+                            "total_kg": 50,
+                            "method": "broadcast",
+                            "timing_days": 0,
+                        },
+                        {
+                            "product": "DAP",
+                            "product_ar": "داب",
+                            "dose_kg_per_ha": 30,
+                            "total_kg": 30,
+                            "method": "banding",
+                            "timing_days": 3,
+                        },
+                    ],
+                },
+            }
+        ).encode()
 
         await hook._handle_fertilizer_plan(msg)
         assert hook.fieldops.create_task.call_count == 2
@@ -171,22 +203,24 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "nutrient": "N",
-                "severity": "high",
-                "title_ar": "نقص النيتروجين",
-                "deficiency_id": "nitrogen_deficiency",
-                "confidence": 0.8,
-                "corrections": [
-                    {"type": "fertilizer", "product": "urea", "dose_kg_ha": 50},
-                    {"type": "fertilizer", "product": "ammonium_sulfate", "dose_kg_ha": 75},
-                    {"type": "practice", "action": "foliar_spray"},
-                ],
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "nutrient": "N",
+                    "severity": "high",
+                    "title_ar": "نقص النيتروجين",
+                    "deficiency_id": "nitrogen_deficiency",
+                    "confidence": 0.8,
+                    "corrections": [
+                        {"type": "fertilizer", "product": "urea", "dose_kg_ha": 50},
+                        {"type": "fertilizer", "product": "ammonium_sulfate", "dose_kg_ha": 75},
+                        {"type": "practice", "action": "foliar_spray"},
+                    ],
+                },
+            }
+        ).encode()
 
         await hook._handle_nutrient_assessment(msg)
         # 1 inspection + up to 2 correction tasks (only fertilizer type)
@@ -199,19 +233,21 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "nutrient": "N",
-                "severity": "medium",
-                "title_ar": "نقص النيتروجين",
-                "confidence": 0.5,
-                "corrections": [
-                    {"type": "fertilizer", "product": "urea", "dose_kg_ha": 50},
-                ],
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "nutrient": "N",
+                    "severity": "medium",
+                    "title_ar": "نقص النيتروجين",
+                    "confidence": 0.5,
+                    "corrections": [
+                        {"type": "fertilizer", "product": "urea", "dose_kg_ha": 50},
+                    ],
+                },
+            }
+        ).encode()
 
         await hook._handle_nutrient_assessment(msg)
         # Only inspection task, no corrections (confidence < 0.7)
@@ -224,14 +260,16 @@ class TestTaskAutomationHook:
         hook.fieldops.create_task = AsyncMock(side_effect=Exception("Connection refused"))
 
         msg = MagicMock()
-        msg.data = json.dumps({
-            "tenant_id": "t1",
-            "payload": {
-                "field_id": "f1",
-                "actions": ["spray_copper"],
-                "severity": "medium",
-            },
-        }).encode()
+        msg.data = json.dumps(
+            {
+                "tenant_id": "t1",
+                "payload": {
+                    "field_id": "f1",
+                    "actions": ["spray_copper"],
+                    "severity": "medium",
+                },
+            }
+        ).encode()
 
         # Should not raise - errors are caught internally
         await hook._handle_recommendation(msg)

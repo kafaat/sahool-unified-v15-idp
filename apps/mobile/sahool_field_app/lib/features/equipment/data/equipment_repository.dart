@@ -446,7 +446,7 @@ class EquipmentRepository {
       await _localDb.saveStats(stats);
 
       return ApiResult.success(stats, statusCode: response.statusCode);
-    } on DioException catch (e) {
+    } on DioException {
       // Fallback to local stats
       final cached = await _localDb.getStats();
       if (cached != null) {

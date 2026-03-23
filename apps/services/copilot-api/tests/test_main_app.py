@@ -8,6 +8,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 pytestmark = [pytest.mark.unit]
+
+
 class TestGetAvailableProviders:
     def test_always_includes_ollama(self):
         from src.core.config import Settings
@@ -75,6 +77,8 @@ class TestGetAvailableProviders:
             providers = _get_available_providers(settings)
             ds = [p for p in providers if p["name"] == "DeepSeek"]
             assert len(ds) == 1
+
+
 class TestCreateApp:
     def test_app_created_successfully(self):
         from src.core.config import get_settings

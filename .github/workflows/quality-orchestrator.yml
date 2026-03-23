@@ -135,7 +135,6 @@ jobs:
   security-sast:
     name: "Layer 3 – Security SAST"
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -190,7 +189,6 @@ jobs:
   dependency-security:
     name: "Layer 4 – Dependency Security"
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 

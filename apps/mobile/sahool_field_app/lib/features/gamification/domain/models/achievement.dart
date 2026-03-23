@@ -6,6 +6,7 @@
 /// - Progress tracking
 /// - Streaks and milestones
 /// - Leaderboards
+library;
 
 /// إنجاز
 class Achievement {

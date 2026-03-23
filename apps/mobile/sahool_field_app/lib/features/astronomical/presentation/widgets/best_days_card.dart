@@ -1,5 +1,6 @@
 /// SAHOOL Best Days Card
 /// بطاقة أفضل الأيام للنشاط الزراعي
+library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';

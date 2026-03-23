@@ -57,6 +57,7 @@ async def require_auth(request: Request):
             detail="Invalid or expired token",
         )
 
+
 logger = structlog.get_logger()
 
 

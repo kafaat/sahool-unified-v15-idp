@@ -45,8 +45,7 @@ def _get_http_client(req: Request) -> httpx.AsyncClient:
     client = getattr(req.app.state, "http_client", None)
     if client is None:
         raise RuntimeError(
-            "http_client not initialized in app.state. "
-            "Ensure the lifespan context manager ran correctly."
+            "http_client not initialized in app.state. Ensure the lifespan context manager ran correctly."
         )
     return client
 

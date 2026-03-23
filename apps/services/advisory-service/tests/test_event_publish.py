@@ -55,6 +55,8 @@ class TestEventEnvelope:
         e1 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         e2 = EventEnvelope.create("t", 1, "a", "t", "c", {})
         assert e1.event_id != e2.event_id
+
+
 class TestAdvisorPublisher:
     """Tests for AdvisorPublisher"""
 

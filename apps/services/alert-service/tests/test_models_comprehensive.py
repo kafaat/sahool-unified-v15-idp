@@ -24,9 +24,17 @@ class TestAlertTypeEnum:
         from src.models import AlertType
 
         expected = [
-            "weather", "pest", "disease", "irrigation", "fertilizer",
-            "harvest", "ndvi_low", "ndvi_anomaly", "soil_moisture",
-            "equipment", "general",
+            "weather",
+            "pest",
+            "disease",
+            "irrigation",
+            "fertilizer",
+            "harvest",
+            "ndvi_low",
+            "ndvi_anomaly",
+            "soil_moisture",
+            "equipment",
+            "general",
         ]
         for val in expected:
             assert AlertType(val) == val
@@ -47,6 +55,8 @@ class TestAlertTypeEnum:
         from src.models import AlertType
 
         assert len(AlertType) == 11
+
+
 class TestAlertSeverityEnum:
     """Exhaustive tests for AlertSeverity enum."""
 
@@ -69,6 +79,8 @@ class TestAlertSeverityEnum:
 
         with pytest.raises(ValueError):
             AlertSeverity("ultra_critical")
+
+
 class TestAlertStatusEnum:
     """Exhaustive tests for AlertStatus enum."""
 
@@ -85,6 +97,8 @@ class TestAlertStatusEnum:
         from src.models import AlertStatus
 
         assert len(AlertStatus) == 5
+
+
 class TestConditionOperatorEnum:
     """Tests for ConditionOperator enum."""
 
@@ -102,6 +116,8 @@ class TestConditionOperatorEnum:
         from src.models import ConditionOperator
 
         assert len(ConditionOperator) == 6
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertCreate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -239,6 +255,8 @@ class TestAlertCreateModel:
                 title="title",
                 message="msg",
             )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertUpdate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -273,6 +291,8 @@ class TestAlertUpdateModel:
 
         update = AlertUpdate(resolution_note="x" * 1000)
         assert len(update.resolution_note) == 1000
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # RuleCondition Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -310,6 +330,8 @@ class TestRuleConditionModel:
                 value=0.2,
                 duration_minutes=-1,  # ge=0
             )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRuleConfig Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -351,6 +373,8 @@ class TestAlertRuleConfigModel:
                 severity=AlertSeverity.LOW,
                 title="x" * 201,
             )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AlertRuleCreate Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -445,6 +469,8 @@ class TestAlertRuleCreateModel:
                 alert_config=AlertRuleConfig(type=AlertType.GENERAL, severity=AlertSeverity.LOW, title="T"),
                 cooldown_hours=-1,  # ge=0
             )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Response Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -484,6 +510,8 @@ class TestAlertResponseModel:
         resp = AlertResponse(**data)
         assert resp.field_id == "field-1"
         assert resp.type == "weather"
+
+
 class TestAlertStatsModel:
     """Tests for AlertStats Pydantic model."""
 
@@ -517,6 +545,8 @@ class TestAlertStatsModel:
             average_resolution_hours=None,
         )
         assert stats.average_resolution_hours is None
+
+
 class TestPaginatedResponseModel:
     """Tests for PaginatedResponse Pydantic model."""
 
@@ -544,6 +574,8 @@ class TestPaginatedResponseModel:
             has_more=True,
         )
         assert resp.has_more is True
+
+
 class TestAlertRuleResponseModel:
     """Tests for AlertRuleResponse Pydantic model."""
 

@@ -424,7 +424,7 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
   Widget _buildSortOptions() {
     return Row(
       children: [
-        Text(
+        const Text(
           'ترتيب:',
           style: AtmosphereTypography.bodySmall,
         ),
@@ -496,7 +496,7 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
             ),
           ),
           const SizedBox(height: AtmosphereSpacing.sm),
-          Text(
+          const Text(
             'جرب تغيير معايير البحث',
             style: AtmosphereTypography.bodyMedium,
           ),
@@ -512,9 +512,9 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(AtmosphereSpacing.lg),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AtmosphereColors.bgSecondary,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(AtmosphereRadius.xl),
               topRight: Radius.circular(AtmosphereRadius.xl),
             ),
@@ -522,7 +522,7 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'نوع المحصول',
                 style: AtmosphereTypography.headlineLarge,
               ),
@@ -577,9 +577,9 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(AtmosphereSpacing.lg),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AtmosphereColors.bgSecondary,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(AtmosphereRadius.xl),
               topRight: Radius.circular(AtmosphereRadius.xl),
             ),
@@ -587,7 +587,7 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'الحالة الصحية',
                 style: AtmosphereTypography.headlineLarge,
               ),

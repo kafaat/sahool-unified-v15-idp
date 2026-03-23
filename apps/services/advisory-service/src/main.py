@@ -173,9 +173,7 @@ try:
         require_service_auth=False,
     )
 except ImportError:
-    logger.warning(
-        "ServiceAuthMiddleware not available — internal service calls will not bypass rate limiting"
-    )
+    logger.warning("ServiceAuthMiddleware not available — internal service calls will not bypass rate limiting")
 
 # Add tenant context middleware
 try:

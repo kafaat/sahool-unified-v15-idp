@@ -222,13 +222,13 @@ class FieldDashboard extends StatelessWidget {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.satellite_alt,
+                      Icon(Icons.satellite_alt,
                           color: Colors.white, size: 16),
-                      const SizedBox(width: 6),
-                      const Text(
+                      SizedBox(width: 6),
+                      Text(
                         'NDVI: 0.78',
                         style: TextStyle(
                           color: Colors.white,

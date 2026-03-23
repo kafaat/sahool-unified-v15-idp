@@ -39,6 +39,8 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -54,6 +56,8 @@ def reset_engine():
     iot_engine.stats["filtered_readings"] = 0
     iot_engine.stats["alerts_generated"] = 0
     yield
+
+
 class _TenantClient:
     """Wrapper that adds X-Tenant-ID header to all requests."""
 
@@ -69,9 +73,13 @@ class _TenantClient:
         headers = kwargs.pop("headers", {})
         headers.setdefault("X-Tenant-ID", "00000000-0000-0000-0000-000000000001")
         return self._client.post(url, headers=headers, **kwargs)
+
+
 @pytest.fixture
 def client():
     return _TenantClient(TestClient(app))
+
+
 @pytest.fixture
 def sample_node_reg() -> NodeRegistration:
     return NodeRegistration(
@@ -86,6 +94,8 @@ def sample_node_reg() -> NodeRegistration:
         firmware_version="1.0.0",
         battery_level=95.0,
     )
+
+
 @pytest.fixture
 def sample_reading() -> SensorReading:
     return SensorReading(
@@ -95,9 +105,12 @@ def sample_reading() -> SensorReading:
         unit="%",
         quality=0.9,
     )
+
+
 # ---------------------------------------------------------------------------
 # Test Enums
 # ---------------------------------------------------------------------------
+
 
 class TestEnums:
     def test_sensor_type_values(self):
@@ -112,9 +125,12 @@ class TestEnums:
     def test_alert_severity_values(self):
         assert AlertSeverity.CRITICAL == "critical"
         assert AlertSeverity.INFO == "info"
+
+
 # ---------------------------------------------------------------------------
 # Test KalmanFilter
 # ---------------------------------------------------------------------------
+
 
 class TestKalmanFilter:
     def test_first_measurement_returns_input(self):
@@ -141,6 +157,7 @@ class TestKalmanFilter:
         """Noisy readings around 50 should be smoothed."""
         kf = KalmanFilter(process_variance=0.01, measurement_variance=0.5)
         import random
+
         random.seed(42)
         readings = [50.0 + random.gauss(0, 5) for _ in range(50)]
         results = [kf.update(r) for r in readings]
@@ -154,9 +171,12 @@ class TestKalmanFilter:
         assert kf.process_var == 0.1
         assert kf.measurement_var == 1.0
         assert kf.initialized is False
+
+
 # ---------------------------------------------------------------------------
 # Test OfflineCache
 # ---------------------------------------------------------------------------
+
 
 class TestOfflineCache:
     def test_store_and_retrieve(self):
@@ -197,9 +217,12 @@ class TestOfflineCache:
         assert cache.size == 0
         cache.store({"value": 1})
         assert cache.size == 1
+
+
 # ---------------------------------------------------------------------------
 # Test IoTSensorEngine
 # ---------------------------------------------------------------------------
+
 
 class TestIoTSensorEngine:
     def test_register_node(self, sample_node_reg):
@@ -318,9 +341,12 @@ class TestIoTSensorEngine:
         engine = IoTSensorEngine()
         result = engine.process_reading(sample_reading)
         assert result["status"] == "accepted"
+
+
 # ---------------------------------------------------------------------------
 # Test WDI Calculation
 # ---------------------------------------------------------------------------
+
 
 class TestWDICalculation:
     def test_high_stress_irrigate(self):
@@ -405,9 +431,12 @@ class TestWDICalculation:
         result = engine.calculate_wdi(req)
         assert len(result.decision) > 0
         assert len(result.decision_ar) > 0
+
+
 # ---------------------------------------------------------------------------
 # Test Pydantic Models
 # ---------------------------------------------------------------------------
+
 
 class TestModels:
     def test_sensor_reading_defaults(self):
@@ -460,9 +489,12 @@ class TestModels:
             timestamp=datetime.utcnow(),
         )
         assert alert.severity == AlertSeverity.WARNING
+
+
 # ---------------------------------------------------------------------------
 # Test Sensor Ranges & Alert Thresholds Constants
 # ---------------------------------------------------------------------------
+
 
 class TestSensorRangesAndThresholds:
     def test_all_sensor_types_have_ranges(self):
@@ -476,9 +508,12 @@ class TestSensorRangesAndThresholds:
     def test_alert_thresholds_subset_of_sensor_types(self):
         for key in ALERT_THRESHOLDS:
             assert key in SENSOR_RANGES
+
+
 # ---------------------------------------------------------------------------
 # Test API Endpoints
 # ---------------------------------------------------------------------------
+
 
 class TestAPIEndpoints:
     def test_healthz(self, client):

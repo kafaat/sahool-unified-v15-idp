@@ -42,9 +42,7 @@ logger = logging.getLogger(__name__)
 # Pattern for valid SQL identifiers (table names, column names)
 _VALID_IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 # Pattern for qualified identifiers: table.column, column, *
-_VALID_QUALIFIED_IDENTIFIER = re.compile(
-    r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*$|^\*$"
-)
+_VALID_QUALIFIED_IDENTIFIER = re.compile(r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*$|^\*$")
 # Pattern for ORDER BY expressions: column [ASC|DESC] [NULLS FIRST|LAST]
 _VALID_ORDER_EXPR = re.compile(
     r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*"
@@ -522,10 +520,7 @@ async def batch_insert(
             f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})" for j in range(len(batch))
         )
 
-        sql = (
-            f"INSERT INTO {quoted_table} ({', '.join(quoted_columns)})"
-            f" VALUES {batch_placeholders}"
-        )
+        sql = f"INSERT INTO {quoted_table} ({', '.join(quoted_columns)}) VALUES {batch_placeholders}"
 
         if on_conflict:
             # Validate on_conflict to prevent SQL injection via clause manipulation

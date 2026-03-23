@@ -226,6 +226,7 @@ class TestNotificationQueueProcessor:
     @pytest.mark.asyncio
     async def test_connect_without_redis(self):
         import src.queue_processor as mod
+
         old = mod._REDIS_AVAILABLE
         mod._REDIS_AVAILABLE = False
 
@@ -244,15 +245,22 @@ class TestNotificationQueueProcessor:
 class TestQueueProcessorMethods:
     def test_register_handler(self):
         processor = NotificationQueueProcessor()
+
         async def handler(notif):
             pass
+
         processor.register_handler("push", handler)
         assert "push" in processor._handlers
 
     def test_register_multiple_handlers(self):
         processor = NotificationQueueProcessor()
-        async def push_handler(n): pass
-        async def sms_handler(n): pass
+
+        async def push_handler(n):
+            pass
+
+        async def sms_handler(n):
+            pass
+
         processor.register_handler("push", push_handler)
         processor.register_handler("sms", sms_handler)
         assert len(processor._handlers) == 2
@@ -281,6 +289,7 @@ class TestQueueProcessorMethods:
 class TestGetQueueProcessor:
     def test_returns_singleton(self):
         import src.queue_processor as mod
+
         old = mod._queue_processor
         mod._queue_processor = None
 

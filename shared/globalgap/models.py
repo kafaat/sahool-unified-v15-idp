@@ -44,8 +44,7 @@ def _compute_integrity_hash(data: dict) -> str:
     env = os.getenv("ENVIRONMENT", "development").lower()
     if env == "production":
         raise RuntimeError(
-            "GLOBALGAP_HMAC_SECRET must be set in production. "
-            "Cannot fall back to plain SHA-256 for compliance records."
+            "GLOBALGAP_HMAC_SECRET must be set in production. Cannot fall back to plain SHA-256 for compliance records."
         )
     logger.warning(
         "GLOBALGAP_HMAC_SECRET is not set — falling back to plain SHA-256. "
@@ -547,7 +546,9 @@ class FarmRegistration(BaseModel):
             "cb_code": self.cb_code,
             "certificate_number": self.certificate_number,
             "certificate_issue_date": self.certificate_issue_date.isoformat() if self.certificate_issue_date else None,
-            "certificate_expiry_date": self.certificate_expiry_date.isoformat() if self.certificate_expiry_date else None,
+            "certificate_expiry_date": self.certificate_expiry_date.isoformat()
+            if self.certificate_expiry_date
+            else None,
             "certificate_status": self.certificate_status,
             "parallel_production": self.parallel_production,
             "parallel_ownership": self.parallel_ownership,

@@ -289,7 +289,7 @@ class ServiceHealthMonitor {
       case 'weather':
         return ['Weather forecast', 'Agricultural calendar'];
       case 'vegetation-analysis':
-      case 'ndvi-processor':
+      case 'vegetation-analysis-service':
         return ['NDVI analysis', 'Satellite imagery', 'Field health'];
       case 'irrigation':
         return ['Smart irrigation', 'Water balance'];

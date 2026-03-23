@@ -249,7 +249,7 @@ class DashboardScreenExample extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.warning_rounded,
                           color: SahoolColors.warning,
                           size: 24,

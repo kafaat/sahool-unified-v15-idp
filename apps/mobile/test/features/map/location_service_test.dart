@@ -3,6 +3,7 @@
 ///
 /// Tests for location services, coordinate validation, distance calculations,
 /// and location-based map functionality.
+library;
 
 import 'dart:math' as math;
 
@@ -60,7 +61,7 @@ void main() {
   group('Mock Location Data', () {
     test('should have valid Sanaa location', () {
       // Act
-      final sanaaLocation = MockLocationData.sanaaLocation;
+      const sanaaLocation = MockLocationData.sanaaLocation;
 
       // Assert
       expect(sanaaLocation['latitude'], closeTo(15.3694, 0.01));
@@ -70,7 +71,7 @@ void main() {
 
     test('should identify poor accuracy location', () {
       // Act
-      final poorLocation = MockLocationData.poorAccuracyLocation;
+      const poorLocation = MockLocationData.poorAccuracyLocation;
 
       // Assert
       expect(poorLocation['accuracy'], greaterThan(100)); // Poor accuracy
@@ -78,7 +79,7 @@ void main() {
 
     test('should have moving location with speed', () {
       // Act
-      final movingLocation = MockLocationData.movingLocation;
+      const movingLocation = MockLocationData.movingLocation;
 
       // Assert
       expect(movingLocation['speed'], greaterThan(0));
@@ -87,7 +88,7 @@ void main() {
 
     test('should identify invalid location', () {
       // Act
-      final invalidLocation = MockLocationData.invalidLocation;
+      const invalidLocation = MockLocationData.invalidLocation;
 
       // Assert - Invalid latitude (>90 or <-90)
       expect(
@@ -135,7 +136,7 @@ void main() {
 
     test('should validate Yemen coordinates', () {
       // Yemen bounding box approximately: 12-20N, 42-55E
-      final sanaa = MockLocationData.sanaaLocation;
+      const sanaa = MockLocationData.sanaaLocation;
 
       // Assert in Yemen bounds
       expect(sanaa['latitude'], greaterThanOrEqualTo(12));
@@ -240,7 +241,7 @@ void main() {
 
     test('should check all Yemen cities are within bounds', () {
       // Arrange
-      final cities = YemenMapBounds.cities;
+      const cities = YemenMapBounds.cities;
 
       // Assert
       for (final entry in cities.entries) {

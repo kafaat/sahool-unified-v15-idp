@@ -153,15 +153,15 @@ class _DailyBriefContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.priority_high_rounded,
                 color: SahoolColors.warning,
                 size: 20,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'يحتاج اهتمامك اليوم',
                 style: TextStyle(
                   color: Colors.white,

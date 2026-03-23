@@ -264,9 +264,7 @@ class TestTenantConfiguration:
         """Test getting default config for new tenant"""
         mock_session = MagicMock()
 
-        with patch(
-            "src.main.config_service"
-        ) as mock_config_svc:
+        with patch("src.main.config_service") as mock_config_svc:
             mock_config_svc.get_tenant_configs.return_value = []
 
             response = client.get("/config/new_tenant", headers=TENANT_HEADER)
@@ -283,9 +281,11 @@ class TestTenantConfiguration:
 
     def test_update_tenant_config(self, client):
         """Test updating tenant configuration"""
-        with patch("src.main.config_service") as mock_config_svc, \
-             patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub, \
-             patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status:
+        with (
+            patch("src.main.config_service") as mock_config_svc,
+            patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub,
+            patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status,
+        ):
             mock_config_svc.get_config_by_name.return_value = None
             mock_config_svc.create_config.return_value = MagicMock()
 
@@ -310,9 +310,11 @@ class TestTenantConfiguration:
 
     def test_reset_tenant_config(self, client):
         """Test resetting tenant configuration"""
-        with patch("src.main.config_service") as mock_config_svc, \
-             patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub, \
-             patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status:
+        with (
+            patch("src.main.config_service") as mock_config_svc,
+            patch("src.main.publish_config_updated", new_callable=AsyncMock) as mock_pub,
+            patch("src.main.publish_provider_status_changed", new_callable=AsyncMock) as mock_status,
+        ):
             mock_config_svc.get_tenant_configs.return_value = []
 
             response = client.delete("/config/reset_tenant", headers=TENANT_HEADER)
@@ -343,9 +345,7 @@ class TestProviderRecommendations:
 
     def test_get_low_budget_recommendations(self, client):
         """Test getting low budget recommendations"""
-        response = client.get(
-            "/providers/recommend?budget=low", headers=TENANT_HEADER
-        )
+        response = client.get("/providers/recommend?budget=low", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert data["budget"] == "low"
@@ -353,9 +353,7 @@ class TestProviderRecommendations:
 
     def test_get_high_budget_recommendations(self, client):
         """Test getting high budget recommendations"""
-        response = client.get(
-            "/providers/recommend?budget=high", headers=TENANT_HEADER
-        )
+        response = client.get("/providers/recommend?budget=high", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert data["budget"] == "high"

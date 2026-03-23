@@ -74,6 +74,7 @@ async def require_auth(request: Request):
             detail="Invalid or expired token",
         )
 
+
 # Add parent directories to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 

@@ -236,38 +236,9 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # DEPRECATED (still routable if needed)
-  - name: yield-prediction
-    host: yield-prediction
-    port: 3021
-    protocol: http
-    routes:
-      - name: yield-prediction-route
-        paths: ["/yield-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # DEPRECATED (still routable if needed)
-  - name: lai-estimation
-    host: lai-estimation
-    port: 3022
-    protocol: http
-    routes:
-      - name: lai-estimation-route
-        paths: ["/lai-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # DEPRECATED (still routable if needed)
-  - name: crop-growth-model
-    host: crop-growth-model
-    port: 3023
-    protocol: http
-    routes:
-      - name: crop-growth-model-route
-        paths: ["/crop-growth-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: yield-prediction legacy route (deprecated → yield-prediction-service port 8152)
+  # REMOVED: lai-estimation legacy route (deprecated, only starts with --profile deprecated)
+  # REMOVED: crop-growth-model legacy route (deprecated, only starts with --profile deprecated)
 
   - name: chat-service
     host: chat-service
@@ -388,7 +359,7 @@ services:
     routes:
       - name: weather-service-route
         paths: ["/api/v1/weather", "/weather"]
-        strip_path: true
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       # Cache weather data (updates hourly)
@@ -620,15 +591,7 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  - name: ndvi-processor
-    host: ndvi-processor
-    port: 8118
-    protocol: http
-    routes:
-      - name: ndvi-processor-route
-        paths: ["/ndvi-processor-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: ndvi-processor route (deprecated → vegetation-analysis-service, sunset 2026-02)
 
   - name: field-intelligence
     host: field-intelligence
@@ -636,7 +599,7 @@ services:
     protocol: http
     routes:
       - name: field-intelligence-route
-        paths: ["/api/v1/field-intelligence", "/api/v1/field-core", "/field-intelligence"]
+        paths: ["/api/v1/field-intelligence", "/field-intelligence"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -666,6 +629,7 @@ services:
   # -----------------------------
 
   # Audit Service - Compliance logging
+  # خدمة التدقيق - تسجيل الامتثال
   - name: audit-service
     host: audit-service
     port: 8114  # Container internal port (Dockerfile EXPOSE 8114, docker-compose PORT=8114)
@@ -675,6 +639,17 @@ services:
         paths: ["/api/v1/audit", "/audit"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
 
   # REMOVED: crop-health (deprecated → crop-intelligence-service port 8095)
 
@@ -872,7 +847,7 @@ services:
     routes:
       - name: copilot-api-route
         paths: ["/api/v1/copilot", "/copilot"]
-        strip_path: true
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting

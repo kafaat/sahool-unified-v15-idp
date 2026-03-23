@@ -42,9 +42,7 @@ class TestVerifyChannel:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=None)
             with pytest.raises(ValueError, match="not found"):
-                await ChannelsService.verify_channel(
-                    str(uuid4()), "123456", "user-123"
-                )
+                await ChannelsService.verify_channel(str(uuid4()), "123456", "user-123")
 
     @pytest.mark.asyncio
     async def test_unauthorized_user(self):
@@ -52,18 +50,14 @@ class TestVerifyChannel:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             with pytest.raises(ValueError, match="Unauthorized"):
-                await ChannelsService.verify_channel(
-                    str(ch.id), "123456", "user-123"
-                )
+                await ChannelsService.verify_channel(str(ch.id), "123456", "user-123")
 
     @pytest.mark.asyncio
     async def test_already_verified(self):
         ch = _mock_channel(verified=True)
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
-            result = await ChannelsService.verify_channel(
-                str(ch.id), "123456", "user-123"
-            )
+            result = await ChannelsService.verify_channel(str(ch.id), "123456", "user-123")
             assert result["success"] is True
             assert result["message"] == "Channel already verified"
 
@@ -73,9 +67,7 @@ class TestVerifyChannel:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.verify_channel = AsyncMock(return_value=True)
-            result = await ChannelsService.verify_channel(
-                str(ch.id), "123456", "user-123"
-            )
+            result = await ChannelsService.verify_channel(str(ch.id), "123456", "user-123")
             assert result["success"] is True
             assert result["verified"] is True
 
@@ -85,9 +77,7 @@ class TestVerifyChannel:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.verify_channel = AsyncMock(return_value=False)
-            result = await ChannelsService.verify_channel(
-                str(ch.id), "wrong-code", "user-123"
-            )
+            result = await ChannelsService.verify_channel(str(ch.id), "wrong-code", "user-123")
             assert result["success"] is False
 
 
@@ -146,9 +136,7 @@ class TestListUserChannels:
     @pytest.mark.asyncio
     async def test_invalid_channel_type(self):
         with pytest.raises(ValueError, match="Invalid channel type"):
-            await ChannelsService.list_user_channels(
-                "user-123", channel_type="invalid"
-            )
+            await ChannelsService.list_user_channels("user-123", channel_type="invalid")
 
 
 class TestUpdateChannelStatus:
@@ -158,9 +146,7 @@ class TestUpdateChannelStatus:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=True)
-            result = await ChannelsService.update_channel_status(
-                str(ch.id), "user-123", True
-            )
+            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
             assert result["success"] is True
             assert result["enabled"] is True
 
@@ -170,9 +156,7 @@ class TestUpdateChannelStatus:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=True)
-            result = await ChannelsService.update_channel_status(
-                str(ch.id), "user-123", False
-            )
+            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", False)
             assert result["success"] is True
             assert "disabled" in result["message"]
 
@@ -181,9 +165,7 @@ class TestUpdateChannelStatus:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=None)
             with pytest.raises(ValueError, match="not found"):
-                await ChannelsService.update_channel_status(
-                    str(uuid4()), "user-123", True
-                )
+                await ChannelsService.update_channel_status(str(uuid4()), "user-123", True)
 
     @pytest.mark.asyncio
     async def test_unauthorized(self):
@@ -191,9 +173,7 @@ class TestUpdateChannelStatus:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             with pytest.raises(ValueError, match="Unauthorized"):
-                await ChannelsService.update_channel_status(
-                    str(ch.id), "user-123", True
-                )
+                await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
 
     @pytest.mark.asyncio
     async def test_update_failed(self):
@@ -201,7 +181,5 @@ class TestUpdateChannelStatus:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=False)
-            result = await ChannelsService.update_channel_status(
-                str(ch.id), "user-123", True
-            )
+            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
             assert result["success"] is False

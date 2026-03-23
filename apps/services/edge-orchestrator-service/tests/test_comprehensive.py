@@ -25,6 +25,8 @@ os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+
+
 # ---------------------------------------------------------------------------
 # Schema tests
 # ---------------------------------------------------------------------------
@@ -83,6 +85,8 @@ class TestSchemaEnums:
 
         assert WSMessageType.HEARTBEAT == "heartbeat"
         assert WSMessageType.DETECTION == "detection"
+
+
 class TestSchemaModels:
     """Test Pydantic models for serialization and validation."""
 
@@ -229,6 +233,8 @@ class TestSchemaModels:
 
         jl = EdgeJobList(items=[], total=0, pages=1)
         assert jl.total == 0
+
+
 # ---------------------------------------------------------------------------
 # Config tests
 # ---------------------------------------------------------------------------
@@ -274,6 +280,8 @@ class TestConfig:
         s = Settings(environment="test")
         assert "yolo26-s" in s.supported_models
         assert len(s.supported_models) == 6
+
+
 # ---------------------------------------------------------------------------
 # DeviceConnection tests
 # ---------------------------------------------------------------------------
@@ -373,6 +381,8 @@ class TestDeviceConnection:
         req = SyncRequest(device_id=uuid4())
         with pytest.raises(DeviceConnectionError):
             await conn.sync_data(req)
+
+
 # ---------------------------------------------------------------------------
 # DeviceManager tests
 # ---------------------------------------------------------------------------
@@ -537,6 +547,8 @@ class TestDeviceManager:
 
         dm = DeviceManager()
         assert await dm.get_connection(uuid4()) is None
+
+
 # ---------------------------------------------------------------------------
 # get_device_manager singleton test
 # ---------------------------------------------------------------------------
@@ -547,6 +559,8 @@ class TestGetDeviceManager:
         dm1 = get_device_manager()
         dm2 = get_device_manager()
         assert dm1 is dm2
+
+
 # ---------------------------------------------------------------------------
 # devices endpoint helper
 # ---------------------------------------------------------------------------
@@ -580,6 +594,8 @@ class TestGetDefaultCapabilities:
 
         caps = _get_default_capabilities(DeviceType.GENERIC_EDGE)
         assert caps.ram_gb == 4.0
+
+
 # ---------------------------------------------------------------------------
 # WebSocketManager tests
 # ---------------------------------------------------------------------------
@@ -662,7 +678,9 @@ class TestWebSocketManager:
         ws_mock = AsyncMock()
         conn = WebSocketConnection(websocket=ws_mock, client_id="c1")
         mgr._connections["c1"] = conn
-        await mgr.handle_client_message("c1", {"type": "subscribe", "event_types": ["metrics", "alert"]})
+        await mgr.handle_client_message(
+            "c1", {"type": "subscribe", "event_types": ["metrics", "alert"]}
+        )
         assert "metrics" in conn.subscriptions
         assert "alert" in conn.subscriptions
 
@@ -744,6 +762,8 @@ class TestWebSocketManager:
             message_ar="اختبار",
         )
         assert count == 0
+
+
 # ---------------------------------------------------------------------------
 # WebSocketConnection tests
 # ---------------------------------------------------------------------------
@@ -776,6 +796,8 @@ class TestWebSocketConnection:
         conn = WebSocketConnection(websocket=ws_mock, client_id="c1")
         await conn.close()
         ws_mock.close.assert_called_once()
+
+
 # ---------------------------------------------------------------------------
 # Exception classes
 # ---------------------------------------------------------------------------
@@ -797,6 +819,8 @@ class TestExceptions:
 
         err = ModelDeploymentError("deploy fail")
         assert str(err) == "deploy fail"
+
+
 # ---------------------------------------------------------------------------
 # API Endpoint integration tests via TestClient
 # ---------------------------------------------------------------------------
@@ -808,17 +832,23 @@ try:
     _CLIENT_AVAILABLE = True
 except Exception:
     _CLIENT_AVAILABLE = False
+
+
 @pytest.fixture
 def api_client():
     if not _CLIENT_AVAILABLE:
         pytest.skip("TestClient not available")
     return TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
+
+
 @pytest.fixture
 def tenant_headers():
     return {
         "X-Tenant-ID": "00000000-0000-0000-0000-000000000001",
         "Content-Type": "application/json",
     }
+
+
 class TestHealthAPI:
     """Test health endpoints via HTTP."""
 
@@ -855,6 +885,8 @@ class TestHealthAPI:
         assert "devices" in data
         assert "websockets" in data
         assert data["service"] == "edge-orchestrator-service"
+
+
 class TestDevicesAPI:
     """Test device CRUD endpoints."""
 
@@ -895,7 +927,9 @@ class TestDevicesAPI:
     def test_create_and_get_device(self, api_client, tenant_headers):
         device_data = self._make_device()
         device_data["mac_address"] = "AA:BB:CC:DD:EE:02"
-        create_resp = api_client.post("/api/v1/edge/devices", json=device_data, headers=tenant_headers)
+        create_resp = api_client.post(
+            "/api/v1/edge/devices", json=device_data, headers=tenant_headers
+        )
         assert create_resp.status_code == 201
         device_id = create_resp.json()["id"]
 
@@ -906,7 +940,9 @@ class TestDevicesAPI:
     def test_update_device(self, api_client, tenant_headers):
         device_data = self._make_device()
         device_data["mac_address"] = "AA:BB:CC:DD:EE:03"
-        create_resp = api_client.post("/api/v1/edge/devices", json=device_data, headers=tenant_headers)
+        create_resp = api_client.post(
+            "/api/v1/edge/devices", json=device_data, headers=tenant_headers
+        )
         device_id = create_resp.json()["id"]
 
         update_resp = api_client.put(
@@ -920,7 +956,9 @@ class TestDevicesAPI:
     def test_delete_device(self, api_client, tenant_headers):
         device_data = self._make_device()
         device_data["mac_address"] = "AA:BB:CC:DD:EE:04"
-        create_resp = api_client.post("/api/v1/edge/devices", json=device_data, headers=tenant_headers)
+        create_resp = api_client.post(
+            "/api/v1/edge/devices", json=device_data, headers=tenant_headers
+        )
         device_id = create_resp.json()["id"]
 
         del_resp = api_client.delete(f"/api/v1/edge/devices/{device_id}", headers=tenant_headers)
@@ -969,6 +1007,8 @@ class TestDevicesAPI:
             headers={"X-Tenant-ID": "not-a-uuid"},
         )
         assert resp.status_code == 400
+
+
 class TestJobsAPI:
     """Test job management endpoints."""
 
@@ -1012,6 +1052,8 @@ class TestJobsAPI:
         }
         resp = api_client.post("/api/v1/edge/jobs", json=job_data, headers=tenant_headers)
         assert resp.status_code == 404
+
+
 class TestSyncDeployAPI:
     """Test sync and deploy endpoints."""
 
@@ -1047,6 +1089,8 @@ class TestSyncDeployAPI:
             headers=tenant_headers,
         )
         assert resp.status_code == 404
+
+
 # ---------------------------------------------------------------------------
 # Extended Device CRUD + Job workflow tests to cover deeper code paths
 # ---------------------------------------------------------------------------
@@ -1180,6 +1224,8 @@ class TestDeviceWorkflows:
         data = resp.json()
         assert data["page"] == 1
         assert data["page_size"] == 5
+
+
 # ---------------------------------------------------------------------------
 # Sync/deploy endpoint tenant_id validation tests
 # ---------------------------------------------------------------------------
@@ -1211,6 +1257,8 @@ class TestTenantValidation:
             headers={"X-Tenant-ID": "bad-uuid"},
         )
         assert resp.status_code == 400
+
+
 # ---------------------------------------------------------------------------
 # Background task / sync-deploy operation store tests
 # ---------------------------------------------------------------------------
@@ -1232,6 +1280,8 @@ class TestSyncDeployStores:
 
         assert isinstance(_jobs_store, dict)
         assert isinstance(_job_queues, dict)
+
+
 class TestExecuteSyncOperation:
     """Test execute_sync_operation background function."""
 
@@ -1270,6 +1320,8 @@ class TestExecuteSyncOperation:
         assert _sync_operations[sync_id].status == "failed"
         # Cleanup
         del _sync_operations[sync_id]
+
+
 class TestExecuteDeployOperation:
     """Test execute_deploy_operation background function."""
 
@@ -1310,6 +1362,8 @@ class TestExecuteDeployOperation:
 
         assert _deploy_operations[deploy_id].status == "failed"
         del _deploy_operations[deploy_id]
+
+
 class TestExecuteJobOnDevice:
     """Test execute_job_on_device background function."""
 
@@ -1339,6 +1393,8 @@ class TestExecuteJobOnDevice:
         updated = _jobs_store[job_id]
         assert updated.status == JobStatus.FAILED
         del _jobs_store[job_id]
+
+
 # ---------------------------------------------------------------------------
 # WebSocketManager - more coverage of start/stop
 # ---------------------------------------------------------------------------
@@ -1391,6 +1447,8 @@ class TestWSManagerStartStop:
             progress=100.0,
         )
         assert count == 0
+
+
 # ---------------------------------------------------------------------------
 # DeviceManager start/stop
 # ---------------------------------------------------------------------------
@@ -1444,10 +1502,12 @@ class TestMainModule:
         handler = handlers.get("sahool.tenant.*.edge.metrics")
         assert handler is not None
         msg = MagicMock()
-        msg.data = json_mod.dumps({
-            "device_id": str(uuid4()),
-            "metrics": {"cpu_usage": 50},
-        }).encode()
+        msg.data = json_mod.dumps(
+            {
+                "device_id": str(uuid4()),
+                "metrics": {"cpu_usage": 50},
+            }
+        ).encode()
         await handler(msg)
 
     @pytest.mark.asyncio
@@ -1471,10 +1531,12 @@ class TestMainModule:
         handler = handlers.get("sahool.tenant.*.edge.detection")
         assert handler is not None
         msg = MagicMock()
-        msg.data = json_mod.dumps({
-            "device_id": str(uuid4()),
-            "detections": [],
-        }).encode()
+        msg.data = json_mod.dumps(
+            {
+                "device_id": str(uuid4()),
+                "detections": [],
+            }
+        ).encode()
         await handler(msg)
 
     @pytest.mark.asyncio
@@ -1498,11 +1560,13 @@ class TestMainModule:
         handler = handlers["sahool.tenant.*.edge.metrics"]
         event_id = str(uuid4())
         msg = MagicMock()
-        msg.data = json_mod.dumps({
-            "event_id": event_id,
-            "device_id": str(uuid4()),
-            "metrics": {},
-        }).encode()
+        msg.data = json_mod.dumps(
+            {
+                "event_id": event_id,
+                "device_id": str(uuid4()),
+                "metrics": {},
+            }
+        ).encode()
 
         # Call twice - second should be deduped
         await handler(msg)
@@ -1528,6 +1592,8 @@ class TestMainModule:
         msg = MagicMock()
         msg.data = b"not-json"
         await handler(msg)  # Should not raise
+
+
 class TestDeviceManagerStartStop:
     @pytest.mark.asyncio
     async def test_start_stop(self):
@@ -1555,6 +1621,8 @@ class TestDeviceManagerStartStop:
         results = await dm.broadcast_message("test", {}, device_ids=[uuid4()])
         assert len(results) == 1
         assert list(results.values())[0] is False
+
+
 class TestWSManagerConnect:
     """Test WebSocketManager connect/disconnect flow."""
 
@@ -1608,6 +1676,8 @@ class TestWSManagerConnect:
         # Broadcast with event_type="metrics" should reach c1
         count = await mgr.broadcast({"type": "metrics"}, event_type="metrics")
         assert count == 1
+
+
 class TestEdgeDeviceUpdate:
     """Test EdgeDeviceUpdate schema."""
 
@@ -1623,6 +1693,8 @@ class TestEdgeDeviceUpdate:
         upd = EdgeDeviceUpdate(name="New Name")
         dumped = upd.model_dump(exclude_unset=True)
         assert dumped == {"name": "New Name"}
+
+
 class TestSyncRequest:
     """Test SyncRequest schema."""
 
@@ -1633,6 +1705,8 @@ class TestSyncRequest:
         assert req.direction == "upload"
         assert req.force is False
         assert "inference_results" in req.data_types
+
+
 class TestDeployProgress:
     """Test DeployProgress schema."""
 
@@ -1642,6 +1716,8 @@ class TestDeployProgress:
         dp = DeployProgress()
         assert dp.stage == "initializing"
         assert dp.percent_complete == 0.0
+
+
 class TestSyncProgress:
     """Test SyncProgress schema."""
 

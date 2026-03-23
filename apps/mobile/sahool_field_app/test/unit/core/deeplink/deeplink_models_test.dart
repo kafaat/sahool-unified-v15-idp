@@ -61,7 +61,7 @@ void main() {
       final data = DeepLinkData(
         type: DeepLinkType.fieldDetails,
         uri: Uri.parse('sahool://field?id=123'),
-        parameters: {'id': '123'},
+        parameters: const {'id': '123'},
         receivedAt: now,
       );
 
@@ -74,7 +74,7 @@ void main() {
       final data = DeepLinkData(
         type: DeepLinkType.notification,
         uri: Uri.parse('sahool://notification?id=456'),
-        parameters: {'id': '456', 'type': 'weather'},
+        parameters: const {'id': '456', 'type': 'weather'},
         receivedAt: DateTime.now(),
       );
 
@@ -87,7 +87,7 @@ void main() {
       final data = DeepLinkData(
         type: DeepLinkType.invite,
         uri: Uri.parse('sahool://invite?code=ABC'),
-        parameters: {'code': 'ABC'},
+        parameters: const {'code': 'ABC'},
         receivedAt: DateTime.now(),
       );
 
@@ -99,7 +99,7 @@ void main() {
       final data = DeepLinkData(
         type: DeepLinkType.fieldDetails,
         uri: Uri.parse('sahool://field?id=123'),
-        parameters: {'id': '123'},
+        parameters: const {'id': '123'},
         receivedAt: DateTime.now(),
       );
 
@@ -281,7 +281,7 @@ void main() {
       final data = DeepLinkData(
         type: DeepLinkType.fieldDetails,
         uri: Uri.parse('sahool://field?id=1'),
-        parameters: {'id': '1'},
+        parameters: const {'id': '1'},
         receivedAt: DateTime.now(),
       );
       final state = DeepLinkState(currentLink: data, hasPendingLink: true);

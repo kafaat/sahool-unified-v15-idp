@@ -207,7 +207,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
     if (input.isEmpty) {
       return ValidationResult.error(
         '${channel.nameEn} is required',
-        '${channel.hintAr}',
+        channel.hintAr,
       );
     }
 
@@ -412,7 +412,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
 
   /// Build back button
   Widget _buildBackButton(ColorScheme colorScheme) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
@@ -681,7 +681,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
         const SizedBox(height: 12),
 
         // Input field
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),

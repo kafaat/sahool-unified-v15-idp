@@ -81,7 +81,7 @@ class SyncConflictResolver {
 
       case ConflictStrategy.custom:
         if (customResolver != null) {
-          return await customResolver(local, server, base);
+          return customResolver(local, server, base);
         }
         // Fallback to server wins
         return server;

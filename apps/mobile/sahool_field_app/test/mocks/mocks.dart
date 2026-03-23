@@ -3,6 +3,7 @@
 ///
 /// This file exports all mock classes for easy importing in tests.
 /// استيراد جميع الفئات الوهمية للاختبارات
+library;
 
 export 'mock_app_database.dart';
 export 'mock_auth_service.dart';

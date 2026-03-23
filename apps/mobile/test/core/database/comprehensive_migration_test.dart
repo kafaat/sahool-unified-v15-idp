@@ -12,6 +12,7 @@
 /// - Migration checksum verification
 ///
 /// Run with: flutter test test/core/database/comprehensive_migration_test.dart
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/database/schema_version.dart';

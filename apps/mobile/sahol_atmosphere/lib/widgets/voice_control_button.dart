@@ -107,12 +107,12 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
         backgroundColor: AtmosphereColors.bgSecondary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AtmosphereRadius.lg),
-          side: BorderSide(color: AtmosphereColors.glassBorder),
+          side: const BorderSide(color: AtmosphereColors.glassBorder),
         ),
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.mic, color: AtmosphereColors.success),
-            const SizedBox(width: AtmosphereSpacing.sm),
+            SizedBox(width: AtmosphereSpacing.sm),
             Text(
               'التحكم الصوتي',
               style: AtmosphereTypography.headlineLarge,
@@ -123,7 +123,7 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'سمعت: "كيف حالة الحقل رقم 4؟"',
               style: AtmosphereTypography.bodyMedium,
             ),
@@ -150,7 +150,7 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
+            child: const Text(
               'حسناً',
               style: TextStyle(color: AtmosphereColors.success),
             ),
@@ -169,7 +169,7 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
         AnimatedOpacity(
           opacity: _isListening ? 0.0 : 1.0,
           duration: const Duration(milliseconds: 300),
-          child: Text(
+          child: const Text(
             'اضغط للتحكم الصوتي',
             style: AtmosphereTypography.bodySmall,
           ),

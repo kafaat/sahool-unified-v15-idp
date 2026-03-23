@@ -7,13 +7,13 @@
 /// - Enable/Disable biometric
 /// - Error handling
 /// - Platform-specific behavior
+library;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/biometric_service.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 
 import 'auth_fixtures.dart';
 import 'auth_mocks.dart';

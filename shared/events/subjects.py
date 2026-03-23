@@ -959,16 +959,12 @@ def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
 
     # Validate tenant_id is a valid UUID format
     if not _TENANT_UUID_RE.match(tenant_id):
-        raise ValueError(
-            f"tenant_id must be a valid UUID, got: {tenant_id!r}"
-        )
+        raise ValueError(f"tenant_id must be a valid UUID, got: {tenant_id!r}")
 
     # Reject NATS wildcard characters to prevent subject injection
     for char in ("*", ">", "."):
         if char in tenant_id:
-            raise ValueError(
-                f"tenant_id contains illegal NATS wildcard character '{char}': {tenant_id!r}"
-            )
+            raise ValueError(f"tenant_id contains illegal NATS wildcard character '{char}': {tenant_id!r}")
 
     return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 

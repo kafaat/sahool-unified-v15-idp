@@ -278,7 +278,7 @@ class ReleaseChecklistBuilder {
       ),
 
       // Testing
-      ChecklistItem(
+      const ChecklistItem(
         id: 'test_coverage',
         titleAr: 'تغطية الاختبارات >= 80%',
         titleEn: 'Test coverage >= 80%',
@@ -305,28 +305,28 @@ class ReleaseChecklistBuilder {
       ),
 
       // Performance
-      ChecklistItem(
+      const ChecklistItem(
         id: 'perf_cold_start',
         titleAr: 'زمن البدء البارد <= 2 ثانية',
         titleEn: 'Cold start time <= 2 seconds',
         category: ChecklistCategory.performance,
         targetValue: ReleaseCriteria.maxColdStartSeconds,
       ),
-      ChecklistItem(
+      const ChecklistItem(
         id: 'perf_frame_rate',
         titleAr: 'معدل الإطارات >= 55 FPS',
         titleEn: 'Frame rate >= 55 FPS average',
         category: ChecklistCategory.performance,
         targetValue: ReleaseCriteria.minFrameRate,
       ),
-      ChecklistItem(
+      const ChecklistItem(
         id: 'perf_memory',
         titleAr: 'استخدام الذاكرة <= 150 MB',
         titleEn: 'Memory usage <= 150 MB',
         category: ChecklistCategory.performance,
         targetValue: ReleaseCriteria.maxMemoryMB,
       ),
-      ChecklistItem(
+      const ChecklistItem(
         id: 'perf_apk_size',
         titleAr: 'حجم APK <= 50 MB',
         titleEn: 'APK size <= 50 MB',

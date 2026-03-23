@@ -303,9 +303,9 @@ void main() {
     });
 
     testWidgets('should display NDVI by default', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
@@ -313,7 +313,7 @@ void main() {
             body: SingleChildScrollView(
               child: SatelliteMapOverlay(
                 ndviValue: 0.72,
-                indexValues: const {
+                indexValues: {
                   SpectralIndex.ndvi: 0.72,
                   SpectralIndex.ndwi: -0.05,
                 },

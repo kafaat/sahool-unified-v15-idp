@@ -286,12 +286,14 @@ class TestHandleNdviComputed:
     @pytest.mark.asyncio
     async def test_no_db_pool_acks(self):
         """No DB pool available should ACK gracefully."""
-        msg = _make_msg({
-            "tenant_id": "t1",
-            "field_id": "f1",
-            "mean_ndvi": 0.65,
-            "event_id": "evt-1",
-        })
+        msg = _make_msg(
+            {
+                "tenant_id": "t1",
+                "field_id": "f1",
+                "mean_ndvi": 0.65,
+                "event_id": "evt-1",
+            }
+        )
         app_state = _make_app_state()  # no db_pool
         await _handle_ndvi_computed(msg, app_state)
         msg.ack.assert_called_once()
@@ -318,11 +320,13 @@ class TestHandleNdviComputed:
         mock_repo = AsyncMock()
         mock_obs = MagicMock()
 
-        with patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False), \
-             patch("src.event_subscribers._mark_processed", new_callable=AsyncMock) as mock_mark, \
-             patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock) as mock_trigger, \
-             patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=mock_obs) as mock_adapter, \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=mock_repo):
+        with (
+            patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False),
+            patch("src.event_subscribers._mark_processed", new_callable=AsyncMock) as mock_mark,
+            patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock) as mock_trigger,
+            patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=mock_obs) as mock_adapter,
+            patch("shared.digital_twin.repository.TwinRepository", return_value=mock_repo),
+        ):
             app_state = _make_app_state(db_pool=MagicMock())
             await _handle_ndvi_computed(msg, app_state)
 
@@ -338,11 +342,13 @@ class TestHandleNdviComputed:
             {"tenant_id": "t1", "field_id": "f1", "value": 0.55, "event_id": "evt-val"},
         )
 
-        with patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False), \
-             patch("src.event_subscribers._mark_processed", new_callable=AsyncMock), \
-             patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock), \
-             patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=MagicMock()), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=AsyncMock()):
+        with (
+            patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False),
+            patch("src.event_subscribers._mark_processed", new_callable=AsyncMock),
+            patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock),
+            patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=MagicMock()),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=AsyncMock()),
+        ):
             app_state = _make_app_state(db_pool=MagicMock())
             await _handle_ndvi_computed(msg, app_state)
 
@@ -373,11 +379,13 @@ class TestHandleNdviComputed:
             {"tenant_id": "t1", "field_id": "f1", "mean_ndvi": 0.5},
             headers={"X-Event-ID": "from-header"},
         )
-        with patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False), \
-             patch("src.event_subscribers._mark_processed", new_callable=AsyncMock) as mock_mark, \
-             patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock), \
-             patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=MagicMock()), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=AsyncMock()):
+        with (
+            patch("src.event_subscribers._check_processed", new_callable=AsyncMock, return_value=False),
+            patch("src.event_subscribers._mark_processed", new_callable=AsyncMock) as mock_mark,
+            patch("src.event_subscribers._trigger_assimilation", new_callable=AsyncMock),
+            patch("shared.digital_twin.adapters.ndvi_to_field_observation", return_value=MagicMock()),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=AsyncMock()),
+        ):
             app_state = _make_app_state(db_pool=MagicMock())
             await _handle_ndvi_computed(msg, app_state)
 
@@ -393,13 +401,15 @@ class TestHandleCalibrationSucceeded:
     @pytest.mark.asyncio
     async def test_safe_params_reloaded(self):
         """When safe_for_decision=True with best_params, params should be loaded into app_state."""
-        msg = _make_msg({
-            "run_id": "run-1",
-            "field_id": "field-1",
-            "safe_for_decision": True,
-            "best_params": {"rue_g_mj": 3.5, "k_extinction": 0.6},
-            "objective_value": 0.95,
-        })
+        msg = _make_msg(
+            {
+                "run_id": "run-1",
+                "field_id": "field-1",
+                "safe_for_decision": True,
+                "best_params": {"rue_g_mj": 3.5, "k_extinction": 0.6},
+                "objective_value": 0.95,
+            }
+        )
         app_state = _make_app_state()
         await _handle_calibration_succeeded(msg, app_state)
 
@@ -414,12 +424,14 @@ class TestHandleCalibrationSucceeded:
     @pytest.mark.asyncio
     async def test_unsafe_params_not_loaded(self):
         """When safe_for_decision=False, params should NOT be stored."""
-        msg = _make_msg({
-            "run_id": "run-2",
-            "field_id": "field-2",
-            "safe_for_decision": False,
-            "best_params": {"rue_g_mj": 2.0},
-        })
+        msg = _make_msg(
+            {
+                "run_id": "run-2",
+                "field_id": "field-2",
+                "safe_for_decision": False,
+                "best_params": {"rue_g_mj": 2.0},
+            }
+        )
         app_state = _make_app_state()
         await _handle_calibration_succeeded(msg, app_state)
 
@@ -430,12 +442,14 @@ class TestHandleCalibrationSucceeded:
     @pytest.mark.asyncio
     async def test_missing_best_params_not_loaded(self):
         """When best_params is None, no crash and no store."""
-        msg = _make_msg({
-            "run_id": "run-3",
-            "field_id": "field-3",
-            "safe_for_decision": True,
-            "best_params": None,
-        })
+        msg = _make_msg(
+            {
+                "run_id": "run-3",
+                "field_id": "field-3",
+                "safe_for_decision": True,
+                "best_params": None,
+            }
+        )
         app_state = _make_app_state()
         await _handle_calibration_succeeded(msg, app_state)
         msg.ack.assert_called_once()
@@ -443,11 +457,13 @@ class TestHandleCalibrationSucceeded:
     @pytest.mark.asyncio
     async def test_missing_field_id_not_loaded(self):
         """When field_id is missing, no store."""
-        msg = _make_msg({
-            "run_id": "run-4",
-            "safe_for_decision": True,
-            "best_params": {"k": 0.5},
-        })
+        msg = _make_msg(
+            {
+                "run_id": "run-4",
+                "safe_for_decision": True,
+                "best_params": {"k": 0.5},
+            }
+        )
         app_state = _make_app_state()
         await _handle_calibration_succeeded(msg, app_state)
         msg.ack.assert_called_once()
@@ -455,12 +471,14 @@ class TestHandleCalibrationSucceeded:
     @pytest.mark.asyncio
     async def test_existing_calibrated_params_updated(self):
         """When calibrated_params already exists, new field entry is added."""
-        msg = _make_msg({
-            "run_id": "run-5",
-            "field_id": "field-5",
-            "safe_for_decision": True,
-            "best_params": {"a": 1},
-        })
+        msg = _make_msg(
+            {
+                "run_id": "run-5",
+                "field_id": "field-5",
+                "safe_for_decision": True,
+                "best_params": {"a": 1},
+            }
+        )
         app_state = _make_app_state(calibrated_params={"field-old": {"run_id": "old"}})
         await _handle_calibration_succeeded(msg, app_state)
         assert "field-old" in app_state.calibrated_params
@@ -561,8 +579,10 @@ class TestTriggerAssimilation:
         mock_pipeline = AsyncMock()
         mock_repo = MagicMock()
 
-        with patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=mock_repo):
+        with (
+            patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=mock_repo),
+        ):
             app_state = _make_app_state(db_pool=MagicMock())
             await _trigger_assimilation(app_state, "t1", "f1", MagicMock(), "evt-1")
 
@@ -575,9 +595,11 @@ class TestTriggerAssimilation:
         mock_pipeline = AsyncMock()
         mock_weather = MagicMock()
 
-        with patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()), \
-             patch("shared.digital_twin.adapters.weather_payload_to_daily", return_value=mock_weather):
+        with (
+            patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()),
+            patch("shared.digital_twin.adapters.weather_payload_to_daily", return_value=mock_weather),
+        ):
             app_state = _make_app_state(
                 db_pool=MagicMock(),
                 weather_cache={"t1:f1": {"forecast": "data"}},
@@ -592,8 +614,10 @@ class TestTriggerAssimilation:
         """Should pass calibrated params when available."""
         mock_pipeline = AsyncMock()
 
-        with patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()):
+        with (
+            patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()),
+        ):
             app_state = _make_app_state(
                 db_pool=MagicMock(),
                 calibrated_params={"f1": {"params": {"rue": 3.0}}},
@@ -608,9 +632,11 @@ class TestTriggerAssimilation:
         """If weather conversion fails, pipeline still runs with weather=None."""
         mock_pipeline = AsyncMock()
 
-        with patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()), \
-             patch("shared.digital_twin.adapters.weather_payload_to_daily", side_effect=Exception("bad")):
+        with (
+            patch("shared.digital_twin.pipeline.TwinPipeline", return_value=mock_pipeline),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()),
+            patch("shared.digital_twin.adapters.weather_payload_to_daily", side_effect=Exception("bad")),
+        ):
             app_state = _make_app_state(
                 db_pool=MagicMock(),
                 weather_cache={"t1:f1": {"data": "bad"}},
@@ -623,8 +649,10 @@ class TestTriggerAssimilation:
     @pytest.mark.asyncio
     async def test_pipeline_error_logged_not_raised(self):
         """Pipeline failures should be logged but not raised (best-effort)."""
-        with patch("shared.digital_twin.pipeline.TwinPipeline", side_effect=Exception("pipeline error")), \
-             patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()):
+        with (
+            patch("shared.digital_twin.pipeline.TwinPipeline", side_effect=Exception("pipeline error")),
+            patch("shared.digital_twin.repository.TwinRepository", return_value=MagicMock()),
+        ):
             app_state = _make_app_state(db_pool=MagicMock())
             # Should not raise
             await _trigger_assimilation(app_state, "t1", "f1", MagicMock())
@@ -644,15 +672,20 @@ class TestSetupNatsSubscriptions:
         nc = MagicMock()
         nc.jetstream = MagicMock(return_value=js)
 
-        with patch("src.event_subscribers.SAHOOL_NDVI_COMPUTED", "sahool.satellite.ndvi.computed", create=True), \
-             patch.dict("sys.modules", {
-                 "shared.events": MagicMock(),
-                 "shared.events.subjects": MagicMock(
-                     SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
-                     SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
-                     SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
-                 ),
-             }):
+        with (
+            patch("src.event_subscribers.SAHOOL_NDVI_COMPUTED", "sahool.satellite.ndvi.computed", create=True),
+            patch.dict(
+                "sys.modules",
+                {
+                    "shared.events": MagicMock(),
+                    "shared.events.subjects": MagicMock(
+                        SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
+                        SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
+                        SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
+                    ),
+                },
+            ),
+        ):
             subs = await setup_nats_subscriptions(nc, _make_app_state())
 
         assert len(subs) == 3
@@ -665,14 +698,17 @@ class TestSetupNatsSubscriptions:
         nc.jetstream = MagicMock(side_effect=Exception("no JS"))
         nc.subscribe = AsyncMock(return_value=MagicMock())
 
-        with patch.dict("sys.modules", {
-            "shared.events": MagicMock(),
-            "shared.events.subjects": MagicMock(
-                SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
-                SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
-                SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "shared.events": MagicMock(),
+                "shared.events.subjects": MagicMock(
+                    SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
+                    SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
+                    SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
+                ),
+            },
+        ):
             subs = await setup_nats_subscriptions(nc, _make_app_state())
 
         assert len(subs) == 3
@@ -695,14 +731,17 @@ class TestSetupNatsSubscriptions:
         nc = MagicMock()
         nc.jetstream = MagicMock(return_value=js)
 
-        with patch.dict("sys.modules", {
-            "shared.events": MagicMock(),
-            "shared.events.subjects": MagicMock(
-                SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
-                SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
-                SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "shared.events": MagicMock(),
+                "shared.events.subjects": MagicMock(
+                    SAHOOL_NDVI_COMPUTED="sahool.satellite.ndvi.computed",
+                    SAHOOL_CALIBRATION_RUN_SUCCEEDED="sahool.calibration.run.succeeded.v1",
+                    SAHOOL_WEATHER_FORECAST="sahool.weather.forecast",
+                ),
+            },
+        ):
             subs = await setup_nats_subscriptions(nc, _make_app_state())
 
         # 2 succeed, 1 fails

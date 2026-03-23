@@ -61,6 +61,7 @@ class TestExceptionHandler:
     def test_task_service_error_returns_json(self, client):
         """TaskServiceError should be handled by custom handler"""
         from src.exceptions import TaskServiceError
+
         # The exception handler is registered, verify it exists
         assert TaskServiceError is not None
 

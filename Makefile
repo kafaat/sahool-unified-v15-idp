@@ -1448,5 +1448,45 @@ deps-sync: ## مزامنة الاعتماديات - Full dependency sync check (
 	@echo "$(GREEN)$(BOLD)Sync check complete!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Quality Gate - بوابة الجودة المتكاملة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: quality-gate quality-gate-full quality-gate-api quality-gate-security quality-gate-db
+
+quality-gate: ## Quick local quality gate (lint + test)
+	@echo "══════════════════════════════════════"
+	@echo "  Quality Gate — بوابة الجودة"
+	@echo "══════════════════════════════════════"
+	@echo "\n📋 Stage 1: Static Analysis..."
+	@ruff check apps/ shared/ --statistics || true
+	@echo "\n📋 Stage 2: OpenAPI Spec..."
+	@npx @redocly/cli lint api/gateway-openapi.yaml --format=stylish 2>/dev/null || true
+	@echo "\n📋 Stage 3: Tests..."
+	@python -m pytest tests/smoke/ tests/unit/ -q --timeout=60 || true
+	@echo "\n✅ Quality gate complete"
+
+quality-gate-api: ## API quality checks (spec + contract + routes)
+	@echo "🔌 API Quality Check..."
+	@npx @redocly/cli lint api/gateway-openapi.yaml || true
+	@python -m pytest tests/contract/ -v --timeout=60 || true
+	@echo "✅ API quality check complete"
+
+quality-gate-security: ## Security scanning
+	@echo "🔒 Security Scan..."
+	@bandit -r apps/services/ shared/ --severity-level medium -f txt || true
+	@detect-secrets scan --all-files --exclude-files '\.lock$$' || true
+	@echo "✅ Security scan complete"
+
+quality-gate-db: ## Database quality checks (SQL lint + migrations)
+	@echo "🗄️ Database Quality Check..."
+	@sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres || true
+	@echo "✅ Database quality check complete"
+
+quality-gate-full: quality-gate quality-gate-api quality-gate-security quality-gate-db ## Full quality gate (all checks)
+	@echo "\n══════════════════════════════════════"
+	@echo "  ✅ Full Quality Gate Complete"
+	@echo "══════════════════════════════════════"
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف
 # ═══════════════════════════════════════════════════════════════════════════════

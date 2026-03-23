@@ -590,8 +590,7 @@ class EventPublisher:
         self._pending_buffer.append((subject, data, effective_timeout, effective_js, headers))
         self._buffered_count += 1
         logger.warning(
-            f"Buffered message for {subject} (buffer size: {len(self._pending_buffer)}). "
-            f"Will flush on reconnection."
+            f"Buffered message for {subject} (buffer size: {len(self._pending_buffer)}). Will flush on reconnection."
         )
         return True
 
@@ -626,10 +625,7 @@ class EventPublisher:
 
         self._pending_buffer = failed
 
-        logger.info(
-            f"Buffer flush complete: {flushed}/{buffer_size} sent, "
-            f"{len(failed)} remaining"
-        )
+        logger.info(f"Buffer flush complete: {flushed}/{buffer_size} sent, {len(failed)} remaining")
         return flushed
 
     # ─────────────────────────────────────────────────────────────────────────

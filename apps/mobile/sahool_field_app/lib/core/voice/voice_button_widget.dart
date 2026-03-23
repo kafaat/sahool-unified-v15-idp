@@ -149,7 +149,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
     );
   }
 
-  void _toggleListening(VoiceStatus status) async {
+  Future<void> _toggleListening(VoiceStatus status) async {
     final service = ref.read(voiceCommandServiceProvider);
 
     if (status == VoiceStatus.listening) {
@@ -358,12 +358,12 @@ class VoiceStatusIndicator extends ConsumerWidget {
           if (status == VoiceStatus.listening)
             const _PulsingDot(color: Colors.white)
           else
-            SizedBox(
+            const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: const AlwaysStoppedAnimation(Colors.white),
+                valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             ),
           const SizedBox(width: 8),

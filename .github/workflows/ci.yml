@@ -239,6 +239,19 @@ jobs:
           npm run lint 2>&1 || echo "::warning::ESLint found linting errors"
         continue-on-error: true
 
+      - name: SQL Linting (SQLFluff)
+        run: |
+          pip install sqlfluff --quiet
+          sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres || true
+        continue-on-error: true
+
+      - name: Run Newman API collection tests
+        if: needs.changes.outputs.node == 'true' || needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main'
+        run: |
+          npm install -g newman --quiet
+          newman run docs/api/SAHOOL.postman_collection.json --bail || true
+        continue-on-error: true
+
       - name: Set lint result
         id: lint-result
         run: |
@@ -283,7 +296,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           # Core test framework and dependencies
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout --quiet
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis --quiet
           pip install httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
@@ -314,6 +327,18 @@ jobs:
           # Security/auth tests re-enabled (pyo3 issue resolved - Pillow installed above)
           pytest tests/unit/ -v --tb=short --timeout=60 \
             --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing
+        env:
+          ENVIRONMENT: test
+          PYTHONPATH: .
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
+
+      - name: Run API contract tests
+        run: |
+          pytest tests/contract/ -v --timeout=60 || true
+        continue-on-error: true
         env:
           ENVIRONMENT: test
           PYTHONPATH: .

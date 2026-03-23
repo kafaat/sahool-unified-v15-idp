@@ -23,6 +23,8 @@ os.environ.setdefault("DATABASE_URL", "")
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars-minimum")
+
+
 # ---------------------------------------------------------------------------
 # Schema enum tests
 # ---------------------------------------------------------------------------
@@ -52,6 +54,8 @@ class TestSchemaEnums:
 
         assert LevelingPriority.MINIMIZE_COST == "minimize_cost"
         assert LevelingPriority.IRRIGATION_EFFICIENCY == "irrigation_efficiency"
+
+
 # ---------------------------------------------------------------------------
 # Schema model validation tests
 # ---------------------------------------------------------------------------
@@ -189,6 +193,8 @@ class TestSchemaValidation:
 
         er = ErrorResponse(error="test", error_ar="اختبار")
         assert er.detail is None
+
+
 # ---------------------------------------------------------------------------
 # Config tests
 # ---------------------------------------------------------------------------
@@ -221,6 +227,8 @@ class TestConfig:
         s = Settings()
         assert s.MIN_DRAINAGE_GRADE == 0.1
         assert s.MAX_IRRIGATION_GRADE == 0.5
+
+
 # ---------------------------------------------------------------------------
 # LevelingOptimizer algorithm tests
 # ---------------------------------------------------------------------------
@@ -264,9 +272,7 @@ class TestLevelingOptimizer:
         assert plane.c is not None
 
     def test_compute_plane_with_target_grades(self, optimizer, sample_points):
-        plane = optimizer.compute_optimal_plane(
-            sample_points, target_grade_x=0.3, target_grade_y=0.15
-        )
+        plane = optimizer.compute_optimal_plane(sample_points, target_grade_x=0.3, target_grade_y=0.15)
         assert abs(plane.a * 100 - 0.3) < 0.01
         assert abs(plane.b * 100 - 0.15) < 0.01
 
@@ -408,6 +414,8 @@ class TestLevelingOptimizer:
         assert optimizer.ratio_to_grade_percent(200) == 0.5
         assert optimizer.ratio_to_grade_percent(100) == 1.0
         assert optimizer.ratio_to_grade_percent(0) == 0.0
+
+
 # ---------------------------------------------------------------------------
 # Point3D and PlaneParameters dataclass tests
 # ---------------------------------------------------------------------------
@@ -449,6 +457,8 @@ class TestDataclasses:
         )
         assert cfr.cut_volume == 1000.0
         assert len(cfr.cut_points) == 1
+
+
 # ---------------------------------------------------------------------------
 # Response model tests
 # ---------------------------------------------------------------------------
@@ -522,6 +532,8 @@ class TestResponseModels:
         assert ce.total_cost_sar == 50000.0
         assert "SAR" in ce.summary_en
         assert "ريال" in ce.summary_ar
+
+
 # ---------------------------------------------------------------------------
 # Validation constants tests
 # ---------------------------------------------------------------------------

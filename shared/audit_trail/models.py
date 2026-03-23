@@ -400,14 +400,11 @@ class AuditEntry:
 
         secret = os.getenv("AUDIT_HMAC_SECRET", "")
         if secret:
-            return hmac.new(
-                secret.encode(), hash_string, hashlib.sha256
-            ).hexdigest()
+            return hmac.new(secret.encode(), hash_string, hashlib.sha256).hexdigest()
         env = os.getenv("ENVIRONMENT", "development").lower()
         if env == "production":
             raise RuntimeError(
-                "AUDIT_HMAC_SECRET must be set in production. "
-                "Cannot fall back to plain SHA-256 for audit records."
+                "AUDIT_HMAC_SECRET must be set in production. Cannot fall back to plain SHA-256 for audit records."
             )
         logger.warning(
             "AUDIT_HMAC_SECRET is not set — falling back to plain SHA-256. "

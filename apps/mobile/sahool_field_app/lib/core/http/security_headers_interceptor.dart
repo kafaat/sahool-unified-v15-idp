@@ -54,7 +54,7 @@ class SecurityHeaderConfig {
     },
     this.validateContentLength = true,
     this.validateApiVersion = true,
-    this.expectedApiVersion = null,
+    this.expectedApiVersion,
     this.validateJsonStructure = true,
     this.maxResponseSize = 10 * 1024 * 1024, // 10MB default
   });

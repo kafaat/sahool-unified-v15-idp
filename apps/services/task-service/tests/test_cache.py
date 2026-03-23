@@ -93,6 +93,8 @@ class TestInMemoryCache:
         cache.set("list", [1, 2, 3])
         assert cache.get("dict") == {"nested": {"key": "value"}}
         assert cache.get("list") == [1, 2, 3]
+
+
 class TestCacheAdapter:
     """Tests for CacheAdapter class"""
 
@@ -174,6 +176,7 @@ class TestCacheAdapter:
     @pytest.mark.asyncio
     async def test_get_or_set_async_factory(self):
         """get_or_set works with async factory"""
+
         async def async_factory():
             return "async_value"
 
@@ -198,6 +201,8 @@ class TestCacheAdapter:
             await adapter.set("k2", "v2")
             count = await adapter.clear_namespace()
             assert count >= 0  # in-memory clears all
+
+
 class TestAstronomicalCache:
     """Tests for AstronomicalCache class"""
 
@@ -243,6 +248,8 @@ class TestAstronomicalCache:
             await cache.set_best_days("test", 7, {"data": True})
             count = await cache.clear()
             assert count >= 0
+
+
 class TestTaskCache:
     """Tests for TaskCache class"""
 
@@ -289,6 +296,8 @@ class TestTaskCache:
             await cache.set_stats("t1", {"total": 5})
             count = await cache.clear()
             assert count >= 0
+
+
 class TestRedisConnection:
     """Tests for Redis connection functions"""
 
@@ -296,6 +305,7 @@ class TestRedisConnection:
     async def test_get_redis_client_import_error(self):
         """When redis library is not installed"""
         import src.cache as cache_module
+
         # Reset global state
         cache_module._redis_client = None
         cache_module._redis_available = False
@@ -311,6 +321,7 @@ class TestRedisConnection:
     async def test_close_redis_no_client(self):
         """close_redis when no client exists"""
         import src.cache as cache_module
+
         old_client = cache_module._redis_client
         cache_module._redis_client = None
         await cache_module.close_redis()
@@ -321,6 +332,7 @@ class TestRedisConnection:
     async def test_close_redis_with_client(self):
         """close_redis with mock client"""
         import src.cache as cache_module
+
         mock_client = AsyncMock()
         old_client = cache_module._redis_client
         old_available = cache_module._redis_available

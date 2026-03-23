@@ -21,13 +21,19 @@ _mock_shared_auth.models.User = MagicMock()
 sys.modules.setdefault("shared.auth", _mock_shared_auth)
 sys.modules.setdefault("shared.auth.dependencies", _mock_shared_auth.dependencies)
 sys.modules.setdefault("shared.auth.models", _mock_shared_auth.models)
-sys.modules.setdefault("shared.errors_py", MagicMock(
-    add_request_id_middleware=MagicMock(),
-    setup_exception_handlers=MagicMock(),
-))
-sys.modules.setdefault("shared.middleware.tenant_context", MagicMock(
-    TenantContextMiddleware=type("FakeMW", (), {"__init__": lambda *a, **kw: None}),
-))
+sys.modules.setdefault(
+    "shared.errors_py",
+    MagicMock(
+        add_request_id_middleware=MagicMock(),
+        setup_exception_handlers=MagicMock(),
+    ),
+)
+sys.modules.setdefault(
+    "shared.middleware.tenant_context",
+    MagicMock(
+        TenantContextMiddleware=type("FakeMW", (), {"__init__": lambda *a, **kw: None}),
+    ),
+)
 from src.main import (
     CacheStatsResponse,
     CodeReviewHandler,
@@ -63,10 +69,14 @@ class TestCodeReviewRequest:
         )
         assert req.language == "python"
         assert req.use_cache is False
+
+
 class TestFileReviewRequest:
     def test_creation(self):
         req = FileReviewRequest(file_path="/app/src/main.py")
         assert req.file_path == "/app/src/main.py"
+
+
 class TestPRReviewRequest:
     def test_defaults(self):
         req = PRReviewRequest(pr_number=42)
@@ -74,6 +84,8 @@ class TestPRReviewRequest:
         assert req.owner is None
         assert req.repo is None
         assert req.post_comment is True
+
+
 class TestReviewResponse:
     def test_creation(self):
         resp = ReviewResponse(
@@ -105,6 +117,8 @@ class TestReviewResponse:
     def test_score_negative(self):
         with pytest.raises((ValueError, Exception)):
             ReviewResponse(summary="X", score=-1)
+
+
 class TestHealthResponse:
     def test_creation(self):
         resp = HealthResponse(
@@ -127,6 +141,8 @@ class TestHealthResponse:
         assert resp.available_models == []
         assert resp.cache_enabled is False
         assert resp.github_enabled is False
+
+
 class TestCacheStatsResponse:
     def test_creation(self):
         resp = CacheStatsResponse(backend="memory", size=50, hits=30, misses=20, hit_rate="60.0%")
@@ -138,11 +154,15 @@ class TestCacheStatsResponse:
         assert resp.size is None
         assert resp.hits == 0
         assert resp.misses == 0
+
+
 class TestModelInfo:
     def test_creation(self):
         info = ModelInfo(name="deepseek", url="http://ollama:11434", available=True, priority=0)
         assert info.name == "deepseek"
         assert info.priority == 0
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CodeReviewService Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -266,6 +286,8 @@ class TestCodeReviewServiceMethods:
         service.settings.log_reviews_to_file = False
         # Should not raise
         service._log_review(Path("test.py"), {"score": 80, "summary": "OK"})
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CodeReviewHandler Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -325,12 +347,28 @@ class TestCodeReviewHandler:
     def test_valid_extensions(self, handler, tmp_path):
         """Test all valid extensions are recognized."""
         handler.settings.watch_paths = str(tmp_path)
-        valid_exts = [".py", ".ts", ".tsx", ".js", ".jsx", ".yml", ".yaml",
-                      ".json", ".md", ".sh", ".dockerfile", ".tf", ".go", ".rs"]
+        valid_exts = [
+            ".py",
+            ".ts",
+            ".tsx",
+            ".js",
+            ".jsx",
+            ".yml",
+            ".yaml",
+            ".json",
+            ".md",
+            ".sh",
+            ".dockerfile",
+            ".tf",
+            ".go",
+            ".rs",
+        ]
         for ext in valid_exts:
             test_file = tmp_path / f"test{ext}"
             test_file.write_text("content")
             assert handler._should_review(test_file) is True, f"Extension {ext} should be reviewable"
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_service Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -338,12 +376,15 @@ class TestGetService:
     def test_get_service_singleton(self):
         """get_service returns a CodeReviewService instance."""
         import src.main as main_module
+
         main_module._service_instance = None  # Reset
         svc = get_service()
         assert isinstance(svc, CodeReviewService)
         svc2 = get_service()
         assert svc is svc2  # Same instance
         main_module._service_instance = None  # Cleanup
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Async Method Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -443,6 +484,8 @@ class TestCodeReviewServiceAsync:
 
         with pytest.raises(HTTPException):
             await service.review_pr(pr_number=1)
+
+
 @pytest.mark.asyncio
 class TestCodeReviewServiceReviewFile:
     """Test review_file method."""
@@ -500,6 +543,8 @@ class TestCodeReviewServiceReviewFile:
         service.review_code = AsyncMock(return_value={"score": 80, "summary": "OK"})
         await service.review_file(test_file)
         service.review_code.assert_called_once()
+
+
 class TestCodeReviewHandlerAbsolutePaths:
     """Test CodeReviewHandler with absolute watch paths."""
 
@@ -586,6 +631,7 @@ class TestCodeReviewHandlerAbsolutePaths:
         # Without an event loop, _schedule_review will hit RuntimeError
         handler._schedule_review(tmp_path / "file.py")
         mock_task.cancel.assert_called_once()
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

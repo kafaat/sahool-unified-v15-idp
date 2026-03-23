@@ -72,8 +72,9 @@ class SecurityUtils {
     if (password.contains(RegExp(r'[a-z]'))) score++; // lowercase
     if (password.contains(RegExp(r'[A-Z]'))) score++; // uppercase
     if (password.contains(RegExp(r'[0-9]'))) score++; // numbers
-    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')))
+    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
       score++; // special
+    }
 
     // Determine strength
     if (score <= 2) return PasswordStrength.weak;

@@ -39,25 +39,34 @@ def mock_shared_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, "shared.errors_py", errors_py)
     monkeypatch.setitem(sys.modules, "shared.middleware", middleware)
     monkeypatch.setitem(sys.modules, "shared.middleware.tenant_context", tenant_ctx)
+
+
 @pytest.fixture
 def client(mock_shared_modules):
     """Create a test client for the FastAPI app."""
     from src.core.config import get_settings
+
     get_settings.cache_clear()
 
-    with patch.dict(os.environ, {
-        "DATABASE_URL": "",
-        "NATS_URL": "",
-        "ENVIRONMENT": "test",
-    }):
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "",
+            "NATS_URL": "",
+            "ENVIRONMENT": "test",
+        },
+    ):
         # Patch asyncpg and nats so lifespan doesn't fail
         # Also patch the endpoint logger to accept structlog-style kwargs
-        with patch("src.main.asyncpg") as mock_asyncpg, \
-             patch("src.main.nats") as mock_nats, \
-             patch("src.api.endpoints.hydrology.logger"):
+        with (
+            patch("src.main.asyncpg") as mock_asyncpg,
+            patch("src.main.nats") as mock_nats,
+            patch("src.api.endpoints.hydrology.logger"),
+        ):
             from importlib import reload
 
             import src.main
+
             reload(src.main)
 
             from fastapi.testclient import TestClient
@@ -67,6 +76,8 @@ def client(mock_shared_modules):
                 yield c
 
         get_settings.cache_clear()
+
+
 # ==============================================================================
 # Health Endpoint Tests
 # ==============================================================================
@@ -110,6 +121,8 @@ class TestHealthEndpoints:
         assert "hydrology_database_connected" in content
         assert "hydrology_nats_connected" in content
         assert "hydrology_service_info" in content
+
+
 # ==============================================================================
 # Hydrology API Endpoint Tests
 # ==============================================================================
@@ -134,6 +147,8 @@ class TestDrainageEndpoint:
         """Test drainage endpoint requires X-Tenant-Id header."""
         response = client.get("/api/v1/hydrology/drainage/FIELD-001")
         assert response.status_code == 400
+
+
 class TestWetnessEndpoint:
     """Tests for wetness analysis endpoint."""
 
@@ -159,6 +174,8 @@ class TestWetnessEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["data"]["waterlogging_prediction"] is not None
+
+
 class TestDepressionsEndpoint:
     """Tests for depression analysis endpoint."""
 
@@ -173,6 +190,8 @@ class TestDepressionsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_depressions" in data["data"]
+
+
 class TestStreamsEndpoint:
     """Tests for stream detection endpoint."""
 
@@ -187,6 +206,8 @@ class TestStreamsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_streams" in data["data"]
+
+
 class TestBasinsEndpoint:
     """Tests for basin delineation endpoint."""
 
@@ -201,6 +222,8 @@ class TestBasinsEndpoint:
         assert data["success"] is True
         assert data["data"]["field_id"] == "FIELD-001"
         assert "total_basins" in data["data"]
+
+
 class TestAnalyzeEndpoint:
     """Tests for full hydrology analysis endpoint."""
 

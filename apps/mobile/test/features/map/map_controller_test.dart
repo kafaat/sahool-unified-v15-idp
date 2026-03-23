@@ -3,8 +3,8 @@
 ///
 /// Tests for map providers, tile loading, field polygon rendering,
 /// and flutter_map integration.
+library;
 
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -288,7 +288,7 @@ void main() {
 
     test('should have major Yemen cities', () {
       // Act
-      final cities = YemenMapBounds.cities;
+      const cities = YemenMapBounds.cities;
 
       // Assert
       expect(cities.keys, contains('sanaa'));
@@ -512,7 +512,7 @@ void main() {
   group('Field Polygon Rendering Data', () {
     test('should have valid mock field polygon', () {
       // Act
-      final coords = MockCoordinates.fieldPolygon;
+      const coords = MockCoordinates.fieldPolygon;
 
       // Assert
       expect(coords, hasLength(5)); // Closed polygon
@@ -521,7 +521,7 @@ void main() {
 
     test('should convert coordinates to LatLng list', () {
       // Arrange
-      final coords = MockCoordinates.fieldPolygon;
+      const coords = MockCoordinates.fieldPolygon;
 
       // Act
       final points = coords
@@ -536,7 +536,7 @@ void main() {
 
     test('should handle open polygon (auto-close)', () {
       // Arrange
-      final openCoords = MockCoordinates.fieldPolygonOpen;
+      const openCoords = MockCoordinates.fieldPolygonOpen;
 
       // Assert
       expect(openCoords, hasLength(4));
@@ -545,7 +545,7 @@ void main() {
 
     test('should identify invalid polygon (too few points)', () {
       // Arrange
-      final invalidCoords = MockCoordinates.invalidPolygon;
+      const invalidCoords = MockCoordinates.invalidPolygon;
 
       // Assert
       expect(invalidCoords, hasLength(2)); // Not enough for polygon
@@ -580,7 +580,7 @@ void main() {
   group('Coordinate Validation', () {
     test('should validate Yemen coordinates are in valid range', () {
       // Arrange
-      final cities = YemenMapBounds.cities;
+      const cities = YemenMapBounds.cities;
 
       // Assert - All cities should be within valid lat/lng range
       for (final city in cities.values) {

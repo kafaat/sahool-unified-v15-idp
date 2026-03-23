@@ -268,8 +268,8 @@ enum AreaUnit {
 Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
   if (points.isEmpty) {
     return {
-      "type": "Polygon",
-      "coordinates": [[]]
+      'type': 'Polygon',
+      'coordinates': [[]]
     };
   }
 
@@ -284,8 +284,8 @@ Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
   }
 
   return {
-    "type": "Polygon",
-    "coordinates": [
+    'type': 'Polygon',
+    'coordinates': [
       coordinates
     ] // مصفوفة داخل مصفوفة (لأن المضلع قد يحتوي ثقوباً)
   };
@@ -294,8 +294,8 @@ Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
 /// تحويل نقطة إلى GeoJSON Point
 Map<String, dynamic> toGeoJsonPoint(LatLng point) {
   return {
-    "type": "Point",
-    "coordinates": [point.longitude, point.latitude]
+    'type': 'Point',
+    'coordinates': [point.longitude, point.latitude]
   };
 }
 
@@ -339,16 +339,16 @@ Map<String, dynamic> createFieldGeoJsonFeature({
   Map<String, dynamic>? metadata,
 }) {
   return {
-    "type": "Feature",
-    "id": id,
-    "geometry": toGeoJsonPolygon(boundary),
-    "properties": {
-      "id": id,
-      "name": name,
-      "cropType": cropType,
-      "userId": userId,
-      "area_hectares": GeoUtils.calculateAreaHectares(boundary),
-      "perimeter_meters": GeoUtils.calculatePerimeter(boundary),
+    'type': 'Feature',
+    'id': id,
+    'geometry': toGeoJsonPolygon(boundary),
+    'properties': {
+      'id': id,
+      'name': name,
+      'cropType': cropType,
+      'userId': userId,
+      'area_hectares': GeoUtils.calculateAreaHectares(boundary),
+      'perimeter_meters': GeoUtils.calculatePerimeter(boundary),
       ...?metadata,
     }
   };
@@ -369,18 +369,18 @@ Map<String, dynamic> fieldToApiPayload({
   Map<String, dynamic>? metadata,
 }) {
   return {
-    "id": id,
-    "name": name,
-    "cropType": cropType,
-    "userId": userId,
-    "tenantId": tenantId ?? "default",
-    "boundary": toGeoJsonPolygon(boundary),
-    "coordinates": boundary.map((p) => [p.longitude, p.latitude]).toList(),
-    if (irrigationType != null) "irrigationType": irrigationType,
-    if (soilType != null) "soilType": soilType,
-    if (plantingDate != null) "plantingDate": plantingDate.toIso8601String(),
+    'id': id,
+    'name': name,
+    'cropType': cropType,
+    'userId': userId,
+    'tenantId': tenantId ?? 'default',
+    'boundary': toGeoJsonPolygon(boundary),
+    'coordinates': boundary.map((p) => [p.longitude, p.latitude]).toList(),
+    if (irrigationType != null) 'irrigationType': irrigationType,
+    if (soilType != null) 'soilType': soilType,
+    if (plantingDate != null) 'plantingDate': plantingDate.toIso8601String(),
     if (expectedHarvest != null)
-      "expectedHarvest": expectedHarvest.toIso8601String(),
-    if (metadata != null) "metadata": metadata,
+      'expectedHarvest': expectedHarvest.toIso8601String(),
+    if (metadata != null) 'metadata': metadata,
   };
 }

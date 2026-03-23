@@ -262,9 +262,7 @@ class TestAdjustForWeather:
         disease = {
             "conditions": {"spread": "rain_splash"},
         }
-        severity, urgency = _adjust_for_weather(
-            disease, {"precipitation": 10}, "medium", 48
-        )
+        severity, urgency = _adjust_for_weather(disease, {"precipitation": 10}, "medium", 48)
         assert severity == "high"
         assert urgency == max(6, 48 // 3)
 
@@ -272,18 +270,14 @@ class TestAdjustForWeather:
         disease = {
             "conditions": {"spread": "wind_rain"},
         }
-        severity, urgency = _adjust_for_weather(
-            disease, {"precipitation": 10}, "medium", 48
-        )
+        severity, urgency = _adjust_for_weather(disease, {"precipitation": 10}, "medium", 48)
         assert severity == "high"
 
     def test_rain_below_threshold_no_change(self):
         disease = {
             "conditions": {"spread": "rain_splash"},
         }
-        severity, urgency = _adjust_for_weather(
-            disease, {"precipitation": 3}, "medium", 48
-        )
+        severity, urgency = _adjust_for_weather(disease, {"precipitation": 3}, "medium", 48)
         assert severity == "medium"
         assert urgency == 48
 
@@ -291,9 +285,7 @@ class TestAdjustForWeather:
         disease = {
             "conditions": {"spread": "wind"},
         }
-        severity, urgency = _adjust_for_weather(
-            disease, {"precipitation": 20}, "medium", 48
-        )
+        severity, urgency = _adjust_for_weather(disease, {"precipitation": 20}, "medium", 48)
         assert severity == "medium"
 
     def test_high_severity_not_escalated_by_humidity(self):

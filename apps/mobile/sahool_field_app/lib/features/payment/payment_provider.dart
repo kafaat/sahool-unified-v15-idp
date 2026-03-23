@@ -1,10 +1,10 @@
 /// مزود خدمة المدفوعات
 /// Payment Provider with Riverpod
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'data/payment_models.dart';
 import 'data/tharwatt_service.dart';
-import '../../core/network/api_result.dart';
 
 /// تكوين Tharwatt
 final tharwattConfigProvider = Provider<TharwattConfig>((ref) {

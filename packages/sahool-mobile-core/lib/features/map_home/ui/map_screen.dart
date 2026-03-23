@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import '../../../core/di/providers.dart';
@@ -173,16 +174,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  /// Field center locations derived from field data or default Sanaa region.
-  /// TODO: Use actual field polygon centroids from field.centerLatitude/centerLongitude
-  /// when the Field entity exposes geospatial coordinates.
+  /// Field center locations derived from field centroids or boundary midpoints.
+  /// Falls back to a default offset pattern for fields without geospatial data.
   List<LatLng> get _fieldLocations {
-    // Generate locations around default center for fields that lack coordinates.
-    // Once Field entity includes lat/lng, use those directly.
     const defaultCenter = LatLng(15.3694, 44.1910);
     if (_repoFields.isEmpty) return [defaultCenter];
     return List.generate(_repoFields.length, (i) {
-      // Spread fields around the center with slight offsets
+      final field = _repoFields[i];
+      // Use actual centroid if available
+      if (field.centroid != null) {
+        return field.centroid!;
+      }
+      // Compute centroid from boundary polygon if available
+      if (field.hasBoundary) {
+        double sumLat = 0, sumLng = 0;
+        for (final p in field.boundary) {
+          sumLat += p.latitude;
+          sumLng += p.longitude;
+        }
+        return LatLng(
+          sumLat / field.boundary.length,
+          sumLng / field.boundary.length,
+        );
+      }
+      // Fallback: spread fields around the default center
       final latOffset = (i ~/ 2) * 0.015 * (i.isEven ? 1 : -1);
       final lngOffset = (i % 3 - 1) * 0.015;
       return LatLng(
@@ -250,17 +265,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               final idx = entry.key;
               final field = entry.value;
               if (idx >= _fieldLocations.length) return null;
-              final loc = _fieldLocations[idx];
               final color = _getIndexColor(field.ndvi);
-              // Create a small polygon around each field location
-              const offset = 0.005;
-              return Polygon(
-                points: [
+
+              // Use actual field boundary if available, otherwise create a synthetic square
+              final List<LatLng> polygonPoints;
+              if (field.hasBoundary) {
+                polygonPoints = field.boundary;
+              } else {
+                final loc = _fieldLocations[idx];
+                const offset = 0.005;
+                polygonPoints = [
                   LatLng(loc.latitude - offset, loc.longitude - offset),
                   LatLng(loc.latitude - offset, loc.longitude + offset),
                   LatLng(loc.latitude + offset, loc.longitude + offset),
                   LatLng(loc.latitude + offset, loc.longitude - offset),
-                ],
+                ];
+              }
+
+              return Polygon(
+                points: polygonPoints,
                 color: color.withValues(alpha: 0.4),
                 borderColor: color,
                 borderStrokeWidth: 2,

@@ -49,7 +49,6 @@ class _AdvisorScreenState extends ConsumerState<AdvisorScreen> {
 
     _scrollToBottom();
 
-    // TODO: Wire to advisory-service POST /api/v1/advisory/chat
     _fetchAdvisorResponse(text);
   }
 
@@ -57,26 +56,32 @@ class _AdvisorScreenState extends ConsumerState<AdvisorScreen> {
   /// Falls back to offline message when API is unreachable.
   Future<void> _fetchAdvisorResponse(String query) async {
     try {
-      // TODO: Replace with actual API call:
-      // final response = await _apiClient.post('/api/v1/advisory/chat', data: {
-      //   'message': query,
-      //   'locale': 'ar',
-      // });
-      // final responseText = response.data['response'] as String;
-
-      // For now, show a "service unavailable" message instead of fake data
-      await Future.delayed(const Duration(milliseconds: 500));
+      final advisory = ref.read(advisoryServiceProvider);
+      final result = await advisory.askAiAdvisor(query: query);
 
       if (!mounted) return;
-      setState(() {
-        _isTyping = false;
-        _messages.add(_ChatMessage(
-          text: 'جاري الاتصال بخدمة المستشار الذكي...\n\n'
-              'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً أو التحقق من الاتصال بالإنترنت.',
-          isUser: false,
-          time: DateTime.now(),
-        ));
-      });
+
+      final responseData = result.dataOrNull;
+      if (responseData != null) {
+        setState(() {
+          _isTyping = false;
+          _messages.add(_ChatMessage(
+            text: responseData.responseAr ?? responseData.response,
+            isUser: false,
+            time: DateTime.now(),
+            hasAction: true,
+          ));
+        });
+      } else {
+        setState(() {
+          _isTyping = false;
+          _messages.add(_ChatMessage(
+            text: 'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً أو التحقق من الاتصال بالإنترنت.',
+            isUser: false,
+            time: DateTime.now(),
+          ));
+        });
+      }
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;

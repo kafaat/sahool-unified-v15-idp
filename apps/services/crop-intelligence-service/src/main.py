@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
@@ -107,6 +108,115 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Migrations
+# ═══════════════════════════════════════════════════════════════════════════════
+
+MIGRATIONS = [
+    Migration(
+        version=1,
+        description="Create crop_health_observations table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_health_observations (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                zone_id VARCHAR(255) NOT NULL,
+                captured_at TIMESTAMP WITH TIME ZONE,
+                source VARCHAR(50),
+                growth_stage VARCHAR(50),
+                ndvi FLOAT,
+                evi FLOAT,
+                ndre FLOAT,
+                lci FLOAT,
+                ndwi FLOAT,
+                savi FLOAT,
+                cloud_pct FLOAT DEFAULT 0,
+                notes TEXT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_health_observations",
+    ),
+    Migration(
+        version=2,
+        description="Create crop_zones table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_zones (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                zone_id VARCHAR(255) NOT NULL,
+                field_id VARCHAR(255) NOT NULL,
+                name VARCHAR(255),
+                name_ar VARCHAR(255),
+                geometry JSONB,
+                area_hectares FLOAT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                UNIQUE(zone_id, field_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_zones",
+    ),
+    Migration(
+        version=3,
+        description="Create disease_detections table",
+        up="""
+            CREATE TABLE IF NOT EXISTS disease_detections (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                disease_name VARCHAR(255) NOT NULL,
+                disease_name_ar VARCHAR(255),
+                confidence FLOAT,
+                severity VARCHAR(50),
+                detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                tenant_id VARCHAR(255)
+            )
+        """,
+        down="DROP TABLE IF EXISTS disease_detections",
+    ),
+    Migration(
+        version=4,
+        description="Create processed_events table for NATS idempotency",
+        up="""
+            CREATE TABLE IF NOT EXISTS processed_events (
+                tenant_id      TEXT        NOT NULL DEFAULT '_global',
+                event_id       TEXT        NOT NULL,
+                subject        TEXT        NOT NULL,
+                service        TEXT        NOT NULL,
+                correlation_id TEXT,
+                status         TEXT        NOT NULL DEFAULT 'processed',
+                processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                PRIMARY KEY (tenant_id, event_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS processed_events",
+    ),
+    Migration(
+        version=5,
+        description="Add indexes for observations, zones, diseases, and events",
+        up="""
+            CREATE INDEX IF NOT EXISTS idx_observations_field_zone
+                ON crop_health_observations(field_id, zone_id);
+            CREATE INDEX IF NOT EXISTS idx_zones_field
+                ON crop_zones(field_id);
+            CREATE INDEX IF NOT EXISTS idx_disease_field
+                ON disease_detections(field_id);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
+                ON processed_events (processed_at);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
+                ON processed_events (correlation_id)
+                WHERE correlation_id IS NOT NULL;
+        """,
+        down="""
+            DROP INDEX IF EXISTS idx_processed_events_correlation;
+            DROP INDEX IF EXISTS idx_processed_events_ttl;
+            DROP INDEX IF EXISTS idx_disease_field;
+            DROP INDEX IF EXISTS idx_zones_field;
+            DROP INDEX IF EXISTS idx_observations_field_zone;
+        """,
+    ),
+]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Feature Schema Definition (v1.0)
@@ -586,90 +696,12 @@ async def lifespan(app: FastAPI):
             app.state.db_connected = True
             logger.info("Connected to database")
 
-            # Create tables if not exist
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_health_observations (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        zone_id VARCHAR(255) NOT NULL,
-                        captured_at TIMESTAMP WITH TIME ZONE,
-                        source VARCHAR(50),
-                        growth_stage VARCHAR(50),
-                        ndvi FLOAT,
-                        evi FLOAT,
-                        ndre FLOAT,
-                        lci FLOAT,
-                        ndwi FLOAT,
-                        savi FLOAT,
-                        cloud_pct FLOAT DEFAULT 0,
-                        notes TEXT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_zones (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        zone_id VARCHAR(255) NOT NULL,
-                        field_id VARCHAR(255) NOT NULL,
-                        name VARCHAR(255),
-                        name_ar VARCHAR(255),
-                        geometry JSONB,
-                        area_hectares FLOAT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        UNIQUE(zone_id, field_id)
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS disease_detections (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        disease_name VARCHAR(255) NOT NULL,
-                        disease_name_ar VARCHAR(255),
-                        confidence FLOAT,
-                        severity VARCHAR(50),
-                        detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255)
-                    )
-                """)
-                # Create processed_events table for NATS subscriber idempotency (Spec §4)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS processed_events (
-                        tenant_id      TEXT        NOT NULL DEFAULT '_global',
-                        event_id       TEXT        NOT NULL,
-                        subject        TEXT        NOT NULL,
-                        service        TEXT        NOT NULL,
-                        correlation_id TEXT,
-                        status         TEXT        NOT NULL DEFAULT 'processed',
-                        processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        PRIMARY KEY (tenant_id, event_id)
-                    )
-                """)
-                # Create indexes for faster queries
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_observations_field_zone
-                    ON crop_health_observations(field_id, zone_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_zones_field
-                    ON crop_zones(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_disease_field
-                    ON disease_detections(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
-                    ON processed_events (processed_at)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
-                    ON processed_events (correlation_id)
-                    WHERE correlation_id IS NOT NULL
-                """)
-            logger.info("Database tables initialized")
+            # Run versioned migrations
+            migration_runner = SimpleMigrationRunner(
+                app.state.db_pool, service_name="crop-intelligence-service"
+            )
+            await migration_runner.run(MIGRATIONS)
+            logger.info("Database migrations applied")
         except Exception as e:
             logger.warning("Failed to connect to database", error=str(e))
             app.state.db_pool = None

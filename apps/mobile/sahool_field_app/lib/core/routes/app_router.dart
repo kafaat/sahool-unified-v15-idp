@@ -92,7 +92,7 @@ import '../../features/onboarding/ui/onboarding_screen.dart';
 
 // Features - Payment & Wallet
 import '../../features/payment/presentation/payment_screen.dart';
-import '../../features/wallet/ui/wallet_screen.dart';
+import '../../features/wallet/wallet_screen.dart';
 
 // Features - Research
 import '../../features/research/ui/experiments_list_screen.dart';

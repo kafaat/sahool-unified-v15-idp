@@ -74,6 +74,7 @@ import '../../features/marketplace/marketplace_screen.dart';
 
 // Features - AI Advisor, Billing, Equipment, Community
 import '../../features/ai_advisor/presentation/screens/ai_advisor_screen.dart';
+import '../../features/ai_advisor/presentation/screens/advisory_details_screen.dart';
 import '../../features/billing/presentation/screens/billing_screen.dart';
 import '../../features/equipment/ui/equipment_screen.dart';
 import '../../features/community/ui/community_screen.dart';
@@ -246,7 +247,11 @@ class AppRouter {
         path: '/field/:id',
         name: 'field-details',
         builder: (context, state) {
-          final field = state.extra as FieldEntity;
+          final field = state.extra as FieldEntity?;
+          if (field == null) {
+            // Deep link or URL restoration without extra data — redirect to fields list
+            return const FieldsListScreen();
+          }
           return FieldDetailsScreen(field: field);
         },
       ),
@@ -606,6 +611,15 @@ class AppRouter {
         path: '/ai-advisor/history',
         name: 'ai-advisor-history',
         builder: (context, state) => const AiAdvisorScreen(),
+      ),
+
+      GoRoute(
+        path: '/ai-advisor/details/:id',
+        name: 'ai-advisor-details',
+        builder: (context, state) {
+          final advisoryId = state.pathParameters['id']!;
+          return AdvisoryDetailsScreen(advisoryId: advisoryId);
+        },
       ),
 
       // ═══════════════════════════════════════════════════════════════════════

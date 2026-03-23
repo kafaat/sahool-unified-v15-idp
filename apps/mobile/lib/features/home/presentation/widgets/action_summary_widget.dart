@@ -199,7 +199,7 @@ class ActionSummaryWidget extends ConsumerWidget {
           ),
         ),
         onTap: () {
-          context.push('/tasks/${task.id}');
+          context.push('/task/${task.id}');
         },
       ),
     );

@@ -228,6 +228,7 @@ class _FeatureCarouselState extends State<FeatureCarousel> {
 
   @override
   void dispose() {
+    _pageController.removeListener(_onPageScroll);
     if (widget.controller == null) {
       _pageController.dispose();
     }

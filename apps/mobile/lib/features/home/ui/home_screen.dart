@@ -473,7 +473,7 @@ class HomeScreen extends ConsumerWidget {
               context.go('/monitor');
               break;
             case 2:
-              context.push('/fields/new');
+              context.push('/field-form');
               break;
             case 3:
               context.go('/market');

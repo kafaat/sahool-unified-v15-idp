@@ -800,7 +800,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text('تم تنفيذ: ${action.title}'),
+                  child: Text(_isArabic(context)
+                      ? 'تم تنفيذ: ${action.title}'
+                      : 'Completed: ${action.title}'),
                 ),
               ],
             ),
@@ -820,14 +822,16 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text('فشل تحديث الإجراء: ${e.toString()}'),
+                  child: Text(_isArabic(context)
+                      ? 'فشل تحديث الإجراء: ${e.toString()}'
+                      : 'Failed to update action: ${e.toString()}'),
                 ),
               ],
             ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
-              label: 'إعادة المحاولة',
+              label: _isArabic(context) ? 'إعادة المحاولة' : 'Retry',
               textColor: Colors.white,
               onPressed: () => _markActionAsDone(action),
             ),

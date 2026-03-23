@@ -46,24 +46,27 @@ class EquipmentCard extends StatelessWidget {
     return Row(
       children: [
         // Equipment icon/image
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: SahoolColors.paleOlive.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
+        Hero(
+          tag: HeroTags.equipmentIcon(equipment.equipmentId),
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: SahoolColors.paleOlive.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: equipment.imageUrl != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: CachedNetworkImage(
+                      imageUrl: equipment.imageUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      errorWidget: (_, __, ___) => _buildDefaultIcon(),
+                    ),
+                  )
+                : _buildDefaultIcon(),
           ),
-          child: equipment.imageUrl != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: CachedNetworkImage(
-                    imageUrl: equipment.imageUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                    errorWidget: (_, __, ___) => _buildDefaultIcon(),
-                  ),
-                )
-              : _buildDefaultIcon(),
         ),
         const SizedBox(width: 16),
 

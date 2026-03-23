@@ -1738,7 +1738,8 @@ async def analyze_zone_diseases(
 
     health_en, health_ar = get_overall_health_status(detections)
 
-    # Publish disease detection events to NATS
+    # Publish disease detection events to NATS with tenant isolation
+    # نشر أحداث اكتشاف الأمراض مع عزل المستأجر
     if detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1747,6 +1748,7 @@ async def analyze_zone_diseases(
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
                 zone_id=zone_id,
+                tenant_id=tenant_id,
             )
 
     # Publish health assessment event
@@ -1757,6 +1759,7 @@ async def analyze_zone_diseases(
         health_score_ar=health_ar,
         issues=issues,
         zone_id=zone_id,
+        tenant_id=tenant_id,
     )
 
     # Get zone metadata
@@ -2228,6 +2231,7 @@ async def comprehensive_analysis(
     humidity_pct: float = Query(default=50, ge=0, le=100),
     field_area_hectares: float = Query(default=1.0, gt=0),
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    tenant_id: str | None = Query(default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"),
 ):
     """تحليل شامل للحقل"""
     try:

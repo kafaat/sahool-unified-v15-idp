@@ -153,8 +153,28 @@ add_request_id_middleware(app)
 app.add_middleware(TenantContextMiddleware)
 
 
-async def publish_event(subject: str, data: dict):
-    """Publish event to NATS if connected."""
+async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
+    """Publish event to NATS if connected, using tenant-scoped subject when available.
+
+    Uses tenant-scoped subject when tenant_id is provided for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Args:
+        subject: Base NATS subject (e.g., "sahool.indicators.computed")
+        data: Event payload dictionary
+        tenant_id: Optional tenant ID; when provided, subject becomes
+                   sahool.tenant.{tenant_id}.indicators.{action}
+    """
+    # Resolve tenant-scoped subject | تحويل الموضوع إلى نطاق المستأجر
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+        # Extract domain and action from subject like "sahool.indicators.computed"
+        parts = subject.split(".", 2)  # ["sahool", "indicators", "computed"]
+        if len(parts) >= 3:
+            domain = parts[1]
+            action = parts[2]
+            subject = get_tenant_subject(tenant_id, domain, action)
+
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             await app.state.nc.publish(subject, json.dumps(data).encode())

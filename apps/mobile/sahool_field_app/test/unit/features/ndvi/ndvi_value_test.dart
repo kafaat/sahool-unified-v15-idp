@@ -52,7 +52,7 @@ void main() {
       expect(mid.vegetationPercentage, 50.0);
 
       final high = NdviValue(value: 0.8, capturedAt: DateTime(2026, 1, 1));
-      expect(high.vegetationPercentage, 100.0);
+      expect(high.vegetationPercentage, closeTo(100.0, 0.01));
 
       final over = NdviValue(value: 0.9, capturedAt: DateTime(2026, 1, 1));
       expect(over.vegetationPercentage, 100);

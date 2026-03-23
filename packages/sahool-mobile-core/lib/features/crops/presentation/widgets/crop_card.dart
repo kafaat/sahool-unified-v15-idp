@@ -114,7 +114,7 @@ class CropCard extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: healthColor, width: 3),
-        color: healthColor.withOpacity(0.1),
+        color: healthColor.withValues(alpha: 0.1),
       ),
       child: Center(
         child: Text(
@@ -136,9 +136,9 @@ class CropCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: healthColor.withOpacity(0.1),
+        color: healthColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: healthColor.withOpacity(0.3)),
+        border: Border.all(color: healthColor.withValues(alpha: 0.3)),
       ),
       child: Text(
         ndviText,

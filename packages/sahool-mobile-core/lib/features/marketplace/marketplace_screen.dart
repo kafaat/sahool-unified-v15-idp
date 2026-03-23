@@ -11,6 +11,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/animations/staggered_list_animation.dart';
+import '../../core/widgets/error_state.dart';
 import '../../core/widgets/last_updated_indicator.dart';
 import 'marketplace_provider.dart';
 
@@ -263,7 +264,7 @@ class _SearchBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -327,8 +328,8 @@ class _CategoriesSection extends ConsumerWidget {
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? Colors.green.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.05),
+                        ? Colors.green.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -459,7 +460,7 @@ class _FeaturedProductCard extends ConsumerWidget {
                         Text(
                           'لكل ${product.unitAr}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 10,
                           ),
                         ),
@@ -532,7 +533,7 @@ class _ProductCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -756,7 +757,7 @@ class _CartFAB extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.green.withOpacity(0.4),
+              color: Colors.green.withValues(alpha: 0.4),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -778,7 +779,7 @@ class _CartFAB extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 12),
               width: 1,
               height: 20,
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
             ),
             Text(
               '${total.toStringAsFixed(0)} ر.ي',

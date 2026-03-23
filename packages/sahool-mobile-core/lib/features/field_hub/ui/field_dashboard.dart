@@ -4,6 +4,9 @@ import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../field/domain/entities/field.dart';
+import '../../tasks/providers/tasks_provider.dart';
+import '../../tasks/domain/entities/task.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 
 /// SAHOOL Field Dashboard - لوحة القيادة الزراعية
 /// تعرض المؤشرات الحيوية بأسلوب عدادات السيارة
@@ -627,6 +630,8 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
 
   /// قسم المهام
   Widget _buildTasksSection() {
+    final tasksAsync = ref.watch(tasksProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -635,12 +640,91 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 12),
-        // TODO: Wire to task provider for real tasks
-        _buildTaskItem('ري حقل الذرة', 'اليوم 2:00 م', Icons.water_drop, false),
-        _buildTaskItem('فحص الآفات', 'غداً 8:00 ص', Icons.bug_report, false),
-        _buildTaskItem('تسميد القمح', 'تم', Icons.eco, true),
+        tasksAsync.when(
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          error: (_, __) => Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: SahoolColors.danger.withValues(alpha: 0.05),
+              borderRadius: SahoolRadius.mediumRadius,
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.error_outline, color: SahoolColors.danger, size: 20),
+                SizedBox(width: 12),
+                Text('فشل تحميل المهام'),
+              ],
+            ),
+          ),
+          data: (tasks) {
+            if (tasks.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: SahoolColors.success.withValues(alpha: 0.05),
+                  borderRadius: SahoolRadius.mediumRadius,
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: SahoolColors.success),
+                    SizedBox(width: 12),
+                    Text('لا توجد مهام حالياً'),
+                  ],
+                ),
+              );
+            }
+            // Show up to 3 most relevant tasks (open/in-progress first, then completed)
+            final sorted = [...tasks]..sort((a, b) {
+                if (a.status == TaskStatus.completed && b.status != TaskStatus.completed) return 1;
+                if (a.status != TaskStatus.completed && b.status == TaskStatus.completed) return -1;
+                return 0;
+              });
+            return Column(
+              children: sorted.take(3).map((task) {
+                final isCompleted = task.status == TaskStatus.completed;
+                final dueDateText = isCompleted
+                    ? 'تم'
+                    : task.dueDate != null
+                        ? _formatDueDate(task.dueDate!)
+                        : '';
+                final icon = _taskIcon(task);
+                return _buildTaskItem(task.title, dueDateText, icon, isCompleted);
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
+  }
+
+  IconData _taskIcon(FieldTask task) {
+    final title = task.title.toLowerCase();
+    if (title.contains('ري') || title.contains('water') || title.contains('irrigation')) {
+      return Icons.water_drop;
+    }
+    if (title.contains('آفات') || title.contains('pest') || title.contains('فحص')) {
+      return Icons.bug_report;
+    }
+    if (title.contains('سماد') || title.contains('تسميد') || title.contains('fertiliz')) {
+      return Icons.eco;
+    }
+    return Icons.task_alt;
+  }
+
+  String _formatDueDate(DateTime dueDate) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final due = DateTime(dueDate.year, dueDate.month, dueDate.day);
+    final diff = due.difference(today).inDays;
+    if (diff == 0) return 'اليوم';
+    if (diff == 1) return 'غداً';
+    if (diff < 0) return 'متأخر';
+    return '${dueDate.day}/${dueDate.month}';
   }
 
   Widget _buildTaskItem(String title, String time, IconData icon, bool completed) {

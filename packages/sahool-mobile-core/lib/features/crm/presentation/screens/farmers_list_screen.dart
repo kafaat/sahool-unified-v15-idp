@@ -179,7 +179,7 @@ class _FarmersListScreenState extends ConsumerState<FarmersListScreen> {
         label: Text(label, style: const TextStyle(fontSize: 12)),
         deleteIcon: const Icon(Icons.close, size: 16),
         onDeleted: onRemove,
-        backgroundColor: const Color(0xFF367C2B).withOpacity(0.1),
+        backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
         labelStyle: const TextStyle(color: Color(0xFF367C2B)),
         deleteIconColor: const Color(0xFF367C2B),
       ),
@@ -476,7 +476,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                         _status = selected ? status : null;
                       });
                     },
-                    selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+                    selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
                   );
                 }).toList(),
               ),
@@ -498,7 +498,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                         _segment = selected ? segment : null;
                       });
                     },
-                    selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+                    selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
                   );
                 }).toList(),
               ),

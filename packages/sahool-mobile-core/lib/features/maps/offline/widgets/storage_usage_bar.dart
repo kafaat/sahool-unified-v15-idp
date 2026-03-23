@@ -45,7 +45,7 @@ class StorageUsageBar extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: SahoolColors.primary.withOpacity(0.1),
+                      color: SahoolColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -271,7 +271,7 @@ class _RegionChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -407,7 +407,7 @@ class StorageWarningBanner extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: (isHigh ? SahoolColors.danger : SahoolColors.warning)
-            .withOpacity(0.1),
+            .withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isHigh ? SahoolColors.danger : SahoolColors.warning,

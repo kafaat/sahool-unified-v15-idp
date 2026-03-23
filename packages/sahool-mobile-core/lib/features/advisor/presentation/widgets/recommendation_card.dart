@@ -89,7 +89,7 @@ class _RecommendationCardState extends State<RecommendationCard> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: _getTypeColor(rec.type).withOpacity(0.1),
+            color: _getTypeColor(rec.type).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -130,9 +130,9 @@ class _RecommendationCardState extends State<RecommendationCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         priority.nameAr,
@@ -199,7 +199,7 @@ class _RecommendationCardState extends State<RecommendationCard> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolColors.paleOlive.withOpacity(0.5),
+        color: SahoolColors.paleOlive.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

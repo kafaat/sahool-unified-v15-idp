@@ -281,7 +281,7 @@ class NotificationCard extends StatelessWidget {
 
   Color _getBackgroundColor(BuildContext context) {
     if (isSelected) {
-      return Theme.of(context).primaryColor.withOpacity(0.1);
+      return Theme.of(context).primaryColor.withValues(alpha: 0.1);
     }
     if (notification.isUnread) {
       return Colors.white;

@@ -40,15 +40,15 @@ class PermissionItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: permission.isGranted
-                ? SahoolColors.success.withOpacity(0.3)
+                ? SahoolColors.success.withValues(alpha: 0.3)
                 : Colors.grey[200]!,
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
               color: permission.isGranted
-                  ? SahoolColors.success.withOpacity(0.1)
-                  : Colors.black.withOpacity(0.05),
+                  ? SahoolColors.success.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -86,7 +86,7 @@ class PermissionItem extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: SahoolColors.warning.withOpacity(0.1),
+                              color: SahoolColors.warning.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -144,8 +144,8 @@ class PermissionItem extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
         color: permission.isGranted
-            ? SahoolColors.success.withOpacity(0.1)
-            : SahoolColors.primary.withOpacity(0.1),
+            ? SahoolColors.success.withValues(alpha: 0.1)
+            : SahoolColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Icon(
@@ -163,7 +163,7 @@ class PermissionItem extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: SahoolColors.success.withOpacity(0.1),
+          color: SahoolColors.success.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: const Icon(

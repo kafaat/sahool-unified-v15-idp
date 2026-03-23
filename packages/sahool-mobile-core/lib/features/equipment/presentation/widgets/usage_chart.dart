@@ -41,7 +41,7 @@ class UsageHoursChart extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: SahoolColors.forestGreen.withOpacity(0.1),
+                color: SahoolColors.forestGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -191,7 +191,7 @@ class ActivityDistributionChart extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -355,7 +355,7 @@ class UsageSummaryCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             SahoolColors.forestGreen,
-            SahoolColors.forestGreen.withOpacity(0.8),
+            SahoolColors.forestGreen.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -379,7 +379,7 @@ class UsageSummaryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -426,7 +426,7 @@ class UsageSummaryCard extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
           const SizedBox(height: 8),
           Text(
             value,
@@ -439,7 +439,7 @@ class UsageSummaryCard extends StatelessWidget {
           Text(
             unit,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 10,
             ),
           ),

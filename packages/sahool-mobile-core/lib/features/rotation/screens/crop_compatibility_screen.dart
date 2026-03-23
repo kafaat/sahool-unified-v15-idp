@@ -240,7 +240,7 @@ class _CropCompatibilityScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -402,7 +402,7 @@ class _CropCompatibilityScreenState
                             height: 40,
                             decoration: BoxDecoration(
                               color: _getCompatibilityColor(compatibility.score)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: _getCompatibilityColor(compatibility.score),
@@ -470,7 +470,7 @@ class _CropCompatibilityScreenState
   }
 
   Color _getCompatibilityBackgroundColor(double score) {
-    return _getCompatibilityColor(score).withOpacity(0.1);
+    return _getCompatibilityColor(score).withValues(alpha: 0.1);
   }
 
   IconData _getCompatibilityIcon(double score) {

@@ -353,7 +353,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: SahoolTheme.info.withOpacity(0.1),
+                  color: SahoolTheme.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.chat, color: SahoolTheme.info),
@@ -372,7 +372,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: SahoolTheme.success.withOpacity(0.1),
+                  color: SahoolTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.email, color: SahoolTheme.success),
@@ -386,7 +386,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: SahoolTheme.warning.withOpacity(0.1),
+                  color: SahoolTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.phone, color: SahoolTheme.warning),
@@ -497,7 +497,7 @@ class _QuickActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -509,7 +509,7 @@ class _QuickActionCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -556,7 +556,7 @@ class _FAQTile extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isExpanded ? color.withOpacity(0.05) : null,
+            color: isExpanded ? color.withValues(alpha: 0.05) : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

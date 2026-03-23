@@ -138,7 +138,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
                 onSelected: (_) => preset == DateRangePreset.custom
                     ? _showCustomDatePicker()
                     : _selectPreset(preset),
-                selectedColor: SahoolColors.primary.withOpacity(0.2),
+                selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
                 labelStyle: TextStyle(
                   color: isSelected ? SahoolColors.primary : Colors.grey[700],
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -203,10 +203,10 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.primary.withOpacity(0.05),
+        color: SahoolColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.primary.withOpacity(0.2),
+          color: SahoolColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -224,7 +224,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
             alignment: Alignment.center,
             child: Icon(
               Icons.arrow_forward,
-              color: SahoolColors.primary.withOpacity(0.5),
+              color: SahoolColors.primary.withValues(alpha: 0.5),
             ),
           ),
           // End date
@@ -239,7 +239,7 @@ class _DateRangePickerWidgetState extends State<DateRangePickerWidget> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: SahoolColors.primary.withOpacity(0.1),
+              color: SahoolColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -389,7 +389,7 @@ class QuickDateRangeSelector extends StatelessWidget {
               label: Text(preset.displayNameAr),
               selected: isSelected,
               onSelected: (_) => onPresetChanged(preset),
-              selectedColor: SahoolColors.primary.withOpacity(0.2),
+              selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
               labelStyle: TextStyle(
                 color: isSelected ? SahoolColors.primary : Colors.grey[700],
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

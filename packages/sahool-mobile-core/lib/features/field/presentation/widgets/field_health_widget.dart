@@ -175,7 +175,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                             : 'عرض التفاصيل / Show Details',
                         style: TextStyle(
                           fontSize: 12,
-                          color: SahoolColors.primary.withOpacity(0.7),
+                          color: SahoolColors.primary.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -184,7 +184,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                         duration: const Duration(milliseconds: 300),
                         child: Icon(
                           Icons.keyboard_arrow_down,
-                          color: SahoolColors.primary.withOpacity(0.7),
+                          color: SahoolColors.primary.withValues(alpha: 0.7),
                           size: 20,
                         ),
                       ),
@@ -232,7 +232,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                   height: 60,
                   child: CircularProgressIndicator(
                     value: healthData.score / 100,
-                    backgroundColor: healthData.color.withOpacity(0.2),
+                    backgroundColor: healthData.color.withValues(alpha: 0.2),
                     valueColor: AlwaysStoppedAnimation<Color>(healthData.color),
                     strokeWidth: 5,
                   ),
@@ -306,7 +306,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
             height: 100,
             child: CircularProgressIndicator(
               value: healthData.score / 100,
-              backgroundColor: healthData.color.withOpacity(0.2),
+              backgroundColor: healthData.color.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(healthData.color),
               strokeWidth: 8,
               strokeCap: StrokeCap.round,
@@ -364,7 +364,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
         vertical: small ? 2 : 3,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -396,7 +396,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.danger.withOpacity(0.3),
+            color: SahoolColors.danger.withValues(alpha: 0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -480,10 +480,10 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -556,14 +556,14 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: recommendation.priority == RecommendationPriority.high
-            ? SahoolColors.danger.withOpacity(0.05)
+            ? SahoolColors.danger.withValues(alpha: 0.05)
             : isDark
                 ? Colors.grey[850]
                 : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: recommendation.priority == RecommendationPriority.high
-              ? SahoolColors.danger.withOpacity(0.3)
+              ? SahoolColors.danger.withValues(alpha: 0.3)
               : isDark
                   ? Colors.grey[700]!
                   : Colors.grey[200]!,
@@ -578,7 +578,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getRecommendationColor(recommendation).withOpacity(0.15),
+                  color: _getRecommendationColor(recommendation).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -649,10 +649,10 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: SahoolColors.primary.withOpacity(0.3),
+                    color: SahoolColors.primary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: const Row(
@@ -690,7 +690,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
           Icon(
             Icons.check_circle_outline_rounded,
             size: 48,
-            color: SahoolColors.success.withOpacity(0.5),
+            color: SahoolColors.success.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 8),
           Text(

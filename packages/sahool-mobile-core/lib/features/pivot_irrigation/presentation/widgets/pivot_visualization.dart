@@ -220,7 +220,7 @@ class _PivotPainter extends CustomPainter {
 
       // Dim disabled sectors
       if (!sector.isEnabled) {
-        sectorColor = sectorColor.withOpacity(0.3);
+        sectorColor = sectorColor.withValues(alpha: 0.3);
       }
 
       final sectorPaint = Paint()
@@ -322,17 +322,17 @@ class _PivotPainter extends CustomPainter {
 
   void _drawVRIZones(Canvas canvas, Offset center, double radius) {
     for (final zone in config.vriZones) {
-      Color zoneColor = _hexToColor(zone.color).withOpacity(0.4);
+      Color zoneColor = _hexToColor(zone.color).withValues(alpha: 0.4);
 
       // Apply rate multiplier to color intensity
       if (zone.rateMultiplier < 0.5) {
-        zoneColor = Colors.red.withOpacity(0.3); // Low application
+        zoneColor = Colors.red.withValues(alpha: 0.3); // Low application
       } else if (zone.rateMultiplier > 1.2) {
-        zoneColor = Colors.blue.withOpacity(0.3); // High application
+        zoneColor = Colors.blue.withValues(alpha: 0.3); // High application
       }
 
       if (!zone.isActive) {
-        zoneColor = Colors.grey.withOpacity(0.2);
+        zoneColor = Colors.grey.withValues(alpha: 0.2);
       }
 
       // Draw VRI zone polygon (simplified as sectors for now)
@@ -360,7 +360,7 @@ class _PivotPainter extends CustomPainter {
 
     // Highlight
     final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
+      ..color = Colors.white.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center + const Offset(-2, -2), 2, highlightPaint);
   }
@@ -421,7 +421,7 @@ class _PivotPainter extends CustomPainter {
 
     // Draw arm shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.2)
+      ..color = Colors.black.withValues(alpha: 0.2)
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
@@ -458,7 +458,7 @@ class _PivotPainter extends CustomPainter {
     if (status?.isIrrigating != true) return;
 
     final sprayPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.15)
+      ..color = Colors.blue.withValues(alpha: 0.15)
       ..style = PaintingStyle.fill;
 
     // Draw water spray arc behind the arm
@@ -474,7 +474,7 @@ class _PivotPainter extends CustomPainter {
 
   void _drawEndGun(Canvas canvas, Offset armEnd, double angle) {
     final gunPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.3)
+      ..color = Colors.blue.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     // End gun spray arc

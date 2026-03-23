@@ -411,7 +411,7 @@ class _AppLogoSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: SahoolTheme.primary.withOpacity(0.4),
+                  color: SahoolTheme.primary.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -454,7 +454,7 @@ class _AppLogoSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
@@ -496,7 +496,7 @@ class _InfoTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+              color: SahoolTheme.primary.withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: SahoolTheme.primary, size: 22),
@@ -570,7 +570,7 @@ class _SocialButton extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: effectiveColor.withOpacity(0.1),
+              color: effectiveColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: effectiveColor),
@@ -634,9 +634,9 @@ class _TechBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Text(
         label,

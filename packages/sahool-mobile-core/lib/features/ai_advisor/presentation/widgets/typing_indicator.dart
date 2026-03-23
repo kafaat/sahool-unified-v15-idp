@@ -73,7 +73,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
             height: 24,
             margin: const EdgeInsets.only(left: 8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -96,7 +96,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
                       width: widget.dotSize,
                       height: widget.dotSize,
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.4 + _animations[index].value * 0.6),
+                        color: color.withValues(alpha: 0.4 + _animations[index].value * 0.6),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -181,10 +181,10 @@ class ProcessingIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.05),
+        color: SahoolTheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolTheme.primary.withOpacity(0.1),
+          color: SahoolTheme.primary.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -264,7 +264,7 @@ class _AiThinkingIndicatorState extends State<AiThinkingIndicator>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: SahoolTheme.primary.withOpacity(0.1),
+                  color: SahoolTheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -359,7 +359,7 @@ class _WaveTypingIndicatorState extends State<WaveTypingIndicator>
                 width: 3,
                 height: height,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.3 + 0.7 * _sinValue(value)),
+                  color: color.withValues(alpha: 0.3 + 0.7 * _sinValue(value)),
                   borderRadius: BorderRadius.circular(2),
                 ),
               );

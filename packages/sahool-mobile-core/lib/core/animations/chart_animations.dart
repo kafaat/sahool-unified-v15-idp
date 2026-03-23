@@ -183,7 +183,7 @@ class _AnimatedBarChartState extends State<AnimatedBarChart>
                             const BorderRadius.vertical(top: Radius.circular(4)),
                         boxShadow: [
                           BoxShadow(
-                            color: data.color.withOpacity(0.3),
+                            color: data.color.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -545,7 +545,7 @@ class _LineChartPainter extends CustomPainter {
         fillPath.close();
 
         final fillPaint = Paint()
-          ..color = (series.fillColor ?? series.color).withOpacity(0.2)
+          ..color = (series.fillColor ?? series.color).withValues(alpha: 0.2)
           ..style = PaintingStyle.fill;
 
         canvas.drawPath(fillPath, fillPaint);
@@ -777,7 +777,7 @@ class _PieChartPainter extends CustomPainter {
       // Add shadow for selected segment
       if (isSelected) {
         final shadowPaint = Paint()
-          ..color = segment.color.withOpacity(0.3)
+          ..color = segment.color.withValues(alpha: 0.3)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
         canvas.drawPath(path, shadowPaint);
       }

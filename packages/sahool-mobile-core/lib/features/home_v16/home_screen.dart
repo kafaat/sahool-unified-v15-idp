@@ -1,3 +1,7 @@
+/// @deprecated This screen is superseded by [ProHomeScreen] and [HomeDashboardScreen].
+/// Use ProHomeScreen for map-focused experience or HomeDashboardScreen for dashboard experience.
+/// هذه الشاشة مهملة. استخدم ProHomeScreen أو HomeDashboardScreen بدلاً منها.
+///
 /// SAHOOL Super Home Screen v16
 /// الشاشة الرئيسية المحسنة
 library;

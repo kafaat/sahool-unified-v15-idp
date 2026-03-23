@@ -94,7 +94,7 @@ class SliderSettingsTile extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                      color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -133,7 +133,7 @@ class SliderSettingsTile extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: effectiveIconColor.withOpacity(0.1),
+                      color: effectiveIconColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -153,9 +153,9 @@ class SliderSettingsTile extends StatelessWidget {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: effectiveIconColor,
-                  inactiveTrackColor: effectiveIconColor.withOpacity(0.2),
+                  inactiveTrackColor: effectiveIconColor.withValues(alpha: 0.2),
                   thumbColor: effectiveIconColor,
-                  overlayColor: effectiveIconColor.withOpacity(0.1),
+                  overlayColor: effectiveIconColor.withValues(alpha: 0.1),
                   trackHeight: 4,
                   thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                 ),
@@ -253,7 +253,7 @@ class RangeSliderSettingsTile extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                      color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -300,9 +300,9 @@ class RangeSliderSettingsTile extends StatelessWidget {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: effectiveIconColor,
-                  inactiveTrackColor: effectiveIconColor.withOpacity(0.2),
+                  inactiveTrackColor: effectiveIconColor.withValues(alpha: 0.2),
                   thumbColor: effectiveIconColor,
-                  overlayColor: effectiveIconColor.withOpacity(0.1),
+                  overlayColor: effectiveIconColor.withValues(alpha: 0.1),
                 ),
                 child: RangeSlider(
                   values: values,

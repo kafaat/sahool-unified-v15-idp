@@ -30,10 +30,10 @@ class ContextIndicator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: SahoolTheme.primary.withOpacity(0.05),
+          color: SahoolTheme.primary.withValues(alpha: 0.05),
           border: Border(
             bottom: BorderSide(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
             ),
           ),
         ),
@@ -43,7 +43,7 @@ class ContextIndicator extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: SahoolTheme.primary.withOpacity(0.1),
+                color: SahoolTheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -132,7 +132,7 @@ class ContextIndicator extends StatelessWidget {
         margin: const EdgeInsets.only(left: 8),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Icon(icon, size: 14, color: color),
@@ -297,9 +297,9 @@ class ContextDetailCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.05),
+        color: iconColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: iconColor.withOpacity(0.2)),
+        border: Border.all(color: iconColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +309,7 @@ class ContextDetailCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.1),
+                  color: iconColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 20, color: iconColor),
@@ -382,7 +382,7 @@ class ContextBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: SahoolTheme.primary.withOpacity(0.1),
+          color: SahoolTheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

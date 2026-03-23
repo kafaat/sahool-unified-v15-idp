@@ -44,7 +44,7 @@ class TodayCard extends StatelessWidget {
                     Text(
                       '${data.dateHijri.day} ${data.dateHijri.monthName} ${data.dateHijri.year}',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+                        color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -53,7 +53,7 @@ class TodayCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: scoreColor.withOpacity(0.2),
+                    color: scoreColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: scoreColor, width: 2),
                   ),
@@ -189,7 +189,7 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -265,7 +265,7 @@ class _RecommendationTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

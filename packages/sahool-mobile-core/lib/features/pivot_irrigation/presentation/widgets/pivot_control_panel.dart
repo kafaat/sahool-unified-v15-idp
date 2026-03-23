@@ -114,7 +114,7 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _statusColor(widget.status.operatingStatus).withOpacity(0.1),
+            color: _statusColor(widget.status.operatingStatus).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -227,7 +227,7 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -244,9 +244,9 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: Colors.blue,
-            inactiveTrackColor: Colors.blue.withOpacity(0.2),
+            inactiveTrackColor: Colors.blue.withValues(alpha: 0.2),
             thumbColor: Colors.blue,
-            overlayColor: Colors.blue.withOpacity(0.1),
+            overlayColor: Colors.blue.withValues(alpha: 0.1),
             trackHeight: 8,
           ),
           child: Slider(
@@ -413,8 +413,8 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _endGunEnabled
-            ? Colors.blue.withOpacity(0.1)
-            : Colors.grey.withOpacity(0.1),
+            ? Colors.blue.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -459,7 +459,7 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -668,10 +668,10 @@ class _ControlButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isActive ? color : color.withOpacity(0.1),
+                color: isActive ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   width: 2,
                 ),
               ),
@@ -715,7 +715,7 @@ class _DirectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+      color: isSelected ? Colors.blue.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onPressed,
@@ -724,7 +724,7 @@ class _DirectionButton extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isSelected ? Colors.blue : Colors.grey.withOpacity(0.3),
+              color: isSelected ? Colors.blue : Colors.grey.withValues(alpha: 0.3),
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(12),
@@ -797,10 +797,10 @@ class _AlertTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: _severityColor(alert.severity).withOpacity(0.1),
+        color: _severityColor(alert.severity).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _severityColor(alert.severity).withOpacity(0.3),
+          color: _severityColor(alert.severity).withValues(alpha: 0.3),
         ),
       ),
       child: Row(

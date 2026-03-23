@@ -409,7 +409,7 @@ class TiltCard extends StatelessWidget {
   Widget _buildStaticCard(ThemeData theme, TiltData? tilt) {
     return _buildCardContent(theme, tilt ?? TiltData.zero, [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha: 0.1),
         blurRadius: 12,
         offset: const Offset(0, 6),
       ),
@@ -446,7 +446,7 @@ class TiltCard extends StatelessWidget {
     if (!config.enableShadow) {
       return [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: 12,
           offset: const Offset(0, 6),
         ),
@@ -463,14 +463,14 @@ class TiltCard extends StatelessWidget {
     return [
       // Main shadow
       BoxShadow(
-        color: Colors.black.withOpacity(config.shadowIntensity * 0.8),
+        color: Colors.black.withValues(alpha: config.shadowIntensity * 0.8),
         blurRadius: blurRadius,
         offset: Offset(shadowX, shadowY + 6),
         spreadRadius: -2,
       ),
       // Soft ambient shadow
       BoxShadow(
-        color: Colors.black.withOpacity(config.shadowIntensity * 0.3),
+        color: Colors.black.withValues(alpha: config.shadowIntensity * 0.3),
         blurRadius: blurRadius * 2,
         offset: Offset(shadowX / 2, shadowY / 2 + 4),
         spreadRadius: -4,
@@ -545,8 +545,8 @@ class TiltCard extends StatelessWidget {
               ),
               radius: 1.2,
               colors: [
-                Colors.white.withOpacity(opacity),
-                Colors.white.withOpacity(0),
+                Colors.white.withValues(alpha: opacity),
+                Colors.white.withValues(alpha: 0),
               ],
             ),
           ),

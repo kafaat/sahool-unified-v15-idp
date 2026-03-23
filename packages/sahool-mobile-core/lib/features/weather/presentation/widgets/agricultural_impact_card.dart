@@ -38,7 +38,7 @@ class AgriculturalImpactCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -89,7 +89,7 @@ class AgriculturalImpactCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                         ),
                       ],
@@ -105,10 +105,10 @@ class AgriculturalImpactCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.05),
+                  color: statusColor.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: statusColor.withOpacity(0.2),
+                    color: statusColor.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Text(

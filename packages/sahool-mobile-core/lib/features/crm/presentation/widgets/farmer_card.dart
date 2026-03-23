@@ -151,7 +151,7 @@ class FarmerCard extends StatelessWidget {
   Widget _buildAvatar() {
     return CircleAvatar(
       radius: isCompact ? 20 : 24,
-      backgroundColor: _getSegmentColor().withOpacity(0.2),
+      backgroundColor: _getSegmentColor().withValues(alpha: 0.2),
       backgroundImage:
           farmer.avatarUrl != null ? NetworkImage(farmer.avatarUrl!) : null,
       child: farmer.avatarUrl == null
@@ -171,7 +171,7 @@ class FarmerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getStatusColor().withOpacity(0.1),
+        color: _getStatusColor().withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -203,10 +203,10 @@ class FarmerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getSegmentColor().withOpacity(0.1),
+        color: _getSegmentColor().withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _getSegmentColor().withOpacity(0.3),
+          color: _getSegmentColor().withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -255,7 +255,7 @@ class FarmerCard extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

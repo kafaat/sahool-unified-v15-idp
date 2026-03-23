@@ -490,12 +490,12 @@ class ParallaxCard extends StatelessWidget {
 
       shadows = [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: elevation * 2,
           offset: Offset(shadowX, shadowY + elevation),
         ),
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
           blurRadius: elevation,
           offset: Offset(shadowX / 2, shadowY / 2 + elevation / 2),
         ),
@@ -503,7 +503,7 @@ class ParallaxCard extends StatelessWidget {
     } else {
       shadows = [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: elevation * 2,
           offset: Offset(0, elevation),
         ),
@@ -675,9 +675,9 @@ class ParallaxBackground extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: gradientColors ??
                     [
-                      Colors.black.withOpacity(0.3),
+                      Colors.black.withValues(alpha: 0.3),
                       Colors.transparent,
-                      Colors.black.withOpacity(0.5),
+                      Colors.black.withValues(alpha: 0.5),
                     ],
               ),
             ),

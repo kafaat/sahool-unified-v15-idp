@@ -257,14 +257,14 @@ class FuelBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        color.withOpacity(0.7),
+                        color.withValues(alpha: 0.7),
                         color,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(height / 2),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -282,7 +282,7 @@ class FuelBar extends StatelessWidget {
                           border: Border(
                             left: index > 0
                                 ? BorderSide(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.white.withValues(alpha: 0.5),
                                     width: 1,
                                   )
                                 : BorderSide.none,

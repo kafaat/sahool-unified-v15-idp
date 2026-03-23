@@ -38,7 +38,7 @@ class PlanCard extends StatelessWidget {
           width: isCurrent ? 2.5 : 1,
         ),
         color: isCurrent
-            ? SahoolColors.forestGreen.withOpacity(0.05)
+            ? SahoolColors.forestGreen.withValues(alpha: 0.05)
             : Colors.white,
         boxShadow: isCurrent ? SahoolShadows.small : null,
       ),
@@ -54,7 +54,7 @@ class PlanCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: isCurrent
-                        ? SahoolColors.forestGreen.withOpacity(0.1)
+                        ? SahoolColors.forestGreen.withValues(alpha: 0.1)
                         : Colors.grey[100],
                     borderRadius: BorderRadius.circular(10),
                   ),

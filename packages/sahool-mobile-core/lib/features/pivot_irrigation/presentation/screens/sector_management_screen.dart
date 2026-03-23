@@ -108,7 +108,7 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
 
               return Material(
                 key: ValueKey(sector.id),
-                color: isSelected ? const Color(0xFF367C2B).withOpacity(0.1) : null,
+                color: isSelected ? const Color(0xFF367C2B).withValues(alpha: 0.1) : null,
                 child: ListTile(
                   leading: Container(
                     width: 36,
@@ -540,7 +540,7 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -557,9 +557,9 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: color,
-            inactiveTrackColor: color.withOpacity(0.2),
+            inactiveTrackColor: color.withValues(alpha: 0.2),
             thumbColor: color,
-            overlayColor: color.withOpacity(0.1),
+            overlayColor: color.withValues(alpha: 0.1),
             trackHeight: 8,
           ),
           child: Slider(

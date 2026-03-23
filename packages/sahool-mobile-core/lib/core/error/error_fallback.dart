@@ -183,7 +183,7 @@ class ErrorFallbackWidget extends StatelessWidget {
                 width: iconSize ?? 64,
                 height: iconSize ?? 64,
                 decoration: BoxDecoration(
-                  color: (errMsg.color ?? SahoolTheme.error).withOpacity(0.1),
+                  color: (errMsg.color ?? SahoolTheme.error).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -255,10 +255,10 @@ class _CompactErrorWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: (errMsg.color ?? SahoolTheme.error).withOpacity(0.1),
+          color: (errMsg.color ?? SahoolTheme.error).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: (errMsg.color ?? SahoolTheme.error).withOpacity(0.3),
+            color: (errMsg.color ?? SahoolTheme.error).withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -349,7 +349,7 @@ class _ErrorIconState extends State<_ErrorIcon>
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: widget.color.withOpacity(0.1),
+                color: widget.color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -724,7 +724,7 @@ class ErrorDialog {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: (errMsg.color ?? SahoolTheme.error).withOpacity(0.1),
+              color: (errMsg.color ?? SahoolTheme.error).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

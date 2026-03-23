@@ -41,13 +41,13 @@ class ExportButton extends StatelessWidget {
           : Icon(_getFormatIcon()),
       label: Text(_getFormatLabel()),
       style: ElevatedButton.styleFrom(
-        backgroundColor: _getFormatColor().withOpacity(0.1),
+        backgroundColor: _getFormatColor().withValues(alpha: 0.1),
         foregroundColor: _getFormatColor(),
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: _getFormatColor().withOpacity(0.3)),
+          side: BorderSide(color: _getFormatColor().withValues(alpha: 0.3)),
         ),
       ),
     );
@@ -65,7 +65,7 @@ class ExportButton extends StatelessWidget {
           : Icon(_getFormatIcon()),
       color: _getFormatColor(),
       style: IconButton.styleFrom(
-        backgroundColor: _getFormatColor().withOpacity(0.1),
+        backgroundColor: _getFormatColor().withValues(alpha: 0.1),
       ),
       tooltip: _getFormatLabel(),
     );
@@ -219,7 +219,7 @@ class ExportOptionsRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: isLoading

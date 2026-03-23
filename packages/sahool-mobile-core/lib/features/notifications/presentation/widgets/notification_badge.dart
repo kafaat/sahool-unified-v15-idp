@@ -215,7 +215,7 @@ class _AnimatedDotState extends State<_AnimatedDot>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: widget.color.withOpacity(0.4),
+                  color: widget.color.withValues(alpha: 0.4),
                   blurRadius: widget.size * _animation.value,
                   spreadRadius: widget.size * 0.2 * _animation.value,
                 ),
@@ -255,10 +255,10 @@ class CategoryNotificationBadge extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),

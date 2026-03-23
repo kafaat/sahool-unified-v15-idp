@@ -692,7 +692,7 @@ class _PreviewOverlayState extends State<_PreviewOverlay>
           animation: _controller,
           builder: (context, child) {
             return ColoredBox(
-              color: Colors.black.withOpacity(_fadeAnimation.value * 0.5),
+              color: Colors.black.withValues(alpha: _fadeAnimation.value * 0.5),
               child: Center(
                 child: Transform.scale(
                   scale: _scaleAnimation.value,
@@ -951,7 +951,7 @@ class _AnimatedDropTargetState<T extends Object> extends State<AnimatedDropTarge
               child: AnimatedContainer(
                 duration: widget.animationDuration,
                 decoration: BoxDecoration(
-                  color: _isHovering ? widget.hoverColor?.withOpacity(0.2) : null,
+                  color: _isHovering ? widget.hoverColor?.withValues(alpha: 0.2) : null,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: _isHovering

@@ -70,7 +70,7 @@ class SwitchSettingsTile extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                    color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -113,7 +113,7 @@ class SwitchSettingsTile extends StatelessWidget {
                   value: value,
                   onChanged: enabled ? onChanged : null,
                   activeColor: effectiveActiveColor,
-                  activeTrackColor: effectiveActiveColor.withOpacity(0.5),
+                  activeTrackColor: effectiveActiveColor.withValues(alpha: 0.5),
                 ),
               ],
             ),
@@ -168,7 +168,7 @@ class DescriptiveSwitchTile extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                        color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(

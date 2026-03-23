@@ -39,7 +39,7 @@ class StatusIndicator extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: color.withOpacity(0.4),
+                      color: color.withValues(alpha: 0.4),
                       blurRadius: 4,
                       spreadRadius: 1,
                     ),
@@ -125,7 +125,7 @@ class _PulsingDotState extends State<_PulsingDot>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(_animation.value * 0.6),
+                color: widget.color.withValues(alpha: _animation.value * 0.6),
                 blurRadius: 8 * _animation.value,
                 spreadRadius: 2 * _animation.value,
               ),
@@ -235,7 +235,7 @@ class PriorityIndicator extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -257,9 +257,9 @@ class PriorityIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -331,7 +331,7 @@ class AlertBadge extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: badgeColor.withOpacity(0.4),
+            color: badgeColor.withValues(alpha: 0.4),
             blurRadius: 4,
             spreadRadius: 1,
           ),

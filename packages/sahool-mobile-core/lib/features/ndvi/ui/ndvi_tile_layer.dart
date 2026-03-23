@@ -124,7 +124,7 @@ class NdviPolygonLayer extends StatelessWidget {
 
             return Polygon(
               points: field.boundary,
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
               label: showLabels ? field.name : null,
@@ -220,7 +220,7 @@ class IndexPolygonLayer extends StatelessWidget {
 
             return Polygon(
               points: field.boundary,
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
               label: showLabels
@@ -365,7 +365,7 @@ class IndexLayerControl extends StatelessWidget {
                     ),
                     selected: isSelected,
                     selectedColor: chipColor,
-                    backgroundColor: chipColor.withOpacity(0.1),
+                    backgroundColor: chipColor.withValues(alpha: 0.1),
                     onSelected: (_) => onIndexChanged(idx),
                     avatar: Icon(idx.icon, size: 14,
                         color: isSelected ? Colors.white : chipColor),

@@ -279,7 +279,7 @@ class _FirstFieldScreenState extends ConsumerState<FirstFieldScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: SahoolColors.info.withOpacity(0.1),
+                color: SahoolColors.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -320,7 +320,7 @@ class _FirstFieldScreenState extends ConsumerState<FirstFieldScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: SahoolColors.primary.withOpacity(0.1),
+              color: SahoolColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -413,7 +413,7 @@ class _FirstFieldScreenState extends ConsumerState<FirstFieldScreen> {
               _selectedCropType = selected ? crop['id'] : null;
             });
           },
-          selectedColor: SahoolColors.primary.withOpacity(0.2),
+          selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
           backgroundColor: Colors.grey[100],
           labelStyle: TextStyle(
             color: isSelected ? SahoolColors.primary : SahoolColors.textDark,

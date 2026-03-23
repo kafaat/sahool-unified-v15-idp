@@ -526,7 +526,7 @@ class _ChatInputState extends State<ChatInput> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -642,7 +642,7 @@ class _ChatInputState extends State<ChatInput> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -659,7 +659,7 @@ class _ChatInputState extends State<ChatInput> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.05),
+              color: Colors.red.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
@@ -674,7 +674,7 @@ class _ChatInputState extends State<ChatInput> {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(value),
+                        color: Colors.red.withValues(alpha: value),
                         shape: BoxShape.circle,
                       ),
                     );
@@ -852,7 +852,7 @@ class _ChatInputState extends State<ChatInput> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -1064,7 +1064,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                       label: const Text('الكل'),
                       selected: _selectedCategory == null,
                       onSelected: (_) => _selectCategory(null),
-                      selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                      selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                       checkmarkColor: SahoolTheme.primary,
                     ),
                   ),
@@ -1082,7 +1082,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                           label: Text(_getCategoryNameAr(category)),
                           selected: _selectedCategory == category,
                           onSelected: (_) => _selectCategory(category),
-                          selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                          selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                           checkmarkColor: SahoolTheme.primary,
                         ),
                       )),
@@ -1208,7 +1208,7 @@ class _ProductListTile extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: categoryColor.withOpacity(0.1),
+                  color: categoryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: product.imageUrl != null
@@ -1437,7 +1437,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
                       label: const Text('الكل'),
                       selected: _selectedStatus == null,
                       onSelected: (_) => _filterByStatus(null),
-                      selectedColor: Colors.orange.withOpacity(0.2),
+                      selectedColor: Colors.orange.withValues(alpha: 0.2),
                       checkmarkColor: Colors.orange,
                     ),
                   ),
@@ -1462,7 +1462,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
                           selected: _selectedStatus == statusPair.$1,
                           onSelected: (_) => _filterByStatus(statusPair.$1),
                           selectedColor:
-                              _getStatusColor(statusPair.$1).withOpacity(0.2),
+                              _getStatusColor(statusPair.$1).withValues(alpha: 0.2),
                           checkmarkColor: _getStatusColor(statusPair.$1),
                         ),
                       )),
@@ -1571,7 +1571,7 @@ class _OrderListTile extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -1604,7 +1604,7 @@ class _OrderListTile extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(

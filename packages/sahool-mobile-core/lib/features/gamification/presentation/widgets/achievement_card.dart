@@ -158,7 +158,7 @@ class AchievementCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _tierColor.withOpacity(0.15),
+                  color: _tierColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(SahoolRadius.small),
                   border: Border.all(color: _tierColor, width: 0.5),
                 ),
@@ -177,7 +177,7 @@ class AchievementCard extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.45),
+                    color: Colors.white.withValues(alpha: 0.45),
                     borderRadius: BorderRadius.circular(SahoolRadius.large),
                   ),
                 ),

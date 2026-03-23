@@ -102,7 +102,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                 height: 52,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: Center(
@@ -133,7 +133,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                     Text(
                       '${profile.totalPoints} نقطة | ${profile.unlockedAchievements} إنجاز',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                         fontSize: 13,
                       ),
                     ),
@@ -174,11 +174,11 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                 children: [
                   Text(
                     'المستوى ${profile.level}',
-                    style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
                   ),
                   Text(
                     '${profile.pointsToNextLevel} نقطة للمستوى التالي',
-                    style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
                   ),
                 ],
               ),
@@ -188,7 +188,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
                 child: LinearProgressIndicator(
                   value: profile.levelProgress.clamp(0.0, 1.0),
                   minHeight: 8,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   valueColor: const AlwaysStoppedAnimation<Color>(SahoolColors.harvestGold),
                 ),
               ),
@@ -282,7 +282,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(SahoolRadius.medium),
             ),
             child: Icon(streakIcon, color: statusColor, size: 24),
@@ -336,7 +336,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(SahoolRadius.small),
                 ),
                 child: Text(
@@ -444,7 +444,7 @@ class _AchievementsScreenState extends ConsumerState<AchievementsScreen>
       ),
       decoration: BoxDecoration(
         color: entry.isCurrentUser
-            ? SahoolColors.primary.withOpacity(0.08)
+            ? SahoolColors.primary.withValues(alpha: 0.08)
             : Colors.white,
         borderRadius: BorderRadius.circular(SahoolRadius.medium),
         border: entry.isCurrentUser

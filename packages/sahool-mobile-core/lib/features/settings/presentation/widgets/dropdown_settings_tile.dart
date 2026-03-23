@@ -94,7 +94,7 @@ class DropdownSettingsTile<T> extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                    color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -243,7 +243,7 @@ class _DropdownBottomSheet<T> extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           color: isSelected
-              ? SahoolTheme.primary.withOpacity(isDark ? 0.2 : 0.05)
+              ? SahoolTheme.primary.withValues(alpha: isDark ? 0.2 : 0.05)
               : null,
           child: Row(
             children: [
@@ -323,7 +323,7 @@ class RadioGroupSettingsTile<T> extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: effectiveIconColor.withOpacity(isDark ? 0.2 : 0.1),
+                      color: effectiveIconColor.withValues(alpha: isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -354,7 +354,7 @@ class RadioGroupSettingsTile<T> extends StatelessWidget {
                     label: Text(option.labelAr),
                     selected: isSelected,
                     onSelected: enabled ? (_) => onChanged?.call(option.value) : null,
-                    selectedColor: effectiveIconColor.withOpacity(0.2),
+                    selectedColor: effectiveIconColor.withValues(alpha: 0.2),
                     checkmarkColor: effectiveIconColor,
                     labelStyle: TextStyle(
                       color: isSelected ? effectiveIconColor : null,

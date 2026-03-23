@@ -34,7 +34,7 @@ class SyncIndicator extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _iconColor.withOpacity(0.3),
+              color: _iconColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -95,11 +95,11 @@ class SyncIndicator extends StatelessWidget {
   }
 
   Color get _backgroundColor {
-    if (isSyncing) return Colors.blue.withOpacity(0.15);
-    if (!isOnline) return Colors.red.withOpacity(0.15);
-    if (conflictsCount > 0) return Colors.amber.withOpacity(0.15);
-    if (pendingCount > 0) return Colors.orange.withOpacity(0.15);
-    return Colors.green.withOpacity(0.15);
+    if (isSyncing) return Colors.blue.withValues(alpha: 0.15);
+    if (!isOnline) return Colors.red.withValues(alpha: 0.15);
+    if (conflictsCount > 0) return Colors.amber.withValues(alpha: 0.15);
+    if (pendingCount > 0) return Colors.orange.withValues(alpha: 0.15);
+    return Colors.green.withValues(alpha: 0.15);
   }
 
   Color get _iconColor {
@@ -269,7 +269,7 @@ class SyncStatusCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -391,7 +391,7 @@ class SyncStatusCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: color, size: 24),
@@ -474,7 +474,7 @@ class SyncProgressOverlay extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

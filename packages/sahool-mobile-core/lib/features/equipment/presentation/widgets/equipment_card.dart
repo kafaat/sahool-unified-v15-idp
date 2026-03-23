@@ -52,7 +52,7 @@ class EquipmentCard extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: SahoolColors.paleOlive.withOpacity(0.5),
+              color: SahoolColors.paleOlive.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
             ),
             child: equipment.imageUrl != null
@@ -124,7 +124,7 @@ class EquipmentCard extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: SahoolColors.paleOlive.withOpacity(0.5),
+            color: SahoolColors.paleOlive.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
@@ -401,7 +401,7 @@ class EquipmentLargeCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

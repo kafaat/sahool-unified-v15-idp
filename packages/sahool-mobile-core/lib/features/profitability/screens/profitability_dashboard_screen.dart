@@ -257,8 +257,8 @@ class _ProfitabilityDashboardScreenState
                   ),
                   decoration: BoxDecoration(
                     color: isProfitable
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -340,7 +340,7 @@ class _ProfitabilityDashboardScreenState
               final crop = topCrops[index];
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Colors.green.withOpacity(0.1),
+                  backgroundColor: Colors.green.withValues(alpha: 0.1),
                   child: Text(
                     '${index + 1}',
                     style: const TextStyle(

@@ -126,7 +126,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
                 color: buttonColor,
                 boxShadow: [
                   BoxShadow(
-                    color: buttonColor.withOpacity(0.4),
+                    color: buttonColor.withValues(alpha: 0.4),
                     blurRadius: isListening ? 20 : 8,
                     spreadRadius: isListening ? 4 : 1,
                   ),
@@ -163,7 +163,7 @@ class _VoiceButtonState extends ConsumerState<VoiceButton>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: color.withOpacity((1 - value) * 0.6),
+                color: color.withValues(alpha: (1 - value) * 0.6),
                 width: 2,
               ),
             ),
@@ -291,7 +291,7 @@ class VoiceOverlay extends ConsumerWidget {
         }
 
         return Material(
-          color: Colors.black.withOpacity(0.85),
+          color: Colors.black.withValues(alpha: 0.85),
           child: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -340,7 +340,7 @@ class VoiceOverlay extends ConsumerWidget {
                       ? 'Listening...'
                       : 'Processing...',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 16,
                   ),
                 ),
@@ -507,12 +507,12 @@ class VoiceTranscriptDisplay extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 24),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: result.isFinal
-                  ? Colors.green.withOpacity(0.5)
-                  : Colors.white.withOpacity(0.2),
+                  ? Colors.green.withValues(alpha: 0.5)
+                  : Colors.white.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -529,7 +529,7 @@ class VoiceTranscriptDisplay extends ConsumerWidget {
                   Text(
                     result.isFinal ? 'تم التعرف' : 'جاري التعرف...',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 12,
                     ),
                   ),
@@ -537,7 +537,7 @@ class VoiceTranscriptDisplay extends ConsumerWidget {
                   Text(
                     '${(result.confidence * 100).toStringAsFixed(0)}%',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 12,
                     ),
                   ),
@@ -617,7 +617,7 @@ class VoiceCommandSuggestions extends ConsumerWidget {
         Text(
           'جرب أن تقول / Try saying:',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             fontSize: 12,
           ),
         ),
@@ -654,9 +654,9 @@ class _SuggestionChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.2)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
         ),
         child: Text(
           '"${command.nameAr}"',
@@ -795,7 +795,7 @@ class _PulsingDotState extends State<_PulsingDot>
           height: widget.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.color.withOpacity(0.5 + _controller.value * 0.5),
+            color: widget.color.withValues(alpha: 0.5 + _controller.value * 0.5),
           ),
         );
       },

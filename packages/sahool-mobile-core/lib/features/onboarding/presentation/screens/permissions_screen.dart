@@ -168,7 +168,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: SahoolColors.info.withOpacity(0.1),
+              color: SahoolColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(

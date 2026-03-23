@@ -729,13 +729,14 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
   }
 
   String _getDoseLabel(String hint) {
+    final isAr = _isArabic(context);
     switch (hint) {
       case 'low':
-        return 'منخفضة';
+        return isAr ? 'منخفضة' : 'Low';
       case 'medium':
-        return 'متوسطة';
+        return isAr ? 'متوسطة' : 'Medium';
       case 'high':
-        return 'عالية';
+        return isAr ? 'عالية' : 'High';
       default:
         return hint;
     }
@@ -771,7 +772,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               ),
             ),
             const SizedBox(width: 16),
-            Text('جاري تحديث الإجراء: ${action.title}...'),
+            Text(_isArabic(context)
+                ? 'جاري تحديث الإجراء: ${action.title}...'
+                : 'Updating action: ${action.title}...'),
           ],
         ),
         backgroundColor: const Color(0xFF367C2B),

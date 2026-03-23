@@ -4,6 +4,8 @@ library;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/animations/hero_animations.dart';
+
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
 import '../../domain/models/equipment.dart';

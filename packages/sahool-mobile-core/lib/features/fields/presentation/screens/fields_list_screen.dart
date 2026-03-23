@@ -9,6 +9,8 @@ import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
 import '../../../../core/widgets/loading_states.dart';
+import '../../../../core/widgets/domain_skeletons.dart';
+import '../../../../core/widgets/sahool_skeleton.dart';
 import '../../../../core/widgets/empty_states.dart';
 
 /// شاشة قائمة الحقول
@@ -264,7 +266,11 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
           ],
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? SahoolSkeletonList(
+                itemCount: 5,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (_) => const FieldCardSkeleton(),
+              )
             : _loadError != null
                 ? Center(
                     child: Column(

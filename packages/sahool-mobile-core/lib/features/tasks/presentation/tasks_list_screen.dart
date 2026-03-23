@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/theme.dart';
+import '../../../core/widgets/domain_skeletons.dart';
+import '../../../core/widgets/sahool_skeleton.dart';
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
 import 'task_details_screen.dart';

@@ -51,7 +51,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         body: profile.isLoading
             ? const Center(child: CircularProgressIndicator())
             : profile.error != null && profile.userId.isEmpty
-                ? _buildErrorState(profile.error!)
+                ? _buildErrorState(profile.error!, isArabic)
                 : SingleChildScrollView(
                     child: Column(
                       children: [
@@ -97,7 +97,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildErrorState(String message) {
+  Widget _buildErrorState(String message, bool isArabic) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +114,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             onPressed: () =>
                 ref.read(profileProvider.notifier).loadProfile(),
             icon: const Icon(Icons.refresh),
-            label: const Text('إعادة المحاولة'),
+            label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF367C2B),
             ),
@@ -655,6 +655,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _showChangePassword() {
+    final isArabic = _isArabic;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -662,7 +663,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -673,9 +674,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'تغيير كلمة المرور',
-                style: TextStyle(
+              Text(
+                isArabic ? 'تغيير كلمة المرور' : 'Change Password',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -683,25 +684,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 24),
               TextFormField(
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'كلمة المرور الحالية',
-                  prefixIcon: Icon(Icons.lock_outline),
+                decoration: InputDecoration(
+                  labelText: isArabic ? 'كلمة المرور الحالية' : 'Current Password',
+                  prefixIcon: const Icon(Icons.lock_outline),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'كلمة المرور الجديدة',
-                  prefixIcon: Icon(Icons.lock_outline),
+                decoration: InputDecoration(
+                  labelText: isArabic ? 'كلمة المرور الجديدة' : 'New Password',
+                  prefixIcon: const Icon(Icons.lock_outline),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'تأكيد كلمة المرور',
-                  prefixIcon: Icon(Icons.lock_outline),
+                decoration: InputDecoration(
+                  labelText: isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
+                  prefixIcon: const Icon(Icons.lock_outline),
                 ),
               ),
               const SizedBox(height: 24),
@@ -709,9 +710,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('تم تغيير كلمة المرور'),
-                      backgroundColor: Color(0xFF367C2B),
+                    SnackBar(
+                      content: Text(isArabic
+                          ? 'تم تغيير كلمة المرور'
+                          : 'Password changed'),
+                      backgroundColor: const Color(0xFF367C2B),
                     ),
                   );
                 },
@@ -719,7 +722,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   backgroundColor: const Color(0xFF367C2B),
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('تغيير'),
+                child: Text(isArabic ? 'تغيير' : 'Change'),
               ),
               const SizedBox(height: 32),
             ],

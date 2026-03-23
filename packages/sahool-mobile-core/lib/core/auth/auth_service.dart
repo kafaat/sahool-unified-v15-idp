@@ -350,6 +350,9 @@ class AuthService {
       tenantId: 'mock_tenant',
     );
 
+    // Set tenant context for background operations
+    UserContext.setTenantId(user.tenantId);
+
     // Store tokens using TokenManager for centralized management
     await tokenManager.storeTokens(
       accessToken: tokens.accessToken,
@@ -509,6 +512,10 @@ class AuthService {
         AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', data: {'error': e.toString()});
       }
     }
+
+    // مسح سياق المستأجر عند تسجيل الخروج
+    // Clear tenant context on logout
+    UserContext.clear();
 
     // Use TokenManager for centralized logout
     // This handles clearing tokens, API client state, and notifying listeners

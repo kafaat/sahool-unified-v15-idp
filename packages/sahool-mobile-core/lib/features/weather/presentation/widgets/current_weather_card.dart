@@ -37,9 +37,11 @@ class CurrentWeatherCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  weather.icon,
-                  style: const TextStyle(fontSize: 64),
+                ExcludeSemantics(
+                  child: Text(
+                    weather.icon,
+                    style: const TextStyle(fontSize: 64),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -119,6 +121,7 @@ class CurrentWeatherCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

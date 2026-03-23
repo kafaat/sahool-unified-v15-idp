@@ -61,7 +61,9 @@ class SyncWorker {
       return SyncResult(synced: 0, failed: 0, conflicts: 0);
     }
 
-    final tenantId = _auth.currentUserId;
+    // استخدام معرف المستأجر من السياق بدلاً من معرف المستخدم
+    // Use tenant ID from context instead of user ID
+    final tenantId = UserContext.currentTenantId ?? _auth.currentUserId;
     final items = await _db.getPendingOutbox();
 
     int synced = 0;

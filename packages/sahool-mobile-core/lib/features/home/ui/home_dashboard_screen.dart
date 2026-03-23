@@ -614,17 +614,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
     );
   }
 
+  /// Builds a generic loading placeholder using the skeleton system.
+  /// يبني عنصر تحميل نائب باستخدام نظام الهيكل العظمي.
   Widget _buildLoadingCard({double height = 150}) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return SahoolSkeleton(height: height, borderRadius: 16);
   }
 }
 

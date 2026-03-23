@@ -242,7 +242,7 @@ export default React.memo(function Sidebar() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">لوحة التحكم</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t("nav.dashboard")}</p>
             </div>
           </Link>
         </div>
@@ -657,7 +657,7 @@ export default React.memo(function Sidebar() {
             aria-label="تسجيل الخروج"
           >
             <LogOut className="w-4 h-4" />
-            تسجيل الخروج
+            {t("nav.logout")}
           </button>
         </div>
       </aside>

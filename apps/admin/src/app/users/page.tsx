@@ -9,6 +9,7 @@ import Header from "@/components/layout/Header";
 import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import {
   Users,
   Search,

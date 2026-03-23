@@ -454,7 +454,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                 foregroundColor: Colors.white,
               ),
             ),
-            // Flash toggle button with live torch state
+            // Flash toggle button - زر تبديل الفلاش
             GestureDetector(
               onTap: _cameraActive ? _toggleFlash : null,
               child: Container(
@@ -463,27 +463,21 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: ValueListenableBuilder<TorchState>(
-                  valueListenable: _cameraController.torchState,
-                  builder: (context, torchState, _) {
-                    final isOn = torchState == TorchState.on;
-                    return Row(
-                      children: [
-                        Icon(
-                          isOn ? Icons.flash_on : Icons.flash_off,
-                          color: isOn ? SahoolColors.warning : Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          isOn
-                              ? 'الفلاش مفعّل | Flash On'
-                              : 'الفلاش | Flash',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    );
-                  },
+                child: Row(
+                  children: [
+                    Icon(
+                      _flashOn ? Icons.flash_on : Icons.flash_off,
+                      color: _flashOn ? SahoolColors.warning : Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _flashOn
+                          ? 'الفلاش مفعّل | Flash On'
+                          : 'الفلاش | Flash',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             ),

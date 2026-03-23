@@ -295,18 +295,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
   }
 
   void _showExportOptions(BuildContext context) {
+    final isAr = _isArabic(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 leading: const Icon(Icons.water_drop, color: Colors.blue),
-                title: const Text('تصدير خريطة الري'),
-                subtitle: const Text('VRT للمناطق التي تحتاج ري'),
+                title: Text(isAr ? 'تصدير خريطة الري' : 'Export Irrigation Map'),
+                subtitle: Text(isAr ? 'VRT للمناطق التي تحتاج ري' : 'VRT for zones needing irrigation'),
                 onTap: () {
                   Navigator.pop(context);
                   _exportVrt('irrigation');
@@ -314,8 +315,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               ),
               ListTile(
                 leading: const Icon(Icons.eco, color: Colors.green),
-                title: const Text('تصدير خريطة التسميد'),
-                subtitle: const Text('VRT للمناطق التي تحتاج تسميد'),
+                title: Text(isAr ? 'تصدير خريطة التسميد' : 'Export Fertilization Map'),
+                subtitle: Text(isAr ? 'VRT للمناطق التي تحتاج تسميد' : 'VRT for zones needing fertilization'),
                 onTap: () {
                   Navigator.pop(context);
                   _exportVrt('fertilization');
@@ -323,8 +324,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               ),
               ListTile(
                 leading: const Icon(Icons.map, color: Colors.orange),
-                title: const Text('تصدير كل الإجراءات'),
-                subtitle: const Text('GeoJSON شامل لجميع التوصيات'),
+                title: Text(isAr ? 'تصدير كل الإجراءات' : 'Export All Actions'),
+                subtitle: Text(isAr ? 'GeoJSON شامل لجميع التوصيات' : 'Complete GeoJSON for all recommendations'),
                 onTap: () {
                   Navigator.pop(context);
                   _exportVrt('all');
@@ -344,8 +345,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
     if (diagnosisState.diagnosis == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('لا توجد بيانات للتصدير'),
+        SnackBar(
+          content: Text(_isArabic(context) ? 'لا توجد بيانات للتصدير' : 'No data to export'),
           backgroundColor: Colors.orange,
         ),
       );

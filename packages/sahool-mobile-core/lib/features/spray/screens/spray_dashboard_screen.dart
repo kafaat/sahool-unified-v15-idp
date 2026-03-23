@@ -33,54 +33,73 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
     final isArabic = locale == 'ar';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isArabic ? 'مستشار الرش' : 'Spray Advisor'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () {
-              // Navigate to calendar view
-              // Navigator.push(context, MaterialPageRoute(
-              //   builder: (_) => SprayCalendarScreen(fieldId: widget.fieldId),
-              // ));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              // Navigate to logs
-              // Navigator.push(context, MaterialPageRoute(
-              //   builder: (_) => SprayLogScreen(fieldId: widget.fieldId),
-              // ));
-            },
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(currentWeatherProvider);
           ref.invalidate(sprayWindowsProvider);
           ref.invalidate(sprayRecommendationsProvider);
         },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Current Weather Conditions
-              _buildCurrentWeatherSection(theme, isArabic),
-              const SizedBox(height: 16),
-              // Spray Windows Timeline (Next 7 Days)
-              _buildSprayWindowsSection(theme, isArabic),
-              const SizedBox(height: 16),
-              // Active Recommendations
-              _buildRecommendationsSection(theme, isArabic),
-              const SizedBox(height: 16),
-              // Quick Actions
-              _buildQuickActionsSection(theme, isArabic),
-              const SizedBox(height: 24),
-            ],
-          ),
+        child: CustomScrollView(
+          slivers: [
+            // SliverAppBar - floating with snap for quick access
+            SliverAppBar(
+              title: Text(isArabic ? 'مستشار الرش' : 'Spray Advisor'),
+              floating: true,
+              snap: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () {
+                    // Navigate to calendar view
+                    // Navigator.push(context, MaterialPageRoute(
+                    //   builder: (_) => SprayCalendarScreen(fieldId: widget.fieldId),
+                    // ));
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  onPressed: () {
+                    // Navigate to logs
+                    // Navigator.push(context, MaterialPageRoute(
+                    //   builder: (_) => SprayLogScreen(fieldId: widget.fieldId),
+                    // ));
+                  },
+                ),
+              ],
+            ),
+
+            // Current Weather Conditions
+            SliverToBoxAdapter(
+              child: _buildCurrentWeatherSection(theme, isArabic),
+            ),
+
+            // Spray Windows Timeline (Next 7 Days)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _buildSprayWindowsSection(theme, isArabic),
+              ),
+            ),
+
+            // Active Recommendations
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _buildRecommendationsSection(theme, isArabic),
+              ),
+            ),
+
+            // Quick Actions
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _buildQuickActionsSection(theme, isArabic),
+              ),
+            ),
+
+            // Bottom padding
+            const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

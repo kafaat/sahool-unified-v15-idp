@@ -38,7 +38,12 @@ class NotificationCard extends StatelessWidget {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final category = notification.category;
 
-    return Dismissible(
+    return Semantics(
+      label: '${notification.getTitle(isArabic)}'
+          '${notification.isHighPriority ? ", ${isArabic ? notification.priority.labelAr : "Priority: ${notification.priority.labelAr}"}" : ""}'
+          '${notification.isUnread ? (isArabic ? "، غير مقروء" : ", Unread") : ""}',
+      button: onTap != null,
+      child: Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.horizontal,
       confirmDismiss: (direction) async {

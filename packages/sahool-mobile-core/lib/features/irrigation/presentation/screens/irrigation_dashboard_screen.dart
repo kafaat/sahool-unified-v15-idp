@@ -59,67 +59,94 @@ class _IrrigationDashboardScreenState
 
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
-      appBar: AppBar(
-        title: Text(isArabic ? 'الري الذكي' : 'Smart Irrigation'),
-        backgroundColor: Colors.white,
-        foregroundColor: SahoolColors.forestGreen,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () => _navigateToHistory(context),
-            tooltip: isArabic ? 'سجل الري' : 'Irrigation History',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.read(irrigationControllerProvider.notifier).refreshAll();
-            },
-            tooltip: isArabic ? 'تحديث' : 'Refresh',
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(irrigationControllerProvider.notifier).refreshAll();
         },
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            // 1. Field Selector - اختيار الحقل
-            _buildFieldSelector(selectedFieldId, isArabic),
+        child: CustomScrollView(
+          slivers: [
+            // SliverAppBar - floating with snap for quick access
+            SliverAppBar(
+              title: Text(isArabic ? 'الري الذكي' : 'Smart Irrigation'),
+              backgroundColor: Colors.white,
+              foregroundColor: SahoolColors.forestGreen,
+              elevation: 0,
+              floating: true,
+              snap: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  onPressed: () => _navigateToHistory(context),
+                  tooltip: isArabic ? 'سجل الري' : 'Irrigation History',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    ref.read(irrigationControllerProvider.notifier).refreshAll();
+                  },
+                  tooltip: isArabic ? 'تحديث' : 'Refresh',
+                ),
+              ],
+            ),
 
-            const SizedBox(height: 20),
+            // 1. Field Selector - اختيار الحقل
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildFieldSelector(selectedFieldId, isArabic),
+              ),
+            ),
 
             // 2. Quick Stats Row - صف الإحصائيات السريعة
-            _buildQuickStats(dashboardAsync, isArabic),
-
-            const SizedBox(height: 20),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildQuickStats(dashboardAsync, isArabic),
+              ),
+            ),
 
             // 3. Water Balance Card - بطاقة توازن المياه
-            _buildWaterBalanceSection(dashboardAsync, isArabic),
-
-            const SizedBox(height: 20),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildWaterBalanceSection(dashboardAsync, isArabic),
+              ),
+            ),
 
             // 4. Next Irrigation Countdown - العد التنازلي للري القادم
-            _buildNextIrrigationCard(dashboardAsync, isArabic),
-
-            const SizedBox(height: 20),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildNextIrrigationCard(dashboardAsync, isArabic),
+              ),
+            ),
 
             // 5. Quick Actions - إجراءات سريعة
-            _buildQuickActions(isArabic),
-
-            const SizedBox(height: 20),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildQuickActions(isArabic),
+              ),
+            ),
 
             // 6. Crop Water Needs Card - بطاقة احتياجات المحصول
-            _buildCropWaterNeedsCard(dashboardAsync, isArabic),
-
-            const SizedBox(height: 20),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildCropWaterNeedsCard(dashboardAsync, isArabic),
+              ),
+            ),
 
             // 7. Scheduling Overview - نظرة عامة على الجدولة
-            _buildSchedulingOverview(dashboardAsync, isArabic),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: _buildSchedulingOverview(dashboardAsync, isArabic),
+              ),
+            ),
 
-            const SizedBox(height: 80),
+            // Bottom padding
+            const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
           ],
         ),
       ),

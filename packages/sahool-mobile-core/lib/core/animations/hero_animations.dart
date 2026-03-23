@@ -33,6 +33,15 @@ class HeroTags {
   /// User avatar hero tag
   static String userAvatar(String userId) => 'user_avatar_$userId';
 
+  /// Equipment card hero tag
+  static String equipmentCard(String equipmentId) => 'equipment_card_$equipmentId';
+
+  /// Equipment icon hero tag
+  static String equipmentIcon(String equipmentId) => 'equipment_icon_$equipmentId';
+
+  /// Farmer avatar hero tag
+  static String farmerAvatar(String farmerId) => 'farmer_avatar_$farmerId';
+
   /// Notification hero tag
   static String notification(String notificationId) => 'notification_$notificationId';
 

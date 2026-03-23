@@ -20,6 +20,11 @@ import {
 } from "react-leaflet";
 import type { LatLngTuple, LatLngExpression } from "leaflet";
 import type { Field, GeoPolygon } from "../types";
+import {
+  NDVI_COLORS,
+  CROP_HEALTH_COLORS,
+  INTERACTION_COLORS,
+} from "@/lib/chart-colors";
 
 interface FieldMapProps {
   field?: Field;
@@ -33,14 +38,15 @@ const YEMEN_CENTER: LatLngTuple = [15.5527, 48.5164];
 
 /**
  * Get NDVI-based color for field display
+ * Uses design system agricultural tokens
  */
 export const getNDVIColor = (ndvi?: number): string => {
-  if (ndvi === undefined || ndvi === null) return "#9ca3af"; // Gray for no data
-  if (ndvi >= 0.7) return "#1B5E20"; // Dark green (excellent - ممتاز)
-  if (ndvi >= 0.5) return "#4CAF50"; // Green (good - جيد)
-  if (ndvi >= 0.3) return "#FDD835"; // Yellow (moderate - متوسط)
-  if (ndvi >= 0.15) return "#FF9800"; // Orange (poor - ضعيف)
-  return "#F44336"; // Red (critical - حرج)
+  if (ndvi === undefined || ndvi === null) return NDVI_COLORS.noData;
+  if (ndvi >= 0.7) return NDVI_COLORS.high;
+  if (ndvi >= 0.5) return NDVI_COLORS.mediumHigh;
+  if (ndvi >= 0.3) return NDVI_COLORS.medium;
+  if (ndvi >= 0.15) return NDVI_COLORS.low;
+  return CROP_HEALTH_COLORS.critical;
 };
 
 /**
@@ -165,7 +171,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 key={fieldItem.id}
                 positions={positions}
                 pathOptions={{
-                  color: isSelected ? "#1565C0" : color,
+                  color: isSelected ? INTERACTION_COLORS.selectedBorder : color,
                   fillColor: color,
                   fillOpacity: isSelected ? 0.55 : 0.35,
                   weight: isSelected ? 4 : 2,
@@ -262,7 +268,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 radius={8}
                 pathOptions={{
                   fillColor: color,
-                  color: "#ffffff",
+                  color: INTERACTION_COLORS.markerBorder,
                   weight: 2,
                   fillOpacity: 0.8,
                 }}

@@ -34,5 +34,8 @@ export 'gesture_animations.dart';
 // Chart Animations - تحريكات الرسوم البيانية
 export 'chart_animations.dart';
 
+// Staggered List Animations - تحريكات القوائم المتتابعة
+export 'staggered_list_animation.dart';
+
 // Animation Presets & Utilities - ثوابت ومساعدات التحريك
 export 'animation_presets.dart';

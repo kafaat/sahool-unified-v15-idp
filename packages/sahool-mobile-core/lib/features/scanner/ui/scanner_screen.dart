@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../data/scanner_repository.dart';
 
@@ -18,12 +21,16 @@ class ScannerScreen extends ConsumerStatefulWidget {
 class _ScannerScreenState extends ConsumerState<ScannerScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  late MobileScannerController _cameraController;
   final ImagePicker _imagePicker = ImagePicker();
   bool _isScanning = false;
   bool _hasResult = false;
+  bool _cameraActive = true;
   _ScanResult? _result;
   File? _capturedImage;
-  final List<_ScanResult> _scanHistory = [];
+  List<_ScanResult> _scanHistory = [];
+
+  static const _historyKey = 'sahool_scan_history';
 
   @override
   void initState() {
@@ -32,15 +39,50 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
+    _cameraController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      facing: CameraFacing.back,
+      torchEnabled: false,
+    );
+    _loadScanHistory();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _cameraController.dispose();
     super.dispose();
   }
 
-  Future<void> _startScan() async {
+  // ─────────────────────────────────────────────────────────────────────────
+  // Scan history persistence - حفظ سجل الفحوصات
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _loadScanHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = prefs.getStringList(_historyKey);
+    if (jsonList != null && jsonList.isNotEmpty) {
+      setState(() {
+        _scanHistory = jsonList
+            .map((e) => _ScanResult.fromJson(json.decode(e) as Map<String, dynamic>))
+            .toList();
+      });
+    }
+  }
+
+  Future<void> _persistScanHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Keep last 50 scans to avoid unbounded storage growth
+    final capped = _scanHistory.take(50).toList();
+    final jsonList = capped.map((e) => json.encode(e.toJson())).toList();
+    await prefs.setStringList(_historyKey, jsonList);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Image capture & analysis - التقاط الصور والتحليل
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _captureFromCamera() async {
     final XFile? photo = await _imagePicker.pickImage(
       source: ImageSource.camera,
       imageQuality: 85,
@@ -53,6 +95,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       _isScanning = true;
       _hasResult = false;
       _capturedImage = File(photo.path);
+      _cameraActive = false;
     });
 
     await _analyzeImage(_capturedImage!);
@@ -71,6 +114,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       _isScanning = true;
       _hasResult = false;
       _capturedImage = File(image.path);
+      _cameraActive = false;
     });
 
     await _analyzeImage(_capturedImage!);
@@ -87,8 +131,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       success: (detection) {
         final result = _ScanResult(
           disease: detection.disease,
+          diseaseEn: detection.diseaseEn,
           confidence: detection.confidence,
           severity: detection.severity,
+          severityEn: detection.severityEn,
           treatment: detection.treatment,
           prevention: detection.prevention,
           imagePath: imageFile.path,
@@ -100,13 +146,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
           _result = result;
           _scanHistory.insert(0, result);
         });
+        _persistScanHistory();
       },
       failure: (message, statusCode) {
         // Offline-first fallback: use hardcoded result when API is unavailable
         final result = _ScanResult(
           disease: 'صدأ القمح',
+          diseaseEn: 'Wheat Rust',
           confidence: 0.95,
           severity: 'متوسط',
+          severityEn: 'moderate',
           treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
           prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
           imagePath: imageFile.path,
@@ -118,10 +167,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
           _result = result;
           _scanHistory.insert(0, result);
         });
+        _persistScanHistory();
         // Show non-blocking snackbar indicating offline mode
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('وضع عدم الاتصال: $message'),
+            content: Text('وضع عدم الاتصال | Offline mode: $message'),
             backgroundColor: SahoolColors.warning,
             duration: const Duration(seconds: 3),
           ),
@@ -129,6 +179,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       },
     );
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Flash toggle - تبديل الفلاش
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> _toggleFlash() async {
+    await _cameraController.toggleTorch();
+    // State is reflected via ValueListenableBuilder on torchState
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Navigation helpers - أدوات التنقل
+  // ─────────────────────────────────────────────────────────────────────────
 
   void _showScanHistory() {
     showModalBottomSheet(
@@ -157,7 +220,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'سجل الفحوصات',
+                    'سجل الفحوصات | Scan History',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -167,7 +230,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
               child: _scanHistory.isEmpty
                   ? Center(
                       child: Text(
-                        'لا توجد فحوصات سابقة',
+                        'لا توجد فحوصات سابقة\nNo previous scans',
+                        textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey[400]),
                       ),
                     )
@@ -177,7 +241,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                       itemBuilder: (context, index) {
                         final scan = _scanHistory[index];
                         return ListTile(
-                          leading: scan.imagePath != null
+                          leading: scan.imagePath != null &&
+                                  File(scan.imagePath!).existsSync()
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.file(
@@ -199,7 +264,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                                 ),
                           title: Text(scan.disease),
                           subtitle: Text(
-                            'الدقة: ${(scan.confidence * 100).toInt()}% - ${scan.severity}',
+                            '${scan.diseaseEn} - '
+                            'الدقة | Conf: ${(scan.confidence * 100).toInt()}% - '
+                            '${scan.severity}',
                           ),
                           trailing: scan.scannedAt != null
                               ? Text(
@@ -222,17 +289,32 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
     if (_result == null) return;
     // Navigate to task creation with pre-filled data
     context.push('/tasks', extra: {
-      'prefillTitle': 'علاج: ${_result!.disease}',
-      'prefillDescription': '${_result!.treatment}\n\nالوقاية: ${_result!.prevention}',
+      'prefillTitle': 'علاج: ${_result!.disease} | Treatment: ${_result!.diseaseEn}',
+      'prefillDescription': '${_result!.treatment}\n\nالوقاية | Prevention: ${_result!.prevention}',
       'createNew': true,
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('تمت إضافة "${_result!.disease}" كمهمة'),
+        content: Text(
+          'تمت إضافة "${_result!.disease}" كمهمة | Added as task',
+        ),
         backgroundColor: SahoolColors.success,
       ),
     );
   }
+
+  void _resetForNewScan() {
+    setState(() {
+      _hasResult = false;
+      _result = null;
+      _capturedImage = null;
+      _cameraActive = true;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Build methods - بناء واجهة المستخدم
+  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +323,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       body: Stack(
         children: [
           // Camera preview / captured image
-          if (_capturedImage != null)
+          if (_capturedImage != null && !_cameraActive)
             Positioned.fill(
               child: Image.file(
                 _capturedImage!,
@@ -249,20 +331,12 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
               ),
             )
           else
-            ColoredBox(
-              color: Colors.black,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.camera_alt, size: 64, color: Colors.white.withValues(alpha: 0.3)),
-                    const SizedBox(height: 16),
-                    Text(
-                      'اضغط زر التصوير لالتقاط صورة',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16),
-                    ),
-                  ],
-                ),
+            Positioned.fill(
+              child: MobileScanner(
+                controller: _cameraController,
+                // We do not need barcode detection here; this is purely
+                // for live camera preview. Detections are ignored.
+                onDetect: (_) {},
               ),
             ),
 
@@ -377,18 +451,37 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                 foregroundColor: Colors.white,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.flash_off, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text('الفلاش', style: TextStyle(color: Colors.white)),
-                ],
+            // Flash toggle button with live torch state
+            GestureDetector(
+              onTap: _cameraActive ? _toggleFlash : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: ValueListenableBuilder<TorchState>(
+                  valueListenable: _cameraController.torchState,
+                  builder: (context, torchState, _) {
+                    final isOn = torchState == TorchState.on;
+                    return Row(
+                      children: [
+                        Icon(
+                          isOn ? Icons.flash_on : Icons.flash_off,
+                          color: isOn ? SahoolColors.warning : Colors.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isOn
+                              ? 'الفلاش مفعّل | Flash On'
+                              : 'الفلاش | Flash',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -419,8 +512,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             children: [
               Text(
                 _isScanning
-                    ? 'جارٍ التحليل...'
-                    : 'ضع الورقة المصابة داخل الإطار',
+                    ? 'جارٍ التحليل... | Analyzing...'
+                    : 'ضع الورقة المصابة داخل الإطار\nPlace the affected leaf inside the frame',
+                textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
               const SizedBox(height: 24),
@@ -431,6 +525,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   IconButton(
                     onPressed: _isScanning ? null : _pickFromGallery,
                     icon: const Icon(Icons.photo_library),
+                    tooltip: 'المعرض | Gallery',
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
                       foregroundColor: Colors.white,
@@ -439,7 +534,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   ),
                   // Capture button
                   GestureDetector(
-                    onTap: _isScanning ? null : _startScan,
+                    onTap: _isScanning ? null : _captureFromCamera,
                     child: Container(
                       width: 80,
                       height: 80,
@@ -469,6 +564,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   IconButton(
                     onPressed: _showScanHistory,
                     icon: const Icon(Icons.history),
+                    tooltip: 'السجل | History',
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
                       foregroundColor: Colors.white,
@@ -501,12 +597,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             ),
             const SizedBox(height: 24),
             const Text(
-              'جارٍ تحليل الصورة...',
+              'جارٍ تحليل الصورة...\nAnalyzing image...',
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
-              'يرجى الانتظار',
+              'يرجى الانتظار | Please wait',
               style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             ),
           ],
@@ -573,6 +670,18 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if (_result?.diseaseEn != null &&
+                                _result!.diseaseEn.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  _result!.diseaseEn,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
@@ -586,7 +695,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    'الدقة: ${((_result?.confidence ?? 0) * 100).toInt()}%',
+                                    'الدقة | Conf: ${((_result?.confidence ?? 0) * 100).toInt()}%',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -605,7 +714,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    'الشدة: ${_result?.severity}',
+                                    '${_result?.severity} | ${_result?.severityEn}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -628,7 +737,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   // Treatment
                   _buildSection(
                     icon: Icons.medical_services,
-                    title: 'العلاج المقترح',
+                    title: 'العلاج المقترح | Suggested Treatment',
                     content: _result?.treatment ?? '',
                     color: SahoolColors.info,
                   ),
@@ -638,7 +747,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                   // Prevention
                   _buildSection(
                     icon: Icons.shield,
-                    title: 'الوقاية',
+                    title: 'الوقاية | Prevention',
                     content: _result?.prevention ?? '',
                     color: SahoolColors.success,
                   ),
@@ -650,14 +759,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _hasResult = false;
-                              _result = null;
-                            });
-                          },
+                          onPressed: _resetForNewScan,
                           icon: const Icon(Icons.camera_alt),
-                          label: const Text('مسح جديد'),
+                          label: const Text('مسح جديد | New Scan'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -665,7 +769,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
                         child: ElevatedButton.icon(
                           onPressed: _addAsTask,
                           icon: const Icon(Icons.add_task),
-                          label: const Text('إضافة كمهمة'),
+                          label: const Text('إضافة كمهمة | Add Task'),
                         ),
                       ),
                     ],
@@ -699,11 +803,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             children: [
               Icon(icon, color: color, size: 20),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: color,
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
                 ),
               ),
             ],
@@ -718,8 +824,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
 
 class _ScanResult {
   final String disease;
+  final String diseaseEn;
   final double confidence;
   final String severity;
+  final String severityEn;
   final String treatment;
   final String prevention;
   final String? imagePath;
@@ -727,11 +835,39 @@ class _ScanResult {
 
   _ScanResult({
     required this.disease,
+    this.diseaseEn = '',
     required this.confidence,
     required this.severity,
+    this.severityEn = '',
     required this.treatment,
     required this.prevention,
     this.imagePath,
     this.scannedAt,
   });
+
+  Map<String, dynamic> toJson() => {
+        'disease': disease,
+        'diseaseEn': diseaseEn,
+        'confidence': confidence,
+        'severity': severity,
+        'severityEn': severityEn,
+        'treatment': treatment,
+        'prevention': prevention,
+        'imagePath': imagePath,
+        'scannedAt': scannedAt?.toIso8601String(),
+      };
+
+  factory _ScanResult.fromJson(Map<String, dynamic> json) => _ScanResult(
+        disease: json['disease'] as String? ?? '',
+        diseaseEn: json['diseaseEn'] as String? ?? '',
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
+        severity: json['severity'] as String? ?? '',
+        severityEn: json['severityEn'] as String? ?? '',
+        treatment: json['treatment'] as String? ?? '',
+        prevention: json['prevention'] as String? ?? '',
+        imagePath: json['imagePath'] as String?,
+        scannedAt: json['scannedAt'] != null
+            ? DateTime.tryParse(json['scannedAt'] as String)
+            : null,
+      );
 }

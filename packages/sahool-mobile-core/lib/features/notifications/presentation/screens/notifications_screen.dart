@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/animations/staggered_list_animation.dart';
 import '../../domain/entities/notification_entities.dart';
 import '../providers/notification_provider.dart';
 
@@ -116,7 +117,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                             itemCount: filteredNotifications.length,
                             itemBuilder: (context, index) {
                               final notification = filteredNotifications[index];
-                              return _buildNotificationCard(notification);
+                              return AnimatedListItem(
+                                index: index,
+                                child: _buildNotificationCard(notification),
+                              );
                             },
                           ),
                         ),

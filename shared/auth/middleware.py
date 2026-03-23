@@ -193,14 +193,33 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             Response from the route handler
         """
         tenant_id = None
+        logger = logging.getLogger("sahool.auth.tenant")
 
-        # Try to get tenant from user (if authenticated)
+        # Try to get tenant from JWT user (if authenticated)
+        # استخراج معرف المستأجر من رمز JWT (المصدر الموثوق)
         if hasattr(request.state, "user") and request.state.user:
             tenant_id = request.state.user.tenant_id
 
-        # Fallback to X-Tenant-ID header
-        if not tenant_id:
-            tenant_id = request.headers.get("X-Tenant-ID")
+        header_tenant_id = request.headers.get("X-Tenant-ID")
+
+        if tenant_id:
+            # JWT tenant takes precedence; ignore header even if present
+            # معرف المستأجر من JWT له الأولوية؛ تجاهل الرأس
+            if header_tenant_id and header_tenant_id != tenant_id:
+                logger.warning(
+                    "X-Tenant-ID header (%s) differs from JWT tenant (%s); using JWT value",
+                    header_tenant_id,
+                    tenant_id,
+                )
+        elif header_tenant_id:
+            # No JWT tenant - accept header with deprecation warning
+            # لا يوجد معرف مستأجر في JWT - قبول الرأس مع تحذير إيقاف
+            logger.warning(
+                "Tenant resolved from X-Tenant-ID header (deprecated); "
+                "migrate to JWT-based tenant. header_tenant_id=%s",
+                header_tenant_id,
+            )
+            tenant_id = header_tenant_id
 
         # Add tenant to request state
         request.state.tenant_id = tenant_id

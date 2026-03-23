@@ -24,17 +24,18 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final planAsync = ref.watch(rotationPlanProvider(widget.fieldId));
     final soilHealthTrendAsync =
         ref.watch(soilHealthTrendProvider(widget.fieldId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crop Rotation Plan'),
+        title: Text(isArabic ? 'خطة الدورة الزراعية' : 'Crop Rotation Plan'),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_month),
-            tooltip: 'Calendar View',
+            tooltip: isArabic ? 'عرض التقويم' : 'Calendar View',
             onPressed: () {
               Navigator.push(
                 context,
@@ -47,7 +48,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.grid_on),
-            tooltip: 'Compatibility Matrix',
+            tooltip: isArabic ? 'مصفوفة التوافق' : 'Compatibility Matrix',
             onPressed: () {
               Navigator.push(
                 context,
@@ -66,23 +67,23 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'generate',
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome),
-                    SizedBox(width: 8),
-                    Text('Generate New Plan'),
+                    const Icon(Icons.auto_awesome),
+                    const SizedBox(width: 8),
+                    Text(isArabic ? 'إنشاء خطة جديدة' : 'Generate New Plan'),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'refresh',
                 child: Row(
                   children: [
-                    Icon(Icons.refresh),
-                    SizedBox(width: 8),
-                    Text('Refresh'),
+                    const Icon(Icons.refresh),
+                    const SizedBox(width: 8),
+                    Text(isArabic ? 'تحديث' : 'Refresh'),
                   ],
                 ),
               ),
@@ -99,13 +100,13 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text('Error loading plan: $error'),
+              Text(isArabic ? 'خطأ في تحميل الخطة: $error' : 'Error loading plan: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   ref.invalidate(rotationPlanProvider(widget.fieldId));
                 },
-                child: const Text('Retry'),
+                child: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
               ),
             ],
           ),
@@ -188,7 +189,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${plan.totalYears}-Year Rotation Plan',
+                  _isArabic(context)
+                      ? 'خطة دورة زراعية لمدة ${plan.totalYears} سنوات'
+                      : '${plan.totalYears}-Year Rotation Plan',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade700,
@@ -196,7 +199,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Updated: ${_formatDate(plan.updatedAt)}',
+                  _isArabic(context)
+                      ? 'آخر تحديث: ${_formatDate(plan.updatedAt)}'
+                      : 'Updated: ${_formatDate(plan.updatedAt)}',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade600,
@@ -253,9 +258,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                       color: Colors.orange,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'CURRENT',
-                      style: TextStyle(
+                    child: Text(
+                      _isArabic(context) ? 'الحالي' : 'CURRENT',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -298,14 +303,18 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          year.crop!.nameEn,
+                          _isArabic(context)
+                              ? (year.crop!.nameAr ?? year.crop!.nameEn)
+                              : year.crop!.nameEn,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          year.crop!.nameAr,
+                          _isArabic(context)
+                              ? year.crop!.nameEn
+                              : (year.crop!.nameAr ?? ''),
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey.shade600,
@@ -333,13 +342,17 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                     if (year.plantingDate != null) ...[
                       const Icon(Icons.calendar_today, size: 16),
                       const SizedBox(width: 4),
-                      Text('Planting: ${_formatDate(year.plantingDate!)}'),
+                      Text(_isArabic(context)
+                          ? 'الزراعة: ${_formatDate(year.plantingDate!)}'
+                          : 'Planting: ${_formatDate(year.plantingDate!)}'),
                     ],
                     const Spacer(),
                     if (year.harvestDate != null) ...[
                       const Icon(Icons.calendar_today, size: 16),
                       const SizedBox(width: 4),
-                      Text('Harvest: ${_formatDate(year.harvestDate!)}'),
+                      Text(_isArabic(context)
+                          ? 'الحصاد: ${_formatDate(year.harvestDate!)}'
+                          : 'Harvest: ${_formatDate(year.harvestDate!)}'),
                     ],
                   ],
                 ),
@@ -352,7 +365,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                   children: [
                     const Icon(Icons.agriculture, size: 16, color: Colors.green),
                     const SizedBox(width: 4),
-                    Text('Yield: ${year.yieldAmount!.toStringAsFixed(1)} tons/ha'),
+                    Text(_isArabic(context)
+                        ? 'الإنتاج: ${year.yieldAmount!.toStringAsFixed(1)} طن/هكتار'
+                        : 'Yield: ${year.yieldAmount!.toStringAsFixed(1)} tons/ha'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -363,7 +378,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 children: [
                   const Icon(Icons.timelapse, size: 16),
                   const SizedBox(width: 4),
-                  Text('Growing period: ${year.crop!.growingDays} days'),
+                  Text(_isArabic(context)
+                      ? 'فترة النمو: ${year.crop!.growingDays} يوم'
+                      : 'Growing period: ${year.crop!.growingDays} days'),
                 ],
               ),
             ] else
@@ -371,7 +388,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'No crop planned for this year',
+                    _isArabic(context)
+                        ? 'لا يوجد محصول مخطط لهذا العام'
+                        : 'No crop planned for this year',
                     style: TextStyle(
                       fontSize: 16,
                       fontStyle: FontStyle.italic,
@@ -383,9 +402,11 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
             // Soil health indicators
             if (year.soilHealthBefore != null) ...[
               const Divider(height: 24),
-              const Text(
-                'Soil Health (before planting)',
-                style: TextStyle(
+              Text(
+                _isArabic(context)
+                    ? 'تحليل صحة التربة (قبل الزراعة)'
+                    : 'Soil Health (before planting)',
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -396,9 +417,11 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
 
             if (year.soilHealthAfter != null) ...[
               const SizedBox(height: 16),
-              const Text(
-                'Soil Health (after harvest)',
-                style: TextStyle(
+              Text(
+                _isArabic(context)
+                    ? 'تحليل صحة التربة (بعد الحصاد)'
+                    : 'Soil Health (after harvest)',
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -411,7 +434,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
             if (year.notes != null) ...[
               const Divider(height: 24),
               Text(
-                'Notes: ${year.notes}',
+                _isArabic(context)
+                    ? 'ملاحظات: ${year.notes}'
+                    : 'Notes: ${year.notes}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade700,
@@ -426,18 +451,19 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
   }
 
   Widget _buildSoilHealthIndicators(SoilHealth health) {
+    final isAr = _isArabic(context);
     return Column(
       children: [
-        _buildHealthBar('Nitrogen (N)', health.nitrogen, Colors.blue),
+        _buildHealthBar(isAr ? 'النيتروجين (N)' : 'Nitrogen (N)', health.nitrogen, Colors.blue),
         const SizedBox(height: 8),
-        _buildHealthBar('Phosphorus (P)', health.phosphorus, Colors.orange),
+        _buildHealthBar(isAr ? 'الفوسفور (P)' : 'Phosphorus (P)', health.phosphorus, Colors.orange),
         const SizedBox(height: 8),
-        _buildHealthBar('Potassium (K)', health.potassium, Colors.purple),
+        _buildHealthBar(isAr ? 'البوتاسيوم (K)' : 'Potassium (K)', health.potassium, Colors.purple),
         const SizedBox(height: 8),
-        _buildHealthBar('Organic Matter', health.organicMatter, Colors.brown),
+        _buildHealthBar(isAr ? 'المادة العضوية' : 'Organic Matter', health.organicMatter, Colors.brown),
         const SizedBox(height: 8),
         _buildHealthBar(
-            'Water Retention', health.waterRetention, Colors.lightBlue),
+            isAr ? 'الاحتفاظ بالماء' : 'Water Retention', health.waterRetention, Colors.lightBlue),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -510,9 +536,9 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Rotation Summary',
-              style: TextStyle(
+            Text(
+              _isArabic(context) ? 'ملخص الدورة الزراعية' : 'Rotation Summary',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -522,7 +548,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
               children: [
                 Expanded(
                   child: _buildSummaryCard(
-                    'Total Years',
+                    _isArabic(context) ? 'إجمالي السنوات' : 'Total Years',
                     plan.totalYears.toString(),
                     Icons.calendar_today,
                     Colors.blue,
@@ -531,7 +557,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildSummaryCard(
-                    'Families Used',
+                    _isArabic(context) ? 'العائلات المستخدمة' : 'Families Used',
                     plan.familiesUsed.length.toString(),
                     Icons.category,
                     Colors.green,
@@ -544,7 +570,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
               children: [
                 Expanded(
                   child: _buildSummaryCard(
-                    'Completed',
+                    _isArabic(context) ? 'المكتملة' : 'Completed',
                     plan.pastRotations.length.toString(),
                     Icons.check_circle,
                     Colors.grey,
@@ -553,7 +579,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildSummaryCard(
-                    'Upcoming',
+                    _isArabic(context) ? 'القادمة' : 'Upcoming',
                     plan.futureRotations.length.toString(),
                     Icons.upcoming,
                     Colors.orange,
@@ -613,6 +639,10 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  bool _isArabic(BuildContext context) {
+    return Localizations.localeOf(context).languageCode == 'ar';
+  }
+
   void _showGeneratePlanDialog() {
     int years = 5;
     bool prioritizeSoilHealth = true;
@@ -622,12 +652,12 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Generate Rotation Plan'),
+          title: Text(_isArabic(context) ? 'إنشاء خطة دورة زراعية' : 'Generate Rotation Plan'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Number of years:'),
+              Text(_isArabic(context) ? 'عدد السنوات:' : 'Number of years:'),
               Slider(
                 value: years.toDouble(),
                 min: 3,
@@ -641,7 +671,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 },
               ),
               CheckboxListTile(
-                title: const Text('Prioritize soil health'),
+                title: Text(_isArabic(context) ? 'إعطاء الأولوية لصحة التربة' : 'Prioritize soil health'),
                 value: prioritizeSoilHealth,
                 onChanged: (value) {
                   setState(() {
@@ -650,7 +680,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                 },
               ),
               CheckboxListTile(
-                title: const Text('Include nitrogen fixers'),
+                title: Text(_isArabic(context) ? 'تضمين مثبتات النيتروجين' : 'Include nitrogen fixers'),
                 value: includeNitrogenFixers,
                 onChanged: (value) {
                   setState(() {
@@ -663,7 +693,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(_isArabic(context) ? 'إلغاء' : 'Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -679,7 +709,7 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
                   },
                 );
               },
-              child: const Text('Generate'),
+              child: Text(_isArabic(context) ? 'إنشاء' : 'Generate'),
             ),
           ],
         ),

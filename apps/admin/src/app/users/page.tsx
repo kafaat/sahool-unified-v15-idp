@@ -4,6 +4,7 @@
 // صفحة إدارة المستخدمين - ديناميكية مع جميع عمليات CRUD
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 import Header from "@/components/layout/Header";
 import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
@@ -36,6 +37,7 @@ interface User extends Omit<ApiUser, "role"> {
 }
 
 export default function UsersPage() {
+  const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,7 +101,7 @@ export default function UsersPage() {
       logger.info("User created successfully");
     } catch (error) {
       logger.error("Failed to create user:", error);
-      alert("فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to create user", "فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +117,7 @@ export default function UsersPage() {
       logger.info("User updated successfully");
     } catch (error) {
       logger.error("Failed to update user:", error);
-      alert("فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to update user", "فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,7 +133,7 @@ export default function UsersPage() {
       logger.info("User deleted successfully");
     } catch (error) {
       logger.error("Failed to delete user:", error);
-      alert("فشل حذف المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to delete user", "فشل حذف المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -500,6 +502,7 @@ function UserFormModal({
   onSubmit: (data: CreateUserData | UpdateUserData) => void;
   isSubmitting: boolean;
 }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -511,11 +514,11 @@ function UserFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       // Create mode - password required
       if (!formData.password) {
-        alert("يرجى إدخال كلمة المرور");
+        toast.warning("Please enter a password", "يرجى إدخال كلمة المرور");
         return;
       }
       onSubmit(formData as CreateUserData);

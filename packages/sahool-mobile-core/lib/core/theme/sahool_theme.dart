@@ -154,7 +154,7 @@ class SahoolTheme {
       // تحسين الكروت لتكون بارزة
       cardTheme: CardThemeData(
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: Colors.white,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -166,7 +166,7 @@ class SahoolTheme {
           backgroundColor: SahoolColors.primary,
           foregroundColor: Colors.white,
           elevation: 6,
-          shadowColor: SahoolColors.primary.withOpacity(0.4),
+          shadowColor: SahoolColors.primary.withValues(alpha: 0.4),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           minimumSize: const Size(120, 56), // حجم أدنى كبير
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -257,7 +257,7 @@ class SahoolTheme {
       // Chips
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey[200],
-        selectedColor: SahoolColors.primary.withOpacity(0.2),
+        selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontSize: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -335,7 +335,7 @@ class SahoolTheme {
 class SahoolShadows {
   static List<BoxShadow> get small => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 8,
       offset: const Offset(0, 2),
     ),
@@ -343,7 +343,7 @@ class SahoolShadows {
 
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.12),
+      color: Colors.black.withValues(alpha: 0.12),
       blurRadius: 16,
       offset: const Offset(0, 4),
     ),
@@ -351,7 +351,7 @@ class SahoolShadows {
 
   static List<BoxShadow> get large => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.16),
+      color: Colors.black.withValues(alpha: 0.16),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
@@ -359,33 +359,14 @@ class SahoolShadows {
 
   static List<BoxShadow> colored(Color color) => [
     BoxShadow(
-      color: color.withOpacity(0.3),
+      color: color.withValues(alpha: 0.3),
       blurRadius: 12,
       offset: const Offset(0, 6),
     ),
   ];
 }
 
-/// Border Radius Presets - زوايا جاهزة
-class SahoolRadius {
-  static const double small = 8.0;
-  static const double medium = 12.0;
-  static const double large = 16.0;
-  static const double xlarge = 20.0;
-  static const double circular = 100.0;
-
-  static BorderRadius get smallRadius => BorderRadius.circular(small);
-  static BorderRadius get mediumRadius => BorderRadius.circular(medium);
-  static BorderRadius get largeRadius => BorderRadius.circular(large);
-  static BorderRadius get xlargeRadius => BorderRadius.circular(xlarge);
-}
-
-/// Spacing Presets - مسافات جاهزة
-class SahoolSpacing {
-  static const double xs = 4.0;
-  static const double sm = 8.0;
-  static const double md = 16.0;
-  static const double lg = 24.0;
-  static const double xl = 32.0;
-  static const double xxl = 48.0;
-}
+// Border Radius and Spacing tokens are now centralized in spacing.dart.
+// Import SahoolRadius and SahoolSpacing from 'spacing.dart' instead.
+// انتقلت رموز نصف القطر والتباعد إلى spacing.dart
+export 'spacing.dart';

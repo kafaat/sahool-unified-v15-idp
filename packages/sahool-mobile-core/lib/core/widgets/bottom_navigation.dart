@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
 import '../haptics/haptic_service.dart';
+import '../accessibility/semantics_helper.dart';
 
 /// Bottom Navigation Bar for SAHOOL App
 /// شريط التنقل السفلي لتطبيق سهول
@@ -24,7 +25,7 @@ class SahoolBottomNavigation extends ConsumerWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -37,7 +38,7 @@ class SahoolBottomNavigation extends ConsumerWidget {
           selectedIndex: currentIndex,
           onDestinationSelected: (index) => _onItemTapped(context, index),
           backgroundColor: Colors.white,
-          indicatorColor: SahoolTheme.primary.withOpacity(0.1),
+          indicatorColor: SahoolTheme.primary.withValues(alpha: 0.1),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: _buildDestinations(),
         ),
@@ -49,7 +50,10 @@ class SahoolBottomNavigation extends ConsumerWidget {
     return [
       // Home
       NavigationDestination(
-        icon: Icon(NavigationConstants.getIcon('home')),
+        icon: Semantics(
+          label: '${SahoolSemantics.homeTabEn} - ${SahoolSemantics.homeTab}',
+          child: Icon(NavigationConstants.getIcon('home')),
+        ),
         selectedIcon: Icon(
           NavigationConstants.getIcon('home'),
           color: SahoolTheme.primary,
@@ -59,7 +63,10 @@ class SahoolBottomNavigation extends ConsumerWidget {
 
       // Fields
       NavigationDestination(
-        icon: Icon(NavigationConstants.getIcon('fields')),
+        icon: Semantics(
+          label: '${SahoolSemantics.fieldsTabEn} - ${SahoolSemantics.fieldsTab}',
+          child: Icon(NavigationConstants.getIcon('fields')),
+        ),
         selectedIcon: Icon(
           NavigationConstants.getIcon('fields'),
           color: SahoolTheme.primary,
@@ -69,7 +76,10 @@ class SahoolBottomNavigation extends ConsumerWidget {
 
       // Monitor
       NavigationDestination(
-        icon: Icon(NavigationConstants.getIcon('monitor')),
+        icon: Semantics(
+          label: '${SahoolSemantics.monitorTabEn} - ${SahoolSemantics.monitorTab}',
+          child: Icon(NavigationConstants.getIcon('monitor')),
+        ),
         selectedIcon: Icon(
           NavigationConstants.getIcon('monitor'),
           color: SahoolTheme.primary,
@@ -79,7 +89,10 @@ class SahoolBottomNavigation extends ConsumerWidget {
 
       // Market
       NavigationDestination(
-        icon: Icon(NavigationConstants.getIcon('market')),
+        icon: Semantics(
+          label: '${SahoolSemantics.marketTabEn} - ${SahoolSemantics.marketTab}',
+          child: Icon(NavigationConstants.getIcon('market')),
+        ),
         selectedIcon: Icon(
           NavigationConstants.getIcon('market'),
           color: SahoolTheme.primary,
@@ -89,7 +102,10 @@ class SahoolBottomNavigation extends ConsumerWidget {
 
       // Profile
       NavigationDestination(
-        icon: _buildProfileIcon(),
+        icon: Semantics(
+          label: '${SahoolSemantics.profileTabEn} - ${SahoolSemantics.profileTab}',
+          child: _buildProfileIcon(),
+        ),
         selectedIcon: Icon(
           NavigationConstants.getIcon('profile'),
           color: SahoolTheme.primary,

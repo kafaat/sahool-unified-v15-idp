@@ -10,6 +10,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/animations/staggered_list_animation.dart';
+import '../../core/widgets/last_updated_indicator.dart';
 import 'marketplace_provider.dart';
 
 /// شاشة السوق
@@ -22,7 +24,11 @@ class MarketplaceScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: CustomScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(marketplaceProvider);
+        },
+        child: CustomScrollView(
         slivers: [
           // App Bar
           _MarketplaceAppBar(cartCount: marketState.cartItemCount),
@@ -95,7 +101,10 @@ class MarketplaceScreen extends ConsumerWidget {
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             final product = marketState.products[index];
-                            return _ProductCard(product: product);
+                            return AnimatedListItem(
+                              index: index,
+                              child: _ProductCard(product: product),
+                            );
                           },
                           childCount: marketState.products.length,
                         ),
@@ -107,6 +116,7 @@ class MarketplaceScreen extends ConsumerWidget {
             child: SizedBox(height: 100),
           ),
         ],
+        ),
       ),
       // Cart FAB
       floatingActionButton: marketState.cartItemCount > 0

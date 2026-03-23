@@ -10,6 +10,88 @@ import '../../../core/utils/input_validator.dart';
 import '../services/otp_service.dart';
 import 'biometric_login_widget.dart';
 
+/// Supported country for phone login
+/// البلد المدعوم لتسجيل الدخول بالهاتف
+class SupportedCountry {
+  final String code;
+  final String dialCode;
+  final String flag;
+  final String nameAr;
+  final String nameEn;
+  final String hintText;
+  final int phoneLength;
+
+  const SupportedCountry({
+    required this.code,
+    required this.dialCode,
+    required this.flag,
+    required this.nameAr,
+    required this.nameEn,
+    required this.hintText,
+    required this.phoneLength,
+  });
+
+  String get displayName => '$nameAr / $nameEn';
+}
+
+/// List of supported countries - البلدان المدعومة
+const List<SupportedCountry> supportedCountries = [
+  SupportedCountry(
+    code: 'YE',
+    dialCode: '+967',
+    flag: '\u{1F1FE}\u{1F1EA}',
+    nameAr: 'اليمن',
+    nameEn: 'Yemen',
+    hintText: '7XX XXX XXX',
+    phoneLength: 9,
+  ),
+  SupportedCountry(
+    code: 'SA',
+    dialCode: '+966',
+    flag: '\u{1F1F8}\u{1F1E6}',
+    nameAr: 'السعودية',
+    nameEn: 'Saudi Arabia',
+    hintText: '5XX XXX XXX',
+    phoneLength: 9,
+  ),
+  SupportedCountry(
+    code: 'IQ',
+    dialCode: '+964',
+    flag: '\u{1F1EE}\u{1F1F6}',
+    nameAr: 'العراق',
+    nameEn: 'Iraq',
+    hintText: '7XXX XXX XXXX',
+    phoneLength: 10,
+  ),
+  SupportedCountry(
+    code: 'EG',
+    dialCode: '+20',
+    flag: '\u{1F1EA}\u{1F1EC}',
+    nameAr: 'مصر',
+    nameEn: 'Egypt',
+    hintText: '1XX XXXX XXXX',
+    phoneLength: 10,
+  ),
+  SupportedCountry(
+    code: 'JO',
+    dialCode: '+962',
+    flag: '\u{1F1EF}\u{1F1F4}',
+    nameAr: 'الأردن',
+    nameEn: 'Jordan',
+    hintText: '7XX XXX XXXX',
+    phoneLength: 9,
+  ),
+  SupportedCountry(
+    code: 'AE',
+    dialCode: '+971',
+    flag: '\u{1F1E6}\u{1F1EA}',
+    nameAr: 'الإمارات',
+    nameEn: 'UAE',
+    hintText: '5XX XXX XXXX',
+    phoneLength: 9,
+  ),
+];
+
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
 /// تصميم بسيط للمزارعين الذين لا يحفظون كلمات المرور
 /// يدعم تسجيل الدخول بالبصمة إذا كانت مفعّلة
@@ -34,6 +116,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Timer? _resendCountdownTimer;
   String? _phoneErrorMessage;
   String? _otpErrorMessage;
+
+  // Selected country - default Yemen
+  SupportedCountry _selectedCountry = supportedCountries.first;
 
   // Biometric state
   bool _isBiometricAvailable = false;
@@ -113,8 +198,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _sendOtp() async {
-    // Validate phone number
-    final validation = InputValidator.validateYemenPhone(_phoneController.text);
+    // Validate phone number per selected country
+    final validation = InputValidator.validateInternationalPhone(
+      _phoneController.text,
+      _selectedCountry.dialCode,
+    );
 
     if (!validation.isValid) {
       setState(() {
@@ -131,7 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       // إرسال رمز التحقق عبر خدمة OTP الفعلية
       final otpService = ref.read(otpServiceProvider);
-      final phoneWithCode = '+967${_phoneController.text}';
+      final phoneWithCode = '${_selectedCountry.dialCode}${_phoneController.text}';
       final result = await otpService.sendOTP(
         identifier: phoneWithCode,
         channel: OTPChannel.sms,
@@ -209,7 +297,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       // التحقق من رمز OTP عبر الخدمة الفعلية
       final otpService = ref.read(otpServiceProvider);
-      final phoneWithCode = '+967${_phoneController.text}';
+      final phoneWithCode = '${_selectedCountry.dialCode}${_phoneController.text}';
       final result = await otpService.verifyOTP(
         identifier: phoneWithCode,
         otp: otp,
@@ -467,28 +555,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Text('المساعدة'),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'كيفية تسجيل الدخول:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Text('1. أدخل رقم هاتفك اليمني (9 أرقام تبدأ بـ 7)'),
-            SizedBox(height: 4),
-            Text('2. اضغط "أرسل الرمز"'),
-            SizedBox(height: 4),
-            Text('3. أدخل رمز التحقق المكون من 6 أرقام'),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 8),
+            const Text('1. اختر بلدك من قائمة رموز البلدان'),
+            const SizedBox(height: 4),
+            Text('2. أدخل رقم هاتفك (${_selectedCountry.phoneLength} أرقام)'),
+            const SizedBox(height: 4),
+            const Text('3. اضغط "أرسل الرمز"'),
+            const SizedBox(height: 4),
+            const Text('4. أدخل رمز التحقق المكون من 6 أرقام'),
+            const SizedBox(height: 16),
+            const Text(
+              'البلدان المدعومة:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            ...supportedCountries.map((c) => Text(
+              '${c.flag} ${c.nameAr} (${c.dialCode})',
+            )),
+            const SizedBox(height: 16),
+            const Text(
               'للتواصل مع الدعم الفني:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Text('البريد: support@sahool.app'),
-            Text('الهاتف: +967-1-XXX-XXX'),
+            const SizedBox(height: 8),
+            const Text('البريد: support@sahool.app'),
+            const Text('الهاتف: +967-1-XXX-XXX'),
           ],
         ),
         actions: [
@@ -501,15 +600,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  /// عرض رسالة اليمن فقط عند الضغط على رمز البلد
-  void _showCountryCodeInfo() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('التطبيق يدعم حالياً أرقام الهواتف اليمنية فقط (+967)'),
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 3),
+  /// عرض قائمة البلدان المدعومة
+  void _showCountrySelector() {
+    showModalBottomSheet<SupportedCountry>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-    );
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'اختر البلد / Select Country',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ...supportedCountries.map((country) => ListTile(
+              leading: Text(country.flag, style: const TextStyle(fontSize: 28)),
+              title: Text(
+                '${country.nameAr} / ${country.nameEn}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              trailing: Text(
+                country.dialCode,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: country.code == _selectedCountry.code
+                      ? SahoolColors.primary
+                      : Colors.grey[600],
+                ),
+              ),
+              selected: country.code == _selectedCountry.code,
+              selectedTileColor: SahoolColors.primary.withValues(alpha: 0.08),
+              onTap: () {
+                Navigator.of(context).pop(country);
+              },
+            )),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    ).then((selected) {
+      if (selected != null && selected.code != _selectedCountry.code) {
+        setState(() {
+          _selectedCountry = selected;
+          _phoneController.clear();
+          _phoneErrorMessage = null;
+        });
+      }
+    });
   }
 
   Widget _buildPhoneInput() {
@@ -528,25 +675,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           child: Row(
             children: [
-              // Country code - اليمن فقط
+              // Country code selector - اختيار البلد
               GestureDetector(
-                onTap: _showCountryCodeInfo,
+                onTap: _showCountrySelector,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                   decoration: BoxDecoration(
                     border: Border(
                       left: BorderSide(color: Colors.grey[300]!),
                     ),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        '🇾🇪',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                      const SizedBox(width: 8),
                       Text(
-                        '+967',
+                        _selectedCountry.flag,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _selectedCountry.dialCode,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -554,7 +702,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       const SizedBox(width: 2),
-                      Icon(Icons.info_outline, color: Colors.grey[500], size: 16),
+                      Icon(Icons.arrow_drop_down, color: Colors.grey[500], size: 20),
                     ],
                   ),
                 ),
@@ -569,12 +717,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
                   ),
-                  decoration: const InputDecoration(
-                    hintText: '7XX XXX XXX',
+                  decoration: InputDecoration(
+                    hintText: _selectedCountry.hintText,
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   ),
-                  inputFormatters: InputValidator.phoneFormatters(maxLength: 9),
+                  inputFormatters: InputValidator.phoneFormatters(
+                    maxLength: _selectedCountry.phoneLength,
+                  ),
                   onChanged: (_) => setState(() {
                     // Clear error message when user types
                     _phoneErrorMessage = null;

@@ -8,6 +8,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/Toast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -28,6 +29,7 @@ interface Session {
 }
 
 export default function SessionManagementPage() {
+  const { toast } = useToast();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,10 +75,7 @@ export default function SessionManagementPage() {
       // Refresh sessions list
       await fetchSessions();
     } catch {
-      alert(locale === 'ar'
-        ? 'فشل إلغاء الجلسة'
-        : 'Failed to revoke session'
-      );
+      toast.error('Failed to revoke session', 'فشل إلغاء الجلسة');
     }
   };
 

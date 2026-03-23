@@ -169,7 +169,10 @@ class ConnectivityBanner extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return AnimatedContainer(
+    return Semantics(
+      label: _getSemanticLabel(connectivity),
+      liveRegion: true,
+      child: AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -225,7 +228,22 @@ class ConnectivityBanner extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
+  }
+
+  String _getSemanticLabel(ConnectivityState state) {
+    switch (state.status) {
+      case ConnectionStatus.online:
+        if (state.pendingSyncCount > 0) {
+          return 'Online - ${state.pendingSyncCount} items pending sync | متصل - ${state.pendingSyncCount} عناصر في انتظار المزامنة';
+        }
+        return 'Online - متصل';
+      case ConnectionStatus.offline:
+        return 'Offline - لا يوجد اتصال';
+      case ConnectionStatus.syncing:
+        return 'Syncing - جاري المزامنة';
+    }
   }
 
   Color _getBackgroundColor(ConnectionStatus status) {
@@ -281,7 +299,7 @@ class ConnectivityIndicator extends ConsumerWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: _getColor(connectivity.status).withOpacity(0.1),
+          color: _getColor(connectivity.status).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(

@@ -134,7 +134,7 @@ class GlassWeatherCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _getWeatherColor(condition).withOpacity(0.2),
+                    color: _getWeatherColor(condition).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -155,7 +155,7 @@ class GlassWeatherCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+                      (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                   ),
@@ -209,7 +209,7 @@ class GlassWeatherCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.2),
+        color: Colors.green.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -382,7 +382,7 @@ class GlassFieldCard extends StatelessWidget {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.3),
+                                Colors.black.withValues(alpha: 0.3),
                               ],
                             ),
                           ),
@@ -490,9 +490,9 @@ class GlassFieldCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: healthColor.withOpacity(0.5)),
+            border: Border.all(color: healthColor.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -525,9 +525,9 @@ class GlassFieldCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         status,
@@ -803,7 +803,7 @@ class _GlassStatCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.15),
+                    color: iconColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(stat.icon, size: 20, color: iconColor),
@@ -813,7 +813,7 @@ class _GlassStatCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: (stat.trendPositive ? Colors.green : Colors.red)
-                          .withOpacity(0.15),
+                          .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -937,7 +937,7 @@ class GlassAlertCard extends StatelessWidget {
       opacity: isDark ? 0.15 : 0.2,
       borderRadius: 16,
       padding: const EdgeInsets.all(16),
-      borderColor: alertColor.withOpacity(0.3),
+      borderColor: alertColor.withValues(alpha: 0.3),
       child: Row(
         children: [
           // Icon
@@ -945,7 +945,7 @@ class GlassAlertCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: alertColor.withOpacity(0.15),
+                color: alertColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(effectiveIcon, size: 24, color: alertColor),
@@ -1082,7 +1082,7 @@ class GlassQuickAction extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: effectiveColor.withOpacity(0.15),
+                    color: effectiveColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(icon, size: 28, color: effectiveColor),

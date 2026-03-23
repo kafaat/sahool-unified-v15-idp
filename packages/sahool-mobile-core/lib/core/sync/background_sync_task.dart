@@ -46,7 +46,16 @@ Future<bool> _executeBackgroundSync() async {
   try {
     // Get tenant ID from secure storage (not plaintext SharedPreferences)
     final secureStorage = SecureStorageService();
-    final tenantId = await secureStorage.read('tenant_id') ?? EnvConfig.defaultTenantId;
+    final tenantId = await secureStorage.read('tenant_id');
+    // Tenant isolation: never fall back to a default tenant ID
+    // عزل المستأجر: لا تستخدم معرف مستأجر افتراضي أبداً
+    if (tenantId == null || tenantId.isEmpty) {
+      await _logBackgroundInfo(
+        'Background sync skipped: no tenant_id available. User must authenticate first.',
+        db: database,
+      );
+      return false;
+    }
     final prefs = await SharedPreferences.getInstance();
 
     // Check if we have pending items

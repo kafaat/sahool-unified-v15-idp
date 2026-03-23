@@ -28,7 +28,12 @@ class WalletScreen extends ConsumerWidget {
             )
           : walletState.error != null
               ? _buildErrorView(walletState.error!, ref)
-              : _buildWalletView(context, ref, walletState),
+              : RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(walletProvider);
+              },
+              child: _buildWalletView(context, ref, walletState),
+            ),
     );
   }
 

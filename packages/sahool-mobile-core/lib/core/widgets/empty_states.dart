@@ -55,7 +55,7 @@ class EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveIconColor = iconColor ?? SahoolColors.sageGreen;
     final effectiveBackgroundColor =
-        backgroundColor ?? effectiveIconColor.withOpacity(0.15);
+        backgroundColor ?? effectiveIconColor.withValues(alpha: 0.15);
 
     return Center(
       child: Padding(
@@ -201,7 +201,7 @@ class ErrorStateWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: (iconColor ?? SahoolColors.danger).withOpacity(0.1),
+                color: (iconColor ?? SahoolColors.danger).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

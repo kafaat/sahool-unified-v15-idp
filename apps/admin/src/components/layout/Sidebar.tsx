@@ -69,6 +69,7 @@ import {
   Wheat,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
+import { t } from "@/lib/i18n";
 import dynamic from "next/dynamic";
 
 // Lazy-load mobile drawer overlay -- only needed on small screens after user interaction
@@ -86,9 +87,9 @@ const MobileSidebarCloseButtonLazy = dynamic(
   { ssr: false },
 );
 
-// Main navigation sections
-const mainNavigation = [
-  { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+// Main navigation sections - use getter for i18n
+const getMainNavigation = () => [
+  { name: t("nav.dashboard"), href: "/dashboard", icon: LayoutDashboard },
 ];
 
 // Operations section

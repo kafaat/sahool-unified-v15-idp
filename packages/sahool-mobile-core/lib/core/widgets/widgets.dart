@@ -22,3 +22,8 @@ export 'connectivity_widget.dart';
 
 // Permission Gates
 export 'permission_gate.dart';
+
+// Offline-First Indicators
+// مؤشرات العمل بدون اتصال
+export 'last_updated_indicator.dart';
+export 'cached_data_badge.dart';

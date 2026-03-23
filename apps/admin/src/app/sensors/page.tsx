@@ -4,6 +4,7 @@
 // صفحة إدارة المستشعرات - ديناميكية مع جميع عمليات CRUD
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/api";
 
 export default function SensorsPage() {
+  const { toast } = useToast();
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,7 +102,7 @@ export default function SensorsPage() {
       logger.info("IoT device registered successfully");
     } catch (error) {
       logger.error("Failed to register device:", error);
-      alert("فشل تسجيل الجهاز. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to register device", "فشل تسجيل الجهاز. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +118,7 @@ export default function SensorsPage() {
       logger.info("IoT device updated successfully");
     } catch (error) {
       logger.error("Failed to update device:", error);
-      alert("فشل تحديث الجهاز. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to update device", "فشل تحديث الجهاز. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +134,7 @@ export default function SensorsPage() {
       logger.info("IoT device deleted successfully");
     } catch (error) {
       logger.error("Failed to delete device:", error);
-      alert("فشل حذف الجهاز. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to delete device", "فشل حذف الجهاز. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }

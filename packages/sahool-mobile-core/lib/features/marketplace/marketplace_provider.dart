@@ -284,6 +284,7 @@ class MarketplaceState {
   final ProductCategory? selectedCategory;
   final bool isLoading;
   final String? error;
+  final DateTime? lastUpdatedAt;
 
   const MarketplaceState({
     this.products = const [],
@@ -293,6 +294,7 @@ class MarketplaceState {
     this.selectedCategory,
     this.isLoading = false,
     this.error,
+    this.lastUpdatedAt,
   });
 
   MarketplaceState copyWith({
@@ -304,6 +306,7 @@ class MarketplaceState {
     bool clearCategory = false,
     bool? isLoading,
     String? error,
+    DateTime? lastUpdatedAt,
   }) {
     return MarketplaceState(
       products: products ?? this.products,
@@ -313,6 +316,7 @@ class MarketplaceState {
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
     );
   }
 
@@ -384,6 +388,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         selectedCategory: category,
         clearCategory: category == null,
         isLoading: false,
+        lastUpdatedAt: DateTime.now(),
       );
     } on DioException catch (e) {
       if (!mounted) return;

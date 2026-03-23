@@ -49,10 +49,10 @@ class GlassColors {
   // ─────────────────────────────────────────────────────────────────────────
 
   /// Border color for light mode
-  Color get borderLight => const Color(0xFFFFFFFF).withOpacity(0.3);
+  Color get borderLight => const Color(0xFFFFFFFF).withValues(alpha: 0.3);
 
   /// Border color for dark mode
-  Color get borderDark => const Color(0xFFFFFFFF).withOpacity(0.1);
+  Color get borderDark => const Color(0xFFFFFFFF).withValues(alpha: 0.1);
 
   /// Current mode border color
   Color get border => brightness == Brightness.light ? borderLight : borderDark;
@@ -75,10 +75,10 @@ class GlassColors {
   // ─────────────────────────────────────────────────────────────────────────
 
   /// Overlay for light mode (subtle darkening)
-  Color get overlayLight => Colors.black.withOpacity(0.05);
+  Color get overlayLight => Colors.black.withValues(alpha: 0.05);
 
   /// Overlay for dark mode (subtle lightening)
-  Color get overlayDark => Colors.white.withOpacity(0.05);
+  Color get overlayDark => Colors.white.withValues(alpha: 0.05);
 
   /// Current mode overlay
   Color get overlay => brightness == Brightness.light ? overlayLight : overlayDark;
@@ -572,7 +572,7 @@ class GlassShadows {
   /// Subtle shadow for light mode
   static List<BoxShadow> subtleLight = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       blurRadius: 10,
       spreadRadius: 0,
       offset: const Offset(0, 4),
@@ -582,7 +582,7 @@ class GlassShadows {
   /// Subtle shadow for dark mode
   static List<BoxShadow> subtleDark = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.2),
+      color: Colors.black.withValues(alpha: 0.2),
       blurRadius: 10,
       spreadRadius: 0,
       offset: const Offset(0, 4),
@@ -592,7 +592,7 @@ class GlassShadows {
   /// Medium shadow for light mode
   static List<BoxShadow> mediumLight = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.1),
+      color: Colors.black.withValues(alpha: 0.1),
       blurRadius: 20,
       spreadRadius: 2,
       offset: const Offset(0, 8),
@@ -602,7 +602,7 @@ class GlassShadows {
   /// Medium shadow for dark mode
   static List<BoxShadow> mediumDark = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.3),
+      color: Colors.black.withValues(alpha: 0.3),
       blurRadius: 20,
       spreadRadius: 2,
       offset: const Offset(0, 8),
@@ -612,7 +612,7 @@ class GlassShadows {
   /// Heavy shadow for light mode
   static List<BoxShadow> heavyLight = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.15),
+      color: Colors.black.withValues(alpha: 0.15),
       blurRadius: 30,
       spreadRadius: 4,
       offset: const Offset(0, 12),
@@ -622,7 +622,7 @@ class GlassShadows {
   /// Heavy shadow for dark mode
   static List<BoxShadow> heavyDark = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.4),
+      color: Colors.black.withValues(alpha: 0.4),
       blurRadius: 30,
       spreadRadius: 4,
       offset: const Offset(0, 12),
@@ -632,7 +632,7 @@ class GlassShadows {
   /// Glow shadow (for accented elements)
   static List<BoxShadow> glow(Color color, {double intensity = 0.3}) => [
     BoxShadow(
-      color: color.withOpacity(intensity),
+      color: color.withValues(alpha: intensity),
       blurRadius: 20,
       spreadRadius: 2,
       offset: Offset.zero,
@@ -642,13 +642,13 @@ class GlassShadows {
   /// Inner shadow effect (requires Stack implementation)
   static List<BoxShadow> innerLight = [
     BoxShadow(
-      color: Colors.white.withOpacity(0.5),
+      color: Colors.white.withValues(alpha: 0.5),
       blurRadius: 10,
       spreadRadius: -5,
       offset: const Offset(0, -2),
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       blurRadius: 10,
       spreadRadius: -5,
       offset: const Offset(0, 2),

@@ -42,17 +42,22 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     });
   }
 
+  bool _isArabic(BuildContext context) {
+    return Localizations.localeOf(context).languageCode == 'ar';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isArabic = _isArabic(context);
     final diagnosisState = ref.watch(diagnosisProvider);
     final zonesState = ref.watch(zonesProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.fieldName ?? 'صحة المحاصيل'),
+          title: Text(widget.fieldName ?? (isArabic ? 'صحة المحاصيل' : 'Crop Health')),
           backgroundColor: const Color(0xFF367C2B), // John Deere Green
           foregroundColor: Colors.white,
           actions: [
@@ -60,7 +65,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
             IconButton(
               icon: const Icon(Icons.calendar_today),
               onPressed: () => _selectDate(context),
-              tooltip: 'اختر التاريخ',
+              tooltip: isArabic ? 'اختر التاريخ' : 'Select Date',
             ),
             // تصدير VRT
             IconButton(
@@ -68,13 +73,13 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               onPressed: diagnosisState.diagnosis != null
                   ? () => _showExportOptions(context)
                   : null,
-              tooltip: 'تصدير VRT',
+              tooltip: isArabic ? 'تصدير VRT' : 'Export VRT',
             ),
             // تحديث
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => _refreshData(),
-              tooltip: 'تحديث',
+              tooltip: isArabic ? 'تحديث' : 'Refresh',
             ),
           ],
         ),
@@ -86,7 +91,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                   ? _buildErrorView(diagnosisState.error!)
                   : diagnosisState.diagnosis != null
                       ? _buildDashboard(diagnosisState.diagnosis!)
-                      : const Center(child: Text('لا توجد بيانات')),
+                      : Center(child: Text(isArabic ? 'لا توجد بيانات' : 'No data available')),
         ),
       ),
     );
@@ -130,7 +135,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'الإجراءات المطلوبة (${diagnosis.actions.length})',
+              _isArabic(context)
+                  ? 'الإجراءات المطلوبة (${diagnosis.actions.length})'
+                  : 'Required Actions (${diagnosis.actions.length})',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

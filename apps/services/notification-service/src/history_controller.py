@@ -11,7 +11,7 @@ from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 
 from .analytics_service import NotificationAnalytics, TimeRange
@@ -20,6 +20,50 @@ from .repository import (
     NotificationLogRepository,
     NotificationRepository,
 )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tenant Isolation - عزل المستأجرين
+# SECURITY: Tenant ID must come from a validated source (JWT or verified header).
+# Accepting tenant_id as an optional query parameter allows any caller to
+# impersonate another tenant. Instead, require it via the X-Tenant-Id header
+# which is set by the API gateway after JWT validation.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """
+    Extract and validate tenant ID from X-Tenant-Id header.
+    استخراج والتحقق من معرف المستأجر من رأس X-Tenant-Id
+
+    SECURITY: Tenant ID must not be accepted as a query parameter to prevent
+    cross-tenant data access. The header is set by the API gateway after JWT
+    validation, ensuring the caller can only access their own tenant's data.
+    """
+    if not x_tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "missing_tenant",
+                "message": "X-Tenant-Id header is required",
+                "message_ar": "رأس X-Tenant-Id مطلوب",
+            },
+        )
+    # Validate UUID format to prevent injection
+    try:
+        from uuid import UUID as _UUID
+
+        _UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid_tenant",
+                "message": "X-Tenant-Id must be a valid UUID",
+                "message_ar": "يجب أن يكون معرف المستأجر UUID صالح",
+            },
+        )
+    return x_tenant_id
 
 logger = logging.getLogger("sahool-notifications.history")
 
@@ -364,16 +408,19 @@ async def get_failed_notifications(
 async def get_notification_stats(
     user_id: str | None = Query(default=None, description="Filter by user ID"),
     days: int = Query(default=7, ge=1, le=365, description="Number of days to analyze"),
-    tenant_id: str | None = Query(default=None, description="Tenant ID filter"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     إحصائيات الإشعارات
     Get notification statistics
 
+    SECURITY: tenant_id is now required via X-Tenant-Id header (not optional query param)
+    to enforce tenant isolation and prevent cross-tenant data access.
+
     Args:
         user_id: Optional user ID filter
         days: Number of days to analyze
-        tenant_id: Optional tenant filter
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         Notification statistics
@@ -381,12 +428,11 @@ async def get_notification_stats(
     try:
         start_date = datetime.now(UTC) - timedelta(days=days)
 
-        # Build query
+        # Build query - SECURITY: Always filter by tenant_id for tenant isolation
         query = Notification.filter(created_at__gte=start_date)
+        query = query.filter(tenant_id=tenant_id)
         if user_id:
             query = query.filter(user_id=user_id)
-        if tenant_id:
-            query = query.filter(tenant_id=tenant_id)
 
         # Get counts
         total = await query.count()
@@ -452,10 +498,13 @@ async def export_notification_history(
     end_date: datetime = Query(..., description="Export end date"),
     format: str = Query(default="json", description="Export format: json, csv"),
     limit: int = Query(default=1000, ge=1, le=10000),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     تصدير سجل الإشعارات
     Export notification history for a date range
+
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
 
     Args:
         user_id: Optional user ID filter
@@ -463,13 +512,15 @@ async def export_notification_history(
         end_date: End date for export
         format: Export format (json or csv)
         limit: Maximum records to export
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         Exported data in requested format
     """
     try:
-        # Build query
+        # Build query - SECURITY: Always filter by tenant_id for tenant isolation
         query = Notification.filter(created_at__gte=start_date, created_at__lte=end_date)
+        query = query.filter(tenant_id=tenant_id)
 
         if user_id:
             query = query.filter(user_id=user_id)

@@ -10,6 +10,7 @@ export 'config/config.dart';
 
 // Theme
 export 'theme/sahool_theme.dart';
+export 'theme/spacing.dart';
 
 // Utilities
 export 'utils/app_logger.dart';

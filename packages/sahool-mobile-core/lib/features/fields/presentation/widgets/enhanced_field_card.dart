@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/animations/hero_animations.dart';
 import '../../domain/entities/field_entity.dart';
 
 /// بطاقة الحقل المحسّنة
@@ -17,11 +18,23 @@ class EnhancedFieldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isCompact ? _buildCompactCard(context) : _buildFullCard(context);
+    return Semantics(
+      label: 'Field: ${field.name}, ${field.cropType}, '
+          'NDVI: ${field.ndviValue?.toStringAsFixed(2) ?? "N/A"}, '
+          'Health: ${(field.healthScore * 100).round()}%, '
+          'Area: ${field.areaHectares.toStringAsFixed(1)} ha'
+          ' | '
+          'حقل: ${field.name}، ${field.cropType}، '
+          'الصحة: ${(field.healthScore * 100).round()}%',
+      button: onTap != null,
+      child: isCompact ? _buildCompactCard(context) : _buildFullCard(context),
+    );
   }
 
   Widget _buildFullCard(BuildContext context) {
-    return Card(
+    return FieldCardHero(
+      fieldId: field.id,
+      child: Card(
       elevation: 3,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -46,18 +59,20 @@ class EnhancedFieldCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Crop emoji
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        field.cropEmoji,
-                        style: const TextStyle(fontSize: 28),
+                  // Crop emoji (decorative)
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          field.cropEmoji,
+                          style: const TextStyle(fontSize: 28),
+                        ),
                       ),
                     ),
                   ),
@@ -276,17 +291,19 @@ class EnhancedFieldCard extends StatelessWidget {
               // Header
               Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF367C2B).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        field.cropEmoji,
-                        style: const TextStyle(fontSize: 22),
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF367C2B).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          field.cropEmoji,
+                          style: const TextStyle(fontSize: 22),
+                        ),
                       ),
                     ),
                   ),
@@ -372,7 +389,7 @@ class EnhancedFieldCard extends StatelessWidget {
   }
 
   Widget _buildMiniHealthRing() {
-    return SizedBox(
+    return ExcludeSemantics(child: SizedBox(
       width: 40,
       height: 40,
       child: Stack(
@@ -391,7 +408,7 @@ class EnhancedFieldCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildStatItem({

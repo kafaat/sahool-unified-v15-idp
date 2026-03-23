@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/auth_service.dart';
 import '../providers/profile_provider.dart';
 
@@ -13,27 +15,34 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _darkMode = false;
   bool _notificationsEnabled = true;
   bool _locationEnabled = true;
-  String _language = 'ar';
+  final ImagePicker _imagePicker = ImagePicker();
+  final _editFormKey = GlobalKey<FormState>();
+
+  bool get _isArabic {
+    final profile = ref.read(profileProvider);
+    return profile.language == 'ar';
+  }
 
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider);
 
+    final isArabic = profile.language == 'ar';
+
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('الملف الشخصي'),
+          title: Text(isArabic ? 'الملف الشخصي' : 'Profile'),
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
           actions: [
             if (profile.error != null)
               IconButton(
                 icon: const Icon(Icons.refresh),
-                tooltip: 'إعادة المحاولة',
+                tooltip: isArabic ? 'إعادة المحاولة' : 'Retry',
                 onPressed: () =>
                     ref.read(profileProvider.notifier).loadProfile(),
               ),
@@ -51,31 +60,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         const SizedBox(height: 16),
 
                         // الإحصائيات السريعة
-                        _buildQuickStats(profile),
+                        _buildQuickStats(profile, isArabic),
                         const SizedBox(height: 16),
 
                         // إعدادات الحساب
-                        _buildSectionTitle('إعدادات الحساب'),
-                        _buildAccountSettings(),
+                        _buildSectionTitle(isArabic ? 'إعدادات الحساب' : 'Account Settings'),
+                        _buildAccountSettings(isArabic),
                         const SizedBox(height: 16),
 
                         // إعدادات التطبيق
-                        _buildSectionTitle('إعدادات التطبيق'),
-                        _buildAppSettings(),
+                        _buildSectionTitle(isArabic ? 'إعدادات التطبيق' : 'App Settings'),
+                        _buildAppSettings(isArabic),
                         const SizedBox(height: 16),
 
                         // إعدادات الإشعارات
-                        _buildSectionTitle('الإشعارات'),
-                        _buildNotificationSettings(),
+                        _buildSectionTitle(isArabic ? 'الإشعارات' : 'Notifications'),
+                        _buildNotificationSettings(isArabic),
                         const SizedBox(height: 16),
 
                         // الدعم والمساعدة
-                        _buildSectionTitle('الدعم والمساعدة'),
-                        _buildSupportSection(),
+                        _buildSectionTitle(isArabic ? 'الدعم والمساعدة' : 'Support & Help'),
+                        _buildSupportSection(isArabic),
                         const SizedBox(height: 16),
 
                         // تسجيل الخروج
-                        _buildLogoutButton(),
+                        _buildLogoutButton(isArabic),
                         const SizedBox(height: 32),
 
                         // معلومات التطبيق
@@ -148,16 +157,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    size: 20,
-                    color: Color(0xFF367C2B),
+                child: GestureDetector(
+                  onTap: () => _showImagePickerSheet(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 20,
+                      color: Color(0xFF367C2B),
+                    ),
                   ),
                 ),
               ),
@@ -210,14 +222,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildQuickStats(ProfileState profile) {
+  Widget _buildQuickStats(ProfileState profile, bool isArabic) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(
             child: _buildStatItem(
-              'الحقول',
+              isArabic ? 'الحقول' : 'Fields',
               profile.fieldsCount.toString(),
               Icons.landscape,
             ),
@@ -225,7 +237,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: _buildStatItem(
-              'المهام',
+              isArabic ? 'المهام' : 'Tasks',
               profile.tasksCompleted.toString(),
               Icons.task_alt,
             ),
@@ -233,7 +245,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: _buildStatItem(
-              'الإنجازات',
+              isArabic ? 'الإنجازات' : 'Achievements',
               profile.achievementsCount.toString(),
               Icons.emoji_events,
             ),
@@ -290,7 +302,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildAccountSettings() {
+  Widget _buildAccountSettings(bool isArabic) {
+    final profile = ref.watch(profileProvider);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 2,
@@ -299,20 +312,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           _buildSettingsTile(
             icon: Icons.person_outline,
-            title: 'تعديل الملف الشخصي',
+            title: isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile',
             onTap: () => _showEditProfile(),
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.lock_outline,
-            title: 'تغيير كلمة المرور',
+            title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
             onTap: () => _showChangePassword(),
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.phone_android,
-            title: 'رقم الهاتف',
-            subtitle: '+966 50 XXX XXXX',
+            title: isArabic ? 'رقم الهاتف' : 'Phone Number',
+            subtitle: profile.phone.isNotEmpty
+                ? profile.phone
+                : (isArabic ? 'لم يتم التعيين' : 'Not set'),
             onTap: () {},
           ),
         ],
@@ -320,37 +335,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildAppSettings() {
+  Widget _buildAppSettings(bool isArabic) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
-          _buildSwitchTile(
-            icon: Icons.dark_mode,
-            title: 'الوضع الداكن',
-            value: _darkMode,
-            onChanged: (value) => setState(() => _darkMode = value),
-          ),
-          const Divider(height: 1),
           _buildSettingsTile(
-            icon: Icons.language,
-            title: 'اللغة',
-            subtitle: _language == 'ar' ? 'العربية' : 'English',
-            onTap: () => _showLanguageDialog(),
+            icon: Icons.settings,
+            title: isArabic ? 'الإعدادات' : 'Settings',
+            subtitle: isArabic
+                ? 'المظهر، اللغة، والمزيد'
+                : 'Appearance, language, and more',
+            onTap: () => context.push('/settings'),
           ),
           const Divider(height: 1),
           _buildSwitchTile(
             icon: Icons.location_on_outlined,
-            title: 'تفعيل الموقع',
+            title: isArabic ? 'تفعيل الموقع' : 'Enable Location',
             value: _locationEnabled,
             onChanged: (value) => setState(() => _locationEnabled = value),
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.storage,
-            title: 'مسح ذاكرة التخزين المؤقت',
+            title: isArabic ? 'مسح ذاكرة التخزين المؤقت' : 'Clear Cache',
             onTap: () => _clearCache(),
           ),
         ],
@@ -358,7 +368,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildNotificationSettings() {
+  Widget _buildNotificationSettings(bool isArabic) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 2,
@@ -367,15 +377,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           _buildSwitchTile(
             icon: Icons.notifications_outlined,
-            title: 'تفعيل الإشعارات',
+            title: isArabic ? 'تفعيل الإشعارات' : 'Enable Notifications',
             value: _notificationsEnabled,
             onChanged: (value) => setState(() => _notificationsEnabled = value),
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.warning_outlined,
-            title: 'إشعارات التنبيهات',
-            subtitle: 'تنبيهات الطقس والصحة',
+            title: isArabic ? 'إشعارات التنبيهات' : 'Alert Notifications',
+            subtitle: isArabic ? 'تنبيهات الطقس والصحة' : 'Weather & health alerts',
             onTap: () {},
             trailing: Switch(
               value: true,
@@ -386,8 +396,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.task_outlined,
-            title: 'إشعارات المهام',
-            subtitle: 'تذكير بالمهام المعلقة',
+            title: isArabic ? 'إشعارات المهام' : 'Task Notifications',
+            subtitle: isArabic ? 'تذكير بالمهام المعلقة' : 'Pending task reminders',
             onTap: () {},
             trailing: Switch(
               value: true,
@@ -400,7 +410,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildSupportSection() {
+  Widget _buildSupportSection(bool isArabic) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 2,
@@ -409,31 +419,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           _buildSettingsTile(
             icon: Icons.help_outline,
-            title: 'مركز المساعدة',
+            title: isArabic ? 'مركز المساعدة' : 'Help Center',
             onTap: () {},
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.chat_outlined,
-            title: 'تواصل معنا',
+            title: isArabic ? 'تواصل معنا' : 'Contact Us',
             onTap: () {},
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.bug_report_outlined,
-            title: 'الإبلاغ عن مشكلة',
+            title: isArabic ? 'الإبلاغ عن مشكلة' : 'Report a Problem',
             onTap: () {},
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.star_outline,
-            title: 'تقييم التطبيق',
+            title: isArabic ? 'تقييم التطبيق' : 'Rate the App',
             onTap: () {},
           ),
           const Divider(height: 1),
           _buildSettingsTile(
             icon: Icons.privacy_tip_outlined,
-            title: 'سياسة الخصوصية',
+            title: isArabic ? 'سياسة الخصوصية' : 'Privacy Policy',
             onTap: () {},
           ),
         ],
@@ -474,7 +484,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(bool isArabic) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ElevatedButton.icon(
@@ -488,7 +498,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
         icon: const Icon(Icons.logout),
-        label: const Text('تسجيل الخروج'),
+        label: Text(isArabic ? 'تسجيل الخروج' : 'Sign Out'),
       ),
     );
   }
@@ -526,6 +536,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   void _showEditProfile() {
     final profile = ref.read(profileProvider);
+    final isArabic = profile.language == 'ar';
     final nameController = TextEditingController(
       text: profile.userNameAr.isNotEmpty ? profile.userNameAr : profile.userName,
     );
@@ -541,7 +552,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetContext) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
@@ -549,64 +560,94 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             right: 16,
             top: 16,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'تعديل الملف الشخصي',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: _editFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'الاسم',
-                  prefixIcon: Icon(Icons.person_outline),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: isArabic ? 'الاسم' : 'Name',
+                    prefixIcon: const Icon(Icons.person_outline),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return isArabic ? 'الاسم مطلوب' : 'Name is required';
+                    }
+                    if (value.trim().length < 2) {
+                      return isArabic
+                          ? 'الاسم يجب أن يكون حرفين على الأقل'
+                          : 'Name must be at least 2 characters';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'رقم الهاتف',
-                  prefixIcon: Icon(Icons.phone_outlined),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: isArabic ? 'رقم الهاتف' : 'Phone Number',
+                    prefixIcon: const Icon(Icons.phone_outlined),
+                  ),
+                  validator: (value) {
+                    if (value != null && value.trim().isNotEmpty) {
+                      final phoneRegex = RegExp(r'^\+?[0-9\s\-]{7,15}$');
+                      if (!phoneRegex.hasMatch(value.trim())) {
+                        return isArabic
+                            ? 'رقم الهاتف غير صالح'
+                            : 'Invalid phone number';
+                      }
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: farmController,
-                decoration: const InputDecoration(
-                  labelText: 'اسم المزرعة',
-                  prefixIcon: Icon(Icons.agriculture_outlined),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: farmController,
+                  decoration: InputDecoration(
+                    labelText: isArabic ? 'اسم المزرعة' : 'Farm Name',
+                    prefixIcon: const Icon(Icons.agriculture_outlined),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(sheetContext);
-                  ref.read(profileProvider.notifier).updateProfile(
-                    userName: nameController.text,
-                    phone: phoneController.text,
-                    farmName: farmController.text,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('جارٍ حفظ التغييرات...'),
-                      backgroundColor: Color(0xFF367C2B),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF367C2B),
-                  minimumSize: const Size(double.infinity, 50),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_editFormKey.currentState?.validate() ?? false) {
+                      Navigator.pop(sheetContext);
+                      ref.read(profileProvider.notifier).updateProfile(
+                        userName: nameController.text.trim(),
+                        phone: phoneController.text.trim(),
+                        farmName: farmController.text.trim(),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isArabic
+                              ? 'جارٍ حفظ التغييرات...'
+                              : 'Saving changes...'),
+                          backgroundColor: const Color(0xFF367C2B),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF367C2B),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: Text(isArabic ? 'حفظ' : 'Save'),
                 ),
-                child: const Text('حفظ'),
-              ),
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),

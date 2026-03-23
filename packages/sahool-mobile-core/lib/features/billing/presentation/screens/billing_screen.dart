@@ -61,13 +61,18 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
         ),
         body: billingState.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildSubscriptionTab(billingState),
-                  _buildInvoicesTab(billingState),
-                  _buildPaymentsTab(billingState),
-                ],
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await ref.read(billingProvider.notifier).loadBillingInfo();
+                },
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildSubscriptionTab(billingState),
+                    _buildInvoicesTab(billingState),
+                    _buildPaymentsTab(billingState),
+                  ],
+                ),
               ),
       ),
     );

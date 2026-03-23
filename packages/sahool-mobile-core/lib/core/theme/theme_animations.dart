@@ -392,8 +392,8 @@ class _MeshGradientPainter extends CustomPainter {
         ),
         radius: 0.8,
         colors: [
-          colors[i].withOpacity(intensity),
-          colors[i].withOpacity(0),
+          colors[i].withValues(alpha: intensity),
+          colors[i].withValues(alpha: 0),
         ],
       );
 
@@ -492,9 +492,9 @@ class _GlassShimmerState extends State<GlassShimmer>
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      shimmerColor.withOpacity(0),
-                      shimmerColor.withOpacity(widget.intensity),
-                      shimmerColor.withOpacity(0),
+                      shimmerColor.withValues(alpha: 0),
+                      shimmerColor.withValues(alpha: widget.intensity),
+                      shimmerColor.withValues(alpha: 0),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     transform: _SlidingGradientTransform(
@@ -505,9 +505,9 @@ class _GlassShimmerState extends State<GlassShimmer>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      shimmerColor.withOpacity(0),
-                      shimmerColor.withOpacity(widget.intensity),
-                      shimmerColor.withOpacity(0),
+                      shimmerColor.withValues(alpha: 0),
+                      shimmerColor.withValues(alpha: widget.intensity),
+                      shimmerColor.withValues(alpha: 0),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     transform: _SlidingGradientTransform(
@@ -610,7 +610,7 @@ class _PulsingGlowState extends State<PulsingGlow>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: widget.glowColor.withOpacity(_opacityAnimation.value),
+                color: widget.glowColor.withValues(alpha: _opacityAnimation.value),
                 blurRadius: widget.blurRadius,
                 spreadRadius: widget.blurRadius / 4,
               ),
@@ -847,7 +847,7 @@ extension AnimatedColorExtension on Color {
   /// Create a pulsing color
   Color pulsing(double t, {double minOpacity = 0.5}) {
     final opacity = minOpacity + (1 - minOpacity) * math.sin(t * math.pi);
-    return withOpacity(opacity.clamp(0.0, 1.0));
+    return withValues(alpha: opacity.clamp(0.0, 1.0));
   }
 }
 

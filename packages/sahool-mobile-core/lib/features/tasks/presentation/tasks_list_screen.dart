@@ -91,8 +91,10 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: tasksState.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
+          loading: () => SahoolSkeletonList(
+            itemCount: 5,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (_) => const TaskCardSkeleton(),
           ),
           error: (error, stack) => Center(
             child: Column(

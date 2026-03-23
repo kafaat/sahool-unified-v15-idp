@@ -367,7 +367,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               ),
             ),
             const SizedBox(width: 16),
-            Text('جاري تصدير VRT ($actionType)...'),
+            Text(_isArabic(context) ? 'جاري تصدير VRT ($actionType)...' : 'Exporting VRT ($actionType)...'),
           ],
         ),
         backgroundColor: const Color(0xFF367C2B),
@@ -459,7 +459,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل التصدير: $e'),
+            content: Text(_isArabic(context) ? 'فشل التصدير: $e' : 'Export failed: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -471,7 +471,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     showDialog(
       context: context,
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: _isArabic(context) ? TextDirection.rtl : TextDirection.ltr,
         child: AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -487,18 +487,27 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                 child: const Icon(Icons.check_circle, color: Colors.green),
               ),
               const SizedBox(width: 12),
-              const Text('تم التصدير بنجاح'),
+              Text(_isArabic(context) ? 'تم التصدير بنجاح' : 'Export Successful'),
             ],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoRow('اسم الملف:', fileName),
+              _buildInfoRow(
+                _isArabic(context) ? 'اسم الملف:' : 'File name:',
+                fileName,
+              ),
               const SizedBox(height: 8),
-              _buildInfoRow('عدد الإجراءات:', '$actionsCount'),
+              _buildInfoRow(
+                _isArabic(context) ? 'عدد الإجراءات:' : 'Actions count:',
+                '$actionsCount',
+              ),
               const SizedBox(height: 8),
-              _buildInfoRow('الموقع:', 'مجلد التطبيق'),
+              _buildInfoRow(
+                _isArabic(context) ? 'الموقع:' : 'Location:',
+                _isArabic(context) ? 'مجلد التطبيق' : 'App directory',
+              ),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -512,8 +521,10 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'يمكنك استخدام هذا الملف مع أنظمة VRT أو برامج GIS',
-                        style: TextStyle(fontSize: 13, color: Colors.blue),
+                        _isArabic(context)
+                            ? 'يمكنك استخدام هذا الملف مع أنظمة VRT أو برامج GIS'
+                            : 'You can use this file with VRT systems or GIS software',
+                        style: const TextStyle(fontSize: 13, color: Colors.blue),
                       ),
                     ),
                   ],
@@ -524,7 +535,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('إغلاق'),
+              child: Text(_isArabic(context) ? 'إغلاق' : 'Close'),
             ),
           ],
         ),

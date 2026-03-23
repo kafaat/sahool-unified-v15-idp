@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../../core/animations/hero_animations.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
 
@@ -62,7 +63,9 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       backgroundColor: const Color(0xFF367C2B),
       foregroundColor: Colors.white,
       flexibleSpace: FlexibleSpaceBar(
-        background: DecoratedBox(
+        background: FieldDetailHero(
+          fieldId: widget.field.id,
+          child: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -187,6 +190,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
               ),
             ),
           ),
+        ),
         ),
       ),
       bottom: TabBar(

@@ -504,6 +504,13 @@ class SahoolDrawerMenu extends ConsumerWidget {
       'scouting': NavigationConstants.scouting,
       'pivot_irrigation': NavigationConstants.pivotIrrigation,
       'astronomical': NavigationConstants.astronomical,
+      'crm': NavigationConstants.crm,
+      'crops': NavigationConstants.crops,
+      'achievements': NavigationConstants.achievements,
+      'iot': NavigationConstants.iot,
+      'lab': NavigationConstants.lab,
+      'research': NavigationConstants.research,
+      'wallet': NavigationConstants.wallet,
     };
     return routeMap[featureKey];
   }

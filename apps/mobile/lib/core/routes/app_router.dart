@@ -91,6 +91,38 @@ import '../../features/astronomical/presentation/screens/astronomical_screen.dar
 // Features - Pivot Irrigation - الري المحوري
 import '../../features/pivot_irrigation/pivot_irrigation.dart';
 
+// Features - CRM (Farmer Management)
+import '../../features/crm/presentation/screens/farmers_list_screen.dart';
+import '../../features/crm/presentation/screens/farmer_profile_screen.dart';
+import '../../features/crm/presentation/screens/farmer_analytics_screen.dart';
+
+// Features - Crops
+import '../../features/crops/presentation/screens/crops_screen.dart';
+
+// Features - Gamification
+import '../../features/gamification/presentation/screens/achievements_screen.dart';
+
+// Features - IoT
+import '../../features/iot/ui/iot_control_screen.dart';
+
+// Features - Lab (Sample Tracking)
+import '../../features/lab/ui/sample_tracking_screen.dart';
+
+// Features - Offline Maps
+import '../../features/maps/presentation/screens/field_map_screen.dart';
+
+// Features - Onboarding
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+
+// Features - Payment & Wallet
+import '../../features/payment/presentation/payment_screen.dart';
+import '../../features/wallet/ui/wallet_screen.dart';
+
+// Features - Research
+import '../../features/research/ui/experiments_list_screen.dart';
+import '../../features/research/ui/researcher_task_screen.dart';
+import '../../features/research/ui/daily_observation_screen.dart';
+
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
 class AppRouter {
@@ -718,6 +750,158 @@ class AppRouter {
         builder: (context, state) => const IrrigationDashboardScreen(
           fields: [],
         ),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // CRM Routes - إدارة علاقات المزارعين
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/crm',
+        name: 'crm',
+        builder: (context, state) => const FarmersListScreen(),
+      ),
+
+      GoRoute(
+        path: '/crm/farmer/:id',
+        name: 'farmer-profile',
+        builder: (context, state) {
+          final farmerId = state.pathParameters['id']!;
+          return FarmerProfileScreen(farmerId: farmerId);
+        },
+      ),
+
+      GoRoute(
+        path: '/crm/farmer/:id/analytics',
+        name: 'crm-analytics',
+        builder: (context, state) {
+          final farmerId = state.pathParameters['id']!;
+          final args = state.extra as Map<String, dynamic>?;
+          final farmerName = (args?['farmerName'] as String?) ?? '';
+          return FarmerAnalyticsScreen(farmerId: farmerId, farmerName: farmerName);
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Crops Route - إدارة المحاصيل
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/crops',
+        name: 'crops',
+        builder: (context, state) => const CropsScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Gamification Route - الإنجازات
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/achievements',
+        name: 'achievements',
+        builder: (context, state) => const AchievementsScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // IoT Route - التحكم بأجهزة إنترنت الأشياء
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/iot',
+        name: 'iot',
+        builder: (context, state) => const IoTControlScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Lab Route - تتبع العينات المخبرية
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/lab',
+        name: 'lab',
+        builder: (context, state) => const SampleTrackingScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Offline Maps Route - الخرائط غير المتصلة
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/maps/:fieldId',
+        name: 'maps',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId']!;
+          final args = state.extra as Map<String, dynamic>?;
+          return FieldMapScreen(
+            fieldId: fieldId,
+            fieldName: args?['fieldName'] as String?,
+            initialCenter: args?['initialCenter'] as Map<String, dynamic>?,
+          );
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Onboarding Route - مسار التعريف بالتطبيق
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Payment & Wallet Routes - الدفع والمحفظة
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/payment/:walletId',
+        name: 'payment',
+        builder: (context, state) {
+          final walletId = state.pathParameters['walletId']!;
+          return PaymentScreen(walletId: walletId);
+        },
+      ),
+
+      GoRoute(
+        path: '/wallet',
+        name: 'wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Research Routes - التجارب البحثية
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/research',
+        name: 'research',
+        builder: (context, state) => const ExperimentsListScreen(),
+      ),
+
+      GoRoute(
+        path: '/research/task',
+        name: 'research-task',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return ResearcherTaskScreen(
+            taskId: args?['taskId'] as String?,
+            plotCode: args?['plotCode'] as String?,
+            experimentName: args?['experimentName'] as String?,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/research/observation',
+        name: 'research-observation',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return DailyObservationScreen(
+            experimentId: args?['experimentId'] as String?,
+            plotCode: args?['plotCode'] as String?,
+          );
+        },
       ),
     ],
 

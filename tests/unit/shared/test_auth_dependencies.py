@@ -38,6 +38,7 @@ def valid_token():
         roles=["farmer", "admin"],
         tenant_id="tenant456",
         permissions=["farm:read", "farm:write"],
+        extra_claims={"email": "user123@test.sahool.io"},
     )
 
 

@@ -280,7 +280,7 @@ async def register_agent(request: RegisterAgentRequest):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"])
+@app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"], dependencies=[Depends(verify_api_key)])
 async def get_agent(agent_id: str):
     """
     Get agent card by ID
@@ -311,7 +311,7 @@ async def get_agent(agent_id: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/api/v1/registry/agents", tags=["Agents"])
+@app.get("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
 async def list_agents(
     status: str | None = None,
     category: str | None = None,

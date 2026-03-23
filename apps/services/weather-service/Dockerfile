@@ -76,10 +76,10 @@ LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}" \
       org.opencontainers.image.vendor="KAFAAT" \
       org.opencontainers.image.description="Weather Service - Weather data and forecasts"
 
-# Install minimal runtime dependencies
+# Upgrade system packages and install minimal runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
-    ca-certificates \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

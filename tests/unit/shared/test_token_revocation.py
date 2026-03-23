@@ -610,7 +610,10 @@ class TestInitializationAndLifecycle:
     async def test_store_initialization(self, fresh_store):
         """Test store initialization"""
         mock_redis = _make_mock_redis()
-        with patch("shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)):
+        mock_aioredis = MagicMock()
+        mock_aioredis.from_url = AsyncMock(return_value=mock_redis)
+        with patch("shared.auth.token_revocation.REDIS_AVAILABLE", True), \
+             patch("shared.auth.token_revocation.aioredis", mock_aioredis):
             await fresh_store.initialize()
 
             assert fresh_store._initialized is True
@@ -620,21 +623,25 @@ class TestInitializationAndLifecycle:
     async def test_store_initialization_idempotent(self, fresh_store):
         """Test that initialization is idempotent"""
         mock_redis = _make_mock_redis()
-        with patch(
-            "shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)
-        ) as mock_factory:
+        mock_aioredis = MagicMock()
+        mock_aioredis.from_url = AsyncMock(return_value=mock_redis)
+        with patch("shared.auth.token_revocation.REDIS_AVAILABLE", True), \
+             patch("shared.auth.token_revocation.aioredis", mock_aioredis):
             await fresh_store.initialize()
             await fresh_store.initialize()
 
             # Should only call redis factory once
-            assert mock_factory.call_count == 1
+            assert mock_aioredis.from_url.call_count == 1
 
     @pytest.mark.asyncio
     async def test_store_initialization_redis_error(self, fresh_store):
         """Test initialization failure with Redis error"""
         mock_redis = _make_mock_redis()
         mock_redis.ping = AsyncMock(side_effect=Exception("Redis error"))
-        with patch("shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)):
+        mock_aioredis = MagicMock()
+        mock_aioredis.from_url = AsyncMock(return_value=mock_redis)
+        with patch("shared.auth.token_revocation.REDIS_AVAILABLE", True), \
+             patch("shared.auth.token_revocation.aioredis", mock_aioredis):
             with pytest.raises(Exception):
                 await fresh_store.initialize()
 
@@ -642,7 +649,10 @@ class TestInitializationAndLifecycle:
     async def test_store_close(self, fresh_store):
         """Test closing the store"""
         mock_redis = _make_mock_redis()
-        with patch("shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)):
+        mock_aioredis = MagicMock()
+        mock_aioredis.from_url = AsyncMock(return_value=mock_redis)
+        with patch("shared.auth.token_revocation.REDIS_AVAILABLE", True), \
+             patch("shared.auth.token_revocation.aioredis", mock_aioredis):
             await fresh_store.initialize()
             await fresh_store.close()
 
@@ -653,7 +663,10 @@ class TestInitializationAndLifecycle:
     async def test_store_close_idempotent(self, fresh_store):
         """Test that closing is idempotent"""
         mock_redis = _make_mock_redis()
-        with patch("shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)):
+        mock_aioredis = MagicMock()
+        mock_aioredis.from_url = AsyncMock(return_value=mock_redis)
+        with patch("shared.auth.token_revocation.REDIS_AVAILABLE", True), \
+             patch("shared.auth.token_revocation.aioredis", mock_aioredis):
             await fresh_store.initialize()
             await fresh_store.close()
             await fresh_store.close()

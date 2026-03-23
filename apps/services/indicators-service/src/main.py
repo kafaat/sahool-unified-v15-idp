@@ -1020,7 +1020,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     if not success:
         raise HTTPException(status_code=503, detail="Failed to save indicator. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.stored",
@@ -1031,6 +1031,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
             "status": status,
             "timestamp": timestamp,
         },
+        tenant_id=indicator_input.tenant_id,
     )
 
     logger.info(
@@ -1098,7 +1099,9 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
     if not success:
         raise HTTPException(status_code=503, detail="Failed to delete indicators. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
+    # Extract tenant_id from authenticated user | استخراج معرف المستأجر من المستخدم المصادق
+    user_tenant_id = getattr(_user, "tenant_id", None) if _user else None
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.deleted",
@@ -1106,6 +1109,7 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
             "field_id": field_id,
             "timestamp": timestamp,
         },
+        tenant_id=user_tenant_id,
     )
 
     logger.info("Field indicators deleted", field_id=field_id)

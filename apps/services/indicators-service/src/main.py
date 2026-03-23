@@ -1245,7 +1245,7 @@ async def get_tenant_alerts(
             }
         )
 
-    # Publish alerts retrieved event
+    # Publish alerts retrieved event with tenant isolation | نشر حدث التنبيهات مع عزل المستأجر
     critical_count = sum(1 for a in alerts if a["severity"] == "critical")
     warning_count = sum(1 for a in alerts if a["severity"] == "warning")
     await publish_event(
@@ -1257,6 +1257,7 @@ async def get_tenant_alerts(
             "warning_count": warning_count,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
@@ -1308,6 +1309,8 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
     )
 
     # Publish trend analysis event
+    # TODO: Add tenant_id parameter to this endpoint for full tenant isolation
+    # TODO: إضافة معرف المستأجر لهذه النقطة لعزل البيانات الكامل
     await publish_event(
         "sahool.indicators.trend_analyzed",
         {

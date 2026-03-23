@@ -188,13 +188,13 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildFilterChip('الكل', null, currentFilter),
+              _buildFilterChip(_isArabic(context) ? 'الكل' : 'All', null, currentFilter),
               const SizedBox(width: 8),
-              _buildFilterChip('💧 ري', 'irrigation', currentFilter),
+              _buildFilterChip(_isArabic(context) ? '💧 ري' : '💧 Irrigation', 'irrigation', currentFilter),
               const SizedBox(width: 8),
-              _buildFilterChip('🌱 تسميد', 'fertilization', currentFilter),
+              _buildFilterChip(_isArabic(context) ? '🌱 تسميد' : '🌱 Fertilization', 'fertilization', currentFilter),
               const SizedBox(width: 8),
-              _buildFilterChip('🔍 تفقد', 'scouting', currentFilter),
+              _buildFilterChip(_isArabic(context) ? '🔍 تفقد' : '🔍 Scouting', 'scouting', currentFilter),
             ],
           ),
         ),
@@ -206,13 +206,13 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildPriorityChip('الكل', null, priorityFilter),
+              _buildPriorityChip(_isArabic(context) ? 'الكل' : 'All', null, priorityFilter),
               const SizedBox(width: 8),
-              _buildPriorityChip('🔴 عاجل', 'P0', priorityFilter),
+              _buildPriorityChip(_isArabic(context) ? '🔴 عاجل' : '🔴 Urgent', 'P0', priorityFilter),
               const SizedBox(width: 8),
-              _buildPriorityChip('🟠 مهم', 'P1', priorityFilter),
+              _buildPriorityChip(_isArabic(context) ? '🟠 مهم' : '🟠 Important', 'P1', priorityFilter),
               const SizedBox(width: 8),
-              _buildPriorityChip('🔵 متوسط', 'P2', priorityFilter),
+              _buildPriorityChip(_isArabic(context) ? '🔵 متوسط' : '🔵 Medium', 'P2', priorityFilter),
             ],
           ),
         ),
@@ -264,7 +264,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
             ElevatedButton.icon(
               onPressed: _refreshData,
               icon: const Icon(Icons.refresh),
-              label: const Text('إعادة المحاولة'),
+              label: Text(_isArabic(context) ? 'إعادة المحاولة' : 'Retry'),
             ),
           ],
         ),
@@ -285,7 +285,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       initialDate: currentDate,
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now(),
-      locale: const Locale('ar'),
+      locale: Locale(_isArabic(context) ? 'ar' : 'en'),
     );
 
     if (picked != null) {

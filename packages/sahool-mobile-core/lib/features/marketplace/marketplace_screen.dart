@@ -38,6 +38,18 @@ class MarketplaceScreen extends ConsumerWidget {
             child: _SearchBar(),
           ),
 
+          // Last Updated Indicator
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: LastUpdatedIndicator(
+                lastUpdated: marketState.lastUpdatedAt,
+                onRefresh: () =>
+                    ref.read(marketplaceProvider.notifier).loadProducts(),
+              ),
+            ),
+          ),
+
           // Categories
           const SliverToBoxAdapter(
             child: _CategoriesSection(),

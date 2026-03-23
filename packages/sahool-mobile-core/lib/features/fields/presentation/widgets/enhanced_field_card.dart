@@ -272,6 +272,7 @@ class EnhancedFieldCard extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 

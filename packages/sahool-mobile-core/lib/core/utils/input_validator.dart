@@ -183,24 +183,78 @@ class InputValidator {
   }
 
   /// Validate international phone number with country code
+  /// Phone number should be the local number without leading zero
+  /// (e.g., Saudi: 5XXXXXXXX, Yemen: 7XXXXXXXX)
   static ValidationResult validateInternationalPhone(
     String phone,
     String countryCode,
   ) {
+    final cleaned = phone.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+
+    if (cleaned.isEmpty) {
+      return ValidationResult.error(
+        'Phone number is required',
+        'رقم الهاتف مطلوب',
+      );
+    }
+
+    if (!RegExp(r'^\d+$').hasMatch(cleaned)) {
+      return ValidationResult.error(
+        'Phone number must contain only numbers',
+        'رقم الهاتف يجب أن يحتوي على أرقام فقط',
+      );
+    }
+
     switch (countryCode) {
       case '+966':
-        return validateSaudiPhone(phone);
-      case '+967':
-        return validateYemenPhone(phone);
-      default:
-        // Generic validation for other countries
-        final cleaned = phone.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-        if (cleaned.isEmpty) {
+        // Saudi format: 5XXXXXXXX (9 digits starting with 5)
+        if (!RegExp(r'^5\d{8}$').hasMatch(cleaned)) {
           return ValidationResult.error(
-            'Phone number is required',
-            'رقم الهاتف مطلوب',
+            'Invalid Saudi phone number (must be 9 digits starting with 5)',
+            'صيغة رقم الهاتف السعودي غير صالحة (يجب أن يبدأ بـ 5 ويتكون من 9 أرقام)',
           );
         }
+        return ValidationResult.success;
+      case '+967':
+        return validateYemenPhone(phone);
+      case '+964':
+        // Iraq format: 7XXXXXXXXX (10 digits starting with 7)
+        if (!RegExp(r'^7\d{9}$').hasMatch(cleaned)) {
+          return ValidationResult.error(
+            'Invalid Iraqi phone number (must be 10 digits starting with 7)',
+            'صيغة رقم الهاتف العراقي غير صالحة (يجب أن يبدأ بـ 7 ويتكون من 10 أرقام)',
+          );
+        }
+        return ValidationResult.success;
+      case '+20':
+        // Egypt format: 1XXXXXXXXX (10 digits starting with 1)
+        if (!RegExp(r'^1\d{9}$').hasMatch(cleaned)) {
+          return ValidationResult.error(
+            'Invalid Egyptian phone number (must be 10 digits starting with 1)',
+            'صيغة رقم الهاتف المصري غير صالحة (يجب أن يبدأ بـ 1 ويتكون من 10 أرقام)',
+          );
+        }
+        return ValidationResult.success;
+      case '+962':
+        // Jordan format: 7XXXXXXXX (9 digits starting with 7)
+        if (!RegExp(r'^7\d{8}$').hasMatch(cleaned)) {
+          return ValidationResult.error(
+            'Invalid Jordanian phone number (must be 9 digits starting with 7)',
+            'صيغة رقم الهاتف الأردني غير صالحة (يجب أن يبدأ بـ 7 ويتكون من 9 أرقام)',
+          );
+        }
+        return ValidationResult.success;
+      case '+971':
+        // UAE format: 5XXXXXXXX (9 digits starting with 5)
+        if (!RegExp(r'^5\d{8}$').hasMatch(cleaned)) {
+          return ValidationResult.error(
+            'Invalid UAE phone number (must be 9 digits starting with 5)',
+            'صيغة رقم هاتف الإمارات غير صالحة (يجب أن يبدأ بـ 5 ويتكون من 9 أرقام)',
+          );
+        }
+        return ValidationResult.success;
+      default:
+        // Generic validation for other countries
         if (!RegExp(r'^\d{7,15}$').hasMatch(cleaned)) {
           return ValidationResult.error(
             'Invalid phone number format',

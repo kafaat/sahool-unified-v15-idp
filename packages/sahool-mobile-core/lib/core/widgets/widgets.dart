@@ -14,6 +14,12 @@ export 'error_boundary.dart';
 // Loading States
 export 'loading_states.dart';
 
+// Skeleton Widgets - مكونات الهيكل العظمي للتحميل
+export 'sahool_skeleton.dart';
+
+// Domain-Specific Skeletons - هياكل تحميل متخصصة بالمجالات
+export 'domain_skeletons.dart';
+
 // Empty States
 export 'empty_states.dart';
 

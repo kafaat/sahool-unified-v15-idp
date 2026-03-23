@@ -729,37 +729,63 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  void _showLanguageDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          title: const Text('اختر اللغة'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text('العربية'),
-                value: 'ar',
-                groupValue: _language,
-                onChanged: (value) {
-                  setState(() => _language = value!);
-                  Navigator.pop(context);
-                },
-                activeColor: const Color(0xFF367C2B),
-              ),
-              RadioListTile<String>(
-                title: const Text('English'),
-                value: 'en',
-                groupValue: _language,
-                onChanged: (value) {
-                  setState(() => _language = value!);
-                  Navigator.pop(context);
-                },
-                activeColor: const Color(0xFF367C2B),
-              ),
-            ],
+  void _showImagePickerSheet(BuildContext ctx) {
+    final isArabic = _isArabic;
+    showModalBottomSheet(
+      context: ctx,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Directionality(
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isArabic ? 'تغيير الصورة الشخصية' : 'Change Profile Photo',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: Color(0xFF367C2B)),
+                  title: Text(isArabic ? 'التقاط صورة' : 'Take Photo'),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final image = await _imagePicker.pickImage(
+                      source: ImageSource.camera,
+                      maxWidth: 800,
+                      maxHeight: 800,
+                      imageQuality: 85,
+                    );
+                    if (image != null) {
+                      ref.read(profileProvider.notifier).uploadAvatar(image.path);
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: Color(0xFF367C2B)),
+                  title: Text(isArabic ? 'اختيار من المعرض' : 'Choose from Gallery'),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final image = await _imagePicker.pickImage(
+                      source: ImageSource.gallery,
+                      maxWidth: 800,
+                      maxHeight: 800,
+                      imageQuality: 85,
+                    );
+                    if (image != null) {
+                      ref.read(profileProvider.notifier).uploadAvatar(image.path);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -767,32 +793,37 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _clearCache() {
+    final isArabic = _isArabic;
     showDialog(
       context: context,
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: AlertDialog(
-          title: const Text('مسح ذاكرة التخزين المؤقت'),
-          content: const Text('هل أنت متأكد من مسح ذاكرة التخزين المؤقت؟'),
+          title: Text(isArabic ? 'مسح ذاكرة التخزين المؤقت' : 'Clear Cache'),
+          content: Text(isArabic
+              ? 'هل أنت متأكد من مسح ذاكرة التخزين المؤقت؟'
+              : 'Are you sure you want to clear the cache?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء'),
+              child: Text(isArabic ? 'إلغاء' : 'Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('تم مسح ذاكرة التخزين المؤقت'),
-                    backgroundColor: Color(0xFF367C2B),
+                  SnackBar(
+                    content: Text(isArabic
+                        ? 'تم مسح ذاكرة التخزين المؤقت'
+                        : 'Cache cleared'),
+                    backgroundColor: const Color(0xFF367C2B),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF367C2B),
               ),
-              child: const Text('مسح'),
+              child: Text(isArabic ? 'مسح' : 'Clear'),
             ),
           ],
         ),
@@ -801,24 +832,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _showLogoutDialog() {
+    final isArabic = _isArabic;
     showDialog(
       context: context,
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: AlertDialog(
-          title: const Text('تسجيل الخروج'),
-          content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
+          title: Text(isArabic ? 'تسجيل الخروج' : 'Sign Out'),
+          content: Text(isArabic
+              ? 'هل أنت متأكد من تسجيل الخروج؟'
+              : 'Are you sure you want to sign out?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء'),
+              child: Text(isArabic ? 'إلغاء' : 'Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(context);
-                // تسجيل الخروج
                 await ref.read(authProvider.notifier).logout();
-                // العودة إلى الشاشة الرئيسية
                 if (context.mounted) {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }
@@ -826,7 +858,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('تسجيل الخروج'),
+              child: Text(isArabic ? 'تسجيل الخروج' : 'Sign Out'),
             ),
           ],
         ),

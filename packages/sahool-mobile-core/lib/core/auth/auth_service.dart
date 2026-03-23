@@ -8,6 +8,7 @@ import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
 import 'token_manager.dart';
+import 'user_context.dart';
 
 /// SAHOOL Authentication Service
 /// خدمة المصادقة مع Token Refresh تلقائي
@@ -296,6 +297,10 @@ class AuthService {
       // Set auth token in API client for subsequent requests
       apiClient!.setAuthToken(tokens.accessToken);
       apiClient!.setTenantId(user.tenantId);
+
+      // تعيين سياق المستأجر للعمليات الخلفية (مزامنة، إشعارات)
+      // Set tenant context for background operations (sync, notifications)
+      UserContext.setTenantId(user.tenantId);
 
       // Store tokens using TokenManager for centralized management
       await tokenManager.storeTokens(

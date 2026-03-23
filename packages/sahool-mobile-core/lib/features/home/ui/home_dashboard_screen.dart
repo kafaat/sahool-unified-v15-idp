@@ -6,6 +6,8 @@ import '../../weather/presentation/providers/weather_provider.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/data/market_models.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/widgets/domain_skeletons.dart';
+import '../../../core/widgets/sahool_skeleton.dart';
 import '../logic/home_providers.dart';
 
 /// SAHOOL Home Dashboard Screen - الشاشة الرئيسية المذهلة
@@ -189,7 +191,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
   Widget _buildWeatherSection(WeatherState weatherState) {
     if (weatherState.isLoading) {
-      return _buildLoadingCard();
+      return const WeatherCardSkeleton();
     }
 
     if (weatherState.error != null) {
@@ -354,7 +356,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
   Widget _buildWalletSection(AsyncValue<ApiResult<WalletModel>> walletAsync) {
     return walletAsync.when(
-      loading: () => _buildLoadingCard(height: 100),
+      loading: () => SahoolSkeleton(height: 100, borderRadius: 16),
       error: (_, __) => _buildWalletCardFallback(),
       data: (result) {
         if (result is Success<WalletModel>) {
@@ -521,7 +523,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
     final alertsState = ref.watch(alertsProvider);
 
     if (alertsState.isLoading) {
-      return _buildLoadingCard(height: 80);
+      return SahoolSkeleton(height: 80, borderRadius: 12);
     }
 
     final activeAlerts = alertsState.alerts

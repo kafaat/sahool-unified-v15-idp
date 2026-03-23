@@ -12,7 +12,13 @@ class CurrentWeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Semantics(
+      label: 'Weather: ${weather.temperatureDisplay}, ${weather.conditionAr}, '
+          'Humidity: ${weather.humidity}%, Wind: ${weather.windSpeed.round()} km/h'
+          ' | '
+          'الطقس: ${weather.temperatureDisplay}، ${weather.conditionAr}، '
+          'الرطوبة: ${weather.humidity}%، الرياح: ${weather.windSpeed.round()} كم/س',
+      child: Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(

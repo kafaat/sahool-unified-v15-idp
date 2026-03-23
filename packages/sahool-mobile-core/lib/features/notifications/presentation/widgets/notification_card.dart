@@ -257,11 +257,12 @@ class NotificationCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 
   Widget _buildCategoryIcon(NotificationCategory category) {
-    return Container(
+    return ExcludeSemantics(child: Container(
       width: 44,
       height: 44,
       decoration: BoxDecoration(
@@ -275,7 +276,7 @@ class NotificationCard extends StatelessWidget {
           size: 22,
         ),
       ),
-    );
+    ));
   }
 
   Color _getBackgroundColor(BuildContext context) {

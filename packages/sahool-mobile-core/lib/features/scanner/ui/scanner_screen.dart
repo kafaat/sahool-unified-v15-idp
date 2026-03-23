@@ -26,6 +26,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
   bool _isScanning = false;
   bool _hasResult = false;
   bool _cameraActive = true;
+  bool _flashOn = false;
   _ScanResult? _result;
   File? _capturedImage;
   List<_ScanResult> _scanHistory = [];
@@ -186,7 +187,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
 
   Future<void> _toggleFlash() async {
     await _cameraController.toggleTorch();
-    // State is reflected via ValueListenableBuilder on torchState
+    setState(() {
+      _flashOn = !_flashOn;
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────

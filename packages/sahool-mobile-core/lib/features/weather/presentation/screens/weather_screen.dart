@@ -57,74 +57,96 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.fieldName ?? 'الطقس'),
-          backgroundColor: const Color(0xFF367C2B),
-          foregroundColor: Colors.white,
-          actions: [
-            // شارة التنبيهات
-            if (alertsState.activeAlerts > 0)
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications),
-                    onPressed: () => _tabController.animateTo(2),
-                  ),
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                      child: Text(
-                        '${alertsState.activeAlerts}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+        body: weatherState.isLoading
+            ? NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  _buildSliverAppBar(alertsState, innerBoxIsScrolled),
+                ],
+                body: const WeatherScreenSkeleton(),
+              )
+            : weatherState.error != null
+                ? NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      _buildSliverAppBar(alertsState, innerBoxIsScrolled),
+                    ],
+                    body: _buildErrorView(weatherState.error!),
+                  )
+                : NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      _buildSliverAppBar(alertsState, innerBoxIsScrolled),
+                    ],
+                    body: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildWeatherTab(weatherState.data!),
+                        _buildRecommendationsTab(),
+                        _buildAlertsTab(),
+                      ],
                     ),
                   ),
-                ],
+      ),
+    );
+  }
+
+  SliverAppBar _buildSliverAppBar(dynamic alertsState, bool innerBoxIsScrolled) {
+    return SliverAppBar(
+      title: Text(widget.fieldName ?? 'الطقس'),
+      backgroundColor: const Color(0xFF367C2B),
+      foregroundColor: Colors.white,
+      floating: true,
+      snap: true,
+      pinned: true,
+      forceElevated: innerBoxIsScrolled,
+      actions: [
+        // شارة التنبيهات
+        if (alertsState.activeAlerts > 0)
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                onPressed: () => _tabController.animateTo(2),
               ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _refreshData,
-            ),
-          ],
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            tabs: const [
-              Tab(text: 'الطقس', icon: Icon(Icons.wb_sunny)),
-              Tab(text: 'التوصيات', icon: Icon(Icons.agriculture)),
-              Tab(text: 'التنبيهات', icon: Icon(Icons.warning)),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    '${alertsState.activeAlerts}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ],
           ),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _refreshData,
         ),
-        body: weatherState.isLoading
-            ? const WeatherScreenSkeleton()
-            : weatherState.error != null
-                ? _buildErrorView(weatherState.error!)
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildWeatherTab(weatherState.data!),
-                      _buildRecommendationsTab(),
-                      _buildAlertsTab(),
-                    ],
-                  ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        indicatorColor: Colors.white,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white70,
+        tabs: const [
+          Tab(text: 'الطقس', icon: Icon(Icons.wb_sunny)),
+          Tab(text: 'التوصيات', icon: Icon(Icons.agriculture)),
+          Tab(text: 'التنبيهات', icon: Icon(Icons.warning)),
+        ],
       ),
     );
   }

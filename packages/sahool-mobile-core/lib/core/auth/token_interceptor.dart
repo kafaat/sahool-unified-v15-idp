@@ -92,10 +92,12 @@ class TokenInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
 
-    // Add tenant ID
+    // Add tenant ID and keep UserContext in sync
+    // إضافة معرف المستأجر ومزامنة سياق المستخدم
     final tenantId = await _secureStorage.getTenantId();
     if (tenantId != null) {
       options.headers['X-Tenant-Id'] = tenantId;
+      UserContext.setTenantId(tenantId);
     }
 
     // Sanitized logging - no token values

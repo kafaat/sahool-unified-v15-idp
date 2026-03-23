@@ -7,6 +7,7 @@ library;
 
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
 import '../../../core/utils/app_logger.dart';
@@ -152,14 +153,14 @@ class ScannerRepository {
         statusCode: 200,
       );
     } on DioException catch (e) {
-      AppLogger.warning('Vision service error: ${e.message}');
+      AppLogger.w('Vision service error: ${e.message}');
       return Failure(
         _dioErrorMessage(e),
         statusCode: e.response?.statusCode,
         originalError: e,
       );
     } catch (e) {
-      AppLogger.error('Scanner repository unexpected error: $e');
+      AppLogger.e('Scanner repository unexpected error: $e');
       return Failure(
         'حدث خطأ غير متوقع أثناء التحليل',
         originalError: e,
@@ -191,8 +192,6 @@ class ScannerRepository {
 
 /// Riverpod provider for ScannerRepository
 /// مزود Riverpod لمستودع الماسح
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 final scannerRepositoryProvider = Provider.autoDispose<ScannerRepository>((ref) {
   return ScannerRepository();
 });

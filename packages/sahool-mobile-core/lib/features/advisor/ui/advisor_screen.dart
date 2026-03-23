@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/services/integrations/advisory_service.dart';
 
 /// AI Advisor Chat Screen - المستشار الذكي
 /// واجهة محادثة بسيطة مع دعم الصوت والكاميرا
-class AdvisorScreen extends StatefulWidget {
+class AdvisorScreen extends ConsumerStatefulWidget {
   const AdvisorScreen({super.key});
 
   @override
-  State<AdvisorScreen> createState() => _AdvisorScreenState();
+  ConsumerState<AdvisorScreen> createState() => _AdvisorScreenState();
 }
 
-class _AdvisorScreenState extends State<AdvisorScreen> {
+class _AdvisorScreenState extends ConsumerState<AdvisorScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isRecording = false;

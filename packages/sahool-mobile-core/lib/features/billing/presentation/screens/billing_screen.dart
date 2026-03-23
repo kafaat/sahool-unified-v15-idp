@@ -62,19 +62,29 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
         ),
         body: billingState.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: () async {
-                  await ref.read(billingProvider.notifier).loadBillingInfo();
-                },
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildSubscriptionTab(billingState),
-                    _buildInvoicesTab(billingState),
-                    _buildPaymentsTab(billingState),
-                  ],
-                ),
-              ),
+            : billingState.error != null
+                ? SahoolErrorState(
+                    message: billingState.error,
+                    messageEn: 'Failed to load billing information',
+                    icon: Icons.receipt_long_rounded,
+                    onRetry: () =>
+                        ref.read(billingProvider.notifier).loadBillingInfo(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      await ref
+                          .read(billingProvider.notifier)
+                          .loadBillingInfo();
+                    },
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildSubscriptionTab(billingState),
+                        _buildInvoicesTab(billingState),
+                        _buildPaymentsTab(billingState),
+                      ],
+                    ),
+                  ),
       ),
     );
   }

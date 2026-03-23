@@ -10,6 +10,7 @@ export '../accessibility/accessibility_utils.dart';
 
 // Error Handling
 export 'error_boundary.dart';
+export 'error_state.dart';
 
 // Loading States
 export 'loading_states.dart';

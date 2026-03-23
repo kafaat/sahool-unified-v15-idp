@@ -593,7 +593,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       context: context,
       isScrollControlled: true,
       builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: _isArabic(context) ? TextDirection.rtl : TextDirection.ltr,
         child: DraggableScrollableSheet(
           initialChildSize: 0.6,
           maxChildSize: 0.9,
@@ -640,7 +640,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
                   // السبب
                   Text(
-                    'السبب',
+                    _isArabic(context) ? 'السبب' : 'Reason',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -650,7 +650,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
                   // الأدلة
                   Text(
-                    'الأدلة',
+                    _isArabic(context) ? 'الأدلة' : 'Evidence',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),

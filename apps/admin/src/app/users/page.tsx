@@ -435,7 +435,7 @@ export default function UsersPage() {
       {showDeleteModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t("common.confirm")}</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف المستخدم <strong>{selectedUser.nameAr || selectedUser.name}</strong>؟
               هذا الإجراء لا يمكن التراجع عنه.
@@ -449,14 +449,14 @@ export default function UsersPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                إلغاء
+                {t("common.cancel")}
               </button>
               <button
                 onClick={() => handleDelete(selectedUser.id)}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? "جاري الحذف..." : "حذف"}
+                {isSubmitting ? `${t("common.loading")}` : t("common.delete")}
               </button>
             </div>
           </div>

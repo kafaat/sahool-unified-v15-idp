@@ -99,7 +99,12 @@ variable "eks_public_access_enabled" {
 variable "eks_public_access_cidrs" {
   description = "قائمة CIDR المسموح بها للوصول العام لـ EKS / Allowed CIDR blocks for EKS public access"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
+
+  validation {
+    condition     = !contains(var.eks_public_access_cidrs, "0.0.0.0/0")
+    error_message = "EKS public access must not use 0.0.0.0/0. Specify explicit CIDR blocks."
+  }
 }
 
 variable "min_nodes" {

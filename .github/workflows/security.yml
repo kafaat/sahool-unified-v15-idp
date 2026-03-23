@@ -576,9 +576,9 @@ jobs:
             fi
 
             # Check for hardcoded secrets (exclude PIP_* and other build config env vars)
-            if grep -E "^\s*(ENV|ARG)\s+" "$dockerfile" | \
+            if grep -P "^[[:space:]]*(ENV|ARG)[[:space:]]+" "$dockerfile" | \
                grep -vE "(PIP_|NPM_|NODE_|PYTHON|PATH|HOME|APP_|PORT|HOST|LANG|LC_|TZ|DEBIAN)" | \
-               grep -qiE "(PASSWORD|SECRET_KEY|API_KEY|AUTH_TOKEN)\s*=\s*['\"]?[a-zA-Z0-9]"; then
+               grep -qiP "(PASSWORD|SECRET_KEY|API_KEY|AUTH_TOKEN)\s*=\s*['\"]?[a-zA-Z0-9]"; then
               echo "❌ ERROR: Potential hardcoded secrets in $dockerfile"
               WARNINGS=$((WARNINGS + 1))
             fi
@@ -615,7 +615,7 @@ jobs:
             --skip-path archive/deprecated-services \
             --skip-path node_modules \
             --skip-path legacy \
-            --skip-path "helm/charts" \
+            --skip-path "helm/charts/vendor" \
             --skip-path ".git" \
             --compact \
             --skip-check CKV_K8S_21,CKV_K8S_40,CKV_K8S_43 \

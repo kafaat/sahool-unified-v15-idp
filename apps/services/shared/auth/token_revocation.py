@@ -154,6 +154,12 @@ class RedisTokenRevocationStore:
         if self._initialized:
             return
 
+        if redis is None:
+            raise ImportError(
+                "redis.asyncio is required for token revocation. "
+                "Install it with: pip install redis"
+            )
+
         try:
             url = self._build_redis_url()
 

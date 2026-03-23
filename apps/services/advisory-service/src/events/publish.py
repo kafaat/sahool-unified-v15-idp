@@ -86,14 +86,19 @@ class AdvisorPublisher:
         self.nats_url = nats_url or NATS_URL
         self.nc = None
         self._connected = False
+        self._nats_unavailable = False
 
     async def connect(self):
         """Connect to NATS server"""
         if self._connected:
             return
 
+        if self._nats_unavailable:
+            return
+
         if NATS is None:
             logger.warning("nats-py not installed, event publishing disabled")
+            self._nats_unavailable = True
             return
 
         self.nc = NATS()

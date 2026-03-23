@@ -79,9 +79,16 @@ async def _get_db(request: Request):
     return pool
 
 
-async def _get_batch_or_404(pool, batch_id: str) -> dict:
-    """Get batch by ID or raise 404."""
-    row = await pool.fetchrow("SELECT * FROM produce_batches WHERE id = $1", uuid.UUID(batch_id))
+async def _get_batch_or_404(pool, batch_id: str, tenant_id: str | None = None) -> dict:
+    """Get batch by ID with tenant isolation or raise 404."""
+    if tenant_id:
+        row = await pool.fetchrow(
+            "SELECT * FROM produce_batches WHERE id = $1 AND tenant_id = $2",
+            uuid.UUID(batch_id),
+            uuid.UUID(tenant_id),
+        )
+    else:
+        row = await pool.fetchrow("SELECT * FROM produce_batches WHERE id = $1", uuid.UUID(batch_id))
     if not row:
         raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
     return dict(row)

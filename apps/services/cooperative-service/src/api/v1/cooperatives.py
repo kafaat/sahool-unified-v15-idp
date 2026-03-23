@@ -77,9 +77,16 @@ async def _get_db(request: Request):
     return pool
 
 
-async def _get_coop_or_404(pool, coop_id: str) -> dict:
-    """Get cooperative by ID or raise 404."""
-    row = await pool.fetchrow("SELECT * FROM cooperatives WHERE id = $1", uuid.UUID(coop_id))
+async def _get_coop_or_404(pool, coop_id: str, tenant_id: str | None = None) -> dict:
+    """Get cooperative by ID with tenant isolation or raise 404."""
+    if tenant_id:
+        row = await pool.fetchrow(
+            "SELECT * FROM cooperatives WHERE id = $1 AND tenant_id = $2",
+            uuid.UUID(coop_id),
+            uuid.UUID(tenant_id),
+        )
+    else:
+        row = await pool.fetchrow("SELECT * FROM cooperatives WHERE id = $1", uuid.UUID(coop_id))
     if not row:
         raise HTTPException(
             status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}

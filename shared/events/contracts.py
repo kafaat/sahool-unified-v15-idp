@@ -43,29 +43,35 @@ REQUIRED_EVENT_FIELDS: frozenset[str] = frozenset({
 })
 
 
-def validate_event_payload(subject: str, payload: dict) -> bool:
+def validate_event_payload(subject: str, payload: dict, *, strict: bool = False) -> bool:
     """Validate event payload has required base fields.
 
     All SAHOOL events must include: event_id, timestamp, tenant_id, source_service.
-    Does not block event publishing — only logs warnings for missing fields.
 
     التحقق من أن حمولة الحدث تحتوي على الحقول الأساسية المطلوبة.
-    لا يمنع نشر الأحداث — يسجل تحذيرات فقط للحقول المفقودة.
 
     Args:
         subject: NATS subject the event is published to (e.g. "sahool.field.created").
         payload: Event payload as a dictionary.
+        strict: If True, raise ValueError on missing fields instead of just logging.
 
     Returns:
         True if all required fields are present, False otherwise.
+
+    Raises:
+        ValueError: If strict=True and required fields are missing.
     """
     missing = REQUIRED_EVENT_FIELDS - set(payload.keys())
+
+    # Also check for None/empty tenant_id
+    if "tenant_id" in payload and not payload["tenant_id"]:
+        missing = missing | {"tenant_id"}
+
     if missing:
-        _logger.warning(
-            "event_missing_required_fields",
-            subject=subject,
-            missing=sorted(missing),
-        )
+        msg = f"Event on '{subject}' missing required fields: {sorted(missing)}"
+        _logger.warning("event_missing_required_fields", subject=subject, missing=sorted(missing))
+        if strict:
+            raise ValueError(msg)
         return False
     return True
 

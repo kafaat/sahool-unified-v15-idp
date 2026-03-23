@@ -333,37 +333,29 @@ class TestValidateEventPayload:
         assert validate_event_payload("sahool.test.event", payload) is True
 
     def test_none_values_for_required_fields(self):
-        """BUG HUNT: Required fields set to None - does validate_event_payload catch this?
-        It only checks key presence, not value truthiness. This is a potential bug."""
+        """FIXED: validate_event_payload now rejects None tenant_id.
+        Previously only checked key presence, now validates tenant_id value."""
         payload = {
             "event_id": None,
             "timestamp": None,
             "tenant_id": None,
             "source_service": None,
         }
-        # This tests the CURRENT behavior: validate_event_payload only checks key presence
-        # If it returns True, that means None values are accepted (potential bug)
         result = validate_event_payload("sahool.test.event", payload)
-        # Document the actual behavior
-        assert result is True, (
-            "validate_event_payload rejects None values for required fields - "
-            "this means it validates values, not just key presence"
-        )
+        # tenant_id=None is now correctly rejected
+        assert result is False, "None tenant_id should be rejected for multi-tenant isolation"
 
     def test_empty_string_values_for_required_fields(self):
-        """BUG HUNT: Required fields set to empty string."""
+        """FIXED: validate_event_payload now rejects empty tenant_id."""
         payload = {
             "event_id": "",
             "timestamp": "",
             "tenant_id": "",
             "source_service": "",
         }
-        # Current implementation only checks key presence, so this should pass
         result = validate_event_payload("sahool.test.event", payload)
-        assert result is True, (
-            "validate_event_payload rejects empty string values - "
-            "unexpected value validation beyond key presence"
-        )
+        # Empty tenant_id is now correctly rejected
+        assert result is False, "Empty tenant_id should be rejected for multi-tenant isolation"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

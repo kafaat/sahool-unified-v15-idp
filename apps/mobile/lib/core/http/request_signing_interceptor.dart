@@ -185,9 +185,30 @@ class RequestSigningInterceptor extends Interceptor {
     } else if (body is Map || body is List) {
       bodyString = jsonEncode(body);
     } else if (body is FormData) {
-      // For FormData, use a placeholder hash
-      // In production, you might want to hash the individual fields
-      bodyString = 'FormData:${body.fields.length}:${body.files.length}';
+      // Hash FormData fields as a JSON map for a deterministic, content-based
+      // approximation.  File bytes are not included because they may be large
+      // streams; file names and field counts are included so the signature still
+      // varies meaningfully between distinct multipart payloads.
+      //
+      // NOTE: This is not a perfect SPKI-level hash of the raw multipart body
+      // because Dio does not expose the serialised bytes at this point.  It is
+      // nonetheless far more collision-resistant than the previous placeholder
+      // string "FormData:N:M".
+      final fieldMap = <String, dynamic>{};
+      for (final kv in body.fields) {
+        // Use a list to preserve duplicate keys (e.g. repeated checkbox values)
+        (fieldMap[kv.key] as List<dynamic>? ?? []).add(kv.value);
+        fieldMap[kv.key] = fieldMap[kv.key] ?? [kv.value];
+      }
+      // Include file metadata so payloads with different files produce a
+      // different hash even when text fields are identical.
+      final filesMeta = body.files.map((kv) => {
+        'field': kv.key,
+        'filename': kv.value.filename ?? '',
+        'contentType': kv.value.contentType?.mimeType ?? '',
+        'length': kv.value.length,
+      }).toList();
+      bodyString = jsonEncode({'fields': fieldMap, 'files': filesMeta});
     } else {
       bodyString = body.toString();
     }

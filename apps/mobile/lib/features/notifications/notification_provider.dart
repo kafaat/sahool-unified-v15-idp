@@ -336,12 +336,20 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 final farmerIdProvider = StateProvider<String>((ref) => '');
 
 /// مزود رابط API
+///
+/// The production URL is read from the `NOTIFICATION_API_URL` dart-define so
+/// it can be overridden at build time:
+///   flutter build apk --dart-define=NOTIFICATION_API_URL=https://api.sahool.io
+///
+/// Falls back to the canonical production origin when dart-define is absent.
+/// Development builds use the local notification service on port 8109.
 final apiBaseUrlProvider = Provider<String>((ref) {
-  // يمكن تغييره حسب البيئة
   const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction
-      ? 'https://api.sahool.io'
-      : 'http://localhost:8109';
+  if (isProduction) {
+    const overrideUrl = String.fromEnvironment('NOTIFICATION_API_URL');
+    return overrideUrl.isNotEmpty ? overrideUrl : 'https://api.sahool.io';
+  }
+  return 'http://localhost:8109';
 });
 
 /// مزود الإشعارات الرئيسي

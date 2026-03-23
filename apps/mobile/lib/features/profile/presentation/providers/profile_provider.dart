@@ -2,6 +2,7 @@
 /// موفر الملف الشخصي - إدارة حالة ملف المستخدم
 library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/profile_repository.dart';
 
 /// User profile state
 /// حالة الملف الشخصي
@@ -84,68 +85,63 @@ class ProfileState {
 /// Profile state notifier
 /// مُعلم حالة الملف الشخصي
 class ProfileNotifier extends StateNotifier<ProfileState> {
-  ProfileNotifier() : super(const ProfileState()) {
+  final ProfileRepository _repo;
+
+  ProfileNotifier(this._repo) : super(const ProfileState()) {
     loadProfile();
   }
 
-  /// Load user profile from backend/local storage
-  /// تحميل ملف المستخدم من الخادم / التخزين المحلي
+  /// Load user profile from user-service (GET /api/v1/users/me)
+  /// تحميل ملف المستخدم من الخادم
   Future<void> loadProfile() async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      state = state.copyWith(
-        isLoading: false,
-        userId: 'user_001',
-        userName: 'Ahmed Al-Rashidi',
-        userNameAr: 'أحمد الراشدي',
-        email: 'ahmed@sahool.app',
-        phone: '+966 50 123 4567',
-        farmName: 'Al-Rashidi Farm',
-        farmNameAr: 'مزرعة الراشدي',
-        farmAreaHectares: 450,
-        location: 'القصيم، المملكة العربية السعودية',
-        language: 'ar',
-        fieldsCount: 12,
-        tasksCompleted: 156,
-        achievementsCount: 23,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    final result = await _repo.getMe();
+    result.when(
+      success: (profile) {
+        state = profile.copyWith(isLoading: false);
+      },
+      failure: (message, statusCode) {
+        state = state.copyWith(isLoading: false, error: message);
+      },
+    );
   }
 
-  /// Update profile fields
+  /// Update profile fields via user-service (PATCH /api/v1/users/me)
   /// تحديث حقول الملف الشخصي
   Future<void> updateProfile({
     String? userName,
     String? phone,
     String? farmName,
   }) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      state = state.copyWith(
-        isLoading: false,
-        userName: userName ?? state.userName,
-        phone: phone ?? state.phone,
-        farmName: farmName ?? state.farmName,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repo.updateMe(
+      userName: userName,
+      phone: phone,
+      farmName: farmName,
+    );
+    result.when(
+      success: (profile) {
+        state = profile.copyWith(isLoading: false);
+      },
+      failure: (message, statusCode) {
+        state = state.copyWith(isLoading: false, error: message);
+      },
+    );
   }
 
-  /// Upload avatar image
+  /// Upload avatar image via user-service (POST /api/v1/users/me/avatar)
   /// رفع صورة الملف الشخصي
   Future<void> uploadAvatar(String filePath) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-      state = state.copyWith(isLoading: false, avatarUrl: filePath);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repo.uploadAvatar(filePath);
+    result.when(
+      success: (avatarUrl) {
+        state = state.copyWith(isLoading: false, avatarUrl: avatarUrl);
+      },
+      failure: (message, statusCode) {
+        state = state.copyWith(isLoading: false, error: message);
+      },
+    );
   }
 
   /// Change app language
@@ -159,5 +155,5 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 /// موفر حالة الملف الشخصي
 final profileProvider =
     StateNotifierProvider.autoDispose<ProfileNotifier, ProfileState>((ref) {
-  return ProfileNotifier();
+  return ProfileNotifier(ref.read(profileRepoProvider));
 });

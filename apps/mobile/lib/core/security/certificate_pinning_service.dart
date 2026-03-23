@@ -529,14 +529,24 @@ class CertificatePinningService {
     return actualFingerprint.toLowerCase() == expectedFingerprint.toLowerCase();
   }
 
-  /// Match public key
+  /// Match public key (SPKI hash).
+  ///
+  /// KNOWN LIMITATION: A real public-key / SPKI pin should hash only the
+  /// SubjectPublicKeyInfo bytes extracted from the certificate's ASN.1 DER
+  /// structure.  Extracting those bytes correctly in pure Dart requires either
+  /// an ASN.1 parser or platform-channel native code.
+  ///
+  /// This implementation falls back to SHA-256 of the full certificate DER,
+  /// which is identical to [_matchSha256].  Pins of type [PinType.publicKey]
+  /// must therefore be supplied with the full-cert SHA-256 fingerprint (not a
+  /// true SPKI hash) until native support is added.
+  ///
+  /// TODO: Replace with proper SPKI byte extraction once a platform channel
+  /// or ASN.1 library is integrated.
   bool _matchPublicKey(X509Certificate cert, String expectedPublicKey) {
-    // Extract public key from certificate DER
-    final publicKeyBytes = cert.der;
-    final publicKeyHash = sha256.convert(publicKeyBytes);
-    final publicKeyFingerprint = publicKeyHash.toString();
-
-    return publicKeyFingerprint.toLowerCase() == expectedPublicKey.toLowerCase();
+    // Fallback: hash the full certificate DER – same as SHA-256 mode.
+    final certHash = sha256.convert(cert.der);
+    return certHash.toString().toLowerCase() == expectedPublicKey.toLowerCase();
   }
 
   /// Get certificate SHA256 fingerprint

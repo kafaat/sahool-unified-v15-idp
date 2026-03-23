@@ -296,13 +296,24 @@ class TharwattConfig {
   }
 
   /// التكوين الإنتاجي
+  ///
+  /// The base URL is read from the `THARWATT_API_URL` dart-define so it can be
+  /// overridden at build time without modifying source code:
+  ///   flutter build apk --dart-define=THARWATT_API_URL=https://api.tharwatt.com
+  ///
+  /// If the dart-define is absent the value falls back to the canonical
+  /// production URL.  Do NOT hardcode the URL here; use dart-define instead.
   factory TharwattConfig.production({
     required String apiKey,
     required String merchantId,
     required String secretKey,
   }) {
+    const baseUrl = String.fromEnvironment(
+      'THARWATT_API_URL',
+      defaultValue: 'https://api.tharwatt.com',
+    );
     return TharwattConfig(
-      baseUrl: 'https://api.tharwatt.com',
+      baseUrl: baseUrl,
       apiKey: apiKey,
       merchantId: merchantId,
       secretKey: secretKey,

@@ -384,15 +384,32 @@ class SslPinningManager {
     return fingerprint == expectedFingerprint.toLowerCase();
   }
 
-  /// Match SPKI (Subject Public Key Info) hash
-  /// Note: This is a simplified implementation
-  /// For full SPKI extraction, platform-specific code may be needed
+  /// Match SPKI (Subject Public Key Info) hash.
+  ///
+  /// KNOWN LIMITATION: True SPKI pinning requires extracting only the
+  /// SubjectPublicKeyInfo bytes (the public key + algorithm OID) from the
+  /// certificate's ASN.1 DER encoding.  Doing that correctly in pure Dart
+  /// requires either an ASN.1 parser or platform-channel native code, neither
+  /// of which is available here.
+  ///
+  /// This method therefore falls back to SHA-256 of the full certificate DER,
+  /// which is identical to [_matchSha256].  The practical effect is that SPKI
+  /// pins configured in [SslPin.spki] must be populated with the full-cert
+  /// SHA-256 fingerprint (not a true SPKI hash) until native support is added.
+  ///
+  /// TODO: Replace with a proper SPKI extraction once a platform channel or
+  /// ASN.1 library is integrated.
+  // ignore: unused_element
+  bool _matchSpki_knownLimitation(X509Certificate cert, String expectedSpkiHash) {
+    // Fallback: hash the full DER – same as SHA-256 mode.
+    final certHash = sha256.convert(cert.der);
+    return certHash.toString().toLowerCase() == expectedSpkiHash.toLowerCase();
+  }
+
+  /// Internal dispatcher used by [_validateCertificate] for SPKI pins.
+  /// Delegates to [_matchSpki_knownLimitation] – see its doc for the caveat.
   bool _matchSpki(X509Certificate cert, String expectedSpkiHash) {
-    // SPKI is typically extracted from the certificate's public key
-    // This simplified version uses the certificate DER
-    // For production, consider using native code for proper SPKI extraction
-    final spkiHash = sha256.convert(cert.der);
-    return spkiHash.toString().toLowerCase() == expectedSpkiHash.toLowerCase();
+    return _matchSpki_knownLimitation(cert, expectedSpkiHash);
   }
 
   /// Match full certificate

@@ -1,52 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../data/alerts_repository.dart';
 
 /// Alerts Screen - شاشة التنبيهات
-class AlertsScreen extends StatefulWidget {
+class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
 
   @override
-  State<AlertsScreen> createState() => _AlertsScreenState();
+  ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
 }
 
-class _AlertsScreenState extends State<AlertsScreen>
+class _AlertsScreenState extends ConsumerState<AlertsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  final List<_Alert> _alerts = [
-    _Alert(
-      id: '1',
-      title: 'نقص النيتروجين',
-      subtitle: 'حقل القمح الشمالي يحتاج تسميد عاجل',
-      type: AlertType.warning,
-      time: DateTime.now().subtract(const Duration(hours: 2)),
-      isRead: false,
-    ),
-    _Alert(
-      id: '2',
-      title: 'موعد الري',
-      subtitle: 'حقل الذرة يحتاج ري خلال 4 ساعات',
-      type: AlertType.info,
-      time: DateTime.now().subtract(const Duration(hours: 5)),
-      isRead: false,
-    ),
-    _Alert(
-      id: '3',
-      title: 'تنبيه آفات',
-      subtitle: 'رصد حشرات في حقل البن - يرجى الفحص',
-      type: AlertType.danger,
-      time: DateTime.now().subtract(const Duration(days: 1)),
-      isRead: true,
-    ),
-    _Alert(
-      id: '4',
-      title: 'تحديث NDVI',
-      subtitle: 'تم تحديث بيانات صحة المحاصيل',
-      type: AlertType.success,
-      time: DateTime.now().subtract(const Duration(days: 2)),
-      isRead: true,
-    ),
-  ];
 
   @override
   void initState() {
@@ -62,21 +29,58 @@ class _AlertsScreenState extends State<AlertsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final alertsAsync = ref.watch(alertsProvider);
+
+    return alertsAsync.when(
+      loading: () => _buildScaffold(
+        alerts: [],
+        isLoading: true,
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _buildScaffold(
+        alerts: [],
+        isLoading: false,
+        child: _buildErrorState(error.toString().replaceFirst('Exception: ', '')),
+      ),
+      data: (alerts) => _buildScaffold(
+        alerts: alerts,
+        isLoading: false,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildAlertsList(alerts),
+            _buildAlertsList(alerts.where((a) => !a.isRead).toList()),
+            _buildAlertsList(
+                alerts.where((a) => a.type == AlertType.danger).toList()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScaffold({
+    required List<AlertModel> alerts,
+    required bool isLoading,
+    required Widget child,
+  }) {
     return Scaffold(
       backgroundColor: SahoolColors.background,
       appBar: AppBar(
         title: const Text('التنبيهات'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.invalidate(alertsProvider),
+            tooltip: 'تحديث',
+          ),
+          IconButton(
             icon: const Icon(Icons.done_all),
-            onPressed: () => _markAllAsRead(),
+            onPressed: isLoading ? null : () => _markAllAsRead(alerts),
             tooltip: 'قراءة الكل',
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              _showFilterSheet();
-            },
+            onPressed: () => _showFilterSheet(),
             tooltip: 'تصفية',
           ),
         ],
@@ -92,7 +96,7 @@ class _AlertsScreenState extends State<AlertsScreen>
                 children: [
                   const Text('الكل'),
                   const SizedBox(width: 6),
-                  _buildBadge(_alerts.length),
+                  _buildBadge(alerts.length),
                 ],
               ),
             ),
@@ -102,7 +106,7 @@ class _AlertsScreenState extends State<AlertsScreen>
                 children: [
                   const Text('غير مقروءة'),
                   const SizedBox(width: 6),
-                  _buildBadge(_alerts.where((a) => !a.isRead).length),
+                  _buildBadge(alerts.where((a) => !a.isRead).length),
                 ],
               ),
             ),
@@ -110,12 +114,28 @@ class _AlertsScreenState extends State<AlertsScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: child,
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildAlertsList(_alerts),
-          _buildAlertsList(_alerts.where((a) => !a.isRead).toList()),
-          _buildAlertsList(_alerts.where((a) => a.type == AlertType.danger).toList()),
+          Icon(Icons.cloud_off, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => ref.invalidate(alertsProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+          ),
         ],
       ),
     );
@@ -136,7 +156,7 @@ class _AlertsScreenState extends State<AlertsScreen>
     );
   }
 
-  Widget _buildAlertsList(List<_Alert> alerts) {
+  Widget _buildAlertsList(List<AlertModel> alerts) {
     if (alerts.isEmpty) {
       return Center(
         child: Column(
@@ -153,46 +173,41 @@ class _AlertsScreenState extends State<AlertsScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: alerts.length,
-      itemBuilder: (context, index) {
-        final alert = alerts[index];
-        return _AlertCard(
-          alert: alert,
-          onTap: () => _onAlertTap(alert),
-          onDismiss: () => _onAlertDismiss(alert),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(alertsProvider),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: alerts.length,
+        itemBuilder: (context, index) {
+          final alert = alerts[index];
+          return _AlertCard(
+            alert: alert,
+            onTap: () => _onAlertTap(alert),
+            onDismiss: () => _onAlertDismiss(alert),
+          );
+        },
+      ),
     );
   }
 
-  void _onAlertTap(_Alert alert) {
-    setState(() {
-      final index = _alerts.indexWhere((a) => a.id == alert.id);
-      if (index != -1) {
-        _alerts[index] = alert.copyWith(isRead: true);
-      }
+  void _onAlertTap(AlertModel alert) {
+    // Optimistically update local state via a fresh read after acknowledge
+    ref.read(alertsRepoProvider).acknowledgeAlert(alert.id).then((_) {
+      ref.invalidate(alertsProvider);
     });
   }
 
-  void _onAlertDismiss(_Alert alert) {
-    setState(() {
-      _alerts.removeWhere((a) => a.id == alert.id);
-    });
+  void _onAlertDismiss(AlertModel alert) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('تم حذف التنبيه'),
         action: SnackBarAction(
           label: 'تراجع',
-          onPressed: () {
-            setState(() {
-              _alerts.add(alert);
-            });
-          },
+          onPressed: () => ref.invalidate(alertsProvider),
         ),
       ),
     );
+    ref.invalidate(alertsProvider);
   }
 
   void _showFilterSheet() {
@@ -250,17 +265,15 @@ class _AlertsScreenState extends State<AlertsScreen>
     );
   }
 
-  void _markAllAsRead() {
-    setState(() {
-      for (var i = 0; i < _alerts.length; i++) {
-        _alerts[i] = _alerts[i].copyWith(isRead: true);
-      }
+  void _markAllAsRead(List<AlertModel> alerts) {
+    ref.read(alertsRepoProvider).acknowledgeAllAlerts().then((_) {
+      ref.invalidate(alertsProvider);
     });
   }
 }
 
 class _AlertCard extends StatelessWidget {
-  final _Alert alert;
+  final AlertModel alert;
   final VoidCallback onTap;
   final VoidCallback onDismiss;
 
@@ -291,10 +304,14 @@ class _AlertCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: alert.isRead ? Colors.white : alert.type.color.withValues(alpha: 0.05),
+            color: alert.isRead
+                ? Colors.white
+                : alert.type.color.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: alert.isRead ? Colors.grey[200]! : alert.type.color.withValues(alpha: 0.3),
+              color: alert.isRead
+                  ? Colors.grey[200]!
+                  : alert.type.color.withValues(alpha: 0.3),
             ),
             boxShadow: SahoolShadows.small,
           ),
@@ -306,7 +323,8 @@ class _AlertCard extends StatelessWidget {
                   color: alert.type.color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(alert.type.icon, color: alert.type.color, size: 24),
+                child:
+                    Icon(alert.type.icon, color: alert.type.color, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -329,7 +347,9 @@ class _AlertCard extends StatelessWidget {
                           child: Text(
                             alert.title,
                             style: TextStyle(
-                              fontWeight: alert.isRead ? FontWeight.normal : FontWeight.bold,
+                              fontWeight: alert.isRead
+                                  ? FontWeight.normal
+                                  : FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
@@ -339,18 +359,14 @@ class _AlertCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       alert.subtitle,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
+                      style:
+                          TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _formatTime(alert.time),
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 12,
-                      ),
+                      style:
+                          TextStyle(color: Colors.grey[400], fontSize: 12),
                     ),
                   ],
                 ),
@@ -381,33 +397,4 @@ enum AlertType {
   final Color color;
 
   const AlertType(this.icon, this.color);
-}
-
-class _Alert {
-  final String id;
-  final String title;
-  final String subtitle;
-  final AlertType type;
-  final DateTime time;
-  final bool isRead;
-
-  _Alert({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.type,
-    required this.time,
-    required this.isRead,
-  });
-
-  _Alert copyWith({bool? isRead}) {
-    return _Alert(
-      id: id,
-      title: title,
-      subtitle: subtitle,
-      type: type,
-      time: time,
-      isRead: isRead ?? this.isRead,
-    );
-  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/auth_service.dart';
+import '../providers/profile_provider.dart';
 
 /// شاشة الملف الشخصي والإعدادات
 /// Profile & Settings Screen
@@ -19,6 +20,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = ref.watch(profileProvider);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -26,53 +29,93 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title: const Text('الملف الشخصي'),
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
+          actions: [
+            if (profile.error != null)
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'إعادة المحاولة',
+                onPressed: () =>
+                    ref.read(profileProvider.notifier).loadProfile(),
+              ),
+          ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              // رأس الملف الشخصي
-              _buildProfileHeader(),
-              const SizedBox(height: 16),
+        body: profile.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : profile.error != null && profile.userId.isEmpty
+                ? _buildErrorState(profile.error!)
+                : SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // رأس الملف الشخصي
+                        _buildProfileHeader(profile),
+                        const SizedBox(height: 16),
 
-              // الإحصائيات السريعة
-              _buildQuickStats(),
-              const SizedBox(height: 16),
+                        // الإحصائيات السريعة
+                        _buildQuickStats(profile),
+                        const SizedBox(height: 16),
 
-              // إعدادات الحساب
-              _buildSectionTitle('إعدادات الحساب'),
-              _buildAccountSettings(),
-              const SizedBox(height: 16),
+                        // إعدادات الحساب
+                        _buildSectionTitle('إعدادات الحساب'),
+                        _buildAccountSettings(),
+                        const SizedBox(height: 16),
 
-              // إعدادات التطبيق
-              _buildSectionTitle('إعدادات التطبيق'),
-              _buildAppSettings(),
-              const SizedBox(height: 16),
+                        // إعدادات التطبيق
+                        _buildSectionTitle('إعدادات التطبيق'),
+                        _buildAppSettings(),
+                        const SizedBox(height: 16),
 
-              // إعدادات الإشعارات
-              _buildSectionTitle('الإشعارات'),
-              _buildNotificationSettings(),
-              const SizedBox(height: 16),
+                        // إعدادات الإشعارات
+                        _buildSectionTitle('الإشعارات'),
+                        _buildNotificationSettings(),
+                        const SizedBox(height: 16),
 
-              // الدعم والمساعدة
-              _buildSectionTitle('الدعم والمساعدة'),
-              _buildSupportSection(),
-              const SizedBox(height: 16),
+                        // الدعم والمساعدة
+                        _buildSectionTitle('الدعم والمساعدة'),
+                        _buildSupportSection(),
+                        const SizedBox(height: 16),
 
-              // تسجيل الخروج
-              _buildLogoutButton(),
-              const SizedBox(height: 32),
+                        // تسجيل الخروج
+                        _buildLogoutButton(),
+                        const SizedBox(height: 32),
 
-              // معلومات التطبيق
-              _buildAppInfo(),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
+                        // معلومات التطبيق
+                        _buildAppInfo(),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () =>
+                ref.read(profileProvider.notifier).loadProfile(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF367C2B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(ProfileState profile) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -88,14 +131,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           // صورة الملف الشخصي
           Stack(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.person,
-                  size: 50,
-                  color: Color(0xFF367C2B),
-                ),
+                backgroundImage: profile.avatarUrl != null
+                    ? NetworkImage(profile.avatarUrl!)
+                    : null,
+                child: profile.avatarUrl == null
+                    ? const Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Color(0xFF367C2B),
+                      )
+                    : null,
               ),
               Positioned(
                 bottom: 0,
@@ -118,9 +166,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(height: 16),
 
           // اسم المستخدم
-          const Text(
-            'أحمد محمد',
-            style: TextStyle(
+          Text(
+            profile.userNameAr.isNotEmpty ? profile.userNameAr : profile.userName,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -128,51 +176,67 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 4),
 
-          // الدور
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'مدير المزرعة',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
+          // المزرعة
+          if (profile.farmNameAr.isNotEmpty || profile.farmName.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                profile.farmNameAr.isNotEmpty
+                    ? profile.farmNameAr
+                    : profile.farmName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 8),
 
           // البريد الإلكتروني
-          const Text(
-            'ahmed@sahool.sa',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
+          if (profile.email.isNotEmpty)
+            Text(
+              profile.email,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickStats() {
+  Widget _buildQuickStats(ProfileState profile) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(
-            child: _buildStatItem('الحقول', '12', Icons.landscape),
+            child: _buildStatItem(
+              'الحقول',
+              profile.fieldsCount.toString(),
+              Icons.landscape,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildStatItem('المهام', '28', Icons.task_alt),
+            child: _buildStatItem(
+              'المهام',
+              profile.tasksCompleted.toString(),
+              Icons.task_alt,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildStatItem('التنبيهات', '3', Icons.notifications),
+            child: _buildStatItem(
+              'الإنجازات',
+              profile.achievementsCount.toString(),
+              Icons.emoji_events,
+            ),
           ),
         ],
       ),

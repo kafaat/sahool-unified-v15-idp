@@ -67,8 +67,13 @@ def detect_conflict(
         # Detect schema mismatch - significant structural differences indicate schema version change
         # Exclude common metadata keys to reduce false positives from generic field overlap
         _metadata_keys = {
-            "id", "updated_at", "created_at", "_deleted",
-            "tenant_id", "version", "schema_version",
+            "id",
+            "updated_at",
+            "created_at",
+            "_deleted",
+            "tenant_id",
+            "version",
+            "schema_version",
         }
         local_keys = set(local_item.local_data.keys()) - _metadata_keys
         server_keys = set(server_data.keys()) - _metadata_keys

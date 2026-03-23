@@ -56,8 +56,7 @@ def _get_http_client(req: Request) -> httpx.AsyncClient:
     client = getattr(req.app.state, "http_client", None)
     if client is None:
         raise RuntimeError(
-            "http_client not initialized in app.state. "
-            "Ensure the lifespan context manager ran correctly."
+            "http_client not initialized in app.state. Ensure the lifespan context manager ran correctly."
         )
     return client
 
@@ -293,7 +292,9 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
     # Prompt injection detection
     is_injection, pattern_name = detect_prompt_injection(user_query)
     if is_injection:
-        raise HTTPException(status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"})
+        raise HTTPException(
+            status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"}
+        )
 
     # Build system prompt
     rag_context_text = ""
@@ -301,9 +302,7 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
         rag_service = get_rag_service()
         results = await rag_service.search(query=user_query, top_k=5)
         if results:
-            rag_context_text = rag_service.format_context_for_prompt(
-                results, language=_detect_language(user_query)
-            )
+            rag_context_text = rag_service.format_context_for_prompt(results, language=_detect_language(user_query))
     except Exception:
         pass
 

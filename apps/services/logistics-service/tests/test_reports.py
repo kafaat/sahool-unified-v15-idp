@@ -65,6 +65,8 @@ class TestToAwareDt:
     def test_non_datetime_non_string_returns_none(self):
         assert _to_aware_dt(12345) is None
         assert _to_aware_dt(True) is None
+
+
 # ==========================================================================
 # _filter_records_by_date Tests
 # ==========================================================================
@@ -100,10 +102,10 @@ class TestFilterRecordsByDate:
     def test_filter_none_date_excluded(self):
         now = datetime.now(UTC)
         records = [{"created_at": None}, {"created_at": now}]
-        result = _filter_records_by_date(
-            records, now - timedelta(hours=1), now + timedelta(hours=1)
-        )
+        result = _filter_records_by_date(records, now - timedelta(hours=1), now + timedelta(hours=1))
         assert len(result) == 1
+
+
 # ==========================================================================
 # _build_vehicle_summary Tests
 # ==========================================================================
@@ -136,6 +138,8 @@ class TestBuildVehicleSummary:
         assert summary.active == 0
         assert summary.idle == 2
         assert summary.utilization_rate == 0.0
+
+
 # ==========================================================================
 # _build_shipment_summary Tests
 # ==========================================================================
@@ -183,6 +187,8 @@ class TestBuildShipmentSummary:
         ]
         summary = _build_shipment_summary(shipments)
         assert summary.on_time_rate == 0.0
+
+
 # ==========================================================================
 # _build_collection_summary Tests
 # ==========================================================================
@@ -226,21 +232,29 @@ class TestBuildCollectionSummary:
         assert summary.actual_weight_kg == 2550.0
         assert summary.fields_covered == 2
         assert len(summary.by_crop) == 2  # wheat and tomato
+
+
 # ==========================================================================
 # Report Response Model Tests
 # ==========================================================================
 class TestReportModels:
     def test_vehicle_summary_model(self):
         vs = VehicleSummary(
-            total=10, active=3, idle=5, maintenance=2,
+            total=10,
+            active=3,
+            idle=5,
+            maintenance=2,
             utilization_rate=30.0,
         )
         assert vs.out_of_service == 0  # default
 
     def test_cost_summary_model(self):
         cs = CostSummary(
-            fuel_cost=1000, maintenance_cost=500, labor_cost=800,
-            total_cost=2300, cost_per_delivery=115,
+            fuel_cost=1000,
+            maintenance_cost=500,
+            labor_cost=800,
+            total_cost=2300,
+            cost_per_delivery=115,
         )
         assert cs.currency == "SAR"
 

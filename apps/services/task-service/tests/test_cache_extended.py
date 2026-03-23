@@ -90,6 +90,7 @@ class TestCacheAdapter:
     @pytest.fixture(autouse=True)
     def reset_redis(self):
         import src.cache as cache_module
+
         old_client = cache_module._redis_client
         old_available = cache_module._redis_available
         cache_module._redis_client = None
@@ -192,6 +193,7 @@ class TestAstronomicalCache:
     @pytest.fixture(autouse=True)
     def reset_redis(self):
         import src.cache as cache_module
+
         cache_module._redis_client = None
         cache_module._redis_available = False
         cache_module._memory_cache.clear()
@@ -246,6 +248,7 @@ class TestTaskCache:
     @pytest.fixture(autouse=True)
     def reset_redis(self):
         import src.cache as cache_module
+
         cache_module._redis_client = None
         cache_module._redis_available = False
         cache_module._memory_cache.clear()
@@ -293,6 +296,7 @@ class TestCloseRedis:
     @pytest.mark.asyncio
     async def test_close_when_no_client(self):
         import src.cache as cache_module
+
         cache_module._redis_client = None
         cache_module._redis_available = False
         await close_redis()
@@ -300,6 +304,7 @@ class TestCloseRedis:
     @pytest.mark.asyncio
     async def test_close_with_mock_client(self):
         import src.cache as cache_module
+
         mock_client = AsyncMock()
         cache_module._redis_client = mock_client
         cache_module._redis_available = True
@@ -310,6 +315,7 @@ class TestCloseRedis:
     @pytest.mark.asyncio
     async def test_close_handles_error(self):
         import src.cache as cache_module
+
         mock_client = AsyncMock()
         mock_client.close.side_effect = Exception("fail")
         cache_module._redis_client = mock_client

@@ -19,8 +19,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   DiagnosisResult? _diagnosis;
   final _notesController = TextEditingController();
   bool _isRecording = false;
-  String _recordingTime = "00:00";
-  String _selectedSeverity = "medium";
+  String _recordingTime = '00:00';
+  String _selectedSeverity = 'medium';
 
   @override
   void dispose() {
@@ -33,7 +33,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
-        title: const Text("كشف ميداني"),
+        title: const Text('كشف ميداني'),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
         elevation: 0,
@@ -41,7 +41,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: _showHistory,
-            tooltip: "السجل",
+            tooltip: 'السجل',
           ),
         ],
       ),
@@ -93,7 +93,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   ),
                 ),
                 child: const Text(
-                  "حفظ التقرير",
+                  'حفظ التقرير',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: SahoolColors.paleOlive,
               shape: BoxShape.circle,
             ),
@@ -137,7 +137,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           ),
           const SizedBox(height: 16),
           const Text(
-            "التقط صورة للإصابة أو النبات",
+            'التقط صورة للإصابة أو النبات',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: SahoolColors.forestGreen,
@@ -145,7 +145,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            "سيتم تحليلها بالذكاء الاصطناعي",
+            'سيتم تحليلها بالذكاء الاصطناعي',
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey[600],
@@ -158,7 +158,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               ElevatedButton.icon(
                 onPressed: _captureImage,
                 icon: const Icon(Icons.camera_alt, size: 18),
-                label: const Text("التقاط"),
+                label: const Text('التقاط'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SahoolColors.forestGreen,
                   foregroundColor: Colors.white,
@@ -168,7 +168,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               OutlinedButton.icon(
                 onPressed: _pickFromGallery,
                 icon: const Icon(Icons.photo_library, size: 18),
-                label: const Text("المعرض"),
+                label: const Text('المعرض'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SahoolColors.forestGreen,
                 ),
@@ -212,7 +212,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
         ),
         if (_isAnalyzing)
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(28),
@@ -223,7 +223,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   CircularProgressIndicator(color: Colors.white),
                   SizedBox(height: 16),
                   Text(
-                    "جاري التحليل...",
+                    'جاري التحليل...',
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
@@ -253,7 +253,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  isPositive ? "تم اكتشاف إصابة محتملة!" : "النبات يبدو سليماً",
+                  isPositive ? 'تم اكتشاف إصابة محتملة!' : 'النبات يبدو سليماً',
                   style: TextStyle(
                     color: isPositive
                         ? SahoolColors.danger
@@ -263,7 +263,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                 ),
               ),
               StatusBadge(
-                label: "دقة ${(diagnosis.confidence * 100).toInt()}%",
+                label: 'دقة ${(diagnosis.confidence * 100).toInt()}%',
                 color:
                     isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
               ),
@@ -274,7 +274,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("التشخيص:", style: TextStyle(color: Colors.grey)),
+                const Text('التشخيص:', style: TextStyle(color: Colors.grey)),
                 Text(
                   diagnosis.name,
                   style: const TextStyle(
@@ -286,7 +286,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("النوع:", style: TextStyle(color: Colors.grey)),
+                const Text('النوع:', style: TextStyle(color: Colors.grey)),
                 Text(diagnosis.type),
               ],
             ),
@@ -307,7 +307,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                           size: 16, color: SahoolColors.harvestGold),
                       SizedBox(width: 4),
                       Text(
-                        "التوصية:",
+                        'التوصية:',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12),
                       ),
@@ -332,34 +332,34 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "شدة الإصابة",
+          'شدة الإصابة',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             _SeverityOption(
-              label: "خفيفة",
+              label: 'خفيفة',
               icon: Icons.sentiment_satisfied,
               color: SahoolColors.sageGreen,
-              isSelected: _selectedSeverity == "low",
-              onTap: () => setState(() => _selectedSeverity = "low"),
+              isSelected: _selectedSeverity == 'low',
+              onTap: () => setState(() => _selectedSeverity = 'low'),
             ),
             const SizedBox(width: 12),
             _SeverityOption(
-              label: "متوسطة",
+              label: 'متوسطة',
               icon: Icons.sentiment_neutral,
               color: SahoolColors.harvestGold,
-              isSelected: _selectedSeverity == "medium",
-              onTap: () => setState(() => _selectedSeverity = "medium"),
+              isSelected: _selectedSeverity == 'medium',
+              onTap: () => setState(() => _selectedSeverity = 'medium'),
             ),
             const SizedBox(width: 12),
             _SeverityOption(
-              label: "شديدة",
+              label: 'شديدة',
               icon: Icons.sentiment_dissatisfied,
               color: SahoolColors.danger,
-              isSelected: _selectedSeverity == "high",
-              onTap: () => setState(() => _selectedSeverity = "high"),
+              isSelected: _selectedSeverity == 'high',
+              onTap: () => setState(() => _selectedSeverity = 'high'),
             ),
           ],
         ),
@@ -372,7 +372,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "ملاحظات إضافية",
+          'ملاحظات إضافية',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -380,7 +380,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           controller: _notesController,
           maxLines: 3,
           decoration: const InputDecoration(
-            hintText: "صف حالة النبات وانتشار الإصابة...",
+            hintText: 'صف حالة النبات وانتشار الإصابة...',
             alignLabelWithHint: true,
           ),
         ),
@@ -416,7 +416,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isRecording ? "جاري التسجيل..." : "إضافة ملاحظة صوتية",
+                  _isRecording ? 'جاري التسجيل...' : 'إضافة ملاحظة صوتية',
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 Text(
@@ -458,18 +458,18 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "الموقع الحالي",
+                  'الموقع الحالي',
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  "15.3694° N, 44.1910° E",
+                  '15.3694° N, 44.1910° E',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
           ),
           const StatusBadge(
-            label: "تم التحديد",
+            label: 'تم التحديد',
             color: SahoolColors.sageGreen,
             icon: Icons.check,
             isSmall: true,
@@ -482,7 +482,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   void _captureImage() {
     // محاكاة التقاط صورة
     setState(() {
-      _imagePath = "captured_image.jpg";
+      _imagePath = 'captured_image.jpg';
       _isAnalyzing = true;
     });
 
@@ -491,11 +491,11 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
       setState(() {
         _isAnalyzing = false;
         _diagnosis = DiagnosisResult(
-          name: "تبقع الأوراق (Leaf Spot)",
-          type: "فطري",
+          name: 'تبقع الأوراق (Leaf Spot)',
+          type: 'فطري',
           confidence: 0.92,
           recommendation:
-              "رش مبيد فطري مناسب مثل Mancozeb بتركيز 2.5 جم/لتر. يُفضل الرش في الصباح الباكر.",
+              'رش مبيد فطري مناسب مثل Mancozeb بتركيز 2.5 جم/لتر. يُفضل الرش في الصباح الباكر.',
         );
       });
     });
@@ -509,7 +509,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
     setState(() {
       _isRecording = !_isRecording;
       if (!_isRecording) {
-        _recordingTime = "00:15"; // محاكاة مدة التسجيل
+        _recordingTime = '00:15'; // محاكاة مدة التسجيل
       }
     });
   }
@@ -529,28 +529,28 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
         builder: (context, scrollController) => ListView(
           controller: scrollController,
           padding: const EdgeInsets.all(20),
-          children: [
-            const Center(
+          children: const [
+            Center(
               child: Text(
-                "سجل الكشوفات",
+                'سجل الكشوفات',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _HistoryCard(
-              date: "اليوم 10:30 ص",
-              diagnosis: "تبقع الأوراق",
-              severity: "متوسطة",
+              date: 'اليوم 10:30 ص',
+              diagnosis: 'تبقع الأوراق',
+              severity: 'متوسطة',
             ),
             _HistoryCard(
-              date: "أمس 3:45 م",
-              diagnosis: "نقص النيتروجين",
-              severity: "خفيفة",
+              date: 'أمس 3:45 م',
+              diagnosis: 'نقص النيتروجين',
+              severity: 'خفيفة',
             ),
             _HistoryCard(
-              date: "منذ 3 أيام",
-              diagnosis: "سليم",
-              severity: "-",
+              date: 'منذ 3 أيام',
+              diagnosis: 'سليم',
+              severity: '-',
             ),
           ],
         ),
@@ -561,7 +561,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   void _saveReport() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("تم حفظ التقرير بنجاح"),
+        content: Text('تم حفظ التقرير بنجاح'),
         backgroundColor: SahoolColors.forestGreen,
       ),
     );
@@ -703,9 +703,9 @@ class _HistoryCard extends StatelessWidget {
           ),
           StatusBadge(
             label: severity,
-            color: severity == "شديدة"
+            color: severity == 'شديدة'
                 ? SahoolColors.danger
-                : severity == "متوسطة"
+                : severity == 'متوسطة'
                     ? SahoolColors.harvestGold
                     : SahoolColors.sageGreen,
             isSmall: true,

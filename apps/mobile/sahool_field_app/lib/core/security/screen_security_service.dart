@@ -110,7 +110,7 @@ final screenSecurityEnabledProvider = Provider<bool>((ref) {
 });
 
 /// Provider for specific screen types that should be secured
-final securedScreenTypesProvider = Provider<Set<SecuredScreenType>>((ref) {
+final securedScreenTypesProvider = Provider<Set<String>>((ref) {
   final securityConfig = ref.watch(securityConfigProvider);
   return securityConfig.securedScreenTypes;
 });

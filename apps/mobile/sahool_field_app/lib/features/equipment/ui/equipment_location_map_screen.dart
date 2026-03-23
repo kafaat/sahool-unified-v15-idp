@@ -1,8 +1,9 @@
 /// Equipment Location Map Screen - شاشة موقع المعدة على الخريطة
 /// Displays equipment location on a map with marker
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../core/theme/sahool_theme.dart';
 

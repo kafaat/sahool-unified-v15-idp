@@ -1,4 +1,5 @@
 """Tests for iot-sensor-hub health and core endpoints."""
+
 import os
 import sys
 
@@ -14,9 +15,13 @@ except ImportError:
     pytest.skip("iot-sensor-hub dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
+
 @pytest.fixture
 def client():
     return TestClient(app, headers=TENANT_HEADER)
+
+
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -31,6 +36,8 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
+
+
 @pytest.mark.unit
 class TestNodeManagement:
     def test_register_node(self, client):
@@ -66,6 +73,8 @@ class TestNodeManagement:
         response = client.get("/api/v1/iot/nodes")
         assert response.status_code == 200
         assert response.json()["total"] > 0
+
+
 @pytest.mark.unit
 class TestSensorIngestion:
     def test_ingest_valid_reading(self, client):
@@ -123,6 +132,8 @@ class TestSensorIngestion:
         data = response.json()
         assert data["total"] == 2
         assert data["accepted"] == 2
+
+
 @pytest.mark.unit
 class TestWDI:
     def test_wdi_high_stress(self, client):
@@ -158,6 +169,8 @@ class TestWDI:
         data = response.json()
         assert data["wdi"] < 0.5
         assert data["irrigate"] is False
+
+
 @pytest.mark.unit
 class TestAlerts:
     def test_critical_alert_generated(self, client):
@@ -201,6 +214,8 @@ class TestAlerts:
         data = response.json()
         assert "alerts" in data
         assert all(a["severity"] == "critical" for a in data["alerts"])
+
+
 @pytest.mark.unit
 class TestNodeDetail:
     def test_get_node_by_id(self, client):
@@ -228,6 +243,8 @@ class TestNodeDetail:
         """Test 404 for nonexistent node."""
         response = client.get("/api/v1/iot/nodes/DOES-NOT-EXIST")
         assert response.status_code == 404
+
+
 @pytest.mark.unit
 class TestCacheAndStats:
     def test_cache_status(self, client):

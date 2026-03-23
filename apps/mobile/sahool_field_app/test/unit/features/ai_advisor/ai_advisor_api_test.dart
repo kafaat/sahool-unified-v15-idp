@@ -355,7 +355,7 @@ void main() {
 
   group('AiAdvisorException', () {
     test('should create exception with code and message', () {
-      final exception = AiAdvisorException(
+      const exception = AiAdvisorException(
         code: 'LLM_TIMEOUT',
         message: 'LLM response timeout',
       );

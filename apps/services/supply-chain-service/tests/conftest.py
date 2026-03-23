@@ -17,10 +17,12 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 # Add service root to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+
 # Mock shared.auth module tree to avoid cryptography import issues
 # Provide a real async function for get_current_user
 async def _fake_get_current_user():
     return {"id": "test-user", "token": "fake-token"}
+
 
 _mock_auth = MagicMock()
 _mock_auth.dependencies.get_current_user = _fake_get_current_user
@@ -31,13 +33,17 @@ sys.modules["shared.auth.models"] = _mock_auth.models
 # Mock shared.errors_py to avoid import issues
 sys.modules["shared.errors_py"] = MagicMock()
 
+
 # Mock shared.middleware.tenant_context with a proper ASGI middleware
 class _FakeTenantMiddleware:
     """No-op middleware that just passes through."""
+
     def __init__(self, app):
         self.app = app
+
     async def __call__(self, scope, receive, send):
         await self.app(scope, receive, send)
+
 
 _mock_tenant_module = MagicMock()
 _mock_tenant_module.TenantContextMiddleware = _FakeTenantMiddleware

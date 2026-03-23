@@ -16,7 +16,7 @@ export type ServiceType =
   | "ndvi"
   | "fertilizer"
   | "irrigation"
-  | "crop-health"
+  | "crop-intelligence"
   | "community"
   | "notifications"
   | "tasks"
@@ -130,9 +130,9 @@ export const SERVICE_REGISTRY: Record<ServiceType, ServiceConfig> = {
       endpoint: "/api/v1/irrigation",
     },
   },
-  "crop-health": {
-    name: "Crop Health AI",
-    nameAr: "صحة المحاصيل (AI)",
+  "crop-intelligence": {
+    name: "Crop Intelligence Service",
+    nameAr: "خدمة ذكاء المحاصيل",
     legacy: {
       port: 8100,
       endpoint: "/diagnose",
@@ -145,7 +145,7 @@ export const SERVICE_REGISTRY: Record<ServiceType, ServiceConfig> = {
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/crop-health",
+      endpoint: "/api/v1/crop-intelligence",
     },
   },
   community: {
@@ -214,7 +214,7 @@ const DEFAULT_SERVICE_VERSIONS: Record<ServiceType, ServiceVersion> = {
   ndvi: "modern",
   fertilizer: "modern",
   irrigation: "modern",
-  "crop-health": "modern",
+  "crop-intelligence": "modern",
   community: "modern",
   notifications: "modern",
   tasks: "modern",

@@ -565,7 +565,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           const SizedBox(height: 16),
 
           // Stats cards
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _BigStatCard(
@@ -576,7 +576,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                   color: Colors.blue,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _BigStatCard(
                   icon: Icons.bolt,
@@ -591,7 +591,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
 
           const SizedBox(height: 12),
 
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _BigStatCard(
@@ -602,7 +602,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                   color: Colors.green,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _BigStatCard(
                   icon: Icons.loop,
@@ -671,7 +671,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                           ],
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -680,13 +680,13 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                               value: 92,
                               color: Colors.blue,
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             _EfficiencyRow(
                               label: 'استهلاك الطاقة',
                               value: 85,
                               color: Colors.orange,
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             _EfficiencyRow(
                               label: 'وقت التشغيل',
                               value: 78,

@@ -55,6 +55,8 @@ class TestErrorCode:
         assert ErrorCode.ASTRONOMICAL_SERVICE_ERROR == "ASTRONOMICAL_SERVICE_ERROR"
         assert ErrorCode.NDVI_SERVICE_ERROR == "NDVI_SERVICE_ERROR"
         assert ErrorCode.DATABASE_ERROR == "DATABASE_ERROR"
+
+
 class TestTaskServiceError:
     """Tests for base TaskServiceError"""
 
@@ -91,6 +93,8 @@ class TestTaskServiceError:
     def test_str_representation(self):
         err = TaskServiceError("Something went wrong")
         assert str(err) == "Something went wrong"
+
+
 class TestTaskNotFoundError:
     def test_basic(self):
         err = TaskNotFoundError("task_123")
@@ -102,12 +106,16 @@ class TestTaskNotFoundError:
     def test_with_tenant(self):
         err = TaskNotFoundError("task_123", tenant_id="tenant_abc")
         assert err.details["tenant_id"] == "tenant_abc"
+
+
 class TestTaskAlreadyExistsError:
     def test_basic(self):
         err = TaskAlreadyExistsError("task_123")
         assert err.status_code == 409
         assert "task_123" in err.message
         assert err.error_code == ErrorCode.TASK_ALREADY_EXISTS
+
+
 class TestTaskInvalidStatusError:
     def test_basic(self):
         err = TaskInvalidStatusError("task_1", "completed", ["pending"], "start")
@@ -117,6 +125,8 @@ class TestTaskInvalidStatusError:
         assert err.details["current_status"] == "completed"
         assert err.details["expected_statuses"] == ["pending"]
         assert err.details["operation"] == "start"
+
+
 class TestTaskInvalidTransitionError:
     def test_basic(self):
         err = TaskInvalidTransitionError("task_1", "completed", "pending")
@@ -125,6 +135,8 @@ class TestTaskInvalidTransitionError:
         assert "pending" in err.message
         assert err.details["from_status"] == "completed"
         assert err.details["to_status"] == "pending"
+
+
 class TestTaskCreationError:
     def test_basic(self):
         err = TaskCreationError("db error")
@@ -135,6 +147,8 @@ class TestTaskCreationError:
     def test_with_arabic(self):
         err = TaskCreationError("db error", reason_ar="خطأ قاعدة بيانات")
         assert "خطأ قاعدة بيانات" in err.message_ar
+
+
 class TestValidationError:
     def test_basic(self):
         err = ValidationError(field="title", message="required")
@@ -148,6 +162,8 @@ class TestValidationError:
     def test_without_value(self):
         err = ValidationError(field="name", message="empty")
         assert "value_type" not in err.details
+
+
 class TestInvalidFieldIdError:
     def test_basic(self):
         err = InvalidFieldIdError("bad@id!")
@@ -157,38 +173,52 @@ class TestInvalidFieldIdError:
         long_id = "x" * 100
         err = InvalidFieldIdError(long_id)
         assert len(err.message) < 200  # truncated in safe_id
+
+
 class TestInvalidDateFormatError:
     def test_basic(self):
         err = InvalidDateFormatError("not-a-date")
         assert err.error_code == ErrorCode.INVALID_DATE_FORMAT
         assert "YYYY-MM-DD" in err.message
+
+
 class TestInvalidTimeFormatError:
     def test_basic(self):
         err = InvalidTimeFormatError("99:99")
         assert err.error_code == ErrorCode.INVALID_TIME_FORMAT
         assert "HH:MM" in err.message
+
+
 class TestMetadataTooLargeError:
     def test_basic(self):
         err = MetadataTooLargeError(100000, 65536)
         assert err.error_code == ErrorCode.METADATA_TOO_LARGE
         assert err.details["size"] == 100000
         assert err.details["max_size"] == 65536
+
+
 class TestExternalServiceError:
     def test_basic(self):
         err = ExternalServiceError("TestService", "connection refused")
         assert err.status_code == 502
         assert "TestService" in err.message
         assert err.details["service"] == "TestService"
+
+
 class TestAstronomicalServiceError:
     def test_basic(self):
         err = AstronomicalServiceError("unavailable")
         assert err.status_code == 502
         assert err.error_code == ErrorCode.ASTRONOMICAL_SERVICE_ERROR
+
+
 class TestAstronomicalServiceTimeoutError:
     def test_basic(self):
         err = AstronomicalServiceTimeoutError()
         assert err.status_code == 504
         assert err.error_code == ErrorCode.ASTRONOMICAL_SERVICE_TIMEOUT
+
+
 class TestFieldServiceError:
     def test_basic(self):
         err = FieldServiceError("not found", field_id="field_123")
@@ -198,15 +228,21 @@ class TestFieldServiceError:
     def test_without_field_id(self):
         err = FieldServiceError("error")
         assert "field_id" not in err.details
+
+
 class TestNdviServiceError:
     def test_basic(self):
         err = NdviServiceError("timeout", field_id="f1")
         assert err.error_code == ErrorCode.NDVI_SERVICE_ERROR
         assert err.details["field_id"] == "f1"
+
+
 class TestNotificationServiceError:
     def test_basic(self):
         err = NotificationServiceError("send failed")
         assert err.error_code == ErrorCode.NOTIFICATION_SERVICE_ERROR
+
+
 class TestDatabaseError:
     def test_basic(self):
         err = DatabaseError("connection lost")
@@ -216,11 +252,15 @@ class TestDatabaseError:
     def test_with_operation(self):
         err = DatabaseError("timeout", operation="insert")
         assert err.details["operation"] == "insert"
+
+
 class TestDatabaseConnectionError:
     def test_basic(self):
         err = DatabaseConnectionError()
         assert err.error_code == ErrorCode.DATABASE_CONNECTION_ERROR
         assert err.details["operation"] == "connect"
+
+
 class TestCacheError:
     def test_basic(self):
         err = CacheError("connection refused")
@@ -230,10 +270,14 @@ class TestCacheError:
     def test_with_operation(self):
         err = CacheError("timeout", operation="get")
         assert err.details["operation"] == "get"
+
+
 class TestCacheConnectionError:
     def test_basic(self):
         err = CacheConnectionError()
         assert err.error_code == ErrorCode.CACHE_CONNECTION_ERROR
+
+
 class TestUnauthorizedError:
     def test_basic(self):
         err = UnauthorizedError()
@@ -243,12 +287,16 @@ class TestUnauthorizedError:
     def test_custom_message(self):
         err = UnauthorizedError("Token expired")
         assert "Token expired" in err.message
+
+
 class TestForbiddenError:
     def test_basic(self):
         err = ForbiddenError("tasks")
         assert err.status_code == 403
         assert err.error_code == ErrorCode.FORBIDDEN
         assert err.details["resource"] == "tasks"
+
+
 class TestInvalidTenantError:
     def test_basic(self):
         err = InvalidTenantError()

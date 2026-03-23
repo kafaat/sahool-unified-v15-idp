@@ -30,7 +30,7 @@ void main() {
       testTime = DateTime(2026, 2, 27, 10, 0, 0);
     });
 
-    AppNotification _createNotification({
+    AppNotification createNotification({
       String id = 'notif-001',
       String type = 'alert',
       bool isRead = false,
@@ -50,7 +50,7 @@ void main() {
     }
 
     test('should create instance with all required fields', () {
-      final notification = _createNotification();
+      final notification = createNotification();
 
       expect(notification.id, 'notif-001');
       expect(notification.type, 'alert');
@@ -82,71 +82,71 @@ void main() {
 
     group('typeIcon', () {
       test('should return alert icon for alert type', () {
-        final n = _createNotification(type: 'alert');
+        final n = createNotification(type: 'alert');
         expect(n.typeIcon, contains('⚠'));
       });
 
       test('should return action icon for action type', () {
-        final n = _createNotification(type: 'action');
+        final n = createNotification(type: 'action');
         expect(n.typeIcon, contains('📋'));
       });
 
       test('should return weather icon for weather type', () {
-        final n = _createNotification(type: 'weather');
+        final n = createNotification(type: 'weather');
         expect(n.typeIcon, contains('🌤'));
       });
 
       test('should return crop health icon for crop_health type', () {
-        final n = _createNotification(type: 'crop_health');
+        final n = createNotification(type: 'crop_health');
         expect(n.typeIcon, contains('🌱'));
       });
 
       test('should return system icon for system type', () {
-        final n = _createNotification(type: 'system');
+        final n = createNotification(type: 'system');
         expect(n.typeIcon, contains('⚙'));
       });
 
       test('should return default bell icon for unknown type', () {
-        final n = _createNotification(type: 'unknown');
+        final n = createNotification(type: 'unknown');
         expect(n.typeIcon, contains('🔔'));
       });
     });
 
     group('typeLabel', () {
       test('should return Arabic label for alert', () {
-        final n = _createNotification(type: 'alert');
+        final n = createNotification(type: 'alert');
         expect(n.typeLabel, 'تنبيه');
       });
 
       test('should return Arabic label for action', () {
-        final n = _createNotification(type: 'action');
+        final n = createNotification(type: 'action');
         expect(n.typeLabel, 'إجراء');
       });
 
       test('should return Arabic label for weather', () {
-        final n = _createNotification(type: 'weather');
+        final n = createNotification(type: 'weather');
         expect(n.typeLabel, 'طقس');
       });
 
       test('should return Arabic label for crop_health', () {
-        final n = _createNotification(type: 'crop_health');
+        final n = createNotification(type: 'crop_health');
         expect(n.typeLabel, 'صحة المحصول');
       });
 
       test('should return Arabic label for system', () {
-        final n = _createNotification(type: 'system');
+        final n = createNotification(type: 'system');
         expect(n.typeLabel, 'نظام');
       });
 
       test('should return default Arabic label for unknown type', () {
-        final n = _createNotification(type: 'unknown');
+        final n = createNotification(type: 'unknown');
         expect(n.typeLabel, 'إشعار');
       });
     });
 
     group('copyWith', () {
       test('should create copy with isRead changed', () {
-        final original = _createNotification(isRead: false);
+        final original = createNotification(isRead: false);
         final read = original.copyWith(isRead: true);
 
         expect(read.id, original.id);
@@ -156,7 +156,7 @@ void main() {
       });
 
       test('should create copy with new type', () {
-        final original = _createNotification(type: 'alert');
+        final original = createNotification(type: 'alert');
         final updated = original.copyWith(type: 'system');
 
         expect(updated.type, 'system');
@@ -219,7 +219,7 @@ void main() {
       });
 
       test('should roundtrip through JSON', () {
-        final original = _createNotification();
+        final original = createNotification();
         final json = original.toJson();
         final restored = AppNotification.fromJson(json);
 

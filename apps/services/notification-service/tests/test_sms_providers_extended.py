@@ -74,6 +74,7 @@ class TestMultiProviderSMSClient:
 class TestGetMultiSmsClient:
     def test_returns_singleton(self):
         import src.sms_providers as mod
+
         old = mod._multi_sms_client
         mod._multi_sms_client = None
 
@@ -82,6 +83,8 @@ class TestGetMultiSmsClient:
         assert client1 is client2
 
         mod._multi_sms_client = old
+
+
 """
 Tests for src/whatsapp_client.py - WhatsApp client data models
 
@@ -107,6 +110,7 @@ class TestWhatsAppClient:
 class TestGetWhatsAppClient:
     def test_returns_singleton(self):
         import src.whatsapp_client as mod
+
         old = mod._whatsapp_client
         mod._whatsapp_client = None
 
@@ -138,6 +142,7 @@ class TestTelegramClient:
 class TestGetTelegramClient:
     def test_returns_singleton(self):
         import src.telegram_client as mod
+
         old = mod._telegram_client
         mod._telegram_client = None
 
@@ -173,6 +178,7 @@ class TestFirebaseClient:
 class TestGetFirebaseClient:
     def test_returns_singleton(self):
         import src.firebase_client as mod
+
         old = mod._firebase_client
         mod._firebase_client = None
 

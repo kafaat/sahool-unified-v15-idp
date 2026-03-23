@@ -1,4 +1,5 @@
 """Test configuration for agent-registry."""
+
 import os
 import sys
 

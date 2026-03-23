@@ -2,6 +2,7 @@
 /// اختبارات تحليل بيانات المحفظة
 ///
 /// Tests for compute() isolate JSON parsing in wallet
+library;
 
 import 'dart:convert';
 

@@ -346,7 +346,7 @@ class _SoilMoistureGauge extends StatelessWidget {
   const _SoilMoistureGauge({
     required this.percent,
     this.isArabic = true,
-    this.size = 120.0,
+    this.size = 80.0,
   });
 
   @override

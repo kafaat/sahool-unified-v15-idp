@@ -8,6 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 pytestmark = [pytest.mark.unit]
+
+
 class TestCopilotEvents:
     def test_all_event_types_defined(self):
         from src.events.publisher import COPILOT_EVENTS
@@ -29,6 +31,8 @@ class TestCopilotEvents:
 
         for key, subject in COPILOT_EVENTS.items():
             assert subject.startswith("sahool.copilot.")
+
+
 class TestPublishCopilotEvent:
     @pytest.mark.asyncio
     async def test_returns_false_when_nc_is_none(self):

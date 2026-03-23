@@ -82,9 +82,7 @@ class TestGetUserPreferences:
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.get_user_preferences = AsyncMock(return_value=[])
             await PreferencesService.get_user_preferences("user-123", tenant_id="tenant-1")
-            mock_repo.get_user_preferences.assert_called_once_with(
-                user_id="user-123", tenant_id="tenant-1"
-            )
+            mock_repo.get_user_preferences.assert_called_once_with(user_id="user-123", tenant_id="tenant-1")
 
 
 class TestUpdateEventPreference:
@@ -274,9 +272,7 @@ class TestCheckIfShouldSend:
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.is_event_enabled = AsyncMock(return_value=True)
             mock_repo.get_preferred_channels = AsyncMock(return_value=["push", "sms"])
-            should_send, channels = await PreferencesService.check_if_should_send(
-                "user-123", "weather_alert"
-            )
+            should_send, channels = await PreferencesService.check_if_should_send("user-123", "weather_alert")
             assert should_send is True
             assert channels == ["push", "sms"]
 
@@ -284,9 +280,7 @@ class TestCheckIfShouldSend:
     async def test_disabled_event(self):
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.is_event_enabled = AsyncMock(return_value=False)
-            should_send, channels = await PreferencesService.check_if_should_send(
-                "user-123", "market_price"
-            )
+            should_send, channels = await PreferencesService.check_if_should_send("user-123", "market_price")
             assert should_send is False
             assert channels == []
 
@@ -295,9 +289,7 @@ class TestCheckIfShouldSend:
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.is_event_enabled = AsyncMock(return_value=True)
             mock_repo.get_preferred_channels = AsyncMock(return_value=[])
-            should_send, channels = await PreferencesService.check_if_should_send(
-                "user-123", "weather_alert"
-            )
+            should_send, channels = await PreferencesService.check_if_should_send("user-123", "weather_alert")
             assert should_send is True
             assert channels == ["in_app", "push"]
 
@@ -305,8 +297,6 @@ class TestCheckIfShouldSend:
     async def test_error_defaults_to_allow(self):
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.is_event_enabled = AsyncMock(side_effect=Exception("DB error"))
-            should_send, channels = await PreferencesService.check_if_should_send(
-                "user-123", "weather_alert"
-            )
+            should_send, channels = await PreferencesService.check_if_should_send("user-123", "weather_alert")
             assert should_send is True
             assert channels == ["in_app"]

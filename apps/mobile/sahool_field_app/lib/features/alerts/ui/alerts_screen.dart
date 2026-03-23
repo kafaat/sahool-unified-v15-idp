@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../smart_alerts/presentation/providers/smart_alerts_provider.dart';
-import '../data/alert_service_api.dart';
 
 /// Alerts Screen - شاشة التنبيهات
 /// Connected to alert-service via Kong gateway

@@ -13,11 +13,11 @@ class SprayWindowCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SprayWindowCard({
-    Key? key,
+    super.key,
     required this.window,
     this.locale = 'ar',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class SprayWindowCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -152,7 +152,7 @@ class SprayWindowCard extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.warning_amber,
                               size: 16,
                               color: Colors.orange,
@@ -311,11 +311,11 @@ class SprayWindowTimelineItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SprayWindowTimelineItem({
-    Key? key,
+    super.key,
     required this.window,
     this.locale = 'ar',
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

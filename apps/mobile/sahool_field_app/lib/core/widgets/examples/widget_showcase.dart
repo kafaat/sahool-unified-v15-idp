@@ -8,6 +8,126 @@ import '../widgets.dart';
 /// for error handling, loading states, and empty states
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Placeholder widgets referenced in showcase examples
+// These will be implemented as the design system evolves
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Typed error view that auto-categorizes errors
+class SahoolTypedErrorView extends StatelessWidget {
+  final Object error;
+  final VoidCallback? onRetry;
+  final bool showDetails;
+
+  const SahoolTypedErrorView({
+    super.key,
+    required this.error,
+    this.onRetry,
+    this.showDetails = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolErrorView(error: error, onRetry: onRetry);
+  }
+}
+
+/// Profile header skeleton loading placeholder
+class SahoolProfileHeaderSkeleton extends StatelessWidget {
+  const SahoolProfileHeaderSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SahoolShimmerCard(height: 80);
+  }
+}
+
+/// List item skeleton loading placeholder
+class SahoolListItemSkeleton extends StatelessWidget {
+  const SahoolListItemSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SahoolShimmerCard(height: 56);
+  }
+}
+
+/// Field card skeleton loading placeholder
+class SahoolFieldCardSkeleton extends StatelessWidget {
+  const SahoolFieldCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SahoolShimmerCard(height: 120);
+  }
+}
+
+/// Async builder with loading/error states
+class SahoolAsyncBuilder<T> extends StatelessWidget {
+  final Future<T> future;
+  final Widget Function(T data) builder;
+  final Widget? loadingWidget;
+  final Widget Function(Object error)? errorBuilder;
+
+  const SahoolAsyncBuilder({
+    super.key,
+    required this.future,
+    required this.builder,
+    this.loadingWidget,
+    this.errorBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<T>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return errorBuilder?.call(snapshot.error!) ??
+              SahoolErrorView(error: snapshot.error!);
+        }
+        if (snapshot.hasData) {
+          return builder(snapshot.data as T);
+        }
+        return loadingWidget ?? const SahoolLoadingScreen();
+      },
+    );
+  }
+}
+
+/// No connection empty state
+class NoConnectionEmptyState extends StatelessWidget {
+  final VoidCallback? onRetry;
+
+  const NoConnectionEmptyState({super.key, this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.wifi_off_rounded,
+      title: 'لا يوجد اتصال',
+      message: 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى',
+      actionLabel: 'إعادة المحاولة',
+      onAction: onRetry,
+    );
+  }
+}
+
+/// RTL wrapper for Arabic support
+class SahoolRTLEmptyState extends StatelessWidget {
+  final Widget child;
+
+  const SahoolRTLEmptyState({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: child,
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Error Handling Examples
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -190,21 +310,21 @@ class SkeletonLoadingExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: const [
+      children: [
         // Profile skeleton
-        SahoolProfileHeaderSkeleton(),
+        const SahoolProfileHeaderSkeleton(),
 
-        Divider(),
+        const Divider(),
 
         // List item skeletons
-        SahoolListItemSkeleton(),
-        SahoolListItemSkeleton(),
-        SahoolListItemSkeleton(),
+        const SahoolListItemSkeleton(),
+        const SahoolListItemSkeleton(),
+        const SahoolListItemSkeleton(),
 
-        Divider(),
+        const Divider(),
 
         // Field card skeleton
-        SahoolFieldCardSkeleton(),
+        const SahoolFieldCardSkeleton(),
       ],
     );
   }
@@ -396,10 +516,10 @@ class _FieldListScreenState extends State<FieldListScreen> {
   Widget _buildBody() {
     if (_isLoading) {
       return ListView(
-        children: const [
-          SahoolFieldCardSkeleton(),
-          SahoolFieldCardSkeleton(),
-          SahoolFieldCardSkeleton(),
+        children: [
+          const SahoolFieldCardSkeleton(),
+          const SahoolFieldCardSkeleton(),
+          const SahoolFieldCardSkeleton(),
         ],
       );
     }

@@ -30,7 +30,7 @@
 /// final result = await client.get('/fields');
 /// ```
 
-library http;
+library;
 
 // Core API Client
 export 'api_client.dart';

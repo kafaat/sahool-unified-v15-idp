@@ -14,6 +14,8 @@ import pytest
 
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "")
+
+
 def make_mock_session():
     """Create a mock AsyncSession with common behaviors."""
     session = AsyncMock()
@@ -23,6 +25,8 @@ def make_mock_session():
     session.execute = AsyncMock()
     session.rollback = AsyncMock()
     return session
+
+
 # ============================================================
 # Test BillingRepository Facade
 # ============================================================
@@ -70,6 +74,8 @@ class TestBillingRepository:
         mock_instance = MagicMock()
         await repo.refresh(mock_instance)
         mock_db.refresh.assert_awaited_once_with(mock_instance)
+
+
 # ============================================================
 # Test PlanRepository
 # ============================================================
@@ -195,6 +201,8 @@ class TestPlanRepository:
         repo = PlanRepository(mock_db)
         result = await repo.delete("nonexistent")
         assert result is False
+
+
 # ============================================================
 # Test TenantRepository
 # ============================================================
@@ -255,6 +263,8 @@ class TestTenantRepository:
         repo = TenantRepository(mock_db)
         result = await repo.delete("t-001")
         assert result is True
+
+
 # ============================================================
 # Test SubscriptionRepository
 # ============================================================
@@ -352,6 +362,8 @@ class TestSubscriptionRepository:
         repo = SubscriptionRepository(mock_db)
         counts = await repo.count_by_plan()
         assert counts["starter"] == 5
+
+
 # ============================================================
 # Test InvoiceRepository
 # ============================================================
@@ -474,6 +486,8 @@ class TestInvoiceRepository:
             currency=Currency.USD,
         )
         assert total == Decimal("500.00")
+
+
 # ============================================================
 # Test PaymentRepository
 # ============================================================
@@ -556,6 +570,8 @@ class TestPaymentRepository:
             end_date=date(2025, 12, 31),
         )
         assert totals == {}
+
+
 # ============================================================
 # Test UsageRecordRepository
 # ============================================================

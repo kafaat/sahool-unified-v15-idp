@@ -99,6 +99,8 @@ def make_parcel(
         is_irrigated=None,
         quality_score=0.75,
     )
+
+
 def make_synthetic_image(size=64):
     """Create synthetic 4-band image for testing."""
     rng = np.random.default_rng(42)
@@ -120,6 +122,8 @@ def make_synthetic_image(size=64):
 
     bounds = {"north": 15.51, "south": 15.49, "east": 44.21, "west": 44.19}
     return image, bounds
+
+
 # =============================================================================
 # Enums & Configuration Tests
 # =============================================================================
@@ -168,6 +172,8 @@ class TestEnums:
         assert CropType.UNKNOWN.value == "unknown"
         # At least 10 crop types
         assert len(CropType) >= 10
+
+
 class TestDetectionConfig:
     """Test DetectionConfig defaults and customization."""
 
@@ -191,6 +197,8 @@ class TestDetectionConfig:
         assert config.strategy == DetectionStrategy.TRAINING_FREE
         assert config.precision == ModelPrecision.SPEED_FOCUSED
         assert config.min_area_hectares == 0.1
+
+
 # =============================================================================
 # Data Models Tests
 # =============================================================================
@@ -226,6 +234,8 @@ class TestAgriculturalParcel:
         assert props["compactness"] == 0.85
         assert props["strategy"] == "hybrid"
         assert "detection_date" in props
+
+
 class TestDetectionReport:
     """Test DetectionReport data model."""
 
@@ -248,6 +258,8 @@ class TestDetectionReport:
         assert "en" in d["summary"]
         assert "ar" in d["summary"]
         assert "7" in d["summary"]["en"]
+
+
 # =============================================================================
 # Phase 1: Semantic Segmentation Engine Tests
 # =============================================================================
@@ -321,6 +333,8 @@ class TestSemanticSegmentationEngine:
         component[2:8, 2:8] = 1
         contour = self.engine._trace_contour(component)
         assert len(contour) >= 4
+
+
 # =============================================================================
 # Phase 2: Boundary Detection Engine Tests
 # =============================================================================
@@ -352,6 +366,8 @@ class TestBoundaryDetectionEngine:
         edge_map[7, 2:8] = 1.0
         closed = self.engine._close_boundaries(edge_map, iterations=2)
         assert closed.shape == (10, 10)
+
+
 # =============================================================================
 # Phase 3: Post-Processing Tests
 # =============================================================================
@@ -407,6 +423,8 @@ class TestParcelPostProcessor:
         coords = [(0, 0), (1, 0), (1, 1), (0, 1)]
         smoothed = self.processor._chaikin_smooth(coords)
         assert len(smoothed) >= 4
+
+
 # =============================================================================
 # Phase 4: Vector Classification Tests
 # =============================================================================
@@ -447,6 +465,8 @@ class TestVectorClassificationEngine:
         classified = await self.engine.classify_parcels([parcel])
         # With high NDWI and very low NDVI/compactness, should classify as water
         assert classified[0].land_cover in (LandCoverClass.WATER, LandCoverClass.BARREN)
+
+
 # =============================================================================
 # GeoLabel 4.0: Crop Classification Engine Tests
 # =============================================================================
@@ -528,6 +548,8 @@ class TestCropClassificationEngine:
     def test_ensemble_weights(self):
         """Verify DL+ML weights sum to 1.0."""
         assert abs(self.engine.DL_WEIGHT + self.engine.ML_WEIGHT - 1.0) < 0.01
+
+
 # =============================================================================
 # GeoLabel 4.0: Topology-Preserving Simplifier Tests
 # =============================================================================
@@ -612,6 +634,8 @@ class TestTopologyPreservingSimplifier:
         # Shared vertices must remain
         for sv in shared_vertices:
             assert sv in result
+
+
 # =============================================================================
 # GeoLabel 4.0: Parcel Editing Tools Tests
 # =============================================================================
@@ -744,6 +768,8 @@ class TestParcelEditingTools:
         # connect_parcels returns single parcel or None
         # The method does convex hull even if gap is large, so it may return a result
         assert result is None or isinstance(result, AgriculturalParcel)
+
+
 # =============================================================================
 # GeoLabel 4.0: Quality Inspection Tool Tests
 # =============================================================================
@@ -848,6 +874,8 @@ class TestQualityInspectionTool:
         assert rules["min_hole_area_m2"] == 20
         assert rules["min_vertices"] == 3
         assert rules["max_elongation"] == 50
+
+
 # =============================================================================
 # Main Orchestrator Tests
 # =============================================================================
@@ -967,6 +995,8 @@ class TestAgriculturalLandDetector:
         perimeter = self.detector._calculate_perimeter(coords)
         assert perimeter > 0
         assert 300 < perimeter < 600  # ~400m for ~100m square
+
+
 # =============================================================================
 # Integration Tests - Full Pipeline
 # =============================================================================

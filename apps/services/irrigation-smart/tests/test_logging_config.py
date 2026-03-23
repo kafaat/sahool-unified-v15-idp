@@ -48,6 +48,8 @@ class TestIrrigationLogContext:
         assert ctx.field_id == "f1"
         assert ctx.crop == "wheat"
         assert ctx.water_amount_m3 == 5.0
+
+
 # ============================================================================
 # StructuredFormatter Tests
 # ============================================================================
@@ -75,8 +77,13 @@ class TestStructuredFormatter:
         try:
             formatter = StructuredFormatter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=1,
-                msg="msg", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=1,
+                msg="msg",
+                args=None,
+                exc_info=None,
             )
             output = formatter.format(record)
             data = json.loads(output)
@@ -89,8 +96,13 @@ class TestStructuredFormatter:
         try:
             formatter = StructuredFormatter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=1,
-                msg="msg", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=1,
+                msg="msg",
+                args=None,
+                exc_info=None,
             )
             output = formatter.format(record)
             data = json.loads(output)
@@ -103,8 +115,13 @@ class TestStructuredFormatter:
         try:
             formatter = StructuredFormatter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=1,
-                msg="msg", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=1,
+                msg="msg",
+                args=None,
+                exc_info=None,
             )
             output = formatter.format(record)
             data = json.loads(output)
@@ -117,8 +134,13 @@ class TestStructuredFormatter:
         try:
             formatter = StructuredFormatter()
             record = logging.LogRecord(
-                name="test", level=logging.INFO, pathname="", lineno=1,
-                msg="msg", args=None, exc_info=None,
+                name="test",
+                level=logging.INFO,
+                pathname="",
+                lineno=1,
+                msg="msg",
+                args=None,
+                exc_info=None,
             )
             output = formatter.format(record)
             data = json.loads(output)
@@ -129,8 +151,13 @@ class TestStructuredFormatter:
     def test_format_includes_extra_fields(self):
         formatter = StructuredFormatter()
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname="", lineno=1,
-            msg="msg", args=None, exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=1,
+            msg="msg",
+            args=None,
+            exc_info=None,
         )
         record.custom_key = "custom_value"
         output = formatter.format(record)
@@ -146,8 +173,13 @@ class TestStructuredFormatter:
 
         formatter = StructuredFormatter()
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname="", lineno=1,
-            msg="msg", args=None, exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=1,
+            msg="msg",
+            args=None,
+            exc_info=None,
         )
         output = formatter.format(record)
         data = json.loads(output)
@@ -160,11 +192,17 @@ class TestStructuredFormatter:
             raise ValueError("test error")
         except ValueError:
             import sys as _sys
+
             exc_info = _sys.exc_info()
 
         record = logging.LogRecord(
-            name="test", level=logging.ERROR, pathname="", lineno=1,
-            msg="error occurred", args=None, exc_info=exc_info,
+            name="test",
+            level=logging.ERROR,
+            pathname="",
+            lineno=1,
+            msg="error occurred",
+            args=None,
+            exc_info=exc_info,
         )
         output = formatter.format(record)
         data = json.loads(output)
@@ -174,6 +212,8 @@ class TestStructuredFormatter:
     def test_default_service_name(self):
         formatter = StructuredFormatter()
         assert formatter.service_name == "irrigation-smart"
+
+
 # ============================================================================
 # IrrigationLogger Tests
 # ============================================================================
@@ -279,6 +319,8 @@ class TestIrrigationLogger:
             operation="water_need",
             error="division by zero",
         )
+
+
 # ============================================================================
 # get_irrigation_logger Tests
 # ============================================================================
@@ -286,6 +328,7 @@ class TestGetIrrigationLogger:
     def test_returns_logger_instance(self):
         # Reset global state
         import src.logging_config as lc
+
         lc._irrigation_logger = None
 
         logger = get_irrigation_logger()
@@ -293,6 +336,7 @@ class TestGetIrrigationLogger:
 
     def test_returns_singleton(self):
         import src.logging_config as lc
+
         lc._irrigation_logger = None
 
         logger1 = get_irrigation_logger()
@@ -301,6 +345,7 @@ class TestGetIrrigationLogger:
 
     def test_respects_log_level_env(self):
         import src.logging_config as lc
+
         lc._irrigation_logger = None
 
         with patch.dict(os.environ, {"LOG_LEVEL": "DEBUG", "LOG_FORMAT": "json"}):
@@ -311,6 +356,7 @@ class TestGetIrrigationLogger:
 
     def test_respects_non_json_format(self):
         import src.logging_config as lc
+
         lc._irrigation_logger = None
 
         with patch.dict(os.environ, {"LOG_LEVEL": "INFO", "LOG_FORMAT": "text"}):
@@ -320,6 +366,8 @@ class TestGetIrrigationLogger:
             assert not isinstance(handler.formatter, StructuredFormatter)
 
         lc._irrigation_logger = None
+
+
 # ============================================================================
 # log_performance Decorator Tests
 # ============================================================================

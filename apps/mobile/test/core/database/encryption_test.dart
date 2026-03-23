@@ -10,6 +10,7 @@
 ///
 /// Note: Full SQLCipher tests require native libraries.
 /// These tests focus on the encryption key management logic.
+library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -75,7 +76,7 @@ class DatabaseEncryptionTest {
     _keyCreationLock = completer;
 
     try {
-      String? existingKey = await _secureStorage.read(key: _keyStorageKey);
+      final String? existingKey = await _secureStorage.read(key: _keyStorageKey);
 
       if (existingKey != null && existingKey.isNotEmpty) {
         if (isValidKey(existingKey)) {
@@ -151,7 +152,7 @@ class DatabaseEncryptionTest {
 
   /// Verify key can decrypt (mock implementation)
   Future<bool> verifyKeyForDatabase(String dbPath) async {
-    return await hasKey();
+    return hasKey();
   }
 }
 
@@ -647,7 +648,7 @@ void encryptionWorkflowTests() {
       // Step 3: Build migration PRAGMA
       // In real scenario: ATTACH new encrypted db, copy data, verify
       final encryptPragma = encryption.getSqlCipherPragma(key);
-      expect(encryptPragma, contains("PRAGMA key"));
+      expect(encryptPragma, contains('PRAGMA key'));
 
       // Step 4: Migration complete - key is now stored
       expect(await encryption.hasKey(), isTrue);

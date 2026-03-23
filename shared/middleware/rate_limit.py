@@ -218,9 +218,7 @@ class RateLimiter:
 
         return True, self._build_headers(key, config, tier, exceeded=False, remaining=remaining)
 
-    def _build_headers(
-        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int
-    ) -> dict:
+    def _build_headers(self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int) -> dict:
         """Build rate limit response headers."""
 
         headers = {

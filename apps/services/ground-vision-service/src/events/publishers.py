@@ -136,7 +136,9 @@ class GroundVisionPublisher:
                 detection.field_id,
                 detection.tenant_id,
             )
-            raise ValueError("Cannot publish operation_detected event: detection_id, field_id, and tenant_id are required")
+            raise ValueError(
+                "Cannot publish operation_detected event: detection_id, field_id, and tenant_id are required"
+            )
 
         if detection.confidence <= 0.0:
             logger.warning(
@@ -256,8 +258,7 @@ class GroundVisionPublisher:
 
         await self._publish(subject, payload)
         logger.info(
-            f"Published growth_stage_changed: {from_stage} -> {to_stage} for {field_id} "
-            f"(source={self.source.value})"
+            f"Published growth_stage_changed: {from_stage} -> {to_stage} for {field_id} (source={self.source.value})"
         )
 
     async def publish_anomaly_detected(

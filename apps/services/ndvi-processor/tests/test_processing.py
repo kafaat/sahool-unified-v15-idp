@@ -67,6 +67,7 @@ except ImportError:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _clear_stores():
     """Reset in-memory stores between tests."""
     _jobs.clear()
@@ -191,9 +192,7 @@ class TestJobManagement:
     def test_update_job_status_completed(self):
         job_id = create_job("t1", "f1", "ndvi", {})
         update_job_status(job_id, JobStatus.PROCESSING)
-        updated = update_job_status(
-            job_id, JobStatus.COMPLETED, progress=100, result={"ndvi_mean": 0.6}
-        )
+        updated = update_job_status(job_id, JobStatus.COMPLETED, progress=100, result={"ndvi_mean": 0.6})
         assert updated["status"] == "completed"
         assert updated["completed_at"] is not None
         assert updated["result"]["ndvi_mean"] == 0.6
@@ -382,6 +381,7 @@ class TestStore:
 
     def test_store_configure_no_args(self):
         from src.store import configure
+
         configure()  # should not raise
 
     def test_composites_empty(self):

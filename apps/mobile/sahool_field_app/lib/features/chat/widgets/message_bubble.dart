@@ -7,6 +7,7 @@
 /// - Message content
 /// - Timestamp
 /// - Status indicator (sent/delivered/read)
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +89,7 @@ class MessageBubble extends StatelessWidget {
           ? NetworkImage(message.senderAvatar!)
           : null,
       child: message.senderAvatar == null
-          ? Icon(
+          ? const Icon(
               Icons.person,
               size: 16,
               color: SahoolTheme.primary,

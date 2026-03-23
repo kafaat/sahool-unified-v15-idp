@@ -224,9 +224,7 @@ class DistributedLock:
         """
         # Atomic release via Lua script - prevents race condition where
         # another process acquires the lock between our GET and DELETE
-        result = self.redis._master.eval(
-            self._RELEASE_SCRIPT, 1, self.lock_name, self.identifier
-        )
+        result = self.redis._master.eval(self._RELEASE_SCRIPT, 1, self.lock_name, self.identifier)
         return result == 1
 
     def __enter__(self):

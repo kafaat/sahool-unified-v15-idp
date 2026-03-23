@@ -21,6 +21,19 @@ import {
 export class LAIController {
   constructor(private readonly laiService: LAIService) {}
 
+  /**
+   * Extract tenant ID from JWT token on the request.
+   * Throws ForbiddenException if tenant ID is missing to prevent tenant isolation bypass.
+   * استخراج معرف المستأجر من رمز JWT - يرفض الطلب إذا كان مفقوداً
+   */
+  private extractTenantId(req: any): string {
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new ForbiddenException("Tenant ID must be provided via JWT token");
+    }
+    return tenantId;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Estimate LAI for Field
   // تقدير مؤشر مساحة الأوراق للحقل
@@ -42,12 +55,7 @@ export class LAIController {
     @Query("cropType") cropType?: CropType,
     @Query("date") date?: string,
   ) {
-    // Tenant ID must come from JWT only - no query param or header fallback
-    // to prevent tenant isolation bypass (security fix B3)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      throw new ForbiddenException("Tenant ID must be provided via JWT token");
-    }
+    const tenantId = this.extractTenantId(req);
     return this.laiService.estimateLAI(
       fieldId,
       dataSource || DataSource.FUSION,
@@ -98,12 +106,7 @@ export class LAIController {
     @Query("endDate") endDate?: string,
     @Query("dataSource") dataSource?: DataSource,
   ) {
-    // Tenant ID must come from JWT only - no query param or header fallback
-    // to prevent tenant isolation bypass (security fix B3)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      throw new ForbiddenException("Tenant ID must be provided via JWT token");
-    }
+    const tenantId = this.extractTenantId(req);
     return this.laiService.getLAITimeSeries(
       fieldId,
       startDate,
@@ -130,12 +133,7 @@ export class LAIController {
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
   ) {
-    // Tenant ID must come from JWT only - no query param or header fallback
-    // to prevent tenant isolation bypass (security fix B3)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      throw new ForbiddenException("Tenant ID must be provided via JWT token");
-    }
+    const tenantId = this.extractTenantId(req);
     return this.laiService.compareLAI(fieldId, cropType || CropType.SOYBEAN, tenantId);
   }
 
@@ -176,12 +174,7 @@ export class LAIController {
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
   ): Promise<StressDetectionResponse> {
-    // Tenant ID must come from JWT only - no query param or header fallback
-    // to prevent tenant isolation bypass (security fix B3)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      throw new ForbiddenException("Tenant ID must be provided via JWT token");
-    }
+    const tenantId = this.extractTenantId(req);
     return this.laiService.detectStressWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,
@@ -208,12 +201,7 @@ export class LAIController {
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
   ) {
-    // Tenant ID must come from JWT only - no query param or header fallback
-    // to prevent tenant isolation bypass (security fix B3)
-    const tenantId = req.user?.tenantId;
-    if (!tenantId) {
-      throw new ForbiddenException("Tenant ID must be provided via JWT token");
-    }
+    const tenantId = this.extractTenantId(req);
     return this.laiService.checkAnomalyWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,

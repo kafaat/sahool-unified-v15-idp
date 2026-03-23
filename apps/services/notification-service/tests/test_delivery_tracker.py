@@ -191,6 +191,7 @@ class TestDeliveryTracker:
 class TestGetDeliveryTracker:
     def test_returns_singleton(self):
         import src.delivery_tracker as mod
+
         old = mod._delivery_tracker
         mod._delivery_tracker = None
 

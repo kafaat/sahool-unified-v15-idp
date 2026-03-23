@@ -19,7 +19,6 @@ import 'package:uuid/uuid.dart';
 import '../../../core/api/kong_gateway_client.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/ml/tflite_helper.dart';
-import '../../../core/storage/database.dart';
 import '../domain/detection_model.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════

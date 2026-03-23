@@ -208,8 +208,7 @@ async def publish_event(subject: str, data: dict) -> bool:
             "nats_publisher_not_initialized",
             subject=subject,
             event_type=data.get("event_type"),
-            message="NATS publisher is None - event will be lost. "
-            "Check NATS connection during service startup.",
+            message="NATS publisher is None - event will be lost. Check NATS connection during service startup.",
         )
         return False
 
@@ -860,7 +859,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,

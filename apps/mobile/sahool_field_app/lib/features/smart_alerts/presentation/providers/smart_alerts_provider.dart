@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../alerts/data/alert_service_api.dart';
-import '../../../../core/api/kong_gateway_client.dart';
 
 /// Smart Alerts Provider
 /// موفر التنبيهات الذكية - متصل بـ alert-service

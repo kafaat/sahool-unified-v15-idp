@@ -34,6 +34,7 @@ _mock_repository = MagicMock()
 _mock_process_models = MagicMock()
 _mock_process_models_models = MagicMock()
 
+
 # Enums and model classes needed at import time
 class _MockObservationType:
     NDVI = MagicMock(value="ndvi")
@@ -79,6 +80,7 @@ class _MockCropType:
 class _MockFieldDailyState(BaseModel):
     class Config:
         arbitrary_types_allowed = True
+
     tenant_id: UUID | str = "default"
     field_id: UUID | str = "default"
     day: date = date.today()
@@ -88,6 +90,7 @@ class _MockFieldDailyState(BaseModel):
 class _MockFieldObservation(BaseModel):
     class Config:
         arbitrary_types_allowed = True
+
     tenant_id: UUID | str = "default"
     field_id: UUID | str = "default"
     ts: datetime = datetime.now(UTC)
@@ -101,6 +104,7 @@ class _MockFieldObservation(BaseModel):
 class _MockIrrigationRecommendation(BaseModel):
     class Config:
         arbitrary_types_allowed = True
+
     tenant_id: UUID | str = "default"
     field_id: UUID | str = "default"
     day: date = date.today()
@@ -246,11 +250,7 @@ class TestEnforceTenant:
 
     def test_matching_tenant(self):
         """Matching tenant_id should not raise."""
-        request = SimpleNamespace(
-            state=SimpleNamespace(
-                user=SimpleNamespace(tenant_id=_TENANT_ID, roles=["farmer"])
-            )
-        )
+        request = SimpleNamespace(state=SimpleNamespace(user=SimpleNamespace(tenant_id=_TENANT_ID, roles=["farmer"])))
         _enforce_tenant(request, UUID(_TENANT_ID))
 
     def test_mismatched_tenant_raises(self):
@@ -295,11 +295,7 @@ class TestEnforceTenant:
 
     def test_none_user_tenant(self):
         """User with no tenant_id should not raise."""
-        request = SimpleNamespace(
-            state=SimpleNamespace(
-                user=SimpleNamespace(tenant_id=None, roles=[])
-            )
-        )
+        request = SimpleNamespace(state=SimpleNamespace(user=SimpleNamespace(tenant_id=None, roles=[])))
         _enforce_tenant(request, UUID(_TENANT_ID))
 
     def test_none_roles(self):
@@ -366,12 +362,15 @@ class TestPublishObservationIngested:
     async def test_publish_success(self):
         """Should publish observation event to NATS."""
         nats = AsyncMock()
-        with patch.dict("sys.modules", {
-            "shared.events": MagicMock(),
-            "shared.events.subjects": MagicMock(
-                SAHOOL_FIELD_OBSERVATION_INGESTED="sahool.field.observation.ingested",
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "shared.events": MagicMock(),
+                "shared.events.subjects": MagicMock(
+                    SAHOOL_FIELD_OBSERVATION_INGESTED="sahool.field.observation.ingested",
+                ),
+            },
+        ):
             await _publish_observation_ingested(nats, UUID(_TENANT_ID), UUID(_FIELD_ID), "ndvi", 0.72)
         nats.publish.assert_called_once()
         subject = nats.publish.call_args[0][0]
@@ -385,12 +384,15 @@ class TestPublishObservationIngested:
         """Publish errors should be caught and logged."""
         nats = AsyncMock()
         nats.publish = AsyncMock(side_effect=Exception("NATS down"))
-        with patch.dict("sys.modules", {
-            "shared.events": MagicMock(),
-            "shared.events.subjects": MagicMock(
-                SAHOOL_FIELD_OBSERVATION_INGESTED="sahool.field.observation.ingested",
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "shared.events": MagicMock(),
+                "shared.events.subjects": MagicMock(
+                    SAHOOL_FIELD_OBSERVATION_INGESTED="sahool.field.observation.ingested",
+                ),
+            },
+        ):
             # Should not raise
             await _publish_observation_ingested(nats, UUID(_TENANT_ID), UUID(_FIELD_ID), "ndvi", 0.5)
 
@@ -499,10 +501,14 @@ class TestTwinStep:
     def test_twin_step_no_assimilation(self):
         """Should skip assimilation when flag is off."""
         mock_state = _MockFieldDailyState(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, depletion_mm=30.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            depletion_mm=30.0,
         )
         mock_rec = _MockIrrigationRecommendation(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, recommended_mm=15.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            recommended_mm=15.0,
         )
 
         mock_pipeline_instance = AsyncMock()
@@ -553,7 +559,9 @@ class TestGetTwinState:
     def test_get_state_success(self):
         """Should return list of daily states."""
         mock_state = _MockFieldDailyState(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, depletion_mm=40.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            depletion_mm=40.0,
         )
 
         app = _create_test_app()
@@ -634,7 +642,9 @@ class TestIngestObservations:
     def test_ingest_with_assimilation(self):
         """Should trigger assimilation when enabled and state exists."""
         mock_state = _MockFieldDailyState(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, depletion_mm=35.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            depletion_mm=35.0,
         )
 
         app = _create_test_app(assimilation_enabled=True)
@@ -722,7 +732,9 @@ class TestGetIrrigationRecommendation:
     def test_existing_recommendation(self):
         """Should return existing recommendation from DB."""
         mock_rec = _MockIrrigationRecommendation(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, recommended_mm=22.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            recommended_mm=22.0,
         )
 
         app = _create_test_app()
@@ -748,10 +760,14 @@ class TestGetIrrigationRecommendation:
     def test_compute_from_state(self):
         """When no stored rec, should compute from state."""
         mock_state = _MockFieldDailyState(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, depletion_mm=60.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            depletion_mm=60.0,
         )
         mock_rec = _MockIrrigationRecommendation(
-            tenant_id=_TENANT_ID, field_id=_FIELD_ID, recommended_mm=30.0,
+            tenant_id=_TENANT_ID,
+            field_id=_FIELD_ID,
+            recommended_mm=30.0,
         )
 
         app = _create_test_app()

@@ -1,6 +1,7 @@
 """
 Integration tests for Profitability API endpoints
 """
+
 import os
 import sys
 
@@ -17,6 +18,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from main import app
 
 client = TestClient(app)
+
+
 class TestProfitabilityAPI:
     """Test suite for Profitability API endpoints"""
 
@@ -262,6 +265,8 @@ class TestProfitabilityAPI:
             params={"field_id": "field-001", "crop_code": "wheat", "area_ha": 0},
         )
         assert response.status_code == 422  # Validation error
+
+
 class TestProfitabilityEdgeCases:
     """Test edge cases and error handling"""
 
@@ -313,5 +318,7 @@ class TestProfitabilityEdgeCases:
                 assert response.status_code == 200
                 data = response.json()
                 assert data["crop_code"] == crop["crop_code"]
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

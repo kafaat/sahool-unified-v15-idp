@@ -1,4 +1,5 @@
 """Test configuration for ground-vision-service."""
+
 import os
 import sys
 

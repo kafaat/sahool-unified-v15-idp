@@ -149,12 +149,12 @@ class _SatelliteDashboardScreenState
 
         // Health Score Card
         if (state.fieldHealth != null)
-          _buildHealthScoreCard(state.fieldHealth!, context, isArabic),
+          _buildHealthScoreCard(state.fieldHealth, context, isArabic),
         const SizedBox(height: 16),
 
         // NDVI Card
         if (state.ndviAnalysis != null)
-          _buildNdviCard(state.ndviAnalysis!, context, isArabic),
+          _buildNdviCard(state.ndviAnalysis, context, isArabic),
         const SizedBox(height: 16),
 
         // Weather Card
@@ -167,7 +167,7 @@ class _SatelliteDashboardScreenState
 
         // Growth Stage Card
         if (state.phenologyData != null)
-          _buildGrowthStageCard(state.phenologyData!, context, isArabic),
+          _buildGrowthStageCard(state.phenologyData, context, isArabic),
         const SizedBox(height: 16),
 
         // Alerts Section

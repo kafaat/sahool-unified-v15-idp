@@ -94,6 +94,8 @@ class TestEnums:
         assert StreamOrder.FIRST == 1
         assert StreamOrder.SECOND == 2
         assert StreamOrder.HIGHER == 6
+
+
 # ==============================================================================
 # Arabic Mapping Tests
 # ==============================================================================
@@ -118,6 +120,8 @@ class TestArabicMappings:
         for risk in DepressionRisk:
             assert risk in DEPRESSION_RISK_AR
             assert isinstance(DEPRESSION_RISK_AR[risk], str)
+
+
 # ==============================================================================
 # Base Model Tests
 # ==============================================================================
@@ -146,6 +150,8 @@ class TestGeoPoint:
         """Test GeoPoint rejects invalid longitude."""
         with pytest.raises(ValidationError):
             GeoPoint(lat=0.0, lon=181.0)
+
+
 class TestBoundingBox:
     """Tests for BoundingBox model."""
 
@@ -154,6 +160,8 @@ class TestBoundingBox:
         bbox = BoundingBox(min_lat=15.0, max_lat=15.1, min_lon=45.0, max_lon=45.1)
         assert bbox.min_lat == 15.0
         assert bbox.max_lon == 45.1
+
+
 class TestGeoPolygon:
     """Tests for GeoPolygon model."""
 
@@ -196,6 +204,8 @@ class TestGeoPolygon:
         """Test polygon rejects coordinate with fewer than 2 elements."""
         with pytest.raises(ValidationError):
             GeoPolygon(coordinates=[[45.0], [45.1, 15.0], [45.1, 15.1]])
+
+
 # ==============================================================================
 # Request Model Tests
 # ==============================================================================
@@ -270,6 +280,8 @@ class TestHydrologyAnalysisRequest:
         assert req.boundary is None
         assert req.dem_source is None
         assert req.correlation_id is None
+
+
 class TestDrainageAnalysisRequest:
     """Tests for DrainageAnalysisRequest."""
 
@@ -290,6 +302,8 @@ class TestDrainageAnalysisRequest:
         """Test drainage request rejects empty field_id."""
         with pytest.raises(ValidationError):
             DrainageAnalysisRequest(field_id="   ")
+
+
 class TestWetnessAnalysisRequest:
     """Tests for WetnessAnalysisRequest."""
 
@@ -304,6 +318,8 @@ class TestWetnessAnalysisRequest:
             WetnessAnalysisRequest(field_id="F1", rainfall_mm=-1.0)
         with pytest.raises(ValidationError):
             WetnessAnalysisRequest(field_id="F1", rainfall_mm=2001.0)
+
+
 class TestDepressionAnalysisRequest:
     """Tests for DepressionAnalysisRequest."""
 
@@ -319,6 +335,8 @@ class TestDepressionAnalysisRequest:
             DepressionAnalysisRequest(field_id="F1", min_depth_m=0.001)
         with pytest.raises(ValidationError):
             DepressionAnalysisRequest(field_id="F1", min_depth_m=11.0)
+
+
 class TestStreamDetectionRequest:
     """Tests for StreamDetectionRequest."""
 
@@ -333,6 +351,8 @@ class TestStreamDetectionRequest:
             StreamDetectionRequest(field_id="F1", min_order=0)
         with pytest.raises(ValidationError):
             StreamDetectionRequest(field_id="F1", min_order=7)
+
+
 class TestBasinDelineationRequest:
     """Tests for BasinDelineationRequest."""
 
@@ -354,6 +374,8 @@ class TestBasinDelineationRequest:
         """Test min_area_ha bounds."""
         with pytest.raises(ValidationError):
             BasinDelineationRequest(field_id="F1", min_area_ha=0.01)
+
+
 # ==============================================================================
 # Response Model Tests
 # ==============================================================================
@@ -372,6 +394,8 @@ class TestDrainageSegment:
         )
         assert seg.segment_id == "seg-001"
         assert seg.stream_order == 1
+
+
 class TestWaterloggingPrediction:
     """Tests for WaterloggingPrediction response model."""
 
@@ -387,6 +411,8 @@ class TestWaterloggingPrediction:
         )
         assert pred.rainfall_mm == 50.0
         assert pred.risk_level == DepressionRisk.MEDIUM
+
+
 class TestValidationConstants:
     """Test validation constants are correct."""
 

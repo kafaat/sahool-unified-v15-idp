@@ -98,7 +98,9 @@ class AdvisoryRateLimiter:
         tenant_id = "default"
         if hasattr(request.state, "tenant_id") and request.state.tenant_id:
             tenant_id = request.state.tenant_id
-        elif hasattr(request.state, "user") and hasattr(request.state.user, "tenant_id") and request.state.user.tenant_id:
+        elif (
+            hasattr(request.state, "user") and hasattr(request.state.user, "tenant_id") and request.state.user.tenant_id
+        ):
             tenant_id = request.state.user.tenant_id
         else:
             # Fallback to header only for unauthenticated routes;

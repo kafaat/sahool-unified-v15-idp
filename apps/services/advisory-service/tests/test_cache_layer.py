@@ -120,8 +120,8 @@ class TestAdvisoryCache:
     @pytest.mark.asyncio
     async def test_get_stats_after_operations(self, cache):
         await cache.set("k", "v")
-        await cache.get("k")       # hit
-        await cache.get("miss")    # miss
+        await cache.get("k")  # hit
+        await cache.get("miss")  # miss
         stats = cache.get_stats()
         assert stats["hits"] == 1
         assert stats["misses"] == 1
@@ -157,6 +157,7 @@ class TestGenerateCacheKey:
 class TestGetAdvisoryCache:
     def test_returns_cache_instance(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
         cache = get_advisory_cache()
         assert isinstance(cache, AdvisoryCache)
@@ -164,6 +165,7 @@ class TestGetAdvisoryCache:
 
     def test_returns_same_instance(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
         c1 = get_advisory_cache()
         c2 = get_advisory_cache()
@@ -179,10 +181,12 @@ class TestGetAdvisoryCache:
 class TestCacheDecorators:
     def setup_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     def teardown_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     def test_cache_disease_lookup_caches(self):
@@ -263,10 +267,12 @@ class TestCacheDecorators:
 class TestCacheAsyncResult:
     def setup_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     def teardown_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     @pytest.mark.asyncio
@@ -320,10 +326,12 @@ class TestCacheAsyncResult:
 class TestInvalidation:
     def setup_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     def teardown_method(self):
         import src.cache_layer as cl
+
         cl._advisory_cache = None
 
     @pytest.mark.asyncio

@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import '../models/profitability_models.dart';
 import '../providers/profitability_provider.dart';
 import '../widgets/cost_breakdown_widget.dart';
-import '../widgets/profit_chart_widget.dart';
 
 class ProfitabilityDashboardScreen extends ConsumerStatefulWidget {
   final String farmId;
@@ -137,7 +136,7 @@ class _ProfitabilityDashboardScreenState
         Expanded(
           child: _buildMetricCard(
             title: locale == 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue',
-            value: '${currencyFormat.format(summary.totalRevenue)}',
+            value: currencyFormat.format(summary.totalRevenue),
             subtitle: locale == 'ar' ? 'ريال يمني' : 'YER',
             icon: Icons.trending_up,
             color: Colors.green,
@@ -147,7 +146,7 @@ class _ProfitabilityDashboardScreenState
         Expanded(
           child: _buildMetricCard(
             title: locale == 'ar' ? 'إجمالي التكاليف' : 'Total Costs',
-            value: '${currencyFormat.format(summary.totalCosts)}',
+            value: currencyFormat.format(summary.totalCosts),
             subtitle: locale == 'ar' ? 'ريال يمني' : 'YER',
             icon: Icons.trending_down,
             color: Colors.red,

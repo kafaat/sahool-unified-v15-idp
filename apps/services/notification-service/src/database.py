@@ -51,7 +51,7 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": [
-                "apps.services.notification-service.src.models",
+                "src.models",
                 "aerich.models",
             ],
             "default_connection": "default",

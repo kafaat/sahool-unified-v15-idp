@@ -202,9 +202,7 @@ class TestSMSClient:
         client._from_number = "+1234567890"
 
         mock_twilio_client = MagicMock()
-        mock_twilio_client.messages.create = MagicMock(
-            side_effect=Exception("Invalid phone number")
-        )
+        mock_twilio_client.messages.create = MagicMock(side_effect=Exception("Invalid phone number"))
         client._client = mock_twilio_client
 
         result = await client.send_sms(to="+invalid", body="Test")

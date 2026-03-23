@@ -7,6 +7,7 @@
 /// - RateLimiter endpoint type detection
 /// - RateLimitStatus utilization
 /// - RateLimitException
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/http/rate_limiter.dart';

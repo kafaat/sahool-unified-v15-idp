@@ -395,6 +395,7 @@ class TestPriorityOrdering:
 
         # Heap should have critical first (lower number = higher priority)
         import heapq
+
         top = heapq.heappop(scheduler._queue)
         assert top.priority == 0  # CRITICAL = 0
 
@@ -517,11 +518,13 @@ class TestProcessBatch:
     @pytest.mark.asyncio
     async def test_batch_success(self):
         mock_firebase = MagicMock()
-        mock_firebase.send_multicast = MagicMock(return_value={
-            "success_count": 2,
-            "failure_count": 0,
-            "responses": [{"success": True}, {"success": True}],
-        })
+        mock_firebase.send_multicast = MagicMock(
+            return_value={
+                "success_count": 2,
+                "failure_count": 0,
+                "responses": [{"success": True}, {"success": True}],
+            }
+        )
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
 
         payload = _make_payload()
@@ -542,11 +545,13 @@ class TestProcessBatch:
     @pytest.mark.asyncio
     async def test_batch_with_failures(self):
         mock_firebase = MagicMock()
-        mock_firebase.send_multicast = MagicMock(return_value={
-            "success_count": 1,
-            "failure_count": 1,
-            "responses": [{"success": True}, {"success": False}],
-        })
+        mock_firebase.send_multicast = MagicMock(
+            return_value={
+                "success_count": 1,
+                "failure_count": 1,
+                "responses": [{"success": True}, {"success": False}],
+            }
+        )
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
 
         payload = _make_payload()
@@ -612,6 +617,7 @@ class TestGetScheduler:
     def test_singleton(self):
         from src.notification_scheduler import get_scheduler
         import src.notification_scheduler as mod
+
         old = mod._scheduler
         mod._scheduler = None
 

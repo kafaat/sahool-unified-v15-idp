@@ -80,7 +80,7 @@ class TestCanonicalHeaders:
     def test_base_event_has_tenant_id_header(self):
         from shared.events.contracts import BaseEvent
 
-        # tenant_id field provides tenant isolation for NATS header propagation
+        # tenant_id field is used for multi-tenant event routing and NATS header propagation
         fields = BaseEvent.model_fields
         assert "tenant_id" in fields, "BaseEvent must have tenant_id for NATS header propagation"
 

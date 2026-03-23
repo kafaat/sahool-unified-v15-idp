@@ -19,9 +19,7 @@ try:
 except ImportError:
     firebase_admin_available = False
 
-pytestmark = pytest.mark.skipif(
-    not firebase_admin_available, reason="firebase_admin not installed"
-)
+pytestmark = pytest.mark.skipif(not firebase_admin_available, reason="firebase_admin not installed")
 
 
 @pytest.fixture

@@ -214,7 +214,7 @@ abstract final class ChatEndpoints {
   static const String unreadCount =
       '$apiPrefix/chat/conversations/unread-count';
   static String fieldMessages(String fieldId) =>
-      '$apiPrefix/field-chat/fields/$fieldId/messages';
+      '$apiPrefix/chat/fields/$fieldId/messages';
 }
 
 /// AI Advisor - المستشار الذكي

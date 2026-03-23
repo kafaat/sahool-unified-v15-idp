@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../../data/models/analytics_models.dart';
 
 /// Displays yield prediction with revenue estimate

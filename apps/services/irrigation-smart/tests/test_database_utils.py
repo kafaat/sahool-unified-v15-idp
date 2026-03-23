@@ -60,6 +60,8 @@ class TestPoolConfig:
             assert config.max_connections == 25
             assert config.command_timeout == 90
             assert config.idle_timeout == 500
+
+
 # ============================================================================
 # Helper: Mock pool/connection
 # ============================================================================
@@ -74,6 +76,8 @@ class MockAsyncContextManager:
 
     async def __aexit__(self, *args):
         return False
+
+
 def make_mock_pool():
     """Create a mock asyncpg pool with acquire context manager."""
     mock_conn = AsyncMock()
@@ -83,6 +87,8 @@ def make_mock_pool():
     mock_pool.acquire.return_value = MockAsyncContextManager(mock_conn)
 
     return mock_pool, mock_conn
+
+
 def make_mock_pool_with_transaction():
     """Create a mock pool where conn also supports transaction()."""
     mock_conn = AsyncMock()
@@ -92,6 +98,8 @@ def make_mock_pool_with_transaction():
     mock_pool = MagicMock()
     mock_pool.acquire.return_value = MockAsyncContextManager(mock_conn)
     return mock_pool, mock_conn
+
+
 # ============================================================================
 # IrrigationDatabase Tests
 # ============================================================================
@@ -118,6 +126,8 @@ class TestGetFieldIrrigationHistory:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_field_irrigation_history("f1")
         assert result == []
+
+
 class TestGetSensorReadingsSummary:
     @pytest.mark.asyncio
     async def test_returns_summary(self):
@@ -170,6 +180,8 @@ class TestGetSensorReadingsSummary:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_sensor_readings_summary("f1")
         assert result == {}
+
+
 class TestSaveIrrigationPlan:
     @pytest.mark.asyncio
     async def test_saves_plan_successfully(self):
@@ -207,6 +219,7 @@ class TestSaveIrrigationPlan:
         class FailingCtx:
             async def __aenter__(self):
                 raise Exception("db error")
+
             async def __aexit__(self, *args):
                 return False
 
@@ -215,6 +228,8 @@ class TestSaveIrrigationPlan:
         db = IrrigationDatabase(mock_pool)
         result = await db.save_irrigation_plan("p1", "f1", "wheat", "veg", 5.0, 750.0, [])
         assert result is False
+
+
 class TestSaveIrrigationExecution:
     @pytest.mark.asyncio
     async def test_saves_execution(self):
@@ -240,10 +255,10 @@ class TestSaveIrrigationExecution:
         mock_conn.execute.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.save_irrigation_execution(
-            "e1", "f1", None, None, 25.0, 45, "drip", datetime.now(UTC)
-        )
+        result = await db.save_irrigation_execution("e1", "f1", None, None, 25.0, 45, "drip", datetime.now(UTC))
         assert result is False
+
+
 class TestBatchSaveSensorReadings:
     @pytest.mark.asyncio
     async def test_saves_batch(self):
@@ -251,8 +266,24 @@ class TestBatchSaveSensorReadings:
 
         db = IrrigationDatabase(mock_pool)
         readings = [
-            {"id": "r1", "field_id": "f1", "sensor_id": "s1", "reading_time": datetime.now(UTC), "moisture_percent": 45.0, "temperature_c": 28.0, "ec_ds_m": 1.0},
-            {"id": "r2", "field_id": "f1", "sensor_id": "s2", "reading_time": datetime.now(UTC), "moisture_percent": 50.0, "temperature_c": 27.0, "ec_ds_m": 0.9},
+            {
+                "id": "r1",
+                "field_id": "f1",
+                "sensor_id": "s1",
+                "reading_time": datetime.now(UTC),
+                "moisture_percent": 45.0,
+                "temperature_c": 28.0,
+                "ec_ds_m": 1.0,
+            },
+            {
+                "id": "r2",
+                "field_id": "f1",
+                "sensor_id": "s2",
+                "reading_time": datetime.now(UTC),
+                "moisture_percent": 50.0,
+                "temperature_c": 27.0,
+                "ec_ds_m": 0.9,
+            },
         ]
 
         result = await db.batch_save_sensor_readings(readings)
@@ -272,6 +303,7 @@ class TestBatchSaveSensorReadings:
         class FailingCtx:
             async def __aenter__(self):
                 raise Exception("db error")
+
             async def __aexit__(self, *args):
                 return False
 
@@ -280,6 +312,8 @@ class TestBatchSaveSensorReadings:
         db = IrrigationDatabase(mock_pool)
         result = await db.batch_save_sensor_readings([{"id": "r1"}])
         assert result == 0
+
+
 class TestGetWaterBalanceSummary:
     @pytest.mark.asyncio
     async def test_returns_summary(self):
@@ -332,6 +366,8 @@ class TestGetWaterBalanceSummary:
         db = IrrigationDatabase(mock_pool)
         result = await db.get_water_balance_summary("f1")
         assert result == {}
+
+
 # ============================================================================
 # with_retry Tests
 # ============================================================================
@@ -363,6 +399,8 @@ class TestWithRetry:
         with pytest.raises(Exception, match="fail"):
             await with_retry(func, max_attempts=1, delay=0.01)
         assert func.call_count == 1
+
+
 # ============================================================================
 # create_pool Tests
 # ============================================================================
@@ -373,6 +411,7 @@ class TestCreatePool:
         with patch("src.database_utils.asyncpg", create=True) as mock_asyncpg:
             # We need to handle the import inside create_pool
             import importlib
+
             mock_asyncpg_module = MagicMock()
             mock_asyncpg_module.create_pool = AsyncMock(return_value=mock_pool)
 

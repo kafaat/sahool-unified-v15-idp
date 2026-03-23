@@ -107,7 +107,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.92),
                 borderRadius:
@@ -219,7 +219,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.check,
                         size: 12,
                         color: SahoolColors.success,
@@ -227,7 +227,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
                       const SizedBox(width: 4),
                       Text(
                         '$_completedCount',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: SahoolColors.success,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -270,7 +270,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle_outline,
             size: 48,
             color: SahoolColors.success,
@@ -327,7 +327,7 @@ class CompactTasksSummary extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.task_alt,
               color: SahoolColors.primary,
               size: 20,
@@ -350,7 +350,7 @@ class CompactTasksSummary extends StatelessWidget {
                 ),
                 child: Text(
                   '$urgent عاجل',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: SahoolColors.danger,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,

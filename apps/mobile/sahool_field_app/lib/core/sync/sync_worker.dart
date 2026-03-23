@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart';
 
 import '../storage/database.dart';
 import '../sync/network_status.dart';
@@ -88,20 +87,20 @@ class SyncWorker {
       };
 
       // Add If-Match for field updates if we have an ETag
-      if (item.type.startsWith('field_') && item.type.contains('update')) {
+      if (item.entityType == 'field' && item.method == 'PUT') {
         final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
           final field = await _db.getFieldById(fieldId);
           if (field?.etag != null && field!.etag!.isNotEmpty) {
-            headers['If-Match'] = field.etag!;
+            headers['If-Match'] = field.etag;
           }
         }
       }
 
       // Determine endpoint and method
-      final endpoint = _getEndpoint(item.type);
-      final method = _getMethod(item.type);
+      final endpoint = item.apiEndpoint;
+      final method = item.method;
 
       final resp = await _dio.request(
         '$_baseUrl$endpoint',
@@ -111,7 +110,7 @@ class SyncWorker {
 
       // Handle ETag from response
       final newEtag = resp.headers.value('etag') ?? resp.headers.value('ETag');
-      if (newEtag != null && item.type.startsWith('field_')) {
+      if (newEtag != null && item.entityType == 'field') {
         final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
@@ -156,7 +155,7 @@ class SyncWorker {
       if (sd is Map<String, dynamic>) serverData = sd;
     }
 
-    if (item.type.startsWith('field_') && serverData != null) {
+    if (item.entityType == 'field' && serverData != null) {
       // Apply server version (Last-Write-Wins from server)
       final fieldId = serverData['id']?.toString();
       if (fieldId != null) {
@@ -174,38 +173,24 @@ class SyncWorker {
       tenantId: tenantId,
       type: 'CONFLICT',
       message:
-          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.type)}',
-      entityType: _getEntityType(item.type),
+          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.entityType)}',
+      entityType: item.entityType,
       entityId: _extractEntityId(item.payload),
     );
 
     await _log('INFO',
-        'Conflict resolved by applying server version for: ${item.type}');
+        'Conflict resolved by applying server version for: ${item.entityType}');
   }
 
-  String _getEndpoint(String type) {
-    if (type.startsWith('field_')) return '/api/v1/fields';
-    if (type.startsWith('task_')) return '/api/v1/tasks';
-    return '/api/v1/sync';
-  }
-
-  String _getMethod(String type) {
-    if (type.contains('create')) return 'POST';
-    if (type.contains('update')) return 'PUT';
-    if (type.contains('delete')) return 'DELETE';
-    return 'POST';
-  }
-
-  String _getEntityType(String type) {
-    if (type.startsWith('field_')) return 'field';
-    if (type.startsWith('task_')) return 'task';
-    return 'unknown';
-  }
-
-  String _getEntityTypeAr(String type) {
-    if (type.startsWith('field_')) return 'الحقل';
-    if (type.startsWith('task_')) return 'المهمة';
-    return 'البيانات';
+  String _getEntityTypeAr(String entityType) {
+    switch (entityType) {
+      case 'field':
+        return 'الحقل';
+      case 'task':
+        return 'المهمة';
+      default:
+        return 'البيانات';
+    }
   }
 
   String? _extractEntityId(String payloadStr) {

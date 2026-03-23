@@ -1,4 +1,5 @@
 """Test configuration for logistics-service."""
+
 import os
 import sys
 

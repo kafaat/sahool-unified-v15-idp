@@ -29,6 +29,7 @@ def mock_shared_modules(monkeypatch):
     class FakeTenantMiddleware:
         def __init__(self, app, **kwargs):
             self.app = app
+
         async def __call__(self, scope, receive, send):
             await self.app(scope, receive, send)
 
@@ -40,8 +41,11 @@ def mock_shared_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, "shared.errors_py", errors_py)
     monkeypatch.setitem(sys.modules, "shared.middleware", middleware)
     monkeypatch.setitem(sys.modules, "shared.middleware.tenant_context", tenant_ctx)
+
+
 class _AsyncCtxMgr:
     """Helper async context manager for mocking pool.acquire()."""
+
     def __init__(self, return_value):
         self._return_value = return_value
 
@@ -50,17 +54,23 @@ class _AsyncCtxMgr:
 
     async def __aexit__(self, *args):
         return False
+
+
 @pytest.fixture
 def app_instance(mock_shared_modules):
     """Get the FastAPI app instance."""
     with patch.dict(os.environ, {"DATABASE_URL": "", "NATS_URL": "", "ENVIRONMENT": "test"}):
         from src.core.config import get_settings
+
         get_settings.cache_clear()
         from src.main import app
+
         app.state.db_pool = None
         app.state.nc = None
         yield app
         get_settings.cache_clear()
+
+
 # ==============================================================================
 # publish_event tests
 # ==============================================================================
@@ -103,6 +113,8 @@ class TestPublishEvent:
 
         # Should not raise
         await publish_event("sahool.hydrology.test", {"field_id": "F1"})
+
+
 # ==============================================================================
 # save_analysis tests
 # ==============================================================================
@@ -153,6 +165,8 @@ class TestSaveAnalysis:
 
         result = await save_analysis("F1", "drainage", {"test": True})
         assert result is False
+
+
 # ==============================================================================
 # get_analysis tests
 # ==============================================================================

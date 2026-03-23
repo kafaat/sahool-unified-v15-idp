@@ -38,9 +38,13 @@ class TestTaskRuleDataclass:
     def test_to_tuple_returns_correct_types(self):
         """Test to_tuple returns tuple of 3 strings"""
         rule = TaskRule(
-            title_ar="أ", title_en="A",
-            description_ar="ب", description_en="B",
-            task_type="t", priority="p", urgency_hours=1,
+            title_ar="أ",
+            title_en="A",
+            description_ar="ب",
+            description_en="B",
+            task_type="t",
+            priority="p",
+            urgency_hours=1,
         )
         result = rule.to_tuple()
         assert isinstance(result, tuple)
@@ -50,13 +54,19 @@ class TestTaskRuleDataclass:
     def test_equality(self):
         """Test dataclass equality"""
         kwargs = dict(  # noqa: C408
-            title_ar="x", title_en="y",
-            description_ar="a", description_en="b",
-            task_type="t", priority="p", urgency_hours=1,
+            title_ar="x",
+            title_en="y",
+            description_ar="a",
+            description_en="b",
+            task_type="t",
+            priority="p",
+            urgency_hours=1,
         )
         r1 = TaskRule(**kwargs)
         r2 = TaskRule(**kwargs)
         assert r1 == r2
+
+
 class TestNdviBoundaryConditions:
     """Boundary condition tests for rule_from_ndvi"""
 
@@ -132,6 +142,8 @@ class TestNdviBoundaryConditions:
         # Should match severe drop first, not very low NDVI
         assert rule.urgency_hours == 6
         assert rule.priority == "urgent"
+
+
 class TestWeatherRuleEdgeCases:
     """Edge case tests for rule_from_weather"""
 
@@ -195,6 +207,8 @@ class TestWeatherRuleEdgeCases:
         """Test unknown alert type with low severity returns None"""
         rule = rule_from_weather("unknown", "low")
         assert rule is None
+
+
 class TestCombinedRuleBoundaries:
     """Boundary tests for rule_from_ndvi_weather"""
 
@@ -236,6 +250,8 @@ class TestCombinedRuleBoundaries:
         # Heat + NDVI decline should match first
         assert rule.priority == "urgent"
         assert rule.task_type == "emergency"
+
+
 class TestIrrigationAdjustmentBoundaries:
     """Boundary tests for rule_from_irrigation_adjustment"""
 

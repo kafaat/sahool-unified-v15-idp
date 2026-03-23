@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/satellite_provider.dart';
-import '../../widgets/weather_card.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
   final String fieldId;
@@ -241,8 +240,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             height: 150,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(show: false),
+                gridData: const FlGridData(show: true),
+                titlesData: const FlTitlesData(show: false),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
@@ -257,7 +256,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                     isCurved: true,
                     color: Colors.orange,
                     barWidth: 3,
-                    dotData: FlDotData(show: true),
+                    dotData: const FlDotData(show: true),
                   ),
                   LineChartBarData(
                     spots: forecast
@@ -271,7 +270,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                     isCurved: true,
                     color: Colors.blue,
                     barWidth: 3,
-                    dotData: FlDotData(show: true),
+                    dotData: const FlDotData(show: true),
                   ),
                 ],
               ),
@@ -322,8 +321,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             height: 150,
             child: BarChart(
               BarChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(show: false),
+                gridData: const FlGridData(show: true),
+                titlesData: const FlTitlesData(show: false),
                 borderData: FlBorderData(show: false),
                 barGroups: forecast
                     .asMap()

@@ -37,6 +37,8 @@ from starlette.responses import Response
 class _FakeTenantMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         return await call_next(request)
+
+
 _mock_tenant = MagicMock()
 _mock_tenant.TenantContextMiddleware = _FakeTenantMiddleware
 sys.modules["shared.middleware.tenant_context"] = _mock_tenant
@@ -98,6 +100,8 @@ class TestCropTypeEnum:
     def test_crop_is_str(self):
         assert isinstance(CropType.TOMATO, str)
         assert CropType.TOMATO.upper() == "TOMATO"
+
+
 class TestGrowthStageEnum:
     def test_all_stages_defined(self):
         assert len(GrowthStage) == 5
@@ -106,11 +110,15 @@ class TestGrowthStageEnum:
         assert GrowthStage.SEEDLING == "seedling"
         assert GrowthStage.FLOWERING == "flowering"
         assert GrowthStage.MATURITY == "maturity"
+
+
 class TestSoilTypeEnum:
     def test_all_soil_types(self):
         expected = {"sandy", "clay", "loamy", "silt", "rocky"}
         actual = {s.value for s in SoilType}
         assert actual == expected
+
+
 class TestIrrigationMethodEnum:
     def test_all_methods(self):
         assert len(IrrigationMethod) == 5
@@ -119,10 +127,14 @@ class TestIrrigationMethodEnum:
         assert IrrigationMethod.DRIP == "drip"
         assert IrrigationMethod.FLOOD == "flood"
         assert IrrigationMethod.SPRINKLER == "sprinkler"
+
+
 class TestUrgencyLevelEnum:
     def test_urgency_values(self):
         assert UrgencyLevel.LOW == "low"
         assert UrgencyLevel.CRITICAL == "critical"
+
+
 # ============================================================================
 # Translation Dictionary Tests
 # ============================================================================
@@ -148,6 +160,8 @@ class TestTranslations:
         assert STAGE_TRANSLATIONS[GrowthStage.FLOWERING] == "إزهار"
         assert METHOD_TRANSLATIONS[IrrigationMethod.DRIP] == "ري بالتنقيط"
         assert URGENCY_TRANSLATIONS[UrgencyLevel.CRITICAL] == "حرج"
+
+
 # ============================================================================
 # Data Constants Tests
 # ============================================================================
@@ -174,6 +188,8 @@ class TestConstants:
 
     def test_water_cost_is_positive(self):
         assert WATER_COST_PER_M3 > 0
+
+
 # ============================================================================
 # Calculation Function Tests
 # ============================================================================
@@ -207,6 +223,8 @@ class TestCalculateET0:
         result = calculate_et0(30, 50, 10)
         # Rounded to 2 decimal places
         assert result == round(result, 2)
+
+
 class TestCalculateCropET:
     def test_basic_calculation(self):
         et0 = 5.0
@@ -249,6 +267,8 @@ class TestCalculateCropET:
     def test_result_rounded(self):
         result = calculate_crop_et(5.123, CropType.TOMATO, GrowthStage.VEGETATIVE)
         assert result == round(result, 2)
+
+
 class TestCalculateWaterNeed:
     def test_basic_calculation(self):
         result = calculate_water_need(
@@ -270,50 +290,92 @@ class TestCalculateWaterNeed:
         assert "savings_percent" in result
 
     def test_higher_area_more_water(self):
-        small = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3)
-        large = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 5.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3)
+        small = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3
+        )
+        large = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 5.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3
+        )
         assert large["water_m3"] > small["water_m3"]
 
     def test_more_days_higher_urgency(self):
-        recent = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 1)
-        old = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 10)
+        recent = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 1
+        )
+        old = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 10
+        )
         assert old["accumulated_need_mm"] >= recent["accumulated_need_mm"]
 
     def test_urgency_critical_for_high_deficit(self):
-        result = calculate_water_need(CropType.BANANA, GrowthStage.FRUITING, 5.0, SoilType.SANDY, IrrigationMethod.FLOOD, None, 10)
+        result = calculate_water_need(
+            CropType.BANANA, GrowthStage.FRUITING, 5.0, SoilType.SANDY, IrrigationMethod.FLOOD, None, 10
+        )
         assert result["urgency"] in [UrgencyLevel.HIGH, UrgencyLevel.CRITICAL]
 
     def test_urgency_low_for_recently_irrigated(self):
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.SEEDLING, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, 65.0, 1)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.SEEDLING, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, 65.0, 1
+        )
         assert result["urgency"] == UrgencyLevel.LOW
 
     def test_drip_no_savings(self):
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3
+        )
         assert result["savings_percent"] == 0
 
     def test_non_drip_has_savings(self):
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.FLOOD, None, 3)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.FLOOD, None, 3
+        )
         assert result["savings_percent"] > 0
 
     def test_rainfall_reduces_need(self):
-        no_rain = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3, rainfall_forecast=0)
-        with_rain = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3, rainfall_forecast=50)
+        no_rain = calculate_water_need(
+            CropType.WHEAT,
+            GrowthStage.VEGETATIVE,
+            1.0,
+            SoilType.LOAMY,
+            IrrigationMethod.DRIP,
+            None,
+            3,
+            rainfall_forecast=0,
+        )
+        with_rain = calculate_water_need(
+            CropType.WHEAT,
+            GrowthStage.VEGETATIVE,
+            1.0,
+            SoilType.LOAMY,
+            IrrigationMethod.DRIP,
+            None,
+            3,
+            rainfall_forecast=50,
+        )
         assert with_rain["accumulated_need_mm"] <= no_rain["accumulated_need_mm"]
 
     def test_soil_moisture_deficit(self):
         # Low moisture should produce higher need
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, 20.0, 3)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.DRIP, 20.0, 3
+        )
         assert result["accumulated_need_mm"] > 0
 
     def test_efficiency_matches_method(self):
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.SPRINKLER, None, 3)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 1.0, SoilType.LOAMY, IrrigationMethod.SPRINKLER, None, 3
+        )
         assert result["efficiency"] == IRRIGATION_EFFICIENCY[IrrigationMethod.SPRINKLER]
 
     def test_water_volume_conversion(self):
         # water_m3 = gross_water_mm * area_ha * 10
-        result = calculate_water_need(CropType.WHEAT, GrowthStage.VEGETATIVE, 2.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3)
+        result = calculate_water_need(
+            CropType.WHEAT, GrowthStage.VEGETATIVE, 2.0, SoilType.LOAMY, IrrigationMethod.DRIP, None, 3
+        )
         expected_m3 = result["gross_water_mm"] * 2.0 * 10
         assert abs(result["water_m3"] - round(expected_m3, 2)) < 0.15
+
+
 class TestDetermineIrrigationTime:
     def test_very_hot(self):
         assert determine_irrigation_time(CropType.WHEAT, 40) == "05:00"
@@ -329,6 +391,8 @@ class TestDetermineIrrigationTime:
 
     def test_boundary_30(self):
         assert determine_irrigation_time(CropType.WHEAT, 30) == "07:00"
+
+
 class TestCalculateDuration:
     def test_basic_duration(self):
         # 2000 liters at 2000 lph = 1 hour = 60 min
@@ -348,6 +412,8 @@ class TestCalculateDuration:
 
     def test_returns_int(self):
         assert isinstance(calculate_duration(1500), int)
+
+
 class TestGenerateReasoning:
     def test_critical_reasoning(self):
         water_need = {"accumulated_need_mm": 50, "daily_et_mm": 5}
@@ -380,6 +446,8 @@ class TestGenerateReasoning:
         assert len(result) == 2
         assert isinstance(result[0], str)
         assert isinstance(result[1], str)
+
+
 # ============================================================================
 # Pydantic Model Tests
 # ============================================================================
@@ -425,6 +493,8 @@ class TestIrrigationRequestModel:
         assert req.current_soil_moisture is None
         assert req.last_irrigation_date is None
         assert req.weather_forecast is None
+
+
 class TestIrrigationExecutionModel:
     def test_valid_execution(self):
         exe = IrrigationExecution(
@@ -450,6 +520,8 @@ class TestIrrigationExecutionModel:
                 amount_mm=10.0,
                 duration_minutes=0,
             )
+
+
 class TestSoilMoistureReadingModel:
     def test_valid_reading(self):
         reading = SoilMoistureReading(
@@ -462,6 +534,8 @@ class TestSoilMoistureReadingModel:
             ec_ds_m=1.2,
         )
         assert reading.moisture_percent == 45.0
+
+
 class TestWaterBalanceModel:
     def test_valid_balance(self):
         wb = WaterBalance(
@@ -475,6 +549,8 @@ class TestWaterBalanceModel:
             cumulative_deficit_mm=0.0,
         )
         assert wb.et_mm == 5.0
+
+
 # ============================================================================
 # NATS Event Publishing Tests
 # ============================================================================
@@ -531,6 +607,8 @@ class TestPublishEvent:
         decoded = json.loads(payload_arg.decode())
         assert decoded["field_id"] == "f1"
         assert decoded["amount"] == 25
+
+
 # ============================================================================
 # API Endpoint Tests (using TestClient)
 # ============================================================================
@@ -541,10 +619,14 @@ try:
     HAS_TESTCLIENT = True
 except ImportError:
     HAS_TESTCLIENT = False
+
+
 @pytest.fixture
 def auth_headers():
     """Provide fake auth token for protected endpoints."""
     return {"Authorization": "Bearer fake-token"}
+
+
 @pytest.fixture
 def client():
     """Create a test client with dependency overrides for auth."""
@@ -562,6 +644,8 @@ def client():
 
     # Cleanup overrides
     app.dependency_overrides.clear()
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -579,6 +663,8 @@ class TestHealthEndpoints:
         assert data["status"] == "ready"
         assert "checks" in data
         assert data["crops_supported"] == len(CropType)
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestCropsEndpoint:
     def test_list_crops(self, client, auth_headers):
@@ -594,6 +680,8 @@ class TestCropsEndpoint:
             assert "name_ar" in crop
             assert "id" in crop
             assert "water_requirements_mm_day" in crop
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestMethodsEndpoint:
     def test_list_methods(self, client, auth_headers):
@@ -608,6 +696,8 @@ class TestMethodsEndpoint:
         for method in resp.json()["methods"]:
             assert "efficiency_percent" in method
             assert 0 < method["efficiency_percent"] <= 100
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestCalculateEndpoint:
     def test_calculate_irrigation(self, client, auth_headers):
@@ -665,6 +755,8 @@ class TestCalculateEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["water_savings_m3"] > 0  # flood vs drip savings
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestSensorReadingEndpoint:
     def test_critical_moisture(self, client, auth_headers):
@@ -735,6 +827,8 @@ class TestSensorReadingEndpoint:
         )
         assert resp.status_code == 200
         assert resp.json()["status"] == "high"
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestIrrigationExecutedEndpoint:
     def test_record_execution(self, client, auth_headers):
@@ -755,6 +849,8 @@ class TestIrrigationExecutedEndpoint:
         assert data["amount_mm"] == 25.0
         assert "execution_id" in data
         assert "method_ar" in data
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestEfficiencyReportEndpoint:
     def test_report_traditional(self, client, auth_headers):
@@ -789,6 +885,8 @@ class TestEfficiencyReportEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["roi_months"] is not None
+
+
 @pytest.mark.skipif(not HAS_TESTCLIENT, reason="fastapi not installed")
 class TestWaterBalanceEndpoint:
     def test_water_balance(self, client, auth_headers):

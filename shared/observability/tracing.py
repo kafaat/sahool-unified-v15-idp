@@ -122,6 +122,7 @@ class DistributedTracer:
 
         # Create tracer provider with sampling based on config
         from opentelemetry.sdk.trace.sampling import ALWAYS_ON, TraceIdRatioBased
+
         sampler = ALWAYS_ON if self.config.sample_rate >= 1.0 else TraceIdRatioBased(self.config.sample_rate)
         provider = TracerProvider(resource=resource, sampler=sampler)
 

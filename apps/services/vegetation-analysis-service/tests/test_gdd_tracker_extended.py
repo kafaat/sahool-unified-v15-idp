@@ -206,8 +206,11 @@ class TestGDDTracker:
         daily_data = [
             GDDDataPoint(
                 date=date(2025, 1, 1) + timedelta(days=i),
-                temp_min=5, temp_max=15, temp_avg=10,
-                daily_gdd=10, accumulated_gdd=i * 10,
+                temp_min=5,
+                temp_max=15,
+                temp_avg=10,
+                daily_gdd=10,
+                accumulated_gdd=i * 10,
             )
             for i in range(50)
         ]

@@ -33,19 +33,19 @@ class TestChannelTypeEnum:
 
 class TestModelClasses:
     def test_notification_model_exists(self):
-        assert hasattr(Notification, 'Meta')
+        assert hasattr(Notification, "Meta")
 
     def test_notification_log_model_exists(self):
-        assert hasattr(NotificationLog, 'Meta')
+        assert hasattr(NotificationLog, "Meta")
 
     def test_notification_preference_exists(self):
-        assert hasattr(NotificationPreference, 'Meta')
+        assert hasattr(NotificationPreference, "Meta")
 
     def test_notification_channel_exists(self):
-        assert hasattr(NotificationChannel, 'Meta')
+        assert hasattr(NotificationChannel, "Meta")
 
     def test_farmer_profile_exists(self):
-        assert hasattr(FarmerProfile, 'Meta')
+        assert hasattr(FarmerProfile, "Meta")
 
 
 """

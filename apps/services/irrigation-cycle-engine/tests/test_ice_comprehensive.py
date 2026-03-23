@@ -58,6 +58,8 @@ class TestWeatherInput:
         )
         assert w.rainfall_mm == 12.5
         assert w.wind_speed_2m_ms == 4.5
+
+
 class TestET0Models:
     """Tests for ET0 request/response models."""
 
@@ -78,6 +80,8 @@ class TestET0Models:
         resp = ET0Response(date=date(2026, 1, 1), et0_mm=4.5)
         assert resp.et0_mm == 4.5
         assert resp.method == "penman_monteith_fao56"
+
+
 class TestIrrigationCycleModels:
     """Tests for irrigation cycle request/response models."""
 
@@ -150,6 +154,8 @@ class TestIrrigationCycleModels:
         )
         assert day.irrigate is False
         assert day.kc == 0.4
+
+
 class TestScheduleModels:
     """Tests for schedule request/response models."""
 
@@ -201,6 +207,8 @@ class TestScheduleModels:
             regions=["highlands"],
         )
         assert resp.crop_type == "cereal"
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # IrrigationCycleEngine Core Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -219,6 +227,8 @@ class TestIrrigationCycleEngineInit:
             engine = IrrigationCycleEngine()
             # Should still be functional
             assert engine is not None
+
+
 class TestET0PenmanMonteith:
     """Tests for calculate_et0_penman_monteith method."""
 
@@ -333,6 +343,8 @@ class TestET0PenmanMonteith:
         et0_low_wind = engine.calculate_et0_penman_monteith(wind_speed_2m=0.5, **common)
         et0_high_wind = engine.calculate_et0_penman_monteith(wind_speed_2m=6.0, **common)
         assert et0_high_wind > et0_low_wind
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Irrigation Cycle Calculation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -514,6 +526,8 @@ class TestCalculateCycle:
         result = engine.calculate_cycle(req)
         expected_gross = result.net_irrigation_mm / 0.85
         assert result.gross_irrigation_mm == pytest.approx(expected_gross, rel=0.01)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Schedule Generation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -609,6 +623,8 @@ class TestGenerateSchedule:
         )
         result = engine.generate_schedule(req)
         assert result.total_water_m3_per_ha == pytest.approx(result.total_water_mm * 10.0, rel=0.01)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API Endpoint Tests (using TestClient)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -620,6 +636,8 @@ try:
     HAS_FASTAPI = True
 except ImportError:
     HAS_FASTAPI = False
+
+
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 class TestAPIEndpoints:
     """Tests for FastAPI endpoint responses."""
@@ -725,8 +743,14 @@ class TestAPIEndpoints:
         """Endpoints that require tenant context should return 400 without header."""
         response = client.post(
             "/api/v1/irrigation/et0",
-            json={"latitude": 15.0, "elevation_m": 1000, "weather": [{"date": "2026-01-01", "temp_min_c": 10, "temp_max_c": 25}]},
+            json={
+                "latitude": 15.0,
+                "elevation_m": 1000,
+                "weather": [{"date": "2026-01-01", "temp_min_c": 10, "temp_max_c": 25}],
+            },
         )
         assert response.status_code == 400
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

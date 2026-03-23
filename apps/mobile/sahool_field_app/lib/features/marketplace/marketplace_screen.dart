@@ -6,6 +6,7 @@
 /// - Search and filter
 /// - Shopping cart
 /// - Featured products carousel
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -235,7 +236,7 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -506,7 +507,7 @@ class _ProductCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -524,7 +525,7 @@ class _ProductCard extends ConsumerWidget {
           // Image/Icon
           Expanded(
             flex: 3,
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: const BorderRadius.vertical(
@@ -937,7 +938,7 @@ class _CartBottomSheet extends ConsumerWidget {
     );
   }
 
-  void _checkout(BuildContext context, WidgetRef ref) async {
+  Future<void> _checkout(BuildContext context, WidgetRef ref) async {
     final order = await ref.read(marketplaceProvider.notifier).createOrder();
 
     if (order != null && context.mounted) {

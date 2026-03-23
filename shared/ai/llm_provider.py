@@ -355,7 +355,8 @@ class LLMProviderManager:
         input_validation = validate_prompt(prompt, ValidationLevel.MODERATE)
         if not input_validation.is_valid:
             issue_summary = "; ".join(
-                f"{i.category.value}: {i.message}" for i in input_validation.issues
+                f"{i.category.value}: {i.message}"
+                for i in input_validation.issues
                 if i.severity.value in ("critical", "high")
             )
             logger.warning(
@@ -366,9 +367,7 @@ class LLMProviderManager:
                     "correlation_id": correlation_id,
                 },
             )
-            raise PromptValidationError(
-                f"Prompt blocked by safety validation: {issue_summary}"
-            )
+            raise PromptValidationError(f"Prompt blocked by safety validation: {issue_summary}")
 
         # Build provider order
         providers = list(self._provider_order)

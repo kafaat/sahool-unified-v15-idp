@@ -3,7 +3,6 @@
 library;
 
 import 'package:equatable/equatable.dart';
-import 'ndvi_data.dart';
 
 /// Field Health Score
 /// درجة صحة الحقل

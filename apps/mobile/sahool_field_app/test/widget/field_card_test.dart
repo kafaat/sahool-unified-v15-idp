@@ -7,14 +7,14 @@ void main() {
   group('Field Card', () {
     testWidgets('should display field name', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: ListTile(
-                  title: const Text('حقل القمح'),
-                  subtitle: const Text('100 هكتار'),
+                  title: Text('حقل القمح'),
+                  subtitle: Text('100 هكتار'),
                 ),
               ),
             ),
@@ -106,8 +106,8 @@ void main() {
             child: Scaffold(
               body: GestureDetector(
                 onTap: () => tapped = true,
-                child: Card(
-                  child: const ListTile(
+                child: const Card(
+                  child: ListTile(
                     title: Text('حقل الذرة'),
                   ),
                 ),
@@ -124,13 +124,13 @@ void main() {
 
     testWidgets('should display crop type correctly', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Column(
-                  children: const [
+                  children: [
                     Text('🌾', style: TextStyle(fontSize: 32)),
                     Text('قمح'),
                   ],
@@ -147,13 +147,13 @@ void main() {
 
     testWidgets('should show moisture percentage', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
               body: Card(
                 child: Column(
-                  children: const [
+                  children: [
                     Icon(Icons.water_drop, color: Colors.blue),
                     Text('65%'),
                     Text('الرطوبة'),

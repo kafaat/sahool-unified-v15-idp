@@ -250,8 +250,7 @@ class CostLimitExceeded(Exception):
         self.current_cost = current_cost
         self.limit = limit
         super().__init__(
-            f"AI cost limit exceeded for tenant '{tenant_id}': "
-            f"{window} cost ${current_cost:.4f} >= limit ${limit:.2f}"
+            f"AI cost limit exceeded for tenant '{tenant_id}': {window} cost ${current_cost:.4f} >= limit ${limit:.2f}"
         )
 
 
@@ -319,11 +318,16 @@ class CostTracker:
         if projected_hourly >= self.hourly_limit:
             logger.warning(
                 "AI hourly cost limit exceeded for tenant %s: $%.4f >= $%.2f",
-                tenant_id, projected_hourly, self.hourly_limit,
+                tenant_id,
+                projected_hourly,
+                self.hourly_limit,
             )
             if additional_cost > 0:
                 raise CostLimitExceeded(
-                    tenant_id, "hourly", projected_hourly, self.hourly_limit,
+                    tenant_id,
+                    "hourly",
+                    projected_hourly,
+                    self.hourly_limit,
                 )
             return False
 
@@ -331,11 +335,16 @@ class CostTracker:
         if projected_daily >= self.daily_limit:
             logger.warning(
                 "AI daily cost limit exceeded for tenant %s: $%.4f >= $%.2f",
-                tenant_id, projected_daily, self.daily_limit,
+                tenant_id,
+                projected_daily,
+                self.daily_limit,
             )
             if additional_cost > 0:
                 raise CostLimitExceeded(
-                    tenant_id, "daily", projected_daily, self.daily_limit,
+                    tenant_id,
+                    "daily",
+                    projected_daily,
+                    self.daily_limit,
                 )
             return False
 
@@ -343,13 +352,17 @@ class CostTracker:
         if projected_hourly >= self.hourly_limit * COST_WARNING_THRESHOLD:
             logger.warning(
                 "AI hourly cost approaching limit for tenant %s: $%.4f / $%.2f (%.0f%%)",
-                tenant_id, projected_hourly, self.hourly_limit,
+                tenant_id,
+                projected_hourly,
+                self.hourly_limit,
                 (projected_hourly / self.hourly_limit) * 100,
             )
         if projected_daily >= self.daily_limit * COST_WARNING_THRESHOLD:
             logger.warning(
                 "AI daily cost approaching limit for tenant %s: $%.4f / $%.2f (%.0f%%)",
-                tenant_id, projected_daily, self.daily_limit,
+                tenant_id,
+                projected_daily,
+                self.daily_limit,
                 (projected_daily / self.daily_limit) * 100,
             )
 
@@ -552,7 +565,8 @@ class AIAuditLogger:
             except CostLimitExceeded:
                 logger.error(
                     "Cost limit exceeded for tenant %s, cost=$%.4f blocked",
-                    self.tenant_id, cost_usd,
+                    self.tenant_id,
+                    cost_usd,
                 )
                 raise
             tracker.record_cost(self.tenant_id, cost_usd)
@@ -662,7 +676,8 @@ class AIAuditLogger:
             except CostLimitExceeded:
                 logger.error(
                     "Cost limit exceeded for tenant %s, cost=$%.4f blocked",
-                    self.tenant_id, cost_usd,
+                    self.tenant_id,
+                    cost_usd,
                 )
                 raise
             tracker.record_cost(self.tenant_id, cost_usd)

@@ -151,9 +151,7 @@ class TestSprayAdvisor:
     # =========================================================================
 
     def test_excellent_conditions(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=20.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0)
         assert score >= 85
         assert condition == SprayCondition.EXCELLENT
         assert len(risks) == 0
@@ -166,28 +164,20 @@ class TestSprayAdvisor:
         assert condition in [SprayCondition.EXCELLENT, SprayCondition.GOOD]
 
     def test_low_temperature(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=5.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=5.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0)
         assert "low_temperature" in risks
         assert score < 100
 
     def test_high_temperature(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=35.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=35.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0)
         assert "high_temperature" in risks
 
     def test_low_humidity(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=20.0, wind_speed=5.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=20.0, humidity=20.0, wind_speed=5.0, rain_prob=0.0)
         assert "low_humidity" in risks
 
     def test_high_humidity(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=95.0, wind_speed=5.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=20.0, humidity=95.0, wind_speed=5.0, rain_prob=0.0)
         assert "high_humidity" in risks
 
     def test_high_wind(self, advisor):
@@ -204,9 +194,7 @@ class TestSprayAdvisor:
         assert "rain_forecast" in risks
 
     def test_very_calm_wind(self, advisor):
-        score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=60.0, wind_speed=1.0, rain_prob=0.0
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp=20.0, humidity=60.0, wind_speed=1.0, rain_prob=0.0)
         # Very calm wind causes a small penalty
         assert score < 100
 
@@ -218,21 +206,30 @@ class TestSprayAdvisor:
 
     def test_product_specific_herbicide(self, advisor):
         score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0,
+            temp=20.0,
+            humidity=60.0,
+            wind_speed=5.0,
+            rain_prob=0.0,
             product_type=SprayProduct.HERBICIDE,
         )
         assert isinstance(score, (int, float))
 
     def test_product_specific_fungicide(self, advisor):
         score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0,
+            temp=20.0,
+            humidity=60.0,
+            wind_speed=5.0,
+            rain_prob=0.0,
             product_type=SprayProduct.FUNGICIDE,
         )
         assert isinstance(score, (int, float))
 
     def test_product_specific_insecticide(self, advisor):
         score, condition, risks = advisor.calculate_spray_score(
-            temp=20.0, humidity=60.0, wind_speed=5.0, rain_prob=0.0,
+            temp=20.0,
+            humidity=60.0,
+            wind_speed=5.0,
+            rain_prob=0.0,
             product_type=SprayProduct.INSECTICIDE,
         )
         assert isinstance(score, (int, float))
@@ -244,9 +241,7 @@ class TestSprayAdvisor:
         assert condition in [SprayCondition.MARGINAL, SprayCondition.GOOD, SprayCondition.POOR]
 
     def test_score_clamped_to_0_100(self, advisor):
-        score, _, _ = advisor.calculate_spray_score(
-            temp=-10.0, humidity=10.0, wind_speed=50.0, rain_prob=100.0
-        )
+        score, _, _ = advisor.calculate_spray_score(temp=-10.0, humidity=10.0, wind_speed=50.0, rain_prob=100.0)
         assert 0 <= score <= 100
 
     # =========================================================================
@@ -397,13 +392,15 @@ class TestSprayAdvisor:
     def test_identify_windows_good_conditions(self, advisor):
         hours = []
         for h in range(0, 24):
-            hours.append({
-                "time": datetime(2025, 3, 15, h, 0),
-                "temp": 22.0,
-                "humidity": 55.0,
-                "wind_speed": 8.0,
-                "precipitation_prob": 0.0,
-            })
+            hours.append(
+                {
+                    "time": datetime(2025, 3, 15, h, 0),
+                    "temp": 22.0,
+                    "humidity": 55.0,
+                    "wind_speed": 8.0,
+                    "precipitation_prob": 0.0,
+                }
+            )
         windows = advisor._identify_spray_windows(hours, None)
         assert len(windows) >= 1
         # Only daylight hours 6-17 are considered
@@ -414,26 +411,30 @@ class TestSprayAdvisor:
     def test_identify_windows_bad_conditions(self, advisor):
         hours = []
         for h in range(0, 24):
-            hours.append({
-                "time": datetime(2025, 3, 15, h, 0),
-                "temp": 40.0,
-                "humidity": 10.0,
-                "wind_speed": 30.0,
-                "precipitation_prob": 90.0,
-            })
+            hours.append(
+                {
+                    "time": datetime(2025, 3, 15, h, 0),
+                    "temp": 40.0,
+                    "humidity": 10.0,
+                    "wind_speed": 30.0,
+                    "precipitation_prob": 90.0,
+                }
+            )
         windows = advisor._identify_spray_windows(hours, None)
         assert len(windows) == 0
 
     def test_identify_windows_with_product(self, advisor):
         hours = []
         for h in range(0, 24):
-            hours.append({
-                "time": datetime(2025, 3, 15, h, 0),
-                "temp": 22.0,
-                "humidity": 55.0,
-                "wind_speed": 8.0,
-                "precipitation_prob": 0.0,
-            })
+            hours.append(
+                {
+                    "time": datetime(2025, 3, 15, h, 0),
+                    "temp": 22.0,
+                    "humidity": 55.0,
+                    "wind_speed": 8.0,
+                    "precipitation_prob": 0.0,
+                }
+            )
         windows = advisor._identify_spray_windows(hours, SprayProduct.HERBICIDE)
         assert isinstance(windows, list)
 

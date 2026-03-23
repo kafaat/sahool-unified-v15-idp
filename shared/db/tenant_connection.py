@@ -97,8 +97,7 @@ async def tenant_connection(
                 is_admin = True
         except (RuntimeError, ImportError):
             raise RuntimeError(
-                "tenant_id is required: either pass it explicitly or "
-                "ensure TenantContextMiddleware is active."
+                "tenant_id is required: either pass it explicitly or ensure TenantContextMiddleware is active."
             )
 
     if not tenant_id:
@@ -127,12 +126,8 @@ async def tenant_connection(
     finally:
         # Reset session variables before returning connection to pool
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_tenant', '', true)"
-            )
-            await conn.execute(
-                "SELECT set_config('app.is_super_admin', 'false', true)"
-            )
+            await conn.execute("SELECT set_config('app.current_tenant', '', true)")
+            await conn.execute("SELECT set_config('app.is_super_admin', 'false', true)")
         except Exception:
             # Connection may already be broken; pool.release will handle it
             pass
@@ -247,8 +242,7 @@ async def verify_tenant_isolation(app: FastAPI) -> bool:
         try:
             for table in critical_tables:
                 row = await conn.fetchrow(
-                    "SELECT relrowsecurity, relforcerowsecurity "
-                    "FROM pg_class WHERE relname = $1",
+                    "SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE relname = $1",
                     table,
                 )
                 if row is None:
@@ -256,8 +250,7 @@ async def verify_tenant_isolation(app: FastAPI) -> bool:
                     continue
                 if not row["relrowsecurity"]:
                     logger.warning(
-                        "RLS is NOT enabled on table '%s'. Run: "
-                        "ALTER TABLE %s ENABLE ROW LEVEL SECURITY;",
+                        "RLS is NOT enabled on table '%s'. Run: ALTER TABLE %s ENABLE ROW LEVEL SECURITY;",
                         table,
                         table,
                     )

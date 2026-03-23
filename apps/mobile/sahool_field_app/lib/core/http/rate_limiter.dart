@@ -23,36 +23,36 @@ class RateLimiter {
   static Map<String, EndpointConfig> _getDefaultEndpointConfigs() {
     return {
       // Auth endpoints - strictest limits
-      'auth': EndpointConfig(
+      'auth': const EndpointConfig(
         maxRequests: 5,
-        windowDuration: const Duration(minutes: 1),
+        windowDuration: Duration(minutes: 1),
         maxRetries: 3,
-        initialBackoff: const Duration(seconds: 2),
-        maxBackoff: const Duration(seconds: 30),
+        initialBackoff: Duration(seconds: 2),
+        maxBackoff: Duration(seconds: 30),
       ),
       // Sync endpoints - moderate limits
-      'sync': EndpointConfig(
+      'sync': const EndpointConfig(
         maxRequests: 30,
-        windowDuration: const Duration(minutes: 1),
+        windowDuration: Duration(minutes: 1),
         maxRetries: 5,
-        initialBackoff: const Duration(seconds: 1),
-        maxBackoff: const Duration(seconds: 60),
+        initialBackoff: Duration(seconds: 1),
+        maxBackoff: Duration(seconds: 60),
       ),
       // Upload endpoints - lower limits
-      'upload': EndpointConfig(
+      'upload': const EndpointConfig(
         maxRequests: 10,
-        windowDuration: const Duration(minutes: 1),
+        windowDuration: Duration(minutes: 1),
         maxRetries: 3,
-        initialBackoff: const Duration(seconds: 3),
-        maxBackoff: const Duration(seconds: 120),
+        initialBackoff: Duration(seconds: 3),
+        maxBackoff: Duration(seconds: 120),
       ),
       // Default for other endpoints
-      'default': EndpointConfig(
+      'default': const EndpointConfig(
         maxRequests: 60,
-        windowDuration: const Duration(minutes: 1),
+        windowDuration: Duration(minutes: 1),
         maxRetries: 3,
-        initialBackoff: const Duration(seconds: 1),
-        maxBackoff: const Duration(seconds: 30),
+        initialBackoff: Duration(seconds: 1),
+        maxBackoff: Duration(seconds: 30),
       ),
     };
   }
@@ -317,7 +317,7 @@ class RateLimitStatus {
   @override
   String toString() {
     return 'RateLimitStatus($endpointType: $availableTokens/$maxTokens tokens, '
-        '${queuedRequests} queued, ${utilizationPercent.toStringAsFixed(1)}% utilized)';
+        '$queuedRequests queued, ${utilizationPercent.toStringAsFixed(1)}% utilized)';
   }
 }
 

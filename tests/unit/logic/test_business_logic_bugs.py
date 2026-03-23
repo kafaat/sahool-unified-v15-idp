@@ -179,43 +179,48 @@ class TestFertilizerCalculatorEdgeCases:
         assert result.total_n_kg_ha >= 5.0  # At least target met
 
     def test_cost_analysis_zero_area(self):
-        """FIXED: CostAnalysis dataclass default_factory bug has been resolved.
+        """BUG FIXED: CostAnalysis dataclass default_factory now uses lambda correctly.
 
         Previously, `analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))`
-        evaluated datetime.now() at class definition time, producing a datetime OBJECT.
-        This has been fixed to use a proper lambda factory.
+        evaluated at class definition time. Now fixed with lambda wrapper.
 
-        Now verify the function works correctly with zero area.
+        Tests that zero area cost analysis works correctly with no applications.
         """
         from shared.fertilizer_management.calculator import FertilizerCalculator
 
         calc = FertilizerCalculator()
-        # Bug fixed: CostAnalysis can now be created without TypeError
         result = calc.calculate_cost_analysis(
             field_id="FIELD-001",
             season="winter-2025",
             area_ha=0.0,
             applications=[],
         )
-        assert result is not None
+        assert result.field_id == "FIELD-001"
+        assert result.season == "winter-2025"
+        assert result.area_ha == 0.0
+        assert result.total_cost == Decimal("0.00")
+        assert result.cost_per_ha == Decimal("0.00")
 
-    def test_dataclass_default_factory_fixed(self):
-        """FIXED: FertilizerApplication can now be created without explicit application_date.
+    def test_dataclass_default_factory_bug(self):
+        """BUG FIXED: FertilizerApplication can now be created without explicit application_date.
 
-        The root cause bug (default_factory receiving a datetime object instead of
-        a callable lambda) has been fixed in all dataclasses in models.py.
+        The default_factory now correctly uses lambda wrapper. Verify that
+        FertilizerApplication creates successfully with a valid default date.
         """
         from shared.fertilizer_management.models import FertilizerApplication
 
-        # Bug fixed: FertilizerApplication can now be created with default dates
         app = FertilizerApplication(
             id="FA-001",
             tenant_id="T-001",
             field_id="FIELD-001",
             fertilizer_id="urea",
+            # Omit application_date to use the default_factory
         )
-        assert app is not None
+        assert app.id == "FA-001"
         assert app.field_id == "FIELD-001"
+        assert isinstance(app.application_date, datetime)
+        assert isinstance(app.created_at, datetime)
+        assert isinstance(app.updated_at, datetime)
 
 
 # =============================================================================
@@ -527,42 +532,81 @@ class TestEnvironmentalCompliance:
     """BUG TARGET: Compliance thresholds at exact boundaries."""
 
     def test_nitrogen_exactly_at_limit(self):
-        """FIXED: EnvironmentalCompliance default_factory bug resolved.
-        Now test: N exactly at 200 kg/ha limit behavior.
+        """BUG FIXED: EnvironmentalCompliance default_factory now uses lambda correctly.
+
+        Tests that N exactly at 200 kg/ha limit is compliant (not a violation).
         """
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        result = calc.check_environmental_compliance("FIELD-001", [])
-        assert result is not None
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=200.0,
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        # Exactly at limit should NOT be a violation (only > limit is violation)
+        assert result.n_compliance != ComplianceLevel.VIOLATION
+        assert result.overall_status != ComplianceLevel.VIOLATION
 
     def test_nitrogen_above_limit_is_violation(self):
-        """FIXED: Default_factory bug resolved. Compliance check works."""
+        """BUG FIXED: Tests that N above 200 kg/ha limit is flagged as violation."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        result = calc.check_environmental_compliance("FIELD-001", [])
-        assert result is not None
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=250.0,
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        assert result.n_compliance == ComplianceLevel.VIOLATION
+        assert result.overall_status == ComplianceLevel.VIOLATION
+        assert len(result.violations_en) >= 1
 
     def test_nitrogen_at_80_percent_is_warning(self):
-        """FIXED: Default_factory bug resolved. Compliance check works."""
+        """BUG FIXED: Tests that N above 80% of limit (160 kg/ha) triggers warning."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel, FertilizerApplication
 
         calc = FertilizerCalculator()
-        result = calc.check_environmental_compliance("FIELD-001", [])
-        assert result is not None
+        apps = [
+            FertilizerApplication(
+                id="FA-001",
+                tenant_id="T-001",
+                field_id="FIELD-001",
+                fertilizer_id="urea",
+                nitrogen_applied_kg_ha=170.0,  # Above 80% (160) but below 200
+            )
+        ]
+        result = calc.check_environmental_compliance("FIELD-001", apps)
+        assert result.n_compliance == ComplianceLevel.WARNING
+        assert result.overall_status == ComplianceLevel.WARNING
 
     def test_water_body_too_close_is_violation(self):
-        """FIXED: Default_factory bug resolved. Compliance check works with water body distance."""
+        """BUG FIXED: Tests that water body proximity below buffer zone triggers violation."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
+        from shared.fertilizer_management.models import ComplianceLevel
 
         calc = FertilizerCalculator()
         result = calc.check_environmental_compliance(
             "FIELD-001",
             applications=[],
-            water_body_distance_m=5.0,
+            water_body_distance_m=5.0,  # Below 10m buffer zone
         )
-        assert result is not None
+        assert result.buffer_compliance == ComplianceLevel.VIOLATION
+        assert result.overall_status == ComplianceLevel.VIOLATION
+        assert len(result.violations_en) >= 1
 
 
 # =============================================================================
@@ -574,7 +618,11 @@ class TestNutrientBalance:
     """BUG TARGET: Edge cases in nutrient balance calculations."""
 
     def test_balance_with_zero_target_yield(self):
-        """FIXED: SoilTest default_factory bug resolved. Test nutrient balance with zero yield."""
+        """BUG FIXED: SoilTest and NutrientBalance default_factory now use lambda correctly.
+
+        Tests that zero target yield produces a valid nutrient balance with
+        zero crop requirements.
+        """
         from shared.fertilizer_management.calculator import FertilizerCalculator
         from shared.fertilizer_management.models import SoilTest
 
@@ -598,10 +646,14 @@ class TestNutrientBalance:
             target_yield_tons_ha=0.0,
             applications=[],
         )
-        assert result is not None
+        assert result.crop_n_requirement_kg_ha == 0.0
+        assert result.crop_p_requirement_kg_ha == 0.0
+        assert result.crop_k_requirement_kg_ha == 0.0
+        # With zero requirements, soil nutrients create surplus
+        assert result.n_balance_kg_ha >= 0.0
 
     def test_balance_with_unknown_crop_uses_defaults(self):
-        """FIXED: Default_factory bug resolved. Unknown crop should use defaults."""
+        """BUG FIXED: Unknown crop type uses default nutrient factors without crashing."""
         from shared.fertilizer_management.calculator import FertilizerCalculator
         from shared.fertilizer_management.models import SoilTest
 
@@ -625,15 +677,19 @@ class TestNutrientBalance:
             target_yield_tons_ha=2.0,
             applications=[],
         )
-        assert result is not None
+        # Unknown crop "saffron" should use default factors: N=20, P=10, K=15
+        assert result.crop_n_requirement_kg_ha == 20 * 2.0  # 40.0
+        assert result.crop_p_requirement_kg_ha == 10 * 2.0  # 20.0
+        assert result.crop_k_requirement_kg_ha == 15 * 2.0  # 30.0
 
     def test_nutrient_status_determination(self):
-        """Bug: SoilTest default_factory is broken, preventing NutrientBalance creation.
-        Same dataclass bug as above."""
-        from shared.fertilizer_management.calculator import FertilizerCalculator
+        """BUG FIXED: SoilTest can now be created without explicit created_at.
+
+        Verifies that SoilTest default_factory works correctly and produces
+        a valid datetime for created_at.
+        """
         from shared.fertilizer_management.models import SoilTest
 
-        # FIXED: SoilTest default_factory works correctly now
         soil_test = SoilTest(
             id="ST-001",
             tenant_id="T-001",
@@ -643,6 +699,8 @@ class TestNutrientBalance:
             phosphorus_ppm=15.0,
             potassium_ppm=150.0,
             ph=7.0,
+            # Omit created_at to use the fixed default_factory
         )
-        assert soil_test is not None
+        assert soil_test.id == "ST-001"
+        assert isinstance(soil_test.created_at, datetime)
         assert soil_test.nitrogen_ppm == 20.0

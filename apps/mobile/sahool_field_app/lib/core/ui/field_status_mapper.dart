@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../features/field/domain/entities/field.dart';
 
@@ -114,5 +113,5 @@ extension FieldUIExtension on Field {
   String get ndviFormatted => ndvi.toStringAsFixed(2);
 
   /// تنسيق NDVI كنسبة مئوية
-  String get ndviPercentage => '${healthPercentage}%';
+  String get ndviPercentage => '$healthPercentage%';
 }

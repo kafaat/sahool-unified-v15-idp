@@ -33,8 +33,15 @@ from src.task_utils import (
 class TestTaskType:
     def test_all_values(self):
         expected = [
-            "irrigation", "fertilization", "spraying", "scouting",
-            "maintenance", "sampling", "harvest", "planting", "other",
+            "irrigation",
+            "fertilization",
+            "spraying",
+            "scouting",
+            "maintenance",
+            "sampling",
+            "harvest",
+            "planting",
+            "other",
         ]
         for val in expected:
             assert val in [t.value for t in TaskType]
@@ -110,14 +117,18 @@ class TestTaskCreateData:
 
     def test_metadata_defaults_to_empty(self):
         data = TaskCreateData(
-            tenant_id="t1", title="T", task_type=TaskType.OTHER,
+            tenant_id="t1",
+            title="T",
+            task_type=TaskType.OTHER,
             metadata=None,
         )
         assert data.metadata == {}
 
     def test_warnings_defaults_to_empty(self):
         data = TaskCreateData(
-            tenant_id="t1", title="T", task_type=TaskType.OTHER,
+            tenant_id="t1",
+            title="T",
+            task_type=TaskType.OTHER,
             astronomical_warnings=None,
         )
         assert data.astronomical_warnings == []
@@ -192,7 +203,10 @@ class TestCalculateNdviPriority:
 class TestGenerateNdviTaskContent:
     def test_critical_content(self):
         title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "critical", 0.15, None, "field_1",
+            "critical",
+            0.15,
+            None,
+            "field_1",
         )
         assert "Critical" in title
         assert "حرج" in title_ar
@@ -200,20 +214,30 @@ class TestGenerateNdviTaskContent:
 
     def test_drop_content(self):
         title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "drop", 0.5, 0.8, "field_1",
+            "drop",
+            0.5,
+            0.8,
+            "field_1",
         )
         assert "Decline" in title
         assert "37.5%" in desc
 
     def test_anomaly_content(self):
         title, title_ar, desc, desc_ar = generate_ndvi_task_content(
-            "anomaly", 0.4, None, "field_1",
+            "anomaly",
+            0.4,
+            None,
+            "field_1",
         )
         assert "Unusual" in title
 
     def test_zone_included(self):
         title, title_ar, _, _ = generate_ndvi_task_content(
-            "critical", 0.15, None, "f1", zone_id="z1",
+            "critical",
+            0.15,
+            None,
+            "f1",
+            zone_id="z1",
         )
         assert "Zone: z1" in title
         assert "المنطقة: z1" in title_ar
@@ -221,13 +245,19 @@ class TestGenerateNdviTaskContent:
     def test_drop_with_no_previous(self):
         # previous_ndvi=None should result in 0.0% drop
         _, _, desc, _ = generate_ndvi_task_content(
-            "drop", 0.5, None, "f1",
+            "drop",
+            0.5,
+            None,
+            "f1",
         )
         assert "0.0%" in desc
 
     def test_drop_with_zero_previous(self):
         _, _, desc, _ = generate_ndvi_task_content(
-            "drop", 0.5, 0, "f1",
+            "drop",
+            0.5,
+            0,
+            "f1",
         )
         assert "0.0%" in desc
 

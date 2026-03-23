@@ -67,7 +67,7 @@ class WeatherWidget extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AtmosphereSpacing.xs),
-                Text(
+                const Text(
                   'الرياض، السعودية',
                   style: AtmosphereTypography.bodyMedium,
                 ),
@@ -81,7 +81,7 @@ class WeatherWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.water_drop,
                     color: AtmosphereColors.info,
                     size: 16,
@@ -96,14 +96,14 @@ class WeatherWidget extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AtmosphereSpacing.xs),
-              Row(
+              const Row(
                 children: [
                   Icon(
                     Icons.air,
                     color: AtmosphereColors.textMuted,
                     size: 16,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '12 كم/س',
                     style: AtmosphereTypography.bodySmall,

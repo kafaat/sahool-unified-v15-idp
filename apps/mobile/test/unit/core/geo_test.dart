@@ -1,5 +1,6 @@
 /// Unit Tests for GeoJSON Utilities
 /// اختبارات وحدات أدوات GeoJSON
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sahool_field_app/core/geo/geojson.dart';

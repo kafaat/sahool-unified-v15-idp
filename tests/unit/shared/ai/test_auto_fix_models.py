@@ -87,14 +87,35 @@ class TestFixConfidence:
 
 class TestToolType:
     def test_all_values(self):
+        # Layer 1: Code Quality & Static Analysis
         assert ToolType.RUFF.value == "ruff"
         assert ToolType.ESLINT.value == "eslint"
+        assert ToolType.BIOME.value == "biome"
+        assert ToolType.OXLINT.value == "oxlint"
+        assert ToolType.PYLINT.value == "pylint"
+        # Layer 2: Type Checking
         assert ToolType.MYPY.value == "mypy"
+        assert ToolType.PYRIGHT.value == "pyright"
+        assert ToolType.TYPESCRIPT.value == "typescript"
+        # Layer 3: Security SAST
         assert ToolType.BANDIT.value == "bandit"
         assert ToolType.SEMGREP.value == "semgrep"
-        assert ToolType.PYLINT.value == "pylint"
-        assert ToolType.TYPESCRIPT.value == "typescript"
+        assert ToolType.CODEQL.value == "codeql"
+        assert ToolType.TRIVY.value == "trivy"
+        # Layer 4: Dependency & Supply Chain
+        assert ToolType.NPM_AUDIT.value == "npm_audit"
+        assert ToolType.PIP_AUDIT.value == "pip_audit"
+        # Layer 5: Architecture & Dependencies
+        assert ToolType.KNIP.value == "knip"
+        assert ToolType.MADGE.value == "madge"
+        assert ToolType.DEPCHECK.value == "depcheck"
+        assert ToolType.VULTURE.value == "vulture"
+        assert ToolType.RADON.value == "radon"
+        # Layer 6: Mobile
         assert ToolType.DART_ANALYZE.value == "dart_analyze"
+        # Layer 7: Container & Infrastructure
+        assert ToolType.HADOLINT.value == "hadolint"
+        assert ToolType.DETECT_SECRETS.value == "detect_secrets"
 
     def test_member_count(self):
         assert len(ToolType) == 22

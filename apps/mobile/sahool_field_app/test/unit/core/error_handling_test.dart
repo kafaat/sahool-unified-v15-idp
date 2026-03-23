@@ -6,7 +6,7 @@ import 'package:sahool_field_app/core/error_handling/error_handler.dart';
 void main() {
   group('AppException', () {
     test('should create with required fields', () {
-      final exception = AppException(
+      const exception = AppException(
         message: 'Test error',
         messageAr: 'خطأ تجريبي',
       );
@@ -18,7 +18,7 @@ void main() {
     });
 
     test('should return correct user message based on locale', () {
-      final exception = AppException(
+      const exception = AppException(
         message: 'Test error',
         messageAr: 'خطأ تجريبي',
       );
@@ -28,7 +28,7 @@ void main() {
     });
 
     test('should support copyWith', () {
-      final original = AppException(
+      const original = AppException(
         message: 'Original',
         messageAr: 'أصلي',
         code: 'ORIG',
@@ -130,7 +130,7 @@ void main() {
     });
 
     test('should support field errors', () {
-      final exception = ValidationException(
+      const exception = ValidationException(
         message: 'Validation error',
         messageAr: 'خطأ في البيانات',
         fieldErrors: {'email': 'Invalid email'},
@@ -321,7 +321,7 @@ void main() {
 
   group('Result', () {
     test('Success should hold value', () {
-      final result = Success<int>(42);
+      const result = Success<int>(42);
 
       expect(result.isSuccess, true);
       expect(result.isFailure, false);
@@ -347,7 +347,7 @@ void main() {
     });
 
     test('when should call appropriate callback', () {
-      final successResult = Success<int>(42);
+      const successResult = Success<int>(42);
       final failureResult = Failure<int>(NetworkException.noConnection());
 
       final successValue = successResult.when(
@@ -365,7 +365,7 @@ void main() {
     });
 
     test('map should transform success value', () {
-      final result = Success<int>(21);
+      const result = Success<int>(21);
       final mapped = result.map((v) => v * 2);
 
       expect(mapped.valueOrNull, 42);

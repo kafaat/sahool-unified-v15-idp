@@ -362,7 +362,7 @@ class SecurityConfig {
       'network': {
         'requestTimeout': '${requestTimeoutSeconds}s',
         'maxRetryAttempts': maxRetryAttempts,
-        'allowedHosts': allowedHosts.take(3).join(', ') + '...',
+        'allowedHosts': '${allowedHosts.take(3).join(', ')}...',
       },
     };
   }

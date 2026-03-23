@@ -677,7 +677,7 @@ class CertificatePinManager {
       );
 
       return CertificatePinValidationResult.success(
-        matchedPin: CertificatePinEntry(
+        matchedPin: const CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
           value: 'debug-bypass',
           description: 'Debug bypass - no validation performed',
@@ -705,7 +705,7 @@ class CertificatePinManager {
         // If not enforcing strict mode, allow connection
         if (!enforceStrict) {
           return CertificatePinValidationResult.success(
-            matchedPin: CertificatePinEntry(
+            matchedPin: const CertificatePinEntry(
               type: CertificatePinType.sha256Certificate,
               value: 'no-pins-non-strict',
               description: 'No pins configured (non-strict mode)',
@@ -781,7 +781,7 @@ class CertificatePinManager {
         severity: SecurityEventSeverity.critical,
         data: {
           'host': host,
-          'actualFingerprint': certFingerprint.substring(0, 16) + '...',
+          'actualFingerprint': '${certFingerprint.substring(0, 16)}...',
           'configuredPins': nonExpiredPins.length,
         },
       );

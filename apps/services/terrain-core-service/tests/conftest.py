@@ -1,4 +1,5 @@
 """Test configuration for terrain-core-service."""
+
 import os
 import sys
 

@@ -258,10 +258,7 @@ class TwoFactorAuthService:
 
             if match:
                 remaining = [h for h in hashed_codes if h != stored_hash]
-                logger.info(
-                    f"Backup code verified successfully. "
-                    f"Remaining codes: {len(remaining)}/{len(hashed_codes)}"
-                )
+                logger.info(f"Backup code verified successfully. Remaining codes: {len(remaining)}/{len(hashed_codes)}")
                 return True, stored_hash, remaining
 
         logger.warning(

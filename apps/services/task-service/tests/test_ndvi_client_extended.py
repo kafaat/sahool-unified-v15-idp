@@ -91,6 +91,8 @@ class TestFieldHealthDataValidation:
         assert d["ndvi_min"] == round(0.33333, 4)
         assert d["ndvi_max"] == round(0.77777, 4)
         assert d["vegetation_coverage"] == round(75.5555, 2)
+
+
 class TestAlertSeverity:
     """Tests for AlertSeverity enum"""
 
@@ -99,6 +101,8 @@ class TestAlertSeverity:
         assert AlertSeverity.MEDIUM == "medium"
         assert AlertSeverity.HIGH == "high"
         assert AlertSeverity.CRITICAL == "critical"
+
+
 class TestNDVIClientInit:
     """Tests for NDVIClient initialization"""
 
@@ -114,6 +118,8 @@ class TestNDVIClientInit:
     def test_client_initially_none(self):
         client = NDVIClient()
         assert client._client is None
+
+
 class TestNDVIClientGetClient:
     """Tests for NDVIClient._get_client"""
 
@@ -131,6 +137,8 @@ class TestNDVIClientGetClient:
         c2 = await client._get_client()
         assert c1 is c2
         await client.close()
+
+
 class TestNDVIClientClose:
     """Tests for NDVIClient.close"""
 
@@ -146,6 +154,8 @@ class TestNDVIClientClose:
         client = NDVIClient()
         # No client created, should not raise
         await client.close()
+
+
 class TestNDVIClientHealthStatus:
     """Tests for health status determination"""
 
@@ -161,6 +171,8 @@ class TestNDVIClientHealthStatus:
         assert client._get_health_status(8.4) == HealthStatus.GOOD
         assert client._get_health_status(8.5) == HealthStatus.EXCELLENT
         assert client._get_health_status(10.0) == HealthStatus.EXCELLENT
+
+
 class TestNDVIClientSuggestedActions:
     """Tests for suggested actions generation"""
 
@@ -221,6 +233,8 @@ class TestNDVIClientSuggestedActions:
             alerts=[],
         )
         assert any("inspection" in a.lower() or "24 hours" in a.lower() for a in actions)
+
+
 class TestNDVIClientParseResponse:
     """Tests for _parse_ndvi_response"""
 
@@ -278,11 +292,14 @@ class TestNDVIClientParseResponse:
         }
         result = client._parse_ndvi_response("f1", data)
         assert result.needs_attention is True  # has alerts
+
+
 class TestGetNdviClient:
     """Tests for get_ndvi_client singleton"""
 
     def test_returns_client(self):
         import src.ndvi_client as module
+
         old = module._ndvi_client
         module._ndvi_client = None
         client = get_ndvi_client()
@@ -292,12 +309,15 @@ class TestGetNdviClient:
 
     def test_returns_same_instance(self):
         import src.ndvi_client as module
+
         old = module._ndvi_client
         module._ndvi_client = None
         c1 = get_ndvi_client()
         c2 = get_ndvi_client()
         assert c1 is c2
         module._ndvi_client = old
+
+
 class TestTaskSuggestionsFromHealth:
     """Extended tests for get_task_suggestions_from_health"""
 
@@ -336,7 +356,9 @@ class TestTaskSuggestionsFromHealth:
             suggested_actions=[],
         )
         suggestions = get_task_suggestions_from_health(health)
-        assert any("Inspection" in s.get("title", "") or "inspection" in s.get("title", "").lower() for s in suggestions)
+        assert any(
+            "Inspection" in s.get("title", "") or "inspection" in s.get("title", "").lower() for s in suggestions
+        )
 
     def test_critical_confidence_higher(self):
         health = FieldHealthData(

@@ -1,4 +1,5 @@
 """Tests for fertigation-engine health and core endpoints."""
+
 import os
 import sys
 
@@ -14,9 +15,13 @@ except ImportError:
     pytest.skip("fertigation-engine dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
+
 @pytest.fixture
 def client():
     return TestClient(app, headers=TENANT_HEADER)
+
+
 @pytest.mark.unit
 class TestHealthEndpoints:
     def test_healthz(self, client):
@@ -32,6 +37,8 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["crops_with_npk"] > 0
         assert data["fertilizers_available"] > 0
+
+
 @pytest.mark.unit
 class TestFertigationPlan:
     def test_basic_plan(self, client):
@@ -153,6 +160,8 @@ class TestFertigationPlan:
         assert data["n_adjusted_kg_ha"] <= data["n_required_kg_ha"]
         assert data["p_adjusted_kg_ha"] <= data["p_required_kg_ha"]
         assert data["k_adjusted_kg_ha"] <= data["k_required_kg_ha"]
+
+
 @pytest.mark.unit
 class TestNutrientBalance:
     def test_balance_surplus(self, client):
@@ -188,6 +197,8 @@ class TestNutrientBalance:
         data = response.json()
         assert data["n_balance_kg_ha"] < 0  # Deficit
         assert data["deficit_alert"] is True
+
+
 @pytest.mark.unit
 class TestReferenceData:
     def test_list_fertilizers(self, client):

@@ -115,7 +115,7 @@ class SahoolCachedImage extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      cacheManager: SahoolImageCacheManager.instance,
+      cacheManager: SahoolImageCacheManager.instance.cacheManager,
       width: width,
       height: height,
       fit: fit,
@@ -185,11 +185,11 @@ class SahoolCachedAvatar extends StatelessWidget {
           fit: BoxFit.cover,
           placeholder: placeholder,
           errorWidget: errorWidget ??
-              (context, url, error) => Icon(
-                    Icons.person,
-                    size: radius,
-                    color: Colors.grey[600],
-                  ),
+              Icon(
+                Icons.person,
+                size: radius,
+                color: Colors.grey[600],
+              ),
           memCacheWidth: (radius * 4).toInt(), // 2x for retina
           memCacheHeight: (radius * 4).toInt(),
         ),
@@ -422,7 +422,7 @@ class SahoolNetworkImageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      cacheManager: SahoolImageCacheManager.instance,
+      cacheManager: SahoolImageCacheManager.instance.cacheManager,
       imageBuilder: imageBuilder,
       placeholder: placeholder,
       errorWidget: errorWidget,

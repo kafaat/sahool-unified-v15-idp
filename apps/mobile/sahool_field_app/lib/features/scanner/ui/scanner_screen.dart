@@ -33,7 +33,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     super.dispose();
   }
 
-  void _startScan() async {
+  Future<void> _startScan() async {
     setState(() {
       _isScanning = true;
       _hasResult = false;
@@ -130,16 +130,16 @@ class _ScannerScreenState extends State<ScannerScreen>
                   decoration: BoxDecoration(
                     border: Border(
                       top: index < 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       bottom: index >= 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       left: index % 2 == 0
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       right: index % 2 == 1
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                     ),
                   ),
@@ -157,7 +157,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                     right: 0,
                     child: Container(
                       height: 3,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
@@ -262,7 +262,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                         border: Border.all(color: Colors.white, width: 4),
                       ),
                       padding: const EdgeInsets.all(4),
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color:
                               _isScanning ? SahoolColors.warning : Colors.white,
@@ -300,13 +300,13 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Widget _buildScanningOverlay() {
-    return Container(
+    return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 60,
               height: 60,
               child: CircularProgressIndicator(
@@ -336,7 +336,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       minChildSize: 0.3,
       maxChildSize: 0.85,
       builder: (context, scrollController) {
-        return Container(
+        return DecoratedBox(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

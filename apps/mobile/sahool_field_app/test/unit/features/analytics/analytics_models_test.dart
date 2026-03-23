@@ -13,7 +13,7 @@ void main() {
       testTime = DateTime(2026, 2, 27, 10, 0, 0);
     });
 
-    FieldHealthScore _createScore({
+    FieldHealthScore createScore({
       double overallScore = 75.0,
       HealthTrend trend = HealthTrend.stable,
       List<HealthRecommendation> recommendations = const [],
@@ -35,7 +35,7 @@ void main() {
 
     test('should create instance with all required fields', () {
       // Arrange & Act
-      final score = _createScore();
+      final score = createScore();
 
       // Assert
       expect(score.fieldId, 'field-001');
@@ -53,64 +53,64 @@ void main() {
 
     group('status calculation', () {
       test('should return excellent for score >= 80', () {
-        final score = _createScore(overallScore: 85.0);
+        final score = createScore(overallScore: 85.0);
         expect(score.status, HealthStatus.excellent);
       });
 
       test('should return excellent for score == 80', () {
-        final score = _createScore(overallScore: 80.0);
+        final score = createScore(overallScore: 80.0);
         expect(score.status, HealthStatus.excellent);
       });
 
       test('should return good for score >= 60 and < 80', () {
-        final score = _createScore(overallScore: 65.0);
+        final score = createScore(overallScore: 65.0);
         expect(score.status, HealthStatus.good);
       });
 
       test('should return moderate for score >= 40 and < 60', () {
-        final score = _createScore(overallScore: 45.0);
+        final score = createScore(overallScore: 45.0);
         expect(score.status, HealthStatus.moderate);
       });
 
       test('should return poor for score >= 20 and < 40', () {
-        final score = _createScore(overallScore: 25.0);
+        final score = createScore(overallScore: 25.0);
         expect(score.status, HealthStatus.poor);
       });
 
       test('should return critical for score < 20', () {
-        final score = _createScore(overallScore: 10.0);
+        final score = createScore(overallScore: 10.0);
         expect(score.status, HealthStatus.critical);
       });
 
       test('should return critical for score == 0', () {
-        final score = _createScore(overallScore: 0.0);
+        final score = createScore(overallScore: 0.0);
         expect(score.status, HealthStatus.critical);
       });
     });
 
     group('statusNameAr', () {
       test('should return Arabic name for excellent status', () {
-        final score = _createScore(overallScore: 90.0);
+        final score = createScore(overallScore: 90.0);
         expect(score.statusNameAr, 'ممتاز');
       });
 
       test('should return Arabic name for good status', () {
-        final score = _createScore(overallScore: 65.0);
+        final score = createScore(overallScore: 65.0);
         expect(score.statusNameAr, 'جيد');
       });
 
       test('should return Arabic name for moderate status', () {
-        final score = _createScore(overallScore: 50.0);
+        final score = createScore(overallScore: 50.0);
         expect(score.statusNameAr, 'متوسط');
       });
 
       test('should return Arabic name for poor status', () {
-        final score = _createScore(overallScore: 30.0);
+        final score = createScore(overallScore: 30.0);
         expect(score.statusNameAr, 'ضعيف');
       });
 
       test('should return Arabic name for critical status', () {
-        final score = _createScore(overallScore: 5.0);
+        final score = createScore(overallScore: 5.0);
         expect(score.statusNameAr, 'حرج');
       });
     });
@@ -184,7 +184,7 @@ void main() {
 
       test('should serialize to JSON and back correctly (roundtrip)', () {
         // Arrange
-        final original = _createScore(
+        final original = createScore(
           overallScore: 82.0,
           trend: HealthTrend.improving,
           recommendations: [
@@ -336,7 +336,7 @@ void main() {
       testCalculatedAt = DateTime(2026, 2, 27);
     });
 
-    YieldPrediction _createPrediction({
+    YieldPrediction createPrediction({
       double predictedYield = 3500.0,
       double confidence = 0.85,
     }) {
@@ -364,7 +364,7 @@ void main() {
     }
 
     test('should create instance with all required fields', () {
-      final prediction = _createPrediction();
+      final prediction = createPrediction();
 
       expect(prediction.fieldId, 'field-001');
       expect(prediction.cropType, 'wheat');
@@ -376,27 +376,27 @@ void main() {
 
     group('quality assessment', () {
       test('should return excellent for yield >= 4000', () {
-        final prediction = _createPrediction(predictedYield: 4500.0);
+        final prediction = createPrediction(predictedYield: 4500.0);
         expect(prediction.quality, YieldQuality.excellent);
       });
 
       test('should return good for yield >= 3000 and < 4000', () {
-        final prediction = _createPrediction(predictedYield: 3500.0);
+        final prediction = createPrediction(predictedYield: 3500.0);
         expect(prediction.quality, YieldQuality.good);
       });
 
       test('should return average for yield >= 2000 and < 3000', () {
-        final prediction = _createPrediction(predictedYield: 2500.0);
+        final prediction = createPrediction(predictedYield: 2500.0);
         expect(prediction.quality, YieldQuality.average);
       });
 
       test('should return belowAverage for yield >= 1000 and < 2000', () {
-        final prediction = _createPrediction(predictedYield: 1500.0);
+        final prediction = createPrediction(predictedYield: 1500.0);
         expect(prediction.quality, YieldQuality.belowAverage);
       });
 
       test('should return poor for yield < 1000', () {
-        final prediction = _createPrediction(predictedYield: 500.0);
+        final prediction = createPrediction(predictedYield: 500.0);
         expect(prediction.quality, YieldQuality.poor);
       });
     });
@@ -454,7 +454,7 @@ void main() {
       });
 
       test('should roundtrip through JSON correctly', () {
-        final original = _createPrediction();
+        final original = createPrediction();
         final json = original.toJson();
         final restored = YieldPrediction.fromJson(json);
 
@@ -528,7 +528,7 @@ void main() {
       testTime = DateTime(2026, 2, 27, 10, 0, 0);
     });
 
-    RiskAssessment _createAssessment({
+    RiskAssessment createAssessment({
       double overallRiskScore = 55.0,
       List<Risk>? risks,
     }) {
@@ -536,7 +536,7 @@ void main() {
         fieldId: 'field-001',
         risks: risks ??
             [
-              Risk(
+              const Risk(
                 id: 'risk-001',
                 type: RiskType.drought,
                 name: 'Drought Risk',
@@ -556,7 +556,7 @@ void main() {
     }
 
     test('should create instance with risks', () {
-      final assessment = _createAssessment();
+      final assessment = createAssessment();
 
       expect(assessment.fieldId, 'field-001');
       expect(assessment.risks.length, 1);
@@ -566,27 +566,27 @@ void main() {
 
     group('overallRiskLevel', () {
       test('should return critical for score >= 80', () {
-        final assessment = _createAssessment(overallRiskScore: 85.0);
+        final assessment = createAssessment(overallRiskScore: 85.0);
         expect(assessment.overallRiskLevel, RiskLevel.critical);
       });
 
       test('should return high for score >= 60 and < 80', () {
-        final assessment = _createAssessment(overallRiskScore: 65.0);
+        final assessment = createAssessment(overallRiskScore: 65.0);
         expect(assessment.overallRiskLevel, RiskLevel.high);
       });
 
       test('should return moderate for score >= 40 and < 60', () {
-        final assessment = _createAssessment(overallRiskScore: 45.0);
+        final assessment = createAssessment(overallRiskScore: 45.0);
         expect(assessment.overallRiskLevel, RiskLevel.moderate);
       });
 
       test('should return low for score >= 20 and < 40', () {
-        final assessment = _createAssessment(overallRiskScore: 25.0);
+        final assessment = createAssessment(overallRiskScore: 25.0);
         expect(assessment.overallRiskLevel, RiskLevel.low);
       });
 
       test('should return minimal for score < 20', () {
-        final assessment = _createAssessment(overallRiskScore: 10.0);
+        final assessment = createAssessment(overallRiskScore: 10.0);
         expect(assessment.overallRiskLevel, RiskLevel.minimal);
       });
     });
@@ -634,7 +634,7 @@ void main() {
     });
 
     test('should roundtrip through JSON', () {
-      final original = _createAssessment();
+      final original = createAssessment();
       final json = original.toJson();
       final restored = RiskAssessment.fromJson(json);
 

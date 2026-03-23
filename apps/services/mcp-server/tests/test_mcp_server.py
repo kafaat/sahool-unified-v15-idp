@@ -17,10 +17,14 @@ except ImportError:
     pytest.skip("mcp-server dependencies not installed", allow_module_level=True)
 
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
+
 @pytest.fixture
 def client():
     """Test client fixture"""
     return TestClient(app, headers=TENANT_HEADER)
+
+
 class TestHealthEndpoints:
     """Test health and status endpoints"""
 
@@ -54,6 +58,8 @@ class TestHealthEndpoints:
         assert data["name"] == "sahool-mcp-server"
         assert "endpoints" in data
         assert "capabilities" in data
+
+
 class TestMCPProtocol:
     """Test MCP protocol endpoints"""
 
@@ -193,6 +199,8 @@ class TestMCPProtocol:
         data = response.json()
         assert data["jsonrpc"] == "2.0"
         assert "error" in data
+
+
 class TestConvenienceEndpoints:
     """Test convenience endpoints"""
 
@@ -213,6 +221,8 @@ class TestConvenienceEndpoints:
         data = response.json()
         assert "prompts" in data
         assert len(data["prompts"]) == 3
+
+
 class TestMetrics:
     """Test metrics endpoint"""
 

@@ -1751,7 +1751,9 @@ async def analyze_phenology_with_action(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        logger.error("phenology_action_detection_failed", error=str(e), field_id=request.field_id, crop_type=request.crop_type)
+        logger.error(
+            "phenology_action_detection_failed", error=str(e), field_id=request.field_id, crop_type=request.crop_type
+        )
         raise HTTPException(status_code=400, detail="Invalid phenology detection parameters") from e
 
     # Create ActionTemplate based on growth stage

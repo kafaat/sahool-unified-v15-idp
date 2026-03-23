@@ -28,6 +28,8 @@ os.environ.setdefault("NATS_URL", "")
 
 # Add paths
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+
+
 class TestWebhookVerification:
     """Tests for webhook verification endpoint."""
 
@@ -79,6 +81,8 @@ class TestWebhookVerification:
         """Test webhook verification with missing parameters."""
         response = self.client.get("/webhook")
         assert response.status_code == 403
+
+
 class TestWebhookMessageReceive:
     """Tests for webhook message receive endpoint."""
 
@@ -137,6 +141,8 @@ class TestWebhookMessageReceive:
         response = self.client.post("/webhook", json={"invalid": "payload"})
         # Should still return 200 to prevent WhatsApp from retrying
         assert response.status_code == 200
+
+
 class TestSendMessageAPI:
     """Tests for send message API endpoint."""
 
@@ -183,6 +189,8 @@ class TestSendMessageAPI:
         data = response.json()
         assert data["success"] is False
         assert "not configured" in data["error"]
+
+
 class TestSendTemplateAPI:
     """Tests for send template message API endpoint."""
 
@@ -209,6 +217,8 @@ class TestSendTemplateAPI:
         data = response.json()
         assert data["success"] is True
         assert data["message_id"] == "msg_128"
+
+
 class TestHealthEndpoints:
     """Tests for health check endpoints."""
 
@@ -242,6 +252,8 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["service"] == "SAHOOL WhatsApp Bot"
         assert "endpoints" in data
+
+
 class TestSchemas:
     """Tests for Pydantic schemas."""
 
@@ -333,6 +345,8 @@ class TestSchemas:
         assert len(context) == 2
         assert context[0]["role"] == "user"
         assert context[1]["role"] == "assistant"
+
+
 class TestResponseBuilder:
     """Tests for response builder."""
 
@@ -415,6 +429,8 @@ class TestResponseBuilder:
 
         response = builder.build_vision_response(vision_result, Language.ARABIC)
         assert "لم أتمكن" in response
+
+
 class TestSessionManager:
     """Tests for session manager."""
 

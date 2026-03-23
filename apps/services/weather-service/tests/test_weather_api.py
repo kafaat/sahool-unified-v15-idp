@@ -66,21 +66,20 @@ def app():
     from src.main import app as weather_app
 
     from shared.auth.dependencies import get_current_user
+
+    # Import User from the same module that src/main.py loaded (apps/services/shared/)
+    # to match the User type expected by get_current_user dependency
     from shared.auth.models import User
 
     def fake_current_user():
-        # Use hashed_password if required by service-level User model
-        import inspect
-        user_params = inspect.signature(User).parameters
-        kwargs = {
-            "id": "test-user-001",
-            "email": "test@sahool.sa",
-            "roles": ["farmer"],
-            "tenant_id": "00000000-0000-0000-0000-000000000123",
-        }
-        if "hashed_password" in user_params:
-            kwargs["hashed_password"] = "hashed_test_password"
-        return User(**kwargs)
+        # Use a MagicMock that quacks like User to avoid constructor mismatch
+        # between root shared/auth/models.py and apps/services/shared/auth/models.py
+        user = MagicMock(spec=User)
+        user.id = "test-user-001"
+        user.email = "test@sahool.sa"
+        user.roles = ["farmer"]
+        user.tenant_id = "00000000-0000-0000-0000-000000000123"
+        return user
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
     yield weather_app

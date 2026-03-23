@@ -240,7 +240,7 @@ class MetricsAwareQueueManager {
 
   /// Get pending items sorted by priority
   Future<List<OutboxData>> getPendingItemsSorted({int limit = 50}) async {
-    return await _manager.getPendingItemsSorted(limit: limit);
+    return _manager.getPendingItemsSorted(limit: limit);
   }
 
   /// Cleanup completed items
@@ -296,3 +296,9 @@ final syncEngineWithMetricsProvider = metricsAwareSyncEngineProvider;
 /// Legacy alias for backwards compatibility
 @Deprecated('Use metricsAwareQueueManagerProvider instead')
 final queueManagerWithMetricsProvider = metricsAwareQueueManagerProvider;
+
+/// Provider for daily sync metrics (last 7 days)
+final dailyMetricsProvider = Provider<List<DailyMetrics>>((ref) {
+  final metricsService = ref.watch(syncMetricsServiceProvider);
+  return metricsService.getLastNDays(7);
+});

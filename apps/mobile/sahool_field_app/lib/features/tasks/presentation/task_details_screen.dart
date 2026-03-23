@@ -397,7 +397,7 @@ class _TaskDetailsBody extends ConsumerWidget {
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: newDate!,
+                    initialDate: newDate,
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(const Duration(days: 365)),
                   );

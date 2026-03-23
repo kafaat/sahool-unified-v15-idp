@@ -59,7 +59,7 @@ class SahoolTheme {
         scaffoldBackgroundColor: backgroundLight,
 
         // AppBar
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: primary,
           foregroundColor: Colors.white,
           elevation: 0,
@@ -101,7 +101,7 @@ class SahoolTheme {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontFamily: fontFamily,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -123,7 +123,7 @@ class SahoolTheme {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: primary,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontFamily: fontFamily,
               fontWeight: FontWeight.bold,
             ),
@@ -168,7 +168,7 @@ class SahoolTheme {
         chipTheme: ChipThemeData(
           backgroundColor: Colors.grey[200],
           selectedColor: primary.withOpacity(0.2),
-          labelStyle: TextStyle(fontSize: 13, fontFamily: fontFamily),
+          labelStyle: const TextStyle(fontSize: 13, fontFamily: fontFamily),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -189,7 +189,7 @@ class SahoolTheme {
         ),
 
         // Tab Bar
-        tabBarTheme: TabBarThemeData(
+        tabBarTheme: const TabBarThemeData(
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.white,
@@ -202,11 +202,11 @@ class SahoolTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          titleTextStyle: TextStyle(
+          titleTextStyle: const TextStyle(
             fontFamily: fontFamily,
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1A1A1A),
+            color: Color(0xFF1A1A1A),
           ),
         ),
 

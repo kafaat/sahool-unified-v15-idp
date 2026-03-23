@@ -16,10 +16,10 @@ class SprayLogScreen extends ConsumerStatefulWidget {
   final String? recommendationId;
 
   const SprayLogScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
     this.recommendationId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayLogScreen> createState() => _SprayLogScreenState();

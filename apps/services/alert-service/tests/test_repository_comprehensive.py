@@ -25,6 +25,8 @@ def mock_db():
     session.flush = MagicMock()
     session.execute = MagicMock()
     return session
+
+
 def _make_mock_alert(**kwargs):
     from src.db_models import Alert
 
@@ -56,6 +58,8 @@ def _make_mock_alert(**kwargs):
     )
     defaults.update(kwargs)
     return Alert(**defaults)
+
+
 def _make_mock_rule(**kwargs):
     from src.db_models import AlertRule
 
@@ -76,6 +80,8 @@ def _make_mock_rule(**kwargs):
     )
     defaults.update(kwargs)
     return AlertRule(**defaults)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # update_alert_rule Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -120,6 +126,8 @@ class TestUpdateAlertRule:
         result = update_alert_rule(mock_db, rule_id=rule.id, nonexistent_field="value")
 
         assert result is rule  # Should not crash
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # mark_rule_triggered Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -151,6 +159,8 @@ class TestMarkRuleTriggered:
         assert result is rule
         assert rule.last_triggered_at is not None
         assert rule.last_triggered_at >= before
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_rules_ready_to_trigger Edge Cases
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -231,6 +241,8 @@ class TestGetRulesReadyToTrigger:
 
         ready = get_rules_ready_to_trigger(mock_db)
         assert len(ready) == 0
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # delete_alert_rule with tenant Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -259,6 +271,8 @@ class TestDeleteAlertRuleWithTenant:
 
         result = delete_alert_rule(mock_db, uuid4(), tenant_id=str(uuid4()))
         assert result is False
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # delete_alert with tenant Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -286,6 +300,8 @@ class TestDeleteAlertWithTenant:
 
         result = delete_alert(mock_db, uuid4(), tenant_id=str(uuid4()))
         assert result is False
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_active_alerts Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -323,6 +339,8 @@ class TestGetActiveAlertsExtended:
 
         alerts = get_active_alerts(mock_db)
         assert alerts == []
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_alert_statistics Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -401,6 +419,8 @@ class TestGetAlertStatisticsExtended:
         stats = get_alert_statistics(mock_db, field_id="field-1", days=7)
 
         assert stats["total_alerts"] == 0
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # update_alert_status Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -462,6 +482,8 @@ class TestUpdateAlertStatusExtended:
         )
         assert result.status == "expired"
         # No special timestamp tracking for expired
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_alert_rule Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -489,6 +511,8 @@ class TestGetAlertRuleExtended:
 
         result = get_alert_rule(mock_db, rule_id=uuid4())
         assert result is None
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # get_enabled_rules Extended Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -516,6 +540,8 @@ class TestGetEnabledRulesExtended:
 
         rules = get_enabled_rules(mock_db)
         assert rules == []
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # SEVERITY_ORDER Tests
 # ═══════════════════════════════════════════════════════════════════════════════

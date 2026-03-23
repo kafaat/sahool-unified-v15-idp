@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/storage/database.dart';
+import 'package:sahool_field_app/core/sync/sync_engine.dart';
 import 'package:sahool_field_app/core/utils/retry_policy.dart';
 
 import '../mocks/mock_app_database.dart';

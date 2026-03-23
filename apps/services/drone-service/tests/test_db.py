@@ -37,6 +37,8 @@ class TestHelperFunctions:
 
     def test_safe_uuid_integer(self):
         assert _safe_uuid(123) is None
+
+
 def _make_pool():
     """Create a mock asyncpg pool with proper async context manager."""
     conn = AsyncMock()
@@ -48,15 +50,15 @@ def _make_pool():
     pool = MagicMock()
     pool.acquire = acquire
     return pool, conn
+
+
 class TestDroneRepositoryDrones:
     """Test DroneRepository drone operations."""
 
     @pytest.mark.asyncio
     async def test_list_drones_no_filter(self):
         pool, conn = _make_pool()
-        conn.fetch.return_value = [
-            {"id": uuid.uuid4(), "name": "Drone1", "status": "active", "tenant_id": "t1"}
-        ]
+        conn.fetch.return_value = [{"id": uuid.uuid4(), "name": "Drone1", "status": "active", "tenant_id": "t1"}]
         repo = DroneRepository(pool)
         result = await repo.list_drones("t1")
         assert len(result) == 1
@@ -102,12 +104,15 @@ class TestDroneRepositoryDrones:
         pool, conn = _make_pool()
         conn.fetchrow.return_value = {"id": uuid.uuid4(), "name": "New", "status": "active"}
         repo = DroneRepository(pool)
-        result = await repo.create_drone("t1", {
-            "name": "New",
-            "model": "DJI-T30",
-            "serial_number": "SN001",
-            "drone_type": "sprayer",
-        })
+        result = await repo.create_drone(
+            "t1",
+            {
+                "name": "New",
+                "model": "DJI-T30",
+                "serial_number": "SN001",
+                "drone_type": "sprayer",
+            },
+        )
         assert result["name"] == "New"
         conn.fetchrow.assert_called_once()
 
@@ -117,11 +122,15 @@ class TestDroneRepositoryDrones:
         drone_id = str(uuid.uuid4())
         conn.fetchrow.return_value = {"id": drone_id, "name": "Updated"}
         repo = DroneRepository(pool)
-        result = await repo.update_drone(drone_id, "t1", {
-            "name": "Updated",
-            "model": "DJI-T40",
-            "serial_number": "SN002",
-        })
+        result = await repo.update_drone(
+            drone_id,
+            "t1",
+            {
+                "name": "Updated",
+                "model": "DJI-T40",
+                "serial_number": "SN002",
+            },
+        )
         assert result is not None
 
     @pytest.mark.asyncio
@@ -169,6 +178,8 @@ class TestDroneRepositoryDrones:
         repo = DroneRepository(pool)
         result = await repo.update_drone_status("bad", "t1", "active")
         assert result is None
+
+
 class TestDroneRepositoryFlightPlans:
     """Test DroneRepository flight plan operations."""
 
@@ -217,13 +228,18 @@ class TestDroneRepositoryFlightPlans:
         pool, conn = _make_pool()
         conn.fetchrow.return_value = {"id": uuid.uuid4(), "name": "Plan1", "plan_type": "spray"}
         repo = DroneRepository(pool)
-        result = await repo.create_flight_plan("t1", {
-            "name": "Plan1",
-            "field_id": "f1",
-            "plan_type": "spray",
-            "waypoints": [{"lat": 24.7, "lng": 46.7}],
-        })
+        result = await repo.create_flight_plan(
+            "t1",
+            {
+                "name": "Plan1",
+                "field_id": "f1",
+                "plan_type": "spray",
+                "waypoints": [{"lat": 24.7, "lng": 46.7}],
+            },
+        )
         assert result["name"] == "Plan1"
+
+
 class TestDroneRepositoryMissions:
     """Test DroneRepository mission operations."""
 
@@ -281,35 +297,44 @@ class TestDroneRepositoryMissions:
         pool, conn = _make_pool()
         conn.fetchrow.return_value = {"id": uuid.uuid4(), "name": "M1", "status": "planned"}
         repo = DroneRepository(pool)
-        result = await repo.create_mission("t1", {
-            "name": "M1",
-            "drone_id": str(uuid.uuid4()),
-            "flight_plan_id": str(uuid.uuid4()),
-            "mission_type": "spray",
-        })
+        result = await repo.create_mission(
+            "t1",
+            {
+                "name": "M1",
+                "drone_id": str(uuid.uuid4()),
+                "flight_plan_id": str(uuid.uuid4()),
+                "mission_type": "spray",
+            },
+        )
         assert result is not None
 
     @pytest.mark.asyncio
     async def test_create_mission_invalid_drone_id(self):
         pool, conn = _make_pool()
         repo = DroneRepository(pool)
-        result = await repo.create_mission("t1", {
-            "name": "M1",
-            "drone_id": "bad-uuid",
-            "mission_type": "spray",
-        })
+        result = await repo.create_mission(
+            "t1",
+            {
+                "name": "M1",
+                "drone_id": "bad-uuid",
+                "mission_type": "spray",
+            },
+        )
         assert result is None
 
     @pytest.mark.asyncio
     async def test_create_mission_invalid_plan_id(self):
         pool, conn = _make_pool()
         repo = DroneRepository(pool)
-        result = await repo.create_mission("t1", {
-            "name": "M1",
-            "drone_id": str(uuid.uuid4()),
-            "flight_plan_id": "bad-uuid",
-            "mission_type": "spray",
-        })
+        result = await repo.create_mission(
+            "t1",
+            {
+                "name": "M1",
+                "drone_id": str(uuid.uuid4()),
+                "flight_plan_id": "bad-uuid",
+                "mission_type": "spray",
+            },
+        )
         assert result is None
 
     @pytest.mark.asyncio
@@ -317,10 +342,13 @@ class TestDroneRepositoryMissions:
         pool, conn = _make_pool()
         conn.fetchrow.return_value = {"id": uuid.uuid4(), "name": "M1", "status": "planned"}
         repo = DroneRepository(pool)
-        result = await repo.create_mission("t1", {
-            "name": "M1",
-            "mission_type": "mapping",
-        })
+        result = await repo.create_mission(
+            "t1",
+            {
+                "name": "M1",
+                "mission_type": "mapping",
+            },
+        )
         assert result is not None
 
     @pytest.mark.asyncio

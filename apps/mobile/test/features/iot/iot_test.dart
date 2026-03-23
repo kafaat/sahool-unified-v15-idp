@@ -1,5 +1,6 @@
 /// Unit Tests for IoT Feature - API Client and Models
 /// اختبارات وحدات ميزة إنترنت الأشياء
+library;
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

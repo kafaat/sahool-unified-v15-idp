@@ -1,4 +1,5 @@
 """Test configuration for service."""
+
 import os
 import sys
 

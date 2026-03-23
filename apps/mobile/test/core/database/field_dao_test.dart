@@ -8,12 +8,12 @@
 /// - Sync status tracking
 /// - Tenant isolation
 /// - Complex queries
+library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 part 'field_dao_test.g.dart';
 
@@ -419,7 +419,7 @@ void main() {
       await db.insertField(field);
 
       expect(
-        () async => await db.insertField(field),
+        () async => db.insertField(field),
         throwsA(isA<SqliteException>()),
       );
     });

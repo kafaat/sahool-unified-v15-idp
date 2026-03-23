@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/animations/hero_animations.dart';
 import '../../domain/models/farmer_profile.dart';
 
 /// Farmer Card Widget
@@ -47,7 +48,10 @@ class FarmerCard extends StatelessWidget {
               Row(
                 children: [
                   // Avatar
-                  _buildAvatar(),
+                  Hero(
+                    tag: HeroTags.farmerAvatar(farmer.id),
+                    child: _buildAvatar(),
+                  ),
                   const SizedBox(width: 12),
 
                   // Name and info

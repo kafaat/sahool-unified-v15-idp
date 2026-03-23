@@ -49,13 +49,18 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
     super.dispose();
   }
 
+  bool _isArabic(BuildContext context) {
+    return Localizations.localeOf(context).languageCode == 'ar';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isArabic = _isArabic(context);
     final weatherState = ref.watch(weatherProvider);
     final alertsState = ref.watch(alertsProvider);
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         body: weatherState.isLoading
             ? NestedScrollView(
@@ -90,7 +95,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
 
   SliverAppBar _buildSliverAppBar(dynamic alertsState, bool innerBoxIsScrolled) {
     return SliverAppBar(
-      title: Text(widget.fieldName ?? 'الطقس'),
+      title: Text(widget.fieldName ?? (_isArabic(context) ? 'الطقس' : 'Weather')),
       backgroundColor: const Color(0xFF367C2B),
       foregroundColor: Colors.white,
       floating: true,
@@ -142,10 +147,10 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
         indicatorColor: Colors.white,
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white70,
-        tabs: const [
-          Tab(text: 'الطقس', icon: Icon(Icons.wb_sunny)),
-          Tab(text: 'التوصيات', icon: Icon(Icons.agriculture)),
-          Tab(text: 'التنبيهات', icon: Icon(Icons.warning)),
+        tabs: [
+          Tab(text: _isArabic(context) ? 'الطقس' : 'Weather', icon: const Icon(Icons.wb_sunny)),
+          Tab(text: _isArabic(context) ? 'التوصيات' : 'Recommendations', icon: const Icon(Icons.agriculture)),
+          Tab(text: _isArabic(context) ? 'التنبيهات' : 'Alerts', icon: const Icon(Icons.warning)),
         ],
       ),
     );

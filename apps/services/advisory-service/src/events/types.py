@@ -30,8 +30,25 @@ VERSIONS = {
 }
 
 
-def get_subject(event_type: str) -> str:
-    """Get NATS subject for event type"""
+def get_subject(event_type: str, tenant_id: str | None = None) -> str:
+    """Get NATS subject for event type, optionally scoped to a tenant.
+
+    Returns a tenant-scoped subject when tenant_id is provided for multi-tenant isolation.
+    يرجع موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Args:
+        event_type: The event type (e.g., 'recommendation_issued')
+        tenant_id: Optional tenant ID for scoped subjects
+
+    Returns:
+        Global subject: sahool.advisory.{event_type}
+        Tenant subject: sahool.tenant.{tenant_id}.advisory.{event_type}
+    """
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+        action = SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}").removeprefix(f"{SUBJECT_PREFIX}.")
+        return get_tenant_subject(tenant_id, "advisory", action)
     return SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}")
 
 

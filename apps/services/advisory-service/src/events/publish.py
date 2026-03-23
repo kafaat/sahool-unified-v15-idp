@@ -148,7 +148,9 @@ class AdvisorPublisher:
             return str(uuid.uuid4())
 
         version = get_version(event_type)
-        target_subject = subject or get_subject(event_type)
+        # Use tenant-scoped subject for multi-tenant data isolation
+        # استخدام موضوع مخصص للمستأجر لعزل بيانات المستأجرين
+        target_subject = subject or get_subject(event_type, tenant_id=tenant_id)
 
         envelope = EventEnvelope.create(
             event_type=event_type,

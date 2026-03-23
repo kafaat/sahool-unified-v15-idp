@@ -32,123 +32,10 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   bool _showNDVI = false;
   bool _showVRI = false;
 
-  // Demo data - في الإنتاج تأتي من API
-  late PivotConfiguration _pivotConfig;
-  late PivotStatus _pivotStatus;
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _loadDemoData();
-  }
-
-  void _loadDemoData() {
-    // Demo pivot configuration
-    _pivotConfig = PivotConfiguration(
-      id: widget.pivotId,
-      fieldId: widget.fieldId ?? 'field_001',
-      name: 'المحوري الرئيسي',
-      nameAr: 'المحوري الرئيسي',
-      centerLat: 24.7136,
-      centerLng: 46.6753,
-      lengthMeters: 400,
-      overhangMeters: 15,
-      spansCount: 7,
-      rotationDirection: RotationDirection.clockwise,
-      areaHectares: 50.3,
-      pivotType: PivotType.fullCircle,
-      flowRateLph: 450000,
-      operatingPressureBar: 2.8,
-      hasVRI: true,
-      hasEndGun: true,
-      hasCornerSystem: false,
-      sectors: _generateDemoSectors(),
-      vriZones: _generateDemoVRIZones(),
-      createdAt: DateTime.now().subtract(const Duration(days: 365)),
-    );
-
-    _pivotStatus = PivotStatus(
-      pivotId: widget.pivotId,
-      currentAngle: 127.5,
-      operatingStatus: PivotOperatingStatus.running,
-      direction: PivotDirection.forward,
-      speedPercent: 85,
-      timerHours: 12,
-      elapsedMinutes: 245,
-      currentFlowRateLph: 425000,
-      currentPressureBar: 2.7,
-      endGunActive: true,
-      cornerSystemActive: false,
-      waterAppliedM3: 1250,
-      energyConsumedKwh: 180,
-      estimatedCompletionTime: DateTime.now().add(const Duration(hours: 8)),
-      lastUpdated: DateTime.now(),
-      activeAlerts: [
-        PivotAlert(
-          id: 'alert_001',
-          pivotId: widget.pivotId,
-          alertType: PivotAlertType.lowPressure,
-          severity: AlertSeverity.warning,
-          message: 'Pressure dropped below optimal range',
-          messageAr: 'انخفض الضغط عن المستوى الأمثل',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-        ),
-      ],
-    );
-  }
-
-  List<PivotSector> _generateDemoSectors() {
-    final colors = [
-      '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-      '#FF9800', '#FF5722', '#4CAF50', '#8BC34A',
-    ];
-    final ndviValues = [0.75, 0.68, 0.72, 0.55, 0.62, 0.78, 0.71, 0.65];
-
-    return List.generate(8, (i) {
-      return PivotSector(
-        id: 'sector_${i + 1}',
-        sectorNumber: i + 1,
-        name: 'Sector ${i + 1}',
-        nameAr: 'قطاع ${i + 1}',
-        startAngle: i * 45.0,
-        endAngle: (i + 1) * 45.0,
-        irrigationDepthMm: 25,
-        applicationRateMmHr: 6.5,
-        isEnabled: true,
-        speedPercent: 100 - (i * 5),
-        cropType: 'wheat',
-        soilType: 'loamy',
-        ndviValue: ndviValues[i],
-        soilMoisturePercent: 45 + i * 3,
-        color: colors[i],
-      );
-    });
-  }
-
-  List<VRIZone> _generateDemoVRIZones() {
-    return [
-      const VRIZone(
-        id: 'vri_001',
-        name: 'High Need Zone',
-        nameAr: 'منطقة احتياج عالي',
-        coordinates: [],
-        rateMultiplier: 1.3,
-        targetSoilMoisturePercent: 70,
-        zoneType: VRIZoneType.highNeed,
-        color: '#2196F3',
-      ),
-      const VRIZone(
-        id: 'vri_002',
-        name: 'Low Need Zone',
-        nameAr: 'منطقة احتياج منخفض',
-        coordinates: [],
-        rateMultiplier: 0.7,
-        targetSoilMoisturePercent: 50,
-        zoneType: VRIZoneType.lowNeed,
-        color: '#FF9800',
-      ),
-    ];
   }
 
   @override
@@ -156,6 +43,10 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     _tabController.dispose();
     super.dispose();
   }
+
+  /// Helper to get pivot params for the provider
+  PivotParams get _pivotParams =>
+      PivotParams(pivotId: widget.pivotId, fieldId: widget.fieldId);
 
   @override
   Widget build(BuildContext context) {

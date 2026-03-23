@@ -32,6 +32,10 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   bool _showNDVI = false;
   bool _showVRI = false;
 
+  /// Local overrides applied on top of provider data (for commands & sector edits)
+  PivotStatus? _statusOverride;
+  PivotConfiguration? _configOverride;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +54,58 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch the provider - tries API first, falls back to demo data
+    // يراقب المزود - يحاول API أولاً ثم يرجع للبيانات التجريبية
+    final pivotAsync = ref.watch(pivotDataProvider(_pivotParams));
+
+    return pivotAsync.when(
+      loading: () => Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          backgroundColor: const Color(0xFF367C2B),
+          body: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(color: Colors.white),
+                SizedBox(height: 16),
+                Text('جاري تحميل بيانات المحوري...',
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      ),
+      error: (err, _) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('خطأ في تحميل البيانات: $err',
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () =>
+                      ref.refresh(pivotDataProvider(_pivotParams)),
+                  child: const Text('إعادة المحاولة'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      data: (pivotData) => _buildScreen(
+        _configOverride ?? pivotData.config,
+        _statusOverride ?? pivotData.status,
+      ),
+    );
+  }
+
+  Widget _buildScreen(PivotConfiguration pivotConfig, PivotStatus pivotStatus) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -57,9 +113,9 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_pivotConfig.name),
+              Text(pivotConfig.name),
               Text(
-                '${_pivotConfig.areaHectares.toStringAsFixed(1)} هكتار',
+                '${pivotConfig.areaHectares.toStringAsFixed(1)} هكتار',
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
               ),
             ],
@@ -74,7 +130,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
               tooltip: 'NDVI',
             ),
             // VRI toggle
-            if (_pivotConfig.hasVRI)
+            if (pivotConfig.hasVRI)
               IconButton(
                 icon: Icon(_showVRI ? Icons.layers : Icons.layers_outlined),
                 onPressed: () => setState(() => _showVRI = !_showVRI),
@@ -103,17 +159,17 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildDashboardTab(),
-            _buildSectorsTab(),
-            _buildScheduleTab(),
-            _buildStatisticsTab(),
+            _buildDashboardTab(pivotConfig, pivotStatus),
+            _buildSectorsTab(pivotConfig, pivotStatus),
+            _buildScheduleTab(pivotConfig, pivotStatus),
+            _buildStatisticsTab(pivotConfig, pivotStatus),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDashboardTab() {
+  Widget _buildDashboardTab(PivotConfiguration pivotConfig, PivotStatus pivotStatus) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -139,7 +195,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                             setState(() => _showNDVI = !_showNDVI);
                           }),
                           const SizedBox(width: 8),
-                          if (_pivotConfig.hasVRI)
+                          if (pivotConfig.hasVRI)
                             _buildToggleChip('VRI', _showVRI, () {
                               setState(() => _showVRI = !_showVRI);
                             }),
@@ -149,8 +205,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                   ),
                   const SizedBox(height: 16),
                   PivotVisualization(
-                    config: _pivotConfig,
-                    status: _pivotStatus,
+                    config: pivotConfig,
+                    status: pivotStatus,
                     showNDVI: _showNDVI,
                     showVRIZones: _showVRI,
                     animate: true,
@@ -164,14 +220,14 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           const SizedBox(height: 16),
 
           // Quick stats row
-          _buildQuickStats(),
+          _buildQuickStats(pivotStatus),
 
           const SizedBox(height: 16),
 
           // Control panel
           PivotControlPanel(
-            config: _pivotConfig,
-            status: _pivotStatus,
+            config: pivotConfig,
+            status: pivotStatus,
             onCommand: _handleCommand,
             isConnected: true,
           ),
@@ -201,14 +257,14 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     );
   }
 
-  Widget _buildQuickStats() {
+  Widget _buildQuickStats(PivotStatus pivotStatus) {
     return Row(
       children: [
         Expanded(
           child: _StatCard(
             icon: Icons.speed,
             label: 'السرعة',
-            value: '${_pivotStatus.speedPercent.toInt()}%',
+            value: '${pivotStatus.speedPercent.toInt()}%',
             color: Colors.blue,
           ),
         ),
@@ -217,7 +273,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           child: _StatCard(
             icon: Icons.location_on,
             label: 'الموقع',
-            value: '${_pivotStatus.currentAngle.toStringAsFixed(0)}°',
+            value: '${pivotStatus.currentAngle.toStringAsFixed(0)}°',
             color: Colors.orange,
           ),
         ),
@@ -226,7 +282,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           child: _StatCard(
             icon: Icons.water_drop,
             label: 'المياه',
-            value: '${_pivotStatus.waterAppliedM3.toStringAsFixed(0)} م³',
+            value: '${pivotStatus.waterAppliedM3.toStringAsFixed(0)} م³',
             color: Colors.cyan,
           ),
         ),
@@ -235,7 +291,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           child: _StatCard(
             icon: Icons.timer,
             label: 'المتبقي',
-            value: _formatRemainingTime(),
+            value: _formatRemainingTime(pivotStatus),
             color: Colors.purple,
           ),
         ),
@@ -243,20 +299,20 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     );
   }
 
-  String _formatRemainingTime() {
-    final remaining = _pivotStatus.timerHours * 60 - _pivotStatus.elapsedMinutes;
+  String _formatRemainingTime(PivotStatus pivotStatus) {
+    final remaining = pivotStatus.timerHours * 60 - pivotStatus.elapsedMinutes;
     if (remaining <= 0) return '0:00';
     final hours = (remaining / 60).floor();
     final mins = (remaining % 60).floor();
     return '$hours:${mins.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildSectorsTab() {
+  Widget _buildSectorsTab(PivotConfiguration pivotConfig, PivotStatus pivotStatus) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _pivotConfig.sectors.length,
+      itemCount: pivotConfig.sectors.length,
       itemBuilder: (context, index) {
-        final sector = _pivotConfig.sectors[index];
+        final sector = pivotConfig.sectors[index];
         return _SectorTile(
           sector: sector,
           onTap: () => _showSectorDetails(sector),
@@ -266,7 +322,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     );
   }
 
-  Widget _buildScheduleTab() {
+  Widget _buildScheduleTab(PivotConfiguration pivotConfig, PivotStatus pivotStatus) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -308,7 +364,7 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     );
   }
 
-  Widget _buildStatisticsTab() {
+  Widget _buildStatisticsTab(PivotConfiguration pivotConfig, PivotStatus pivotStatus) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -477,42 +533,48 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   }
 
   void _handleCommand(PivotControlCommand command) {
-    // في الإنتاج، يتم إرسال الأمر للسيرفر
-    debugPrint('Command: ${command.commandType}');
+    // Send to API (fire-and-forget) then update local override for immediate feedback
+    final repo = ref.read(pivotRepositoryProvider);
+    repo.sendCommand(widget.pivotId, command);
 
-    // Update local state for demo
+    // Apply optimistic local state override
+    final currentStatus = _statusOverride ??
+        ref.read(pivotDataProvider(_pivotParams)).valueOrNull?.status;
+    if (currentStatus == null) return;
+
     setState(() {
       switch (command.commandType) {
         case PivotCommandType.start:
         case PivotCommandType.resume:
-          _pivotStatus = _pivotStatus.copyWith(
+          _statusOverride = currentStatus.copyWith(
             operatingStatus: PivotOperatingStatus.running,
           );
           break;
         case PivotCommandType.pause:
-          _pivotStatus = _pivotStatus.copyWith(
+          _statusOverride = currentStatus.copyWith(
             operatingStatus: PivotOperatingStatus.paused,
           );
           break;
         case PivotCommandType.stop:
         case PivotCommandType.emergencyStop:
-          _pivotStatus = _pivotStatus.copyWith(
+          _statusOverride = currentStatus.copyWith(
             operatingStatus: PivotOperatingStatus.stopped,
           );
           break;
         case PivotCommandType.setSpeed:
-          _pivotStatus = _pivotStatus.copyWith(
-            speedPercent: command.speedPercent ?? _pivotStatus.speedPercent,
+          _statusOverride = currentStatus.copyWith(
+            speedPercent: command.speedPercent ?? currentStatus.speedPercent,
           );
           break;
         case PivotCommandType.setDirection:
-          _pivotStatus = _pivotStatus.copyWith(
-            direction: command.direction ?? _pivotStatus.direction,
+          _statusOverride = currentStatus.copyWith(
+            direction: command.direction ?? currentStatus.direction,
           );
           break;
         case PivotCommandType.toggleEndGun:
-          _pivotStatus = _pivotStatus.copyWith(
-            endGunActive: command.endGunEnabled ?? !_pivotStatus.endGunActive,
+          _statusOverride = currentStatus.copyWith(
+            endGunActive:
+                command.endGunEnabled ?? !currentStatus.endGunActive,
           );
           break;
         default:
@@ -547,24 +609,34 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   }
 
   void _toggleSector(PivotSector sector, bool enabled) {
+    final currentConfig = _configOverride ??
+        ref.read(pivotDataProvider(_pivotParams)).valueOrNull?.config;
+    if (currentConfig == null) return;
+
     setState(() {
-      final index = _pivotConfig.sectors.indexWhere((s) => s.id == sector.id);
+      final index =
+          currentConfig.sectors.indexWhere((s) => s.id == sector.id);
       if (index != -1) {
-        final updatedSectors = List<PivotSector>.from(_pivotConfig.sectors);
+        final updatedSectors =
+            List<PivotSector>.from(currentConfig.sectors);
         updatedSectors[index] = sector.copyWith(isEnabled: enabled);
-        _pivotConfig = _pivotConfig.copyWith(sectors: updatedSectors);
+        _configOverride = currentConfig.copyWith(sectors: updatedSectors);
       }
     });
   }
 
   void _openSettings() {
+    final currentConfig = _configOverride ??
+        ref.read(pivotDataProvider(_pivotParams)).valueOrNull?.config;
+    if (currentConfig == null) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SectorManagementScreen(
-          pivotConfig: _pivotConfig,
+          pivotConfig: currentConfig,
           onConfigUpdate: (config) {
-            setState(() => _pivotConfig = config);
+            setState(() => _configOverride = config);
           },
         ),
       ),

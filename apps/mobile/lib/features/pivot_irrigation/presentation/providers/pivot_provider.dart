@@ -76,7 +76,7 @@ class PivotRepository {
 
   /// إرسال أمر تشغيل للمحوري
   Future<ApiResult<bool>> sendCommand(
-      String pivotId, PivotCommand command) async {
+      String pivotId, PivotControlCommand command) async {
     try {
       await _dio.post(
         '/api/v1/irrigation/pivot/$pivotId/command',

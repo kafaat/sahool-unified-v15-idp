@@ -358,16 +358,17 @@ async def db_create_page(
         return False
 
 
-async def db_get_page(page_id: str) -> InternalPage | None:
-    """Get a page from the database by ID."""
+async def db_get_page(page_id: str, tenant_id: str) -> InternalPage | None:
+    """Get a page from the database by ID with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return None
     try:
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM lowcode_pages WHERE id = $1",
+                "SELECT * FROM lowcode_pages WHERE id = $1 AND tenant_id = $2",
                 page_id,
+                tenant_id,
             )
             if row:
                 return _row_to_page(row)
@@ -546,16 +547,17 @@ async def db_create_model(
         return False
 
 
-async def db_get_model(model_id: str) -> InternalDataModel | None:
-    """Get a data model from the database by ID."""
+async def db_get_model(model_id: str, tenant_id: str) -> InternalDataModel | None:
+    """Get a data model from the database by ID with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return None
     try:
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM lowcode_models WHERE id = $1",
+                "SELECT * FROM lowcode_models WHERE id = $1 AND tenant_id = $2",
                 model_id,
+                tenant_id,
             )
             if row:
                 return _row_to_model(row)
@@ -1369,10 +1371,10 @@ async def list_data_models(
 
 
 @app.get("/api/v1/models/{model_id}", response_model=DataModelResponse, tags=["Data Models"])
-async def get_data_model(model_id: str):
+async def get_data_model(model_id: str, user: User = Depends(get_current_user)):
     """Get data model by ID | الحصول على نموذج بيانات بالمعرف"""
     # Try to get from database first
-    m = await db_get_model(model_id)
+    m = await db_get_model(model_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not m:
@@ -1546,7 +1548,7 @@ async def list_pages(
 
 
 @app.get("/api/v1/pages/{page_id}", response_model=PageResponse, tags=["Pages"])
-async def get_page(page_id: str):
+async def get_page(page_id: str, user: User = Depends(get_current_user)):
     """Get page by ID | الحصول على صفحة بالمعرف"""
     cache_key = f"lowcode:page:{page_id}"
 
@@ -1556,7 +1558,7 @@ async def get_page(page_id: str):
         return PageResponse(**cached)
 
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:
@@ -1601,7 +1603,7 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
     now = datetime.now(UTC)
 
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, tenant_id or user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:
@@ -1664,14 +1666,14 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
 
 
 @app.get("/api/v1/pages/{page_id}/render", response_model=PageRenderResponse, tags=["Pages"])
-async def render_page(page_id: str, data: str | None = Query(None)):
+async def render_page(page_id: str, data: str | None = Query(None), user: User = Depends(get_current_user)):
     """
     Render a page with data
 
     عرض صفحة مع البيانات
     """
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:

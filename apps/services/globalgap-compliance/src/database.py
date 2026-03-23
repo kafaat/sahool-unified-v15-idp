@@ -268,22 +268,34 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, registration_id: UUID) -> dict[str, Any] | None:
+    async def get_by_id(self, registration_id: UUID, tenant_id: UUID | None = None, *, admin: bool = False) -> dict[str, Any] | None:
         """
-        Get registration by ID
-        الحصول على التسجيل بواسطة المعرف
+        Get registration by ID with tenant isolation
+        الحصول على التسجيل بواسطة المعرف مع عزل المستأجر
         """
-        query = "SELECT * FROM globalgap_registrations WHERE id = $1"
-        row = await self._fetchrow(query, registration_id)
+        if admin and tenant_id is None:
+            query = "SELECT * FROM globalgap_registrations WHERE id = $1"
+            row = await self._fetchrow(query, registration_id)
+        else:
+            if tenant_id is None:
+                raise ValueError("tenant_id is required for non-admin queries")
+            query = "SELECT * FROM globalgap_registrations WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, registration_id, tenant_id)
         return dict(row) if row else None
 
-    async def get_by_ggn(self, ggn: str) -> dict[str, Any] | None:
+    async def get_by_ggn(self, ggn: str, tenant_id: UUID | None = None, *, admin: bool = False) -> dict[str, Any] | None:
         """
-        Get registration by GlobalGAP Number
-        الحصول على التسجيل بواسطة رقم GlobalGAP
+        Get registration by GlobalGAP Number with tenant isolation
+        الحصول على التسجيل بواسطة رقم GlobalGAP مع عزل المستأجر
         """
-        query = "SELECT * FROM globalgap_registrations WHERE ggn = $1"
-        row = await self._fetchrow(query, ggn)
+        if admin and tenant_id is None:
+            query = "SELECT * FROM globalgap_registrations WHERE ggn = $1"
+            row = await self._fetchrow(query, ggn)
+        else:
+            if tenant_id is None:
+                raise ValueError("tenant_id is required for non-admin queries")
+            query = "SELECT * FROM globalgap_registrations WHERE ggn = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, ggn, tenant_id)
         return dict(row) if row else None
 
     async def get_by_farm_id(self, farm_id: UUID) -> list[dict[str, Any]]:

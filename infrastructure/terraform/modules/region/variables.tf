@@ -90,6 +90,23 @@ variable "node_instance_type" {
   }
 }
 
+variable "eks_public_access_enabled" {
+  description = "تمكين الوصول العام لنقطة نهاية EKS API / Enable public access to EKS API endpoint"
+  type        = bool
+  default     = false
+}
+
+variable "eks_public_access_cidrs" {
+  description = "قائمة CIDR المسموح بها للوصول العام لـ EKS / Allowed CIDR blocks for EKS public access"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = !contains(var.eks_public_access_cidrs, "0.0.0.0/0")
+    error_message = "EKS public access must not use 0.0.0.0/0. Specify explicit CIDR blocks."
+  }
+}
+
 variable "min_nodes" {
   description = "الحد الأدنى لعدد العقد / Minimum number of nodes"
   type        = number
@@ -190,11 +207,11 @@ variable "enable_multi_az" {
 variable "backup_retention_period" {
   description = "فترة الاحتفاظ بالنسخ الاحتياطية بالأيام / Backup retention period in days"
   type        = number
-  default     = 7
+  default     = 30
 
   validation {
-    condition     = var.backup_retention_period >= 0 && var.backup_retention_period <= 35
-    error_message = "Backup retention period must be between 0 and 35 days."
+    condition     = var.backup_retention_period >= 7 && var.backup_retention_period <= 35
+    error_message = "Backup retention period must be between 7 and 35 days for compliance."
   }
 }
 

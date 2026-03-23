@@ -139,10 +139,9 @@ def _build_nats_headers(event: BaseEvent) -> dict | None:
     if event.event_id:
         headers["X-Event-ID"] = event.event_id
 
-    # Tenant scoping (from JWT tid claim or event field)
-    tenant_id = getattr(event, "tenant_id_header", None) or getattr(event, "tenant_id", None)
-    if tenant_id:
-        headers["X-Tenant-ID"] = str(tenant_id)
+    # Tenant scoping (from event field, populated from JWT tid claim)
+    if event.tenant_id:
+        headers["X-Tenant-ID"] = str(event.tenant_id)
 
     # Schema version for consumer compatibility checks
     if event.version:
@@ -378,10 +377,19 @@ class EventPublisher:
             event.correlation_id = _get_current_correlation_id()
 
         # Tenant propagation: pull from request context if not set on event
-        if not getattr(event, "tenant_id_header", None):
+        if not event.tenant_id:
             ctx_tenant = _get_current_tenant_id()
             if ctx_tenant:
-                event.tenant_id_header = ctx_tenant
+                event.tenant_id = ctx_tenant
+
+        # Warn if tenant_id is still missing (critical for multi-tenant isolation)
+        if not event.tenant_id:
+            logger.warning(
+                "event_missing_tenant_id: subject=%s event_id=%s service=%s",
+                subject,
+                event.event_id,
+                event.source_service,
+            )
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:

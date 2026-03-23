@@ -84,6 +84,19 @@ nats:
       cpu: 200m
       memory: 512Mi
 
+# Default Security Context for infrastructure pods
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+
 # Qdrant Vector Database Configuration
 qdrant:
   enabled: false

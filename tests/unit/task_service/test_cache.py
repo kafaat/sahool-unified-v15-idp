@@ -10,16 +10,17 @@ Tests:
 - Task cache specific methods
 """
 
-import pytest
 import time
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
+
+import pytest
 
 # Import from the src package (conftest.py sets up the path)
 try:
     from src.cache import (
-        InMemoryCache,
-        CacheAdapter,
         AstronomicalCache,
+        CacheAdapter,
+        InMemoryCache,
         TaskCache,
     )
 except ModuleNotFoundError:

@@ -3,8 +3,9 @@ Tests for shared/ai/experience_learning.py module
 اختبارات وحدة التعلم القائم على الخبرة
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, UTC
 
 
 class TestExecutionStatus:
@@ -153,7 +154,7 @@ class TestTaskExecution:
 
     def test_create_execution(self):
         """Test creating task execution"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, TaskExecution
 
         steps = [
             ExecutionStep(step_number=1, action="step1", duration_ms=100),
@@ -181,7 +182,7 @@ class TestTaskExecution:
 
     def test_execution_to_dict(self):
         """Test execution serialization to dict"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, TaskExecution
 
         execution = TaskExecution(
             id="exec-002",
@@ -208,7 +209,7 @@ class TestTaskExecution:
 
     def test_execution_from_dict(self):
         """Test execution deserialization from dict"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, TaskExecution
 
         data = {
             "id": "exec-003",
@@ -381,7 +382,7 @@ class TestExperienceStore:
     @pytest.fixture
     def sample_execution(self):
         """Create a sample execution"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, TaskExecution
 
         return TaskExecution(
             id="test-exec-001",
@@ -415,7 +416,7 @@ class TestExperienceStore:
     @pytest.mark.asyncio
     async def test_get_executions_by_type(self, store):
         """Test getting executions by task type"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, TaskExecution
 
         # Store multiple executions
         for i in range(3):
@@ -440,7 +441,7 @@ class TestExperienceStore:
     @pytest.mark.asyncio
     async def test_get_executions_by_type_with_status_filter(self, store):
         """Test filtering executions by status"""
-        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, TaskExecution
 
         # Store success and failure
         success_exec = TaskExecution(
@@ -577,7 +578,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_record_execution(self, learner):
         """Test recording an execution"""
-        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep
 
         steps = [
             ExecutionStep(step_number=1, action="fetch_data", duration_ms=100),
@@ -601,7 +602,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_sop_generated_after_multiple_successes(self, learner):
         """Test SOP is generated after multiple successful executions"""
-        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep
 
         # Record multiple successful executions
         for i in range(3):
@@ -637,7 +638,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_get_execution_guidance_with_sop(self, learner):
         """Test getting guidance when SOP exists"""
-        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep
 
         # Create enough executions for SOP
         for i in range(3):
@@ -661,7 +662,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_get_learning_stats(self, learner):
         """Test getting learning statistics"""
-        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep
 
         # Record some executions
         steps = [ExecutionStep(step_number=1, action="test", duration_ms=100)]
@@ -695,7 +696,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_failed_execution_updates_sop(self, learner):
         """Test that failed execution updates SOP statistics"""
-        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus, SOPConfidence
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, SOPConfidence
 
         # Create successful executions to generate SOP
         for i in range(5):
@@ -783,9 +784,9 @@ class TestSOPConfidenceProgression:
     async def test_confidence_increases_with_successes(self):
         """Test SOP confidence increases with more successes"""
         from shared.ai.experience_learning import (
-            ExperienceLearner,
-            ExecutionStep,
             ExecutionStatus,
+            ExecutionStep,
+            ExperienceLearner,
             SOPConfidence,
         )
 
@@ -845,7 +846,7 @@ class TestArabicSupport:
     @pytest.mark.asyncio
     async def test_arabic_task_description(self):
         """Test storing and retrieving Arabic task descriptions"""
-        from shared.ai.experience_learning import ExperienceLearner, ExecutionStep, ExecutionStatus
+        from shared.ai.experience_learning import ExecutionStatus, ExecutionStep, ExperienceLearner
 
         learner = ExperienceLearner()
 

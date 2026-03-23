@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Generator
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
 import pytest

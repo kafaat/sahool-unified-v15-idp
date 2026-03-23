@@ -85,9 +85,9 @@ class SatelliteMapOverlay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
+                  const Text(
                     'NDVI',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class SatelliteMapOverlay extends StatelessWidget {
             Positioned(
               top: 12,
               left: 12,
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,

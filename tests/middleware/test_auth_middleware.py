@@ -4,12 +4,12 @@ Authentication Middleware Tests for SAHOOL Platform.
 Tests validate JWT middleware, authorization, and request handling.
 """
 
-import pytest
-from unittest.mock import Mock
-from typing import Optional, Dict, Any, Callable
 import time
-import jwt
+from typing import Any, Callable, Dict, Optional
+from unittest.mock import Mock
 
+import jwt
+import pytest
 
 TEST_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars"
 

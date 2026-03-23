@@ -15,24 +15,24 @@ import pytest
 # Import from the src package (conftest.py sets up the path)
 try:
     from src.exceptions import (
-        ErrorCode,
-        TaskServiceError,
-        TaskNotFoundError,
-        TaskInvalidStatusError,
-        ValidationError,
-        InvalidFieldIdError,
-        MetadataTooLargeError,
         AstronomicalServiceError,
         AstronomicalServiceTimeoutError,
-        FieldServiceError,
-        NdviServiceError,
-        DatabaseError,
-        DatabaseConnectionError,
-        CacheError,
         CacheConnectionError,
-        UnauthorizedError,
+        CacheError,
+        DatabaseConnectionError,
+        DatabaseError,
+        ErrorCode,
+        FieldServiceError,
         ForbiddenError,
+        InvalidFieldIdError,
         InvalidTenantError,
+        MetadataTooLargeError,
+        NdviServiceError,
+        TaskInvalidStatusError,
+        TaskNotFoundError,
+        TaskServiceError,
+        UnauthorizedError,
+        ValidationError,
     )
 except ModuleNotFoundError:
     pytest.skip("Task service src module not found - run tests from service directory", allow_module_level=True)

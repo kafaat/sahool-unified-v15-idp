@@ -21,7 +21,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # ==============================================================================
 # Cloud Layer Components (Test Target Mocks)
 # ==============================================================================

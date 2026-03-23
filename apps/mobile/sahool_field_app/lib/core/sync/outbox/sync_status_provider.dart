@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../storage/database.dart';
@@ -176,7 +175,7 @@ final syncStatusProvider = Provider<SyncStatusInfo>((ref) {
       }
 
       // All synced
-      return SyncStatusInfo(
+      return const SyncStatusInfo(
         status: SyncStatus.synced,
         pendingCount: 0,
         failedCount: 0,
@@ -184,14 +183,14 @@ final syncStatusProvider = Provider<SyncStatusInfo>((ref) {
         messageEn: 'Synced',
       );
     },
-    loading: () => SyncStatusInfo(
+    loading: () => const SyncStatusInfo(
       status: SyncStatus.syncing,
       pendingCount: 0,
       failedCount: 0,
       message: 'جاري التحميل...',
       messageEn: 'Loading...',
     ),
-    error: (_, __) => SyncStatusInfo(
+    error: (_, __) => const SyncStatusInfo(
       status: SyncStatus.error,
       pendingCount: 0,
       failedCount: 0,
@@ -246,9 +245,9 @@ final forceSyncProvider =
 });
 
 /// Retry failed operations
-final retryFailedProvider = FutureProvider.family<int, void>((ref, _) async {
+final retryFailedProvider = FutureProvider.family<void, void>((ref, _) async {
   final outboxService = ref.read(outboxServiceProvider);
-  return outboxService.resetFailedEntries();
+  await outboxService.resetFailedEntries();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

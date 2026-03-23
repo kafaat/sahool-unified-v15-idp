@@ -8,6 +8,12 @@ import random
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+# ============== Persistent Store (DB + in-memory fallback) ================
+# In-memory dicts are owned by store.py and shared here by reference.
+# When a DB pool and/or NATS client have been injected via store.configure(),
+# saves are automatically persisted and events published.
+# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
+from . import store as ndvi_store  # production persistence (DB + NATS)
 from .models import (
     CompositeMethod,
     FileUrls,
@@ -23,15 +29,7 @@ from .models import (
     TrendDirection,
     ZoneChange,
 )
-
-# ============== Persistent Store (DB + in-memory fallback) ================
-# In-memory dicts are owned by store.py and shared here by reference.
-# When a DB pool and/or NATS client have been injected via store.configure(),
-# saves are automatically persisted and events published.
-# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
-
-from . import store as ndvi_store  # production persistence (DB + NATS)
-from .store import _jobs, _results, _composites  # noqa: E402  (re-exported)
+from .store import _composites, _jobs, _results  # noqa: E402  (re-exported)
 
 # ============== Job Management ==============
 

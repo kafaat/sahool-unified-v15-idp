@@ -25,6 +25,7 @@
 ///   ),
 /// );
 /// ```
+library;
 
 // Models
 export 'models/rotation_models.dart';

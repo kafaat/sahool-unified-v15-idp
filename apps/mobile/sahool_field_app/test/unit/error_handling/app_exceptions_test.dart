@@ -12,6 +12,7 @@
 /// - RateLimitException, SecurityException, StorageException, SyncException
 /// - fromDioException converter
 /// - Extension methods
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
@@ -472,7 +473,7 @@ void main() {
     });
 
     test('generic error converts to AppException', () {
-      final error = FormatException('bad format');
+      const error = FormatException('bad format');
       final result = error.toAppException();
       expect(result, isA<AppException>());
       expect(result.type, ErrorType.unknown);

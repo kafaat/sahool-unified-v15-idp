@@ -9,6 +9,7 @@
 /// - تحويل لرقم آخر
 /// - شحن رصيد موبايل
 /// - سجل المعاملات
+library;
 
 export 'data/payment_models.dart';
 export 'data/tharwatt_service.dart';

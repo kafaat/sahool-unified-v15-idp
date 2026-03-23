@@ -3,17 +3,18 @@ Tests for SAHOOL Unified Request Context
 ==========================================
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 from shared.stability.context import (
     RequestContext,
     UnifiedContextMiddleware,
-    get_request_context,
-    get_optional_context,
-    set_context_for_worker,
-    clear_context,
     _request_context,
+    clear_context,
+    get_optional_context,
+    get_request_context,
+    set_context_for_worker,
 )
 
 

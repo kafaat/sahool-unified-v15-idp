@@ -3,6 +3,7 @@
 ///
 /// This file exports all test fixtures for easy importing in tests.
 /// استيراد جميع البيانات النموذجية للاختبارات
+library;
 
 export 'test_data.dart';
 export 'sample_tasks.dart';

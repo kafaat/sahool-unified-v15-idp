@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -92,7 +92,6 @@ class NdviTileLayerWidget extends StatelessWidget {
         tileDimension: config.tileSize,
         minZoom: config.minZoom.toDouble(),
         maxZoom: config.maxZoom.toDouble(),
-        backgroundColor: Colors.transparent,
         tileProvider: enableOfflineCache
             ? CachedNdviTileProvider(headers: config.headers)
             : null,
@@ -107,10 +106,12 @@ class NdviTileLayerWidget extends StatelessWidget {
 /// Cached NDVI Tile Provider for offline support
 /// مزود البلاطات المخزنة مؤقتاً لدعم الوضع غير المتصل
 class CachedNdviTileProvider extends TileProvider {
-  final Map<String, String>? headers;
+  @override
+  final Map<String, String> headers;
   static const String _cacheKeyPrefix = 'ndvi_tile_';
 
-  CachedNdviTileProvider({this.headers});
+  CachedNdviTileProvider({Map<String, String>? headers})
+      : headers = headers ?? const {};
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
@@ -275,7 +276,7 @@ class NdviImageCacheManager {
     final x = ((lng + 180.0) / 360.0 * n).floor();
     final latRad = lat * 3.141592653589793 / 180.0;
     final y = ((1.0 -
-                (latRad.tan() + 1.0 / latRad.tan().abs()).log() /
+                math.log(math.tan(latRad) + 1.0 / math.tan(latRad).abs()) /
                     3.141592653589793) /
             2.0 *
             n)
@@ -336,7 +337,6 @@ class NdviPolygonLayer extends StatelessWidget {
               color: color.withOpacity(0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
-              isFilled: true,
               label: showLabels ? field.name : null,
               labelStyle: const TextStyle(
                 color: Colors.white,

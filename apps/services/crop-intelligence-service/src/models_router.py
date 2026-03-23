@@ -193,11 +193,11 @@ def run_quefts(req: QUEFTSRequest) -> ModelRunResponse:
     Returns N, P₂O₅ and K₂O doses (kg/ha) to reach the target yield.
     """
     try:
+        from shared.process_models.models import CropParameters, CropType
         from shared.process_models.nutrient_management import (
             QueftsNutrientModel,
             SoilNutrientSupply,
         )
-        from shared.process_models.models import CropParameters, CropType
 
         model = QueftsNutrientModel()
 
@@ -257,8 +257,8 @@ def run_soil_carbon(req: SoilCarbonRequest) -> ModelRunResponse:
     carbon-trading or compliance applications.
     """
     try:
-        from shared.process_models.soil_carbon import SoilCarbonModel
         from shared.process_models.models import SoilProfile
+        from shared.process_models.soil_carbon import SoilCarbonModel
 
         model = SoilCarbonModel()
         soil = SoilProfile(

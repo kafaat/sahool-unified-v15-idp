@@ -6,6 +6,7 @@
 /// - Automatic sync when connection restored
 /// - Conflict resolution with user notification
 /// - Pending changes indicator
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -228,7 +229,7 @@ class OfflineDataManager {
   /// مزامنة الآن
   Future<OfflineSyncResult> syncNow() async {
     if (_isSyncing) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'المزامنة جارية بالفعل',
       );
@@ -238,7 +239,7 @@ class OfflineDataManager {
     final isOffline = connectivityResults.isEmpty ||
         connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOffline) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'لا يوجد اتصال بالإنترنت',
       );
@@ -317,7 +318,7 @@ class OfflineDataManager {
   }
 
   /// محاولة المزامنة الفورية
-  void _trySyncNow() async {
+  Future<void> _trySyncNow() async {
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOnline = connectivityResults.isNotEmpty &&
         !connectivityResults.every((r) => r == ConnectivityResult.none);
@@ -336,7 +337,7 @@ class OfflineDataManager {
   }
 
   /// تحديث عداد التغييرات المعلقة
-  void _updatePendingCount() async {
+  Future<void> _updatePendingCount() async {
     final count = await getPendingCount();
     _pendingChangesController.add(count);
   }

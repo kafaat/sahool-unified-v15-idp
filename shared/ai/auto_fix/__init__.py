@@ -4,7 +4,7 @@ SAHOOL Auto-Fix Module
 وحدة الإصلاح التلقائي لمنصة سهول
 
 Automated code analysis and fixing with multi-tool support,
-audit trail integration, and bilingual reporting.
+audit trail integration, 8-layer quality system, and bilingual reporting.
 
 Features:
     - Multi-tool diagnostics (Ruff, ESLint, Mypy, Bandit, Dart)
@@ -13,6 +13,8 @@ Features:
     - Full audit trail for all operations
     - Platform health checks
     - Bilingual reports (English/Arabic)
+    - 8-layer quality orchestration system
+    - Advanced frontend and mobile diagnostics with performance budgets
 
 Quick Start:
     from shared.ai.auto_fix import AutoFixEngine, quick_diagnose, quick_fix
@@ -76,6 +78,19 @@ from .health_check import (
     check_infrastructure,
     quick_health_check,
 )
+from .frontend_advanced import (
+    FrontendAdvancedRunner,
+    MobileAdvancedRunner,
+    PerformanceBudget,
+)
+from .quality_layers import (
+    LayerResult,
+    QualityLayer,
+    QualityOrchestrator,
+    QualityReport,
+    generate_markdown_report,
+    run_quality_scan,
+)
 from .models import (
     AuditEntry,
     CodeFix,
@@ -91,7 +106,7 @@ from .models import (
     ToolType,
 )
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 
 __all__ = [
     # Engine
@@ -144,4 +159,15 @@ __all__ = [
     "FixResult",
     "FixStrategy",
     "ToolType",
+    # Quality Orchestrator
+    "QualityOrchestrator",
+    "QualityReport",
+    "QualityLayer",
+    "LayerResult",
+    "run_quality_scan",
+    "generate_markdown_report",
+    # Frontend Advanced
+    "FrontendAdvancedRunner",
+    "MobileAdvancedRunner",
+    "PerformanceBudget",
 ]

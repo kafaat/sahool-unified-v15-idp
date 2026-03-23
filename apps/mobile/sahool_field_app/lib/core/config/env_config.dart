@@ -282,7 +282,7 @@ class EnvConfig {
   static int get marketplacePort =>
       _getInt('MARKETPLACE_PORT', 3010); // marketplace-service
   static int get chatPort =>
-      _getInt('CHAT_PORT', 8099); // field-chat (FIXED: was 3011)
+      _getInt('CHAT_PORT', 8115); // chat-service (consolidated from deprecated field-chat:8099)
   static int get gatewayPort => _getInt('GATEWAY_PORT', 8000); // kong gateway
 
   // Intelligence Layer - طبقة الذكاء
@@ -303,11 +303,11 @@ class EnvConfig {
   static int get irrigationPort =>
       _getInt('IRRIGATION_PORT', 8094); // irrigation-smart
   static int get sprayPort =>
-      _getInt('SPRAY_PORT', 8098); // yield-engine (spray feature)
+      _getInt('SPRAY_PORT', 8152); // yield-prediction-service (consolidated from deprecated yield-engine:8098)
 
   // Business Layer - طبقة الأعمال
   static int get communityChatPort =>
-      _getInt('COMMUNITY_CHAT_PORT', 8097); // community-chat
+      _getInt('COMMUNITY_CHAT_PORT', 8115); // chat-service (consolidated from deprecated community-chat:8097)
   static int get equipmentPort =>
       _getInt('EQUIPMENT_PORT', 8101); // equipment-service
   static int get inventoryPort =>
@@ -319,7 +319,7 @@ class EnvConfig {
   // Service URLs
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Base URL for field-core service
+  /// Base URL for field-management-service
   static String get fieldCoreUrl {
     if (isProduction || isStaging) {
       return '$apiProtocol://$apiHost';

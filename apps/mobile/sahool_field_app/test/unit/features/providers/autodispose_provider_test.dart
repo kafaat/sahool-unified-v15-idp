@@ -5,6 +5,7 @@
 /// - Providers with autoDispose are properly disposed when no longer watched
 /// - State is cleaned up when containers are disposed
 /// - Key providers across features use autoDispose
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

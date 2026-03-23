@@ -331,7 +331,7 @@ void main() {
       final base = {'id': 'field_001', 'name': 'Original', 'value': 5};
 
       // Custom resolver that sums values
-      final customResolver = (
+      Future<Map<String, dynamic>> customResolver(
         Map<String, dynamic> l,
         Map<String, dynamic> s,
         Map<String, dynamic> b,
@@ -341,7 +341,7 @@ void main() {
           'name': 'Merged',
           'value': (l['value'] as int) + (s['value'] as int),
         };
-      };
+      }
 
       final result = await resolver.resolve(
         local: local,

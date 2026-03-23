@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import '../models/rotation_models.dart';
 
 /// Service for managing crop rotation plans
@@ -167,12 +166,10 @@ class RotationService {
       }
 
       // If no legume selected, pick best available crop
-      if (selectedCrop == null) {
-        selectedCrop = availableCrops
+      selectedCrop ??= availableCrops
                 .where((c) => !usedFamilies.contains(c.family))
                 .firstOrNull ??
             availableCrops.first;
-      }
 
       // Update used families (keep last 3 years)
       usedFamilies.add(selectedCrop.family);

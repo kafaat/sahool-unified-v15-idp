@@ -40,7 +40,7 @@ class ApiConfig {
   /// Get host based on environment
   static String get host => EnvConfig.apiHost;
 
-  /// Base URL for field-core service (legacy)
+  /// Base URL for field-management-service
   static String get baseUrl => EnvConfig.fieldCoreUrl;
 
   /// Gateway URL (production-like routing)
@@ -383,8 +383,8 @@ class ApiConfig {
       };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Community Chat Service Endpoints (port 8097)
-  // خدمة الدردشة المجتمعية
+  // Community Chat Endpoints (via chat-service port 8115)
+  // خدمة الدردشة المجتمعية (عبر chat-service)
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -554,7 +554,7 @@ class ApiConfig {
   static String get inventoryHealthz => '$_inventoryBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Spray Service Endpoints (port 8098)
+  // Spray Service Endpoints (via yield-prediction-service port 8152)
   // خدمة عمليات الرش
   // Kong route: /api/v1/spray
   // ─────────────────────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 from datetime import UTC, date, datetime
 from enum import StrEnum
@@ -23,6 +24,8 @@ from .constants import (
     AuditType,
     ComplianceLevel,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _compute_integrity_hash(data: dict) -> str:
@@ -38,6 +41,15 @@ def _compute_integrity_hash(data: dict) -> str:
     secret = os.getenv("GLOBALGAP_HMAC_SECRET", "")
     if secret:
         return hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    if env == "production":
+        raise RuntimeError(
+            "GLOBALGAP_HMAC_SECRET must be set in production. Cannot fall back to plain SHA-256 for compliance records."
+        )
+    logger.warning(
+        "GLOBALGAP_HMAC_SECRET is not set — falling back to plain SHA-256. "
+        "This is acceptable in development but MUST be configured in production."
+    )
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -534,7 +546,9 @@ class FarmRegistration(BaseModel):
             "cb_code": self.cb_code,
             "certificate_number": self.certificate_number,
             "certificate_issue_date": self.certificate_issue_date.isoformat() if self.certificate_issue_date else None,
-            "certificate_expiry_date": self.certificate_expiry_date.isoformat() if self.certificate_expiry_date else None,
+            "certificate_expiry_date": self.certificate_expiry_date.isoformat()
+            if self.certificate_expiry_date
+            else None,
             "certificate_status": self.certificate_status,
             "parallel_production": self.parallel_production,
             "parallel_ownership": self.parallel_ownership,

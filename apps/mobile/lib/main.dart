@@ -23,9 +23,40 @@ import 'core/persistence/draft_manager.dart';
 // Global crash reporting instance (legacy - kept for compatibility)
 final crashReporting = legacy_crash.CrashReportingService();
 
+/// Whether Flutter bindings have already been initialized.
+/// Used to prevent redundant re-initialization on security bypass.
+bool _bindingsInitialized = false;
+
+/// Continue app initialization after user bypasses security warning.
+/// This avoids calling main() recursively, which would cause infinite
+/// recursion of WidgetsFlutterBinding.ensureInitialized(), error handlers,
+/// and zone setup.
+void _continueAppInitialization() {
+  // Re-enter the initialization flow from the database setup step onward,
+  // bypassing the security check. We call the inner initialization function
+  // inside a new zone to maintain error handling.
+  runZonedGuarded(() async {
+    await _initializeAndRunApp(skipSecurityCheck: true);
+  }, (error, stackTrace) {
+    AppLogger.critical('Uncaught error: $error',
+        tag: 'Main', error: error, stackTrace: stackTrace);
+    crashReporter.reportError(
+      error,
+      stackTrace,
+      severity: CrashSeverity.fatal,
+      reason: 'Uncaught zone error',
+      fatal: true,
+    );
+  });
+}
+
 void main() async {
   // Ensure Flutter bindings are initialized first
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Track whether bindings have already been initialized to avoid
+  // redundant re-initialization when the user bypasses a security warning.
+  _bindingsInitialized = true;
 
   // Set up Flutter error handler - single unified crash reporter
   // إعداد معالج أخطاء Flutter - نظام تقارير أعطال موحد
@@ -181,8 +212,8 @@ void main() async {
                           category: 'security',
                           level: legacy_crash.BreadcrumbLevel.warning,
                         );
-                        // Restart app initialization
-                        main();
+                        // Continue app initialization (skip security re-check)
+                        _continueAppInitialization();
                       },
               ),
             ),
@@ -217,177 +248,7 @@ void main() async {
       );
     }
 
-    // Initialize database
-    late AppDatabase database;
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing database',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-      database = AppDatabase();
-      crashReporting.recordBreadcrumb(
-        message: 'Database initialized successfully',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      AppLogger.critical('Database initialization failed: $e',
-          tag: 'Main', error: e, stackTrace: stackTrace);
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: legacy_crash.ErrorSeverity.fatal,
-        reason: 'Database initialization failed',
-        fatal: true,
-      );
-      rethrow;
-    }
-
-    // Initialize sync engine
-    late SyncEngine syncEngine;
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing sync engine',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-      syncEngine = SyncEngine(database: database);
-      crashReporting.recordBreadcrumb(
-        message: 'Sync engine initialized successfully',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      AppLogger.critical('SyncEngine initialization failed: $e',
-          tag: 'Main', error: e, stackTrace: stackTrace);
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: legacy_crash.ErrorSeverity.fatal,
-        reason: 'SyncEngine initialization failed',
-        fatal: true,
-      );
-      rethrow;
-    }
-
-    // Initialize background sync with Workmanager (non-critical)
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing background sync',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-      await BackgroundSyncManager.initialize();
-      await BackgroundSyncManager.registerPeriodicSync();
-      AppLogger.i('Background sync initialized', tag: 'Main');
-      crashReporting.recordBreadcrumb(
-        message: 'Background sync initialized successfully',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      // Non-critical - app can work without background sync
-      AppLogger.w('Background sync init failed (non-critical): $e',
-          tag: 'Main');
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: legacy_crash.ErrorSeverity.warning,
-        reason: 'Background sync initialization failed (non-critical)',
-        fatal: false,
-      );
-    }
-
-    // Initialize persistence managers (non-critical)
-    // تهيئة مديري الحفظ (غير حرج)
-    final appStateManager = AppStateManager();
-    final preferencesManager = PreferencesManager();
-    final draftManager = DraftManager();
-
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing persistence managers',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-
-      await Future.wait([
-        appStateManager.initialize(),
-        preferencesManager.initialize(),
-        draftManager.initialize(),
-      ]);
-
-      AppLogger.i('Persistence managers initialized', tag: 'Main');
-      crashReporting.recordBreadcrumb(
-        message: 'Persistence managers initialized successfully',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      // Non-critical - app can work without persistence
-      AppLogger.w('Persistence managers init failed (non-critical): $e',
-          tag: 'Main');
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: legacy_crash.ErrorSeverity.warning,
-        reason: 'Persistence managers initialization failed (non-critical)',
-        fatal: false,
-      );
-    }
-
-    // Run the app
-    crashReporting.recordBreadcrumb(
-      message: 'Starting Flutter app',
-      category: 'lifecycle',
-      level: legacy_crash.BreadcrumbLevel.info,
-    );
-
-    runApp(
-      ProviderScope(
-        overrides: [
-          databaseProvider.overrideWithValue(database),
-          syncEngineProvider.overrideWithValue(syncEngine),
-          appStateManagerProvider.overrideWithValue(appStateManager),
-          preferencesManagerProvider.overrideWithValue(preferencesManager),
-          draftManagerProvider.overrideWithValue(draftManager),
-        ],
-        child: SahoolAppWithLifecycle(
-          appStateManager: appStateManager,
-          draftManager: draftManager,
-          child: const SahoolFieldApp(),
-        ),
-      ),
-    );
-
-    // Start foreground sync when app is active (non-blocking)
-    try {
-      breadcrumbService.recordSync('foreground', success: true);
-      crashReporting.recordBreadcrumb(
-        message: 'Starting foreground sync',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-      syncEngine.startPeriodic();
-    } catch (e, stackTrace) {
-      AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
-      breadcrumbService.recordSync('foreground', success: false);
-      crashReporter.reportError(
-        e,
-        stackTrace,
-        severity: CrashSeverity.warning,
-        reason: 'Foreground sync start failed (non-critical)',
-        fatal: false,
-      );
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: legacy_crash.ErrorSeverity.warning,
-        reason: 'Foreground sync start failed (non-critical)',
-        fatal: false,
-      );
-    }
+    await _initializeAndRunApp();
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
     // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
@@ -402,6 +263,57 @@ void main() async {
       fatal: true,
     );
   });
+}
+
+/// Initialize database, sync engine, and run the main app.
+/// Extracted from main() so that [_continueAppInitialization] can call it
+/// without re-running security checks or re-initializing bindings/zones,
+/// which would cause infinite recursion.
+Future<void> _initializeAndRunApp({bool skipSecurityCheck = false}) async {
+  // Initialize database
+  AppLogger.i('Initializing database...', tag: 'Main');
+  final database = AppDatabase();
+
+  // Initialize preferences manager
+  final preferencesManager = PreferencesManager();
+  await preferencesManager.initialize();
+
+  // Initialize draft manager
+  final draftManager = DraftManager();
+  await draftManager.initialize();
+
+  // Initialize app state manager
+  final appStateManager = AppStateManager();
+  await appStateManager.initialize();
+
+  // Initialize sync engine
+  final syncEngine = SyncEngine(database: database);
+
+  // Register background sync task
+  try {
+    await BackgroundSyncManager.registerPeriodicSync();
+    AppLogger.i('Background sync registered', tag: 'Main');
+  } catch (e) {
+    AppLogger.w('Background sync registration failed: $e', tag: 'Main');
+  }
+
+  AppLogger.i('App initialization complete', tag: 'Main');
+
+  // Run the app with provider overrides
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(database),
+        syncEngineProvider.overrideWithValue(syncEngine),
+      ],
+      child: SahoolAppWithLifecycle(
+        appStateManager: appStateManager,
+        draftManager: draftManager,
+        syncEngine: syncEngine,
+        child: const SahoolFieldApp(),
+      ),
+    ),
+  );
 }
 
 // Global providers
@@ -437,12 +349,14 @@ final breadcrumbServiceProvider = Provider<BreadcrumbService>((ref) {
 class SahoolAppWithLifecycle extends StatefulWidget {
   final AppStateManager appStateManager;
   final DraftManager draftManager;
+  final SyncEngine? syncEngine;
   final Widget child;
 
   const SahoolAppWithLifecycle({
     super.key,
     required this.appStateManager,
     required this.draftManager,
+    this.syncEngine,
     required this.child,
   });
 
@@ -466,6 +380,7 @@ class _SahoolAppWithLifecycleState extends State<SahoolAppWithLifecycle>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.draftManager.dispose();
+    widget.syncEngine?.dispose();
     AppLogger.d('App lifecycle observer unregistered', tag: 'Lifecycle');
     super.dispose();
   }

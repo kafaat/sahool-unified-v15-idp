@@ -475,7 +475,7 @@ class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 8),
             Center(
               child: TextButton.icon(

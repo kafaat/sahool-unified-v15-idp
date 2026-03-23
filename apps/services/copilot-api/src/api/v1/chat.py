@@ -36,6 +36,14 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection
 from ..deps import get_current_user
 
+# Import guardrails for input/output validation
+try:
+    from shared.guardrails import TrustLevel, input_filter
+
+    HAS_GUARDRAILS = True
+except ImportError:
+    HAS_GUARDRAILS = False
+
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])
 
@@ -48,8 +56,7 @@ def _get_http_client(req: Request) -> httpx.AsyncClient:
     client = getattr(req.app.state, "http_client", None)
     if client is None:
         raise RuntimeError(
-            "http_client not initialized in app.state. "
-            "Ensure the lifespan context manager ran correctly."
+            "http_client not initialized in app.state. Ensure the lifespan context manager ran correctly."
         )
     return client
 
@@ -102,6 +109,35 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
                 "pattern": pattern_name,
             },
         )
+
+    # Guardrails input validation
+    if HAS_GUARDRAILS:
+        try:
+            guard_result = input_filter.filter_input(
+                text=user_query,
+                trust_level=TrustLevel.BASIC,
+                mask_pii=True,
+            )
+            if not guard_result.is_safe:
+                logger.warning(
+                    "Guardrails blocked input",
+                    session_id=request.session_id,
+                    violations=[str(v) for v in guard_result.violations],
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Input blocked by safety guardrails",
+                        "error_ar": "تم حظر الإدخال بواسطة حواجز الأمان",
+                        "violations": [str(v) for v in guard_result.violations],
+                    },
+                )
+            # Use the filtered (PII-masked) text for downstream processing
+            user_query = guard_result.filtered_text
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("Guardrails input validation error, proceeding with caution", error=str(e))
 
     # Publish chat_started event
     nc = getattr(req.app.state, "nc", None)
@@ -256,7 +292,9 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
     # Prompt injection detection
     is_injection, pattern_name = detect_prompt_injection(user_query)
     if is_injection:
-        raise HTTPException(status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"})
+        raise HTTPException(
+            status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"}
+        )
 
     # Build system prompt
     rag_context_text = ""
@@ -264,9 +302,7 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
         rag_service = get_rag_service()
         results = await rag_service.search(query=user_query, top_k=5)
         if results:
-            rag_context_text = rag_service.format_context_for_prompt(
-                results, language=_detect_language(user_query)
-            )
+            rag_context_text = rag_service.format_context_for_prompt(results, language=_detect_language(user_query))
     except Exception:
         pass
 

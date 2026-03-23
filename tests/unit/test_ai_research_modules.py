@@ -14,9 +14,9 @@ Updated: January 2026
 """
 
 import math
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
 
 # =============================================================================
 # GRPO Trainer Tests
@@ -71,7 +71,7 @@ class TestGRPOTrainer:
 
     def test_compute_advantages(self):
         """Test group-relative advantage computation."""
-        from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOBatch, GRPOSample
+        from shared.ai.grpo_trainer import GRPOBatch, GRPOConfig, GRPOSample, GRPOTrainer
 
         trainer = GRPOTrainer(GRPOConfig(normalize_advantages=False))
 
@@ -96,7 +96,7 @@ class TestGRPOTrainer:
 
     def test_dynamic_sampling_skip_all_correct(self):
         """Test DAPO dynamic sampling - skip all correct."""
-        from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOBatch, GRPOSample
+        from shared.ai.grpo_trainer import GRPOBatch, GRPOConfig, GRPOSample, GRPOTrainer
 
         trainer = GRPOTrainer(GRPOConfig(dynamic_sampling=True))
 
@@ -114,7 +114,7 @@ class TestGRPOTrainer:
 
     def test_dynamic_sampling_skip_all_wrong(self):
         """Test DAPO dynamic sampling - skip all wrong."""
-        from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOBatch, GRPOSample
+        from shared.ai.grpo_trainer import GRPOBatch, GRPOConfig, GRPOSample, GRPOTrainer
 
         trainer = GRPOTrainer(GRPOConfig(dynamic_sampling=True))
 
@@ -132,7 +132,7 @@ class TestGRPOTrainer:
 
     def test_off_policy_masking(self):
         """Test DeepSeek V3.2 off-policy sequence masking."""
-        from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOSample
+        from shared.ai.grpo_trainer import GRPOConfig, GRPOSample, GRPOTrainer
 
         trainer = GRPOTrainer(
             GRPOConfig(
@@ -161,7 +161,7 @@ class TestGRPOTrainer:
 
     def test_dr_grpo_no_std_normalization(self):
         """Test Dr.GRPO: normalize by mean abs, not std."""
-        from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOBatch, GRPOSample
+        from shared.ai.grpo_trainer import GRPOBatch, GRPOConfig, GRPOSample, GRPOTrainer
 
         trainer = GRPOTrainer(
             GRPOConfig(
@@ -494,7 +494,7 @@ class TestHardwareProfile:
 
     def test_default_profile(self):
         """Test default hardware profile."""
-        from shared.ai.hardware_optimizer import HardwareProfile, DeviceType
+        from shared.ai.hardware_optimizer import DeviceType, HardwareProfile
 
         profile = HardwareProfile()
 
@@ -531,7 +531,7 @@ class TestHardwareDetector:
 
     def test_detect_cpu(self):
         """Test CPU detection."""
-        from shared.ai.hardware_optimizer import HardwareDetector, DeviceType
+        from shared.ai.hardware_optimizer import DeviceType, HardwareDetector
 
         # This should at least return CPU profile
         profile = HardwareDetector.detect()
@@ -616,8 +616,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_grpo_with_diffusion_output(self):
         """Test GRPO training with diffusion-generated outputs."""
-        from shared.ai.grpo_trainer import SAHOOLGRPOTrainer
         from shared.ai.diffusion import DiffusionAdvisoryGenerator
+        from shared.ai.grpo_trainer import SAHOOLGRPOTrainer
 
         # Generate advisories
         generator = DiffusionAdvisoryGenerator()
@@ -640,8 +640,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_ot_matching_with_hardware_optimization(self):
         """Test OT matching with hardware-optimized embeddings."""
-        from shared.ai.ot_embeddings import OTEmbeddingMatcher
         from shared.ai.hardware_optimizer import HardwareAwareOptimizer
+        from shared.ai.ot_embeddings import OTEmbeddingMatcher
 
         # Get optimal config
         optimizer = HardwareAwareOptimizer()

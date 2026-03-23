@@ -6,6 +6,7 @@
 /// - Credit score display
 /// - Transaction history
 /// - Loan information
+library;
 
 import 'dart:async';
 import 'dart:convert';

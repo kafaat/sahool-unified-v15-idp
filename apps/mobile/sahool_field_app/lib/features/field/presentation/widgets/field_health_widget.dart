@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:math' as math;
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../domain/entities/field.dart';
-import '../../../tasks/providers/tasks_provider.dart';
 
 /// Field Health Widget - Comprehensive health score display
 /// ويدجت صحة الحقل - عرض شامل لدرجة الصحة
@@ -541,7 +539,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
 
           ...healthData.recommendations.map((rec) {
             return _buildRecommendationItem(context, rec, isDark);
-          }).toList(),
+          }),
 
           if (healthData.recommendations.isEmpty)
             _buildEmptyRecommendations(isDark),
@@ -664,7 +662,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                     color: SahoolColors.primary.withOpacity(0.3),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -672,7 +670,7 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                       size: 14,
                       color: SahoolColors.primary,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'إنشاء مهمة / Create Task',
                       style: TextStyle(

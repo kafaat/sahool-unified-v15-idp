@@ -65,7 +65,7 @@ class ContextCompressor {
 
     if (kDebugMode) {
       debugPrint(
-        '🗜️  Context compression: ${startSize}B → ${endSize}B (${compressionRatio}%)',
+        '🗜️  Context compression: ${startSize}B → ${endSize}B ($compressionRatio%)',
       );
     }
 
@@ -167,7 +167,7 @@ class ContextCompressor {
       } else if (value is List && value.isNotEmpty) {
         // Check if it's a coordinate array [[lon, lat], ...]
         if (_isCoordinateArray(value)) {
-          result[key] = (value as List).map((coord) {
+          result[key] = (value).map((coord) {
             if (coord is List && coord.length >= 2) {
               return [
                 _quantizeCoordinate((coord[0] as num).toDouble()),
@@ -348,7 +348,7 @@ class CompressionMetrics {
 
   /// Get human-readable compression ratio
   String get humanReadableRatio =>
-      '${originalSize}B → ${compressedSize}B (${compressionRatio}%)';
+      '${originalSize}B → ${compressedSize}B ($compressionRatio%)';
 
   /// Check if compression was effective
   bool get isEffective => compressionRatio < 90;

@@ -170,7 +170,7 @@ void exampleRequestResponseSanitization() {
 /// Example 7: PII Detection and Statistics
 /// مثال 7: اكتشاف البيانات الشخصية والإحصائيات
 void examplePiiDetectionAndStats() {
-  final text = '''
+  const text = '''
     User Information:
     Name: Ahmed
     Email: ahmed@example.com
@@ -220,8 +220,8 @@ void exampleSafeLogExport() {
 /// Example 9: Real-world Login Flow
 /// مثال 9: سير عمل تسجيل الدخول الواقعي
 Future<void> exampleLoginFlow(Dio dio) async {
-  final email = 'user@example.com';
-  final password = 'P@ssw0rd123';
+  const email = 'user@example.com';
+  const password = 'P@ssw0rd123';
 
   try {
     // Log attempt (credentials NOT logged)
@@ -301,7 +301,7 @@ class UserService {
 /// مثال 12: تنظيف رسائل الدردشة
 void exampleChatMessageSanitization() {
   // Chat messages might contain PII
-  final message = 'Please call me at +966501234567 or email ahmed@example.com';
+  const message = 'Please call me at +966501234567 or email ahmed@example.com';
 
   // Log the message (automatically sanitized)
   AppLogger.d('Chat message sent', tag: 'CHAT', data: {
@@ -314,11 +314,11 @@ void exampleChatMessageSanitization() {
 /// Example 13: Location Data Sanitization
 /// مثال 13: تنظيف بيانات الموقع
 void exampleLocationSanitization() {
-  final lat = 24.7135517;
-  final lng = 46.6752957;
+  const lat = 24.7135517;
+  const lng = 46.6752957;
 
   // Precise location (before sanitization)
-  final preciseLocation = '$lat, $lng';
+  const preciseLocation = '$lat, $lng';
 
   // Log location (automatically rounded to reduce precision)
   AppLogger.d('User location', tag: 'GPS', data: {

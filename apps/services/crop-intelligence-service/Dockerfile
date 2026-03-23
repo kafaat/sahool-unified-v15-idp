@@ -71,10 +71,10 @@ LABEL org.opencontainers.image.title="SAHOOL Crop Intelligence Service" \
       org.opencontainers.image.vendor="KAFAAT" \
       org.opencontainers.image.description="Crop intelligence and health assessment service"
 
-# Install runtime dependencies
+# Upgrade system packages and install runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
-    ca-certificates \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

@@ -3,6 +3,7 @@
 ///
 /// Data models, enums, and helper functions for deep links.
 /// Separated from handler to allow testing without platform dependencies.
+library;
 
 import 'package:flutter/foundation.dart';
 
@@ -198,7 +199,7 @@ class PasswordResetLinkData extends DeepLinkData {
 
   /// Check if the token is expired (tokens expire after 1 hour typically)
   bool get isExpired {
-    final expirationDuration = const Duration(hours: 1);
+    const expirationDuration = Duration(hours: 1);
     return DateTime.now().difference(receivedAt) > expirationDuration;
   }
 }

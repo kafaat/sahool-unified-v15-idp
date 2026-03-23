@@ -2,10 +2,10 @@
 /// اختبارات قاعدة البيانات المحلية للمعدات
 ///
 /// Tests for compute() isolate JSON parsing in equipment local database
+library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/equipment/data/equipment_models.dart';
 

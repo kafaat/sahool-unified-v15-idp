@@ -40,7 +40,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
             backgroundColor: SahoolColors.forestGreen,
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
+              background: DecoratedBox(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -72,7 +72,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  "32°",
+                                  '32°',
                                   style: TextStyle(
                                     fontSize: 72,
                                     fontWeight: FontWeight.w300,
@@ -81,7 +81,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                                   ),
                                 ),
                                 Text(
-                                  "مشمس",
+                                  'مشمس',
                                   style: TextStyle(
                                     fontSize: 20,
                                     color: Colors.white.withOpacity(0.9),
@@ -99,7 +99,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                                 size: 16, color: Colors.white70),
                             const SizedBox(width: 4),
                             Text(
-                              "الحقل الشمالي • صنعاء",
+                              'الحقل الشمالي • صنعاء',
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                               ),
@@ -108,21 +108,21 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                         ),
                         const SizedBox(height: 24),
                         // Quick Stats
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _WeatherStat(
                                 icon: Icons.water_drop,
-                                value: "45%",
-                                label: "رطوبة"),
+                                value: '45%',
+                                label: 'رطوبة'),
                             _WeatherStat(
                                 icon: Icons.air,
-                                value: "12 كم/س",
-                                label: "الرياح"),
+                                value: '12 كم/س',
+                                label: 'الرياح'),
                             _WeatherStat(
                                 icon: Icons.thermostat,
-                                value: "24°",
-                                label: "الشعور"),
+                                value: '24°',
+                                label: 'الشعور'),
                           ],
                         ),
                       ],
@@ -131,7 +131,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                 ),
               ),
             ),
-            title: const Text("الطقس"),
+            title: const Text('الطقس'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.notifications_none),
@@ -150,8 +150,8 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: SahoolColors.forestGreen,
                 tabs: const [
-                  Tab(text: "بالساعة"),
-                  Tab(text: "الأسبوع"),
+                  Tab(text: 'بالساعة'),
+                  Tab(text: 'الأسبوع'),
                 ],
               ),
             ),
@@ -178,7 +178,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
       children: [
         // Hourly Forecast
         const Text(
-          "توقعات الساعات القادمة",
+          'توقعات الساعات القادمة',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -192,14 +192,14 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
             scrollDirection: Axis.horizontal,
             children: const [
               _HourlyItem(
-                  time: "الآن", temp: "32°", icon: Icons.wb_sunny, isNow: true),
-              _HourlyItem(time: "2 م", temp: "34°", icon: Icons.wb_sunny),
-              _HourlyItem(time: "3 م", temp: "33°", icon: Icons.wb_sunny),
-              _HourlyItem(time: "4 م", temp: "31°", icon: Icons.cloud),
-              _HourlyItem(time: "5 م", temp: "29°", icon: Icons.cloud),
-              _HourlyItem(time: "6 م", temp: "27°", icon: Icons.nights_stay),
-              _HourlyItem(time: "7 م", temp: "25°", icon: Icons.nights_stay),
-              _HourlyItem(time: "8 م", temp: "24°", icon: Icons.nights_stay),
+                  time: 'الآن', temp: '32°', icon: Icons.wb_sunny, isNow: true),
+              _HourlyItem(time: '2 م', temp: '34°', icon: Icons.wb_sunny),
+              _HourlyItem(time: '3 م', temp: '33°', icon: Icons.wb_sunny),
+              _HourlyItem(time: '4 م', temp: '31°', icon: Icons.cloud),
+              _HourlyItem(time: '5 م', temp: '29°', icon: Icons.cloud),
+              _HourlyItem(time: '6 م', temp: '27°', icon: Icons.nights_stay),
+              _HourlyItem(time: '7 م', temp: '25°', icon: Icons.nights_stay),
+              _HourlyItem(time: '8 م', temp: '24°', icon: Icons.nights_stay),
             ],
           ),
         ),
@@ -208,7 +208,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
 
         // Agricultural Insights
         const Text(
-          "التأثير الزراعي",
+          'التأثير الزراعي',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -216,24 +216,24 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
           ),
         ),
         const SizedBox(height: 16),
-        _InsightCard(
+        const _InsightCard(
           icon: Icons.water_drop,
-          title: "الري",
-          insight: "وقت مناسب للري الصباحي قبل الساعة 10",
+          title: 'الري',
+          insight: 'وقت مناسب للري الصباحي قبل الساعة 10',
           status: InsightStatus.good,
         ),
         const SizedBox(height: 12),
-        _InsightCard(
+        const _InsightCard(
           icon: Icons.bug_report,
-          title: "الرش",
-          insight: "تجنب الرش - سرعة الرياح مرتفعة",
+          title: 'الرش',
+          insight: 'تجنب الرش - سرعة الرياح مرتفعة',
           status: InsightStatus.warning,
         ),
         const SizedBox(height: 12),
-        _InsightCard(
+        const _InsightCard(
           icon: Icons.grass,
-          title: "الحصاد",
-          insight: "ظروف ممتازة للحصاد حتى الساعة 4",
+          title: 'الحصاد',
+          insight: 'ظروف ممتازة للحصاد حتى الساعة 4',
           status: InsightStatus.good,
         ),
 
@@ -241,7 +241,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
 
         // Detailed Metrics
         const Text(
-          "قياسات تفصيلية",
+          'قياسات تفصيلية',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -249,42 +249,42 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
           ),
         ),
         const SizedBox(height: 16),
-        OrganicCard(
+        const OrganicCard(
           child: Column(
             children: [
               _MetricRow(
-                  label: "درجة الحرارة القصوى",
-                  value: "35°C",
+                  label: 'درجة الحرارة القصوى',
+                  value: '35°C',
                   icon: Icons.arrow_upward),
-              const Divider(height: 24),
+              Divider(height: 24),
               _MetricRow(
-                  label: "درجة الحرارة الدنيا",
-                  value: "22°C",
+                  label: 'درجة الحرارة الدنيا',
+                  value: '22°C',
                   icon: Icons.arrow_downward),
-              const Divider(height: 24),
+              Divider(height: 24),
               _MetricRow(
-                  label: "الرطوبة النسبية",
-                  value: "45%",
+                  label: 'الرطوبة النسبية',
+                  value: '45%',
                   icon: Icons.water_drop),
-              const Divider(height: 24),
+              Divider(height: 24),
               _MetricRow(
-                  label: "سرعة الرياح", value: "12 كم/س", icon: Icons.air),
-              const Divider(height: 24),
+                  label: 'سرعة الرياح', value: '12 كم/س', icon: Icons.air),
+              Divider(height: 24),
               _MetricRow(
-                  label: "اتجاه الرياح",
-                  value: "شمال شرق",
+                  label: 'اتجاه الرياح',
+                  value: 'شمال شرق',
                   icon: Icons.explore),
-              const Divider(height: 24),
+              Divider(height: 24),
               _MetricRow(
-                  label: "الضغط الجوي", value: "1013 hPa", icon: Icons.speed),
-              const Divider(height: 24),
+                  label: 'الضغط الجوي', value: '1013 hPa', icon: Icons.speed),
+              Divider(height: 24),
               _MetricRow(
-                  label: "مؤشر الأشعة فوق البنفسجية",
-                  value: "8 (عالي)",
+                  label: 'مؤشر الأشعة فوق البنفسجية',
+                  value: '8 (عالي)',
                   icon: Icons.wb_sunny),
-              const Divider(height: 24),
+              Divider(height: 24),
               _MetricRow(
-                  label: "نقطة الندى", value: "18°C", icon: Icons.opacity),
+                  label: 'نقطة الندى', value: '18°C', icon: Icons.opacity),
             ],
           ),
         ),
@@ -300,7 +300,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
       children: [
         // Weekly Forecast
         const Text(
-          "توقعات الأسبوع",
+          'توقعات الأسبوع',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -309,37 +309,37 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
         ),
         const SizedBox(height: 16),
         const _DayForecast(
-            day: "اليوم",
-            high: "35°",
-            low: "22°",
+            day: 'اليوم',
+            high: '35°',
+            low: '22°',
             icon: Icons.wb_sunny,
             isToday: true),
         const _DayForecast(
-            day: "غداً", high: "33°", low: "21°", icon: Icons.cloud),
+            day: 'غداً', high: '33°', low: '21°', icon: Icons.cloud),
         const _DayForecast(
-            day: "الثلاثاء",
-            high: "30°",
-            low: "20°",
+            day: 'الثلاثاء',
+            high: '30°',
+            low: '20°',
             icon: Icons.grain,
-            rain: "40%"),
+            rain: '40%'),
         const _DayForecast(
-            day: "الأربعاء",
-            high: "28°",
-            low: "19°",
+            day: 'الأربعاء',
+            high: '28°',
+            low: '19°',
             icon: Icons.thunderstorm,
-            rain: "70%"),
+            rain: '70%'),
         const _DayForecast(
-            day: "الخميس", high: "29°", low: "18°", icon: Icons.cloud),
+            day: 'الخميس', high: '29°', low: '18°', icon: Icons.cloud),
         const _DayForecast(
-            day: "الجمعة", high: "31°", low: "20°", icon: Icons.wb_sunny),
+            day: 'الجمعة', high: '31°', low: '20°', icon: Icons.wb_sunny),
         const _DayForecast(
-            day: "السبت", high: "32°", low: "21°", icon: Icons.wb_sunny),
+            day: 'السبت', high: '32°', low: '21°', icon: Icons.wb_sunny),
 
         const SizedBox(height: 32),
 
         // Weekly Agricultural Planning
         const Text(
-          "تخطيط الأسبوع الزراعي",
+          'تخطيط الأسبوع الزراعي',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -367,7 +367,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                   ),
                   const SizedBox(width: 12),
                   const Text(
-                    "توصيات الأسبوع",
+                    'توصيات الأسبوع',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -376,19 +376,19 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                 ],
               ),
               const SizedBox(height: 16),
-              _WeeklyTip(
+              const _WeeklyTip(
                 icon: Icons.water_drop,
-                tip: "يُنصح بتقليل الري يوم الأربعاء بسبب الأمطار المتوقعة",
+                tip: 'يُنصح بتقليل الري يوم الأربعاء بسبب الأمطار المتوقعة',
               ),
               const SizedBox(height: 12),
-              _WeeklyTip(
+              const _WeeklyTip(
                 icon: Icons.bug_report,
-                tip: "فرصة جيدة للرش الوقائي اليوم وغداً (رياح خفيفة)",
+                tip: 'فرصة جيدة للرش الوقائي اليوم وغداً (رياح خفيفة)',
               ),
               const SizedBox(height: 12),
-              _WeeklyTip(
+              const _WeeklyTip(
                 icon: Icons.agriculture,
-                tip: "أفضل أيام الحصاد: اليوم، غداً، والجمعة",
+                tip: 'أفضل أيام الحصاد: اليوم، غداً، والجمعة',
               ),
             ],
           ),
@@ -397,25 +397,25 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
         const SizedBox(height: 24),
 
         // Rain Probability Chart
-        OrganicCard(
+        const OrganicCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "احتمالية الأمطار",
+              Text(
+                'احتمالية الأمطار',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _RainBar(day: "اليوم", percent: 10),
-                  _RainBar(day: "غداً", percent: 20),
-                  _RainBar(day: "الثلا", percent: 40),
-                  _RainBar(day: "الأرب", percent: 70),
-                  _RainBar(day: "الخمي", percent: 30),
-                  _RainBar(day: "الجمع", percent: 5),
-                  _RainBar(day: "السبت", percent: 0),
+                  _RainBar(day: 'اليوم', percent: 10),
+                  _RainBar(day: 'غداً', percent: 20),
+                  _RainBar(day: 'الثلا', percent: 40),
+                  _RainBar(day: 'الأرب', percent: 70),
+                  _RainBar(day: 'الخمي', percent: 30),
+                  _RainBar(day: 'الجمع', percent: 5),
+                  _RainBar(day: 'السبت', percent: 0),
                 ],
               ),
             ],
@@ -454,28 +454,28 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
             ),
             const SizedBox(height: 24),
             const Text(
-              "تنبيهات الطقس",
+              'تنبيهات الطقس',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
-            _AlertToggle(
-              title: "تنبيه الصقيع",
-              subtitle: "عند انخفاض الحرارة تحت 5°C",
+            const _AlertToggle(
+              title: 'تنبيه الصقيع',
+              subtitle: 'عند انخفاض الحرارة تحت 5°C',
               isEnabled: true,
             ),
-            _AlertToggle(
-              title: "تنبيه الحرارة العالية",
-              subtitle: "عند ارتفاع الحرارة فوق 40°C",
+            const _AlertToggle(
+              title: 'تنبيه الحرارة العالية',
+              subtitle: 'عند ارتفاع الحرارة فوق 40°C',
               isEnabled: true,
             ),
-            _AlertToggle(
-              title: "تنبيه الأمطار",
-              subtitle: "عند توقع أمطار خلال 24 ساعة",
+            const _AlertToggle(
+              title: 'تنبيه الأمطار',
+              subtitle: 'عند توقع أمطار خلال 24 ساعة',
               isEnabled: false,
             ),
-            _AlertToggle(
-              title: "تنبيه الرياح",
-              subtitle: "عند تجاوز سرعة الرياح 30 كم/س",
+            const _AlertToggle(
+              title: 'تنبيه الرياح',
+              subtitle: 'عند تجاوز سرعة الرياح 30 كم/س',
               isEnabled: true,
             ),
           ],
@@ -497,7 +497,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: tabBar,
     );
@@ -820,7 +820,7 @@ class _RainBar extends StatelessWidget {
     return Column(
       children: [
         Text(
-          "$percent%",
+          '$percent%',
           style: TextStyle(
             fontSize: 10,
             color: percent > 50 ? Colors.blue : Colors.grey,

@@ -15,70 +15,70 @@ Version: 1.0.0
 Updated: January 2026
 """
 
-import pytest
-from datetime import datetime, date, timedelta
-from decimal import Decimal
 import uuid
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+
+import pytest
+
+# Import efficiency
+from shared.water_management.efficiency import (
+    EfficiencyAlertGenerator,
+    EfficiencyBenchmarks,
+    FieldWaterBalance,
+    IrrigationEfficiencyCalculator,
+    IrrigationEfficiencyMetrics,
+    WaterConservationCalculator,
+)
 
 # Import models
 from shared.water_management.models import (
-    # Enumerations
-    WaterSourceType,
-    WaterSourceStatus,
-    WaterQualityClass,
-    WaterRightType,
-    AllocationPeriod,
-    IrrigationMethod,
     AlertSeverity,
+    AllocationPeriod,
     ComplianceStatus,
-    MeterType,
     # Core models
     GeoLocation,
-    WaterMeter,
-    WaterSource,
-    WaterRight,
+    IrrigationEvent,
+    IrrigationMethod,
+    MeterType,
+    SaudiWaterStandards,
+    WaterAlert,
     WaterAllocation,
+    WaterConsumptionRecord,
+    WaterMeter,
+    WaterQualityClass,
     WaterQualityParameter,
     WaterQualityTest,
-    WaterConsumptionRecord,
-    IrrigationEvent,
-    WaterAlert,
-    SaudiWaterStandards,
+    WaterRight,
+    WaterRightType,
+    WaterSource,
+    WaterSourceStatus,
+    # Enumerations
+    WaterSourceType,
 )
 
 # Import monitoring
 from shared.water_management.monitoring import (
-    WaterLevelReading,
-    WaterLevelTrend,
-    WaterLevelMonitor,
-    WaterQualityMonitor,
     AquiferStatus,
     GroundwaterMonitor,
-)
-
-# Import efficiency
-from shared.water_management.efficiency import (
-    EfficiencyBenchmarks,
-    IrrigationEfficiencyMetrics,
-    FieldWaterBalance,
-    IrrigationEfficiencyCalculator,
-    EfficiencyAlertGenerator,
-    WaterConservationCalculator,
+    WaterLevelMonitor,
+    WaterLevelReading,
+    WaterLevelTrend,
+    WaterQualityMonitor,
 )
 
 # Import reporting
 from shared.water_management.reporting import (
-    ReportPeriod,
-    ConsumptionSummary,
     ComplianceIssue,
-    MEWAComplianceReport,
-    WellExtractionReport,
-    WaterQualityReport,
+    ConsumptionSummary,
     FarmWaterSummaryReport,
+    MEWAComplianceReport,
+    ReportPeriod,
+    WaterQualityReport,
     WaterReportGenerator,
     WaterReportScheduler,
+    WellExtractionReport,
 )
-
 
 # =============================================================================
 # Fixtures

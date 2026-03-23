@@ -19,8 +19,6 @@ from unittest.mock import patch
 import pytest
 
 from shared.auth.config import (
-    JWTConfig,
-    JWTConfigError,
     MAX_ACCESS_TOKEN_MINUTES,
     MAX_RATE_LIMIT_REQUESTS,
     MAX_REDIS_DB,
@@ -32,6 +30,8 @@ from shared.auth.config import (
     MIN_REDIS_PORT,
     MIN_REFRESH_TOKEN_DAYS,
     MIN_SECRET_KEY_LENGTH,
+    JWTConfig,
+    JWTConfigError,
 )
 
 

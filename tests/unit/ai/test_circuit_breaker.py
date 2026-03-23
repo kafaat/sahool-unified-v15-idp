@@ -20,14 +20,13 @@ from shared.ai.circuit_breaker import (
     CircuitBreakerError,
     CircuitBreakerStats,
     CircuitState,
+    get_all_circuit_breakers,
+    get_anthropic_circuit_breaker,
     get_circuit_breaker,
     get_ollama_circuit_breaker,
-    get_anthropic_circuit_breaker,
     get_openai_circuit_breaker,
-    get_all_circuit_breakers,
     reset_all_circuit_breakers,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

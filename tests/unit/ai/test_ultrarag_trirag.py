@@ -8,26 +8,27 @@ Tests for the Tri-RAG retriever combining Dense, Sparse, and Knowledge Graph cha
 Based on AgriGPT's triple-channel RAG framework.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from shared.ai.ultrarag.models import (
     EntityType,
-    RelationType,
-    KnowledgeEntity,
-    KnowledgeRelation,
-    KnowledgeGraphResult,
-    TriRAGConfig,
     KnowledgeChunk,
+    KnowledgeEntity,
+    KnowledgeGraphResult,
+    KnowledgeRelation,
+    RelationType,
     RetrievalStrategy,
+    TriRAGConfig,
 )
 from shared.ai.ultrarag.retriever import (
     DenseRetriever,
-    SparseRetriever,
     KnowledgeGraphRetriever,
-    TriRAGRetriever,
     RetrievalConfig,
     RetrievalResult,
+    SparseRetriever,
+    TriRAGRetriever,
 )
 
 

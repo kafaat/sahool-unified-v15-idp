@@ -2,6 +2,7 @@
 /// اختبارات تحليل بيانات السوق
 ///
 /// Tests for compute() isolate JSON parsing in marketplace
+library;
 
 import 'dart:convert';
 

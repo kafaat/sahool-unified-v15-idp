@@ -91,17 +91,25 @@ export interface ProductSchema {
   };
 }
 
-// JsonLdProps - reserved for future use with children-based rendering
-
 /**
  * Base component for rendering JSON-LD structured data
  */
 function JsonLdScript({ data }: { data: Record<string, unknown> }) {
+  // JSON.stringify produces valid JSON with double quotes around keys/values.
+  // We only need to escape characters that could allow breaking out of the
+  // <script> tag context (< and >) and the ampersand for completeness.
+  // We must NOT escape the structural double quotes from JSON.stringify,
+  // so we apply targeted replacements instead of sanitizeJsonLd on the full output.
+  const jsonStr = JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
   return (
     <script
       type="application/ld+json"
-      // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml (JSON.stringify output with script escape)
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }} // nosemgrep
+      // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml (JSON.stringify output with comprehensive script escape)
+      dangerouslySetInnerHTML={{ __html: jsonStr }} // nosemgrep
     />
   );
 }

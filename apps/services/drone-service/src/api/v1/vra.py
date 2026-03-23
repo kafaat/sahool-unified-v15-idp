@@ -189,7 +189,8 @@ async def create_spot_spray(
 ):
     """Create spot spray map from detection points - إنشاء خريطة رش نقطي من نقاط الكشف"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, create_spot_spray_map
+        from shared.drone_integration import Coordinate as DCoord
+        from shared.drone_integration import create_spot_spray_map
     except ImportError:
         raise HTTPException(
             status_code=503,

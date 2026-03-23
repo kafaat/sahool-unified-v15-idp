@@ -75,8 +75,8 @@ class TestDatabaseIntegration:
         assert "apps" in TORTOISE_ORM
         assert "default" in TORTOISE_ORM["connections"]
 
-    def test_init_db_function_exists(self):
-        """Test init_db function is defined"""
-        from src.database import init_db
+    def test_init_notification_db_function_exists(self):
+        """Test init_notification_db function is defined"""
+        from src.database import init_notification_db
 
-        assert callable(init_db)
+        assert callable(init_notification_db)

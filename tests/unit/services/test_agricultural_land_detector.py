@@ -368,12 +368,13 @@ class TestVectorClassificationEngine:
     @pytest.mark.asyncio
     async def test_classify_parcels(self):
         """Test parcel classification"""
+        from datetime import datetime
+
         from apps.services.vegetation_analysis_service.src.agricultural_land_detector import (
             AgriculturalParcel,
             DetectionStrategy,
             LandCoverClass,
         )
-        from datetime import datetime
 
         parcels = [
             AgriculturalParcel(
@@ -486,12 +487,13 @@ class TestDataModels:
 
     def test_agricultural_parcel_to_geojson(self):
         """Test GeoJSON conversion"""
+        from datetime import datetime
+
         from apps.services.vegetation_analysis_service.src.agricultural_land_detector import (
             AgriculturalParcel,
             DetectionStrategy,
             LandCoverClass,
         )
-        from datetime import datetime
 
         parcel = AgriculturalParcel(
             parcel_id="test_001",

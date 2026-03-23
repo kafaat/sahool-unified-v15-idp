@@ -176,9 +176,7 @@ class FixedWindowLimiter(RateLimitStrategy):
         # SECURITY: In-memory fallback store for fail-closed behavior
         self._memory_store: dict[str, tuple[int, float]] = {}  # key -> (count, window_start)
 
-    def _in_memory_check(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
+    def _in_memory_check(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """
         SECURITY: In-memory rate limiting fallback (fail-closed).
         Uses local counter when Redis is unavailable.

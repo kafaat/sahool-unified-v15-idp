@@ -4,7 +4,7 @@ Tests JWT token creation, verification, and user authentication
 """
 
 import uuid
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import jwt

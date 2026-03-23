@@ -16,40 +16,40 @@ Tests cover:
 
 import json
 import math
-import pytest
 from datetime import UTC, datetime, timedelta
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from shared.soil_sensors.models import (
-    SensorType,
-    SensorProtocol,
-    SensorStatus,
-    AlertSeverity,
-    SensorReading,
-    SoilSensor,
-    SensorCalibration,
-    SensorAlert,
-    FieldMoistureMap,
-    SensorAggregation,
-)
+import pytest
+
 from shared.soil_sensors.adapters import (
     AdapterConfig,
-    SensorAdapter,
-    MQTTAdapter,
-    LoRaWANAdapter,
     HTTPAdapter,
+    LoRaWANAdapter,
+    MQTTAdapter,
     NBIoTAdapter,
-    get_adapter,
+    SensorAdapter,
     SensorManager,
+    get_adapter,
+)
+from shared.soil_sensors.models import (
+    AlertSeverity,
+    FieldMoistureMap,
+    SensorAggregation,
+    SensorAlert,
+    SensorCalibration,
+    SensorProtocol,
+    SensorReading,
+    SensorStatus,
+    SensorType,
+    SoilSensor,
 )
 from shared.soil_sensors.processor import (
     SensorDataProcessor,
     aggregate_readings,
     detect_anomalies,
-    interpolate_field_moisture,
     generate_moisture_alert,
+    interpolate_field_moisture,
 )
-
 
 # =============================================================================
 # Fixtures

@@ -20,7 +20,7 @@ except ImportError:
 def mock_db():
     """Mock database connection"""
     with (
-        patch("src.database.init_db", new=AsyncMock()),
+        patch("src.database.init_notification_db", new=AsyncMock()),
         patch(
             "src.database.check_db_health",
             new=AsyncMock(return_value={"status": "healthy", "connected": True}),
@@ -428,6 +428,7 @@ class TestErrorHandling:
         # exception handlers instead of propagating to the test client
         try:
             from shared.auth.dependencies import get_current_user
+
             app.dependency_overrides[get_current_user] = lambda: None
         except ImportError:
             pass

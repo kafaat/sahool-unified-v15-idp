@@ -1,5 +1,6 @@
 /// SAHOOL Home State v16
 /// حالة الشاشة الرئيسية
+library;
 
 class HomeState {
   final bool loading;
@@ -27,7 +28,7 @@ class HomeState {
         loading: true,
         ndviAvg: 0.0,
         alertsOpen: 0,
-        weatherSummary: "—",
+        weatherSummary: '—',
         tasksDue: 0,
         fieldsCount: 0,
         irrigationDue: 0.0,

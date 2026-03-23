@@ -4,130 +4,6 @@ import 'package:flutter/foundation.dart';
 import '../storage/database.dart';
 
 // ============================================================
-// Drift Tables for AI Memory
-// ============================================================
-
-/// AI Skills Memory Table - stores skill invocations and responses
-@TableIndex(name: 'ai_memory_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'ai_memory_field_idx', columns: {#fieldId})
-@TableIndex(name: 'ai_memory_skill_idx', columns: {#skillName})
-@TableIndex(name: 'ai_memory_synced_idx', columns: {#synced})
-@TableIndex(
-  name: 'ai_memory_tenant_skill_idx',
-  columns: {#tenantId, #skillName},
-)
-@TableIndex(name: 'ai_memory_created_idx', columns: {#createdAt})
-class AiMemoryTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  // Tenant isolation
-  TextColumn get tenantId => text()();
-
-  // Entity references
-  TextColumn get fieldId => text().nullable()();
-  TextColumn get farmId => text().nullable()();
-
-  // Skill metadata
-  TextColumn get skillName => text()(); // e.g., "crop-health-advisor"
-  TextColumn get skillVersion => text().withDefault(const Constant('1.0.0'))();
-
-  // Request/Response data
-  TextColumn get request => text()(); // JSON: { query, context, params }
-  TextColumn get response =>
-      text().nullable()(); // JSON: { result, confidence, sources }
-
-  // Execution metrics
-  IntColumn get executionTimeMs => integer().nullable()();
-  RealColumn get confidence => real().nullable()(); // 0.0 - 1.0
-  TextColumn get status => text()
-      .withDefault(const Constant('pending'))(); // pending, success, error
-
-  // Error tracking
-  TextColumn get errorMessage => text().nullable()();
-  TextColumn get errorStack => text().nullable()();
-
-  // Sync metadata
-  BoolColumn get synced => boolean().withDefault(const Constant(false))();
-  TextColumn get syncChecksum => text().nullable()();
-
-  // Timestamps
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get completedAt => dateTime().nullable()();
-  DateTimeColumn get synced_at => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// AI Context Cache Table - stores compressed context snapshots
-@TableIndex(name: 'ai_context_cache_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'ai_context_cache_field_idx', columns: {#fieldId})
-@TableIndex(name: 'ai_context_cache_ttl_idx', columns: {#expiresAt})
-class AiContextCacheTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get tenantId => text()();
-  TextColumn get fieldId => text()();
-
-  // Context snapshot (compressed)
-  TextColumn get context => text()(); // JSON
-  TextColumn get contextHash => text()(); // SHA256 hash for dedup
-
-  // Cache metadata
-  IntColumn get sizeBytes => integer()();
-  RealColumn get compressionRatio => real().nullable()();
-
-  // TTL-based expiration
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get expiresAt => dateTime()();
-  BoolColumn get isExpired => boolean().withDefault(const Constant(false))();
-
-  // Access tracking
-  IntColumn get accessCount => integer().withDefault(const Constant(0))();
-  DateTimeColumn get lastAccessedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// AI Knowledge Base Table - stores learned patterns from skills
-@TableIndex(name: 'ai_kb_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'ai_kb_type_idx', columns: {#knowledgeType})
-@TableIndex(name: 'ai_kb_accuracy_idx', columns: {#accuracy})
-class AiKnowledgeBaseTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get tenantId => text()();
-
-  // Knowledge classification
-  TextColumn get knowledgeType => text()(); // pattern, recommendation, warning
-  TextColumn get domain =>
-      text().nullable()(); // field_health, irrigation, fertilizer
-
-  // Knowledge content
-  TextColumn get condition => text()(); // JSON: triggers/conditions
-  TextColumn get recommendation => text()(); // Recommended action/insight
-  TextColumn get reasoning => text().nullable()(); // Why this recommendation
-
-  // Confidence/Accuracy
-  RealColumn get accuracy => real()(); // 0.0 - 1.0
-  IntColumn get applicableCount => integer().withDefault(const Constant(0))();
-  IntColumn get successCount => integer().withDefault(const Constant(0))();
-
-  // Source metadata
-  TextColumn get sourceSkill => text()(); // Which skill discovered this
-  TextColumn get metadata => text().nullable()(); // Additional JSON metadata
-
-  // Timestamps
-  DateTimeColumn get discoveredAt =>
-      dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get lastValidatedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-// ============================================================
 // Farm Memory Service
 // ============================================================
 
@@ -233,7 +109,7 @@ class FarmMemoryService {
           _db.aiMemoryTable,
           AiMemoryTableCompanion(
             synced: const Value(true),
-            synced_at: Value(DateTime.now()),
+            syncedAt: Value(DateTime.now()),
           ),
           where: (m) => m.id.equals(id),
         );
@@ -301,7 +177,7 @@ class FarmMemoryService {
     await _db.update(_db.aiContextCacheTable).replace(
           item.copyWith(
             accessCount: item.accessCount + 1,
-            lastAccessedAt: DateTime.now(),
+            lastAccessedAt: Value(DateTime.now()),
           ),
         );
 
@@ -416,7 +292,7 @@ class FarmMemoryService {
             applicableCount: newApplicableCount,
             successCount: newSuccessCount,
             accuracy: newAccuracy,
-            lastValidatedAt: DateTime.now(),
+            lastValidatedAt: Value(DateTime.now()),
           ),
         );
   }

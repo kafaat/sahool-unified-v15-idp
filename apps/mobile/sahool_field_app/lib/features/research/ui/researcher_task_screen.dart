@@ -32,9 +32,9 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
   final ImagePicker _picker = ImagePicker();
 
   String _selectedCategory = 'observation';
-  List<XFile> _attachedPhotos = [];
+  final List<XFile> _attachedPhotos = [];
   bool _isSaving = false;
-  bool _isOffline = false;
+  final bool _isOffline = false;
 
   final List<Map<String, String>> _categories = [
     {'value': 'observation', 'label': 'ملاحظة', 'icon': '👁️'},

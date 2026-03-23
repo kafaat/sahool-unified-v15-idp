@@ -113,9 +113,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/public ./apps/admin/pu
 
 USER nextjs
 
-EXPOSE 3001
+EXPOSE 3002
 
-ENV PORT=3001
+ENV PORT=3002
 ENV HOSTNAME="0.0.0.0"
 
 # Runtime API Gateway URL (overrides build-time NEXT_PUBLIC_API_URL for server-side rewrites)
@@ -132,7 +132,7 @@ LABEL org.opencontainers.image.title="SAHOOL Admin Dashboard" \
 
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3002/api/health || exit 1
 
 # Use tini as init system for proper signal handling and zombie reaping
 ENTRYPOINT ["/sbin/tini", "--"]

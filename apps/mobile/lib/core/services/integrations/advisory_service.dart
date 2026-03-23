@@ -506,7 +506,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
     String? fieldId,
   }) async {
     return uploadFile(
-      '/api/v1/crop-health/diagnose',
+      '/api/v1/diagnose',
       filePath: imagePath,
       fieldName: 'image',
       additionalData: {

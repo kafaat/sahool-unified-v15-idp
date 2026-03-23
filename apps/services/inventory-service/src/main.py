@@ -82,14 +82,19 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Fallback for local development only - requires explicit opt-in
     if os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true":
-        # Use environment variables for host/port, fallback to localhost only in dev
+        # All credentials must come from environment variables - no hardcoded passwords
         db_host = os.getenv("POSTGRES_HOST", "localhost")
         db_port = os.getenv("POSTGRES_PORT", "5432")
-        db_user = os.getenv("POSTGRES_USER", "postgres")
-        db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+        db_user = os.getenv("POSTGRES_USER")
+        db_password = os.getenv("POSTGRES_PASSWORD")
         db_name = os.getenv("POSTGRES_DB", "sahool_inventory")
+        if not db_user or not db_password:
+            raise ValueError(
+                "POSTGRES_USER and POSTGRES_PASSWORD environment variables are required. "
+                "Do not use hardcoded credentials."
+            )
         DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-        logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
+        logger.warning("Using development database configuration from environment variables - NOT FOR PRODUCTION")
     else:
         raise ValueError(
             "DATABASE_URL environment variable is required. Set ALLOW_DEV_DEFAULTS=true for local development only."

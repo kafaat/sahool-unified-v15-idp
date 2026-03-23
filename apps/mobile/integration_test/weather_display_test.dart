@@ -244,7 +244,7 @@ void main() {
             : listView.first;
 
         await tester.drag(
-          scrollable as Finder,
+          scrollable,
           const Offset(-100, 0),
         );
         await helpers.pumpAndSettle();

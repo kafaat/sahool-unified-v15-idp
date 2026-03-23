@@ -7,9 +7,9 @@ class RotationCalendarScreen extends ConsumerStatefulWidget {
   final String? fieldId;
 
   const RotationCalendarScreen({
-    Key? key,
+    super.key,
     this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<RotationCalendarScreen> createState() =>

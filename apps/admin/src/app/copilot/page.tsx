@@ -35,7 +35,7 @@ import {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const COPILOT_API = process.env.NEXT_PUBLIC_COPILOT_API_URL || "/api/copilot";
+const COPILOT_API = process.env.NEXT_PUBLIC_COPILOT_API_URL || "/api/v1/copilot";
 
 type TabId = "dashboard" | "rag" | "guards" | "tools";
 

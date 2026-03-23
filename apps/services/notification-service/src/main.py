@@ -18,7 +18,6 @@ Field-First Architecture:
 import asyncio
 import logging
 import os
-import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timezone
@@ -26,6 +25,7 @@ from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -1509,7 +1509,7 @@ async def register_farmer(profile: FarmerProfile):
         }
     except Exception as e:
         logger.error(f"Error registering farmer: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to register farmer")
 
 
 @app.put("/{farmer_id}/preferences")

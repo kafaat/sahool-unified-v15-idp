@@ -13,6 +13,7 @@
 /// we test the migration logic using plain SQLite (simulating the
 /// ATTACH/copy workflow without actual encryption). The encryption
 /// key management is tested separately in encryption_test.dart.
+library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';

@@ -45,7 +45,6 @@ from shared.geofencing.engine import (
 )
 from shared.geofencing.models import LatLng
 
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures and Helper Data
 # ═══════════════════════════════════════════════════════════════════════════════

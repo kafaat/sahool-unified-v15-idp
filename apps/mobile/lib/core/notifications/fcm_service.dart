@@ -20,7 +20,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -904,8 +903,12 @@ class FCMService {
 
   /// Dispose the service
   void dispose() {
-    _notificationController.close();
-    _tokenController.close();
+    if (!_notificationController.isClosed) {
+      _notificationController.close();
+    }
+    if (!_tokenController.isClosed) {
+      _tokenController.close();
+    }
     _instance = null;
     _isInitialized = false;
   }

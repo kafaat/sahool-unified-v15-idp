@@ -701,7 +701,7 @@ describe("SahoolApiClient", () => {
       // analyzeCropHealth uses unifiedApiClient.post(url, formData, config)
       expect(mockRequest).toHaveBeenCalled();
       const url = mockRequest.mock.calls[0][0];
-      expect(url).toContain("/crop-health/analyze");
+      expect(url).toContain("/crop-intelligence/analyze");
     });
 
     it("should handle missing CSRF token gracefully", async () => {

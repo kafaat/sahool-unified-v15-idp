@@ -85,6 +85,24 @@ class LLMConfig:
                     "Other protocols (file, ftp, gopher, etc.) are blocked to prevent SSRF."
                 )
 
+    @property
+    def masked_api_key(self) -> str | None:
+        """Return masked API key showing only last 4 characters."""
+        if not self.api_key:
+            return None
+        if len(self.api_key) <= 4:
+            return "****"
+        return f"****{self.api_key[-4:]}"
+
+    def __repr__(self) -> str:
+        """Safe repr that masks the api_key field to prevent accidental exposure in logs."""
+        return (
+            f"LLMConfig(provider={self.provider!r}, model={self.model!r}, "
+            f"api_key={self.masked_api_key!r}, base_url={self.base_url!r}, "
+            f"temperature={self.temperature}, max_tokens={self.max_tokens}, "
+            f"timeout={self.timeout}, enabled={self.enabled}, priority={self.priority})"
+        )
+
     @classmethod
     def from_env(cls, provider: LLMProvider) -> LLMConfig:
         """Create config from environment variables."""
@@ -337,7 +355,8 @@ class LLMProviderManager:
         input_validation = validate_prompt(prompt, ValidationLevel.MODERATE)
         if not input_validation.is_valid:
             issue_summary = "; ".join(
-                f"{i.category.value}: {i.message}" for i in input_validation.issues
+                f"{i.category.value}: {i.message}"
+                for i in input_validation.issues
                 if i.severity.value in ("critical", "high")
             )
             logger.warning(
@@ -348,9 +367,7 @@ class LLMProviderManager:
                     "correlation_id": correlation_id,
                 },
             )
-            raise PromptValidationError(
-                f"Prompt blocked by safety validation: {issue_summary}"
-            )
+            raise PromptValidationError(f"Prompt blocked by safety validation: {issue_summary}")
 
         # Build provider order
         providers = list(self._provider_order)

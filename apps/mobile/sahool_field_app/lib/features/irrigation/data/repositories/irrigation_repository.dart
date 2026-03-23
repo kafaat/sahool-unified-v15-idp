@@ -16,7 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../remote/irrigation_api.dart';
 import '../../domain/services/water_calculator.dart';
 import '../../domain/services/irrigation_scheduler.dart';
-import '../../../advisor/data/models/irrigation_models.dart';
+import '../../../advisor/data/models/irrigation_models.dart'
+    hide IrrigationCalculation, IrrigationSchedule, IrrigationEvent;
 
 /// Irrigation Repository
 /// مستودع الري
@@ -366,7 +367,7 @@ class IrrigationRepository {
     // Generate basic schedule
     final events = <IrrigationEvent>[];
     final now = DateTime.now();
-    int interval = 3; // Default 3 days
+    const int interval = 3; // Default 3 days
 
     for (var i = 0; i < days; i += interval) {
       events.add(IrrigationEvent(
@@ -461,7 +462,7 @@ class IrrigationRepository {
     final prefs = await SharedPreferences.getInstance();
     final pendingJson = prefs.getString(_pendingSyncKey);
     if (pendingJson == null) {
-      return SyncResult(success: true, syncedItems: 0, failedItems: 0);
+      return const SyncResult(success: true, syncedItems: 0, failedItems: 0);
     }
 
     int synced = 0;

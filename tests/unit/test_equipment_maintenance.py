@@ -11,62 +11,62 @@ Tests cover:
 Version: 1.0.0
 """
 
-import pytest
-from datetime import datetime, timedelta, date, UTC
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Optional
 
+import pytest
+
 from shared.equipment_maintenance import (
-    # Models - Enumerations
-    EquipmentType,
-    EquipmentStatus,
-    MaintenanceType,
-    MaintenanceStatus,
-    MaintenancePriority,
-    PartCategory,
+    MIDDLE_EAST_SEASONS,
+    AgriculturalSeason,
     AlertSeverity,
     AlertType,
-    FuelType,
-    IrrigationType,
+    ChecklistItem,
+    ComponentHealth,
+    ComponentType,
+    CostOptimizationRecommendation,
+    Equipment,
     # Models - Equipment
     EquipmentSpecs,
-    Equipment,
-    # Models - Maintenance
-    MaintenanceTask,
-    ChecklistItem,
-    MaintenanceSchedule,
-    # Models - Parts
-    SparePart,
-    MaintenancePart,
-    PartRequirement,
-    PartTransaction,
-    # Models - Service
-    ServiceRecord,
+    EquipmentStatus,
+    # Models - Enumerations
+    EquipmentType,
+    FailureMode,
+    FailurePrediction,
+    FuelType,
+    IrrigationType,
     # Models - Alerts
     MaintenanceAlert,
-    # Models - Helpers
-    generate_id,
-    get_equipment_type_name,
-    get_maintenance_type_name,
-    get_alert_severity_name,
-    # Scheduler
-    ScheduleFrequency,
-    AgriculturalSeason,
+    MaintenancePart,
+    MaintenancePriority,
+    MaintenanceSchedule,
     MaintenanceScheduler,
-    MIDDLE_EAST_SEASONS,
-    get_default_tractor_schedules,
-    get_default_harvester_schedules,
+    MaintenanceStatus,
+    # Models - Maintenance
+    MaintenanceTask,
+    MaintenanceType,
+    PartCategory,
+    PartRequirement,
+    PartTransaction,
+    PredictiveMaintenanceEngine,
     # Predictor
     RiskLevel,
-    ComponentType,
-    FailureMode,
+    # Scheduler
+    ScheduleFrequency,
+    # Models - Service
+    ServiceRecord,
+    # Models - Parts
+    SparePart,
     UsageMetrics,
-    ComponentHealth,
-    PredictiveMaintenanceEngine,
-    FailurePrediction,
-    CostOptimizationRecommendation,
+    # Models - Helpers
+    generate_id,
+    get_alert_severity_name,
+    get_default_harvester_schedules,
+    get_default_tractor_schedules,
+    get_equipment_type_name,
+    get_maintenance_type_name,
 )
-
 
 # ==============================================================================
 # Fixtures

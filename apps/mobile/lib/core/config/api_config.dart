@@ -98,7 +98,7 @@ class ApiConfig {
   /// Get host based on environment
   static String get _host => EnvConfig.apiHost;
 
-  /// Base URL for field-core service (legacy)
+  /// Base URL for field-management-service
   static String get baseUrl => EnvConfig.fieldCoreUrl;
 
   /// Gateway URL (production-like routing)
@@ -402,9 +402,9 @@ class ApiConfig {
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Community Chat Service Endpoints (port 8097)
-  // @deprecated Use chat-service (port 8115) instead. Sunset: v17.0.0
-  // خدمة الدردشة المجتمعية (مهملة - استخدم chat-service)
+  // Community Chat Endpoints (via chat-service port 8115)
+  // Consolidated from deprecated community-chat:8097. Sunset: v17.0.0
+  // خدمة الدردشة المجتمعية (عبر chat-service)
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -465,7 +465,8 @@ class ApiConfig {
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Chat/Messaging Service Endpoints (port 8115 chat-service, 8099 field-chat)
+  // Chat/Messaging Service Endpoints (port 8115 chat-service)
+  // Consolidated from deprecated field-chat:8099 and community-chat:8097
   // خدمة المحادثات والرسائل
   // Kong route: /api/v1/chat
   // ─────────────────────────────────────────────────────────────────────────────

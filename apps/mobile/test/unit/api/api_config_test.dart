@@ -1,5 +1,6 @@
 /// SAHOOL API Configuration Tests
 /// اختبارات إعدادات API
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/config/api_config.dart';
 

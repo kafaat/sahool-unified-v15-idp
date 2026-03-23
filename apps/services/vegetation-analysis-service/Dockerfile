@@ -55,6 +55,13 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 WORKDIR /app
 
+# Upgrade system packages to patch CVEs
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool

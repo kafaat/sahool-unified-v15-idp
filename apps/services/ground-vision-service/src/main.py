@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timezone
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import unified error handling
@@ -728,9 +729,9 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
                     "analysis_id": analysis_id,
                     "field_id": request.field_id,
                     "tenant_id": request.tenant_id,
-                    "crop_type": "wheat",
-                    "growth_stage": "tillering",
-                    "confidence": 0.85,
+                    "crop_type": crop_type,
+                    "growth_stage": growth_stage,
+                    "confidence": confidence,
                     "processing_time_ms": processing_time,
                     "timestamp": datetime.now(UTC).isoformat(),
                 },

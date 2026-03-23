@@ -88,10 +88,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           // صورة الملف الشخصي
           Stack(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
-                child: const Icon(
+                child: Icon(
                   Icons.person,
                   size: 50,
                   color: Color(0xFF367C2B),

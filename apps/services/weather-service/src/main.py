@@ -34,16 +34,15 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,
     add_request_id_middleware,
     setup_exception_handlers,
 )
-
-# Authentication imports
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
 
 # Security headers middleware
 try:
@@ -130,6 +129,29 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS - Secure configuration
+try:
+    from starlette.middleware.cors import CORSMiddleware
+
+    try:
+        from shared.cors_config import CORS_SETTINGS
+
+        app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    except ImportError:
+        ALLOWED_ORIGINS = os.getenv(
+            "CORS_ORIGINS",
+            "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+        ).split(",")
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=ALLOWED_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+        )
+except ImportError:
+    pass
 
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:

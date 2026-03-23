@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// Crop Family Enumeration - 15 major plant families
 enum CropFamily {

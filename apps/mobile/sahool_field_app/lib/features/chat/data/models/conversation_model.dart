@@ -2,6 +2,7 @@
 /// نموذج المحادثة
 ///
 /// Represents a chat conversation between users
+library;
 
 import 'message_model.dart';
 

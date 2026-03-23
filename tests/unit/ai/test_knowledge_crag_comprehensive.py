@@ -294,8 +294,9 @@ class TestCRAGFreshnessScoring:
     """Test freshness scoring."""
 
     def test_fresh_document_scores_high(self):
-        from shared.ai.knowledge.corrective_retrieval import CorrectiveRetrievalEngine
         from datetime import datetime, timedelta
+
+        from shared.ai.knowledge.corrective_retrieval import CorrectiveRetrievalEngine
 
         engine = CorrectiveRetrievalEngine()
         future_date = (datetime.utcnow() + timedelta(days=365)).isoformat()
@@ -306,8 +307,9 @@ class TestCRAGFreshnessScoring:
         assert score == 1.0
 
     def test_expired_document_scores_low(self):
-        from shared.ai.knowledge.corrective_retrieval import CorrectiveRetrievalEngine
         from datetime import datetime, timedelta
+
+        from shared.ai.knowledge.corrective_retrieval import CorrectiveRetrievalEngine
 
         engine = CorrectiveRetrievalEngine()
         past_date = (datetime.utcnow() - timedelta(days=30)).isoformat()

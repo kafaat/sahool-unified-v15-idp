@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
 
@@ -13,7 +12,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
-      child: Container(
+      child: ColoredBox(
         color: Colors.white,
         child: SafeArea(
           child: Column(

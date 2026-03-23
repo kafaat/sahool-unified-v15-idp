@@ -14,8 +14,8 @@ from __future__ import annotations
 import hashlib
 import os
 import time
-from dataclasses import dataclass, field
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
@@ -224,10 +224,7 @@ class EmbeddingService:
             # Purge expired entries before size-based eviction so that stale
             # items don't count toward cache_max_size and cause unnecessary churn.
             now = time.time()
-            expired_keys = [
-                k for k, (_, ts) in self._cache.items()
-                if now - ts >= self.config.cache_ttl_seconds
-            ]
+            expired_keys = [k for k, (_, ts) in self._cache.items() if now - ts >= self.config.cache_ttl_seconds]
             for k in expired_keys:
                 del self._cache[k]
             # Evict oldest live entries if cache still exceeds max size

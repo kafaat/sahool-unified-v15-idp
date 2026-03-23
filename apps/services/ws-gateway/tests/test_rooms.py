@@ -6,7 +6,11 @@ Unit Tests for Room Management
 from unittest.mock import AsyncMock
 
 import pytest
-from src.rooms import Room, RoomManager, RoomType
+
+try:
+    from src.rooms import Room, RoomManager, RoomType
+except ImportError:
+    pytest.skip("ws-gateway dependencies not installed", allow_module_level=True)
 
 
 class TestRoom:

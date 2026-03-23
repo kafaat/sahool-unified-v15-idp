@@ -105,7 +105,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),

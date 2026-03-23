@@ -17,7 +17,6 @@ import httpx
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from ..deps import get_current_user
 from ...models.schemas import (
     GuardDecision as GuardDecisionSchema,
 )
@@ -32,6 +31,7 @@ from ...security import (
     is_domain_allowed,
     is_tool_allowed,
 )
+from ..deps import get_current_user
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/tools", tags=["Tools"])
@@ -45,8 +45,7 @@ def _get_http_client(req: Request) -> httpx.AsyncClient:
     client = getattr(req.app.state, "http_client", None)
     if client is None:
         raise RuntimeError(
-            "http_client not initialized in app.state. "
-            "Ensure the lifespan context manager ran correctly."
+            "http_client not initialized in app.state. Ensure the lifespan context manager ran correctly."
         )
     return client
 

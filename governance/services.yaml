@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat and field-chat removed (deprecated → chat-service)
+      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat, field-chat, wechat-service removed (deprecated)
       rules:
         - "Consumes from Decision"
         - "User-facing operations"

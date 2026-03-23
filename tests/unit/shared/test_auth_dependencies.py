@@ -3,31 +3,31 @@ Unit tests for shared/auth/dependencies.py
 Tests FastAPI authentication dependencies and rate limiting.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
-import time
-
 # Set test environment before imports
 import os
+import time
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
 
 from shared.auth.dependencies import (
-    get_current_user,
-    get_current_active_user,
-    require_roles,
-    require_permissions,
-    require_farm_access,
-    rate_limit_dependency,
-    get_optional_user,
     RateLimiter,
+    get_current_active_user,
+    get_current_user,
+    get_optional_user,
+    rate_limit_dependency,
+    require_farm_access,
+    require_permissions,
+    require_roles,
 )
 from shared.auth.jwt_handler import create_access_token
-from shared.auth.models import User, AuthErrors
+from shared.auth.models import AuthErrors, User
 
 
 @pytest.fixture
@@ -38,6 +38,7 @@ def valid_token():
         roles=["farmer", "admin"],
         tenant_id="tenant456",
         permissions=["farm:read", "farm:write"],
+        extra_claims={"email": "user123@test.sahool.io"},
     )
 
 
@@ -86,7 +87,17 @@ class TestGetCurrentUser:
     @patch("shared.auth.dependencies.get_user_repository")
     async def test_valid_token_returns_user(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that valid token returns user."""
-        mock_cache.return_value = None  # No cache
+        # Provide a cache that returns active user status with email
+        # to avoid User.__post_init__ rejecting empty email from token-only path
+        cache = AsyncMock()
+        cache.get_user_status.return_value = {
+            "is_active": True,
+            "is_verified": True,
+            "email": "test@example.com",
+            "roles": ["farmer", "admin"],
+            "tenant_id": "tenant456",
+        }
+        mock_cache.return_value = cache
         mock_repo.return_value = None  # No repository
 
         user = await get_current_user(
@@ -103,7 +114,16 @@ class TestGetCurrentUser:
     @patch("shared.auth.dependencies.get_user_repository")
     async def test_user_stored_in_request_state(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that user is stored in request state."""
-        mock_cache.return_value = None
+        # Provide a cache that returns active user status with email
+        cache = AsyncMock()
+        cache.get_user_status.return_value = {
+            "is_active": True,
+            "is_verified": True,
+            "email": "test@example.com",
+            "roles": ["farmer", "admin"],
+            "tenant_id": "tenant456",
+        }
+        mock_cache.return_value = cache
         mock_repo.return_value = None
 
         user = await get_current_user(
@@ -393,6 +413,7 @@ class TestGetOptionalUser:
         token = create_access_token(
             user_id="user123",
             roles=["farmer"],
+            extra_claims={"email": "test@sahool.sa"},
         )
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer",

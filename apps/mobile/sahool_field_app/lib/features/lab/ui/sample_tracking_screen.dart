@@ -200,7 +200,29 @@ class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
     );
   }
 
-  Future<void> _scanBarcode(List<LabSample> samples) async {
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            'تعذر تحميل العينات',
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () => ref.invalidate(samplesProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _scanBarcode() async {
     final result = await BarcodeScannerScreen.scan(
       context,
       title: 'مسح باركود العينة',

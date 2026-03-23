@@ -657,7 +657,7 @@ void main() {
 
       test('should return 0 for empty history', () {
         // Arrange
-        final analytics = FieldAnalytics(
+        const analytics = FieldAnalytics(
           fieldId: 'field-001',
           history: [],
           yieldForecast: 0,
@@ -689,7 +689,7 @@ void main() {
 
       test('should return null for empty history', () {
         // Arrange
-        final analytics = FieldAnalytics(
+        const analytics = FieldAnalytics(
           fieldId: 'field-001',
           history: [],
           yieldForecast: 0,
@@ -721,7 +721,7 @@ void main() {
 
       test('should return null for empty history', () {
         // Arrange
-        final analytics = FieldAnalytics(
+        const analytics = FieldAnalytics(
           fieldId: 'field-001',
           history: [],
           yieldForecast: 0,

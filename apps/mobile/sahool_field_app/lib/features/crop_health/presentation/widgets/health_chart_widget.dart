@@ -213,9 +213,9 @@ class _ChartPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     // حساب النطاق
-    final minVal = 0.0;
-    final maxVal = 1.0;
-    final range = maxVal - minVal;
+    const minVal = 0.0;
+    const maxVal = 1.0;
+    const range = maxVal - minVal;
 
     // رسم خطوط الشبكة
     _drawGridLines(canvas, size);

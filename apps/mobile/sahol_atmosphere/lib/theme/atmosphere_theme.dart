@@ -206,7 +206,7 @@ class AtmosphereShadows {
   AtmosphereShadows._();
 
   static List<BoxShadow> glowSuccess = [
-    BoxShadow(
+    const BoxShadow(
       color: AtmosphereColors.successGlow,
       blurRadius: 20,
       spreadRadius: 2,
@@ -214,7 +214,7 @@ class AtmosphereShadows {
   ];
 
   static List<BoxShadow> glowWarning = [
-    BoxShadow(
+    const BoxShadow(
       color: AtmosphereColors.warningGlow,
       blurRadius: 20,
       spreadRadius: 2,
@@ -222,7 +222,7 @@ class AtmosphereShadows {
   ];
 
   static List<BoxShadow> glowAlert = [
-    BoxShadow(
+    const BoxShadow(
       color: AtmosphereColors.alertGlow,
       blurRadius: 20,
       spreadRadius: 2,
@@ -502,13 +502,13 @@ class AtmosphereTheme {
       scaffoldBackgroundColor: AtmosphereLightColors.bgPrimary,
 
       // AppBar
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AtmosphereLightColors.bgSecondary,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: AtmosphereLightTypography.displaySmall,
         iconTheme:
-            const IconThemeData(color: AtmosphereLightColors.textPrimary),
+            IconThemeData(color: AtmosphereLightColors.textPrimary),
         surfaceTintColor: Colors.transparent,
       ),
 

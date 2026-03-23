@@ -3,8 +3,9 @@ Tests for shared/domain/tenancy/models.py module
 اختبارات وحدة نماذج المستأجرين
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, UTC
 
 
 class TestTenantStatus:
@@ -132,7 +133,7 @@ class TestTenant:
 
     def test_create_tenant_free_plan(self):
         """Test creating tenant with free plan defaults to trial status"""
-        from shared.domain.tenancy.models import Tenant, TenantStatus, TenantPlan
+        from shared.domain.tenancy.models import Tenant, TenantPlan, TenantStatus
 
         tenant = Tenant.create(name="Test Farm")
 
@@ -144,7 +145,7 @@ class TestTenant:
 
     def test_create_tenant_paid_plan(self):
         """Test creating tenant with paid plan defaults to active status"""
-        from shared.domain.tenancy.models import Tenant, TenantStatus, TenantPlan
+        from shared.domain.tenancy.models import Tenant, TenantPlan, TenantStatus
 
         tenant = Tenant.create(name="Enterprise Farm", plan=TenantPlan.ENTERPRISE)
 
@@ -227,8 +228,9 @@ class TestTenant:
 
     def test_tenant_id_is_uuid(self):
         """Test tenant ID is valid UUID format"""
-        from shared.domain.tenancy.models import Tenant
         import re
+
+        from shared.domain.tenancy.models import Tenant
 
         tenant = Tenant.create(name="UUID Test")
 
@@ -254,8 +256,9 @@ class TestTenant:
 
     def test_tenant_status_values_in_dict(self):
         """Test all tenant statuses serialize correctly"""
-        from shared.domain.tenancy.models import Tenant, TenantStatus, TenantPlan, TenantSettings
-        from datetime import datetime, UTC
+        from datetime import UTC, datetime
+
+        from shared.domain.tenancy.models import Tenant, TenantPlan, TenantSettings, TenantStatus
 
         now = datetime.now(UTC)
 

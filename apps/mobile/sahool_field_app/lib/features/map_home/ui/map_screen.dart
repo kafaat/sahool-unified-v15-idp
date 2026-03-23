@@ -25,8 +25,8 @@ class _MapScreenState extends State<MapScreen> {
   bool _isSearchExpanded = false;
 
   // حالة الاتصال (للتجربة)
-  bool _isOnline = true;
-  int _pendingSync = 3;
+  final bool _isOnline = true;
+  final int _pendingSync = 3;
 
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
@@ -141,7 +141,7 @@ class _MapScreenState extends State<MapScreen> {
           _buildEmergencyButton(),
 
           // 7. لوحة المهام المنزلقة (تظهر فقط عندما لا يكون هناك حقل محدد)
-          if (_selectedField == null) DailyTasksSheet(),
+          if (_selectedField == null) const DailyTasksSheet(),
 
           // 8. لوحة تفاصيل الحقل (تغطي الشاشة عند تحديد حقل)
           if (_selectedField != null) _buildFieldContextPanel(),
@@ -436,7 +436,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildMapControlButton(
       IconData icon, String tooltip, VoidCallback onPressed,
       {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -670,11 +670,11 @@ class _MapScreenState extends State<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.add_task, color: SahoolColors.primary),
-            const SizedBox(width: 8),
-            const Text('إضافة مهمة'),
+            Icon(Icons.add_task, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('إضافة مهمة'),
           ],
         ),
         content: Text('إضافة مهمة جديدة لحقل "${_selectedField?.name}"'),
@@ -696,11 +696,11 @@ class _MapScreenState extends State<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning, color: SahoolColors.danger),
-            const SizedBox(width: 8),
-            const Text('طوارئ'),
+            SizedBox(width: 8),
+            Text('طوارئ'),
           ],
         ),
         content: const Text('هل تريد الإبلاغ عن حالة طوارئ في الحقل؟'),

@@ -5,6 +5,7 @@ Coverage: Push notification sending, topics, multicast, error handling
 """
 
 import json
+import os
 import sys
 from unittest.mock import MagicMock, call, patch
 
@@ -18,9 +19,7 @@ try:
 except ImportError:
     firebase_admin_available = False
 
-pytestmark = pytest.mark.skipif(
-    not firebase_admin_available, reason="firebase_admin not installed"
-)
+pytestmark = pytest.mark.skipif(not firebase_admin_available, reason="firebase_admin not installed")
 
 
 @pytest.fixture

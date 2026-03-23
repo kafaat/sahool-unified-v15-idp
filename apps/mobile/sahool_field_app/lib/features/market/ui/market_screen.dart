@@ -177,6 +177,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
   }
 
   Widget _buildSearchAndCategories() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

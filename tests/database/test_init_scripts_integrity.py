@@ -13,8 +13,9 @@ FIX (2026-03-13): Created after discovering startup failures caused by
 """
 
 import re
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Path to init scripts
 INIT_DIR = Path(__file__).parent.parent.parent / "infrastructure" / "core" / "postgres" / "init"
@@ -172,7 +173,7 @@ class TestNoForeignKeysToPrismaTables:
                 violations.append(f"{filename}: REFERENCES {match}(...)")
 
         assert len(violations) == 0, (
-            f"Found FK references to Prisma-managed tables in init scripts:\n"
+            "Found FK references to Prisma-managed tables in init scripts:\n"
             + "\n".join(f"  - {v}" for v in violations)
         )
 

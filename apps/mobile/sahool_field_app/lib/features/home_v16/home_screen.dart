@@ -1,5 +1,6 @@
 /// SAHOOL Super Home Screen v16
 /// الشاشة الرئيسية المحسنة
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +22,9 @@ class HomeV16Screen extends ConsumerWidget {
             SliverAppBar(
               pinned: true,
               expandedHeight: 140,
-              title: const Text("الموجز اليومي"),
+              title: const Text('الموجز اليومي'),
               flexibleSpace: FlexibleSpaceBar(
-                background: Container(
+                background: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -39,8 +40,8 @@ class HomeV16Screen extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
                       child: Text(
                         state.error != null
-                            ? "⚠️ ${state.error}"
-                            : "مرحباً، جاهز للعمل اليوم",
+                            ? '⚠️ ${state.error}'
+                            : 'مرحباً، جاهز للعمل اليوم',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -123,25 +124,25 @@ class _KpiGrid extends StatelessWidget {
       childAspectRatio: 1.6,
       children: [
         _KpiCard(
-          title: "NDVI متوسط",
+          title: 'NDVI متوسط',
           value: ndvi.toStringAsFixed(2),
           icon: Icons.eco,
           color: Colors.green,
         ),
         _KpiCard(
-          title: "تنبيهات مفتوحة",
-          value: "$alerts",
+          title: 'تنبيهات مفتوحة',
+          value: '$alerts',
           icon: Icons.warning_amber,
           color: Colors.orange,
         ),
         _KpiCard(
-          title: "مهام مستحقة",
-          value: "$tasks",
+          title: 'مهام مستحقة',
+          value: '$tasks',
           icon: Icons.checklist,
           color: Colors.blue,
         ),
         _KpiCard(
-          title: "الطقس",
+          title: 'الطقس',
           value: weather,
           icon: Icons.wb_sunny,
           color: Colors.amber,
@@ -219,19 +220,19 @@ class _QuickActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "إجراءات سريعة",
+          'إجراءات سريعة',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            _ActionButton(label: "حقولي", icon: Icons.map, onTap: () {}),
+            _ActionButton(label: 'حقولي', icon: Icons.map, onTap: () {}),
             const SizedBox(width: 12),
-            _ActionButton(label: "NDVI", icon: Icons.show_chart, onTap: () {}),
+            _ActionButton(label: 'NDVI', icon: Icons.show_chart, onTap: () {}),
             const SizedBox(width: 12),
-            _ActionButton(label: "المهام", icon: Icons.checklist, onTap: () {}),
+            _ActionButton(label: 'المهام', icon: Icons.checklist, onTap: () {}),
             const SizedBox(width: 12),
-            _ActionButton(label: "الري", icon: Icons.water_drop, onTap: () {}),
+            _ActionButton(label: 'الري', icon: Icons.water_drop, onTap: () {}),
           ],
         ),
       ],
@@ -305,7 +306,7 @@ class _AlertsPreview extends StatelessWidget {
               Icon(Icons.warning_amber, color: Colors.red[700], size: 20),
               const SizedBox(width: 8),
               Text(
-                "أهم التنبيهات",
+                'أهم التنبيهات',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.red[700],
@@ -313,7 +314,7 @@ class _AlertsPreview extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                "$alertsCount تنبيهات",
+                '$alertsCount تنبيهات',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.red[600],
@@ -322,9 +323,9 @@ class _AlertsPreview extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Text("• انخفاض NDVI في الحقل 12"),
+          const Text('• انخفاض NDVI في الحقل 12'),
           const SizedBox(height: 4),
-          const Text("• موعد ري مستحق لقطاع Zone A"),
+          const Text('• موعد ري مستحق لقطاع Zone A'),
         ],
       ),
     );
@@ -349,10 +350,10 @@ class _FieldsPreview extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "حقولي ($fieldsCount)",
+              'حقولي ($fieldsCount)',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            TextButton(onPressed: () {}, child: const Text("عرض الكل")),
+            TextButton(onPressed: () {}, child: const Text('عرض الكل')),
           ],
         ),
         const SizedBox(height: 8),
@@ -381,11 +382,11 @@ class _FieldsPreview extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("حقل ${index + 1}",
+                    Text('حقل ${index + 1}',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(
-                      "قمح",
+                      'قمح',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],
@@ -397,7 +398,7 @@ class _FieldsPreview extends StatelessWidget {
                         Icon(Icons.eco, size: 14, color: Colors.green[600]),
                         const SizedBox(width: 4),
                         Text(
-                          "0.${60 + index}",
+                          '0.${60 + index}',
                           style: TextStyle(
                             color: Colors.green[700],
                             fontSize: 12,

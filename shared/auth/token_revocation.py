@@ -24,6 +24,7 @@ try:
 
     REDIS_AVAILABLE = True
 except ImportError:
+    aioredis = None  # type: ignore[assignment]
     REDIS_AVAILABLE = False
 
 from .config import config
@@ -71,10 +72,7 @@ class RedisTokenRevocationStore:
         Args:
             redis_url: Redis connection URL (defaults to config)
         """
-        if not REDIS_AVAILABLE:
-            raise ImportError("redis is required for token revocation. Install with: pip install redis[asyncio]")
-
-        self._redis: aioredis.Redis | None = None
+        self._redis: aioredis.Redis | None = None  # type: ignore[assignment]
         self._redis_url = redis_url or config.REDIS_URL or self._build_redis_url()
         self._initialized = False
 
@@ -88,6 +86,12 @@ class RedisTokenRevocationStore:
         """Initialize Redis connection"""
         if self._initialized:
             return
+
+        if not REDIS_AVAILABLE:
+            raise ImportError(
+                "redis.asyncio is required for token revocation. "
+                "Install it with: pip install redis[asyncio]"
+            )
 
         try:
             self._redis = await aioredis.from_url(

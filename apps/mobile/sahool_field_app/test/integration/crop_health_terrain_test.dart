@@ -10,6 +10,7 @@
 /// - Hydrology and drainage
 /// - Advisory integration
 /// - Outbox integration for offline observations
+library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';

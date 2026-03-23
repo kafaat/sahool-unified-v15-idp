@@ -1,1 +1,0 @@
-"""Crop Health Service Tests"""

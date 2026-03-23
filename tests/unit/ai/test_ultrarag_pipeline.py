@@ -3,16 +3,11 @@ Tests for UltraRAG Pipeline Module
 اختبارات وحدة خط أنابيب UltraRAG
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from dataclasses import dataclass
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from shared.ai.ultrarag.pipeline import (
-    RAGStage,
-    StageResult,
-    PipelineContext,
-    RAGPipeline,
-)
+import pytest
+
 from shared.ai.ultrarag.models import (
     GenerationMode,
     GenerationResult,
@@ -20,10 +15,16 @@ from shared.ai.ultrarag.models import (
     RAGPipelineConfig,
     RAGRequest,
     RAGResult,
-    RerankResult,
     RerankingMethod,
+    RerankResult,
     RetrievalResult,
     RetrievalStrategy,
+)
+from shared.ai.ultrarag.pipeline import (
+    PipelineContext,
+    RAGPipeline,
+    RAGStage,
+    StageResult,
 )
 
 

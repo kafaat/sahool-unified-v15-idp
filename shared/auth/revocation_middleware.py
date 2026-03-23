@@ -51,7 +51,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
         self,
         app,
         exclude_paths: list[str] | None = None,
-        fail_open: bool = True,
+        fail_open: bool = False,
     ):
         """
         Initialize token revocation middleware.
@@ -59,7 +59,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
         Args:
             app: FastAPI application instance
             exclude_paths: List of paths to exclude from revocation check
-            fail_open: If True, allow access on Redis errors (default: True)
+            fail_open: If True, allow access on Redis errors (default: False - fail closed for security)
         """
         super().__init__(app)
         self.exclude_paths = exclude_paths or [
@@ -200,12 +200,12 @@ class RevocationCheckDependency:
         ```
     """
 
-    def __init__(self, fail_open: bool = True):
+    def __init__(self, fail_open: bool = False):
         """
         Initialize revocation check dependency.
 
         Args:
-            fail_open: If True, allow access on Redis errors
+            fail_open: If True, allow access on Redis errors (default: False - fail closed for security)
         """
         self.fail_open = fail_open
 

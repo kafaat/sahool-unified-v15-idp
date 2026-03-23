@@ -326,6 +326,7 @@ class TestTOTPVerification:
     def test_verify_totp_is_time_sensitive(self, service):
         """Test that TOTP tokens are time-sensitive"""
         import time
+
         import pyotp
 
         secret = service.generate_secret()
@@ -728,7 +729,7 @@ class TestGlobalFunctions:
 
     def test_get_twofa_service(self):
         """Test get_twofa_service returns a service instance"""
-        from shared.auth.twofa_service import get_twofa_service, TwoFactorAuthService
+        from shared.auth.twofa_service import TwoFactorAuthService, get_twofa_service
 
         service = get_twofa_service()
         assert service is not None

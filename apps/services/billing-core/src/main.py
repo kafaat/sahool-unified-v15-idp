@@ -16,7 +16,6 @@ import hashlib
 import hmac
 import logging
 import os
-import structlog
 
 # Authentication imports
 import sys
@@ -30,6 +29,7 @@ from typing import Any
 
 import httpx
 import nats
+import structlog
 from fastapi import (
     BackgroundTasks,
     Depends,
@@ -127,7 +127,14 @@ except ImportError:
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
             raise HTTPException(status_code=503, detail="Authentication service unavailable")
         logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
-        return None
+        return {
+            "id": "dev-user-00000000",
+            "username": "dev-billing-user",
+            "email": "dev@sahool.local",
+            "tenant_id": "dev-tenant-00000000",
+            "roles": ["developer"],
+            "is_active": True,
+        }
 
     def require_roles(roles):
         """Fallback - blocks access in production, allows in dev only"""
@@ -136,7 +143,14 @@ except ImportError:
             if ENVIRONMENT not in ("development", "dev", "test", "testing"):
                 raise HTTPException(status_code=503, detail="Authorization service unavailable")
             logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
-            return None
+            return {
+                "id": "dev-user-00000000",
+                "username": "dev-billing-user",
+                "email": "dev@sahool.local",
+                "tenant_id": "dev-tenant-00000000",
+                "roles": list(roles) if roles else ["developer"],
+                "is_active": True,
+            }
 
         return check_roles
 
@@ -328,7 +342,8 @@ async def job_handle_trial_expiry():
                 return
 
             # Find trials that have expired
-            from sqlalchemy import select as sa_select, and_
+            from sqlalchemy import and_
+            from sqlalchemy import select as sa_select
 
             result = await db.execute(
                 sa_select(db_models.Subscription).where(

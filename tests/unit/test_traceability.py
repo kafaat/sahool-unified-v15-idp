@@ -15,62 +15,61 @@ from uuid import uuid4
 import pytest
 
 from shared.traceability import (
-    # Enums
-    EventType,
-    BatchStatus,
-    CertificationType,
-    QualityGrade,
-    StorageCondition,
-    TransportMode,
-    QRFormat,
-    QRSize,
-    # Location models
-    GeoLocation,
+    EVENT_DISPLAY_INFO,
     Address,
-    # Actor models
-    Producer,
-    ProcessingFacility,
-    Transporter,
-    Retailer,
-    # Certification models
-    Certification,
-    ComplianceRecord,
-    # Batch models
-    ProduceBatch,
-    BatchSplit,
     BatchMerge,
-    # Event models
-    SupplyChainEvent,
-    HarvestEvent,
-    ProcessingEvent,
-    StorageEvent,
-    TransportEvent,
-    RetailEvent,
-    ConsumerScanEvent,
-    # Consumer-facing models
-    ProductJourneyStep,
-    ProductJourney,
-    QRCodeData,
+    BatchSplit,
+    BatchStatus,
     # Report models
     BatchTraceReport,
-    # QR Generator
-    QRGenerationConfig,
-    GeneratedQRCode,
-    QRCodeGenerator,
-    LabelData,
-    LabelGenerator,
+    # Certification models
+    Certification,
+    CertificationType,
     # Chain tracker
     ChainConfig,
+    ComplianceRecord,
+    ConsumerScanEvent,
+    # Enums
+    EventType,
+    GeneratedQRCode,
+    # Location models
+    GeoLocation,
+    HarvestEvent,
+    LabelData,
+    LabelGenerator,
+    ProcessingEvent,
+    ProcessingFacility,
+    # Batch models
+    ProduceBatch,
+    # Actor models
+    Producer,
+    ProductJourney,
+    # Consumer-facing models
+    ProductJourneyStep,
+    QRCodeData,
+    QRCodeGenerator,
+    QRFormat,
+    # QR Generator
+    QRGenerationConfig,
+    QRSize,
+    QualityGrade,
+    Retailer,
+    RetailEvent,
+    StorageCondition,
+    StorageEvent,
+    # Event models
+    SupplyChainEvent,
     SupplyChainTracker,
-    EVENT_DISPLAY_INFO,
+    Transporter,
+    TransportEvent,
+    TransportMode,
+    calculate_carbon_footprint,
+    decode_qr_data,
+    estimate_shelf_life,
     # Utility functions
     generate_batch_code,
-    decode_qr_data,
     verify_qr_checksum,
-    calculate_carbon_footprint,
-    estimate_shelf_life,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures - إعدادات الاختبار

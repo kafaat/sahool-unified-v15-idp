@@ -1,4 +1,5 @@
 import 'certificate_pinning_service.dart';
+import '../utils/app_logger.dart';
 
 /// Certificate Configuration
 /// إعدادات الشهادات الرقمية
@@ -56,6 +57,65 @@ class CertificateConfig {
   /// Check if a hash value is a known placeholder
   static bool isPlaceholder(String hash) {
     return _knownPlaceholders.contains(hash.toLowerCase());
+  }
+
+  /// Check if a pin map contains any placeholder pins
+  static bool hasPlaceholderPins(Map<String, List<CertificatePin>> pins) {
+    for (final entry in pins.entries) {
+      for (final pin in entry.value) {
+        if (isPlaceholder(pin.value)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Determine whether certificate pinning should be enforced.
+  ///
+  /// Returns `true` only when all configured pins are real (non-placeholder).
+  /// - In **production**: logs a CRITICAL warning and returns `false` when
+  ///   placeholder pins are detected (prevents silent use of fake pins while
+  ///   avoiding locking users out).
+  /// - In **non-production** (debug/staging): logs a warning and returns
+  ///   `false` so development is not blocked.
+  ///
+  /// Callers should skip pinning validation when this returns `false`.
+  static bool shouldEnforcePinning({
+    required Map<String, List<CertificatePin>> pins,
+    required String environment,
+  }) {
+    if (pins.isEmpty) {
+      return false;
+    }
+
+    if (!hasPlaceholderPins(pins)) {
+      // All pins are real - enforce pinning
+      return true;
+    }
+
+    // Placeholder pins detected
+    final isProduction = environment.toLowerCase() == 'production' ||
+        environment.toLowerCase() == 'prod';
+
+    if (isProduction) {
+      AppLogger.e(
+        'CRITICAL: Placeholder certificate pins detected in PRODUCTION! '
+        'Certificate pinning is DISABLED. Replace placeholder pins with '
+        'actual certificate fingerprints immediately. '
+        'Run: ./scripts/generate_cert_pins.sh <domain>',
+        tag: 'CertificatePinning',
+      );
+    } else {
+      AppLogger.w(
+        'Placeholder certificate pins detected in $environment environment. '
+        'Certificate pinning is disabled. Replace with real pins before '
+        'deploying to production.',
+        tag: 'CertificatePinning',
+      );
+    }
+
+    return false;
   }
 
   /// Get production certificate pins.

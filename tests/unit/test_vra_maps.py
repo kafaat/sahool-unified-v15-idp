@@ -1,13 +1,14 @@
 """Tests for VRA maps module."""
 
 import pytest
+
 from shared.vra_maps import (
-    VRAMapGenerator,
-    ZoneType,
+    DEFAULT_FERTILIZER_RATES,
+    EQUIPMENT_FORMATS,
     ApplicationType,
     ExportFormat,
-    EQUIPMENT_FORMATS,
-    DEFAULT_FERTILIZER_RATES,
+    VRAMapGenerator,
+    ZoneType,
 )
 
 

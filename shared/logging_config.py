@@ -52,9 +52,7 @@ from starlette.types import ASGIApp
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Matches userinfo portion of a URL:  scheme://user:password@host  ->  scheme://***@host
-_URL_CREDENTIAL_RE = re.compile(
-    r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@"
-)
+_URL_CREDENTIAL_RE = re.compile(r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@")
 
 # Matches sensitive query parameters: password=secret, token=abc, api_key=xyz
 _SENSITIVE_QUERY_PARAM_RE = re.compile(
@@ -136,10 +134,7 @@ def sanitize_credentials(logger: logging.Logger, method_name: str, event_dict: d
         if isinstance(value, str) and "://" in value and "@" in value:
             event_dict[key] = sanitize_url(value)
         elif isinstance(value, list):
-            event_dict[key] = [
-                sanitize_url(v) if isinstance(v, str) and "://" in v and "@" in v else v
-                for v in value
-            ]
+            event_dict[key] = [sanitize_url(v) if isinstance(v, str) and "://" in v and "@" in v else v for v in value]
     return event_dict
 
 

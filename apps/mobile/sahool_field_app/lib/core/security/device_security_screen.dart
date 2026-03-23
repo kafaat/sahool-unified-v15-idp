@@ -125,7 +125,7 @@ class DeviceSecurityScreen extends StatelessWidget {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -140,7 +140,7 @@ class DeviceSecurityScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.info_outline,
                         color: Colors.white,
                         size: 24,
@@ -314,7 +314,7 @@ class DeviceSecurityScreen extends StatelessWidget {
       'Frida or hooking framework detected': 'تم اكتشاف أدوات اختراق',
     };
 
-    for (var entry in translations.entries) {
+    for (final entry in translations.entries) {
       if (threat.contains(entry.key)) {
         return entry.value;
       }

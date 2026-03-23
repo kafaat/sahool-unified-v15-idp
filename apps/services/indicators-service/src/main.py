@@ -608,8 +608,8 @@ INDICATOR_DEFINITIONS = {
         "unit": "%",
         "min": 0,
         "max": 100,
-        "optimal_min": None,
-        "optimal_max": None,  # Depends on expected timing
+        "optimal_min": 0.0,
+        "optimal_max": 100.0,  # Depends on expected timing
     },
     # Financial Indicators
     "cost_per_hectare": {

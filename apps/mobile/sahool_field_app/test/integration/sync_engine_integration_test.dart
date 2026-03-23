@@ -7,6 +7,7 @@
 /// - Sync event workflows end-to-end
 /// - Watch streams emit correct values
 /// - Database health monitoring
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sahool_field_app/core/storage/database.dart';
@@ -34,7 +35,7 @@ void main() {
     // =========================================================================
 
     group('Field CRUD Integration - تكامل عمليات الحقول', () {
-      Field _makeField({
+      Field makeField({
         required String id,
         String tenantId = 'tenant-001',
         String name = 'Test Field',
@@ -71,7 +72,7 @@ void main() {
       }
 
       test('seedField + getAllFields returns the field', () async {
-        db.seedField(_makeField(id: 'f001', name: 'حقل القمح'));
+        db.seedField(makeField(id: 'f001', name: 'حقل القمح'));
 
         final fields = await db.getAllFields('tenant-001');
         expect(fields.length, equals(1));
@@ -80,7 +81,7 @@ void main() {
       });
 
       test('getAllFields returns only non-deleted fields', () async {
-        db.seedField(_makeField(id: 'f001', name: 'Field Active'));
+        db.seedField(makeField(id: 'f001', name: 'Field Active'));
         db.seedField(Field(
           id: 'f002',
           remoteId: null,
@@ -108,8 +109,8 @@ void main() {
       });
 
       test('getFieldById returns correct field', () async {
-        db.seedField(_makeField(id: 'f001', name: 'حقل الذرة'));
-        db.seedField(_makeField(id: 'f002', name: 'حقل القمح'));
+        db.seedField(makeField(id: 'f001', name: 'حقل الذرة'));
+        db.seedField(makeField(id: 'f002', name: 'حقل القمح'));
 
         final field = await db.getFieldById('f001');
         expect(field, isNotNull);
@@ -122,7 +123,7 @@ void main() {
       });
 
       test('softDeleteField marks field as deleted', () async {
-        db.seedField(_makeField(id: 'f001'));
+        db.seedField(makeField(id: 'f001'));
 
         await db.softDeleteField('f001');
 
@@ -134,7 +135,7 @@ void main() {
       });
 
       test('markFieldSynced updates synced flag and remoteId', () async {
-        db.seedField(_makeField(id: 'f001', synced: false));
+        db.seedField(makeField(id: 'f001', synced: false));
 
         await db.markFieldSynced('f001', 'remote-001');
 
@@ -144,9 +145,9 @@ void main() {
       });
 
       test('getUnsyncedFields returns only unsynced fields', () async {
-        db.seedField(_makeField(id: 'f001', synced: false));
-        db.seedField(_makeField(id: 'f002', synced: true));
-        db.seedField(_makeField(id: 'f003', synced: false));
+        db.seedField(makeField(id: 'f001', synced: false));
+        db.seedField(makeField(id: 'f002', synced: true));
+        db.seedField(makeField(id: 'f003', synced: false));
 
         final unsynced = await db.getUnsyncedFields();
         expect(unsynced.length, equals(2));
@@ -154,9 +155,9 @@ void main() {
       });
 
       test('Tenant isolation in getAllFields', () async {
-        db.seedField(_makeField(id: 'f001', tenantId: 'tenant-A'));
-        db.seedField(_makeField(id: 'f002', tenantId: 'tenant-B'));
-        db.seedField(_makeField(id: 'f003', tenantId: 'tenant-A'));
+        db.seedField(makeField(id: 'f001', tenantId: 'tenant-A'));
+        db.seedField(makeField(id: 'f002', tenantId: 'tenant-B'));
+        db.seedField(makeField(id: 'f003', tenantId: 'tenant-A'));
 
         final fieldsA = await db.getAllFields('tenant-A');
         final fieldsB = await db.getAllFields('tenant-B');
@@ -173,7 +174,7 @@ void main() {
     // =========================================================================
 
     group('Task CRUD Integration - تكامل عمليات المهام', () {
-      Task _makeTask({
+      Task makeTask({
         required String id,
         String tenantId = 'tenant-001',
         String fieldId = 'field-001',
@@ -202,7 +203,7 @@ void main() {
       }
 
       test('seedTask + getAllTasks returns the task', () async {
-        db.seedTask(_makeTask(id: 't001', title: 'إضافة سماد'));
+        db.seedTask(makeTask(id: 't001', title: 'إضافة سماد'));
 
         final tasks = await db.getAllTasks('tenant-001');
         expect(tasks.length, equals(1));
@@ -210,9 +211,9 @@ void main() {
       });
 
       test('getTasksForField returns only tasks for that field', () async {
-        db.seedTask(_makeTask(id: 't001', fieldId: 'field-001'));
-        db.seedTask(_makeTask(id: 't002', fieldId: 'field-002'));
-        db.seedTask(_makeTask(id: 't003', fieldId: 'field-001'));
+        db.seedTask(makeTask(id: 't001', fieldId: 'field-001'));
+        db.seedTask(makeTask(id: 't002', fieldId: 'field-002'));
+        db.seedTask(makeTask(id: 't003', fieldId: 'field-001'));
 
         final tasks = await db.getTasksForField('field-001');
         expect(tasks.length, equals(2));
@@ -220,9 +221,9 @@ void main() {
       });
 
       test('getPendingTasks returns open and in_progress tasks', () async {
-        db.seedTask(_makeTask(id: 't001', status: 'open'));
-        db.seedTask(_makeTask(id: 't002', status: 'in_progress'));
-        db.seedTask(_makeTask(id: 't003', status: 'done'));
+        db.seedTask(makeTask(id: 't001', status: 'open'));
+        db.seedTask(makeTask(id: 't002', status: 'in_progress'));
+        db.seedTask(makeTask(id: 't003', status: 'done'));
 
         final pending = await db.getPendingTasks('tenant-001');
         expect(pending.length, equals(2));
@@ -230,7 +231,7 @@ void main() {
       });
 
       test('getTaskById returns correct task', () async {
-        db.seedTask(_makeTask(id: 't001', title: 'مهمة الري'));
+        db.seedTask(makeTask(id: 't001', title: 'مهمة الري'));
 
         final task = await db.getTaskById('t001');
         expect(task, isNotNull);
@@ -243,8 +244,8 @@ void main() {
       });
 
       test('Task tenant isolation in getAllTasks', () async {
-        db.seedTask(_makeTask(id: 't001', tenantId: 'tenant-A'));
-        db.seedTask(_makeTask(id: 't002', tenantId: 'tenant-B'));
+        db.seedTask(makeTask(id: 't001', tenantId: 'tenant-A'));
+        db.seedTask(makeTask(id: 't002', tenantId: 'tenant-B'));
 
         final tasksA = await db.getAllTasks('tenant-A');
         final tasksB = await db.getAllTasks('tenant-B');

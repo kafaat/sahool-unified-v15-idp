@@ -269,7 +269,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
       children: [
         child,
         if (isLoading)
-          Container(
+          ColoredBox(
             color: Colors.black.withOpacity(0.3),
             child: Center(
               child: Container(

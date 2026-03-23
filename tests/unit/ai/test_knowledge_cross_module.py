@@ -222,8 +222,8 @@ class TestFreshnessMonitorIntegration:
     def test_freshness_check(self):
         """FreshnessMonitor should assess document freshness."""
         try:
-            from shared.ai.knowledge.models import CropKnowledgeDocument, KnowledgeDomain
             from shared.ai.knowledge.freshness_monitor import KnowledgeFreshnessMonitor
+            from shared.ai.knowledge.models import CropKnowledgeDocument, KnowledgeDomain
         except ImportError as e:
             pytest.skip(f"Missing dependency: {e}")
 

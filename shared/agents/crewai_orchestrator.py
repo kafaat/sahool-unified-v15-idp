@@ -184,6 +184,33 @@ AGRICULTURAL_AGENTS = {
 }
 
 
+def _extract_arabic_or_fallback(english_answer: str) -> str:
+    """
+    Extract Arabic content from a bilingual response, or provide a fallback.
+
+    If the response contains Arabic text (detected by presence of Arabic Unicode
+    characters), attempt to extract the Arabic portion. Otherwise, provide a note
+    in Arabic indicating the response is available in English only.
+    """
+    import re
+
+    # Check if the response already contains Arabic text
+    arabic_pattern = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+")
+    arabic_matches = arabic_pattern.findall(english_answer)
+
+    if arabic_matches:
+        # Extract lines that contain Arabic characters
+        arabic_lines = []
+        for line in english_answer.split("\n"):
+            if arabic_pattern.search(line):
+                arabic_lines.append(line.strip())
+        if arabic_lines:
+            return "\n".join(arabic_lines)
+
+    # Fallback: provide a note in Arabic that the response is in English
+    return f"الرد متاح باللغة الإنجليزية فقط:\n{english_answer}"
+
+
 class AgriculturalCrew:
     """
     Agricultural AI Crew using CrewAI.
@@ -295,11 +322,17 @@ class AgriculturalCrew:
             end_time = datetime.now(UTC)
             total_time = (end_time - start_time).total_seconds() * 1000
 
+            final_answer = str(result)
+
+            # Extract Arabic content from the response if present,
+            # otherwise provide a note indicating the response is in English
+            final_answer_ar = _extract_arabic_or_fallback(final_answer)
+
             return CrewResult(
                 query=query,
                 tasks_completed=task_results,
-                final_answer=str(result),
-                final_answer_ar="",  # Would need translation
+                final_answer=final_answer,
+                final_answer_ar=final_answer_ar,
                 total_time_ms=total_time,
                 agents_used=selected_roles,
             )

@@ -8,6 +8,7 @@ Tests for the NDVI calculation handler and utility functions.
 import pytest
 
 np = pytest.importorskip("numpy", reason="numpy required for NDVI calculation tests")
+pytest.importorskip("PIL", reason="Pillow required for kernel task queue (disease_detection)")
 
 from apps.kernel.common.queue.tasks.ndvi_calculation import (
     HEALTH_THRESHOLDS,

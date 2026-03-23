@@ -17,35 +17,34 @@ Author: SAHOOL Test Suite
 Updated: January 2026
 """
 
-import pytest
-from datetime import datetime, date, time, timedelta
+from datetime import date, datetime, time, timedelta
 
-from shared.weather_alerts.models import (
-    # Enums
-    AlertSeverity,
-    AlertType,
-    CropType,
-    HarvestCondition,
-    IrrigationRecommendation,
-    SprayCondition,
-    # Data classes
-    AlertThresholds,
-    HarvestWindow,
-    IrrigationSchedule,
-    SprayWindow,
-    WeatherAlert,
-    WeatherForecast,
-    # Crop-specific thresholds
-    CROP_FROST_THRESHOLDS,
-    CROP_HEAT_THRESHOLDS,
-)
+import pytest
 
 from shared.weather_alerts.alerts import (
     AlertGeneratorConfig,
     WeatherAlertGenerator,
     generate_weather_alerts,
 )
-
+from shared.weather_alerts.models import (
+    # Crop-specific thresholds
+    CROP_FROST_THRESHOLDS,
+    CROP_HEAT_THRESHOLDS,
+    # Enums
+    AlertSeverity,
+    # Data classes
+    AlertThresholds,
+    AlertType,
+    CropType,
+    HarvestCondition,
+    HarvestWindow,
+    IrrigationRecommendation,
+    IrrigationSchedule,
+    SprayCondition,
+    SprayWindow,
+    WeatherAlert,
+    WeatherForecast,
+)
 from shared.weather_alerts.spray_window import (
     SprayWindowCalculator,
     SprayWindowConfig,
@@ -53,7 +52,6 @@ from shared.weather_alerts.spray_window import (
     find_spray_windows,
     get_best_spray_time,
 )
-
 
 # ============================================================================
 # FIXTURES

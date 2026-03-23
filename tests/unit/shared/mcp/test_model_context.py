@@ -4,10 +4,11 @@ Model Context Protocol (MCP) Tests for SAHOOL Platform.
 Tests validate AI/LLM integration, context management, and prompt handling.
 """
 
-import pytest
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+import pytest
 
 
 @dataclass

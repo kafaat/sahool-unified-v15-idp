@@ -6,6 +6,7 @@
 /// - Shopping cart management
 /// - Order creation
 /// - Smart harvest listing
+library;
 
 import 'dart:async';
 import 'dart:convert';

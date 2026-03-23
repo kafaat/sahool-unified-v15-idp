@@ -42,10 +42,13 @@ class Task(Base, TimestampMixin, TenantMixin):
 
     __tablename__ = "tasks"
 
-    # Primary Key
+    # Primary Key - UUID aligned with field-management-service Prisma schema
+    # (Prisma Task model uses `id String @id @default(uuid()) @db.Uuid`)
+    # Both services write to the same `tasks` table, so PK type must match.
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         primary_key=True,
+        default=lambda: str(uuid.uuid4()),
         index=True,
     )
 
@@ -214,14 +217,15 @@ class TaskEvidence(Base, TimestampMixin):
 
     # Primary Key
     evidence_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         primary_key=True,
+        default=lambda: str(uuid.uuid4()),
         index=True,
     )
 
-    # Foreign Key to Task
+    # Foreign Key to Task (UUID, aligned with Prisma schema)
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         ForeignKey("tasks.task_id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -283,9 +287,9 @@ class TaskHistory(Base, TimestampMixin):
         default=uuid.uuid4,
     )
 
-    # Foreign Key to Task
+    # Foreign Key to Task (UUID, aligned with Prisma schema)
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         ForeignKey("tasks.task_id", ondelete="CASCADE"),
         nullable=False,
         index=True,

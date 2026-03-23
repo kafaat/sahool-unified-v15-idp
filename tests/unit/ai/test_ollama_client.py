@@ -15,7 +15,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # Skip all tests if httpx is not available
 pytest.importorskip("httpx")
 
@@ -28,7 +27,6 @@ from shared.ai.ollama_client import (
     fix_code_with_ollama,
     generate_tests_with_ollama,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

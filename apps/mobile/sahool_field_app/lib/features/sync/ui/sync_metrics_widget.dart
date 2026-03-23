@@ -416,7 +416,7 @@ class _FullMetricsView extends ConsumerWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -455,7 +455,7 @@ class _FullMetricsView extends ConsumerWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -523,7 +523,7 @@ class _FullMetricsView extends ConsumerWidget {
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -660,9 +660,9 @@ class _FullMetricsView extends ConsumerWidget {
 
   LineChartData _buildHistoricalChart(List<DailyMetrics> dailyMetrics) {
     return LineChartData(
-      gridData: FlGridData(show: true),
+      gridData: const FlGridData(show: true),
       titlesData: FlTitlesData(
-        leftTitles: AxisTitles(
+        leftTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: true, reservedSize: 40),
         ),
         bottomTitles: AxisTitles(
@@ -680,8 +680,8 @@ class _FullMetricsView extends ConsumerWidget {
             },
           ),
         ),
-        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
       borderData: FlBorderData(show: true),
       lineBarsData: [
@@ -694,7 +694,7 @@ class _FullMetricsView extends ConsumerWidget {
           isCurved: true,
           color: Colors.blue,
           barWidth: 2,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
         ),
         // Successful operations
         LineChartBarData(
@@ -705,7 +705,7 @@ class _FullMetricsView extends ConsumerWidget {
           isCurved: true,
           color: Colors.green,
           barWidth: 2,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
         ),
         // Failed operations
         LineChartBarData(
@@ -716,7 +716,7 @@ class _FullMetricsView extends ConsumerWidget {
           isCurved: true,
           color: Colors.red,
           barWidth: 2,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
         ),
       ],
     );
@@ -724,8 +724,8 @@ class _FullMetricsView extends ConsumerWidget {
 
   LineChartData _buildQueueDepthChartData(List<QueueDepthSample> samples) {
     return LineChartData(
-      gridData: FlGridData(show: true),
-      titlesData: FlTitlesData(
+      gridData: const FlGridData(show: true),
+      titlesData: const FlTitlesData(
         leftTitles: AxisTitles(
           sideTitles: SideTitles(showTitles: true, reservedSize: 40),
         ),
@@ -744,7 +744,7 @@ class _FullMetricsView extends ConsumerWidget {
           isCurved: true,
           color: Colors.purple,
           barWidth: 2,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
         ),
       ],
     );

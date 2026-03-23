@@ -18,14 +18,17 @@ import pytest
 # Add ai-advisor root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.llm.multi_provider import (
-    AnthropicProvider,
-    GoogleGeminiProvider,
-    LLMMessage,
-    MultiLLMService,
-    OllamaProvider,
-    OpenAIProvider,
-)
+try:
+    from src.llm.multi_provider import (
+        AnthropicProvider,
+        GoogleGeminiProvider,
+        LLMMessage,
+        MultiLLMService,
+        OllamaProvider,
+        OpenAIProvider,
+    )
+except ImportError:
+    pytest.skip("ai-advisor dependencies not installed", allow_module_level=True)
 
 
 class TestAnthropicProvider:

@@ -1,1 +1,0 @@
-# Irrigation Smart Tests

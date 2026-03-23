@@ -281,13 +281,13 @@ class TestQualityGateComprehensive:
         assert result.score == 0.0
 
     def test_good_documents_pass(self):
-        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
         from shared.ai.knowledge.models import (
             KnowledgeDomain,
             KnowledgeSourceMeta,
             SourceCredibilityLevel,
             VerificationStatus,
         )
+        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
 
         gate = KnowledgeQualityGate(min_domain_coverage=1)
         docs = []
@@ -328,8 +328,8 @@ class TestQualityGateComprehensive:
         assert bilingual_check["passed"] is False
 
     def test_domain_coverage_check(self):
-        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
         from shared.ai.knowledge.models import KnowledgeDomain
+        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
 
         gate = KnowledgeQualityGate(min_domain_coverage=3)
         docs = [_make_doc(domain=KnowledgeDomain.CROPS)]
@@ -362,8 +362,8 @@ class TestQualityGateComprehensive:
         assert "PASS" in report or "FAIL" in report
 
     def test_verification_status_check(self):
-        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
         from shared.ai.knowledge.models import VerificationStatus
+        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
 
         gate = KnowledgeQualityGate(max_unverified_ratio=0.1)
         docs = [
@@ -377,8 +377,8 @@ class TestQualityGateComprehensive:
         assert verification_check["passed"] is False
 
     def test_source_credibility_check(self):
-        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
         from shared.ai.knowledge.models import KnowledgeSourceMeta, SourceCredibilityLevel
+        from shared.ai.knowledge.quality_gate import KnowledgeQualityGate
 
         gate = KnowledgeQualityGate(min_source_credibility=4)
         docs = [

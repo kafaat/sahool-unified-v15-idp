@@ -176,15 +176,15 @@ class ServiceRegistry {
       ),
     ),
     ServiceType.community: ServiceConfig(
-      name: 'Community Chat',
-      nameAr: 'الدردشة المجتمعية',
+      name: 'Chat Service',
+      nameAr: 'خدمة المحادثة',
       legacy: EndpointConfig(
         port: 8099,
         endpoint: '/ws',
         status: ServiceStatus.deprecated,
       ),
       modern: EndpointConfig(
-        port: 8097,
+        port: 8115,
         endpoint: '/ws',
       ),
       mock: EndpointConfig(

@@ -30,6 +30,7 @@ import logging
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+from . import store as ndvi_store  # production persistence layer
 from .models import (
     AnomalyResponse,
     ChangeAnalysisRequest,
@@ -61,7 +62,6 @@ from .processing import (
     process_ndvi_mock,
     update_job_status,
 )
-from . import store as ndvi_store  # production persistence layer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ Tests the complete audit logging flow including hash chain integrity
 from __future__ import annotations
 
 import json
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import pytest

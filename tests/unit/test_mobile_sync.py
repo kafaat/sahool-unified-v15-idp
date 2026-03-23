@@ -14,59 +14,59 @@ Date: January 2026
 """
 
 import asyncio
-import pytest
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+import pytest
+
 from shared.mobile_sync import (
-    # Models
-    SyncStatus,
-    SyncPriority,
-    SyncDirection,
-    SyncOperationType,
-    ConflictType,
-    ConflictResolutionStrategy,
-    EntityType,
+    PRIORITY_WEIGHTS,
+    SYNC_ERRORS,
+    SYNC_MESSAGES,
     BilingualMessage,
-    SyncMetadata,
-    SyncItem,
-    SyncConflict,
-    SyncProgress,
-    SyncSession,
+    ClientWinsResolver,
+    ConflictResolutionManager,
+    ConflictResolutionStrategy,
+    ConflictResolverFactory,
+    ConflictType,
     DeltaChange,
     DeltaPacket,
-    SYNC_MESSAGES,
-    SYNC_ERRORS,
+    DeltaPacketBuilder,
+    DeltaSyncConfig,
+    DeltaSyncManager,
+    DeltaSyncStats,
+    EntityType,
+    FieldLevelMergeResolver,
+    FieldMergeRule,
+    LastWriteWinsResolver,
+    ManualMergeChoice,
+    ManualMergeResolver,
+    ResolutionConfig,
+    ServerWinsResolver,
+    SyncConflict,
+    SyncDirection,
+    SyncItem,
+    SyncMetadata,
+    SyncOperationType,
+    SyncPriority,
+    SyncProgress,
     # Queue
     SyncQueue,
     SyncQueueConfig,
     SyncQueueManager,
-    PRIORITY_WEIGHTS,
+    SyncSession,
+    # Models
+    SyncStatus,
+    apply_delta,
+    compute_checksum,
+    # Delta
+    compute_delta,
     # Conflict Resolution
     detect_conflict,
     find_conflicting_fields,
     is_auto_resolvable,
-    LastWriteWinsResolver,
-    ServerWinsResolver,
-    ClientWinsResolver,
-    FieldLevelMergeResolver,
-    ManualMergeResolver,
-    FieldMergeRule,
-    ManualMergeChoice,
-    ConflictResolverFactory,
-    ConflictResolutionManager,
-    ResolutionConfig,
-    # Delta
-    compute_delta,
-    apply_delta,
-    compute_checksum,
-    DeltaSyncConfig,
-    DeltaPacketBuilder,
-    DeltaSyncManager,
-    DeltaSyncStats,
     prepare_batch_upload,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixtures

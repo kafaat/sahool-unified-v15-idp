@@ -20,10 +20,63 @@ Usage:
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
+import structlog
 from pydantic import BaseModel, ConfigDict, Field
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Payload Validation - التحقق من صحة حمولة الأحداث
+# ─────────────────────────────────────────────────────────────────────────────
+
+_logger = structlog.get_logger(__name__) if "structlog" in dir() else logging.getLogger(__name__)
+
+# Required base fields for all SAHOOL events published over NATS.
+# الحقول الأساسية المطلوبة لجميع أحداث سهول المنشورة عبر NATS.
+REQUIRED_EVENT_FIELDS: frozenset[str] = frozenset(
+    {
+        "event_id",
+        "timestamp",
+        "tenant_id",
+        "source_service",
+    }
+)
+
+
+def validate_event_payload(subject: str, payload: dict, *, strict: bool = False) -> bool:
+    """Validate event payload has required base fields.
+
+    All SAHOOL events must include: event_id, timestamp, tenant_id, source_service.
+
+    التحقق من أن حمولة الحدث تحتوي على الحقول الأساسية المطلوبة.
+
+    Args:
+        subject: NATS subject the event is published to (e.g. "sahool.field.created").
+        payload: Event payload as a dictionary.
+        strict: If True, raise ValueError on missing fields instead of just logging.
+
+    Returns:
+        True if all required fields are present, False otherwise.
+
+    Raises:
+        ValueError: If strict=True and required fields are missing.
+    """
+    missing = REQUIRED_EVENT_FIELDS - set(payload.keys())
+
+    # Also check for None/empty tenant_id
+    if "tenant_id" in payload and not payload["tenant_id"]:
+        missing = missing | {"tenant_id"}
+
+    if missing:
+        msg = f"Event on '{subject}' missing required fields: {sorted(missing)}"
+        _logger.warning("event_missing_required_fields", subject=subject, missing=sorted(missing))
+        if strict:
+            raise ValueError(msg)
+        return False
+    return True
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model - النموذج الأساسي للأحداث
@@ -44,11 +97,9 @@ class BaseEvent(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
-    tenant_id_header: str | None = Field(
+    tenant_id: str | None = Field(
         None,
-        alias="tenant_id_meta",
-        description="Tenant ID propagated in NATS headers (X-Tenant-ID). "
-        "Use domain-specific tenant_id in child events for business logic.",
+        description="Tenant ID for multi-tenant event routing and NATS header propagation.",
     )
     correlation_id: str | None = Field(None, description="Correlation ID for tracing across services")
     causation_id: str | None = Field(
@@ -677,7 +728,7 @@ class PagePublishedEvent(BaseEvent):
     tenant_id: str = Field(..., description="Tenant identifier")
     name: str = Field(..., description="Page name")
     route: str = Field(..., description="Published route")
-    version: int = Field(default=1, ge=1, description="Published version")
+    page_version: int = Field(default=1, ge=1, description="Published page version number")
 
 
 class DataModelCreatedEvent(BaseEvent):
@@ -873,4 +924,7 @@ __all__ = [
     "WeChatContactAddedEvent",
     "WeChatMomentPublishedEvent",
     "WeChatChatSummarizedEvent",
+    # Validation utilities
+    "validate_event_payload",
+    "REQUIRED_EVENT_FIELDS",
 ]

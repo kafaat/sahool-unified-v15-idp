@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/http/api_client.dart';
-import '../../../core/notifications/notification_manager.dart';
-import '../../../main.dart' show databaseProvider;
 import '../data/remote/tasks_api.dart';
 import '../data/repo/tasks_repo.dart';
 import '../domain/entities/task.dart';

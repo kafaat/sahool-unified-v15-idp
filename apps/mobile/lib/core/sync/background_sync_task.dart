@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/env_config.dart';
+import '../auth/secure_storage_service.dart';
 
 /// Background Sync Task Names
 const String backgroundSyncTask = 'sahool_background_sync';
@@ -42,9 +44,10 @@ Future<bool> _executeBackgroundSync() async {
   final apiClient = ApiClient();
 
   try {
-    // Get tenant ID from shared preferences
+    // Get tenant ID from secure storage (not plaintext SharedPreferences)
+    final secureStorage = SecureStorageService();
+    final tenantId = await secureStorage.read('tenant_id') ?? EnvConfig.defaultTenantId;
     final prefs = await SharedPreferences.getInstance();
-    final tenantId = prefs.getString('tenant_id') ?? EnvConfig.defaultTenantId;
 
     // Check if we have pending items
     final pendingItems = await database.getPendingOutbox(
@@ -52,11 +55,11 @@ Future<bool> _executeBackgroundSync() async {
     );
 
     if (pendingItems.isEmpty) {
-      await _logBackgroundInfo('No pending items to sync');
+      await _logBackgroundInfo('No pending items to sync', db: database);
       return true;
     }
 
-    await _logBackgroundInfo('Starting background sync: ${pendingItems.length} items');
+    await _logBackgroundInfo('Starting background sync: ${pendingItems.length} items', db: database);
 
     int synced = 0;
     int failed = 0;
@@ -147,9 +150,9 @@ Future<_SyncItemResult> _processSyncItem(
 
     await database.markOutboxDone(item.id);
     return _SyncItemResult.success;
-  } catch (e) {
-    // Check for 409 Conflict
-    if (e.toString().contains('409') || e.toString().contains('Conflict')) {
+  } on DioException catch (e) {
+    // Check for 409 Conflict via HTTP status code (not string matching)
+    if (e.response?.statusCode == 409) {
       await _handleConflict(item, database, tenantId);
       await database.markOutboxDone(item.id);
       return _SyncItemResult.conflict;
@@ -184,8 +187,11 @@ String _getEntityTypeAr(String type) {
   }
 }
 
-Future<void> _logBackgroundInfo(String message) async {
-  final database = AppDatabase();
+/// Logs background info. Accepts an optional database to avoid
+/// creating (and key-deriving) a new connection per log call.
+Future<void> _logBackgroundInfo(String message, {AppDatabase? db}) async {
+  final ownDb = db == null;
+  final database = db ?? AppDatabase();
   try {
     await database.logSync(
       type: 'background_task',
@@ -193,12 +199,15 @@ Future<void> _logBackgroundInfo(String message) async {
       message: message,
     );
   } finally {
-    await database.close();
+    if (ownDb) await database.close();
   }
 }
 
-Future<void> _logBackgroundError(String message) async {
-  final database = AppDatabase();
+/// Logs background error. Accepts an optional database to avoid
+/// creating (and key-deriving) a new connection per log call.
+Future<void> _logBackgroundError(String message, {AppDatabase? db}) async {
+  final ownDb = db == null;
+  final database = db ?? AppDatabase();
   try {
     await database.logSync(
       type: 'background_task',
@@ -206,7 +215,7 @@ Future<void> _logBackgroundError(String message) async {
       message: message,
     );
   } finally {
-    await database.close();
+    if (ownDb) await database.close();
   }
 }
 

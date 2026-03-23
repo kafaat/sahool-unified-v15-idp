@@ -1166,7 +1166,7 @@ async def get_dashboard_summary(
     critical_alerts = sum(1 for a in all_alerts if a.get("severity") == "critical")
     avg_health = round(total_health_score / num_fields, 1)
 
-    # Publish dashboard computed event
+    # Publish dashboard computed event with tenant isolation | نشر حدث لوحة المعلومات مع عزل المستأجر
     await publish_event(
         "sahool.indicators.dashboard_computed",
         {
@@ -1178,6 +1178,7 @@ async def get_dashboard_summary(
             "critical_alerts": critical_alerts,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return DashboardSummary(

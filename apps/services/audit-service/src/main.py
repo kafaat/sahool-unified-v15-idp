@@ -19,7 +19,10 @@ from pathlib import Path as PathLib
 from typing import Literal
 from uuid import UUID
 
-import asyncpg
+try:
+    import asyncpg
+except ImportError:
+    asyncpg = None  # type: ignore[assignment]
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query, Request
 from pydantic import BaseModel, Field
 
@@ -188,7 +191,7 @@ async def lifespan(app: FastAPI):
     app.state.db_pool = None
     try:
         db_url = os.getenv("DATABASE_URL")
-        if db_url:
+        if db_url and asyncpg:
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_available = True
             logger.info("Database connection pool created")

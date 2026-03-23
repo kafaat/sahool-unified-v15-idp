@@ -172,7 +172,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
 
             // التوقعات الساعية
             Text(
-              'التوقعات الساعية',
+              _isArabic(context) ? 'التوقعات الساعية' : 'Hourly Forecast',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -184,7 +184,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
 
             // التوقعات اليومية
             Text(
-              'التوقعات الأسبوعية',
+              _isArabic(context) ? 'التوقعات الأسبوعية' : 'Weekly Forecast',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -251,13 +251,13 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildFilterChip('الكل', null, currentFilter),
+          _buildFilterChip(_isArabic(context) ? 'الكل' : 'All', null, currentFilter),
           const SizedBox(width: 8),
-          _buildFilterChip('مناسب', 'favorable', currentFilter, Colors.green),
+          _buildFilterChip(_isArabic(context) ? 'مناسب' : 'Favorable', 'favorable', currentFilter, Colors.green),
           const SizedBox(width: 8),
-          _buildFilterChip('حذر', 'caution', currentFilter, Colors.orange),
+          _buildFilterChip(_isArabic(context) ? 'حذر' : 'Caution', 'caution', currentFilter, Colors.orange),
           const SizedBox(width: 8),
-          _buildFilterChip('غير مناسب', 'unfavorable', currentFilter, Colors.red),
+          _buildFilterChip(_isArabic(context) ? 'غير مناسب' : 'Unfavorable', 'unfavorable', currentFilter, Colors.red),
         ],
       ),
     );

@@ -125,7 +125,7 @@ class MainLayout extends ConsumerWidget {
                       icon: Icons.eco_rounded,
                       label: 'تسجيل تسميد',
                       color: Colors.green,
-                      route: '/spray',
+                      route: '/spray/default',
                     ),
                     _buildQuickActionItem(
                       context: context,

@@ -1642,6 +1642,7 @@ async def detect_crop_diseases(
     health_en, health_ar = get_overall_health_status(detections)
 
     # Publish disease detection events to NATS and store in database
+    # نشر أحداث اكتشاف الأمراض مع عزل المستأجر عند التوفر
     if field_id and detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1649,6 +1650,7 @@ async def detect_crop_diseases(
                 disease=detection.disease_type.value,
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
+                tenant_id=tenant_id,
             )
             # Store in database
             await db_store_disease_detection(
@@ -1666,6 +1668,7 @@ async def detect_crop_diseases(
             health_score=health_en,
             health_score_ar=health_ar,
             issues=issues,
+            tenant_id=tenant_id,
         )
 
     return {
@@ -1698,6 +1701,7 @@ async def analyze_zone_diseases(
     humidity_pct: float | None = Query(default=None, ge=0, le=100),
     temp_c: float | None = Query(default=None, ge=-50, le=60),
     crop_type: CropType = Query(default=CropType.UNKNOWN),
+    tenant_id: str | None = Query(default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"),
 ):
     """
     تحليل أمراض المنطقة من آخر رصد

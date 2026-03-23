@@ -35,7 +35,7 @@ class EnhancedFieldCard extends StatelessWidget {
     return FieldCardHero(
       fieldId: field.id,
       child: Card(
-      elevation: 3,
+        elevation: 3,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(

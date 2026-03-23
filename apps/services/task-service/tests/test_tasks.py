@@ -246,6 +246,7 @@ class TestTaskCRUD:
         assert response.status_code == 200
         assert response.json()["task_id"] == task_id
 
+
     def test_get_task_not_found(self, client):
         """Test getting non-existent task"""
         response = client.get("/api/v1/tasks/nonexistent_id", headers=HEADERS)

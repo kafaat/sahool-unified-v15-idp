@@ -675,13 +675,15 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                   // التوصيات
                   if (action.recommendedWindowHours != null) ...[
                     _buildInfoRow(
-                      'النافذة الزمنية',
-                      '${action.recommendedWindowHours} ساعة',
+                      _isArabic(context) ? 'النافذة الزمنية' : 'Time Window',
+                      _isArabic(context)
+                          ? '${action.recommendedWindowHours} ساعة'
+                          : '${action.recommendedWindowHours} hours',
                     ),
                   ],
                   if (action.recommendedDoseHint != null) ...[
                     _buildInfoRow(
-                      'كمية الجرعة',
+                      _isArabic(context) ? 'كمية الجرعة' : 'Dose Amount',
                       _getDoseLabel(action.recommendedDoseHint!),
                     ),
                   ],
@@ -698,7 +700,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                             _navigateToZoneOnMap(action.zoneId);
                           },
                           icon: const Icon(Icons.map),
-                          label: const Text('عرض على الخريطة'),
+                          label: Text(_isArabic(context) ? 'عرض على الخريطة' : 'View on Map'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -709,7 +711,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                             _markActionAsDone(action);
                           },
                           icon: const Icon(Icons.check),
-                          label: const Text('تم التنفيذ'),
+                          label: Text(_isArabic(context) ? 'تم التنفيذ' : 'Mark Done'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF367C2B),
                           ),

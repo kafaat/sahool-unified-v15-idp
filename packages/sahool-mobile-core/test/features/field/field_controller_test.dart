@@ -8,8 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'package:sahool_field_app/features/field/ui/logic/drawing_provider.dart';
-import 'package:sahool_field_app/features/field/domain/entities/field.dart';
+import 'package:sahool_mobile_core/features/field/ui/logic/drawing_provider.dart';
+import 'package:sahool_mobile_core/features/field/domain/entities/field.dart';
 
 import 'fixtures/field_fixtures.dart';
 

@@ -1,7 +1,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/offline/offline_sync_engine.dart';
-import 'package:sahool_field_app/core/utils/retry_policy.dart';
+import 'package:sahool_mobile_core/core/offline/offline_sync_engine.dart';
+import 'package:sahool_mobile_core/core/utils/retry_policy.dart';
 
 import 'sync_mocks.dart';
 

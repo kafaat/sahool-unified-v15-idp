@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sahool_field_app/core/notifications/notification_settings.dart';
+import 'package:sahool_mobile_core/core/notifications/notification_settings.dart';
 
 /// Integration Tests - Notifications
 /// اختبارات تكامل الإشعارات

@@ -15,9 +15,9 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart';
-import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
-import 'package:sahool_field_app/features/pivot_irrigation/domain/models/span_zone_models.dart';
+import 'package:sahool_mobile_core/features/advisor/data/models/irrigation_models.dart';
+import 'package:sahool_mobile_core/features/pivot_irrigation/domain/models/pivot_models.dart';
+import 'package:sahool_mobile_core/features/pivot_irrigation/domain/models/span_zone_models.dart';
 
 import 'irrigation_fixtures.dart';
 import 'irrigation_mocks.dart';

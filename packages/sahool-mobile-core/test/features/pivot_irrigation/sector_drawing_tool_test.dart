@@ -6,8 +6,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
-import 'package:sahool_field_app/features/pivot_irrigation/presentation/widgets/sector_drawing_tool.dart';
+import 'package:sahool_mobile_core/features/pivot_irrigation/domain/models/pivot_models.dart';
+import 'package:sahool_mobile_core/features/pivot_irrigation/presentation/widgets/sector_drawing_tool.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

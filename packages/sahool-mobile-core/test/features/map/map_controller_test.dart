@@ -10,8 +10,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/core/map/map_providers.dart';
-import 'package:sahool_field_app/core/map/sahool_tile_provider.dart';
+import 'package:sahool_mobile_core/core/map/map_providers.dart';
+import 'package:sahool_mobile_core/core/map/sahool_tile_provider.dart';
 
 import 'mock_map_data.dart';
 

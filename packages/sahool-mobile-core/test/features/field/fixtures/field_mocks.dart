@@ -9,12 +9,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:drift/drift.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import 'package:sahool_field_app/core/http/api_client.dart';
-import 'package:sahool_field_app/core/storage/database.dart';
-import 'package:sahool_field_app/core/sync/network_status.dart';
-import 'package:sahool_field_app/features/field/data/remote/fields_api.dart';
-import 'package:sahool_field_app/features/field/data/repo/fields_repo.dart';
-import 'package:sahool_field_app/features/field/domain/entities/field.dart' as domain;
+import 'package:sahool_mobile_core/core/http/api_client.dart';
+import 'package:sahool_mobile_core/core/storage/database.dart';
+import 'package:sahool_mobile_core/core/sync/network_status.dart';
+import 'package:sahool_mobile_core/features/field/data/remote/fields_api.dart';
+import 'package:sahool_mobile_core/features/field/data/repo/fields_repo.dart';
+import 'package:sahool_mobile_core/features/field/domain/entities/field.dart' as domain;
 
 // =============================================================================
 // Mock Classes

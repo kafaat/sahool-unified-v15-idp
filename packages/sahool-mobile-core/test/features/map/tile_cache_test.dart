@@ -5,8 +5,8 @@
 /// and cache statistics functionality.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/map/map_downloader.dart';
-import 'package:sahool_field_app/core/map/offline_map_manager.dart';
+import 'package:sahool_mobile_core/core/map/map_downloader.dart';
+import 'package:sahool_mobile_core/core/map/offline_map_manager.dart';
 
 import 'mock_map_data.dart';
 

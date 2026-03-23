@@ -1,10 +1,10 @@
 /// Unit Tests for Equipment Feature - Extended Models
 /// اختبارات وحدات المعدات - نماذج موسعة
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/equipment.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/equipment_status.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/fuel_log.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/maintenance_record.dart';
+import 'package:sahool_mobile_core/features/equipment/domain/models/equipment.dart';
+import 'package:sahool_mobile_core/features/equipment/domain/models/equipment_status.dart';
+import 'package:sahool_mobile_core/features/equipment/domain/models/fuel_log.dart';
+import 'package:sahool_mobile_core/features/equipment/domain/models/maintenance_record.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

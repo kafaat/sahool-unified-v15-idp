@@ -1,8 +1,8 @@
 /// Unit Tests for Advisor Feature Models
 /// اختبارات وحدات نماذج المستشار الزراعي
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/advisor/data/models/fertilizer_models.dart';
-import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart';
+import 'package:sahool_mobile_core/features/advisor/data/models/fertilizer_models.dart';
+import 'package:sahool_mobile_core/features/advisor/data/models/irrigation_models.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

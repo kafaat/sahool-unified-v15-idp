@@ -1,7 +1,7 @@
 /// Unit Tests for Marketplace Feature - Models, State, and Cart Logic
 /// اختبارات وحدات ميزة السوق
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart';
+import 'package:sahool_mobile_core/features/marketplace/marketplace_provider.dart';
 
 /// Test subclass that skips auto-loading products in constructor.
 /// Dart polymorphism ensures the overridden loadProducts() is called

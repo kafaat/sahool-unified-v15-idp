@@ -13,7 +13,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/auth/token_manager.dart';
+import 'package:sahool_mobile_core/core/auth/token_manager.dart';
 
 // Helper to create mock JWT tokens for testing
 String createMockJwt({

@@ -13,8 +13,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/ndvi/domain/spectral_index.dart';
-import 'package:sahool_field_app/features/satellite/widgets/satellite_map_overlay.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/spectral_index.dart';
+import 'package:sahool_mobile_core/features/satellite/widgets/satellite_map_overlay.dart';
 
 void main() {
   Widget createTestWidget({

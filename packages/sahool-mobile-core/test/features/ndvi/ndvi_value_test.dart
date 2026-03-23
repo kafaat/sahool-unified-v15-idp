@@ -10,7 +10,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/ndvi/domain/ndvi_value.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/ndvi_value.dart';
 
 import 'ndvi_fixtures.dart';
 

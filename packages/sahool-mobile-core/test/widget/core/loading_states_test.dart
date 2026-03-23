@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/widgets/loading_states.dart';
+import 'package:sahool_mobile_core/core/widgets/loading_states.dart';
 import '../../helpers/test_helpers.dart';
 
 void main() {

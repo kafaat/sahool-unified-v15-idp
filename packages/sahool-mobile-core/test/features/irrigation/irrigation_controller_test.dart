@@ -15,7 +15,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/irrigation/data/remote/irrigation_api.dart';
+import 'package:sahool_mobile_core/features/irrigation/data/remote/irrigation_api.dart';
 
 import 'irrigation_fixtures.dart';
 import 'irrigation_mocks.dart';

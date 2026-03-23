@@ -2,7 +2,7 @@
 /// اختبارات وحدات أدوات GeoJSON
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sahool_field_app/core/geo/geojson.dart';
+import 'package:sahool_mobile_core/core/geo/geojson.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sahool_field_app/core/http/api_client.dart';
+import 'package:sahool_mobile_core/core/http/api_client.dart';
 
 /// Mock Providers for SAHOOL Field App Tests
 /// موفرات وهمية للاختبارات

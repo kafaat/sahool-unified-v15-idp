@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sahool_field_app/features/field/ui/logic/drawing_provider.dart';
+import 'package:sahool_mobile_core/features/field/ui/logic/drawing_provider.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

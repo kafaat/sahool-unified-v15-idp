@@ -8,9 +8,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/weather/data/remote/weather_api.dart';
-import 'package:sahool_field_app/features/weather/domain/entities/weather_entities.dart';
-import 'package:sahool_field_app/features/weather/presentation/providers/weather_provider.dart';
+import 'package:sahool_mobile_core/features/weather/data/remote/weather_api.dart';
+import 'package:sahool_mobile_core/features/weather/domain/entities/weather_entities.dart';
+import 'package:sahool_mobile_core/features/weather/presentation/providers/weather_provider.dart';
 
 import 'weather_fixtures.dart';
 

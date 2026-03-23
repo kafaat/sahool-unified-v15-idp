@@ -16,10 +16,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_v5.dart'
+import 'package:sahool_mobile_core/core/database/migrations/migration_v5.dart'
     show SyncPriority;
-import 'package:sahool_field_app/core/utils/retry_policy.dart';
-import 'package:sahool_field_app/core/offline/sync_conflict_resolver.dart';
+import 'package:sahool_mobile_core/core/utils/retry_policy.dart';
+import 'package:sahool_mobile_core/core/offline/sync_conflict_resolver.dart';
 
 void main() {
   // ============================================================

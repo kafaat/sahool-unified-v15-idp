@@ -1,9 +1,9 @@
 /// Unit Tests for Configuration Classes
 /// اختبارات وحدات التكوين
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/config/api_config.dart';
-import 'package:sahool_field_app/core/config/security_config.dart';
-import 'package:sahool_field_app/core/contracts/service_ports.dart' as contracts;
+import 'package:sahool_mobile_core/core/config/api_config.dart';
+import 'package:sahool_mobile_core/core/config/security_config.dart';
+import 'package:sahool_mobile_core/core/contracts/service_ports.dart' as contracts;
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

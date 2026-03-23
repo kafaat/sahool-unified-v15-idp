@@ -8,7 +8,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sahool_field_app/core/map/map_providers.dart';
+import 'package:sahool_mobile_core/core/map/map_providers.dart';
 
 import 'mock_map_data.dart';
 

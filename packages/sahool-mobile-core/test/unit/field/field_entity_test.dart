@@ -14,7 +14,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sahool_field_app/features/field/domain/entities/field.dart';
+import 'package:sahool_mobile_core/features/field/domain/entities/field.dart';
 
 /// Creates a sample field for testing
 Field createTestField({

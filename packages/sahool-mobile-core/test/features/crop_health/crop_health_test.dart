@@ -1,7 +1,7 @@
 /// Unit Tests for Crop Health Feature Models
 /// اختبارات وحدات نماذج صحة المحاصيل
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/crop_health/data/models/diagnosis_models.dart';
+import 'package:sahool_mobile_core/features/crop_health/data/models/diagnosis_models.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

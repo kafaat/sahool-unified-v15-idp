@@ -1,7 +1,7 @@
 /// SAHOOL API Configuration Tests
 /// اختبارات إعدادات API
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/config/api_config.dart';
+import 'package:sahool_mobile_core/core/config/api_config.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

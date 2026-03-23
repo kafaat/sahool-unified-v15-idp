@@ -6,8 +6,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/satellite/data/models/ndvi_data.dart';
-import 'package:sahool_field_app/features/ndvi/domain/ndvi_value.dart';
+import 'package:sahool_mobile_core/features/satellite/data/models/ndvi_data.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/ndvi_value.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HTTP Mocks - كائنات HTTP الوهمية

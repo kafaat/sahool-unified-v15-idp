@@ -9,10 +9,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/ndvi/domain/ndvi_value.dart';
-import 'package:sahool_field_app/features/analytics/domain/entities/field_history.dart'
+import 'package:sahool_mobile_core/features/ndvi/domain/ndvi_value.dart';
+import 'package:sahool_mobile_core/features/analytics/domain/entities/field_history.dart'
     hide TrendDirection;
-import 'package:sahool_field_app/features/analytics/domain/entities/field_history.dart'
+import 'package:sahool_mobile_core/features/analytics/domain/entities/field_history.dart'
     as fh show TrendDirection;
 
 import 'ndvi_fixtures.dart';

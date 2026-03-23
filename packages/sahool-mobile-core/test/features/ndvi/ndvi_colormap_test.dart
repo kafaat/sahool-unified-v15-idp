@@ -10,7 +10,7 @@ library;
 
 import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/ndvi/domain/ndvi_colormap.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/ndvi_colormap.dart';
 
 import 'ndvi_fixtures.dart';
 

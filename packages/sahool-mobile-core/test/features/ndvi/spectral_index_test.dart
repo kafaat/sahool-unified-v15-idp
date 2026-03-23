@@ -15,10 +15,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/ndvi/domain/spectral_index.dart';
-import 'package:sahool_field_app/features/ndvi/domain/ndvi_colormap.dart';
-import 'package:sahool_field_app/features/ndvi/ui/ndvi_health_indicator.dart';
-import 'package:sahool_field_app/features/ndvi/ui/ndvi_tile_layer.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/spectral_index.dart';
+import 'package:sahool_mobile_core/features/ndvi/domain/ndvi_colormap.dart';
+import 'package:sahool_mobile_core/features/ndvi/ui/ndvi_health_indicator.dart';
+import 'package:sahool_mobile_core/features/ndvi/ui/ndvi_tile_layer.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

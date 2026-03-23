@@ -3,7 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/ai/ai_service.dart';
+import 'package:sahool_mobile_core/core/ai/ai_service.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

@@ -2,7 +2,7 @@
 /// اختبارات عميل API
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/http/api_client.dart';
+import 'package:sahool_mobile_core/core/http/api_client.dart';
 
 // Note: mockito removed due to analyzer 7.x incompatibility
 // Tests use real objects where possible

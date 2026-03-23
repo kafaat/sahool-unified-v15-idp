@@ -12,7 +12,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
+import 'package:sahool_mobile_core/core/auth/secure_storage_service.dart';
 
 import 'auth_fixtures.dart';
 

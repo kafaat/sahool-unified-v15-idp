@@ -7,8 +7,8 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/core/services/weather_provider_service.dart';
-import 'package:sahool_field_app/core/config/providers_config.dart';
+import 'package:sahool_mobile_core/core/services/weather_provider_service.dart';
+import 'package:sahool_mobile_core/core/config/providers_config.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks - الكائنات الوهمية

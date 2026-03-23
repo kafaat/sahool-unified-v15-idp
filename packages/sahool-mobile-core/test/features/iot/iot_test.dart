@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:http/http.dart' as http;
-import 'package:sahool_field_app/features/iot/data/remote/iot_api.dart';
+import 'package:sahool_mobile_core/features/iot/data/remote/iot_api.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks

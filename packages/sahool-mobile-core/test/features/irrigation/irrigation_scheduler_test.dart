@@ -10,10 +10,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/features/irrigation/data/remote/irrigation_api.dart';
-import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart'
+import 'package:sahool_mobile_core/features/irrigation/data/remote/irrigation_api.dart';
+import 'package:sahool_mobile_core/features/advisor/data/models/irrigation_models.dart'
     hide IrrigationEvent, IrrigationCalculation, IrrigationSchedule; // Hide to avoid conflict with irrigation_api
-import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
+import 'package:sahool_mobile_core/features/pivot_irrigation/domain/models/pivot_models.dart';
 
 import 'irrigation_fixtures.dart';
 import 'irrigation_mocks.dart';

@@ -15,29 +15,29 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 
 // Core imports
-import 'package:sahool_field_app/core/utils/app_logger.dart';
-import 'package:sahool_field_app/core/database/schema_version.dart';
-import 'package:sahool_field_app/core/database/migration_strategy.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_base.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_v5.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_verification.dart';
-import 'package:sahool_field_app/core/database/migrations/migrations.dart';
+import 'package:sahool_mobile_core/core/utils/app_logger.dart';
+import 'package:sahool_mobile_core/core/database/schema_version.dart';
+import 'package:sahool_mobile_core/core/database/migration_strategy.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_base.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_v5.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_verification.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migrations.dart';
 
 // Auth imports
-import 'package:sahool_field_app/core/auth/auth_service.dart';
-import 'package:sahool_field_app/core/auth/biometric_service.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
-import 'package:sahool_field_app/core/auth/token_manager.dart';
+import 'package:sahool_mobile_core/core/auth/auth_service.dart';
+import 'package:sahool_mobile_core/core/auth/biometric_service.dart';
+import 'package:sahool_mobile_core/core/auth/secure_storage_service.dart';
+import 'package:sahool_mobile_core/core/auth/token_manager.dart';
 
 // Contracts imports
-import 'package:sahool_field_app/core/contracts/service_ports.dart';
-import 'package:sahool_field_app/core/contracts/error_codes.dart';
+import 'package:sahool_mobile_core/core/contracts/service_ports.dart';
+import 'package:sahool_mobile_core/core/contracts/error_codes.dart';
 
 // Feature imports - Field
-import 'package:sahool_field_app/features/field/domain/entities/field.dart';
+import 'package:sahool_mobile_core/features/field/domain/entities/field.dart';
 
 // Feature imports - Sync
-import 'package:sahool_field_app/core/sync/network_status.dart';
+import 'package:sahool_mobile_core/core/sync/network_status.dart';
 
 void main() {
   group('Import Validation Tests - اختبارات التحقق من الاستيرادات', () {

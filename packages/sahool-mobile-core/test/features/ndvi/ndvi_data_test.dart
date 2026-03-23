@@ -9,7 +9,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/satellite/data/models/ndvi_data.dart';
+import 'package:sahool_mobile_core/features/satellite/data/models/ndvi_data.dart';
 
 import 'ndvi_fixtures.dart';
 

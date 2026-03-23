@@ -12,7 +12,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/map_home/ui/map_screen.dart';
+import 'package:sahool_mobile_core/features/map_home/ui/map_screen.dart';
 
 void main() {
   Widget createTestWidget() {

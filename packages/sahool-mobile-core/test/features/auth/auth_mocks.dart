@@ -10,11 +10,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sahool_field_app/core/auth/auth_service.dart';
-import 'package:sahool_field_app/core/auth/biometric_service.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
-import 'package:sahool_field_app/core/auth/token_manager.dart';
-import 'package:sahool_field_app/core/http/api_client.dart';
+import 'package:sahool_mobile_core/core/auth/auth_service.dart';
+import 'package:sahool_mobile_core/core/auth/biometric_service.dart';
+import 'package:sahool_mobile_core/core/auth/secure_storage_service.dart';
+import 'package:sahool_mobile_core/core/auth/token_manager.dart';
+import 'package:sahool_mobile_core/core/http/api_client.dart';
 
 /// Mock SecureStorageService with in-memory storage
 class MockSecureStorageService extends Mock implements SecureStorageService {

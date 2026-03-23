@@ -5,10 +5,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/weather/domain/entities/weather_entities.dart';
-import 'package:sahool_field_app/features/weather/domain/value_objects/alert_severity.dart';
-import 'package:sahool_field_app/features/weather/domain/value_objects/weather_severity.dart';
-import 'package:sahool_field_app/features/weather/domain/value_objects/weather_color.dart';
+import 'package:sahool_mobile_core/features/weather/domain/entities/weather_entities.dart';
+import 'package:sahool_mobile_core/features/weather/domain/value_objects/alert_severity.dart';
+import 'package:sahool_mobile_core/features/weather/domain/value_objects/weather_severity.dart';
+import 'package:sahool_mobile_core/features/weather/domain/value_objects/weather_color.dart';
 
 import 'weather_fixtures.dart';
 

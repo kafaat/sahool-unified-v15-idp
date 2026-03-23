@@ -14,11 +14,11 @@
 /// Run with: flutter test test/core/database/comprehensive_migration_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/database/schema_version.dart';
-import 'package:sahool_field_app/core/database/migration_strategy.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_base.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_v5.dart';
-import 'package:sahool_field_app/core/database/migrations/migration_verification.dart';
+import 'package:sahool_mobile_core/core/database/schema_version.dart';
+import 'package:sahool_mobile_core/core/database/migration_strategy.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_base.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_v5.dart';
+import 'package:sahool_mobile_core/core/database/migrations/migration_verification.dart';
 
 void main() {
   // ============================================================

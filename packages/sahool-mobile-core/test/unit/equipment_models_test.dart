@@ -1,7 +1,7 @@
 /// Unit Tests for Equipment Models
 /// اختبارات وحدات نماذج المعدات
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/equipment/data/equipment_models.dart';
+import 'package:sahool_mobile_core/features/equipment/data/equipment_models.dart';
 
 void main() {
   group('Equipment Model Tests', () {

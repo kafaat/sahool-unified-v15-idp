@@ -3,3 +3,6 @@
 
 # Dev-only JWT fallback in auth config (not a real secret, contains "insecure" and "must-not-use-in-prod")
 35cfc637aa2a526f40c5f56c97376904df827b40:shared/auth/config.py:generic-secret:47
+
+# _resolve_jwt_secret() reads env vars - no actual secret in code, just os.getenv() calls
+e0d17aec80cd47a0ce21116a2a1136820dd30101:shared/auth/config.py:generic-secret:46

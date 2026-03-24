@@ -737,8 +737,8 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                     correlation_id=req.correlation_id,
                 )
                 event_ids.append(event_id)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to publish weather alert event: {e}")
 
     return {
         "tenant_id": req.tenant_id,
@@ -834,8 +834,8 @@ async def assess_frost_risk(req: FrostRiskRequest, user: User = Depends(get_curr
                     title_ar=result.get("recommendation_ar", "خطر صقيع"),
                     title_en=result.get("recommendation_en", "Frost risk"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to publish weather alert event: {e}")
 
     return {
         "tenant_id": req.tenant_id,
@@ -878,8 +878,8 @@ async def assess_heat_stress(req: HeatStressRequest, user: User = Depends(get_cu
                     title_ar=result.get("recommendation_ar", "إجهاد حراري"),
                     title_en=result.get("recommendation_en", "Heat stress"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to publish weather alert event: {e}")
 
     return {
         "tenant_id": req.tenant_id,
@@ -949,8 +949,8 @@ async def calculate_drought(req: DroughtIndexRequest, user: User = Depends(get_c
                     title_ar=result.get("recommendation_ar", "جفاف"),
                     title_en=result.get("recommendation_en", "Drought"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to publish weather alert event: {e}")
 
     return {
         "tenant_id": req.tenant_id,

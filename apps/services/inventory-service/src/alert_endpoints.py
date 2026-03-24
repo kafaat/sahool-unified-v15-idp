@@ -273,8 +273,9 @@ settings_db = {}  # In-memory settings storage
 
 
 @router.get("/settings")
-async def get_alert_settings(tenant_id: str = "tenant_demo"):
+async def get_alert_settings(_user: User = Depends(get_current_user)):
     """Get alert settings"""
+    tenant_id = getattr(_user, "tenant_id", "default")
     settings = settings_db.get(
         tenant_id,
         {

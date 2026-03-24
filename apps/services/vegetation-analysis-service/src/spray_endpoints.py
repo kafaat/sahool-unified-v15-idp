@@ -30,6 +30,7 @@ def register_spray_endpoints(app):
 
     @app.get("/v1/spray/forecast")
     async def get_spray_forecast(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
@@ -139,6 +140,7 @@ def register_spray_endpoints(app):
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         product_type: str = Query(..., description="Product type (herbicide, insecticide, etc.)"),
@@ -217,6 +219,7 @@ def register_spray_endpoints(app):
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         target_datetime: str = Query(..., description="Target spray time (ISO 8601 format)"),

@@ -31,6 +31,7 @@ def register_gdd_endpoints(app):
 
     @app.get("/v1/gdd/chart/{field_id}")
     async def get_gdd_chart(
+        _user: User = Depends(get_current_user),
         field_id: str,
         crop_code: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
         planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
@@ -166,6 +167,7 @@ def register_gdd_endpoints(app):
 
     @app.get("/v1/gdd/forecast")
     async def get_gdd_forecast(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         current_gdd: float = Query(..., description="Current accumulated GDD", ge=0),
@@ -260,6 +262,7 @@ def register_gdd_endpoints(app):
 
     @app.get("/v1/gdd/requirements/{crop_code}")
     async def get_crop_gdd_requirements(
+        _user: User = Depends(get_current_user),
         crop_code: str,
         _user: User = Depends(get_current_user),
     ):
@@ -344,6 +347,7 @@ def register_gdd_endpoints(app):
 
     @app.get("/v1/gdd/stage/{crop_code}")
     async def get_growth_stage_from_gdd(
+        _user: User = Depends(get_current_user),
         crop_code: str,
         gdd: float = Query(..., description="Accumulated GDD", ge=0),
         _user: User = Depends(get_current_user),

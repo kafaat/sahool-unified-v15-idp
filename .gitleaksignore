@@ -4,3 +4,6 @@
 # shared/auth/config.py - log message references "JWT_SECRET_KEY" (the env var name, not a secret value)
 e0d17aec80cd47a0ce21116a2a1136820dd30101:shared/auth/config.py:generic-secret:46
 35cfc637aa2a526f40c5f56c97376904df827b40:shared/auth/config.py:generic-secret:47
+
+# This file itself contains commit SHAs which GitLeaks flags as high-entropy hex
+a91e02f63ad4b9cd328037bfc7c2c0fd06fb6b52:.gitleaksignore:high-entropy-hex:6

@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v5
@@ -171,7 +171,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -181,7 +181,7 @@ jobs:
             pub-cache-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -197,7 +197,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -344,7 +344,7 @@ jobs:
           fi
 
       - name: Upload Release APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-release-apk-v${{ needs.version.outputs.version }}
           path: |
@@ -353,7 +353,7 @@ jobs:
           retention-days: 90
 
       - name: Upload mapping file (ProGuard)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: proguard-mapping-v${{ needs.version.outputs.version }}
           path: apps/mobile/build/app/outputs/mapping/release/
@@ -361,7 +361,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload debug symbols
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: debug-symbols-apk-v${{ needs.version.outputs.version }}
           path: apps/mobile/build/app/outputs/symbols/
@@ -404,7 +404,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v5
@@ -429,7 +429,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -439,7 +439,7 @@ jobs:
             pub-cache-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -455,7 +455,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -598,7 +598,7 @@ jobs:
           fi
 
       - name: Upload Release AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-release-aab-v${{ needs.version.outputs.version }}
           path: |
@@ -607,7 +607,7 @@ jobs:
           retention-days: 90
 
       - name: Upload debug symbols for AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: debug-symbols-aab-v${{ needs.version.outputs.version }}
           path: apps/mobile/build/app/outputs/symbols/
@@ -645,7 +645,7 @@ jobs:
 
     steps:
       - name: Download AAB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sahool-release-aab-v${{ needs.version.outputs.version }}
           path: ./release
@@ -705,14 +705,14 @@ jobs:
 
     steps:
       - name: Download APK artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sahool-release-apk-v${{ needs.version.outputs.version }}
           path: ./release-apk
         continue-on-error: true
 
       - name: Download AAB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sahool-release-aab-v${{ needs.version.outputs.version }}
           path: ./release-aab

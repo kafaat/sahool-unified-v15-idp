@@ -1,0 +1,1848 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Mobile Apps Merge Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mobile-apps-merge-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mobile Apps Merge Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mobile-apps-merge-plan">Mobile Apps Merge Plan<a class="headerlink" href="#mobile-apps-merge-plan" title="Permanent link">&para;</a></h1>
+<h2 id="_1">خطة دمج تطبيقات الجوال<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>التاريخ</strong>: 2026-03-23
+<strong>النسخة</strong>: 16.0.0
+<strong>الحالة</strong>: مسودة - تحتاج موافقة الفريق
+<strong>المرجع</strong>: <a href="../MOBILE_APPS_FEATURE_COMPARISON_REVIEW/">MOBILE_APPS_FEATURE_COMPARISON_REVIEW.md</a></p>
+<hr />
+<h2 id="_2">الاكتشاف الجوهري<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>التحليل كشف أن البنية الحالية تعاني من مشكلة معمارية أساسية:</p>
+<div class="codehilite"><pre><span></span><code>apps/mobile/
+├── lib/                      ← مكتبة يتيمة (Orphaned)
+│                                غير مستوردة من أي تطبيق!
+├── sahool_field_app/         ← التطبيق الفعلي المستقل
+│   └── lib/                     كود مكرر بالكامل
+├── sahol_atmosphere/         ← تطبيق الطقس المستقل
+│   └── lib/                     كود مكرر أيضاً
+└── sahool-mobile/            ← TypeScript/Node.js (مختلف تماماً)
+</code></pre></div>
+
+<p><strong>المشكلة</strong>: لا يوجد <code>path:</code> dependencies بين التطبيقات. كل تطبيق Flutter يحتوي على نسخة كاملة من الـ core. أي إصلاح bug يجب تطبيقه في مكانين أو أكثر.</p>
+<hr />
+<h2 id="_3">الأهداف<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>إنشاء مكتبة مشتركة</strong> (<code>packages/mobile-shared/</code>) كمصدر وحيد للحقيقة</li>
+<li><strong>دمج أفضل التنفيذات</strong> من كلا التطبيقين</li>
+<li><strong>إزالة الازدواجية</strong> وتقليل تكلفة الصيانة</li>
+<li><strong>عدم كسر أي وظيفة قائمة</strong> أثناء الدمج</li>
+</ol>
+<hr />
+<h2 id="0-1">المرحلة 0: التحضير (أسبوع 1)<a class="headerlink" href="#0-1" title="Permanent link">&para;</a></h2>
+<h3 id="01-flutter">0.1 إنشاء مكتبة Flutter المشتركة<a class="headerlink" href="#01-flutter" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء الحزمة المشتركة</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>packages/mobile-shared
+<span class="nb">cd</span><span class="w"> </span>packages/mobile-shared
+flutter<span class="w"> </span>create<span class="w"> </span>--template<span class="o">=</span>package<span class="w"> </span>.
+</code></pre></div>
+
+<p><strong>الملف</strong>: <code>packages/mobile-shared/pubspec.yaml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool_mobile_shared</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Shared Flutter code for SAHOOL mobile apps</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16.0.0</span>
+<span class="nt">publish_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sdk</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&gt;=3.2.0</span><span class="nv"> </span><span class="s">&lt;4.0.0&#39;</span>
+<span class="w">  </span><span class="nt">flutter</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&gt;=3.27.0&#39;</span>
+
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">flutter</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flutter</span>
+<span class="w">  </span><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.6.1</span>
+<span class="w">  </span><span class="nt">dio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.7.0</span>
+<span class="w">  </span><span class="nt">drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.24.0</span>
+<span class="w">  </span><span class="nt">freezed_annotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.4.0</span>
+<span class="w">  </span><span class="nt">json_annotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^4.9.0</span>
+<span class="w">  </span><span class="nt">nats_client</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^1.0.0</span>
+<span class="w">  </span><span class="nt">connectivity_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.0.0</span>
+
+<span class="nt">dev_dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">flutter_test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sdk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flutter</span>
+<span class="w">  </span><span class="nt">build_runner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.4.0</span>
+<span class="w">  </span><span class="nt">freezed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.5.0</span>
+<span class="w">  </span><span class="nt">json_serializable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.8.0</span>
+</code></pre></div>
+
+<p><strong>البنية المستهدفة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">packages</span><span class="o">/</span><span class="n">mobile</span><span class="o">-</span><span class="n">shared</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">lib</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">sahool_mobile_shared</span><span class="o">.</span><span class="n">dart</span><span class="w">    </span><span class="c1"># Barrel export</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">core</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">api</span><span class="o">/</span><span class="w">                     </span><span class="c1"># API client + interceptors</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">auth</span><span class="o">/</span><span class="w">                    </span><span class="c1"># JWT + providers</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">config</span><span class="o">/</span><span class="w">                  </span><span class="c1"># Environment + feature flags</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">http</span><span class="o">/</span><span class="w">                    </span><span class="c1"># Dio + retry + certificate pinning</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">offline</span><span class="o">/</span><span class="w">                 </span><span class="c1"># Sync engine + outbox + conflict</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">security</span><span class="o">/</span><span class="w">               </span><span class="c1"># Device integrity + request signing</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">storage</span><span class="o">/</span><span class="w">                </span><span class="c1"># Drift DB + SQLCipher</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">sync</span><span class="o">/</span><span class="w">                   </span><span class="c1"># Background sync + outbox</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">domain</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">models</span><span class="o">/</span><span class="w">                 </span><span class="c1"># Shared domain models</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">services</span><span class="o">/</span><span class="w">               </span><span class="c1"># Shared domain services</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">utils</span><span class="o">/</span><span class="w">                      </span><span class="c1"># Shared utilities</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">test</span><span class="o">/</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">pubspec</span><span class="o">.</span><span class="n">yaml</span>
+</code></pre></div>
+
+<h3 id="02-pubspecyaml">0.2 تحديث pubspec.yaml في التطبيقات<a class="headerlink" href="#02-pubspecyaml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في sahool_field_app/pubspec.yaml و أي تطبيق آخر</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sahool_mobile_shared</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../../packages/mobile-shared</span>
+</code></pre></div>
+
+<h3 id="03">0.3 إنشاء فرع الدمج<a class="headerlink" href="#03" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/mobile-shared-package
+</code></pre></div>
+
+<hr />
+<h2 id="1-core-2">المرحلة 1: دمج البنية الأساسية Core (أسبوع 2)<a class="headerlink" href="#1-core-2" title="Permanent link">&para;</a></h2>
+<h3 id="11-offlinesync-infrastructure">1.1 نقل Offline/Sync Infrastructure<a class="headerlink" href="#11-offlinesync-infrastructure" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: <code>sahool_field_app/lib/core/</code> (الأكمل)
+<strong>الهدف</strong>: <code>packages/mobile-shared/lib/core/</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف المصدر</th>
+<th style="text-align: left;">الهدف</th>
+<th style="text-align: left;">الملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/offline/offline_sync_engine.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/offline/</code></td>
+<td style="text-align: left;">الأكمل</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/offline/outbox_repository.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/offline/</code></td>
+<td style="text-align: left;">حصري لـ Field App</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/offline/sync_conflict_resolver.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/offline/</code></td>
+<td style="text-align: left;">دمج مع Main lib version</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/offline/offline_data_manager.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/offline/</code></td>
+<td style="text-align: left;">حصري لـ Field App</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/offline/offline_completeness.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/offline/</code></td>
+<td style="text-align: left;">حصري لـ Field App</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/sync_engine.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">دمج أفضل من الاثنين</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/background_sync_task.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">متشابه في الاثنين</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/network_status.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">متشابه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/queue_manager.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">متشابه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/sync_worker.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">متشابه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/sync_metrics_providers.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">حصري لـ Field App</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/sync_metrics_service.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/</code></td>
+<td style="text-align: left;">حصري لـ Field App</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Outbox Sub-system</strong> (كامل من Field App):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف</th>
+<th style="text-align: left;">الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/outbox_entry.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/outbox_processor.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/outbox_service.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/outbox_tables.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/conflict_handler.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/sync_status_provider.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/sync/outbox/sync_status_widget.dart</code></td>
+<td style="text-align: left;"><code>mobile-shared/lib/core/sync/outbox/</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>خطوات التنفيذ:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. نسخ الملفات</span>
+cp<span class="w"> </span>-r<span class="w"> </span>apps/mobile/sahool_field_app/lib/core/offline/<span class="w"> </span>packages/mobile-shared/lib/core/offline/
+cp<span class="w"> </span>-r<span class="w"> </span>apps/mobile/sahool_field_app/lib/core/sync/<span class="w"> </span>packages/mobile-shared/lib/core/sync/
+
+<span class="c1"># 2. تحديث imports في الملفات المنسوخة</span>
+<span class="c1"># تغيير: import &#39;../../storage/database.dart&#39;;</span>
+<span class="c1"># إلى:   import &#39;package:sahool_mobile_shared/core/storage/database.dart&#39;;</span>
+
+<span class="c1"># 3. تحديث imports في sahool_field_app</span>
+<span class="c1"># تغيير: import &#39;../core/offline/outbox_repository.dart&#39;;</span>
+<span class="c1"># إلى:   import &#39;package:sahool_mobile_shared/core/offline/outbox_repository.dart&#39;;</span>
+</code></pre></div>
+
+<h3 id="12-security-layer">1.2 نقل Security Layer<a class="headerlink" href="#12-security-layer" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: Field App (الأكمل - يحتوي Request Signing)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف</th>
+<th style="text-align: left;">الاتجاه</th>
+<th style="text-align: left;">الملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/security/certificate_pinning.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+<td style="text-align: left;">الأكمل (3-tier)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/security/device_integrity.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+<td style="text-align: left;">متشابه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sahool_field_app/lib/core/security/request_signing.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+<td style="text-align: left;"><strong>حصري Field App</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/core/security/screenshot_prevention.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+<td style="text-align: left;">من Main lib</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-feature-flags">1.3 نقل Feature Flags<a class="headerlink" href="#13-feature-flags" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: Main lib (بنية أكثر تطوراً)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف</th>
+<th style="text-align: left;">الاتجاه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>lib/core/feature_flags/feature_flags.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/core/feature_flags/feature_flag.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/core/feature_flags/feature_flags_config.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/core/feature_flags/feature_flags_service.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/core/feature_flags/remote_config.dart</code></td>
+<td style="text-align: left;">→ mobile-shared</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-3-4">المرحلة 2: دمج الميزات (أسبوع 3-4)<a class="headerlink" href="#2-3-4" title="Permanent link">&para;</a></h2>
+<h3 id="21-vision-feature-main-lib">2.1 نقل Vision Feature → Main lib<a class="headerlink" href="#21-vision-feature-main-lib" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: <code>sahool_field_app/lib/features/vision/</code> (5 ملفات)
+<strong>الهدف</strong>: <code>packages/mobile-shared/lib/features/vision/</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف</th>
+<th style="text-align: left;">الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>vision.dart</code></td>
+<td style="text-align: left;">Barrel export</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>data/yolo26_service.dart</code></td>
+<td style="text-align: left;">خدمة YOLO26 للكشف</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>domain/detection_model.dart</code></td>
+<td style="text-align: left;">نماذج الكشف</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>presentation/detection_screen.dart</code></td>
+<td style="text-align: left;">شاشة الكشف</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>presentation/providers/vision_providers.dart</code></td>
+<td style="text-align: left;">Riverpod providers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التبعيات</strong>: يعتمد على <code>core/api/</code> و <code>core/http/</code> - يجب نقلها أولاً.</p>
+<h3 id="22-irrigation-domain-services-main-lib">2.2 نقل Irrigation Domain Services → Main lib<a class="headerlink" href="#22-irrigation-domain-services-main-lib" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: <code>sahool_field_app/lib/features/irrigation/domain/services/</code> (3 ملفات)
+<strong>الهدف</strong>: <code>apps/mobile/lib/features/irrigation/domain/services/</code> (إضافة للموجود)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الملف</th>
+<th style="text-align: left;">الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>irrigation_scheduler.dart</code></td>
+<td style="text-align: left;">جدولة الري التلقائية</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>water_calculator.dart</code></td>
+<td style="text-align: left;">حساب كميات المياه</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>weather_irrigation_integration.dart</code></td>
+<td style="text-align: left;">تكامل الطقس مع الري</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة</strong>: Main lib يحتوي على presentation layer كامل. الدمج يضيف domain services بدون تعديل الموجود.</p>
+<h3 id="23-crm-field-app">2.3 نقل CRM → Field App<a class="headerlink" href="#23-crm-field-app" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: <code>apps/mobile/lib/features/crm/</code> (18 ملف)
+<strong>الهدف</strong>: <code>sahool_field_app/lib/features/crm/</code></p>
+<div class="codehilite"><pre><span></span><code>crm/
+├── data/
+│   ├── crm_api.dart                    # API client
+│   ├── crm_local_database.dart         # Local DB
+│   └── crm_repository.dart             # Repository pattern
+├── domain/models/
+│   ├── farmer_profile.dart             # ملف المزارع
+│   ├── interaction.dart                # التفاعلات
+│   ├── opportunity.dart                # الفرص
+│   └── activity_log.dart               # سجل الأنشطة
+├── state/
+│   ├── crm_controller.dart             # State controller
+│   └── crm_providers.dart              # Riverpod providers
+└── presentation/
+    ├── screens/
+    │   ├── farmers_list_screen.dart     # قائمة المزارعين
+    │   ├── farmer_profile_screen.dart   # ملف المزارع
+    │   ├── farmer_analytics_screen.dart # تحليلات المزارع
+    │   ├── interaction_history_screen.dart
+    │   └── add_interaction_screen.dart
+    └── widgets/
+        ├── farmer_card.dart
+        ├── activity_chart.dart
+        ├── interaction_timeline.dart
+        └── contact_actions.dart
+</code></pre></div>
+
+<p><strong>التبعيات</strong>: يعتمد على <code>core/sync/network_status.dart</code> - موجود في Field App.</p>
+<h3 id="24-reports-field-app">2.4 نقل Reports → Field App<a class="headerlink" href="#24-reports-field-app" title="Permanent link">&para;</a></h3>
+<p><strong>المصدر</strong>: <code>apps/mobile/lib/features/reports/</code> (19 ملف)
+<strong>الهدف</strong>: <code>sahool_field_app/lib/features/reports/</code></p>
+<div class="codehilite"><pre><span></span><code><span class="n">reports</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">data</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">reports_api</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">reports_repository</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">report_generator</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">domain</span><span class="o">/</span><span class="n">models</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">report_template</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">report_data</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">report_filter</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">chart_config</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">state</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">reports_providers</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">report_builder_controller</span><span class="o">.</span><span class="n">dart</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">presentation</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">screens</span><span class="o">/</span>
+<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">reports_dashboard_screen</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">report_builder_screen</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">report_viewer_screen</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">    </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">report_share_screen</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">widgets</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">chart_widget</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">report_card</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">report_data_table</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">export_button</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">date_range_picker_widget</span><span class="o">.</span><span class="n">dart</span>
+<span class="w">        </span><span class="err">└──</span><span class="w"> </span><span class="n">filter_chips_widget</span><span class="o">.</span><span class="n">dart</span>
+</code></pre></div>
+
+<hr />
+<h2 id="3-4">المرحلة 3: الإصلاحات والتنظيف (أسبوع 4)<a class="headerlink" href="#3-4" title="Permanent link">&para;</a></h2>
+<h3 id="31-diagnosis-models">3.1 إصلاح ازدواجية Diagnosis Models<a class="headerlink" href="#31-diagnosis-models" title="Permanent link">&para;</a></h3>
+<p><strong>الإجراء</strong>: حذف الملف غير المستخدم</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># diagnosis_model.dart غير مستورد في أي مكان</span>
+<span class="c1"># diagnosis_models.dart هو الملف النشط المستخدم فعلياً</span>
+rm<span class="w"> </span>apps/mobile/sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.dart
+rm<span class="w"> </span>apps/mobile/sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.freezed.dart
+rm<span class="w"> </span>apps/mobile/sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.g.dart
+</code></pre></div>
+
+<h3 id="32">3.2 توحيد الميزات المتطابقة<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<p>الميزات التالية متطابقة 100% في كلا التطبيقين ويجب نقلها لمكتبة مشتركة:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">الميزة</th>
+<th style="text-align: center;">عدد الملفات</th>
+<th style="text-align: left;">الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>weather/</code></td>
+<td style="text-align: center;">15</td>
+<td style="text-align: left;">عالية - متطابقة تماماً</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>chat/</code></td>
+<td style="text-align: center;">11</td>
+<td style="text-align: left;">عالية - متطابقة تماماً</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>satellite/</code></td>
+<td style="text-align: center;">17</td>
+<td style="text-align: left;">عالية - متطابقة تماماً</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الإجراء لكل ميزة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. نقل إلى المكتبة المشتركة</span>
+mv<span class="w"> </span>apps/mobile/sahool_field_app/lib/features/weather/<span class="w"> </span>packages/mobile-shared/lib/features/weather/
+
+<span class="c1"># 2. تحديث imports في sahool_field_app</span>
+<span class="c1"># من: import &#39;../features/weather/...&#39;</span>
+<span class="c1"># إلى: import &#39;package:sahool_mobile_shared/features/weather/...&#39;</span>
+
+<span class="c1"># 3. تحديث imports في Main lib (إذا تقرر استخدامه)</span>
+<span class="c1"># نفس النمط</span>
+</code></pre></div>
+
+<h3 id="33-equipment-field-app">3.3 إكمال Equipment في Field App<a class="headerlink" href="#33-equipment-field-app" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة الحالية</strong>: 6 ملفات (skeleton)
+<strong>المطلوب</strong>: نقل التنفيذ الكامل من Main lib (22 ملف)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">المجلد</th>
+<th style="text-align: left;">الملفات المطلوب نقلها</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>domain/models/</code></td>
+<td style="text-align: left;">fuel_record, maintenance_record, usage_record</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>domain/services/</code></td>
+<td style="text-align: left;">equipment lifecycle services</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>presentation/screens/</code></td>
+<td style="text-align: left;">fuel_tracking, maintenance, usage_log</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>presentation/widgets/</code></td>
+<td style="text-align: left;">equipment_card, fuel_chart, maintenance_timeline</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>state/</code></td>
+<td style="text-align: left;">equipment state management</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34">3.4 تنظيف المكتبة اليتيمة<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<p>بعد اكتمال الدمج، يجب تقييم <code>apps/mobile/lib/</code>:</p>
+<div class="codehilite"><pre><span></span><code>الخيار A: حذف المكتبة اليتيمة بالكامل (مفضل)
+  - بعد التأكد من نقل كل الكود المفيد
+  - نقلها لـ archive/ أولاً كاحتياط
+
+الخيار B: تحويلها لتطبيق ثالث
+  - إذا كان هناك حاجة لتطبيق منفصل
+  - يتطلب pubspec.yaml صحيح
+</code></pre></div>
+
+<hr />
+<h2 id="4-5">المرحلة 4: التحقق والاختبار (أسبوع 5)<a class="headerlink" href="#4-5" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 قائمة التحقق<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>flutter analyze</code> يمر بدون أخطاء في كل التطبيقات</li>
+<li>[ ] <code>flutter test</code> يمر في <code>packages/mobile-shared/</code></li>
+<li>[ ] <code>flutter test</code> يمر في <code>sahool_field_app/</code></li>
+<li>[ ] لا يوجد imports مكسورة (<code>dart fix --dry-run</code>)</li>
+<li>[ ] Freezed code generation يعمل (<code>dart run build_runner build</code>)</li>
+<li>[ ] الـ APK يُبنى بنجاح (<code>flutter build apk --debug</code>)</li>
+<li>[ ] الميزات المنقولة تعمل (اختبار يدوي):</li>
+<li>[ ] CRM: عرض المزارعين، إضافة تفاعل</li>
+<li>[ ] Reports: إنشاء تقرير، تصدير</li>
+<li>[ ] Vision: كشف آفات من صورة</li>
+<li>[ ] Irrigation Services: جدولة ري</li>
+<li>[ ] Offline Sync: مزامنة بعد انقطاع الشبكة</li>
+</ul>
+<h3 id="42-regression">4.2 اختبار الانحدار (Regression)<a class="headerlink" href="#42-regression" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تشغيل كل الاختبارات</span>
+<span class="nb">cd</span><span class="w"> </span>apps/mobile/sahool_field_app<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>flutter<span class="w"> </span><span class="nb">test</span>
+<span class="nb">cd</span><span class="w"> </span>packages/mobile-shared<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>flutter<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># تحليل ثابت</span>
+<span class="nb">cd</span><span class="w"> </span>apps/mobile/sahool_field_app<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>flutter<span class="w"> </span>analyze
+<span class="nb">cd</span><span class="w"> </span>packages/mobile-shared<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>flutter<span class="w"> </span>analyze
+
+<span class="c1"># بناء تجريبي</span>
+<span class="nb">cd</span><span class="w"> </span>apps/mobile/sahool_field_app<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>flutter<span class="w"> </span>build<span class="w"> </span>apk<span class="w"> </span>--debug
+</code></pre></div>
+
+<hr />
+<h2 id="_4">مصفوفة المخاطر<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">المخاطرة</th>
+<th style="text-align: center;">الاحتمال</th>
+<th style="text-align: center;">التأثير</th>
+<th style="text-align: left;">التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">كسر imports بعد النقل</td>
+<td style="text-align: center;">عالي</td>
+<td style="text-align: center;">متوسط</td>
+<td style="text-align: left;">استخدام <code>dart fix</code> + IDE refactoring</td>
+</tr>
+<tr>
+<td style="text-align: left;">تعارض Freezed codegen</td>
+<td style="text-align: center;">متوسط</td>
+<td style="text-align: center;">عالي</td>
+<td style="text-align: left;">تشغيل <code>build_runner</code> بعد كل نقل</td>
+</tr>
+<tr>
+<td style="text-align: left;">تعارض إصدارات الحزم</td>
+<td style="text-align: center;">منخفض</td>
+<td style="text-align: center;">عالي</td>
+<td style="text-align: left;">توحيد pubspec.yaml أولاً</td>
+</tr>
+<tr>
+<td style="text-align: left;">فقدان وظيفة أثناء الدمج</td>
+<td style="text-align: center;">منخفض</td>
+<td style="text-align: center;">عالي</td>
+<td style="text-align: left;">اختبار يدوي لكل ميزة منقولة</td>
+</tr>
+<tr>
+<td style="text-align: left;">تأثير على Atmosphere App</td>
+<td style="text-align: center;">منخفض</td>
+<td style="text-align: center;">منخفض</td>
+<td style="text-align: left;">مستقل تماماً - لن يتأثر</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">ملخص الملفات حسب الاتجاه<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="field-app-mobile-shared-21">Field App → Mobile Shared (21 ملف)<a class="headerlink" href="#field-app-mobile-shared-21" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>core/offline/offline_sync_engine.dart
+core/offline/outbox_repository.dart
+core/offline/sync_conflict_resolver.dart
+core/offline/offline_data_manager.dart
+core/offline/offline_completeness.dart
+core/offline/offline.dart
+core/sync/sync_metrics_providers.dart
+core/sync/sync_metrics_service.dart
+core/sync/outbox/outbox_entry.dart
+core/sync/outbox/outbox_processor.dart
+core/sync/outbox/outbox_service.dart
+core/sync/outbox/outbox_tables.dart
+core/sync/outbox/conflict_handler.dart
+core/sync/outbox/sync_status_provider.dart
+core/sync/outbox/sync_status_widget.dart
+core/sync/outbox/outbox.dart
+core/security/request_signing.dart
+features/vision/vision.dart
+features/vision/data/yolo26_service.dart
+features/vision/domain/detection_model.dart
+features/vision/presentation/detection_screen.dart
+features/vision/presentation/providers/vision_providers.dart
+</code></pre></div>
+
+<h3 id="main-lib-field-app-40">Main lib → Field App (40 ملف)<a class="headerlink" href="#main-lib-field-app-40" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>features/crm/ (18 ملفات)
+features/reports/ (19 ملفات)
+core/feature_flags/ (5+ ملفات)
+</code></pre></div>
+
+<h3 id="field-app-main-lib-3">Field App → Main lib (3 ملفات)<a class="headerlink" href="#field-app-main-lib-3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>features/irrigation/domain/services/irrigation_scheduler.dart
+features/irrigation/domain/services/water_calculator.dart
+features/irrigation/domain/services/weather_irrigation_integration.dart
+</code></pre></div>
+
+<h3 id="3">للحذف (3 ملفات)<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.dart
+sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.freezed.dart
+sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.g.dart
+</code></pre></div>
+
+<hr />
+<h2 id="_6">الجدول الزمني<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">المرحلة</th>
+<th style="text-align: center;">المدة</th>
+<th style="text-align: left;">المخرجات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>0: التحضير</strong></td>
+<td style="text-align: center;">أسبوع 1</td>
+<td style="text-align: left;">مكتبة <code>mobile-shared</code> فارغة + pubspec محدث</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>1: Core Infrastructure</strong></td>
+<td style="text-align: center;">أسبوع 2</td>
+<td style="text-align: left;">Offline, Sync, Security, Feature Flags في المكتبة المشتركة</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2: Features</strong></td>
+<td style="text-align: center;">أسبوع 3-4</td>
+<td style="text-align: left;">Vision, CRM, Reports, Irrigation Services منقولة</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3: التنظيف</strong></td>
+<td style="text-align: center;">أسبوع 4</td>
+<td style="text-align: left;">ازدواجية محذوفة، Equipment مكتمل، Weather/Chat/Satellite موحدة</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4: التحقق</strong></td>
+<td style="text-align: center;">أسبوع 5</td>
+<td style="text-align: left;">كل الاختبارات تمر، APK يُبنى، اختبار يدوي مكتمل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المجموع</strong>: ~5 أسابيع</p>
+<hr />
+<p><em>آخر تحديث: 2026-03-23</em>
+<em>تم إنشاؤه بواسطة: Claude AI Agent</em>
+<em>الفرع: claude/review-mobile-app-7bNhE</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:safe_device/safe_device.dart';
@@ -684,8 +685,8 @@ class DeviceSecurityService {
       // Get existing logs (keep last 100)
       final logsJson = prefs.getStringList('security_logs') ?? [];
 
-      // Add new log
-      logsJson.add(logEntry.toString());
+      // Add new log as JSON string
+      logsJson.add(jsonEncode(logEntry));
 
       // Keep only last 100 logs
       if (logsJson.length > 100) {

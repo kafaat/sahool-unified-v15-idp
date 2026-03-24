@@ -291,7 +291,7 @@ final webSocketConnectionProvider =
     if (lastToken != null &&
         newToken != null &&
         lastToken != newToken &&
-        notifier.state == ConnectionState.connected) {
+        service.state == ConnectionState.connected) {
       AppLogger.i('Token refreshed, reconnecting WebSocket', tag: 'WS');
       notifier.refreshConnection();
     }

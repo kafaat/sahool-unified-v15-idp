@@ -219,7 +219,7 @@ class OutboxProcessor {
 
         // Add delay between items to respect rate limits
         if (processed > 0) {
-          await Future.delayed(config.itemDelay);
+          await Future<void>.delayed(config.itemDelay);
         }
 
         final result = await _processEntry(entry);
@@ -252,7 +252,7 @@ class OutboxProcessor {
           case ProcessEntryStatus.rateLimited:
             // Stop processing and wait
             AppLogger.w('Rate limited, pausing processing', tag: 'PROCESSOR');
-            await Future.delayed(config.rateLimitDelay);
+            await Future<void>.delayed(config.rateLimitDelay);
             skipped++;
             break;
         }

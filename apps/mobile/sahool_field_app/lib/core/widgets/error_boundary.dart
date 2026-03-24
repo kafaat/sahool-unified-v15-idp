@@ -31,7 +31,6 @@ class SahoolErrorBoundary extends StatefulWidget {
 
 class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
   Object? _error;
-  StackTrace? _stackTrace;
 
   @override
   void initState() {
@@ -50,7 +49,6 @@ class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
     if (mounted) {
       setState(() {
         _error = error;
-        _stackTrace = stackTrace;
       });
     }
   }
@@ -58,7 +56,6 @@ class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
   void _retry() {
     setState(() {
       _error = null;
-      _stackTrace = null;
     });
   }
 

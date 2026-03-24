@@ -62,7 +62,7 @@ class GeoJson {
     };
   }
 
-  /// Parse a GeoJSON Polygon geometry to List<LatLng>
+  /// Parse a GeoJSON Polygon geometry to a [List] of [LatLng]
   static List<LatLng> parsePolygon(Map<String, dynamic> geometry) {
     if (geometry['type'] != 'Polygon') {
       throw ArgumentError('Expected Polygon geometry, got ${geometry['type']}');

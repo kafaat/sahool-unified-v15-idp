@@ -882,7 +882,7 @@ class KongGatewayClient {
 
       if (response.statusCode == 304) {
         return ConditionalResponse(
-          response: ApiResponse.success(null as T),
+          response: ApiResponse(success: true, data: null),
           notModified: true,
           etag: response.headers.value('ETag'),
         );
@@ -899,7 +899,9 @@ class KongGatewayClient {
       }
 
       return ConditionalResponse(
-        response: ApiResponse.success(data as T, requestId: requestId),
+        response: data != null
+            ? ApiResponse.success(data, requestId: requestId)
+            : ApiResponse(success: true, data: null, requestId: requestId),
         notModified: false,
         etag: newEtag,
       );

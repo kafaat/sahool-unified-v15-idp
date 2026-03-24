@@ -254,7 +254,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.23.1
+        uses: anchore/sbom-action@v0.24.0
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
@@ -432,7 +432,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.23.1
+        uses: anchore/sbom-action@v0.24.0
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}

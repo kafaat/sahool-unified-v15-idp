@@ -173,7 +173,7 @@ class SimpleMigrationRunner:
                             INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
                             VALUES ($1, $2, $3)
                             ON CONFLICT (version) DO NOTHING
-                            """,
+                            """,  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
                             migration.version,
                             migration.description,
                             duration_ms,
@@ -264,7 +264,7 @@ class SimpleMigrationRunner:
                     async with conn.transaction():
                         await conn.execute(migration.down)
                         await conn.execute(
-                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",
+                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # nosec B608
                             migration.version,
                         )
                     duration_ms = int((time.monotonic() - t0) * 1000)

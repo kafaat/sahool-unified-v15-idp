@@ -169,5 +169,5 @@ class TestDeleteSession:
 
         cs._pool = None
         cs._initialized = False
-        result = await cs.delete_session("s1")
+        result = await cs.delete_session("s1", tenant_id="test-tenant")
         assert result is False

@@ -201,16 +201,11 @@ class FarmerRepository:
             row = await conn.fetchrow(query, *params)
             return self._row_to_dict(row) if row else None
 
-    async def delete(self, farmer_id: str | UUID, tenant_id: str | None = None) -> bool:
-        """Delete farmer by ID, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = "DELETE FROM farmers WHERE id = $1 AND tenant_id = $2 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(farmer_id)), tenant_id)
-        else:
-            query = "DELETE FROM farmers WHERE id = $1 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(farmer_id)))
+    async def delete(self, farmer_id: str | UUID, tenant_id: str) -> bool:
+        """Delete farmer by ID, scoped to tenant for isolation."""
+        query = "DELETE FROM farmers WHERE id = $1 AND tenant_id = $2 RETURNING id"
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchrow(query, UUID(str(farmer_id)), tenant_id)
         return result is not None
 
     async def count(self, tenant_id: str, status: str | None = None) -> int:
@@ -462,16 +457,11 @@ class DealRepository:
             row = await conn.fetchrow(query, *params)
             return self._row_to_dict(row) if row else None
 
-    async def delete(self, deal_id: str | UUID, tenant_id: str | None = None) -> bool:
-        """Delete deal by ID, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = "DELETE FROM harvest_deals WHERE id = $1 AND tenant_id = $2 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(deal_id)), tenant_id)
-        else:
-            query = "DELETE FROM harvest_deals WHERE id = $1 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(deal_id)))
+    async def delete(self, deal_id: str | UUID, tenant_id: str) -> bool:
+        """Delete deal by ID, scoped to tenant for isolation."""
+        query = "DELETE FROM harvest_deals WHERE id = $1 AND tenant_id = $2 RETURNING id"
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchrow(query, UUID(str(deal_id)), tenant_id)
         return result is not None
 
     async def get_pipeline_stats(self, tenant_id: str) -> dict[str, Any]:
@@ -726,16 +716,11 @@ class InteractionRepository:
             row = await conn.fetchrow(query, UUID(str(interaction_id)))
             return self._row_to_dict(row) if row else None
 
-    async def delete(self, interaction_id: str | UUID, tenant_id: str | None = None) -> bool:
-        """Delete interaction by ID, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = "DELETE FROM interactions WHERE id = $1 AND tenant_id = $2 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(interaction_id)), tenant_id)
-        else:
-            query = "DELETE FROM interactions WHERE id = $1 RETURNING id"
-            async with self.pool.acquire() as conn:
-                result = await conn.fetchrow(query, UUID(str(interaction_id)))
+    async def delete(self, interaction_id: str | UUID, tenant_id: str) -> bool:
+        """Delete interaction by ID, scoped to tenant for isolation."""
+        query = "DELETE FROM interactions WHERE id = $1 AND tenant_id = $2 RETURNING id"
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchrow(query, UUID(str(interaction_id)), tenant_id)
         return result is not None
 
     async def count(self, tenant_id: str) -> int:

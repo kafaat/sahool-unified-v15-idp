@@ -310,24 +310,18 @@ async def list_executions(
         return []
 
 
-async def delete_execution(execution_id: str, tenant_id: str | None = None) -> bool:
-    """Delete an execution record, optionally scoped to tenant for isolation."""
+async def delete_execution(execution_id: str, tenant_id: str) -> bool:
+    """Delete an execution record, scoped to tenant for isolation."""
     if not _pool:
         return False
 
     try:
         async with _pool.acquire() as conn:
-            if tenant_id:
-                result = await conn.execute(
-                    "DELETE FROM agent_executions WHERE id = $1 AND tenant_id = $2",
-                    UUID(execution_id),
-                    tenant_id,
-                )
-            else:
-                result = await conn.execute(
-                    "DELETE FROM agent_executions WHERE id = $1",
-                    UUID(execution_id),
-                )
+            result = await conn.execute(
+                "DELETE FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                UUID(execution_id),
+                tenant_id,
+            )
             return result == "DELETE 1"
     except Exception as e:
         print(f"⚠️ Failed to delete execution: {e}")

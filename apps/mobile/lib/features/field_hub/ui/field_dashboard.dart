@@ -696,10 +696,12 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
   String _formatTaskTime(DateTime? date) {
     if (date == null) return '';
     final now = DateTime.now();
-    final diff = date.difference(now);
-    if (diff.isNegative) return 'متأخر';
-    if (diff.inDays == 0) return 'اليوم ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-    if (diff.inDays == 1) return 'غداً ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    if (date.isBefore(now)) return 'متأخر';
+    final today = DateTime(now.year, now.month, now.day);
+    final targetDay = DateTime(date.year, date.month, date.day);
+    final daysDiff = targetDay.difference(today).inDays;
+    if (daysDiff == 0) return 'اليوم ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    if (daysDiff == 1) return 'غداً ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
     return '${date.day}/${date.month}';
   }
 

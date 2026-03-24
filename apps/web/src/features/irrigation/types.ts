@@ -1,23 +1,15 @@
 /**
  * Irrigation Feature - Types
  * أنواع ميزة الري
+ *
+ * NOTE: These types are kept for backward compatibility.
+ * The canonical irrigation types are in @/lib/api/types.ts.
+ * Prefer importing from @/lib/api/types instead.
  */
 
-export type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
-export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+export type { IrrigationStatus, IrrigationScheduleType, IrrigationFrequency, IrrigationSchedule } from "@/lib/api/types";
 
-export interface IrrigationSchedule {
-  id: string;
-  fieldId: string;
-  fieldName: string;
-  type: IrrigationType;
-  status: IrrigationStatus;
-  scheduledAt: string;
-  duration: number;
-  waterAmount: number;
-  completedAt?: string;
-  progress?: number;
-}
+export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
 
 export interface IrrigationMethod {
   id: string;
@@ -28,16 +20,18 @@ export interface IrrigationMethod {
 
 export interface IrrigationStats {
   totalWaterToday: number;
-  inProgressCount: number;
-  scheduledCount: number;
-  overdueCount: number;
+  activeCount: number;
+  pausedCount: number;
+  completedCount: number;
   efficiency: number;
 }
 
 export interface CreateScheduleRequest {
-  fieldName: string;
-  type: IrrigationType;
-  scheduledAt: string;
+  fieldId: string;
+  name: string;
+  type: string;
+  startDate: string;
+  frequency: string;
   duration: number;
   waterAmount: number;
 }

@@ -254,8 +254,12 @@ export default function IrrigationClient() {
         }
         showToast({ type: "success", message: "Schedule updated", messageAr: "تم تحديث الجدول" });
       } else {
+        if (!formData.fieldId) {
+          showToast({ type: "error", message: "Please select a field", messageAr: "يرجى اختيار الحقل" });
+          return;
+        }
         const payload: IrrigationScheduleCreate = {
-          fieldId: formData.fieldId || `field-${Date.now()}`,
+          fieldId: formData.fieldId,
           name: formData.name,
           type: formData.type,
           startDate: startDateISO,
@@ -266,18 +270,11 @@ export default function IrrigationClient() {
         const response = await apiClient.createIrrigationSchedule(payload);
         if (response.success && response.data) {
           setSchedules((prev) => [...prev, response.data!]);
+          showToast({ type: "success", message: "Schedule created", messageAr: "تم إنشاء الجدول" });
         } else {
-          // Optimistic fallback
-          const newSchedule: IrrigationSchedule = {
-            id: crypto.randomUUID(),
-            ...payload,
-            status: "active",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          setSchedules((prev) => [...prev, newSchedule]);
+          showToast({ type: "error", message: response.error || "Failed to create schedule", messageAr: "فشل إنشاء الجدول" });
+          return;
         }
-        showToast({ type: "success", message: "Schedule created", messageAr: "تم إنشاء الجدول" });
       }
     } catch {
       showToast({ type: "error", message: "Operation failed", messageAr: "فشلت العملية" });
@@ -288,9 +285,14 @@ export default function IrrigationClient() {
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
     try {
-      await apiClient.deleteIrrigationSchedule(deleteTarget.id);
+      const response = await apiClient.deleteIrrigationSchedule(deleteTarget.id);
+      if (!response.success) {
+        showToast({ type: "error", message: "Failed to delete schedule", messageAr: "فشل حذف الجدول" });
+        setDeleteTarget(null);
+        return;
+      }
     } catch {
-      // Optimistic delete even on API failure (offline-first)
+      // Network failure - optimistic delete for offline-first
     }
     setSchedules((prev) => prev.filter((s) => s.id !== deleteTarget.id));
     showToast({ type: "success", message: "Schedule deleted", messageAr: "تم حذف الجدول" });
@@ -564,6 +566,26 @@ export default function IrrigationClient() {
                   placeholder="مثال: ري صباحي - الحقل الشمالي"
                 />
               </div>
+              {!editingId && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    الحقل <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.fieldId}
+                    onChange={(e) => setFormData((p) => ({ ...p, fieldId: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    required
+                  >
+                    <option value="">اختر الحقل...</option>
+                    {Array.from(new Map(schedules.map((s) => [s.fieldId, s.fieldName || s.fieldId])).entries()).map(
+                      ([id, name]) => (
+                        <option key={id} value={id}>{name}</option>
+                      )
+                    )}
+                  </select>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">نوع الجدولة</label>

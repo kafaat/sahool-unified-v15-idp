@@ -39,6 +39,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
   @override
   void dispose() {
+    _advisoryDio.close(force: true);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();

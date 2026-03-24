@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Container CVE Remediation** (March 2026)
+  - Upgraded setuptools>=78.1.1 across 74 Dockerfiles (CVE-2024-6345, PYSEC-2025-49)
+  - Upgraded wheel>=0.46.2 across 74 Dockerfiles (CVE-2026-24049)
+  - Stripped pip/setuptools/wheel from 5 Trivy-scanned production images
+  - Added `npm audit fix --ignore-scripts` to 12 Node.js Dockerfiles
+  - Pinned pip>=24.3.1 in all builder stages
+
+- **JWT Secret Hardening** (March 2026)
+  - Replaced hardcoded JWT fallback constants with random per-process secrets in dev/test
+  - Production/staging now fail-closed when JWT_SECRET_KEY is not set
+  - Consolidated secret resolution in `shared/auth/config.py` and `shared/security/jwt.py`
+
+- **Authentication & Authorization** (March 2026)
+  - Added `get_current_user` auth dependency to 12+ previously unauthenticated endpoints
+    (vegetation-analysis-service, inventory-service, llm-orchestrator-service)
+  - Made inline script nonce validation fail-closed in all environments (web app)
+
+- **Error Response Sanitization** (March 2026)
+  - Removed `str(e)` from 20+ HTTP 500 responses to prevent internal detail leakage
+  - Added `logger.error(..., exc_info=True)` before all generic error responses
+  - Replaced silent `except: pass` with warning logs in copilot-api, weather-service,
+    equipment-service, iot-sensor-hub
+
 ### Fixed
 
 - **Web & Admin Frontend Bug Fixes** (March 2026)

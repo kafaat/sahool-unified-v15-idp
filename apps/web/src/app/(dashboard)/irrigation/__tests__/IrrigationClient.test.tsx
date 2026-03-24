@@ -76,7 +76,7 @@ describe("IrrigationClient", () => {
     const createBtn = screen.getByText("جدولة ري");
     fireEvent.click(createBtn);
 
-    expect(screen.getByText("جدولة ري جديد")).toBeInTheDocument();
+    expect(screen.getByText("جدولة ري جديدة")).toBeInTheDocument();
     expect(screen.getByText("اسم الحقل")).toBeInTheDocument();
     expect(screen.getByText("نوع الري")).toBeInTheDocument();
   });
@@ -85,10 +85,10 @@ describe("IrrigationClient", () => {
     render(<IrrigationClient />);
 
     fireEvent.click(screen.getByText("جدولة ري"));
-    expect(screen.getByText("جدولة ري جديد")).toBeInTheDocument();
+    expect(screen.getByText("جدولة ري جديدة")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("إلغاء"));
-    expect(screen.queryByText("جدولة ري جديد")).not.toBeInTheDocument();
+    expect(screen.queryByText("جدولة ري جديدة")).not.toBeInTheDocument();
   });
 
   it("should show delete confirmation dialog", () => {

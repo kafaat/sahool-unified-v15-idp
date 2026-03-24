@@ -38,7 +38,6 @@ def register_boundary_endpoints(app, boundary_detector):
 
     @app.post("/v1/boundaries/detect", response_model=dict)
     async def detect_boundaries(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude of center point"),
         lon: float = Query(..., description="Longitude of center point"),
         radius_m: float = Query(500, description="Search radius in meters"),
@@ -176,7 +175,6 @@ def register_boundary_endpoints(app, boundary_detector):
 
     @app.get("/v1/boundaries/{field_id}/changes", response_model=dict)
     async def get_boundary_changes(
-        _user: User = Depends(get_current_user),
         field_id: str,
         since_date: str = Query(..., description="Compare to this date (ISO format)"),
         previous_coords: str = Query(..., description="Previous boundary coordinates (JSON array)"),

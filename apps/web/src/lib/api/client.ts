@@ -370,7 +370,7 @@ class SahoolApiClient {
 
   async updateIrrigationSchedule(id: string, data: Partial<IrrigationScheduleCreate>) {
     return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(data),
     });
   }

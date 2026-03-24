@@ -315,29 +315,57 @@ export interface MaintenanceSchedule {
 // Irrigation Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
+/** Schedule lifecycle states - superset of admin "active" | "paused" | "completed" */
+export type IrrigationStatus = "scheduled" | "active" | "paused" | "in_progress" | "completed" | "cancelled" | "overdue";
+
+/** Physical irrigation method applied to the field */
 export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+
+/** Schedule execution mode (aligned with admin contract) */
+export type IrrigationScheduleType = "manual" | "automatic" | "scheduled";
+
+/** Recurrence frequency */
+export type IrrigationFrequency = "daily" | "weekly" | "custom";
 
 export interface IrrigationSchedule {
   id: string;
   fieldId: string;
   fieldName: string;
+  name?: string;
   type: IrrigationType;
+  scheduleType?: IrrigationScheduleType;
   status: IrrigationStatus;
   scheduledAt: string;
+  startDate?: string;
+  endDate?: string;
+  frequency?: IrrigationFrequency;
   duration: number;
   waterAmount: number;
+  schedule?: {
+    daysOfWeek?: number[];
+    timeOfDay?: string;
+    interval?: number;
+  };
+  nextRun?: string;
   completedAt?: string;
   progress?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IrrigationScheduleCreate {
   fieldId?: string;
   fieldName: string;
+  name?: string;
   type: IrrigationType;
+  scheduleType?: IrrigationScheduleType;
   scheduledAt: string;
+  startDate?: string;
+  endDate?: string;
+  frequency?: IrrigationFrequency;
   duration: number;
   waterAmount: number;
+  schedule?: IrrigationSchedule["schedule"];
 }
 
 export interface IrrigationRecommendation {

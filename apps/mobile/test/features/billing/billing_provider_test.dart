@@ -91,8 +91,8 @@ void main() {
     test('should initialize with default state', () {
       final notifier = BillingNotifier();
       // Access internal state through public API
-      expect(notifier.debugState.isLoading, false);
-      expect(notifier.debugState.currentPlan, isNull);
+      expect(notifier.state.isLoading, false);
+      expect(notifier.state.currentPlan, isNull);
     });
   });
 }

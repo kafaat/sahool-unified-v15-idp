@@ -76,6 +76,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Listen for messages
     _messageSubscription = chatRepo.messageStream.listen((message) {
+      if (!mounted) return;
       setState(() {
         _messages.add(message);
       });
@@ -84,6 +85,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Listen for typing indicators
     _typingSubscription = chatRepo.typingStream.listen((data) {
+      if (!mounted) return;
       setState(() {
         _isTyping = data['isTyping'] ?? false;
         _typingUser = data['userName'];
@@ -92,6 +94,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Listen for expert joining
     _expertJoinedSubscription = chatRepo.expertJoinedStream.listen((data) {
+      if (!mounted) return;
       setState(() {
         _expertJoined = true;
       });

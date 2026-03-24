@@ -540,4 +540,5 @@ export default {
   downloadPDF,
   generateShareLink,
   generateEmailShareContent,
+  escapeHtml,
 };

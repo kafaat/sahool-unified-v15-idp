@@ -79,12 +79,6 @@ FROM base AS production
 # Copy node_modules from dependencies stage
 COPY --from=dependencies /app/node_modules ./node_modules
 
-# Copy package files for npm audit
-COPY --from=dependencies /app/package*.json ./
-
-# Apply security patches to production dependencies (fix known CVEs in transitive deps)
-RUN npm audit fix --omit=dev --ignore-scripts 2>/dev/null || true
-
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 

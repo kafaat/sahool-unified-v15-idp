@@ -197,8 +197,9 @@ class RequestSigningInterceptor extends Interceptor {
       final fieldMap = <String, dynamic>{};
       for (final kv in body.fields) {
         // Use a list to preserve duplicate keys (e.g. repeated checkbox values)
-        (fieldMap[kv.key] as List<dynamic>? ?? []).add(kv.value);
-        fieldMap[kv.key] = fieldMap[kv.key] ?? [kv.value];
+        final list = (fieldMap[kv.key] as List<dynamic>?) ?? <dynamic>[];
+        list.add(kv.value);
+        fieldMap[kv.key] = list;
       }
       // Include file metadata so payloads with different files produce a
       // different hash even when text fields are identical.

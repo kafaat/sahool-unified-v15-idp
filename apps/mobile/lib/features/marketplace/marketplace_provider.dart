@@ -342,6 +342,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   })  : _userId = userId,
         _dio = dio ??
             Dio(BaseOptions(
+              baseUrl: ApiConfig.effectiveBaseUrl,
               connectTimeout: ApiConfig.connectTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
               headers: ApiConfig.defaultHeaders,

@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
-import '../ui/alerts_screen.dart' show AlertType;
+import '../domain/alert_models.dart';
 
 // =============================================================================
 // Models

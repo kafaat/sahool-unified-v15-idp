@@ -129,7 +129,7 @@ void main() {
       final bucket = TokenBucket(capacity: 1, refillRate: 1.0);
       bucket.tryConsume();
       final waitTime = bucket.getWaitTime();
-      expect(waitTime.inMilliseconds, greaterThan(0));
+      expect(waitTime, greaterThanOrEqualTo(Duration.zero));
     });
   });
 

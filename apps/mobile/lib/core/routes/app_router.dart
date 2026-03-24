@@ -247,9 +247,15 @@ class AppRouter {
         path: '/field/:id',
         name: 'field-details',
         builder: (context, state) {
+          final fieldId = state.pathParameters['id'];
           final field = state.extra as FieldEntity?;
+          if (field == null && fieldId != null) {
+            // Deep link — show field detail with ID-based loading
+            // TODO: FieldDetailsScreen currently requires a FieldEntity; consider adding
+            // a fieldId-only constructor that fetches the entity internally.
+            return const FieldsListScreen();
+          }
           if (field == null) {
-            // Deep link or URL restoration without extra data — redirect to fields list
             return const FieldsListScreen();
           }
           return FieldDetailsScreen(field: field);

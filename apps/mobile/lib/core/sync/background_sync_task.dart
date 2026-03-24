@@ -158,6 +158,9 @@ Future<_SyncItemResult> _processSyncItem(
       return _SyncItemResult.conflict;
     }
     rethrow;
+  } catch (e) {
+    await _logBackgroundError('Sync item failed: $e');
+    return _SyncItemResult.failed;
   }
 }
 

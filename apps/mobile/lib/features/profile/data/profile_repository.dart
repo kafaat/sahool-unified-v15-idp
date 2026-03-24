@@ -97,7 +97,11 @@ class ProfileRepository {
         'avatar': await MultipartFile.fromFile(filePath),
       });
       final response = await _dio.post('/api/v1/users/me/avatar', data: formData);
-      final url = (response.data?['avatarUrl'] ?? response.data?['url'] ?? '').toString();
+      String url = '';
+      if (response.data is Map<String, dynamic>) {
+        final responseData = response.data as Map<String, dynamic>;
+        url = (responseData['avatarUrl'] ?? responseData['url'] ?? '').toString();
+      }
       return Success(url);
     } on DioException catch (e) {
       return Failure(
@@ -108,6 +112,21 @@ class ProfileRepository {
     } catch (e) {
       return Failure('خطأ غير متوقع: $e');
     }
+  }
+
+  static int _parseInt(dynamic value, {int defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? defaultValue;
+    return defaultValue;
+  }
+
+  static double _parseDouble(dynamic value, {double defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? defaultValue;
+    return defaultValue;
   }
 
   /// تحليل بيانات الملف الشخصي القادمة من الخادم
@@ -127,14 +146,14 @@ class ProfileRepository {
       farmName: (user['farmName'] ?? user['farm']?['name'] ?? '').toString(),
       farmNameAr: (user['farmNameAr'] ?? user['farm']?['nameAr'] ?? user['farmName'] ?? '').toString(),
       farmAreaHectares:
-          (user['farmAreaHectares'] ?? user['farm']?['area'] ?? 0).toDouble(),
+          _parseDouble(user['farmAreaHectares'] ?? user['farm']?['area']),
       location: (user['location'] ?? user['address'] ?? '').toString(),
       language: (user['language'] ?? user['lang'] ?? 'ar').toString(),
-      fieldsCount: (user['fieldsCount'] ?? user['stats']?['fields'] ?? 0) as int,
+      fieldsCount: _parseInt(user['fieldsCount'] ?? user['stats']?['fields']),
       tasksCompleted:
-          (user['tasksCompleted'] ?? user['stats']?['tasks'] ?? 0) as int,
+          _parseInt(user['tasksCompleted'] ?? user['stats']?['tasks']),
       achievementsCount:
-          (user['achievementsCount'] ?? user['stats']?['achievements'] ?? 0) as int,
+          _parseInt(user['achievementsCount'] ?? user['stats']?['achievements']),
     );
   }
 

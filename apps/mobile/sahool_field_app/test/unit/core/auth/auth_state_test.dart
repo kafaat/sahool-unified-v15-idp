@@ -98,7 +98,7 @@ void main() {
       expect(updated.error, 'Login failed');
     });
 
-    test('should clear error when passing null explicitly', () {
+    test('should clear error when copyWith is called without error parameter', () {
       const state = AuthState(error: 'Some error');
       // copyWith sets error to the provided value (null clears it)
       final updated = state.copyWith();

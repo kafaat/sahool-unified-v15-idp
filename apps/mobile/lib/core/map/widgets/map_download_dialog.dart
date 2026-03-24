@@ -44,7 +44,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.1),
+                    color: SahoolColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.download, color: SahoolColors.primary),
@@ -136,7 +136,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? SahoolColors.primary.withOpacity(0.1)
+                      ? SahoolColors.primary.withValues(alpha: 0.1)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(

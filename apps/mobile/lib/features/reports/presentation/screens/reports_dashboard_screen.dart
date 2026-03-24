@@ -146,7 +146,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
             gradient: LinearGradient(
               colors: [
                 SahoolColors.primary,
-                SahoolColors.primary.withOpacity(0.8),
+                SahoolColors.primary.withValues(alpha: 0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -162,7 +162,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -205,7 +205,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
                   Text(
                     template.descriptionAr,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 12,
                     ),
                     maxLines: 2,
@@ -402,7 +402,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: SahoolColors.primary.withOpacity(0.1),
+                      color: SahoolColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -423,7 +423,7 @@ class _ReportsDashboardScreenState extends ConsumerState<ReportsDashboardScreen>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: SahoolColors.harvestGold.withOpacity(0.2),
+                            color: SahoolColors.harvestGold.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
@@ -494,7 +494,7 @@ class ReportTemplateCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -526,7 +526,7 @@ class ReportTemplateCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: SahoolColors.harvestGold.withOpacity(0.2),
+                              color: SahoolColors.harvestGold.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
@@ -627,7 +627,7 @@ class ReportHistoryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: SahoolColors.sageGreen.withOpacity(0.2),
+                  color: SahoolColors.sageGreen.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(

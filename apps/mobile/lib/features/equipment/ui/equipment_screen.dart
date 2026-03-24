@@ -283,7 +283,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
         }
 
         return OrganicCard(
-          color: SahoolColors.harvestGold.withOpacity(0.1),
+          color: SahoolColors.harvestGold.withValues(alpha: 0.1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -292,7 +292,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: SahoolColors.harvestGold.withOpacity(0.2),
+                      color: SahoolColors.harvestGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -493,7 +493,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
           // Location
           if (equipment.locationName != null || equipment.currentLat != null)
             OrganicCard(
-              color: SahoolColors.paleOlive.withOpacity(0.5),
+              color: SahoolColors.paleOlive.withValues(alpha: 0.5),
               child: Row(
                 children: [
                   const Icon(Icons.location_on, color: SahoolColors.forestGreen),
@@ -544,7 +544,7 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
           if (equipment.needsMaintenanceSoon) ...[
             const SizedBox(height: 16),
             OrganicCard(
-              color: SahoolColors.harvestGold.withOpacity(0.1),
+              color: SahoolColors.harvestGold.withValues(alpha: 0.1),
               child: Row(
                 children: [
                   const Icon(Icons.warning_amber, color: SahoolColors.harvestGold),
@@ -879,10 +879,10 @@ class _StatusBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.05),
+            color: color.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -929,7 +929,7 @@ class _CategoryChip extends StatelessWidget {
           color: isSelected ? SahoolColors.forestGreen : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? SahoolColors.forestGreen : Colors.grey.withOpacity(0.3),
+            color: isSelected ? SahoolColors.forestGreen : Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -979,7 +979,7 @@ class _EquipmentItem extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: SahoolColors.paleOlive.withOpacity(0.5),
+                color: SahoolColors.paleOlive.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -1109,7 +1109,7 @@ class _MaintenanceAlertWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: priorityColor.withOpacity(0.1),
+                color: priorityColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -1159,7 +1159,7 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1320,7 +1320,7 @@ class _AddMaintenanceRecordSheetState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: SahoolColors.harvestGold.withOpacity(0.1),
+                    color: SahoolColors.harvestGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -1383,7 +1383,7 @@ class _AddMaintenanceRecordSheetState
                             setState(() => _selectedType = type);
                           }
                         },
-                        selectedColor: SahoolColors.harvestGold.withOpacity(0.2),
+                        selectedColor: SahoolColors.harvestGold.withValues(alpha: 0.2),
                         labelStyle: TextStyle(
                           color: isSelected
                               ? SahoolColors.harvestGold
@@ -1581,7 +1581,7 @@ class _EquipmentHistorySheet extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: SahoolColors.forestGreen.withOpacity(0.1),
+                    color: SahoolColors.forestGreen.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -1721,7 +1721,7 @@ class _MaintenanceRecordTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: _getTypeColor(record.maintenanceType).withOpacity(0.1),
+              color: _getTypeColor(record.maintenanceType).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(

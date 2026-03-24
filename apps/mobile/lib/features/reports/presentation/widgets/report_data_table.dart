@@ -91,7 +91,7 @@ class _ReportDataTableState extends State<ReportDataTable> {
       child: DataTable(
         columnSpacing: 24,
         headingRowColor: WidgetStateProperty.all(
-          SahoolColors.primary.withOpacity(0.05),
+          SahoolColors.primary.withValues(alpha: 0.05),
         ),
         headingTextStyle: const TextStyle(
           fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ class _ReportDataTableState extends State<ReportDataTable> {
         ),
         border: TableBorder(
           horizontalInside: BorderSide(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
           ),
         ),
         sortColumnIndex: _sortColumnIndex,
@@ -150,7 +150,7 @@ class _ReportDataTableState extends State<ReportDataTable> {
       rows.add(DataRow(
         color: i.isEven
             ? WidgetStateProperty.all(Colors.white)
-            : WidgetStateProperty.all(Colors.grey.withOpacity(0.03)),
+            : WidgetStateProperty.all(Colors.grey.withValues(alpha: 0.03)),
         cells: row.map((cell) => DataCell(
               Text(
                 cell,
@@ -164,7 +164,7 @@ class _ReportDataTableState extends State<ReportDataTable> {
     if (widget.showTotals && widget.data.totals != null) {
       rows.add(DataRow(
         color: WidgetStateProperty.all(
-          SahoolColors.primary.withOpacity(0.1),
+          SahoolColors.primary.withValues(alpha: 0.1),
         ),
         cells: widget.data.totals!.map((cell) => DataCell(
               Text(
@@ -228,7 +228,7 @@ class CompactReportTable extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
@@ -237,7 +237,7 @@ class CompactReportTable extends StatelessWidget {
           children: [
             // Header row
             Container(
-              color: SahoolColors.primary.withOpacity(0.05),
+              color: SahoolColors.primary.withValues(alpha: 0.05),
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
                 children: headersAr
@@ -259,7 +259,7 @@ class CompactReportTable extends StatelessWidget {
               final index = entry.key;
               final row = entry.value;
               return Container(
-                color: index.isEven ? Colors.white : Colors.grey.withOpacity(0.03),
+                color: index.isEven ? Colors.white : Colors.grey.withValues(alpha: 0.03),
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                 child: Row(
                   children: row

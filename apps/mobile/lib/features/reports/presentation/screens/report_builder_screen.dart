@@ -102,7 +102,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -133,7 +133,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
   Widget _buildTemplateHeader() {
     return Card(
       elevation: 0,
-      color: SahoolColors.primary.withOpacity(0.05),
+      color: SahoolColors.primary.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -142,7 +142,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: SahoolColors.primary.withOpacity(0.1),
+                color: SahoolColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -178,7 +178,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(

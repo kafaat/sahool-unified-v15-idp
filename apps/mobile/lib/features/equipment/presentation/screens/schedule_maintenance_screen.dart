@@ -140,7 +140,7 @@ class _ScheduleMaintenanceScreenState
                         setState(() => _priority = priority);
                       }
                     },
-                    selectedColor: _getPriorityColor(priority).withOpacity(0.2),
+                    selectedColor: _getPriorityColor(priority).withValues(alpha: 0.2),
                     labelStyle: TextStyle(
                       color: isSelected
                           ? _getPriorityColor(priority)

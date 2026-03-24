@@ -241,7 +241,7 @@ class EnhancedDarkTheme {
         primaryContainer: accentColors.dark,
         onPrimary: accentColors.onPrimary,
         secondary: accentColors.secondary,
-        secondaryContainer: accentColors.dark.withOpacity(0.3),
+        secondaryContainer: accentColors.dark.withValues(alpha: 0.3),
         onSecondary: accentColors.onSecondary,
         surface: colors.surface,
         onSurface: colors.onSurface,
@@ -304,7 +304,7 @@ class EnhancedDarkTheme {
       // Navigation Bar Theme (Material 3)
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colors.surface,
-        indicatorColor: accentColors.primary.withOpacity(0.2),
+        indicatorColor: accentColors.primary.withValues(alpha: 0.2),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return TextStyle(
@@ -333,11 +333,11 @@ class EnhancedDarkTheme {
         elevation: variant == DarkThemeVariant.amoled ? 0 : 2,
         color: colors.surface,
         surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.black.withOpacity(0.4),
+        shadowColor: Colors.black.withValues(alpha: 0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: variant == DarkThemeVariant.amoled
-              ? BorderSide(color: colors.border.withOpacity(0.3))
+              ? BorderSide(color: colors.border.withValues(alpha: 0.3))
               : BorderSide.none,
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -349,7 +349,7 @@ class EnhancedDarkTheme {
           backgroundColor: accentColors.primary,
           foregroundColor: accentColors.onPrimary,
           elevation: variant == DarkThemeVariant.amoled ? 0 : 4,
-          shadowColor: accentColors.primary.withOpacity(0.3),
+          shadowColor: accentColors.primary.withValues(alpha: 0.3),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           minimumSize: const Size(120, 52),
           shape: RoundedRectangleBorder(
@@ -416,7 +416,7 @@ class EnhancedDarkTheme {
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colors.surfaceElevated.withOpacity(0.5),
+        fillColor: colors.surfaceElevated.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -448,8 +448,8 @@ class EnhancedDarkTheme {
       // Chip Theme
       chipTheme: ChipThemeData(
         backgroundColor: colors.surfaceElevated,
-        selectedColor: accentColors.primary.withOpacity(0.2),
-        disabledColor: colors.surfaceElevated.withOpacity(0.5),
+        selectedColor: accentColors.primary.withValues(alpha: 0.2),
+        disabledColor: colors.surfaceElevated.withValues(alpha: 0.5),
         labelStyle: const TextStyle(
           fontFamily: _fontFamily,
           fontSize: 14,
@@ -519,7 +519,7 @@ class EnhancedDarkTheme {
         iconColor: accentColors.primary,
         textColor: colors.onSurface,
         tileColor: Colors.transparent,
-        selectedTileColor: accentColors.primary.withOpacity(0.1),
+        selectedTileColor: accentColors.primary.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -535,7 +535,7 @@ class EnhancedDarkTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return accentColors.primary.withOpacity(0.5);
+            return accentColors.primary.withValues(alpha: 0.5);
           }
           return colors.border;
         }),
@@ -572,7 +572,7 @@ class EnhancedDarkTheme {
         activeTrackColor: accentColors.primary,
         inactiveTrackColor: colors.border,
         thumbColor: accentColors.primary,
-        overlayColor: accentColors.primary.withOpacity(0.2),
+        overlayColor: accentColors.primary.withValues(alpha: 0.2),
         valueIndicatorColor: accentColors.primary,
         valueIndicatorTextStyle: TextStyle(
           fontFamily: _fontFamily,
@@ -643,10 +643,10 @@ class EnhancedDarkTheme {
       ),
 
       // Highlight and Splash Colors
-      highlightColor: accentColors.primary.withOpacity(0.1),
-      splashColor: accentColors.primary.withOpacity(0.2),
-      focusColor: accentColors.primary.withOpacity(0.15),
-      hoverColor: accentColors.primary.withOpacity(0.08),
+      highlightColor: accentColors.primary.withValues(alpha: 0.1),
+      splashColor: accentColors.primary.withValues(alpha: 0.2),
+      focusColor: accentColors.primary.withValues(alpha: 0.15),
+      hoverColor: accentColors.primary.withValues(alpha: 0.08),
     );
   }
 

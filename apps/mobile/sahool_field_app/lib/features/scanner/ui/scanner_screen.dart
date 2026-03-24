@@ -73,8 +73,8 @@ class _ScannerScreenState extends State<ScannerScreen>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.green.withOpacity(0.3),
-                  Colors.black.withOpacity(0.5),
+                  Colors.green.withValues(alpha: 0.3),
+                  Colors.black.withValues(alpha: 0.5),
                 ],
               ),
             ),
@@ -110,7 +110,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                 ? SahoolColors.warning
                 : _hasResult
                     ? SahoolColors.success
-                    : Colors.white.withOpacity(0.5),
+                    : Colors.white.withValues(alpha: 0.5),
             width: 3,
           ),
           borderRadius: BorderRadius.circular(20),
@@ -224,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             end: Alignment.bottomCenter,
             colors: [
               Colors.transparent,
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -322,7 +322,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             const SizedBox(height: 8),
             Text(
               'يرجى الانتظار',
-              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             ),
           ],
         ),
@@ -367,7 +367,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: SahoolColors.danger.withOpacity(0.1),
+                          color: SahoolColors.danger.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -503,9 +503,9 @@ class _ScannerScreenState extends State<ScannerScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

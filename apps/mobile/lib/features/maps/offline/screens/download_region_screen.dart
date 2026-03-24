@@ -310,7 +310,7 @@ class _DownloadRegionScreenState extends ConsumerState<DownloadRegionScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: SahoolColors.info.withOpacity(0.1),
+              color: SahoolColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -419,7 +419,7 @@ class _DownloadRegionScreenState extends ConsumerState<DownloadRegionScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -464,7 +464,7 @@ class _DownloadRegionScreenState extends ConsumerState<DownloadRegionScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.05),
+                    color: SahoolColors.primary.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -547,7 +547,7 @@ class _RegionListTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? SahoolColors.primary.withOpacity(0.1)
+              ? SahoolColors.primary.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -561,7 +561,7 @@ class _RegionListTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: _getCategoryColor(region.category).withOpacity(0.1),
+                color: _getCategoryColor(region.category).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

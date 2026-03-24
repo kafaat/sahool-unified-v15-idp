@@ -12,7 +12,7 @@ extension WeatherColorMapper on WeatherColor {
   Color toFlutter() => Color(value);
 
   /// تحويل مع شفافية
-  Color toFlutterWithOpacity(double opacity) => Color(value).withOpacity(opacity);
+  Color toFlutterWithOpacity(double opacity) => Color(value).withValues(alpha: opacity);
 }
 
 /// Helper functions للاستخدام في UI

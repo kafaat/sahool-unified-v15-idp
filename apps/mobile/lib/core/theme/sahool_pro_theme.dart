@@ -65,7 +65,7 @@ class SahoolProTheme {
       cardTheme: CardTheme(
         elevation: 4,
         color: SahoolProColors.cardWhite,
-        shadowColor: Colors.black.withOpacity(0.15),
+        shadowColor: Colors.black.withValues(alpha: 0.15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: Colors.grey.shade200, width: 1),
@@ -130,7 +130,7 @@ class SahoolProTheme {
         backgroundColor: Colors.white,
         foregroundColor: SahoolProColors.textDark,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'IBMPlexSansArabic',
@@ -152,7 +152,7 @@ class SahoolProTheme {
       // تصميم الـ Chips
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey.shade100,
-        selectedColor: SahoolProColors.johnGreen.withOpacity(0.2),
+        selectedColor: SahoolProColors.johnGreen.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontSize: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
@@ -215,7 +215,7 @@ class SahoolProTheme {
 class SahoolProShadows {
   static List<BoxShadow> get small => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 4,
       offset: const Offset(0, 2),
     ),
@@ -223,7 +223,7 @@ class SahoolProShadows {
 
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.12),
+      color: Colors.black.withValues(alpha: 0.12),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -231,7 +231,7 @@ class SahoolProShadows {
 
   static List<BoxShadow> get large => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.16),
+      color: Colors.black.withValues(alpha: 0.16),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
@@ -239,7 +239,7 @@ class SahoolProShadows {
 
   static List<BoxShadow> elevated(Color color) => [
     BoxShadow(
-      color: color.withOpacity(0.3),
+      color: color.withValues(alpha: 0.3),
       blurRadius: 12,
       offset: const Offset(0, 6),
     ),

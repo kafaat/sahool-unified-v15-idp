@@ -78,7 +78,7 @@ class AiChatBubble extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.1),
+        color: SahoolTheme.primary.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: const Icon(
@@ -359,7 +359,7 @@ class SystemMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: (color ?? Colors.grey).withOpacity(0.1),
+          color: (color ?? Colors.grey).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(

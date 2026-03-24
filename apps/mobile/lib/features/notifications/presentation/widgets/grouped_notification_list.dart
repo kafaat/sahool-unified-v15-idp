@@ -221,7 +221,7 @@ class GroupedNotificationList extends StatelessWidget {
     final isExpanded = !collapsible || expandedGroups.contains(key);
 
     return Material(
-      color: header.color?.withOpacity(0.1) ?? Colors.grey.shade100,
+      color: header.color?.withValues(alpha: 0.1) ?? Colors.grey.shade100,
       child: InkWell(
         onTap: collapsible ? () => onGroupToggle?.call(key) : null,
         child: Container(
@@ -229,7 +229,7 @@ class GroupedNotificationList extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: header.color?.withOpacity(0.3) ?? Colors.grey.shade300,
+                color: header.color?.withValues(alpha: 0.3) ?? Colors.grey.shade300,
                 width: 1,
               ),
             ),

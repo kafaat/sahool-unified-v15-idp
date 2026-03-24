@@ -530,11 +530,11 @@ class MapSkeleton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                   ),
                 ],
@@ -777,7 +777,7 @@ class SahoolLoadingScreen extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
@@ -899,7 +899,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
           GestureDetector(
             onTap: dismissible ? () {} : null,
             child: ColoredBox(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.all(24),
@@ -908,7 +908,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                       ),
                     ],
@@ -1196,9 +1196,9 @@ class SahoolLoadingButton extends StatelessWidget {
           backgroundColor: backgroundColor ?? SahoolColors.primary,
           foregroundColor: foregroundColor ?? Colors.white,
           disabledBackgroundColor:
-              (backgroundColor ?? SahoolColors.primary).withOpacity(0.7),
+              (backgroundColor ?? SahoolColors.primary).withValues(alpha: 0.7),
           disabledForegroundColor:
-              (foregroundColor ?? Colors.white).withOpacity(0.9),
+              (foregroundColor ?? Colors.white).withValues(alpha: 0.9),
         ),
         child: isLoading
             ? Row(
@@ -1211,7 +1211,7 @@ class SahoolLoadingButton extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        (foregroundColor ?? Colors.white).withOpacity(0.9),
+                        (foregroundColor ?? Colors.white).withValues(alpha: 0.9),
                       ),
                     ),
                   ),

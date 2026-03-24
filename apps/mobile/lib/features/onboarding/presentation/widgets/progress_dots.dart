@@ -153,7 +153,7 @@ class AnimatedProgressDots extends StatelessWidget {
                         ? [
                             BoxShadow(
                               color: (activeColor ?? SahoolColors.primary)
-                                  .withOpacity(0.4),
+                                  .withValues(alpha: 0.4),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -278,7 +278,7 @@ class StepProgressIndicator extends StatelessWidget {
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: backgroundColor.withOpacity(0.4),
+                      color: backgroundColor.withValues(alpha: 0.4),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),

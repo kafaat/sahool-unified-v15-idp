@@ -245,7 +245,7 @@ class AccessibleIconButton extends StatelessWidget {
             child: Center(
               child: Icon(
                 icon,
-                color: isEnabled ? color : color?.withOpacity(0.5),
+                color: isEnabled ? color : color?.withValues(alpha: 0.5),
                 size: size,
               ),
             ),

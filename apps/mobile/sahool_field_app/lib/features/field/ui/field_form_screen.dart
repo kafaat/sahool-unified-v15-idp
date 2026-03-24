@@ -522,8 +522,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   Widget _buildMapCard() {
     return OrganicCard(
       color: _hasBoundary
-          ? SahoolColors.sageGreen.withOpacity(0.1)
-          : SahoolColors.paleOlive.withOpacity(0.5),
+          ? SahoolColors.sageGreen.withValues(alpha: 0.1)
+          : SahoolColors.paleOlive.withValues(alpha: 0.5),
       child: Column(
         children: [
           Icon(

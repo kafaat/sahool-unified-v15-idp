@@ -213,9 +213,9 @@ class SoilHealthChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: phColor.withOpacity(0.1),
+        color: phColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: phColor.withOpacity(0.3)),
+        border: Border.all(color: phColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -487,7 +487,7 @@ class RadarChartPainter extends CustomPainter {
 
     // Fill
     final fillPaint = Paint()
-      ..color = Colors.green.withOpacity(0.2)
+      ..color = Colors.green.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 

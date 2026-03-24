@@ -447,8 +447,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    SahoolColors.primary.withOpacity(0.1),
-                    SahoolColors.secondary.withOpacity(0.1),
+                    SahoolColors.primary.withValues(alpha: 0.1),
+                    SahoolColors.secondary.withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -460,7 +460,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.15),
+                    color: SahoolColors.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -566,7 +566,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
           color: isSelected
-              ? channel.color.withOpacity(0.1)
+              ? channel.color.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
@@ -578,7 +578,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: channel.color.withOpacity(0.2),
+                    color: channel.color.withValues(alpha: 0.2),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -598,7 +598,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: channel.color.withOpacity(isSelected ? 0.2 : 0.1),
+                    color: channel.color.withValues(alpha: isSelected ? 0.2 : 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -803,10 +803,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolColors.danger.withOpacity(0.1),
+        color: SahoolColors.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.danger.withOpacity(0.3),
+          color: SahoolColors.danger.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -845,7 +845,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          shadowColor: _selectedChannel.color.withOpacity(0.4),
+          shadowColor: _selectedChannel.color.withValues(alpha: 0.4),
         ),
         child: _isLoading
             ? const SizedBox(
@@ -874,7 +874,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                       Text(
                         'Send Verification Code',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 10,
                         ),
                       ),
@@ -893,10 +893,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.info.withOpacity(0.05),
+        color: SahoolColors.info.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: SahoolColors.info.withOpacity(0.1),
+          color: SahoolColors.info.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -907,7 +907,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: SahoolColors.info.withOpacity(0.1),
+                  color: SahoolColors.info.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

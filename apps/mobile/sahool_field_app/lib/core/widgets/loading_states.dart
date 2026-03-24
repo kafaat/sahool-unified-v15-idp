@@ -270,7 +270,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           ColoredBox(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(24),
@@ -279,7 +279,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 20,
                     ),
                   ],
@@ -370,7 +370,7 @@ class SahoolLoadingButton extends StatelessWidget {
         backgroundColor: backgroundColor ?? SahoolColors.primary,
         foregroundColor: foregroundColor ?? Colors.white,
         disabledBackgroundColor:
-            (backgroundColor ?? SahoolColors.primary).withOpacity(0.7),
+            (backgroundColor ?? SahoolColors.primary).withValues(alpha: 0.7),
       ),
       child: isLoading
           ? SizedBox(

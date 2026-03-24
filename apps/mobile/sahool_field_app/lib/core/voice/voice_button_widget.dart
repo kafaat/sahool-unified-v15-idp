@@ -97,7 +97,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
                 boxShadow: [
                   BoxShadow(
                     color: (isListening ? activeColor : inactiveColor)
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
                     blurRadius: isListening ? 20 : 8,
                     spreadRadius: isListening ? 5 : 2,
                   ),
@@ -121,7 +121,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: activeColor.withOpacity(1 - value),
+                                color: activeColor.withValues(alpha: 1 - value),
                                 width: 2,
                               ),
                             ),
@@ -434,7 +434,7 @@ class _PulsingDotState extends State<_PulsingDot>
           height: 12,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.color.withOpacity(0.5 + _controller.value * 0.5),
+            color: widget.color.withValues(alpha: 0.5 + _controller.value * 0.5),
           ),
         );
       },

@@ -243,7 +243,7 @@ class AppTheme {
         primary: primaryGreen,
         primaryContainer: primaryGreenLight,
         secondary: accentGold,
-        secondaryContainer: accentGold.withOpacity(0.3),
+        secondaryContainer: accentGold.withValues(alpha: 0.3),
         surface: const Color(0xFFFAFAFA),
         error: errorRed,
         onPrimary: Colors.white,
@@ -256,7 +256,7 @@ class AppTheme {
 
       // AppBar - Glass style
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white.withOpacity(config.glassOpacity),
+        backgroundColor: Colors.white.withValues(alpha: config.glassOpacity),
         foregroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -279,12 +279,12 @@ class AppTheme {
       // Card Theme - Glass style
       cardTheme: CardTheme(
         elevation: 0,
-        color: Colors.white.withOpacity(0.8),
+        color: Colors.white.withValues(alpha: 0.8),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -293,7 +293,7 @@ class AppTheme {
 
       // Bottom Navigation - Glass style
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white.withOpacity(0.8),
+        backgroundColor: Colors.white.withValues(alpha: 0.8),
         selectedItemColor: primaryGreen,
         unselectedItemColor: Colors.black54,
         type: BottomNavigationBarType.fixed,
@@ -326,15 +326,15 @@ class AppTheme {
       // Input Decoration - Glass style
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withOpacity(0.5),
+        fillColor: Colors.white.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -350,7 +350,7 @@ class AppTheme {
 
       // FAB - Glass style
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: primaryGreen.withOpacity(0.9),
+        backgroundColor: primaryGreen.withValues(alpha: 0.9),
         foregroundColor: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -360,18 +360,18 @@ class AppTheme {
 
       // Dialog - Glass style
       dialogTheme: DialogTheme(
-        backgroundColor: Colors.white.withOpacity(0.95),
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: Colors.white.withOpacity(0.3)),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
       ),
 
       // Bottom Sheet - Glass style
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: Colors.white.withOpacity(0.95),
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -381,13 +381,13 @@ class AppTheme {
 
       // Chip Theme
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.white.withOpacity(0.6),
-        selectedColor: primaryGreen.withOpacity(0.2),
+        backgroundColor: Colors.white.withValues(alpha: 0.6),
+        selectedColor: primaryGreen.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontFamily: fontFamily, fontSize: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: Colors.black.withOpacity(0.1)),
+          side: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
         ),
       ),
 
@@ -401,17 +401,17 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xFF1A1A1A).withOpacity(0.9),
+        backgroundColor: const Color(0xFF1A1A1A).withValues(alpha: 0.9),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
 
       // Highlight and Splash
-      highlightColor: primaryGreen.withOpacity(0.1),
-      splashColor: primaryGreen.withOpacity(0.2),
-      focusColor: primaryGreen.withOpacity(0.15),
-      hoverColor: primaryGreen.withOpacity(0.08),
+      highlightColor: primaryGreen.withValues(alpha: 0.1),
+      splashColor: primaryGreen.withValues(alpha: 0.2),
+      focusColor: primaryGreen.withValues(alpha: 0.15),
+      hoverColor: primaryGreen.withValues(alpha: 0.08),
     );
   }
 
@@ -429,7 +429,7 @@ class AppTheme {
         primary: primaryGreenLight,
         primaryContainer: primaryGreen,
         secondary: accentGold,
-        secondaryContainer: accentGold.withOpacity(0.3),
+        secondaryContainer: accentGold.withValues(alpha: 0.3),
         surface: const Color(0xFF1E1E1E),
         error: const Color(0xFFEF5350),
         onPrimary: Colors.black,
@@ -442,7 +442,7 @@ class AppTheme {
 
       // AppBar - Glass style
       appBarTheme: AppBarTheme(
-        backgroundColor: glassColors.glassDark.withOpacity(config.glassOpacity),
+        backgroundColor: glassColors.glassDark.withValues(alpha: config.glassOpacity),
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -465,7 +465,7 @@ class AppTheme {
       // Card Theme - Glass style
       cardTheme: CardTheme(
         elevation: 0,
-        color: glassColors.glassDark.withOpacity(0.8),
+        color: glassColors.glassDark.withValues(alpha: 0.8),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -479,7 +479,7 @@ class AppTheme {
 
       // Bottom Navigation - Glass style
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: glassColors.glassDark.withOpacity(0.8),
+        backgroundColor: glassColors.glassDark.withValues(alpha: 0.8),
         selectedItemColor: primaryGreenLight,
         unselectedItemColor: Colors.white54,
         type: BottomNavigationBarType.fixed,
@@ -512,7 +512,7 @@ class AppTheme {
       // Input Decoration - Glass style
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: glassColors.glassDark.withOpacity(0.5),
+        fillColor: glassColors.glassDark.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -536,7 +536,7 @@ class AppTheme {
 
       // FAB - Glass style
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: primaryGreenLight.withOpacity(0.9),
+        backgroundColor: primaryGreenLight.withValues(alpha: 0.9),
         foregroundColor: Colors.black,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -546,7 +546,7 @@ class AppTheme {
 
       // Dialog - Glass style
       dialogTheme: DialogTheme(
-        backgroundColor: glassColors.glassDark.withOpacity(0.95),
+        backgroundColor: glassColors.glassDark.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -557,7 +557,7 @@ class AppTheme {
 
       // Bottom Sheet - Glass style
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: glassColors.glassDark.withOpacity(0.95),
+        backgroundColor: glassColors.glassDark.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -567,8 +567,8 @@ class AppTheme {
 
       // Chip Theme
       chipTheme: ChipThemeData(
-        backgroundColor: glassColors.glassDark.withOpacity(0.6),
-        selectedColor: primaryGreenLight.withOpacity(0.2),
+        backgroundColor: glassColors.glassDark.withValues(alpha: 0.6),
+        selectedColor: primaryGreenLight.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontFamily: fontFamily, fontSize: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
@@ -587,17 +587,17 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xFF2D2D2D).withOpacity(0.95),
+        backgroundColor: const Color(0xFF2D2D2D).withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
 
       // Highlight and Splash
-      highlightColor: primaryGreenLight.withOpacity(0.1),
-      splashColor: primaryGreenLight.withOpacity(0.2),
-      focusColor: primaryGreenLight.withOpacity(0.15),
-      hoverColor: primaryGreenLight.withOpacity(0.08),
+      highlightColor: primaryGreenLight.withValues(alpha: 0.1),
+      splashColor: primaryGreenLight.withValues(alpha: 0.2),
+      focusColor: primaryGreenLight.withValues(alpha: 0.15),
+      hoverColor: primaryGreenLight.withValues(alpha: 0.08),
     );
   }
 

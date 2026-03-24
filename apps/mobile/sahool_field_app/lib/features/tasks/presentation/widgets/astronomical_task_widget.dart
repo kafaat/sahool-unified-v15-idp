@@ -176,7 +176,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
         gradient: LinearGradient(
           colors: [
             theme.colorScheme.primary,
-            theme.colorScheme.primary.withOpacity(0.8),
+            theme.colorScheme.primary.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -189,7 +189,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -200,7 +200,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -225,7 +225,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
                     Text(
                       'أفضل أيام $activity حسب المنازل القمرية',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
                       ),
                     ),
@@ -375,7 +375,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
               color: Theme.of(context)
                   .colorScheme
                   .onSurfaceVariant
-                  .withOpacity(0.5),
+                  .withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -408,7 +408,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             Icon(
               Icons.cloud_off,
               size: 80,
-              color: Theme.of(context).colorScheme.error.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -441,7 +441,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -635,7 +635,7 @@ class _CalendarGrid extends StatelessWidget {
                 height: 48,
                 margin: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: isSelected ? scoreColor : scoreColor.withOpacity(0.3),
+                  color: isSelected ? scoreColor : scoreColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
                       ? Border.all(color: scoreColor, width: 2)
@@ -674,7 +674,7 @@ class _CalendarGrid extends StatelessWidget {
   Widget _buildLegend(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -822,7 +822,7 @@ class _DayDetailsCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: scoreColor.withOpacity(0.2),
+                      color: scoreColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: scoreColor, width: 2),
                     ),
@@ -993,7 +993,7 @@ class _DayListTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: rankColor.withOpacity(0.2),
+                  color: rankColor.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                   border: Border.all(color: rankColor, width: 2),
                 ),
@@ -1069,7 +1069,7 @@ class _DayListTile extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: scoreColor.withOpacity(0.2),
+                  color: scoreColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: scoreColor, width: 1.5),
                 ),

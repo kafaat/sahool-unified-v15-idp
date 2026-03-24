@@ -282,7 +282,7 @@ class _IrrigationScheduleScreenState
                             color: isSelected
                                 ? SahoolColors.forestGreen
                                 : isToday
-                                    ? SahoolColors.forestGreen.withOpacity(0.1)
+                                    ? SahoolColors.forestGreen.withValues(alpha: 0.1)
                                     : null,
                             borderRadius: BorderRadius.circular(10),
                             border: isToday && !isSelected
@@ -354,7 +354,7 @@ class _IrrigationScheduleScreenState
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: SahoolColors.forestGreen.withOpacity(0.3),
+                  color: SahoolColors.forestGreen.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -378,13 +378,13 @@ class _IrrigationScheduleScreenState
       IrrigationSchedule schedule, bool isArabic) {
     if (schedule.events.isEmpty) {
       return OrganicCard(
-        color: Colors.blue.withOpacity(0.05),
+        color: Colors.blue.withValues(alpha: 0.05),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.auto_awesome, color: Colors.blue),
@@ -428,16 +428,16 @@ class _IrrigationScheduleScreenState
 
     return OrganicCard(
       color: hoursUntil < 12
-          ? SahoolColors.harvestGold.withOpacity(0.1)
-          : SahoolColors.forestGreen.withOpacity(0.05),
+          ? SahoolColors.harvestGold.withValues(alpha: 0.1)
+          : SahoolColors.forestGreen.withValues(alpha: 0.05),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: hoursUntil < 12
-                  ? SahoolColors.harvestGold.withOpacity(0.2)
-                  : SahoolColors.forestGreen.withOpacity(0.1),
+                  ? SahoolColors.harvestGold.withValues(alpha: 0.2)
+                  : SahoolColors.forestGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -567,7 +567,7 @@ class _IrrigationScheduleScreenState
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: Colors.purple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.bar_chart, color: Colors.purple),
@@ -687,9 +687,9 @@ class _IrrigationEventCard extends StatelessWidget {
 
     return OrganicCard(
       color: isCompleted
-          ? Colors.green.withOpacity(0.05)
+          ? Colors.green.withValues(alpha: 0.05)
           : isPast
-              ? Colors.grey.withOpacity(0.05)
+              ? Colors.grey.withValues(alpha: 0.05)
               : Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,8 +700,8 @@ class _IrrigationEventCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
               color: isCompleted
-                  ? Colors.green.withOpacity(0.1)
-                  : SahoolColors.forestGreen.withOpacity(0.1),
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : SahoolColors.forestGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -827,7 +827,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -860,7 +860,7 @@ class _SummaryItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -958,7 +958,7 @@ class _GenerateScheduleSheetState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.auto_awesome, color: Colors.blue),

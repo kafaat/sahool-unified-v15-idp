@@ -231,7 +231,7 @@ class _ThemeOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? SahoolTheme.primary.withOpacity(0.1)
+              ? SahoolTheme.primary.withValues(alpha: 0.1)
               : (isDark ? Colors.grey[800] : Colors.grey[200]),
           borderRadius: BorderRadius.circular(16),
           border: isSelected
@@ -340,7 +340,7 @@ class _LanguageOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? SahoolTheme.primary.withOpacity(0.1)
+              ? SahoolTheme.primary.withValues(alpha: 0.1)
               : (isDark ? Colors.grey[800] : Colors.grey[200]),
           borderRadius: BorderRadius.circular(16),
           border: isSelected
@@ -509,7 +509,7 @@ class _AppIconOption extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.5),
+                        color: color.withValues(alpha: 0.5),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

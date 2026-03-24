@@ -107,14 +107,14 @@ class FeatureCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(feature.colorValue).withOpacity(0.1),
-              Color(feature.colorValue).withOpacity(0.2),
+              Color(feature.colorValue).withValues(alpha: 0.1),
+              Color(feature.colorValue).withValues(alpha: 0.2),
             ],
           ),
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: Color(feature.colorValue).withOpacity(0.2),
+              color: Color(feature.colorValue).withValues(alpha: 0.2),
               blurRadius: 30,
               spreadRadius: 10,
             ),
@@ -131,7 +131,7 @@ class FeatureCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Color(feature.colorValue).withOpacity(0.2),
+                  color: Color(feature.colorValue).withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -143,7 +143,7 @@ class FeatureCard extends StatelessWidget {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Color(feature.colorValue).withOpacity(0.3),
+                  color: Color(feature.colorValue).withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -297,7 +297,7 @@ class FeaturePreviewCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected
-              ? Color(feature.colorValue).withOpacity(0.2)
+              ? Color(feature.colorValue).withValues(alpha: 0.2)
               : Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(

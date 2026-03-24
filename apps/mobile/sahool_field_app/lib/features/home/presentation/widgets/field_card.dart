@@ -40,7 +40,7 @@ class FieldCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF367C2B).withOpacity(0.1),
+                  color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -104,7 +104,7 @@ class FieldCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: healthColor.withOpacity(0.1),
+                      color: healthColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(

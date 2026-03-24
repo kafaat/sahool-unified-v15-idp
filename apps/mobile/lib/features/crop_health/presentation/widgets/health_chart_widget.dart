@@ -95,7 +95,7 @@ class HealthChartWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color, width: 1.5),
       ),
@@ -205,7 +205,7 @@ class _ChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final fillPaint = Paint()
-      ..color = lineColor.withOpacity(0.1)
+      ..color = lineColor.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final dotPaint = Paint()
@@ -259,7 +259,7 @@ class _ChartPainter extends CustomPainter {
 
   void _drawGridLines(Canvas canvas, Size size) {
     final gridPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 1;
 
     // خطوط أفقية

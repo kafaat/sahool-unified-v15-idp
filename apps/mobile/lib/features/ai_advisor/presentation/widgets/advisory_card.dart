@@ -38,7 +38,7 @@ class AdvisoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: advisory.status == AdvisoryStatus.pending
-              ? priorityColor.withOpacity(0.3)
+              ? priorityColor.withValues(alpha: 0.3)
               : Colors.grey[200]!,
         ),
       ),
@@ -57,7 +57,7 @@ class AdvisoryCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _getTypeColor(advisory.type).withOpacity(0.1),
+                      color: _getTypeColor(advisory.type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -197,7 +197,7 @@ class AdvisoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -249,7 +249,7 @@ class AdvisoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(

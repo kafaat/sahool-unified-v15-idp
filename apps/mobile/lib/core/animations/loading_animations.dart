@@ -168,7 +168,7 @@ class _SahoolLoaderState extends State<SahoolLoader>
             ),
             boxShadow: [
               BoxShadow(
-                color: widget.primaryColor.withOpacity(0.3),
+                color: widget.primaryColor.withValues(alpha: 0.3),
                 blurRadius: widget.size * 0.3,
                 spreadRadius: widget.size * 0.1,
               ),
@@ -230,7 +230,7 @@ class _LeafLoaderPainter extends CustomPainter {
 
       final paint = Paint()
         ..color = (i.isEven ? primaryColor : secondaryColor)
-            .withOpacity(opacity.clamp(0.2, 1.0))
+            .withValues(alpha: opacity.clamp(0.2, 1.0))
         ..style = PaintingStyle.fill;
 
       // Draw leaf shape
@@ -285,7 +285,7 @@ class _CircularLoaderPainter extends CustomPainter {
 
     // Background track
     final trackPaint = Paint()
-      ..color = primaryColor.withOpacity(0.2)
+      ..color = primaryColor.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -296,7 +296,7 @@ class _CircularLoaderPainter extends CustomPainter {
     final arcPaint = Paint()
       ..shader = SweepGradient(
         colors: [
-          secondaryColor.withOpacity(0.0),
+          secondaryColor.withValues(alpha: 0.0),
           primaryColor,
           secondaryColor,
         ],
@@ -344,7 +344,7 @@ class _WaterDropPainter extends CustomPainter {
       final opacity = 1.0 - dropProgress;
 
       final paint = Paint()
-        ..color = color.withOpacity(opacity * 0.6)
+        ..color = color.withValues(alpha: opacity * 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -479,7 +479,7 @@ class SkeletonCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -598,7 +598,7 @@ class SkeletonGrid extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -1177,7 +1177,7 @@ class LoadingOverlay extends StatelessWidget {
                 opacity: isLoading ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 200),
                 child: ColoredBox(
-                  color: overlayColor ?? Colors.black.withOpacity(0.3),
+                  color: overlayColor ?? Colors.black.withValues(alpha: 0.3),
                   child: Center(
                     child: loadingWidget ?? const SahoolLoader(),
                   ),

@@ -108,7 +108,7 @@ class _HealthGaugePainter extends CustomPainter {
 
     // Background circle
     final bgPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 12.0
       ..strokeCap = StrokeCap.round;
@@ -134,7 +134,7 @@ class _HealthGaugePainter extends CustomPainter {
 
     // Inner glow
     final glowPaint = Paint()
-      ..color = color.withOpacity(0.1)
+      ..color = color.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(center, radius - 15, glowPaint);

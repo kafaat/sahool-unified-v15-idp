@@ -816,7 +816,7 @@ class _LoadingIconPainter extends CustomPainter {
       final dotProgress = (progress - i / dotCount) % 1.0;
       final opacity = (1 - dotProgress).clamp(0.2, 1.0);
 
-      final paint = Paint()..color = color.withOpacity(opacity);
+      final paint = Paint()..color = color.withValues(alpha: opacity);
       canvas.drawCircle(dotCenter, dotRadius, paint);
     }
   }
@@ -931,7 +931,7 @@ class _RipplePainter extends CustomPainter {
     final opacity = (1 - progress).clamp(0.0, 0.3);
 
     final paint = Paint()
-      ..color = color.withOpacity(opacity)
+      ..color = color.withValues(alpha: opacity)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(center, radius, paint);
@@ -1076,7 +1076,7 @@ class _GlowPulseState extends State<GlowPulse>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: widget.glowColor.withOpacity(0.5),
+                color: widget.glowColor.withValues(alpha: 0.5),
                 blurRadius: _glowAnimation.value,
                 spreadRadius: _glowAnimation.value / 4,
               ),
@@ -1148,7 +1148,7 @@ class _AttentionDotState extends State<AttentionDot>
                   height: widget.size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: widget.color.withOpacity(opacity * 0.5),
+                    color: widget.color.withValues(alpha: opacity * 0.5),
                   ),
                 ),
               ),

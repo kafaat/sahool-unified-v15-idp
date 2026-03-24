@@ -150,7 +150,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SahoolColors.info.withOpacity(0.1),
+                color: SahoolColors.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -200,10 +200,10 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: SahoolColors.primary.withOpacity(0.1),
+              color: SahoolColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
-                color: SahoolColors.primary.withOpacity(0.3),
+                color: SahoolColors.primary.withValues(alpha: 0.3),
                 width: 3,
               ),
               image: _profileImagePath != null && !kIsWeb
@@ -298,7 +298,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                 ),
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: SahoolColors.primary.withOpacity(0.8),
+                    backgroundColor: SahoolColors.primary.withValues(alpha: 0.8),
                     child: const Icon(Icons.photo_library_rounded, color: Colors.white),
                   ),
                   title: const Text('المعرض'),

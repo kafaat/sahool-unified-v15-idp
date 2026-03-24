@@ -83,7 +83,7 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: SahoolColors.warning.withOpacity(0.1),
+            color: SahoolColors.warning.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -128,9 +128,9 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.warning.withOpacity(0.05),
+        color: SahoolColors.warning.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SahoolColors.warning.withOpacity(0.2)),
+        border: Border.all(color: SahoolColors.warning.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isSelected ? color.withOpacity(0.1) : Colors.grey[50],
+        color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected ? color : Colors.grey[200]!,
@@ -304,7 +304,7 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? color : Colors.grey[200]!,
@@ -316,7 +316,7 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 20, color: color),
@@ -475,7 +475,7 @@ class ConflictListItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: SahoolColors.warning.withOpacity(0.3)),
+            border: Border.all(color: SahoolColors.warning.withValues(alpha: 0.3)),
             boxShadow: SahoolShadows.small,
           ),
           child: Row(
@@ -483,7 +483,7 @@ class ConflictListItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: SahoolColors.warning.withOpacity(0.1),
+                  color: SahoolColors.warning.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

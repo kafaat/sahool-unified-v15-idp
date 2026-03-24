@@ -97,10 +97,10 @@ class _FeedbackButtonsState extends State<FeedbackButtons> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : Colors.grey[100],
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[100],
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isSelected ? color.withOpacity(0.5) : Colors.grey[300]!,
+              color: isSelected ? color.withValues(alpha: 0.5) : Colors.grey[300]!,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -210,8 +210,8 @@ class _FeedbackButtonsState extends State<FeedbackButtons> {
         fontSize: 12,
         color: color,
       ),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
+      backgroundColor: color.withValues(alpha: 0.1),
+      side: BorderSide(color: color.withValues(alpha: 0.3)),
       onPressed: () => _submitOutcomeFeedback(status),
     );
   }
@@ -334,7 +334,7 @@ class _QuickFeedbackState extends State<QuickFeedback> {
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isPositive ? Colors.green : Colors.red).withOpacity(0.1)
+                ? (isPositive ? Colors.green : Colors.red).withValues(alpha: 0.1)
                 : Colors.grey[200],
             borderRadius: BorderRadius.circular(16),
           ),

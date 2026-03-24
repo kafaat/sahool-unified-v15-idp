@@ -559,7 +559,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.9),
+                    color: Colors.red.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -671,8 +671,8 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: available
-                      ? Colors.green.withOpacity(0.3)
-                      : Colors.orange.withOpacity(0.3),
+                      ? Colors.green.withValues(alpha: 0.3)
+                      : Colors.orange.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -812,7 +812,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                         ),
                         decoration: BoxDecoration(
                           color: _getConfidenceColor(d.confidence)
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -844,9 +844,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Text(
           '$label: $count',
@@ -1066,7 +1066,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                         ),
                         decoration: BoxDecoration(
                           color: _getConfidenceColor(detection.confidence)
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

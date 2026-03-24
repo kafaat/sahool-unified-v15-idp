@@ -105,8 +105,8 @@ class ParallaxHomeScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.green.shade200.withOpacity(0.5),
-              Colors.green.shade400.withOpacity(0.8),
+              Colors.green.shade200.withValues(alpha: 0.5),
+              Colors.green.shade400.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: const BorderRadius.only(
@@ -143,7 +143,7 @@ class ParallaxHomeScreen extends StatelessWidget {
             Text(
               'منصة ساهول الزراعية',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
             ),
           ],
@@ -444,7 +444,7 @@ class Weather3DWidget extends StatelessWidget {
               child: Icon(
                 weatherIcon,
                 size: 180,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -545,7 +545,7 @@ class Weather3DWidget extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 12,
               ),
             ),
@@ -875,7 +875,7 @@ class MotionEffectsDemoScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.shade200.withOpacity(0.5),
+            color: Colors.green.shade200.withValues(alpha: 0.5),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

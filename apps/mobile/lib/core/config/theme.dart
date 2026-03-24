@@ -85,7 +85,7 @@ class SahoolTheme {
     // Card
     cardTheme: CardThemeData(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -167,7 +167,7 @@ class SahoolTheme {
     // Chip
     chipTheme: ChipThemeData(
       backgroundColor: Colors.grey[200],
-      selectedColor: primary.withOpacity(0.2),
+      selectedColor: primary.withValues(alpha: 0.2),
       labelStyle: const TextStyle(fontSize: 13, fontFamily: fontFamily),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(

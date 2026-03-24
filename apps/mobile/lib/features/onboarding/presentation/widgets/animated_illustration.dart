@@ -143,8 +143,8 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    color.withOpacity(0.2),
-                    color.withOpacity(0.05),
+                    color.withValues(alpha: 0.2),
+                    color.withValues(alpha: 0.05),
                   ],
                 ),
               ),
@@ -169,7 +169,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                     borderRadius: BorderRadius.circular(widget.size * 0.12),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -213,7 +213,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
             width: widget.size * 0.85,
             height: widget.size * 0.6,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Stack(
@@ -227,7 +227,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                     child: Container(
                       height: widget.size * 0.04,
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.3 + (index * 0.1)),
+                        color: color.withValues(alpha: 0.3 + (index * 0.1)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -251,7 +251,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.4),
+                    color: color.withValues(alpha: 0.4),
                     blurRadius: 15,
                   ),
                 ],
@@ -285,7 +285,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amber.withOpacity(0.4),
+                    color: Colors.amber.withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -306,7 +306,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
               borderRadius: BorderRadius.circular(widget.size * 0.15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                 ),
               ],
@@ -314,7 +314,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
             child: Icon(
               Icons.cloud_rounded,
               size: widget.size * 0.2,
-              color: color.withOpacity(0.6),
+              color: color.withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -401,7 +401,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 10,
                   ),
                 ],
@@ -436,7 +436,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
               child: Icon(
                 Icons.water_drop_rounded,
                 size: widget.size * 0.12,
-                color: Colors.blue.withOpacity(0.7 - (index * 0.1)),
+                color: Colors.blue.withValues(alpha: 0.7 - (index * 0.1)),
               ),
             ),
           );
@@ -455,7 +455,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.4),
+                    color: Colors.blue.withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -495,7 +495,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -548,7 +548,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.4),
+                    color: Colors.orange.withValues(alpha: 0.4),
                     blurRadius: 10,
                   ),
                 ],
@@ -586,13 +586,13 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
                   end: Alignment.bottomRight,
                   colors: [
                     color,
-                    color.withOpacity(0.8),
+                    color.withValues(alpha: 0.8),
                   ],
                 ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.4),
+                    color: color.withValues(alpha: 0.4),
                     blurRadius: 30,
                     spreadRadius: 10,
                   ),
@@ -621,7 +621,7 @@ class _AnimatedIllustrationState extends State<AnimatedIllustration>
           width: 20,
           height: 20,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.3 - (index * 0.05)),
+            color: color.withValues(alpha: 0.3 - (index * 0.05)),
             shape: BoxShape.circle,
           ),
         ),

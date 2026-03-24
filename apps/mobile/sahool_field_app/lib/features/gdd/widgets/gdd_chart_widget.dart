@@ -119,7 +119,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
-          getTooltipColor: (_) => Colors.blueGrey.withOpacity(0.9),
+          getTooltipColor: (_) => Colors.blueGrey.withValues(alpha: 0.9),
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final record = widget.records[spot.x.toInt()];
@@ -186,8 +186,8 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
           show: true,
           gradient: LinearGradient(
             colors: [
-              Colors.blue.shade200.withOpacity(0.3),
-              Colors.blue.shade100.withOpacity(0.1),
+              Colors.blue.shade200.withValues(alpha: 0.3),
+              Colors.blue.shade100.withValues(alpha: 0.1),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -275,7 +275,7 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
         lines.add(
           VerticalLine(
             x: stageStartRecord.toDouble(),
-            color: colors[stage.stageNumber % colors.length].withOpacity(0.5),
+            color: colors[stage.stageNumber % colors.length].withValues(alpha: 0.5),
             strokeWidth: 2,
             dashArray: [4, 4],
             label: VerticalLineLabel(

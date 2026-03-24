@@ -315,7 +315,7 @@ class _QuickFilterChip extends StatelessWidget {
     final chipColor = color ?? Theme.of(context).primaryColor;
 
     return Material(
-      color: isSelected ? chipColor.withOpacity(0.15) : Colors.white,
+      color: isSelected ? chipColor.withValues(alpha: 0.15) : Colors.white,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -518,7 +518,7 @@ class _NotificationFilterSheetState extends State<NotificationFilterSheet> {
                       return FilterChip(
                         label: Text(priority.labelAr),
                         selected: isSelected,
-                        selectedColor: priority.color.withOpacity(0.2),
+                        selectedColor: priority.color.withValues(alpha: 0.2),
                         checkmarkColor: priority.color,
                         onSelected: (selected) {
                           setState(() {

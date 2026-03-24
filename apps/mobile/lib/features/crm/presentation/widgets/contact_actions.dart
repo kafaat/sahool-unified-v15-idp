@@ -113,7 +113,7 @@ class ContactActions extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Material(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: const CircleBorder(),
             child: InkWell(
               onTap: onPressed,
@@ -284,7 +284,7 @@ class QuickContactSheet extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: Colors.blue.withOpacity(0.2),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.2),
                   backgroundImage: farmer.avatarUrl != null
                       ? NetworkImage(farmer.avatarUrl!)
                       : null,
@@ -393,7 +393,7 @@ class QuickContactSheet extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: color, size: 24),

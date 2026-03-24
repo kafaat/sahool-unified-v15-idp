@@ -99,7 +99,7 @@ class ForceUpdateDialog extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: SahoolColors.danger.withOpacity(0.1),
+                  color: SahoolColors.danger.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -129,7 +129,7 @@ class ForceUpdateDialog extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -344,7 +344,7 @@ class OptionalUpdateDialog extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: updateColor.withOpacity(0.1),
+                color: updateColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -373,7 +373,7 @@ class OptionalUpdateDialog extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: updateColor.withOpacity(0.1),
+                color: updateColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -605,7 +605,7 @@ class UpdateBanner extends ConsumerWidget {
         gradient: LinearGradient(
           colors: [
             SahoolColors.primary,
-            SahoolColors.primary.withOpacity(0.8),
+            SahoolColors.primary.withValues(alpha: 0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -613,7 +613,7 @@ class UpdateBanner extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.primary.withOpacity(0.3),
+            color: SahoolColors.primary.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -639,7 +639,7 @@ class UpdateBanner extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -671,7 +671,7 @@ class UpdateBanner extends ConsumerWidget {
                             ? 'الإصدار ${updateInfo?.latestVersion ?? ''}'
                             : 'Version ${updateInfo?.latestVersion ?? ''}',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 12,
                         ),
                       ),
@@ -709,7 +709,7 @@ class UpdateBanner extends ConsumerWidget {
                     },
                     icon: Icon(
                       Icons.close,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       size: 20,
                     ),
                     constraints: const BoxConstraints(

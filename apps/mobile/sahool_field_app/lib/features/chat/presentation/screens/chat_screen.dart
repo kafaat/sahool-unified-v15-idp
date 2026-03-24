@@ -132,7 +132,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             padding: const EdgeInsets.only(left: 16),
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: SahoolTheme.primary.withOpacity(0.1),
+              backgroundColor: SahoolTheme.primary.withValues(alpha: 0.1),
               backgroundImage: otherParticipant?.avatarUrl != null
                   ? NetworkImage(otherParticipant!.avatarUrl!)
                   : null,
@@ -357,10 +357,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.1),
+        color: SahoolTheme.primary.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: SahoolTheme.primary.withOpacity(0.3),
+            color: SahoolTheme.primary.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

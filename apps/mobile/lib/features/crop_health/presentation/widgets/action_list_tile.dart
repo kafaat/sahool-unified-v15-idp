@@ -23,7 +23,7 @@ class ActionListTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: priorityColor.withOpacity(0.3),
+          color: priorityColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -40,7 +40,7 @@ class ActionListTile extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: priorityColor.withOpacity(0.1),
+                  color: priorityColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(

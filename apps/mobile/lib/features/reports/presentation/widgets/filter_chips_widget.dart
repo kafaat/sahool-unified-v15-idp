@@ -186,7 +186,7 @@ class _FilterChipsWidgetState extends ConsumerState<FilterChipsWidget> {
       label: Text(item.nameAr),
       selected: isSelected,
       onSelected: (_) => _toggleSelection(item.id),
-      selectedColor: SahoolColors.primary.withOpacity(0.2),
+      selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
       checkmarkColor: SahoolColors.primary,
       backgroundColor: Colors.grey[100],
       labelStyle: TextStyle(
@@ -262,7 +262,7 @@ class CompactFilterChips extends StatelessWidget {
               label: Text(label),
               selected: isSelected,
               onSelected: onSelected != null ? (_) => onSelected!(index) : null,
-              selectedColor: SahoolColors.primary.withOpacity(0.2),
+              selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
               labelStyle: TextStyle(
                 color: isSelected ? SahoolColors.primary : Colors.grey[700],
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

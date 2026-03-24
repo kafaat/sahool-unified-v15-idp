@@ -107,7 +107,7 @@ class _FuelLogScreenState extends ConsumerState<FuelLogScreen> {
                       setState(() => _operationType = type);
                     }
                   },
-                  selectedColor: SahoolColors.forestGreen.withOpacity(0.2),
+                  selectedColor: SahoolColors.forestGreen.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? SahoolColors.forestGreen : Colors.grey[700],
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

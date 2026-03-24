@@ -356,7 +356,7 @@ class _QuietHoursTileState extends State<_QuietHoursTile> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: SahoolTheme.info.withOpacity(isDark ? 0.2 : 0.1),
+                      color: SahoolTheme.info.withValues(alpha: isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -476,7 +476,7 @@ class _TimePickerButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

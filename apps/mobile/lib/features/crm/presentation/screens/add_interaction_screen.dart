@@ -272,7 +272,7 @@ class _AddInteractionScreenState extends ConsumerState<AddInteractionScreen> {
         return ChoiceChip(
           label: Text(outcome.$2),
           selected: isSelected,
-          selectedColor: outcome.$3.withOpacity(0.2),
+          selectedColor: outcome.$3.withValues(alpha: 0.2),
           labelStyle: TextStyle(
             color: isSelected ? outcome.$3 : Colors.grey[700],
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,

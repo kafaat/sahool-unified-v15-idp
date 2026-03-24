@@ -102,7 +102,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -154,7 +154,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: indexColor.withOpacity(0.4),
+                        color: indexColor.withValues(alpha: 0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -227,7 +227,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -256,7 +256,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.75),
+                    color: Colors.black.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -320,7 +320,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.75),
+                      color: Colors.black.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: SingleChildScrollView(
@@ -350,7 +350,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                                 decoration: BoxDecoration(
                                   color: isActive
                                       ? chipColor
-                                      : chipColor.withOpacity(0.2),
+                                      : chipColor.withValues(alpha: 0.2),
                                   borderRadius:
                                       BorderRadius.circular(16),
                                   border: isActive
@@ -411,7 +411,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.75),
+                    color: Colors.black.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

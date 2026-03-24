@@ -43,10 +43,10 @@ class PrivacySettingsScreen extends ConsumerWidget {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SahoolTheme.info.withOpacity(0.1),
+                color: SahoolTheme.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: SahoolTheme.info.withOpacity(0.3),
+                  color: SahoolTheme.info.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -469,7 +469,7 @@ class _ThirdPartyServiceTile extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: (isEnabled ? SahoolTheme.success : Colors.grey)
-                  .withOpacity(isDark ? 0.2 : 0.1),
+                  .withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -505,8 +505,8 @@ class _ThirdPartyServiceTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: isEnabled
-                  ? SahoolTheme.success.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
+                  ? SahoolTheme.success.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(

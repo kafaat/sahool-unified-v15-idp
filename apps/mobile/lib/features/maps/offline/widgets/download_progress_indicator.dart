@@ -49,7 +49,7 @@ class DownloadProgressIndicator extends StatelessWidget {
                 height: size - strokeWidth * 2,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: SahoolColors.primary.withOpacity(0.05 + pulseValue * 0.05),
+                  color: SahoolColors.primary.withValues(alpha: 0.05 + pulseValue * 0.05),
                 ),
               ),
             ),
@@ -74,7 +74,7 @@ class DownloadProgressIndicator extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -387,8 +387,8 @@ class DownloadCompleteBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isSuccess
-            ? SahoolColors.success.withOpacity(0.1)
-            : SahoolColors.warning.withOpacity(0.1),
+            ? SahoolColors.success.withValues(alpha: 0.1)
+            : SahoolColors.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

@@ -182,7 +182,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
                 color: SahoolColors.primary,
               ),
         style: IconButton.styleFrom(
-          backgroundColor: SahoolColors.primary.withOpacity(0.1),
+          backgroundColor: SahoolColors.primary.withValues(alpha: 0.1),
           padding: const EdgeInsets.all(12),
         ),
       ),
@@ -204,7 +204,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: SahoolColors.primary.withOpacity(0.2),
+              color: SahoolColors.primary.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -221,7 +221,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
                 gradient: LinearGradient(
                   colors: [
                     SahoolColors.primary,
-                    SahoolColors.primary.withOpacity(0.8),
+                    SahoolColors.primary.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -261,7 +261,7 @@ class _BiometricLoginWidgetState extends ConsumerState<BiometricLoginWidget>
                       Text(
                         'انقر للمتابعة',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),

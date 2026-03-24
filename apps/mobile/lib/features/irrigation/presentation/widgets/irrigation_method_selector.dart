@@ -133,13 +133,13 @@ class _IrrigationMethodSelectorState extends State<IrrigationMethodSelector> {
                   color: isSelected ? color : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? color : Colors.grey.withOpacity(0.3),
+                    color: isSelected ? color : Colors.grey.withValues(alpha: 0.3),
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: color.withOpacity(0.2),
+                            color: color.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -171,8 +171,8 @@ class _IrrigationMethodSelectorState extends State<IrrigationMethodSelector> {
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.white.withOpacity(0.2)
-                              : color.withOpacity(0.1),
+                              ? Colors.white.withValues(alpha: 0.2)
+                              : color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -227,23 +227,23 @@ class _MethodCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.08) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? color : Colors.grey.withOpacity(0.15),
+            color: isSelected ? color : Colors.grey.withValues(alpha: 0.15),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.05),
+                    color: Colors.grey.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -257,8 +257,8 @@ class _MethodCard extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? color.withOpacity(0.15)
-                    : color.withOpacity(0.08),
+                    ? color.withValues(alpha: 0.15)
+                    : color.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
@@ -457,7 +457,7 @@ class IrrigationMethodDropdown extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _getEfficiencyBarColor(effPercent).withOpacity(0.1),
+                  color: _getEfficiencyBarColor(effPercent).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -615,7 +615,7 @@ class IrrigationMethodComparison extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                color.withOpacity(0.6),
+                                color.withValues(alpha: 0.6),
                                 color,
                               ],
                             ),

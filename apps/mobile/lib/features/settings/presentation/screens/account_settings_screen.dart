@@ -562,7 +562,7 @@ class _ProfilePictureTile extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: SahoolTheme.primary.withOpacity(0.1),
+                  color: SahoolTheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: avatarUrl != null
@@ -717,8 +717,8 @@ class _SessionTile extends StatelessWidget {
         height: 44,
         decoration: BoxDecoration(
           color: isCurrent
-              ? SahoolTheme.success.withOpacity(0.1)
-              : Colors.grey.withOpacity(0.1),
+              ? SahoolTheme.success.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
@@ -734,7 +734,7 @@ class _SessionTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: SahoolTheme.success.withOpacity(0.1),
+                color: SahoolTheme.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Text(
@@ -784,7 +784,7 @@ class _PlanCard extends StatelessWidget {
         border: Border.all(
           color: isRecommended
               ? SahoolTheme.primary
-              : Colors.grey.withOpacity(0.3),
+              : Colors.grey.withValues(alpha: 0.3),
           width: isRecommended ? 2 : 1,
         ),
         borderRadius: BorderRadius.circular(16),

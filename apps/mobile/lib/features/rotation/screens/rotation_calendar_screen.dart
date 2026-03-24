@@ -131,9 +131,9 @@ class RotationCalendarScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -211,7 +211,7 @@ class RotationCalendarScreen extends ConsumerWidget {
               Expanded(
                 child: Container(
                   width: 2,
-                  color: timelineColor.withOpacity(0.3),
+                  color: timelineColor.withValues(alpha: 0.3),
                 ),
               ),
             ],
@@ -228,7 +228,7 @@ class RotationCalendarScreen extends ConsumerWidget {
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: timelineColor.withOpacity(0.3),
+                  color: timelineColor.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -299,7 +299,7 @@ class RotationCalendarScreen extends ConsumerWidget {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: timelineColor.withOpacity(0.2),
+                            color: timelineColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(

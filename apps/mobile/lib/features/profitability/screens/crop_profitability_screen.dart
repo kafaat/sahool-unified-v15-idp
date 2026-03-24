@@ -159,7 +159,7 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
 
     return Card(
       elevation: 2,
-      color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -383,7 +383,7 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: Colors.purple.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Column(

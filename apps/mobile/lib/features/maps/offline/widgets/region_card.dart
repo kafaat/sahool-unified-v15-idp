@@ -40,14 +40,14 @@ class RegionCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: isSelected
-              ? SahoolColors.primary.withOpacity(0.08)
+              ? SahoolColors.primary.withValues(alpha: 0.08)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? SahoolColors.primary
                 : isDownloaded
-                    ? SahoolColors.success.withOpacity(0.5)
+                    ? SahoolColors.success.withValues(alpha: 0.5)
                     : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
@@ -87,7 +87,7 @@ class RegionCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: SahoolColors.success.withOpacity(0.1),
+                              color: SahoolColors.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Row(
@@ -188,7 +188,7 @@ class RegionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
@@ -287,7 +287,7 @@ class CompactRegionCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
-              ? SahoolColors.primary.withOpacity(0.1)
+              ? SahoolColors.primary.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -301,7 +301,7 @@ class CompactRegionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _getCategoryColor(region.category).withOpacity(0.1),
+                color: _getCategoryColor(region.category).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -391,7 +391,7 @@ class CategoryBadge extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

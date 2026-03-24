@@ -531,7 +531,7 @@ class SahoolAccessibleTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: SahoolAccessibleColors.divider.withOpacity(0.5),
+            color: SahoolAccessibleColors.divider.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -633,7 +633,7 @@ class SahoolAccessibleTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return SahoolAccessibleColors.primaryLight.withOpacity(0.5);
+            return SahoolAccessibleColors.primaryLight.withValues(alpha: 0.5);
           }
           return SahoolAccessibleColors.divider;
         }),
@@ -688,10 +688,10 @@ class SahoolAccessibleTheme {
       ),
 
       // Focus
-      focusColor: SahoolAccessibleColors.focusIndicator.withOpacity(0.2),
-      hoverColor: SahoolAccessibleColors.primary.withOpacity(0.1),
-      highlightColor: SahoolAccessibleColors.primary.withOpacity(0.1),
-      splashColor: SahoolAccessibleColors.primary.withOpacity(0.2),
+      focusColor: SahoolAccessibleColors.focusIndicator.withValues(alpha: 0.2),
+      hoverColor: SahoolAccessibleColors.primary.withValues(alpha: 0.1),
+      highlightColor: SahoolAccessibleColors.primary.withValues(alpha: 0.1),
+      splashColor: SahoolAccessibleColors.primary.withValues(alpha: 0.2),
     );
   }
 
@@ -751,7 +751,7 @@ class SahoolAccessibleTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             width: 1,
           ),
         ),

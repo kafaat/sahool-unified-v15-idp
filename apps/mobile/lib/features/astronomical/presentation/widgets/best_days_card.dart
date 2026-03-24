@@ -60,7 +60,7 @@ class BestDaysCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
@@ -143,7 +143,7 @@ class _BestDayTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: rankColor.withOpacity(0.2),
+                color: rankColor.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 border: Border.all(color: rankColor, width: 2),
               ),
@@ -230,7 +230,7 @@ class _BestDayTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: scoreColor.withOpacity(0.2),
+                color: scoreColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

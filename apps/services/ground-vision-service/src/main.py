@@ -405,7 +405,7 @@ async def list_cameras(
 
 
 @app.get("/api/v1/cameras/{camera_id}", tags=["Cameras"])
-async def get_camera(camera_id: str):
+async def get_camera(camera_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
     """
     Get camera details.
 
@@ -414,8 +414,9 @@ async def get_camera(camera_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM cameras WHERE camera_id=$1",
+                "SELECT * FROM cameras WHERE camera_id=$1 AND tenant_id=$2",
                 camera_id,
+                tenant_id,
             )
             if row:
                 return dict(row)
@@ -604,7 +605,7 @@ async def list_detections(
 
 
 @app.get("/api/v1/detections/{detection_id}", tags=["Detections"])
-async def get_detection(detection_id: str):
+async def get_detection(detection_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
     """
     Get detection details.
 
@@ -613,8 +614,9 @@ async def get_detection(detection_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM detections WHERE detection_id=$1",
+                "SELECT * FROM detections WHERE detection_id=$1 AND tenant_id=$2",
                 detection_id,
+                tenant_id,
             )
             if row:
                 return dict(row)
@@ -854,7 +856,7 @@ async def list_anomalies(
 
 
 @app.get("/api/v1/anomalies/{anomaly_id}", tags=["Anomalies"])
-async def get_anomaly(anomaly_id: str):
+async def get_anomaly(anomaly_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
     """
     Get anomaly details.
 
@@ -863,8 +865,9 @@ async def get_anomaly(anomaly_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM anomalies WHERE anomaly_id=$1",
+                "SELECT * FROM anomalies WHERE anomaly_id=$1 AND tenant_id=$2",
                 anomaly_id,
+                tenant_id,
             )
             if row:
                 return dict(row)

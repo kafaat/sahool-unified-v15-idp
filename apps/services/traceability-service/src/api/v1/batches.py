@@ -280,9 +280,10 @@ async def update_batch(
         set_clauses.append(f"{key} = ${i}")
         values.append(val)
     values.append(uuid.UUID(batch_id))
+    values.append(uuid.UUID(tenant_id))
 
     row = await pool.fetchrow(
-        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values) - 1} AND tenant_id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
@@ -317,7 +318,9 @@ async def record_harvest_event(
 
     # Update batch status
     await pool.execute(
-        "UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND status = 'created'", batch_uuid
+        "UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND tenant_id = $2 AND status = 'created'",
+        batch_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -349,7 +352,11 @@ async def record_processing_event(
         request.notes,
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_processing' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_processing' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -380,7 +387,11 @@ async def record_storage_event(
         request.humidity_percent,
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_storage' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_storage' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -417,7 +428,11 @@ async def record_transport_event(
         json.dumps(metadata) if metadata else "{}",
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_transit' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_transit' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -596,10 +611,11 @@ async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request, t
     remaining = parent_qty - total_split
     new_status = "split" if remaining == 0 else parent.get("status", "created")
     await pool.execute(
-        "UPDATE produce_batches SET quantity = $1, status = $2 WHERE id = $3",
+        "UPDATE produce_batches SET quantity = $1, status = $2 WHERE id = $3 AND tenant_id = $4",
         remaining,
         new_status,
         uuid.UUID(batch_id),
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -685,7 +701,11 @@ async def initiate_recall(
         )
 
     # Update batch status to recalled
-    await pool.execute("UPDATE produce_batches SET status = 'recalled' WHERE id = $1", uuid.UUID(batch_id))
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'recalled' WHERE id = $1 AND tenant_id = $2",
+        uuid.UUID(batch_id),
+        uuid.UUID(tenant_id),
+    )
 
     # Record recall event in supply chain
     recall_event = await pool.fetchrow(
@@ -719,8 +739,9 @@ async def initiate_recall(
     if child_batches:
         child_ids = [c["id"] for c in child_batches]
         await pool.execute(
-            "UPDATE produce_batches SET status = 'recalled' WHERE id = ANY($1::uuid[])",
+            "UPDATE produce_batches SET status = 'recalled' WHERE id = ANY($1::uuid[]) AND tenant_id = $2",
             child_ids,
+            uuid.UUID(tenant_id),
         )
 
     nc = getattr(req.app.state, "nc", None)

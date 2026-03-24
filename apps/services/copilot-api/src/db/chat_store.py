@@ -188,8 +188,9 @@ async def _ensure_session(
     session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
 
     row = await conn.fetchrow(
-        "SELECT id FROM copilot_sessions WHERE id = $1",
+        "SELECT id FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",
         session_uuid,
+        tenant_id,
     )
 
     if row is None:
@@ -207,8 +208,9 @@ async def _ensure_session(
         # Update the updated_at timestamp
         # تحديث الطابع الزمني
         await conn.execute(
-            "UPDATE copilot_sessions SET updated_at = NOW() WHERE id = $1",
+            "UPDATE copilot_sessions SET updated_at = NOW() WHERE id = $1 AND tenant_id = $2",
             session_uuid,
+            tenant_id,
         )
 
     return str(session_uuid)

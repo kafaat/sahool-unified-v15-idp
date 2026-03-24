@@ -225,7 +225,11 @@ async def get_cooperative(coop_id: str, req: Request, tenant_id: str = Depends(g
 
 @router.put("/{coop_id}")
 async def update_cooperative(
-    coop_id: str, request: CooperativeUpdateRequest, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+    coop_id: str,
+    request: CooperativeUpdateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(get_current_user),
 ):
     """Update cooperative - تحديث التعاونية"""
     pool = await _get_db(req)
@@ -244,9 +248,10 @@ async def update_cooperative(
         set_clauses.append(f"{key} = ${i}")
         values.append(val)
     values.append(uuid.UUID(coop_id))
+    values.append(uuid.UUID(tenant_id))
 
     row = await pool.fetchrow(
-        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values) - 1} AND tenant_id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("cooperative_updated", coop_id=coop_id, fields=list(updates.keys()))
@@ -254,13 +259,17 @@ async def update_cooperative(
 
 
 @router.delete("/{coop_id}", status_code=204)
-async def delete_cooperative(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)):
+async def delete_cooperative(
+    coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+):
     """Delete cooperative - حذف التعاونية"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)
 
     # CASCADE in DB handles members, resources, bookings
-    await pool.execute("DELETE FROM cooperatives WHERE id = $1", uuid.UUID(coop_id))
+    await pool.execute(
+        "DELETE FROM cooperatives WHERE id = $1 AND tenant_id = $2", uuid.UUID(coop_id), uuid.UUID(tenant_id)
+    )
     logger.info("cooperative_deleted", coop_id=coop_id)
 
 
@@ -293,8 +302,9 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request, t
 
     # Update member count
     await pool.execute(
-        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1",
+        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1 AND tenant_id = $2",
         coop_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -323,7 +333,9 @@ async def list_members(coop_id: str, req: Request, tenant_id: str = Depends(get_
 
 
 @router.delete("/{coop_id}/members/{member_id}", status_code=204)
-async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depends(get_current_user)):
+async def remove_member(
+    coop_id: str, member_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+):
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     pool = await _get_db(req)
     coop_uuid = uuid.UUID(coop_id)
@@ -339,12 +351,15 @@ async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depend
             detail={"error": "Member not found in this cooperative", "error_ar": "العضو غير موجود في هذه التعاونية"},
         )
 
-    await pool.execute("DELETE FROM cooperative_members WHERE id = $1", uuid.UUID(member_id))
+    await pool.execute(
+        "DELETE FROM cooperative_members WHERE id = $1 AND cooperative_id = $2", uuid.UUID(member_id), coop_uuid
+    )
 
     # Update member count
     await pool.execute(
-        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1",
+        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1 AND tenant_id = $2",
         coop_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -361,7 +376,9 @@ async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depend
 
 
 @router.post("/{coop_id}/resources", status_code=201)
-async def register_resource(coop_id: str, request: ResourceCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def register_resource(
+    coop_id: str, request: ResourceCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Register shared resource - تسجيل مورد مشترك"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)
@@ -451,7 +468,9 @@ async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRe
 
 
 @router.post("/{coop_id}/revenue/distribute")
-async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def distribute_revenue(
+    coop_id: str, request: RevenueDistributionRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Distribute revenue among members - توزيع الإيرادات بين الأعضاء"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)

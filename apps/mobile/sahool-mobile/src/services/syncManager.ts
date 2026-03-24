@@ -1212,7 +1212,7 @@ export class SyncManager {
    */
   private getBaseUrl(): string {
     // يجب تعيين هذا من الإعدادات - This should be set from config
-    return process.env.API_BASE_URL || "https://api.sahool.com";
+    return process.env.API_BASE_URL || "https://api.sahool.app";
   }
 
   /**

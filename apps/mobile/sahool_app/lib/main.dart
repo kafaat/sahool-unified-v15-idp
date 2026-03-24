@@ -32,6 +32,9 @@ import 'app.dart';
 // مثيل تقارير الأعطال العالمي (قديم - محفوظ للتوافقية)
 final crashReporting = legacy_crash.CrashReportingService();
 
+/// Guard against infinite recursion when user bypasses security warning.
+bool _securityBypassRestart = false;
+
 void main() async {
   // Ensure Flutter bindings are initialized first
   // تأكد من تهيئة ارتباطات Flutter أولاً
@@ -127,11 +130,13 @@ void main() async {
 
     // Device Integrity Check - Security Feature
     // فحص سلامة الجهاز - ميزة أمنية
+    // Skip if restarting after user bypassed security warning
     final securityConfig = SecurityConfig.fromBuildMode();
     AppLogger.d('Security config: $securityConfig', tag: 'Security');
 
-    // Perform device integrity check if enabled
-    if (securityConfig.deviceIntegrityPolicy !=
+    // Perform device integrity check if enabled (skip on security bypass restart)
+    if (!_securityBypassRestart &&
+        securityConfig.deviceIntegrityPolicy !=
         DeviceIntegrityPolicy.disabled) {
       try {
         // Record breadcrumbs in both systems
@@ -195,7 +200,8 @@ void main() async {
                           category: 'security',
                           level: legacy_crash.BreadcrumbLevel.warning,
                         );
-                        // Restart app initialization
+                        // Restart app initialization, skipping security re-check
+                        _securityBypassRestart = true;
                         main();
                       },
               ),

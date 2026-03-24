@@ -34,9 +34,6 @@ class ApiConfig {
   /// Check if running in release mode
   static bool get isProduction => EnvConfig.isProduction;
 
-  /// Get protocol (https for production, http for development)
-  static String get _protocol => EnvConfig.apiProtocol;
-
   /// Get host based on environment
   static String get host => EnvConfig.apiHost;
 
@@ -247,7 +244,7 @@ class ApiConfig {
   static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual Sensors Engine Endpoints (port 8096)
+  // Virtual Sensors Engine Endpoints (port 8119)
   // محرك المستشعرات الافتراضية
   // Kong route: /api/v1/sensors/virtual
   // ─────────────────────────────────────────────────────────────────────────────
@@ -465,7 +462,7 @@ class ApiConfig {
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Chat/Messaging Service Endpoints (port 3011)
+  // Chat/Messaging Service Endpoints (port 8115)
   // خدمة المحادثات والرسائل
   // Kong route: /api/v1/chat
   // ─────────────────────────────────────────────────────────────────────────────

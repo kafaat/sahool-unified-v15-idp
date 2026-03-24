@@ -382,7 +382,6 @@ class SkillClient {
     SkillRequest request, {
     Duration? timeout,
   }) async* {
-    final requestId = _generateRequestId();
     final executionTimeout = timeout ?? request.timeout ?? defaultTimeout;
 
     if (kDebugMode) {

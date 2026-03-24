@@ -8,7 +8,7 @@
 /// - Pending changes indicator
 library;
 
-import 'dart:async';
+import 'dart:async' show StreamController, StreamSubscription, Timer, unawaited;
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,7 +96,6 @@ class LocalDataItem {
 class OfflineDataManager {
   static const String _storageKey = 'sahool_offline_data';
   static const int _maxRetries = 5;
-  static const Duration _retryDelay = Duration(seconds: 30);
 
   final _pendingChangesController = StreamController<int>.broadcast();
   final _syncStatusController = StreamController<OfflineSyncStatus>.broadcast();
@@ -108,7 +107,7 @@ class OfflineDataManager {
   bool _isSyncing = false;
   late SharedPreferences _prefs;
   late Connectivity _connectivity;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   /// تهيئة المدير
   Future<void> initialize() async {

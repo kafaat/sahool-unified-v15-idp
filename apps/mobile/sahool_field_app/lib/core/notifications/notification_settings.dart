@@ -120,7 +120,7 @@ class NotificationSettings {
 
     final now = DateTime.now().hour;
 
-    if (quietHoursStart < quietHoursEnd) {
+    if (quietHoursStart > quietHoursEnd) {
       // مثال: من 22 إلى 7 (يمتد عبر منتصف الليل)
       return now >= quietHoursStart || now < quietHoursEnd;
     } else {

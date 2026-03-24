@@ -369,7 +369,7 @@ class ConflictHandler {
   }
 
   /// Merge arrays (union with deduplication)
-  List _mergeArrays(List local, List server) {
+  List<dynamic> _mergeArrays(List<dynamic> local, List<dynamic> server) {
     final result = <dynamic>[];
     final seen = <dynamic>{};
 
@@ -432,7 +432,6 @@ class ConflictHandler {
     required ConflictStrategy strategy,
   }) async {
     final messageAr = _getConflictMessageAr(entityType, strategy);
-    final messageEn = _getConflictMessageEn(entityType, strategy);
 
     await _db.addSyncEvent(
       tenantId: tenantId,

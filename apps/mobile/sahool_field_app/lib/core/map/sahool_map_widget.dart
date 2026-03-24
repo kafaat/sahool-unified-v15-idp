@@ -49,13 +49,13 @@ class SahoolMapWidget extends ConsumerStatefulWidget {
   final MapInteractionMode interactionMode;
 
   /// Callback when point is selected
-  final Function(LatLng)? onPointSelected;
+  final void Function(LatLng)? onPointSelected;
 
   /// Callback when polygon is completed
-  final Function(List<LatLng>)? onPolygonCompleted;
+  final void Function(List<LatLng>)? onPolygonCompleted;
 
   /// Callback when map is moved
-  final Function(LatLng center, double zoom)? onMapMoved;
+  final void Function(LatLng center, double zoom)? onMapMoved;
 
   /// Show current location button
   final bool showMyLocation;

@@ -285,8 +285,16 @@ class _SecureScreenState extends ConsumerState<SecureScreen> {
 
   @override
   void dispose() {
-    // Always unsecure when leaving the screen
-    _disableSecurity();
+    // Unsecure the screen without calling setState (widget is being disposed)
+    if (_isSecured) {
+      try {
+        _secureApplicationController.open();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Failed to unsecure screen on dispose: $e');
+        }
+      }
+    }
     super.dispose();
   }
 

@@ -152,7 +152,7 @@ class _CompressedMapExampleState extends State<CompressedMapExample> {
       _mapController.move(location, 12);
 
       // انتظار قليلاً لتحديث الخريطة - Wait for map to update
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
       final result = await _tileManager.prefetchAroundLocation(
         center: location,
@@ -414,7 +414,7 @@ class _CompressedMapExampleState extends State<CompressedMapExample> {
 
   /// عرض الإعدادات - Show settings
   void _showSettings() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(16.0),

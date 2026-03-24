@@ -564,7 +564,7 @@ class EnvConfig {
 
   static String get appName => _getString('APP_NAME', 'SAHOOL Field');
 
-  static String get appVersion => _getString('APP_VERSION', '15.4.0');
+  static String get appVersion => _getString('APP_VERSION', '16.0.0');
 
   static String get buildNumber => _getString('BUILD_NUMBER', '1');
 

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// SAHOOL Error Boundary Widget
 ///
@@ -41,12 +42,23 @@ class ErrorBoundary extends StatefulWidget {
 class _ErrorBoundaryState extends State<ErrorBoundary> {
   Object? _error;
   StackTrace? _stackTrace;
+  FlutterExceptionHandler? _previousHandler;
 
   @override
   void initState() {
     super.initState();
-    // Set up Flutter error handler
+    // Chain with the existing error handler instead of replacing it
+    _previousHandler = FlutterError.onError;
     FlutterError.onError = _handleFlutterError;
+  }
+
+  @override
+  void dispose() {
+    // Restore the previous error handler to avoid dangling references
+    if (FlutterError.onError == _handleFlutterError) {
+      FlutterError.onError = _previousHandler;
+    }
+    super.dispose();
   }
 
   void _handleFlutterError(FlutterErrorDetails details) {
@@ -56,6 +68,9 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
         _stackTrace = details.stack;
       });
       widget.onError?.call(details.exception, details.stack);
+    } else {
+      // Forward to previous handler if this boundary is not mounted
+      _previousHandler?.call(details);
     }
   }
 
@@ -218,7 +233,7 @@ class _DefaultErrorWidget extends StatelessWidget {
   }
 
   void _showErrorDetails(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -294,9 +309,8 @@ class _DefaultErrorWidget extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // Copy to clipboard
                     final text = 'Error: $error\n\nStack Trace:\n$stackTrace';
-                    // Clipboard.setData(ClipboardData(text: text));
+                    Clipboard.setData(ClipboardData(text: text));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Error details copied')),
                     );
@@ -361,7 +375,7 @@ void setupGlobalErrorHandling({
 
 /// Async error boundary for FutureBuilder/StreamBuilder
 class AsyncErrorBoundary extends StatelessWidget {
-  final AsyncSnapshot snapshot;
+  final AsyncSnapshot<dynamic> snapshot;
   final Widget Function() builder;
   final Widget? loadingWidget;
   final Widget Function(Object error)? errorBuilder;

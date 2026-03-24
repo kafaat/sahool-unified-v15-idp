@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../utils/app_logger.dart';
@@ -285,7 +286,8 @@ class EndpointConfig {
 
   /// Calculate backoff duration for a given retry attempt
   Duration getBackoffDuration(int retryCount) {
-    final backoff = initialBackoff * (backoffMultiplier * retryCount);
+    final multiplier = pow(backoffMultiplier, retryCount);
+    final backoff = initialBackoff * multiplier;
     return Duration(
       milliseconds: backoff.inMilliseconds.clamp(
         initialBackoff.inMilliseconds,

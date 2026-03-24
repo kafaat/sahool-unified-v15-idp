@@ -31,7 +31,6 @@ class OutboxProcessor {
   bool _isProcessing = false;
   bool _isPaused = false;
   int _consecutiveFailures = 0;
-  DateTime? _lastProcessTime;
   Timer? _processTimer;
   Timer? _retryTimer;
   StreamSubscription<bool>? _connectivitySubscription;
@@ -259,8 +258,6 @@ class OutboxProcessor {
         }
       }
 
-      _lastProcessTime = DateTime.now();
-
       final success = failed == 0;
       final state =
           success ? ProcessorState.idle : ProcessorState.partialFailure;
@@ -319,37 +316,36 @@ class OutboxProcessor {
       }
 
       // Make API request
-      dynamic response;
       switch (entry.method.toUpperCase()) {
         case 'POST':
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PUT':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PATCH':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'DELETE':
-          response = await _apiClient.delete(
+          await _apiClient.delete(
             entry.apiEndpoint,
             headers: headers,
           );
           break;
         default:
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,

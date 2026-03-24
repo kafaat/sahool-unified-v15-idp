@@ -76,7 +76,7 @@ class ExponentialBackoff {
   Future<T> execute<T>(
     Future<T> Function() operation, {
     int currentRetry = 0,
-    Function(int retry, Duration delay)? onRetry,
+    void Function(int retry, Duration delay)? onRetry,
   }) async {
     try {
       return await operation();
@@ -90,7 +90,7 @@ class ExponentialBackoff {
 
       onRetry?.call(currentRetry, delay);
 
-      await Future.delayed(delay);
+      await Future<void>.delayed(delay);
 
       return execute(
         operation,

@@ -316,13 +316,11 @@ class CertificatePinningService {
   void configureDio(Dio dio) {
     // In debug mode, optionally bypass pinning for development
     if (kDebugMode && allowDebugBypass) {
-      if (kDebugMode) {
-        AppLogger.w('Certificate pinning bypassed in debug mode',
-            tag: 'CertificatePinning');
-        AppLogger.w(
-            'Set allowDebugBypass=false to test pinning in debug builds',
-            tag: 'CertificatePinning');
-      }
+      AppLogger.w('Certificate pinning bypassed in debug mode',
+          tag: 'CertificatePinning');
+      AppLogger.w(
+          'Set allowDebugBypass=false to test pinning in debug builds',
+          tag: 'CertificatePinning');
       return;
     }
 
@@ -476,13 +474,20 @@ class CertificatePinningService {
   }
 
   /// Match public key
+  ///
+  /// Note: Dart's X509Certificate API does not expose the raw public key
+  /// separately from the full certificate DER encoding. As a result, this
+  /// method falls back to comparing the SHA256 hash of the full DER bytes,
+  /// which is equivalent to [_matchSha256]. For true SPKI/public-key
+  /// pinning, a platform channel to native code would be required.
   bool _matchPublicKey(X509Certificate cert, String expectedPublicKey) {
-    // Extract public key from certificate DER
-    final publicKeyBytes = cert.der;
-    final publicKeyHash = sha256.convert(publicKeyBytes);
-    final publicKeyFingerprint = publicKeyHash.toString();
+    // Dart's X509Certificate does not expose the public key separately.
+    // Hashing cert.der gives the full certificate hash, same as _matchSha256.
+    // TODO: Implement native platform channel for true SPKI pinning.
+    final certHash = sha256.convert(cert.der);
+    final certFingerprint = certHash.toString();
 
-    return publicKeyFingerprint.toLowerCase() ==
+    return certFingerprint.toLowerCase() ==
         expectedPublicKey.toLowerCase();
   }
 

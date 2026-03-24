@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/widgets/connectivity_widget.dart';
 import '../../field/domain/entities/field.dart';
 import '../../tasks/domain/entities/task.dart';
 import '../../tasks/providers/tasks_provider.dart';

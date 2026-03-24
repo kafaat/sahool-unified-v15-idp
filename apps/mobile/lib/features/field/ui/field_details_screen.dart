@@ -50,7 +50,8 @@ class FieldDetailsScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: () {
-                Navigator.pushNamed(context, '/field-form');
+                Navigator.pushNamed(context, '/field-form',
+                    arguments: {'fieldId': fieldId});
               },
             ),
             IconButton(

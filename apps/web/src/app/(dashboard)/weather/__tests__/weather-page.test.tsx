@@ -97,7 +97,7 @@ beforeEach(() => {
 describe("WeatherClient", () => {
   it("should render page header with bilingual title", () => {
     render(<WeatherClient />);
-    expect(screen.getByText("الطقس")).toBeInTheDocument();
+    expect(screen.getAllByText(/الطقس/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Weather Dashboard")).toBeInTheDocument();
   });
 

@@ -18,7 +18,7 @@ void main() {
     /// inside its data branch, so we must stub them to avoid hitting
     /// real platform channels (Connectivity+) and the unimplemented
     /// database provider.
-    List<Override> get _baseOverrides => [
+    List<Override> baseOverrides() => [
           currentTenantProvider.overrideWithValue(null),
           connectivityProvider.overrideWith(
             (ref) => _FakeConnectivityNotifier(),
@@ -36,7 +36,7 @@ void main() {
     Widget buildDashboard({List<Field> fields = const []}) {
       return createTestableWidget(
         overrides: [
-          ..._baseOverrides,
+          ...baseOverrides(),
           fieldsStreamProvider('default')
               .overrideWith((ref) => Stream.value(fields)),
         ],
@@ -48,7 +48,7 @@ void main() {
       await tester.pumpWidget(
         createTestableWidget(
           overrides: [
-            ..._baseOverrides,
+            ...baseOverrides(),
             fieldsStreamProvider('default')
                 .overrideWith((ref) => const Stream.empty()),
           ],

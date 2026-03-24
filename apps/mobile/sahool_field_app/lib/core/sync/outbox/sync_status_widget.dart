@@ -263,7 +263,7 @@ class SyncStatusIndicator extends ConsumerWidget {
   }
 
   void _showSyncDialog(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => const SyncStatusSheet(),
     );

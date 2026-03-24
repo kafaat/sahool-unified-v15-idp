@@ -2,38 +2,38 @@
   "name": "@sahool/design-system",
   "version": "16.0.0",
   "description": "SAHOOL Design System - Unified design tokens, components, and themes",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.mjs",
+  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.mjs",
+      "require": "./dist/src/index.js"
     },
     "./themes": {
-      "types": "./dist/themes/index.d.ts",
-      "import": "./dist/themes/index.mjs",
-      "require": "./dist/themes/index.js",
-      "default": "./dist/themes/index.js"
+      "types": "./dist/src/themes/index.d.ts",
+      "import": "./dist/src/themes/index.mjs",
+      "require": "./dist/src/themes/index.js",
+      "default": "./dist/src/themes/index.js"
     },
     "./themes/dark": {
-      "types": "./dist/themes/dark.d.ts",
-      "import": "./dist/themes/dark.mjs",
-      "require": "./dist/themes/dark.js",
-      "default": "./dist/themes/dark.js"
+      "types": "./dist/src/themes/dark.d.ts",
+      "import": "./dist/src/themes/dark.mjs",
+      "require": "./dist/src/themes/dark.js",
+      "default": "./dist/src/themes/dark.js"
     },
     "./themes/light": {
-      "types": "./dist/themes/light.d.ts",
-      "import": "./dist/themes/light.mjs",
-      "require": "./dist/themes/light.js",
-      "default": "./dist/themes/light.js"
+      "types": "./dist/src/themes/light.d.ts",
+      "import": "./dist/src/themes/light.mjs",
+      "require": "./dist/src/themes/light.js",
+      "default": "./dist/src/themes/light.js"
     },
     "./tokens": {
-      "types": "./dist/tokens.d.ts",
-      "import": "./dist/tokens.mjs",
-      "require": "./dist/tokens.js",
-      "default": "./dist/tokens.js"
+      "types": "./dist/tokens/tokens.d.ts",
+      "import": "./dist/tokens/tokens.mjs",
+      "require": "./dist/tokens/tokens.js",
+      "default": "./dist/tokens/tokens.js"
     },
     "./tokens/css": "./tokens/tokens.css",
     "./tokens/tailwind": "./tokens/tailwind.tokens.js"

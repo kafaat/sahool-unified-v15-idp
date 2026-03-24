@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';
@@ -219,7 +220,8 @@ class NetworkConfig {
 
   /// Calculate retry delay with exponential backoff
   Duration getRetryDelay(int retryAttempt) {
-    final delay = initialRetryDelay * (retryBackoffMultiplier * retryAttempt);
+    final multiplier = pow(retryBackoffMultiplier, retryAttempt);
+    final delay = initialRetryDelay * multiplier;
     return Duration(
       milliseconds: delay.inMilliseconds.clamp(
         initialRetryDelay.inMilliseconds,

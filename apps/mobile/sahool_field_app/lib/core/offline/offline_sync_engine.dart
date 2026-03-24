@@ -265,7 +265,7 @@ class OfflineSyncEngine {
     // );
 
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed CREATE: ${entry.entityType}', tag: 'SYNC');
   }
 
@@ -298,7 +298,7 @@ class OfflineSyncEngine {
     }
 
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed UPDATE: ${entry.entityType}/${entry.entityId}',
         tag: 'SYNC');
   }
@@ -306,7 +306,7 @@ class OfflineSyncEngine {
   /// معالجة عملية حذف
   Future<void> _processDelete(OutboxEntry entry) async {
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed DELETE: ${entry.entityType}/${entry.entityId}',
         tag: 'SYNC');
   }
@@ -333,7 +333,7 @@ class OfflineSyncEngine {
         Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
     final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
-    Timer(delay, _checkAndSync);
+    Timer(delay, () => _checkAndSync());
     AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)',
         tag: 'SYNC');
   }

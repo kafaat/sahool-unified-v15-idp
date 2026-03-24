@@ -102,7 +102,7 @@ class SyncWorker {
       final endpoint = item.apiEndpoint;
       final method = item.method;
 
-      final resp = await _dio.request(
+      final resp = await _dio.request<Map<String, dynamic>>(
         '$_baseUrl$endpoint',
         data: jsonDecode(item.payload),
         options: Options(method: method, headers: headers),
@@ -161,10 +161,8 @@ class SyncWorker {
       if (fieldId != null) {
         await _db.markFieldSynced(fieldId, serverData['remote_id']?.toString());
 
-        // Update with server data
-        await (await _db.getFieldById(fieldId))?.let((field) async {
-          await _db.upsertFieldsFromServer([serverData!]);
-        });
+        // Apply server data (upsert handles both existing and new fields)
+        await _db.upsertFieldsFromServer([serverData]);
       }
     }
 
@@ -230,12 +228,3 @@ class SyncResult {
       'SyncResult(synced: $synced, failed: $failed, conflicts: $conflicts)';
 }
 
-/// Extension helper
-extension _ObjectExtension<T> on T? {
-  R? let<R>(R Function(T) block) {
-    if (this != null) {
-      return block(this as T);
-    }
-    return null;
-  }
-}

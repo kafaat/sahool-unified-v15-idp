@@ -178,7 +178,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         child: Row(
           children: suggestions.map((suggestion) {
             return Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsetsDirectional.only(start: 8),
               child: ActionChip(
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),
@@ -194,7 +194,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
   Widget _buildTypingIndicator() {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -336,7 +336,7 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: message.isUser ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         constraints: BoxConstraints(
@@ -344,8 +344,8 @@ class _ChatBubble extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: message.isUser
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.end,
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(16),
@@ -354,8 +354,8 @@ class _ChatBubble extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(message.isUser ? 4 : 20),
-                  bottomRight: Radius.circular(message.isUser ? 20 : 4),
+                  bottomLeft: Radius.circular(message.isUser ? 20 : 4),
+                  bottomRight: Radius.circular(message.isUser ? 4 : 20),
                 ),
                 boxShadow: SahoolShadows.small,
               ),

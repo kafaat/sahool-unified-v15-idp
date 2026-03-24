@@ -74,10 +74,10 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({
       : "bg-white hover:shadow-md";
     const priorityClasses =
       {
-        high: "border-r-4 border-r-red-400",
-        medium: "border-r-4 border-r-yellow-400",
-        low: "border-r-4 border-r-blue-400",
-        urgent: "border-r-4 border-r-purple-500",
+        high: "border-e-4 border-e-red-400",
+        medium: "border-e-4 border-e-yellow-400",
+        low: "border-e-4 border-e-blue-400",
+        urgent: "border-e-4 border-e-purple-500",
       }[task.priority] || "";
 
     return `${baseClasses} ${stateClasses} ${priorityClasses}`;

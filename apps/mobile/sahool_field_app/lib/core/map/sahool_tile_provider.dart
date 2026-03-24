@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
@@ -118,9 +119,9 @@ class SahoolCachedTileImage extends ImageProvider<SahoolCachedTileImage> {
 
       // 4. حفظ الملف للمستقبل (Caching)
       // نحفظ بشكل غير متزامن لتجنب التأخير
-      file.writeAsBytes(bytes).catchError((e) {
+      unawaited(file.writeAsBytes(bytes).then((_) {}, onError: (Object e) {
         debugPrint('Failed to cache tile: $e');
-      });
+      }));
 
       final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
       return await decode(buffer);

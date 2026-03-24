@@ -31,6 +31,9 @@ class VoiceCommandService {
 
   bool get isListening => _isListening;
 
+  /// Current speech recognition language/locale
+  String get currentLanguage => _currentLanguage;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // التهيئة
   // ═══════════════════════════════════════════════════════════════════════════

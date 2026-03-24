@@ -221,7 +221,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                 final cat = _categories[index];
                 final isSelected = _selectedCategory == cat['id'];
                 return Padding(
-                  padding: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsetsDirectional.only(end: 8),
                   child: FilterChip(
                     label: Row(
                       mainAxisSize: MainAxisSize.min,

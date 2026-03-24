@@ -66,6 +66,8 @@ export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({
     <div
       className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center"
       style={{ height }}
+      role="status"
+      aria-label="جاري تحميل الرسم البياني - Loading chart"
     >
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto" />
@@ -87,6 +89,8 @@ export const MapLoadingSpinner: React.FC<{ height?: string }> = ({
     <div
       className="bg-gray-100 flex items-center justify-center rounded-xl"
       style={{ height }}
+      role="status"
+      aria-label="جاري تحميل الخريطة - Loading map"
     >
       <div className="text-center">
         <span className="text-4xl mb-3 block">🗺️</span>

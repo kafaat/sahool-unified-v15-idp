@@ -25,7 +25,7 @@ class CropProfitabilityScreen extends ConsumerStatefulWidget {
 }
 
 class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
 
   @override
   void initState() {

@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -283,7 +282,7 @@ class CompressedTileManager {
   Future<PrefetchResult> prefetchArea({
     required LatLngBounds bounds,
     required List<int> zoomLevels,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     return _provider._tileService.prefetchTilesForArea(
       bounds: bounds,
@@ -298,7 +297,7 @@ class CompressedTileManager {
     required LatLng center,
     required double radiusKm,
     required List<int> zoomLevels,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     return _provider._tileService.prefetchTilesAroundLocation(
       center: center,

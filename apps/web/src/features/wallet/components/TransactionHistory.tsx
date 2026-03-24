@@ -147,6 +147,8 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = React.memo(
   );
 });
 
+TransactionHistory.displayName = "TransactionHistory";
+
 /**
  * Transaction Item Component
  * Memoized to prevent re-renders when sibling transactions update
@@ -247,6 +249,8 @@ const TransactionItem: React.FC<TransactionItemProps> = React.memo(({
     </div>
   );
 });
+
+TransactionItem.displayName = "TransactionItem";
 
 /**
  * Get status label in Arabic

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ui' show AppLifecycleState;
-import 'package:flutter/painting.dart' show PaintingBinding;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import '../utils/app_logger.dart';

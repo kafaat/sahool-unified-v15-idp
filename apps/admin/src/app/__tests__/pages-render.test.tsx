@@ -158,6 +158,20 @@ vi.mock("@/components/ui/StatusBadge", () => ({
     React.createElement("span", { "data-testid": "status-badge" }, status),
 }));
 
+// Mock Toast context so pages using useToast don't crash
+vi.mock("@/components/ui/Toast", () => ({
+  useToast: () => ({
+    toast: {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
+    },
+  }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement("div", null, children),
+}));
+
 // Mock config/api
 vi.mock("@/config/api", () => ({
   API_URL: "http://localhost:8000",

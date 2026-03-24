@@ -57,12 +57,29 @@ type Position = "topright" | "topleft" | "bottomright" | "bottomleft";
  * Get weather icon based on condition
  * الحصول على أيقونة الطقس بناءً على الحالة
  */
-const getWeatherIcon = (condition?: string, size: number = 24) => {
+/**
+ * Size class map for Tailwind JIT compatibility.
+ * Dynamic class names like `w-${size}` are NOT compiled by Tailwind,
+ * so we map numeric sizes to their full class strings.
+ */
+const SIZE_CLASSES: Record<number, string> = {
+  4: "w-4 h-4",
+  5: "w-5 h-5",
+  6: "w-6 h-6",
+  8: "w-8 h-8",
+  10: "w-10 h-10",
+  12: "w-12 h-12",
+  16: "w-16 h-16",
+  24: "w-24 h-24",
+};
+
+const getWeatherIcon = (condition?: string, size: number = 6) => {
+  const iconClass = SIZE_CLASSES[size] || "w-6 h-6";
+
   if (!condition)
-    return <Cloud className={`w-${size} h-${size}`} aria-hidden="true" />;
+    return <Cloud className={iconClass} aria-hidden="true" />;
 
   const lower = condition.toLowerCase();
-  const iconClass = `w-${size} h-${size}`;
 
   if (lower.includes("rain") || lower.includes("ممطر")) {
     return (

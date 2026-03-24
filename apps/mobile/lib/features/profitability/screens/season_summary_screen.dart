@@ -25,7 +25,7 @@ class SeasonSummaryScreen extends ConsumerStatefulWidget {
 }
 
 class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
   String _sortBy = 'profit'; // profit, roi, revenue, cost
 
   @override

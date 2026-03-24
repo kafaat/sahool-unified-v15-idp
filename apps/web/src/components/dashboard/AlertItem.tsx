@@ -72,7 +72,7 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   return (
     <div
       className={`
-        p-4 rounded-lg border-r-4
+        p-4 rounded-lg border-e-4
         ${config.bgColor} ${config.borderColor}
         ${alert.read ? "opacity-60" : ""}
         transition-all duration-200

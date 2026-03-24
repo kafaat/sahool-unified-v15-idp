@@ -331,7 +331,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
 Future<void> showMapDownloadDialog(BuildContext context) async {
   final mapManager = OfflineMapManager();
 
-  await showDialog(
+  await showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (context) => MapDownloadDialog(mapManager: mapManager),

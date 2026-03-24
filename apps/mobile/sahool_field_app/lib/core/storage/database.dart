@@ -713,7 +713,7 @@ class AppDatabase extends _$AppDatabase {
   /// Execute batch operations efficiently
   ///
   /// All operations are executed in a single transaction
-  Future<void> runBatch(Function(Batch batch) operations) async {
+  Future<void> runBatch(void Function(Batch batch) operations) async {
     await batch(operations);
   }
 
@@ -852,7 +852,7 @@ class AppDatabase extends _$AppDatabase {
 
       stats['pageCount'] = pageCount;
       stats['pageSize'] = pageSize;
-      stats['estimatedSizeBytes'] = (pageCount ?? 0) * (pageSize ?? 4096);
+      stats['estimatedSizeBytes'] = pageCount * pageSize;
     } catch (e) {
       stats['sizeError'] = e.toString();
     }
@@ -940,7 +940,7 @@ LazyDatabase _openConnection() {
         );
 
         if (attempt < maxRetries) {
-          await Future.delayed(retryDelay * attempt);
+          await Future<void>.delayed(retryDelay * attempt);
         } else {
           AppLogger.critical(
             'Database initialization failed after $maxRetries attempts',

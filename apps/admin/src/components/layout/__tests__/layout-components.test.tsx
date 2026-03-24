@@ -164,18 +164,18 @@ describe("Sidebar", () => {
 
     // Operations
     expect(screen.getByText("المزارع")).toBeInTheDocument();
-    expect(screen.getByText("إدارة الأمراض")).toBeInTheDocument();
-    expect(screen.getByText("الري الذكي")).toBeInTheDocument();
+    expect(screen.getByText("التشخيص")).toBeInTheDocument();
+    expect(screen.getByText("الري")).toBeInTheDocument();
     expect(screen.getByText("المهام")).toBeInTheDocument();
 
     // Monitoring
-    expect(screen.getByText("المستشعرات")).toBeInTheDocument();
+    expect(screen.getByText("الحساسات")).toBeInTheDocument();
     expect(screen.getByText("التنبيهات")).toBeInTheDocument();
-    expect(screen.getByText("مركز رصد الأوبئة")).toBeInTheDocument();
-    expect(screen.getByText("حاسبة الإنتاجية")).toBeInTheDocument();
+    expect(screen.getByText("الأوبئة")).toBeInTheDocument();
+    expect(screen.getByText("توقع الإنتاج")).toBeInTheDocument();
 
     // Management
-    expect(screen.getByText("المستخدمون")).toBeInTheDocument();
+    expect(screen.getByText("المستخدمين")).toBeInTheDocument();
     expect(screen.getByText("المعدات")).toBeInTheDocument();
     expect(screen.getByText("تتبع الأسطول")).toBeInTheDocument();
     expect(screen.getByText("التعاونيات")).toBeInTheDocument();
@@ -188,7 +188,7 @@ describe("Sidebar", () => {
     expect(screen.getByText("البحوث")).toBeInTheDocument();
 
     // System
-    expect(screen.getByText("الدعم الفني")).toBeInTheDocument();
+    expect(screen.getByText("الدعم")).toBeInTheDocument();
     expect(screen.getByText("الإعدادات")).toBeInTheDocument();
   });
 

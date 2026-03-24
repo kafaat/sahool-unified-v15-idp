@@ -1125,7 +1125,7 @@ class _StoryItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(left: 16),
+        margin: const EdgeInsetsDirectional.only(end: 16),
         child: Column(
           children: [
             Container(

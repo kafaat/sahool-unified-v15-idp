@@ -134,13 +134,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div
-          className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
+          className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900"
         >
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl w-full">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-red-600"
+                  className="w-6 h-6 text-red-600 dark:text-red-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -154,10 +154,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                   خطأ في لوحة التحكم
                 </h2>
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   حدث خطأ غير متوقع أثناء تحميل هذا المكون
                 </p>
               </div>

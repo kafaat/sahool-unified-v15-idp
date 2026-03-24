@@ -151,7 +151,6 @@ class TFLiteHelper {
 
   // Isolate for background processing
   Isolate? _inferenceIsolate;
-  SendPort? _isolateSendPort;
 
   TFLiteHelper(this.config);
 
@@ -517,7 +516,6 @@ class TFLiteHelper {
   Future<void> dispose() async {
     _inferenceIsolate?.kill(priority: Isolate.immediate);
     _inferenceIsolate = null;
-    _isolateSendPort = null;
     _isInitialized = false;
   }
 }

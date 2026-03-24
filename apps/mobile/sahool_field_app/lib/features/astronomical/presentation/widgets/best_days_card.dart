@@ -260,10 +260,10 @@ class _BestDayTile extends StatelessWidget {
   }
 
   Color _getScoreColor(int score) {
-    if (score >= 90) return Colors.green.shade700;
-    if (score >= 80) return Colors.green;
-    if (score >= 70) return Colors.lightGreen;
-    if (score >= 60) return Colors.lime;
+    if (score >= 9) return Colors.green.shade700;
+    if (score >= 8) return Colors.green;
+    if (score >= 7) return Colors.lightGreen;
+    if (score >= 6) return Colors.lime;
     return Colors.orange;
   }
 

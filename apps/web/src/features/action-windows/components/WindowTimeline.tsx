@@ -104,7 +104,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
       onBlockClick?.(block);
     };
 
-    const handleBlockKeyPress = (
+    const handleBlockKeyDown = (
       event: React.KeyboardEvent,
       block: TimelineBlock,
     ) => {
@@ -202,8 +202,8 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
                   role="listitem"
                   tabIndex={block.actionable ? 0 : -1}
                   onClick={() => block.actionable && handleBlockClick(block)}
-                  onKeyPress={(e) =>
-                    block.actionable && handleBlockKeyPress(e, block)
+                  onKeyDown={(e) =>
+                    block.actionable && handleBlockKeyDown(e, block)
                   }
                   className={`
                   relative rounded-lg border-2 p-3 transition-all duration-200
@@ -297,8 +297,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
                 <button
                   className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   onClick={() => {
-                    // Handle task creation
-                    console.log("Create task for window:", selectedBlock);
+                    onBlockClick?.(selectedBlock);
                   }}
                 >
                   إنشاء مهمة

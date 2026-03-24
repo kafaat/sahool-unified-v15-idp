@@ -81,7 +81,7 @@ export const SkeletonCard = React.memo(function SkeletonCard() {
 export const SkeletonTaskItem = React.memo(function SkeletonTaskItem() {
   return (
     <div
-      className="bg-white rounded-lg p-3 border-r-4 border-gray-300 space-y-2"
+      className="bg-white rounded-lg p-3 border-e-4 border-gray-300 space-y-2"
       role="status"
       aria-busy="true"
       aria-label="جاري تحميل المهمة - Loading task"

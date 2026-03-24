@@ -8,7 +8,7 @@
 /// - Pending changes indicator
 library;
 
-import 'dart:async';
+import 'dart:async' show StreamController, StreamSubscription, Timer, unawaited;
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,7 +96,6 @@ class LocalDataItem {
 class OfflineDataManager {
   static const String _storageKey = 'sahool_offline_data';
   static const int _maxRetries = 5;
-  static const Duration _retryDelay = Duration(seconds: 30);
 
   final _pendingChangesController = StreamController<int>.broadcast();
   final _syncStatusController = StreamController<OfflineSyncStatus>.broadcast();
@@ -108,7 +107,7 @@ class OfflineDataManager {
   bool _isSyncing = false;
   late SharedPreferences _prefs;
   late Connectivity _connectivity;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   /// تهيئة المدير
   Future<void> initialize() async {
@@ -129,7 +128,7 @@ class OfflineDataManager {
     _startPeriodicSync();
 
     // تحديث عداد التغييرات المعلقة
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// حفظ بيانات محلياً
@@ -159,10 +158,10 @@ class OfflineDataManager {
     }
 
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
 
     // محاولة المزامنة الفورية إذا متصل
-    _trySyncNow();
+    unawaited(_trySyncNow());
   }
 
   /// الحصول على البيانات المحلية
@@ -200,7 +199,7 @@ class OfflineDataManager {
       (item) => item.id == id && item.entityType == entityType,
     );
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// تحديث حالة عنصر
@@ -222,7 +221,7 @@ class OfflineDataManager {
         syncedAt: status == LocalDataStatus.synced ? DateTime.now() : null,
       );
       await _saveLocalItems(items);
-      _updatePendingCount();
+      await _updatePendingCount();
     }
   }
 
@@ -290,7 +289,7 @@ class OfflineDataManager {
 
       _isSyncing = false;
       _syncStatusController.add(OfflineSyncStatus.idle);
-      _updatePendingCount();
+      await _updatePendingCount();
 
       return OfflineSyncResult(
         success: failed == 0,
@@ -323,7 +322,7 @@ class OfflineDataManager {
     final isOnline = connectivityResults.isNotEmpty &&
         !connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOnline && !_isSyncing) {
-      syncNow();
+      unawaited(syncNow());
     }
   }
 

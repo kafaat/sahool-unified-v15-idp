@@ -414,7 +414,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
                     Container(
                       width: 120,
                       height: 120,
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsetsDirectional.only(end: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         image: DecorationImage(

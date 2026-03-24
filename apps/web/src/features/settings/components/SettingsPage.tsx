@@ -150,7 +150,7 @@ const NotificationsTab: React.FC = () => {
   const updatePrefs = useUpdateNotificationPreferences();
 
   if (isLoading || !prefs) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   const handleUpdate = async (
@@ -235,7 +235,7 @@ const SecurityTab: React.FC = () => {
   });
 
   if (isLoading || !security) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
@@ -336,17 +336,17 @@ const SecurityTab: React.FC = () => {
                     </p>
                     <p className="text-sm text-gray-600">{session.location}</p>
                     <p className="text-xs text-gray-500">
-                      Last active:{" "}
+                      آخر نشاط:{" "}
                       {new Date(session.lastActive).toLocaleString("ar-SA")}
                     </p>
                   </div>
                   {session.isCurrent ? (
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                      Current
+                      الحالية
                     </span>
                   ) : (
                     <button className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">
-                      Terminate
+                      إنهاء الجلسة
                     </button>
                   )}
                 </div>
@@ -365,7 +365,7 @@ const PrivacyTab: React.FC = () => {
   // const updatePrivacy = useUpdatePrivacySettings();
 
   if (isLoading || !privacy) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (
@@ -382,7 +382,7 @@ const DisplayTab: React.FC = () => {
   // const updateDisplay = useUpdateDisplayPreferences();
 
   if (isLoading || !display) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (
@@ -408,7 +408,7 @@ const SubscriptionTab: React.FC = () => {
   const { data: subscription, isLoading } = useSubscriptionInfo();
 
   if (isLoading || !subscription) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (

@@ -383,7 +383,7 @@ export function generateFieldReportHTML(
     </head>
     <body>
       <div class="header">
-        <h1>${isRTL ? data.field.nameAr : data.field.name}</h1>
+        <h1>${escapeHtml(isRTL ? data.field.nameAr : data.field.name)}</h1>
         <p>${isRTL ? "تقرير أداء الحقل" : "Field Performance Report"}</p>
       </div>
   `;
@@ -437,7 +437,7 @@ export function generateSeasonReportHTML(
     </head>
     <body>
       <div class="header">
-        <h1>${isRTL ? data.season.nameAr : data.season.name}</h1>
+        <h1>${escapeHtml(isRTL ? data.season.nameAr : data.season.name)}</h1>
         <p>${isRTL ? "تقرير ملخص الموسم" : "Season Summary Report"}</p>
       </div>
   `;
@@ -505,6 +505,21 @@ export function generateEmailShareContent(
     subject: `SAHOOL Report: ${reportTitle}`,
     body: `Hello,\n\nI'd like to share a SAHOOL report with you:\n${reportTitle}\n\nYou can view the report at:\n${shareLink}\n\nBest regards,\nSAHOOL Agricultural Platform`,
   };
+}
+
+/**
+ * Escape HTML special characters to prevent XSS
+ * تهريب أحرف HTML الخاصة لمنع XSS
+ */
+export function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (char) => map[char] ?? char);
 }
 
 export default {

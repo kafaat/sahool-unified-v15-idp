@@ -35,7 +35,7 @@ describe("IrrigationClient", () => {
     render(<IrrigationClient />);
     expect(screen.getByText("استهلاك اليوم")).toBeInTheDocument();
     expect(screen.getByText("نشط الآن")).toBeInTheDocument();
-    expect(screen.getByText("متوقف")).toBeInTheDocument();
+    expect(screen.getAllByText("متوقف").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("كفاءة الري")).toBeInTheDocument();
   });
 

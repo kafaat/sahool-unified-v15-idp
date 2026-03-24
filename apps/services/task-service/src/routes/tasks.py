@@ -100,9 +100,21 @@ async def get_tenant_id(
         try:
             # In production, the TenantContextMiddleware sets tenant from JWT.
             # This is a defense-in-depth check at the route level.
-            pass
-        except Exception:
-            pass
+            user = await get_current_user()
+            if user and getattr(user, "tenant_id", None):
+                jwt_tenant = user.tenant_id
+                if x_tenant_id and x_tenant_id != jwt_tenant:
+                    logger.warning(
+                        "Tenant ID mismatch: header=%s jwt=%s — using JWT tenant",
+                        sanitize_for_log(x_tenant_id),
+                        sanitize_for_log(jwt_tenant),
+                    )
+                return jwt_tenant
+        except Exception as exc:
+            logger.warning(
+                "Defense-in-depth tenant check failed, falling back to header: %s",
+                exc,
+            )
 
     if not x_tenant_id:
         raise HTTPException(

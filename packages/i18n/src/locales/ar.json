@@ -202,5 +202,214 @@
     "comparisonDesc": "مقارنات الحقول والمواسم",
     "recommendations": "التوصيات",
     "recommendationsDesc": "توصيات مدعومة بالذكاء الاصطناعي"
+  },
+  "irrigation": {
+    "title": "إدارة الري",
+    "schedule": "جدولة ري",
+    "newSchedule": "جدولة ري جديد",
+    "editSchedule": "تعديل جدول الري",
+    "deleteSchedule": "حذف جدول الري",
+    "deleteConfirm": "هل أنت متأكد من حذف جدول الري؟",
+    "fieldName": "اسم الحقل",
+    "type": "نوع الري",
+    "scheduledAt": "الموعد",
+    "duration": "المدة",
+    "durationUnit": "دقيقة",
+    "waterAmount": "كمية المياه",
+    "waterUnit": "م³",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "start": "بدء الري",
+    "stop": "إيقاف الري",
+    "todayUsage": "استهلاك اليوم",
+    "inProgress": "جاري الآن",
+    "scheduledToday": "مجدول اليوم",
+    "efficiency": "كفاءة الري",
+    "overdueAlert": "جدول ري متأخر يتطلب اهتمام",
+    "types": {
+      "drip": "تنقيط",
+      "sprinkler": "رشاشات",
+      "pivot": "محوري",
+      "flood": "غمر",
+      "manual": "يدوي"
+    },
+    "statuses": {
+      "scheduled": "مجدول",
+      "in_progress": "جاري",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "overdue": "متأخر"
+    }
+  },
+  "equipment": {
+    "title": "المعدات",
+    "management": "إدارة المعدات",
+    "addEquipment": "إضافة معدة",
+    "name": "اسم المعدة",
+    "type": "النوع",
+    "status": "الحالة",
+    "lastMaintenance": "آخر صيانة",
+    "nextMaintenance": "الصيانة القادمة",
+    "operational": "تعمل",
+    "maintenance": "في الصيانة",
+    "outOfService": "خارج الخدمة",
+    "maintenanceHistory": "سجل الصيانة",
+    "scheduleService": "جدولة صيانة"
+  },
+  "inventory": {
+    "title": "المخزون",
+    "management": "إدارة المخزون",
+    "addItem": "إضافة صنف",
+    "itemName": "اسم الصنف",
+    "category": "الفئة",
+    "quantity": "الكمية",
+    "unit": "الوحدة",
+    "minStock": "الحد الأدنى",
+    "inStock": "متوفر",
+    "lowStock": "مخزون منخفض",
+    "outOfStock": "نفد المخزون",
+    "usage": "الاستهلاك",
+    "reorder": "إعادة طلب"
+  },
+  "marketplace": {
+    "title": "السوق الزراعي",
+    "browse": "تصفح المنتجات",
+    "sell": "بيع منتج",
+    "myListings": "منتجاتي",
+    "price": "السعر",
+    "quantity": "الكمية",
+    "seller": "البائع",
+    "buyer": "المشتري",
+    "category": "الفئة",
+    "location": "الموقع",
+    "contactSeller": "تواصل مع البائع"
+  },
+  "weather": {
+    "title": "الطقس",
+    "current": "الطقس الحالي",
+    "forecast": "التوقعات",
+    "temperature": "درجة الحرارة",
+    "humidity": "الرطوبة",
+    "windSpeed": "سرعة الرياح",
+    "precipitation": "الهطول",
+    "uvIndex": "مؤشر الأشعة فوق البنفسجية",
+    "feelsLike": "الإحساس الفعلي",
+    "conditions": {
+      "sunny": "مشمس",
+      "cloudy": "غائم",
+      "rainy": "ممطر",
+      "stormy": "عاصف",
+      "windy": "رياح",
+      "foggy": "ضبابي"
+    },
+    "alerts": {
+      "frostWarning": "تحذير من الصقيع",
+      "heatWarning": "تحذير من الحرارة",
+      "stormWarning": "تحذير من عاصفة",
+      "noSprayWindow": "نافذة الرش غير مناسبة"
+    }
+  },
+  "tasks": {
+    "title": "المهام",
+    "addTask": "إضافة مهمة",
+    "newTask": "مهمة جديدة",
+    "taskName": "عنوان المهمة",
+    "description": "الوصف",
+    "assignTo": "تعيين إلى",
+    "dueDate": "تاريخ الاستحقاق",
+    "priority": "الأولوية",
+    "statuses": {
+      "open": "مفتوحة",
+      "inProgress": "قيد التنفيذ",
+      "done": "مكتملة",
+      "cancelled": "ملغاة"
+    },
+    "priorities": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    }
+  },
+  "iot": {
+    "title": "إنترنت الأشياء",
+    "devices": "الأجهزة",
+    "sensors": "الحساسات",
+    "addDevice": "إضافة جهاز",
+    "deviceName": "اسم الجهاز",
+    "deviceType": "نوع الجهاز",
+    "online": "متصل",
+    "offline": "غير متصل",
+    "lastReading": "آخر قراءة",
+    "batteryLevel": "مستوى البطارية",
+    "signalStrength": "قوة الإشارة",
+    "soilMoisture": "رطوبة التربة",
+    "soilTemperature": "حرارة التربة",
+    "airTemperature": "حرارة الهواء",
+    "airHumidity": "رطوبة الهواء"
+  },
+  "community": {
+    "title": "المجتمع",
+    "discussions": "النقاشات",
+    "newPost": "منشور جديد",
+    "comments": "التعليقات",
+    "likes": "إعجابات",
+    "share": "مشاركة",
+    "trending": "الأكثر تفاعلاً",
+    "expertAdvice": "نصائح الخبراء",
+    "askQuestion": "اطرح سؤالاً"
+  },
+  "copilot": {
+    "title": "المساعد الذكي",
+    "askAnything": "اسأل أي شيء عن الزراعة",
+    "suggestions": "اقتراحات",
+    "history": "السجل",
+    "newChat": "محادثة جديدة",
+    "thinking": "يفكر...",
+    "retry": "إعادة المحاولة",
+    "offlineMessage": "المساعد غير متاح حالياً"
+  },
+  "wallet": {
+    "title": "المحفظة",
+    "balance": "الرصيد",
+    "transactions": "المعاملات",
+    "deposit": "إيداع",
+    "withdraw": "سحب",
+    "transfer": "تحويل",
+    "paymentHistory": "سجل المدفوعات",
+    "addFunds": "إضافة رصيد"
+  },
+  "cropHealth": {
+    "title": "صحة المحصول",
+    "ndviIndex": "مؤشر NDVI",
+    "scanField": "مسح الحقل",
+    "diseaseDetection": "كشف الأمراض",
+    "pestDetection": "كشف الآفات",
+    "healthHistory": "سجل الصحة",
+    "statuses": {
+      "healthy": "صحي",
+      "moderate": "معتدل",
+      "stressed": "مجهد",
+      "critical": "حرج"
+    }
+  },
+  "yield": {
+    "title": "التنبؤ بالإنتاجية",
+    "prediction": "التوقعات",
+    "actual": "الفعلي",
+    "historical": "التاريخي",
+    "comparison": "المقارنة",
+    "perHectare": "لكل هكتار"
+  },
+  "compliance": {
+    "title": "الامتثال والجودة",
+    "globalGap": "GlobalGAP",
+    "checklistProgress": "تقدم قائمة التحقق",
+    "certificates": "الشهادات",
+    "audits": "المراجعات",
+    "documentRequired": "مستند مطلوب",
+    "compliant": "ممتثل",
+    "nonCompliant": "غير ممتثل",
+    "pending": "قيد المراجعة"
   }
 }

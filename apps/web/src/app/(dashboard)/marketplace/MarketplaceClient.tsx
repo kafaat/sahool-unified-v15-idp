@@ -44,7 +44,6 @@ function MarketplaceContent() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderSuccess, setIsOrderSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
-  const [, setSelectedProductId] = useState<string | null>(null);
   const [shippingAddress, setShippingAddress] = useState<Order["shippingAddress"]>(initialShippingAddress);
   const [orderNotes, setOrderNotes] = useState("");
 
@@ -266,7 +265,7 @@ function MarketplaceContent() {
       {/* Products Grid */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-6">المنتجات</h2>
-        <ProductsGrid onProductClick={setSelectedProductId} />
+        <ProductsGrid />
       </div>
 
       {/* Cart Sidebar */}

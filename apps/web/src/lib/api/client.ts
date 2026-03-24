@@ -549,7 +549,7 @@ class SahoolApiClient {
     const sanitizedMessage = sanitizers.html(message);
 
     // Validate message is safe text
-    if (!validators.safeText(message)) {
+    if (!validators.safeText(sanitizedMessage)) {
       return {
         success: false,
         error: validationErrors.unsafeText,

@@ -83,8 +83,8 @@ export const Header = React.memo(function Header() {
         >
           <Bell className="w-5 h-5" />
           <span
-            className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"
-            aria-label={t("newNotifications") || "New notifications"}
+            className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full hidden"
+            aria-hidden="true"
           />
         </button>
 

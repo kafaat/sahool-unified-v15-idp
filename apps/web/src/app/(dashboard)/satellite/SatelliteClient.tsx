@@ -162,7 +162,8 @@ export default function SatelliteClient() {
   // Normalize a value to 0-100% for the progress bar based on index range
   const getBarWidth = (value: number): number => {
     if (selectedIndex === "lai") return Math.min((value / 8) * 100, 100);
-    return Math.max(Math.min((value + 1) / 2 * 100, 100), 0); // normalized [-1, 1] → [0, 100]
+    if (selectedIndex === "ndwi") return Math.max(Math.min((value + 1) / 2 * 100, 100), 0); // [-1, 1] → [0, 100]
+    return Math.max(Math.min(value * 100, 100), 0); // [0, 1] → [0, 100] for NDVI, EVI, SAVI, NDRE
   };
 
   const activeConfig = INDEX_CONFIG[selectedIndex];
@@ -239,7 +240,7 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">آخر التقاط</div>
-              <div className="text-lg font-bold text-gray-900">{stats?.lastCapture ?? "2026-01-24"}</div>
+              <div className="text-lg font-bold text-gray-900">{stats?.lastCapture ?? "--"}</div>
             </div>
           </div>
         </div>

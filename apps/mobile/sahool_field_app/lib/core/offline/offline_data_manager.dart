@@ -289,7 +289,7 @@ class OfflineDataManager {
 
       _isSyncing = false;
       _syncStatusController.add(OfflineSyncStatus.idle);
-      _updatePendingCount();
+      await _updatePendingCount();
 
       return OfflineSyncResult(
         success: failed == 0,

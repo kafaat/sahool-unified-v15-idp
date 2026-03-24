@@ -451,11 +451,6 @@ class ConflictHandler {
     return 'تم اكتشاف تعارض في $entityAr. $strategyAr';
   }
 
-  String _getConflictMessageEn(String entityType, ConflictStrategy strategy) {
-    final strategyEn = _getStrategyEn(strategy);
-    return 'Conflict detected in $entityType. $strategyEn';
-  }
-
   String _getEntityTypeAr(String type) {
     switch (type) {
       case 'field':

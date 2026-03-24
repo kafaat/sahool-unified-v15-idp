@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/barcode_scanner_widget.dart';
 import '../data/lab_repository.dart';
+import '../domain/lab_models.dart';
 
 /// شاشة تتبع العينات - مربوطة بـ API
 /// Sample Tracking Screen - Connected to soil-analysis-service

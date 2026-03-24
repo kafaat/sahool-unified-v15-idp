@@ -1,5 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "../../../../__tests__/test-utils";
+import { describe, it, expect } from "vitest";
 
 // Test the fields page structure
 describe("Fields Page", () => {

@@ -14,7 +14,6 @@ import {
   Square,
   Edit2,
   Trash2,
-  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api/client";
@@ -99,7 +98,6 @@ export default function IrrigationClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<IrrigationSchedule | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const { showToast } = useToast();
 
   // Load schedules from API on mount
@@ -112,8 +110,6 @@ export default function IrrigationClient() {
         }
       } catch {
         // API unavailable - keep mock data for offline-first UX
-      } finally {
-        setIsLoading(false);
       }
     }
     loadSchedules();

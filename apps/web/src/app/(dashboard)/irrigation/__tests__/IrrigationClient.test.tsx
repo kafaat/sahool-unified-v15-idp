@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "../../../../__tests__/test-utils";
+import { render, screen, fireEvent } from "../../../../__tests__/test-utils";
 import IrrigationClient from "../IrrigationClient";
 
 // Mock the API client

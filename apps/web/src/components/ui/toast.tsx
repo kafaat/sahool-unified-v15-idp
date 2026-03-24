@@ -194,7 +194,7 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
           type="button"
           onClick={() => onClose(toast.id)}
           className="flex-shrink-0 text-current opacity-50 hover:opacity-100 transition-opacity"
-          aria-label="Close notification"
+          aria-label="إغلاق الإشعار - Close notification"
         >
           <X className="w-4 h-4" />
         </button>

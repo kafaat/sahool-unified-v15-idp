@@ -288,8 +288,12 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
         {services.map((service) => (
           <div
             key={service.endpoint}
-            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)}`}
+            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)} focus:outline-none focus:ring-2 focus:ring-blue-500`}
             onClick={() => onServiceClick?.(service)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onServiceClick?.(service); } }}
+            tabIndex={onServiceClick ? 0 : undefined}
+            role={onServiceClick ? "button" : undefined}
+            aria-label={`${service.nameAr} - ${service.name}: ${service.status === "healthy" ? "سليم" : service.status === "degraded" ? "متدهور" : service.status === "unhealthy" ? "معطل" : "جاري الفحص"}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

@@ -60,7 +60,9 @@ export function SensorMap() {
 
           const statusColors: Record<string, string> = {
             active: "#16a34a",
+            online: "#16a34a",
             inactive: "#6b7280",
+            offline: "#6b7280",
             error: "#dc2626",
             maintenance: "#eab308",
           };

@@ -1,0 +1,174 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Release Drafter Configuration
+# تكوين مسودة الإصدار التلقائي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Categories - تصنيف التغييرات
+# ─────────────────────────────────────────────────────────────────────────────
+categories:
+  - title: "🚀 Features | ميزات جديدة"
+    labels:
+      - "feature"
+      - "enhancement"
+      - "feat"
+    collapse-after: 10
+
+  - title: "🐛 Bug Fixes | إصلاح الأخطاء"
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+    collapse-after: 10
+
+  - title: "🔒 Security | الأمان"
+    labels:
+      - "security"
+      - "type: security"
+      - "domain: security"
+    collapse-after: 5
+
+  - title: "🏗️ Infrastructure | البنية التحتية"
+    labels:
+      - "area: infrastructure"
+      - "area: ci-cd"
+      - "type: docker"
+    collapse-after: 10
+
+  - title: "📱 Mobile | التطبيق المحمول"
+    labels:
+      - "area: mobile"
+      - "flutter"
+    collapse-after: 5
+
+  - title: "🤖 AI & Intelligence | الذكاء الاصطناعي"
+    labels:
+      - "domain: ai"
+      - "domain: vision"
+    collapse-after: 5
+
+  - title: "🌾 Agriculture | الزراعة"
+    labels:
+      - "domain: irrigation"
+      - "domain: advisory"
+      - "domain: field-ops"
+      - "domain: iot"
+    collapse-after: 5
+
+  - title: "📦 Dependencies | الاعتماديات"
+    labels:
+      - "dependencies"
+      - "type: dependencies"
+    collapse-after: 5
+
+  - title: "📝 Documentation | التوثيق"
+    labels:
+      - "documentation"
+      - "area: documentation"
+    collapse-after: 5
+
+  - title: "⚠️ Deprecations | الإيقاف"
+    labels:
+      - "deprecation"
+      - "migration"
+    collapse-after: 3
+
+  - title: "🧹 Maintenance | الصيانة"
+    labels:
+      - "chore"
+      - "refactor"
+      - "cleanup"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Version Resolution - حساب رقم الإصدار
+# ─────────────────────────────────────────────────────────────────────────────
+version-resolver:
+  major:
+    labels:
+      - "breaking"
+      - "major"
+  minor:
+    labels:
+      - "feature"
+      - "enhancement"
+      - "feat"
+  patch:
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+      - "security"
+      - "dependencies"
+      - "chore"
+  default: patch
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Exclude from release notes
+# ─────────────────────────────────────────────────────────────────────────────
+exclude-labels:
+  - "skip-changelog"
+  - "status: stale"
+
+exclude-contributors:
+  - "dependabot"
+  - "dependabot[bot]"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Autolabeler - تصنيف تلقائي من عنوان PR
+# ─────────────────────────────────────────────────────────────────────────────
+autolabeler:
+  - label: "feature"
+    title:
+      - "/^feat(\\(.+\\))?:/i"
+      - "/^feature:/i"
+
+  - label: "fix"
+    title:
+      - "/^fix(\\(.+\\))?:/i"
+      - "/^bugfix:/i"
+
+  - label: "documentation"
+    title:
+      - "/^docs(\\(.+\\))?:/i"
+
+  - label: "chore"
+    title:
+      - "/^chore(\\(.+\\))?:/i"
+      - "/^refactor(\\(.+\\))?:/i"
+
+  - label: "security"
+    title:
+      - "/^security(\\(.+\\))?:/i"
+      - "/security/i"
+
+  - label: "deprecation"
+    title:
+      - "/deprecat/i"
+      - "/migrat/i"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Release Notes Template
+# ─────────────────────────────────────────────────────────────────────────────
+template: |
+  # SAHOOL Platform $RESOLVED_VERSION | منصة سهول
+
+  > Release Date: $TODAY
+  > Previous Version: $PREVIOUS_TAG
+
+  ## What's Changed | التغييرات
+
+  $CHANGES
+
+  ---
+
+  ## Statistics | الإحصائيات
+
+  | Metric | Value |
+  |--------|-------|
+  | Contributors | $CONTRIBUTORS |
+  | PRs Merged | Total changes above |
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

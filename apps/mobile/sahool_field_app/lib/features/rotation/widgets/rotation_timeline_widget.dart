@@ -39,7 +39,7 @@ class RotationTimelineWidget extends StatelessWidget {
             onTap: () => onYearSelected(index),
             child: Container(
               width: 100,
-              margin: const EdgeInsets.only(right: 12),
+              margin: const EdgeInsetsDirectional.only(end: 12),
               child: Column(
                 children: [
                   // Year badge

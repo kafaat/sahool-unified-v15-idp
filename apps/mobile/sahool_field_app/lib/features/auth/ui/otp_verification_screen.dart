@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/otp_service.dart' as otp_svc;
-import '../services/otp_service.dart' show OTPChannel;
+import '../services/otp_service.dart' show OTPChannel, OTPPurpose;
 
 /// SAHOOL OTP Verification Screen
 /// شاشة التحقق من رمز OTP
@@ -16,9 +16,6 @@ import '../services/otp_service.dart' show OTPChannel;
 /// - Countdown timer with resend option
 /// - Biometric support for quick verification
 /// - Deep linking support for App Store/Play Store patterns
-
-/// OTP Purpose enum
-enum OTPPurpose { passwordReset, phoneVerification, twoFactor }
 
 /// OTP Verification State
 class OTPVerificationState {
@@ -373,6 +370,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
         break;
       case OTPPurpose.phoneVerification:
       case OTPPurpose.twoFactor:
+      case OTPPurpose.accountRecovery:
         Navigator.of(context).pop(true);
         break;
     }
@@ -387,6 +385,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
         return otp_svc.OTPPurpose.phoneVerification;
       case OTPPurpose.twoFactor:
         return otp_svc.OTPPurpose.twoFactor;
+      case OTPPurpose.accountRecovery:
+        return otp_svc.OTPPurpose.accountRecovery;
     }
   }
 

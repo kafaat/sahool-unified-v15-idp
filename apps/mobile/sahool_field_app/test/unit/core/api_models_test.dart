@@ -427,7 +427,7 @@ void main() {
     });
 
     test('yield service exists', () {
-      expect(KongServices.yield_.name, 'yield-engine');
+      expect(KongServices.yield_.name, 'yield-prediction-service');
     });
 
     test('billing service exists', () {

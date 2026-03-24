@@ -229,35 +229,41 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: SahoolColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: SahoolColors.success,
-                    shape: BoxShape.circle,
+          Builder(builder: (context) {
+            final connectivity = ref.watch(connectivityProvider);
+            final isOnline = connectivity.isOnline;
+            final statusColor = isOnline ? SahoolColors.success : Colors.red;
+            final statusText = isOnline ? 'متصل' : 'غير متصل';
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                const Text(
-                  'متصل',
-                  style: TextStyle(
-                    color: SahoolColors.success,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                  const SizedBox(width: 6),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -372,6 +378,12 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
   /// شبكة المؤشرات
   Widget _buildMetricsGrid(double soilMoisture, String nitrogenStatus) {
     final showNitrogenWarning = nitrogenStatus == 'منخفض';
+    final weatherState = ref.watch(weatherProvider);
+    final currentTemp = weatherState.data?.current.temperature;
+    final weatherValue = currentTemp != null ? '${currentTemp.round()}°' : '--';
+    final weatherSubtitle = weatherState.isLoading
+        ? 'جاري التحميل'
+        : (currentTemp != null ? 'الطقس' : 'غير متاح');
 
     return GridView.count(
       shrinkWrap: true,
@@ -397,10 +409,10 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
         ),
         _buildMetricCard(
           'الطقس',
-          '--',
+          weatherValue,
           Icons.wb_sunny,
           Colors.amber,
-          subtitle: 'جاري التحميل',
+          subtitle: weatherSubtitle,
         ),
         _buildMetricCard(
           'التراكم الحراري',

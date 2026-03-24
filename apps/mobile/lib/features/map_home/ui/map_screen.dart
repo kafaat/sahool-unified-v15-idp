@@ -9,6 +9,8 @@ import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/widgets/connectivity_widget.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
@@ -31,9 +33,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
-  // حالة الاتصال (للتجربة)
-  final bool _isOnline = true;
-  final int _pendingSync = 3;
+  // حالة الاتصال والمزامنة - تُقرأ تفاعلياً من connectivityProvider في build
 
   late final MapController _mapController;
   String _searchQuery = '';
@@ -328,11 +328,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 80,
       right: 70,
-      child: SyncIndicator(
-        isOnline: _isOnline,
-        pendingCount: _pendingSync,
-        onTap: () => context.push('/sync'),
-      ),
+      child: Builder(builder: (context) {
+        final connectivity = ref.watch(connectivityProvider);
+        return SyncIndicator(
+          isOnline: connectivity.isOnline,
+          pendingCount: connectivity.pendingSyncCount,
+          onTap: () => context.push('/sync'),
+        );
+      }),
     );
   }
 
@@ -618,6 +621,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Widget _buildWeatherBadge() {
+    final weatherState = ref.watch(weatherProvider);
+    final temp = weatherState.data?.current.temperature;
+    final tempText = temp != null ? '${temp.round()}°C' : '--°C';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -631,7 +638,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Icon(Icons.wb_sunny, size: 18, color: Colors.orange[900]),
           const SizedBox(width: 6),
           Text(
-            '32°C',
+            tempText,
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange[900]),
           ),
         ],

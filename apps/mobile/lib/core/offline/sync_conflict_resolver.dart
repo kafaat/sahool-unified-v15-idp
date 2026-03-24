@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import '../utils/app_logger.dart';
 
 /// SAHOOL Sync Conflict Resolver
@@ -8,6 +9,9 @@ import '../utils/app_logger.dart';
 /// - Field-level conflict detection
 /// - Custom merge logic
 /// - Audit trail
+
+/// Deep equality instance for comparing JSON-compatible values (Map, List, primitives).
+const _deepEquals = DeepCollectionEquality();
 
 class SyncConflictResolver {
   /// اكتشاف التعارض
@@ -23,7 +27,7 @@ class SyncConflictResolver {
     // Check if same fields changed differently
     for (final field in localChanges) {
       if (serverChanges.contains(field)) {
-        if (local[field] != server[field]) {
+        if (!_deepEquals.equals(local[field], server[field])) {
           AppLogger.d('Conflict detected in field: $field', tag: 'CONFLICT');
           return true;
         }
@@ -41,7 +45,7 @@ class SyncConflictResolver {
     final changed = <String>{};
 
     for (final key in current.keys) {
-      if (!base.containsKey(key) || base[key] != current[key]) {
+      if (!base.containsKey(key) || !_deepEquals.equals(base[key], current[key])) {
         changed.add(key);
       }
     }

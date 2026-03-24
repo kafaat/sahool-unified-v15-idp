@@ -17,6 +17,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
     "analyze": "ANALYZE=true next build",
     "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
     "analyze:browser": "ANALYZE=true BUNDLE_ANALYZE=browser next build",

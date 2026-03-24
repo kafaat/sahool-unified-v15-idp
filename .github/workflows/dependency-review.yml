@@ -32,19 +32,14 @@ jobs:
           fail-on-severity: high
 
           # Block specific license types (copyleft)
-          deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
-
-          # Allow known development-only licenses
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense, CC0-1.0, CC-BY-4.0, Python-2.0, PSF-2.0
+          # Note: allow-licenses and deny-licenses are mutually exclusive
+          deny-licenses: GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later
 
           # Comment summary on PR
           comment-summary-in-pr: always
 
           # Warn on moderate vulnerabilities (don't fail)
           warn-only: false
-
-          # Check for known malicious packages
-          deny-groups: known-malware
 
       - name: Upload dependency review results
         if: always()

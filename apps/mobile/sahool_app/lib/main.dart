@@ -200,9 +200,9 @@ void main() async {
                           category: 'security',
                           level: legacy_crash.BreadcrumbLevel.warning,
                         );
-                        // Restart app initialization, skipping security re-check
+                        // Rebuild widget tree without re-running full initialization
                         _securityBypassRestart = true;
-                        main();
+                        _initializeAndRunApp();
                       },
               ),
             ),
@@ -237,6 +237,27 @@ void main() async {
       );
     }
 
+    await _initializeAndRunApp();
+  }, (error, stackTrace) {
+    // Global zone error handler - catches all uncaught async errors
+    // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
+    AppLogger.critical('Uncaught error: $error',
+        tag: 'Main', error: error, stackTrace: stackTrace);
+
+    crashReporter.reportError(
+      error,
+      stackTrace,
+      severity: CrashSeverity.fatal,
+      reason: 'Uncaught zone error',
+      fatal: true,
+    );
+  });
+}
+
+/// Initialize database, sync, persistence and run the app.
+/// Extracted to avoid duplicating initialization when user bypasses security.
+/// تهيئة قاعدة البيانات والمزامنة وتشغيل التطبيق.
+Future<void> _initializeAndRunApp() async {
     // Initialize database
     // تهيئة قاعدة البيانات
     late AppDatabase database;
@@ -413,20 +434,6 @@ void main() async {
         fatal: false,
       );
     }
-  }, (error, stackTrace) {
-    // Global zone error handler - catches all uncaught async errors
-    // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
-    AppLogger.critical('Uncaught error: $error',
-        tag: 'Main', error: error, stackTrace: stackTrace);
-
-    crashReporter.reportError(
-      error,
-      stackTrace,
-      severity: CrashSeverity.fatal,
-      reason: 'Uncaught zone error',
-      fatal: true,
-    );
-  });
 }
 
 // ============================================================

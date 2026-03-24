@@ -98,7 +98,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         _isTyping = false;
         _messages.add(_ChatMessage(
           text: 'خدمة المستشار الذكي غير متاحة حالياً.\n'
-              'سيتم حفظ سؤالك وإرساله عند استعادة الاتصال.',
+              'يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
           isUser: false,
           time: DateTime.now(),
         ));

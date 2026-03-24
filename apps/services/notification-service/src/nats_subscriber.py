@@ -77,7 +77,7 @@ def _get_nats_servers() -> list[str]:
         server_url = f"{parsed.scheme}://{parsed.hostname}:{parsed.port or 4222}"
         return [server_url]
     except Exception as e:
-        logger.warning(f"Failed to parse NATS_URL '{nats_url}': {e}. Using default.")
+        logger.warning("Failed to parse NATS_URL: %s. Using default.", sanitize_for_log(e))
         return ["nats://localhost:4222"]
 
 
@@ -235,7 +235,8 @@ class NATSSubscriber:
         if self._notification_callback:
             self._notification_callback(notification_data)
             logger.info(
-                f"Irrigation recommendation notification created for field={field_id}",
+                "Irrigation recommendation notification created for field=%s",
+                sanitize_for_log(field_id),
             )
 
     async def _handle_decision_recommendation(self, event: ReceivedEvent):
@@ -288,7 +289,9 @@ class NATSSubscriber:
         if self._notification_callback:
             self._notification_callback(notification_data)
             logger.info(
-                f"Decision recommendation notification: type={rec_type} field={field_id}",
+                "Decision recommendation notification: type=%s field=%s",
+                sanitize_for_log(rec_type),
+                sanitize_for_log(field_id),
             )
 
     async def close(self):
@@ -319,7 +322,7 @@ class NATSSubscriber:
             subject = msg.subject
             data = json.loads(msg.data.decode("utf-8"))
 
-            logger.info(f"Received message on {subject}")
+            logger.info("Received message on %s", sanitize_for_log(subject))
 
             # Derive event_type from payload or subject
             event_type = data.get("event_type", "")
@@ -353,7 +356,7 @@ class NATSSubscriber:
                 await self._process_event_to_notification(event)
 
         except Exception as e:
-            logger.error(f"Error processing NATS message: {e}")
+            logger.error("Error processing NATS message: %s", sanitize_for_log(e))
 
     async def _process_event_to_notification(self, event: ReceivedEvent):
         """Process event and create notification"""
@@ -362,9 +365,13 @@ class NATSSubscriber:
 
             if self._notification_callback:
                 self._notification_callback(notification_data)
-                logger.info(f"Notification created from event: {event.event_type} field={event.field_id}")
+                logger.info(
+                    "Notification created from event: %s field=%s",
+                    sanitize_for_log(event.event_type),
+                    sanitize_for_log(event.field_id),
+                )
         except Exception as e:
-            logger.error(f"Error creating notification from event: {e}")
+            logger.error("Error creating notification from event: %s", sanitize_for_log(e))
 
     def _event_to_notification_data(self, event: ReceivedEvent) -> dict[str, Any]:
         """Convert NATS event to notification data"""

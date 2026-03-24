@@ -388,6 +388,7 @@ class TestHandleIotThreshold:
         data = {
             "event_id": "e1",
             "field_id": "field-1",
+            "tenant_id": "11111111-1111-1111-1111-111111111111",
             "metric": "Soil_Moisture_Level",
             "value": 10,
             "threshold": 20,
@@ -404,7 +405,7 @@ class TestHandleIotThreshold:
     async def test_missing_metric_defaults(self):
         from src.main import handle_iot_threshold
 
-        data = {"event_id": "e1"}
+        data = {"event_id": "e1", "tenant_id": "11111111-1111-1111-1111-111111111111"}
 
         mock_internal = AsyncMock(return_value={"id": "alert-1"})
         with patch("src.main.create_alert_internal", mock_internal):
@@ -414,10 +415,24 @@ class TestHandleIotThreshold:
         assert alert_create.field_id == "unknown"
 
     @pytest.mark.asyncio
-    async def test_exception_handling(self):
+    async def test_missing_tenant_id_drops_event(self):
+        """Events without tenant_id should be dropped for tenant isolation."""
         from src.main import handle_iot_threshold
 
         data = {"event_id": "e1", "field_id": "f1", "metric": "x"}
+
+        mock_internal = AsyncMock(return_value={"id": "alert-1"})
+        with patch("src.main.create_alert_internal", mock_internal):
+            await handle_iot_threshold(data)
+
+        # Should NOT call create_alert_internal when tenant_id is missing
+        mock_internal.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_exception_handling(self):
+        from src.main import handle_iot_threshold
+
+        data = {"event_id": "e1", "field_id": "f1", "tenant_id": "11111111-1111-1111-1111-111111111111", "metric": "x"}
 
         with patch("src.main.create_alert_internal", AsyncMock(side_effect=Exception("fail"))):
             await handle_iot_threshold(data)
@@ -430,6 +445,46 @@ class TestCreateAlertInternal:
     """Tests for create_alert_internal helper."""
 
     @pytest.mark.asyncio
+    async def test_missing_tenant_id_rejected(self):
+        """create_alert_internal should reject alerts without tenant_id."""
+        from fastapi import HTTPException
+        from src.main import create_alert_internal
+        from src.models import AlertCreate, AlertSeverity, AlertType
+
+        alert_data = AlertCreate(
+            field_id="f1",
+            type=AlertType.WEATHER,
+            severity=AlertSeverity.LOW,
+            title="T",
+            message="M",
+        )
+
+        with pytest.raises(HTTPException) as exc_info:
+            await create_alert_internal(alert_data)
+        assert exc_info.value.status_code == 400
+        assert "tenant" in str(exc_info.value.detail).lower()
+
+    @pytest.mark.asyncio
+    async def test_invalid_tenant_id_rejected(self):
+        """create_alert_internal should reject alerts with non-UUID tenant_id."""
+        from fastapi import HTTPException
+        from src.main import create_alert_internal
+        from src.models import AlertCreate, AlertSeverity, AlertType
+
+        alert_data = AlertCreate(
+            field_id="f1",
+            tenant_id="not-a-valid-uuid",
+            type=AlertType.WEATHER,
+            severity=AlertSeverity.LOW,
+            title="T",
+            message="M",
+        )
+
+        with pytest.raises(HTTPException) as exc_info:
+            await create_alert_internal(alert_data)
+        assert exc_info.value.status_code == 400
+
+    @pytest.mark.asyncio
     async def test_database_not_available(self):
         from fastapi import HTTPException
         from src.main import create_alert_internal
@@ -437,6 +492,7 @@ class TestCreateAlertInternal:
 
         alert_data = AlertCreate(
             field_id="f1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             type=AlertType.WEATHER,
             severity=AlertSeverity.LOW,
             title="T",
@@ -491,6 +547,7 @@ class TestCreateAlertInternal:
 
         alert_data = AlertCreate(
             field_id="f1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             type=AlertType.WEATHER,
             severity=AlertSeverity.LOW,
             title="T",
@@ -518,6 +575,7 @@ class TestCreateAlertInternal:
 
         alert_data = AlertCreate(
             field_id="f1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             type=AlertType.WEATHER,
             severity=AlertSeverity.LOW,
             title="T",

@@ -29,10 +29,10 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/forecast")
     async def get_weather_forecast(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
+        _user: User = Depends(get_current_user),
     ):
         """
         توقعات الطقس | Get Weather Forecast
@@ -63,11 +63,11 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/historical")
     async def get_historical_weather(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
         end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+        _user: User = Depends(get_current_user),
     ):
         """
         بيانات الطقس التاريخية | Get Historical Weather
@@ -107,12 +107,12 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/gdd")
     async def get_gdd(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
         end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
         base_temp: float = Query(10.0, description="Base temperature (°C)", ge=0, le=20),
+        _user: User = Depends(get_current_user),
     ):
         """
         وحدات الحرارة النامية | Calculate Growing Degree Days (GDD)
@@ -168,12 +168,12 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/water-balance")
     async def get_water_balance(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
         end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
         kc: float = Query(1.0, description="Crop coefficient (0.4-1.3)", ge=0.4, le=1.3),
+        _user: User = Depends(get_current_user),
     ):
         """
         الميزان المائي | Calculate Water Balance
@@ -228,13 +228,13 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/irrigation-advice")
     async def get_irrigation_advice(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         crop_type: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
         growth_stage: str = Query(..., description="Growth stage (initial, development, mid, late, harvest)"),
         soil_moisture: float | None = Query(None, description="Current soil moisture (0-1)", ge=0, le=1),
         field_id: str | None = Query(None, description="Field identifier"),
+        _user: User = Depends(get_current_user),
     ):
         """
         نصائح الري | Get Irrigation Recommendation
@@ -300,10 +300,10 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/frost-risk")
     async def get_frost_risk(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
+        _user: User = Depends(get_current_user),
     ):
         """
         مخاطر الصقيع | Assess Frost Risk

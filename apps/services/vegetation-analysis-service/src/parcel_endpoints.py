@@ -113,7 +113,6 @@ def register_parcel_endpoints(app, land_detector):
 
     @app.post("/v1/parcels/auto-generate", response_model=dict)
     async def auto_generate_parcels(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Center latitude"),
         lon: float = Query(..., description="Center longitude"),
         radius_m: float = Query(1000, description="Search radius in meters"),
@@ -122,6 +121,7 @@ def register_parcel_endpoints(app, land_detector):
         min_area: float = Query(0.05, description="Minimum parcel area (hectares)"),
         smoothing: int = Query(2, description="Smoothing iterations"),
         target_shape: str = Query("irregular", description="Shape regularization"),
+        _user: User = Depends(get_current_user),
     ):
         """
         Automatically generate agricultural parcels around a point.

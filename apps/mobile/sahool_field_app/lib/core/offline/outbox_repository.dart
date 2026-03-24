@@ -46,8 +46,9 @@ class OutboxRepository {
           .map((e) => OutboxEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      AppLogger.e('Failed to load outbox', tag: 'OUTBOX', error: e);
+      AppLogger.e('Failed to load outbox, clearing corrupted data', tag: 'OUTBOX', error: e);
       _entries = [];
+      await _prefs?.remove(_storageKey);
     }
   }
 

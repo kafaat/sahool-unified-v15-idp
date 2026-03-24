@@ -382,14 +382,16 @@ class SahoolApiClient {
   }
 
   async startIrrigationSchedule(id: string) {
-    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}/start`, {
-      method: "POST",
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "active" }),
     });
   }
 
   async stopIrrigationSchedule(id: string) {
-    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}/stop`, {
-      method: "POST",
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "paused" }),
     });
   }
 

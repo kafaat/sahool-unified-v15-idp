@@ -200,9 +200,22 @@ void main() async {
                           category: 'security',
                           level: legacy_crash.BreadcrumbLevel.warning,
                         );
-                        // Rebuild widget tree without re-running full initialization
+                        // Continue app initialization safely (skip security re-check).
+                        // Wrapped in runZonedGuarded to maintain error handling.
                         _securityBypassRestart = true;
-                        _initializeAndRunApp();
+                        runZonedGuarded(() async {
+                          await _initializeAndRunApp();
+                        }, (error, stackTrace) {
+                          AppLogger.critical('Uncaught error after security bypass: $error',
+                              tag: 'Main', error: error, stackTrace: stackTrace);
+                          crashReporter.reportError(
+                            error,
+                            stackTrace,
+                            severity: CrashSeverity.fatal,
+                            reason: 'Uncaught zone error (security bypass)',
+                            fatal: true,
+                          );
+                        });
                       },
               ),
             ),

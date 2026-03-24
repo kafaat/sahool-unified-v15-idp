@@ -225,7 +225,7 @@
     "inProgress": "جاري الآن",
     "scheduledToday": "مجدول اليوم",
     "efficiency": "كفاءة الري",
-    "overdueAlert": "جدول ري متأخر يتطلب اهتمام",
+    "overdueAlert": "جدول ري متأخر يتطلب اهتماماً",
     "types": {
       "drip": "تنقيط",
       "sprinkler": "رشاشات",

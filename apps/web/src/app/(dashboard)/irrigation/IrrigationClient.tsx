@@ -348,7 +348,7 @@ export default function IrrigationClient() {
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
             <span className="font-medium text-orange-800">
-              تنبيه: {pausedCount} جدول ري متوقف يتطلب اهتمام
+              تنبيه: {pausedCount} جدول ري متوقف يتطلب اهتماماً
             </span>
           </div>
         </div>

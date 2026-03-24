@@ -1184,18 +1184,39 @@ export class SyncManager {
 
     const url = `${this.getBaseUrl()}${operation.endpoint}${operation.entityId ? `/${operation.entityId}` : ""}`;
 
-    const response = await fetch(url, {
-      method: operation.method,
-      headers: {
-        "Content-Type": "application/json",
-        ...operation.headers,
-      },
-      body:
-        operation.method !== "GET" && operation.method !== "DELETE"
-          ? JSON.stringify(operation.data)
-          : undefined,
-      signal: AbortSignal.timeout(this.config.timeoutMs),
-    });
+    // Use AbortController for broader compatibility (AbortSignal.timeout
+    // is not available on older React Native / Hermes versions).
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: operation.method,
+        headers: {
+          "Content-Type": "application/json",
+          ...operation.headers,
+        },
+        body:
+          operation.method !== "GET" && operation.method !== "DELETE"
+            ? JSON.stringify(operation.data)
+            : undefined,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) {
+      // Try to parse error body, fall back to status text
+      let errorBody: unknown;
+      try { errorBody = await response.json(); } catch { errorBody = null; }
+      return {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorBody,
+      };
+    }
 
     const data = await response.json();
 
@@ -1299,7 +1320,15 @@ class AsyncStorageAdapter implements ISyncStorage {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.QUEUE);
     if (!data) return [];
 
-    const operations = JSON.parse(data);
+    let operations: any[];
+    try {
+      operations = JSON.parse(data);
+    } catch {
+      // Corrupted queue data - reset to empty
+      await AsyncStorage.removeItem(STORAGE_KEYS.QUEUE);
+      return [];
+    }
+    if (!Array.isArray(operations)) return [];
     // تحويل التواريخ - Convert dates
     return operations.map((op: any) => ({
       ...op,
@@ -1376,7 +1405,14 @@ class AsyncStorageAdapter implements ISyncStorage {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.STATISTICS);
     if (!data) return null;
 
-    const stats = JSON.parse(data);
+    let stats: any;
+    try {
+      stats = JSON.parse(data);
+    } catch {
+      // Corrupted statistics data - reset
+      await AsyncStorage.removeItem(STORAGE_KEYS.STATISTICS);
+      return null;
+    }
     return {
       ...stats,
       firstSyncTime: stats.firstSyncTime

@@ -3,14 +3,13 @@ SAHOOL AI Ranker Tests
 Sprint 9: Unit tests for deterministic ranking
 """
 
-import sys
-
-sys.path.insert(0, "packages")
+import pytest
 
 from advisor.ai.rag_models import RetrievedChunk
 from advisor.ai.ranker import rank, rank_with_diversity, top_k
 
 
+@pytest.mark.unit
 class TestRank:
     """Test deterministic ranking"""
 
@@ -49,6 +48,7 @@ class TestRank:
         assert len(result) == 3
 
 
+@pytest.mark.unit
 class TestRankWithDiversity:
     """Test diversity-constrained ranking"""
 
@@ -79,6 +79,7 @@ class TestRankWithDiversity:
         assert len(result) == 2
 
 
+@pytest.mark.unit
 class TestTopK:
     """Test top-k selection"""
 

@@ -147,16 +147,18 @@ jobs:
             done
 
             for DEPRECATED in "${DEPRECATED_NAMES[@]}"; do
-              # Use word-boundary matching to avoid false positives
-              # Match: service name as directory, docker image, or standalone reference
-              # Avoid: partial matches like "crop-health" in "crop-health-ai" or API paths
-              if grep -qw "$DEPRECATED" "$FILE" 2>/dev/null; then
-                # Verify it's not just a label name, API path, or comment
-                if grep -qP "(apps/services/|image:|container_name:|SERVICE=)$DEPRECATED" "$FILE" 2>/dev/null; then
-                  REPLACEMENT="${REPLACEMENTS[$DEPRECATED]}"
-                  WARNINGS="${WARNINGS}\n⚠️ \`$FILE\` references deprecated service \`$DEPRECATED\` → Use \`$REPLACEMENT\` instead"
-                  WARNING_COUNT=$((WARNING_COUNT + 1))
+              # Only flag UNCOMMENTED, active references to deprecated services
+              # Match: service name as directory path, docker image, or service constant
+              # Skip: commented lines, label names, API paths, services still in codebase
+              ACTIVE_REFS=$(grep -nP "^[^#]*\b(apps/services/|image:|container_name:|SERVICE=)$DEPRECATED\b" "$FILE" 2>/dev/null || true)
+              if [ -n "$ACTIVE_REFS" ]; then
+                # Skip if the deprecated service still exists (not yet archived)
+                if [ -d "apps/services/$DEPRECATED" ]; then
+                  continue
                 fi
+                REPLACEMENT="${REPLACEMENTS[$DEPRECATED]}"
+                WARNINGS="${WARNINGS}\n⚠️ \`$FILE\` references deprecated service \`$DEPRECATED\` → Use \`$REPLACEMENT\` instead"
+                WARNING_COUNT=$((WARNING_COUNT + 1))
               fi
             done
           done

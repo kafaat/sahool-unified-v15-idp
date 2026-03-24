@@ -181,7 +181,7 @@ export default function DashboardClient() {
   const greeting = useMemo(() => getGreeting(), []);
 
   return (
-    <div className="space-y-6" role="main" aria-label="لوحة التحكم الرئيسية">
+    <div className="space-y-6" aria-label="لوحة التحكم الرئيسية">
       {/* Welcome Section - renders immediately (no data dependency) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6 transition-colors">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

@@ -11,81 +11,118 @@ import {
   AlertTriangle,
   X,
   Play,
-  Square,
+  Pause,
   Edit2,
   Trash2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { apiClient } from "@/lib/api/client";
-import type { IrrigationSchedule, IrrigationStatus, IrrigationType } from "@/lib/api/types";
+import type {
+  IrrigationSchedule,
+  IrrigationStatus,
+  IrrigationScheduleType,
+  IrrigationFrequency,
+  IrrigationScheduleCreate,
+} from "@/lib/api/types";
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {
     id: "1",
     fieldId: "field-1",
     fieldName: "الحقل الشمالي",
-    type: "drip",
-    status: "scheduled",
-    scheduledAt: "2025-01-25T06:00:00Z",
+    name: "ري صباحي - الحقل الشمالي",
+    type: "scheduled",
+    status: "active",
+    startDate: "2025-01-25T06:00:00Z",
+    frequency: "daily",
     duration: 120,
     waterAmount: 500,
+    schedule: { timeOfDay: "06:00" },
+    nextRun: "2025-01-26T06:00:00Z",
+    createdAt: "2025-01-20T00:00:00Z",
+    updatedAt: "2025-01-25T06:00:00Z",
   },
   {
     id: "2",
     fieldId: "field-2",
     fieldName: "الحقل الجنوبي",
-    type: "pivot",
-    status: "in_progress",
-    scheduledAt: "2025-01-25T04:00:00Z",
+    name: "ري محوري - الحقل الجنوبي",
+    type: "automatic",
+    status: "active",
+    startDate: "2025-01-25T04:00:00Z",
+    frequency: "daily",
     duration: 180,
     waterAmount: 1200,
-    progress: 65,
+    createdAt: "2025-01-18T00:00:00Z",
+    updatedAt: "2025-01-25T04:00:00Z",
   },
   {
     id: "3",
     fieldId: "field-3",
     fieldName: "حقل القمح",
-    type: "sprinkler",
+    name: "ري رشاشات - حقل القمح",
+    type: "scheduled",
     status: "completed",
-    scheduledAt: "2025-01-24T18:00:00Z",
+    startDate: "2025-01-24T18:00:00Z",
+    endDate: "2025-01-24T19:30:00Z",
+    frequency: "weekly",
     duration: 90,
     waterAmount: 800,
-    completedAt: "2025-01-24T19:30:00Z",
+    schedule: { daysOfWeek: [0, 3], timeOfDay: "18:00" },
+    createdAt: "2025-01-15T00:00:00Z",
+    updatedAt: "2025-01-24T19:30:00Z",
   },
   {
     id: "4",
     fieldId: "field-4",
     fieldName: "بستان النخيل",
-    type: "flood",
-    status: "overdue",
-    scheduledAt: "2025-01-24T08:00:00Z",
+    name: "ري يدوي - بستان النخيل",
+    type: "manual",
+    status: "paused",
+    startDate: "2025-01-24T08:00:00Z",
+    frequency: "custom",
     duration: 240,
     waterAmount: 2000,
+    schedule: { interval: 3 },
+    createdAt: "2025-01-10T00:00:00Z",
+    updatedAt: "2025-01-24T08:00:00Z",
   },
   {
     id: "5",
     fieldId: "field-5",
     fieldName: "الصوب الزراعية",
-    type: "drip",
-    status: "scheduled",
-    scheduledAt: "2025-01-25T16:00:00Z",
+    name: "ري تنقيط - الصوب الزراعية",
+    type: "scheduled",
+    status: "active",
+    startDate: "2025-01-25T16:00:00Z",
+    frequency: "daily",
     duration: 60,
     waterAmount: 200,
+    schedule: { timeOfDay: "16:00" },
+    nextRun: "2025-01-26T16:00:00Z",
+    createdAt: "2025-01-22T00:00:00Z",
+    updatedAt: "2025-01-25T16:00:00Z",
   },
 ];
 
-const irrigationTypes: Record<IrrigationType, { label: string; labelAr: string }> = {
-  drip: { label: "Drip", labelAr: "تنقيط" },
-  sprinkler: { label: "Sprinkler", labelAr: "رشاشات" },
-  pivot: { label: "Pivot", labelAr: "محوري" },
-  flood: { label: "Flood", labelAr: "غمر" },
+const scheduleTypes: Record<IrrigationScheduleType, { label: string; labelAr: string }> = {
   manual: { label: "Manual", labelAr: "يدوي" },
+  automatic: { label: "Automatic", labelAr: "تلقائي" },
+  scheduled: { label: "Scheduled", labelAr: "مجدول" },
+};
+
+const frequencies: Record<IrrigationFrequency, { label: string; labelAr: string }> = {
+  daily: { label: "Daily", labelAr: "يومي" },
+  weekly: { label: "Weekly", labelAr: "أسبوعي" },
+  custom: { label: "Custom", labelAr: "مخصص" },
 };
 
 const EMPTY_FORM = {
-  fieldName: "",
-  type: "drip" as IrrigationType,
-  scheduledAt: "",
+  name: "",
+  fieldId: "",
+  type: "scheduled" as IrrigationScheduleType,
+  startDate: "",
+  frequency: "daily" as IrrigationFrequency,
   duration: 60,
   waterAmount: 100,
 };
@@ -117,7 +154,10 @@ export default function IrrigationClient() {
 
   const filteredSchedules = useMemo(() => {
     return schedules.filter((schedule) => {
-      const matchesSearch = !searchTerm || schedule.fieldName.includes(searchTerm);
+      const matchesSearch =
+        !searchTerm ||
+        (schedule.fieldName ?? "").includes(searchTerm) ||
+        schedule.name.includes(searchTerm);
       const matchesStatus = statusFilter === "all" || schedule.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -125,22 +165,14 @@ export default function IrrigationClient() {
 
   const getStatusBadge = (status: IrrigationStatus) => {
     const styles: Record<IrrigationStatus, string> = {
-      scheduled: "bg-blue-100 text-blue-800",
       active: "bg-green-100 text-green-800",
       paused: "bg-orange-100 text-orange-800",
-      in_progress: "bg-yellow-100 text-yellow-800",
-      completed: "bg-green-100 text-green-800",
-      cancelled: "bg-gray-100 text-gray-800",
-      overdue: "bg-red-100 text-red-800",
+      completed: "bg-gray-100 text-gray-800",
     };
     const labels: Record<IrrigationStatus, string> = {
-      scheduled: "مجدول",
       active: "نشط",
       paused: "متوقف",
-      in_progress: "جاري",
       completed: "مكتمل",
-      cancelled: "ملغي",
-      overdue: "متأخر",
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -159,12 +191,11 @@ export default function IrrigationClient() {
   };
 
   const totalWaterToday = schedules
-    .filter((s) => s.status !== "cancelled")
+    .filter((s) => s.status !== "completed")
     .reduce((sum, s) => sum + s.waterAmount, 0);
 
-  const overdueCount = schedules.filter((s) => s.status === "overdue").length;
-  const inProgressCount = schedules.filter((s) => s.status === "in_progress").length;
-  const scheduledCount = schedules.filter((s) => s.status === "scheduled").length;
+  const pausedCount = schedules.filter((s) => s.status === "paused").length;
+  const activeCount = schedules.filter((s) => s.status === "active").length;
 
   // CRUD handlers
   const openCreate = useCallback(() => {
@@ -175,9 +206,11 @@ export default function IrrigationClient() {
 
   const openEdit = useCallback((schedule: IrrigationSchedule) => {
     setFormData({
-      fieldName: schedule.fieldName,
+      name: schedule.name,
+      fieldId: schedule.fieldId,
       type: schedule.type,
-      scheduledAt: schedule.scheduledAt.slice(0, 16),
+      startDate: schedule.startDate.slice(0, 16),
+      frequency: schedule.frequency,
       duration: schedule.duration,
       waterAmount: schedule.waterAmount,
     });
@@ -186,22 +219,24 @@ export default function IrrigationClient() {
   }, []);
 
   const handleSave = useCallback(async () => {
-    if (!formData.fieldName.trim()) {
-      showToast({ type: "warning", message: "Please enter field name", messageAr: "يرجى إدخال اسم الحقل" });
+    if (!formData.name.trim()) {
+      showToast({ type: "warning", message: "Please enter schedule name", messageAr: "يرجى إدخال اسم الجدول" });
       return;
     }
 
     try {
       // Normalize datetime-local value to ISO 8601 with timezone
-      const scheduledAtISO = formData.scheduledAt
-        ? new Date(formData.scheduledAt).toISOString()
+      const startDateISO = formData.startDate
+        ? new Date(formData.startDate).toISOString()
         : new Date().toISOString();
 
       if (editingId) {
         const response = await apiClient.updateIrrigationSchedule(editingId, {
-          fieldName: formData.fieldName,
+          name: formData.name,
+          fieldId: formData.fieldId,
           type: formData.type,
-          scheduledAt: scheduledAtISO,
+          startDate: startDateISO,
+          frequency: formData.frequency,
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         });
@@ -212,17 +247,19 @@ export default function IrrigationClient() {
           setSchedules((prev) =>
             prev.map((s) =>
               s.id === editingId
-                ? { ...s, fieldName: formData.fieldName, type: formData.type, scheduledAt: scheduledAtISO, duration: formData.duration, waterAmount: formData.waterAmount }
+                ? { ...s, name: formData.name, type: formData.type, startDate: startDateISO, frequency: formData.frequency, duration: formData.duration, waterAmount: formData.waterAmount }
                 : s
             )
           );
         }
         showToast({ type: "success", message: "Schedule updated", messageAr: "تم تحديث الجدول" });
       } else {
-        const payload = {
-          fieldName: formData.fieldName,
+        const payload: IrrigationScheduleCreate = {
+          fieldId: formData.fieldId || `field-${Date.now()}`,
+          name: formData.name,
           type: formData.type,
-          scheduledAt: scheduledAtISO,
+          startDate: startDateISO,
+          frequency: formData.frequency,
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         };
@@ -233,9 +270,10 @@ export default function IrrigationClient() {
           // Optimistic fallback
           const newSchedule: IrrigationSchedule = {
             id: crypto.randomUUID(),
-            fieldId: `field-${Date.now()}`,
             ...payload,
-            status: "scheduled",
+            status: "active",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           };
           setSchedules((prev) => [...prev, newSchedule]);
         }
@@ -261,7 +299,7 @@ export default function IrrigationClient() {
 
   const handleStart = useCallback(async (id: string) => {
     setSchedules((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: "in_progress" as IrrigationStatus, progress: 0 } : s))
+      prev.map((s) => (s.id === id ? { ...s, status: "active" as IrrigationStatus } : s))
     );
     try {
       await apiClient.startIrrigationSchedule(id);
@@ -275,7 +313,7 @@ export default function IrrigationClient() {
     setSchedules((prev) =>
       prev.map((s) =>
         s.id === id
-          ? { ...s, status: "completed" as IrrigationStatus, completedAt: new Date().toISOString() }
+          ? { ...s, status: "paused" as IrrigationStatus }
           : s
       )
     );
@@ -284,7 +322,7 @@ export default function IrrigationClient() {
     } catch {
       // Optimistic update already applied
     }
-    showToast({ type: "success", message: "Irrigation completed", messageAr: "تم إكمال الري" });
+    showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
   }, [showToast]);
 
   return (
@@ -304,13 +342,13 @@ export default function IrrigationClient() {
         </button>
       </div>
 
-      {/* Overdue Alert */}
-      {overdueCount > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-shake">
+      {/* Paused Alert */}
+      {pausedCount > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-shake">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
-            <span className="font-medium text-red-800">
-              تنبيه: {overdueCount} جدول ري متأخر يتطلب اهتمام
+            <AlertTriangle className="w-5 h-5 text-orange-600" />
+            <span className="font-medium text-orange-800">
+              تنبيه: {pausedCount} جدول ري متوقف يتطلب اهتمام
             </span>
           </div>
         </div>
@@ -331,23 +369,23 @@ export default function IrrigationClient() {
         </div>
         <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center ${inProgressCount > 0 ? "animate-pulse-dot" : ""}`}>
-              <Clock className="w-5 h-5 text-yellow-600" />
+            <div className={`w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center ${activeCount > 0 ? "animate-pulse-dot" : ""}`}>
+              <Clock className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">جاري الآن</div>
-              <div className="text-xl font-bold text-yellow-600">{inProgressCount}</div>
+              <div className="text-sm text-gray-500">نشط الآن</div>
+              <div className="text-xl font-bold text-green-600">{activeCount}</div>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">مجدول اليوم</div>
-              <div className="text-xl font-bold text-green-600">{scheduledCount}</div>
+              <div className="text-sm text-gray-500">متوقف</div>
+              <div className="text-xl font-bold text-orange-600">{pausedCount}</div>
             </div>
           </div>
         </div>
@@ -370,7 +408,7 @@ export default function IrrigationClient() {
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="بحث عن حقل..."
+            placeholder="بحث عن حقل أو جدول..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
@@ -384,11 +422,9 @@ export default function IrrigationClient() {
           aria-label="تصفية حسب الحالة"
         >
           <option value="all">جميع الحالات</option>
-          <option value="scheduled">مجدول</option>
-          <option value="in_progress">جاري</option>
+          <option value="active">نشط</option>
+          <option value="paused">متوقف</option>
           <option value="completed">مكتمل</option>
-          <option value="overdue">متأخر</option>
-          <option value="cancelled">ملغي</option>
         </select>
       </div>
 
@@ -398,9 +434,10 @@ export default function IrrigationClient() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحقل</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الاسم</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">النوع</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الموعد</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">التكرار</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">تاريخ البدء</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المدة</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">كمية المياه</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
@@ -419,57 +456,55 @@ export default function IrrigationClient() {
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Droplets className="w-5 h-5 text-blue-600" />
                       </div>
-                      <div className="font-medium text-gray-900">{schedule.fieldName}</div>
+                      <div>
+                        <div className="font-medium text-gray-900">{schedule.name}</div>
+                        {schedule.fieldName && (
+                          <div className="text-xs text-gray-500">{schedule.fieldName}</div>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {irrigationTypes[schedule.type].labelAr}
+                    {scheduleTypes[schedule.type].labelAr}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatDate(schedule.scheduledAt)}
+                    {frequencies[schedule.frequency].labelAr}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {formatDate(schedule.startDate)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.duration} دقيقة</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.waterAmount} م³</td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1">
-                      {getStatusBadge(schedule.status)}
-                      {schedule.status === "in_progress" && schedule.progress !== undefined && (
-                        <div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-yellow-500 rounded-full transition-all duration-1000 animate-progress-fill"
-                            style={{ "--progress-width": `${schedule.progress}%`, width: `${schedule.progress}%` } as React.CSSProperties}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    {getStatusBadge(schedule.status)}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      {schedule.status === "scheduled" && (
+                      {schedule.status === "paused" && (
                         <button
                           onClick={() => handleStart(schedule.id)}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                          title="بدء الري"
-                          aria-label={`بدء ري ${schedule.fieldName}`}
+                          title="استئناف الري"
+                          aria-label={`استئناف ري ${schedule.name}`}
                         >
                           <Play className="w-4 h-4" />
                         </button>
                       )}
-                      {schedule.status === "in_progress" && (
+                      {schedule.status === "active" && (
                         <button
                           onClick={() => handleStop(schedule.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="إيقاف الري"
-                          aria-label={`إيقاف ري ${schedule.fieldName}`}
+                          className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                          title="إيقاف الري مؤقتاً"
+                          aria-label={`إيقاف ري ${schedule.name}`}
                         >
-                          <Square className="w-4 h-4" />
+                          <Pause className="w-4 h-4" />
                         </button>
                       )}
                       <button
                         onClick={() => openEdit(schedule)}
                         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="تعديل"
-                        aria-label={`تعديل جدول ${schedule.fieldName}`}
+                        aria-label={`تعديل جدول ${schedule.name}`}
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -477,7 +512,7 @@ export default function IrrigationClient() {
                         onClick={() => setDeleteTarget(schedule)}
                         className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="حذف"
-                        aria-label={`حذف جدول ${schedule.fieldName}`}
+                        aria-label={`حذف جدول ${schedule.name}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -507,38 +542,50 @@ export default function IrrigationClient() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  اسم الحقل <span className="text-red-500">*</span>
+                  اسم الجدول <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  value={formData.fieldName}
-                  onChange={(e) => setFormData((p) => ({ ...p, fieldName: e.target.value }))}
+                  value={formData.name}
+                  onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
-                  placeholder="مثال: الحقل الشمالي"
+                  placeholder="مثال: ري صباحي - الحقل الشمالي"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">نوع الري</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">نوع الجدولة</label>
                   <select
                     value={formData.type}
-                    onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value as IrrigationType }))}
+                    onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value as IrrigationScheduleType }))}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   >
-                    {Object.entries(irrigationTypes).map(([key, val]) => (
+                    {Object.entries(scheduleTypes).map(([key, val]) => (
                       <option key={key} value={key}>{val.labelAr}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">الموعد</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.scheduledAt}
-                    onChange={(e) => setFormData((p) => ({ ...p, scheduledAt: e.target.value }))}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">التكرار</label>
+                  <select
+                    value={formData.frequency}
+                    onChange={(e) => setFormData((p) => ({ ...p, frequency: e.target.value as IrrigationFrequency }))}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
-                  />
+                  >
+                    {Object.entries(frequencies).map(([key, val]) => (
+                      <option key={key} value={key}>{val.labelAr}</option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البدء</label>
+                <input
+                  type="datetime-local"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData((p) => ({ ...p, startDate: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -592,7 +639,7 @@ export default function IrrigationClient() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">حذف جدول الري</h3>
             <p className="text-sm text-gray-600 mb-6">
-              هل أنت متأكد من حذف جدول ري &quot;{deleteTarget.fieldName}&quot;؟
+              هل أنت متأكد من حذف جدول ري &quot;{deleteTarget.name}&quot;؟
             </p>
             <div className="flex gap-3">
               <button

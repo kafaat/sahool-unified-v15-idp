@@ -315,54 +315,47 @@ export interface MaintenanceSchedule {
 // Irrigation Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** Schedule lifecycle states - superset of admin "active" | "paused" | "completed" */
-export type IrrigationStatus = "scheduled" | "active" | "paused" | "in_progress" | "completed" | "cancelled" | "overdue";
+/** Schedule lifecycle states (matches admin contract) */
+export type IrrigationStatus = "active" | "paused" | "completed";
 
-/** Physical irrigation method applied to the field */
-export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
-
-/** Schedule execution mode (aligned with admin contract) */
+/** Schedule execution mode (matches admin contract) */
 export type IrrigationScheduleType = "manual" | "automatic" | "scheduled";
 
-/** Recurrence frequency */
+/** Recurrence frequency (matches admin contract) */
 export type IrrigationFrequency = "daily" | "weekly" | "custom";
+
+/** Physical irrigation method applied to the field (UI-only, not part of schedule API) */
+export type IrrigationMethod = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
 
 export interface IrrigationSchedule {
   id: string;
   fieldId: string;
-  fieldName: string;
-  name?: string;
-  type: IrrigationType;
-  scheduleType?: IrrigationScheduleType;
+  fieldName?: string;
+  name: string;
+  type: IrrigationScheduleType;
   status: IrrigationStatus;
-  scheduledAt: string;
-  startDate?: string;
+  startDate: string;
   endDate?: string;
-  frequency?: IrrigationFrequency;
-  duration: number;
-  waterAmount: number;
+  frequency: IrrigationFrequency;
+  duration: number; // minutes
+  waterAmount: number; // liters or cubic meters
   schedule?: {
     daysOfWeek?: number[];
     timeOfDay?: string;
     interval?: number;
   };
   nextRun?: string;
-  completedAt?: string;
-  progress?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IrrigationScheduleCreate {
-  fieldId?: string;
-  fieldName: string;
-  name?: string;
-  type: IrrigationType;
-  scheduleType?: IrrigationScheduleType;
-  scheduledAt: string;
-  startDate?: string;
+  fieldId: string;
+  name: string;
+  type: IrrigationScheduleType;
+  startDate: string;
   endDate?: string;
-  frequency?: IrrigationFrequency;
+  frequency: IrrigationFrequency;
   duration: number;
   waterAmount: number;
   schedule?: IrrigationSchedule["schedule"];

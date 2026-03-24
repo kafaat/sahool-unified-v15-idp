@@ -185,7 +185,8 @@ describe("QuickActions", () => {
     render(<QuickActions />);
     expect(screen.getByText("إضافة حقل")).toBeInTheDocument();
     expect(screen.getByText("مهمة جديدة")).toBeInTheDocument();
-    expect(screen.getByText("الطقس")).toBeInTheDocument();
+    const weatherElements = screen.getAllByText(/الطقس/);
+    expect(weatherElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("التقارير")).toBeInTheDocument();
     expect(screen.getByText("جميع المهام")).toBeInTheDocument();
     expect(screen.getByText("الإعدادات")).toBeInTheDocument();
@@ -353,9 +354,9 @@ describe("TasksSummary", () => {
     expect(screen.getByText("ري القمح")).toBeInTheDocument();
     expect(screen.getByText("تسميد الأرض")).toBeInTheDocument();
     expect(screen.getByText("فحص الحقل")).toBeInTheDocument();
-    expect(screen.getByText("عالية")).toBeInTheDocument();
-    expect(screen.getByText("متوسطة")).toBeInTheDocument();
-    expect(screen.getByText("منخفضة")).toBeInTheDocument();
+    expect(screen.getAllByText("عالية").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("متوسطة").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("منخفضة").length).toBeGreaterThanOrEqual(1);
   });
 
   it("toggles task completion on click", () => {

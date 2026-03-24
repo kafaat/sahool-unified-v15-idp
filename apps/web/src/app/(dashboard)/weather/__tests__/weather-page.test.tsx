@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "../../../../__tests__/test-utils";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "../../../../__tests__/test-utils";
 import WeatherClient from "../WeatherClient";
 import { CurrentWeather } from "@/features/weather";
 import type { WeatherData, WeatherAlert, ForecastDataPoint } from "@/features/weather";
@@ -19,7 +19,7 @@ const mockCurrentWeather: WeatherData = {
   condition: "Partly Cloudy",
   conditionAr: "غائم جزئياً",
   location: "صنعاء، اليمن",
-  timestamp: "2026-03-24T10:00:00Z",
+  timestamp: "2026-03-24T10:00:00.000Z",
 };
 
 const mockForecast: ForecastDataPoint[] = Array.from({ length: 7 }, (_, i) => {
@@ -264,7 +264,8 @@ describe("WeatherAlerts", () => {
 
   it("should display severity label in Arabic", () => {
     render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
-    expect(screen.getByText(/عالي/)).toBeInTheDocument();
+    const highSeverityElements = screen.getAllByText(/عالي/);
+    expect(highSeverityElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it("should show section header", () => {

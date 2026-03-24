@@ -18,6 +18,7 @@ import asyncpg
 import nats
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field, field_validator
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -28,6 +29,77 @@ logger = get_logger(__name__)
 # Service info
 SERVICE_NAME = "ussd-gateway"
 SERVICE_VERSION = "16.0.0"
+
+
+# ============================================================
+# Rate Limiting - تحديد معدل الطلبات
+# ============================================================
+
+try:
+    from shared.auth.rate_limiting import RateLimiter
+
+    _rate_limiter = RateLimiter(
+        requests_per_minute=30,
+        requests_per_hour=500,
+    )
+    RATE_LIMITER_AVAILABLE = True
+except ImportError:
+    _rate_limiter = None
+    RATE_LIMITER_AVAILABLE = False
+    logger.warning("Rate limiter not available, endpoints are unprotected")
+
+
+# ============================================================
+# Request Models - نماذج الطلبات (Pydantic)
+# ============================================================
+
+
+class USSDCallbackRequest(BaseModel):
+    """USSD callback from telecom provider"""
+    sessionId: str = Field(default="", alias="session_id", max_length=256)
+    phoneNumber: str = Field(default="", alias="msisdn", max_length=20)
+    text: str = Field(default="", max_length=500)
+
+    model_config = {"populate_by_name": True}
+
+
+class USSDSimulateRequest(BaseModel):
+    """USSD simulation request"""
+    phone_number: str = Field(default="+966500000000", max_length=20)
+    text: str = Field(default="", max_length=500)
+    language: str = Field(default="ar", pattern=r"^(ar|en)$")
+
+
+class SendSMSRequest(BaseModel):
+    """Send SMS request"""
+    phone_number: str = Field(max_length=20)
+    message: str | None = Field(default=None, max_length=1600)
+    message_ar: str | None = Field(default=None, max_length=1600)
+    tenant_id: str | None = Field(default=None, max_length=128)
+
+    @field_validator("phone_number")
+    @classmethod
+    def phone_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("phone_number is required")
+        return v.strip()
+
+
+class BulkSMSRequest(BaseModel):
+    """Bulk SMS request"""
+    phone_numbers: list[str] = Field(min_length=1, max_length=5000)
+    message: str | None = Field(default=None, max_length=1600)
+    message_ar: str | None = Field(default=None, max_length=1600)
+    tenant_id: str | None = Field(default=None, max_length=128)
+
+
+class WhatsAppSendRequest(BaseModel):
+    """WhatsApp send request"""
+    phone_number: str = Field(max_length=20)
+    message: str | None = Field(default=None, max_length=4096)
+    message_ar: str | None = Field(default=None, max_length=4096)
+    template: str | None = Field(default=None, max_length=256)
+    buttons: list[dict] = Field(default_factory=list, max_length=10)
 
 
 @asynccontextmanager
@@ -315,11 +387,18 @@ async def ussd_callback(request: Request):
         form = await request.form()
         data = dict(form)
 
-    session_id = data.get("sessionId", data.get("session_id", ""))
-    phone_number = data.get("phoneNumber", data.get("msisdn", ""))
-    text = data.get("text", "")
+    # Validate input via Pydantic
+    validated = USSDCallbackRequest(
+        sessionId=data.get("sessionId", data.get("session_id", "")),
+        phoneNumber=data.get("phoneNumber", data.get("msisdn", "")),
+        text=data.get("text", ""),
+    )
 
-    logger.info(f"USSD request: phone={phone_number}, text={text}")
+    session_id = validated.sessionId
+    phone_number = validated.phoneNumber
+    text = validated.text
+
+    logger.info("USSD request: phone=%s, text_len=%d", phone_number[-4:] if phone_number else "?", len(text))
 
     # Determine user language preference
     language = await get_user_language(app, phone_number)
@@ -335,22 +414,19 @@ async def ussd_callback(request: Request):
 
 
 @app.post("/ussd/simulate")
-async def ussd_simulate(request: Request):
+async def ussd_simulate(body: USSDSimulateRequest):
     """
     Simulate USSD session for testing
     محاكاة جلسة USSD للاختبار
     """
-    data = await request.json()
-    phone_number = data.get("phone_number", "+966500000000")
-    text = data.get("text", "")
-    language = data.get("language", "ar")
-
-    response_text, end_session = await process_ussd_input(app, "test-session", phone_number, text, language)
+    response_text, end_session = await process_ussd_input(
+        app, "test-session", body.phone_number, body.text, body.language,
+    )
 
     return {
         "response": response_text,
         "end_session": end_session,
-        "language": language,
+        "language": body.language,
     }
 
 
@@ -360,19 +436,18 @@ async def ussd_simulate(request: Request):
 
 
 @app.post("/sms/send")
-async def send_sms(request: Request):
+async def send_sms(body: SendSMSRequest):
     """
     Send SMS to farmer
     إرسال رسالة نصية للمزارع
     """
-    data = await request.json()
-    phone_number = data.get("phone_number")
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    tenant_id = data.get("tenant_id")
+    phone_number = body.phone_number
+    message = body.message
+    message_ar = body.message_ar
+    tenant_id = body.tenant_id
 
-    if not phone_number or not (message or message_ar):
-        return {"success": False, "error": "Missing phone_number or message"}
+    if not (message or message_ar):
+        return {"success": False, "error": "Missing message or message_ar"}
 
     # Get user language preference
     language = await get_user_language(app, phone_number)
@@ -418,10 +493,10 @@ async def receive_sms(request: Request):
         form = await request.form()
         data = dict(form)
 
-    from_number = data.get("from", data.get("msisdn", ""))
-    message = data.get("text", data.get("message", "")).strip().upper()
+    from_number = str(data.get("from", data.get("msisdn", "")))[:20]
+    message = str(data.get("text", data.get("message", "")))[:500].strip().upper()
 
-    logger.info(f"SMS received: from={from_number}, message={message}")
+    logger.info("SMS received: from=%s, message_len=%d", from_number[-4:] if from_number else "?", len(message))
 
     # Process SMS keywords
     response = await process_sms_keyword(app, from_number, message)
@@ -433,19 +508,17 @@ async def receive_sms(request: Request):
 
 
 @app.post("/sms/bulk")
-async def send_bulk_sms(request: Request):
+async def send_bulk_sms(body: BulkSMSRequest):
     """
     Send bulk SMS to multiple farmers
     إرسال رسائل جماعية للمزارعين
     """
-    data = await request.json()
-    phone_numbers = data.get("phone_numbers", [])
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    data.get("tenant_id")
+    phone_numbers = body.phone_numbers
+    message = body.message
+    message_ar = body.message_ar
 
-    if not phone_numbers or not (message or message_ar):
-        return {"success": False, "error": "Missing phone_numbers or message"}
+    if not (message or message_ar):
+        return {"success": False, "error": "Missing message or message_ar"}
 
     results = []
     for phone in phone_numbers:
@@ -479,7 +552,10 @@ async def whatsapp_webhook(request: Request):
     Handle WhatsApp Business API webhook
     معالجة webhook واتساب للأعمال
     """
-    data = await request.json()
+    body = await request.body()
+    if len(body) > 1_048_576:  # 1 MB limit
+        return {"status": "error", "message": "Payload too large"}
+    data = json.loads(body)
 
     # Handle different webhook types
     if "messages" in data:
@@ -500,20 +576,16 @@ async def whatsapp_webhook(request: Request):
 
 
 @app.post("/whatsapp/send")
-async def send_whatsapp(request: Request):
+async def send_whatsapp(body: WhatsAppSendRequest):
     """
     Send WhatsApp message to farmer
     إرسال رسالة واتساب للمزارع
     """
-    data = await request.json()
-    phone_number = data.get("phone_number")
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    template = data.get("template")
-    buttons = data.get("buttons", [])
-
-    if not phone_number:
-        return {"success": False, "error": "Missing phone_number"}
+    phone_number = body.phone_number
+    message = body.message
+    message_ar = body.message_ar
+    template = body.template
+    buttons = body.buttons
 
     language = await get_user_language(app, phone_number)
     final_message = message_ar if language == "ar" else message

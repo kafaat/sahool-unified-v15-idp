@@ -54,6 +54,7 @@ jobs:
   analyze:
     name: Analyze Code
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
@@ -148,6 +149,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: analyze
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     defaults:
@@ -273,6 +275,7 @@ jobs:
   build-debug:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: [analyze, test]
     if: always() && needs.analyze.result == 'success'
     defaults:
@@ -467,6 +470,7 @@ jobs:
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: build-debug
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     defaults:
@@ -539,6 +543,7 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [analyze, test, build-debug]
     if: always()
     steps:

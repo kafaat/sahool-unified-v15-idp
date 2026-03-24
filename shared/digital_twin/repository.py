@@ -32,10 +32,16 @@ logger = structlog.get_logger()
 
 # ---------------------------------------------------------------------------
 # In-memory fallback storage (used when DB pool is None)
+# Keyed by (tenant_id, field_id, ...) to maintain tenant isolation
 # ---------------------------------------------------------------------------
 _mem_states: dict[tuple, FieldDailyState] = {}  # (tenant_id, field_id, day) → state
 _mem_observations: dict[tuple, list[FieldObservation]] = defaultdict(list)  # (tid, fid) → obs list
 _mem_recommendations: dict[tuple, IrrigationRecommendation] = {}  # (tid, fid, day) → rec
+
+# Maximum entries to prevent unbounded memory growth
+_MEM_MAX_STATES = 50_000
+_MEM_MAX_OBSERVATIONS_PER_FIELD = 1_000
+_MEM_MAX_RECOMMENDATIONS = 50_000
 
 
 # ---------------------------------------------------------------------------
@@ -153,9 +159,12 @@ class TwinRepository:
 
     async def save_state(self, state: FieldDailyState) -> None:
         """Upsert a FieldDailyState. حفظ/تحديث حالة الحقل اليومية."""
-        # Always update in-memory cache
+        # Always update in-memory cache (with bounds check)
         key = (str(state.tenant_id), str(state.field_id), state.day.isoformat())
-        _mem_states[key] = state
+        if len(_mem_states) >= _MEM_MAX_STATES and key not in _mem_states:
+            logger.warning("twin_repo.mem_states limit reached (%d), skipping in-memory cache", _MEM_MAX_STATES)
+        else:
+            _mem_states[key] = state
 
         if self._pool is None:
             return
@@ -247,6 +256,10 @@ class TwinRepository:
     async def save_observation(self, obs: FieldObservation) -> None:
         """Persist a field observation. حفظ رصد ميداني."""
         mem_key = (str(obs.tenant_id), str(obs.field_id))
+        obs_list = _mem_observations[mem_key]
+        if len(obs_list) >= _MEM_MAX_OBSERVATIONS_PER_FIELD:
+            # Evict oldest entries
+            _mem_observations[mem_key] = obs_list[-(_MEM_MAX_OBSERVATIONS_PER_FIELD // 2) :]
         _mem_observations[mem_key].append(obs)
 
         if self._pool is None:
@@ -304,7 +317,10 @@ class TwinRepository:
     async def save_recommendation(self, rec: IrrigationRecommendation) -> None:
         """Upsert an irrigation recommendation. حفظ توصية الري."""
         key = (str(rec.tenant_id), str(rec.field_id), rec.day.isoformat())
-        _mem_recommendations[key] = rec
+        if len(_mem_recommendations) >= _MEM_MAX_RECOMMENDATIONS and key not in _mem_recommendations:
+            logger.warning("twin_repo.mem_recommendations limit reached (%d), skipping", _MEM_MAX_RECOMMENDATIONS)
+        else:
+            _mem_recommendations[key] = rec
 
         if self._pool is None:
             return

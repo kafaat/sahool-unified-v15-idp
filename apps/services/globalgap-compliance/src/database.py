@@ -268,7 +268,9 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, registration_id: UUID, tenant_id: UUID | None = None, *, admin: bool = False) -> dict[str, Any] | None:
+    async def get_by_id(
+        self, registration_id: UUID, tenant_id: UUID | None = None, *, admin: bool = False
+    ) -> dict[str, Any] | None:
         """
         Get registration by ID with tenant isolation
         الحصول على التسجيل بواسطة المعرف مع عزل المستأجر
@@ -283,7 +285,9 @@ class GlobalGAPRegistrationRepository(BaseRepository):
             row = await self._fetchrow(query, registration_id, tenant_id)
         return dict(row) if row else None
 
-    async def get_by_ggn(self, ggn: str, tenant_id: UUID | None = None, *, admin: bool = False) -> dict[str, Any] | None:
+    async def get_by_ggn(
+        self, ggn: str, tenant_id: UUID | None = None, *, admin: bool = False
+    ) -> dict[str, Any] | None:
         """
         Get registration by GlobalGAP Number with tenant isolation
         الحصول على التسجيل بواسطة رقم GlobalGAP مع عزل المستأجر
@@ -443,10 +447,14 @@ class ComplianceRecordRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, record_id: UUID) -> dict[str, Any] | None:
-        """Get compliance record by ID"""
-        query = "SELECT * FROM compliance_records WHERE id = $1"
-        row = await self._fetchrow(query, record_id)
+    async def get_by_id(self, record_id: UUID, tenant_id: UUID | None = None) -> dict[str, Any] | None:
+        """Get compliance record by ID with optional tenant isolation"""
+        if tenant_id is not None:
+            query = "SELECT * FROM compliance_records WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, record_id, tenant_id)
+        else:
+            query = "SELECT * FROM compliance_records WHERE id = $1"
+            row = await self._fetchrow(query, record_id)
         return dict(row) if row else None
 
     async def get_by_registration(self, registration_id: UUID, limit: int | None = None) -> list[dict[str, Any]]:
@@ -723,10 +731,14 @@ class NonConformanceRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, nc_id: UUID) -> dict[str, Any] | None:
-        """Get non-conformance by ID"""
-        query = "SELECT * FROM non_conformances WHERE id = $1"
-        row = await self._fetchrow(query, nc_id)
+    async def get_by_id(self, nc_id: UUID, tenant_id: UUID | None = None) -> dict[str, Any] | None:
+        """Get non-conformance by ID with optional tenant isolation"""
+        if tenant_id is not None:
+            query = "SELECT * FROM non_conformances WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, nc_id, tenant_id)
+        else:
+            query = "SELECT * FROM non_conformances WHERE id = $1"
+            row = await self._fetchrow(query, nc_id)
         return dict(row) if row else None
 
     async def get_by_compliance_record(self, compliance_record_id: UUID) -> list[dict[str, Any]]:

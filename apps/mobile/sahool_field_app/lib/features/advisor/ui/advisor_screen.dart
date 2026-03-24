@@ -194,7 +194,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
   Widget _buildTypingIndicator() {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -354,8 +354,8 @@ class _ChatBubble extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(message.isUser ? 4 : 20),
-                  bottomRight: Radius.circular(message.isUser ? 20 : 4),
+                  bottomLeft: Radius.circular(message.isUser ? 20 : 4),
+                  bottomRight: Radius.circular(message.isUser ? 4 : 20),
                 ),
                 boxShadow: SahoolShadows.small,
               ),

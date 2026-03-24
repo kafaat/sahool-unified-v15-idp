@@ -462,7 +462,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _handleMenuAction(String action, conversation) {
+  void _handleMenuAction(String action, Conversation conversation) {
     switch (action) {
       case 'view_profile':
         // Navigate to user profile
@@ -513,7 +513,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showBlockConfirmation(conversation) {
+  void _showBlockConfirmation(Conversation conversation) {
     final currentUserId = ref.read(chatUserIdProvider);
     final otherParticipant = conversation.getOtherParticipant(currentUserId);
 
@@ -608,7 +608,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Future<void> _handleMuteConversation(conversation) async {
+  Future<void> _handleMuteConversation(Conversation conversation) async {
     final isMuted = conversation.isMuted as bool;
     final newMuteState = !isMuted;
 
@@ -665,7 +665,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showClearChatConfirmation(conversation) {
+  void _showClearChatConfirmation(Conversation conversation) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -740,7 +740,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  void _showReportDialog(conversation) {
+  void _showReportDialog(Conversation conversation) {
     String? selectedReason;
     final descriptionController = TextEditingController();
 

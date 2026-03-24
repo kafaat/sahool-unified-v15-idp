@@ -488,6 +488,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
 
     // محاكاة تحليل الذكاء الاصطناعي
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       setState(() {
         _isAnalyzing = false;
         _diagnosis = DiagnosisResult(

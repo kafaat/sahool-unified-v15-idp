@@ -74,6 +74,20 @@ MIGRATIONS = [
             DROP INDEX IF EXISTS idx_hydrology_field_id;
         """,
     ),
+    Migration(
+        version=3,
+        description="Make tenant_id NOT NULL and add composite index",
+        up="""
+            UPDATE hydrology_analyses SET tenant_id = 'unknown' WHERE tenant_id IS NULL;
+            ALTER TABLE hydrology_analyses ALTER COLUMN tenant_id SET NOT NULL;
+            CREATE INDEX IF NOT EXISTS idx_hydrology_field_tenant_type
+                ON hydrology_analyses(field_id, tenant_id, analysis_type);
+        """,
+        down="""
+            DROP INDEX IF EXISTS idx_hydrology_field_tenant_type;
+            ALTER TABLE hydrology_analyses ALTER COLUMN tenant_id DROP NOT NULL;
+        """,
+    ),
 ]
 
 # Configure structured logging

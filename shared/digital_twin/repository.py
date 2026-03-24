@@ -87,6 +87,7 @@ _SQL_GET_STATES_RANGE = """
 SELECT * FROM field_daily_state
 WHERE tenant_id=$1 AND field_id=$2 AND day BETWEEN $3 AND $4
 ORDER BY day ASC
+LIMIT 3660
 """
 
 _SQL_INSERT_OBSERVATION = """

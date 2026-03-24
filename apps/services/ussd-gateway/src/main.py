@@ -733,7 +733,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
 
         sms_text = f"{title_ar}\n{message_ar[:140]}"  # Limit to SMS length
 
-        # Get phone numbers for notification
+        # Get phone numbers for notification (batched to prevent memory exhaustion)
         if hasattr(app.state, "db_pool") and app.state.db_pool:
             async with app.state.db_pool.acquire() as conn:
                 rows = await conn.fetch(
@@ -743,6 +743,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
                     WHERE tenant_id = $1
                     AND sms_enabled = true
                     AND alert_types @> $2
+                    LIMIT 5000
                     """,
                     tenant_id,
                     [data.get("alert_type", "general")],

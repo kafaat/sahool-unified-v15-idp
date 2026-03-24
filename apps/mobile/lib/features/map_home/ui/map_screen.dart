@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -429,29 +430,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             _mapController.move(_mapController.camera.center, zoom - 1);
           }),
           const SizedBox(height: 16),
-          _buildMapControlButton(Icons.my_location, 'موقعي', () async {
-            try {
-              final permission = await Geolocator.checkPermission();
-              if (permission == LocationPermission.denied) {
-                await Geolocator.requestPermission();
-              }
-              final position = await Geolocator.getCurrentPosition(
-                locationSettings: const LocationSettings(
-                  accuracy: LocationAccuracy.high,
-                  timeLimit: Duration(seconds: 10),
-                ),
-              );
-              _mapController.move(
-                LatLng(position.latitude, position.longitude),
-                14,
-              );
-            } catch (_) {
-              // Fall back to first field location or default
-              final center = _fieldLocations.isNotEmpty
-                  ? _fieldLocations.first
-                  : const LatLng(15.3694, 44.1910);
-              _mapController.move(center, 14);
-            }
+          _buildMapControlButton(Icons.my_location, 'موقعي', () {
+            unawaited(_centerOnUserLocation());
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {
@@ -470,6 +450,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _centerOnUserLocation() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        14,
+      );
+    } catch (_) {
+      // Fall back to first field location or default
+      final center = _fieldLocations.isNotEmpty
+          ? _fieldLocations.first
+          : const LatLng(15.3694, 44.1910);
+      _mapController.move(center, 14);
+    }
   }
 
   Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {

@@ -1,9 +1,6 @@
 "use client";
 
-// TODO: All CRUD operations (handleSave, handleDelete, handleStart, handleStop) only
-// modify local state with mock data. Wire up to irrigation API when backend is ready.
-
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Droplets,
   Search,
@@ -17,24 +14,11 @@ import {
   Square,
   Edit2,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
-
-type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
-type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
-
-interface IrrigationSchedule {
-  id: string;
-  fieldId: string;
-  fieldName: string;
-  type: IrrigationType;
-  status: IrrigationStatus;
-  scheduledAt: string;
-  duration: number;
-  waterAmount: number;
-  completedAt?: string;
-  progress?: number;
-}
+import { apiClient } from "@/lib/api/client";
+import type { IrrigationSchedule, IrrigationStatus, IrrigationType } from "@/lib/api/types";
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {
@@ -108,14 +92,32 @@ const EMPTY_FORM = {
 };
 
 export default function IrrigationClient() {
-  const [schedules, setSchedules] = useState(initialMockSchedules);
+  const [schedules, setSchedules] = useState<IrrigationSchedule[]>(initialMockSchedules);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<IrrigationStatus | "all">("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<IrrigationSchedule | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { showToast } = useToast();
+
+  // Load schedules from API on mount
+  useEffect(() => {
+    async function loadSchedules() {
+      try {
+        const response = await apiClient.getIrrigationSchedules();
+        if (response.success && response.data) {
+          setSchedules(response.data);
+        }
+      } catch {
+        // API unavailable - keep mock data for offline-first UX
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSchedules();
+  }, []);
 
   const filteredSchedules = useMemo(() => {
     return schedules.filter((schedule) => {
@@ -183,53 +185,88 @@ export default function IrrigationClient() {
     setModalOpen(true);
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!formData.fieldName.trim()) {
       showToast({ type: "warning", message: "Please enter field name", messageAr: "يرجى إدخال اسم الحقل" });
       return;
     }
 
-    if (editingId) {
-      setSchedules((prev) =>
-        prev.map((s) =>
-          s.id === editingId
-            ? { ...s, fieldName: formData.fieldName, type: formData.type, scheduledAt: formData.scheduledAt || s.scheduledAt, duration: formData.duration, waterAmount: formData.waterAmount }
-            : s
-        )
-      );
-      showToast({ type: "success", message: "Schedule updated", messageAr: "تم تحديث الجدول" });
-    } else {
-      const newSchedule: IrrigationSchedule = {
-        id: crypto.randomUUID(),
-        fieldId: `field-${Date.now()}`,
-        fieldName: formData.fieldName,
-        type: formData.type,
-        status: "scheduled",
-        scheduledAt: formData.scheduledAt || new Date().toISOString(),
-        duration: formData.duration,
-        waterAmount: formData.waterAmount,
-      };
-      setSchedules((prev) => [...prev, newSchedule]);
-      showToast({ type: "success", message: "Schedule created", messageAr: "تم إنشاء الجدول" });
+    try {
+      if (editingId) {
+        const response = await apiClient.updateIrrigationSchedule(editingId, {
+          fieldName: formData.fieldName,
+          type: formData.type,
+          scheduledAt: formData.scheduledAt || new Date().toISOString(),
+          duration: formData.duration,
+          waterAmount: formData.waterAmount,
+        });
+        if (response.success && response.data) {
+          setSchedules((prev) => prev.map((s) => (s.id === editingId ? response.data! : s)));
+        } else {
+          // Optimistic update if API returns no data
+          setSchedules((prev) =>
+            prev.map((s) =>
+              s.id === editingId
+                ? { ...s, fieldName: formData.fieldName, type: formData.type, scheduledAt: formData.scheduledAt || s.scheduledAt, duration: formData.duration, waterAmount: formData.waterAmount }
+                : s
+            )
+          );
+        }
+        showToast({ type: "success", message: "Schedule updated", messageAr: "تم تحديث الجدول" });
+      } else {
+        const payload = {
+          fieldName: formData.fieldName,
+          type: formData.type,
+          scheduledAt: formData.scheduledAt || new Date().toISOString(),
+          duration: formData.duration,
+          waterAmount: formData.waterAmount,
+        };
+        const response = await apiClient.createIrrigationSchedule(payload);
+        if (response.success && response.data) {
+          setSchedules((prev) => [...prev, response.data!]);
+        } else {
+          // Optimistic fallback
+          const newSchedule: IrrigationSchedule = {
+            id: crypto.randomUUID(),
+            fieldId: `field-${Date.now()}`,
+            ...payload,
+            status: "scheduled",
+          };
+          setSchedules((prev) => [...prev, newSchedule]);
+        }
+        showToast({ type: "success", message: "Schedule created", messageAr: "تم إنشاء الجدول" });
+      }
+    } catch {
+      showToast({ type: "error", message: "Operation failed", messageAr: "فشلت العملية" });
     }
     setModalOpen(false);
   }, [formData, editingId, showToast]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
+    try {
+      await apiClient.deleteIrrigationSchedule(deleteTarget.id);
+    } catch {
+      // Optimistic delete even on API failure (offline-first)
+    }
     setSchedules((prev) => prev.filter((s) => s.id !== deleteTarget.id));
     showToast({ type: "success", message: "Schedule deleted", messageAr: "تم حذف الجدول" });
     setDeleteTarget(null);
   }, [deleteTarget, showToast]);
 
-  const handleStart = useCallback((id: string) => {
+  const handleStart = useCallback(async (id: string) => {
     setSchedules((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: "in_progress" as IrrigationStatus, progress: 0 } : s))
     );
+    try {
+      await apiClient.startIrrigationSchedule(id);
+    } catch {
+      // Optimistic update already applied
+    }
     showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
   }, [showToast]);
 
-  const handleStop = useCallback((id: string) => {
+  const handleStop = useCallback(async (id: string) => {
     setSchedules((prev) =>
       prev.map((s) =>
         s.id === id
@@ -237,6 +274,11 @@ export default function IrrigationClient() {
           : s
       )
     );
+    try {
+      await apiClient.stopIrrigationSchedule(id);
+    } catch {
+      // Optimistic update already applied
+    }
     showToast({ type: "success", message: "Irrigation completed", messageAr: "تم إكمال الري" });
   }, [showToast]);
 

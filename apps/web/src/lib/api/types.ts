@@ -315,6 +315,31 @@ export interface MaintenanceSchedule {
 // Irrigation Types
 // ═══════════════════════════════════════════════════════════════════════════
 
+export type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
+export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+
+export interface IrrigationSchedule {
+  id: string;
+  fieldId: string;
+  fieldName: string;
+  type: IrrigationType;
+  status: IrrigationStatus;
+  scheduledAt: string;
+  duration: number;
+  waterAmount: number;
+  completedAt?: string;
+  progress?: number;
+}
+
+export interface IrrigationScheduleCreate {
+  fieldId?: string;
+  fieldName: string;
+  type: IrrigationType;
+  scheduledAt: string;
+  duration: number;
+  waterAmount: number;
+}
+
 export interface IrrigationRecommendation {
   fieldId: string;
   recommendedAmount: number; // mm

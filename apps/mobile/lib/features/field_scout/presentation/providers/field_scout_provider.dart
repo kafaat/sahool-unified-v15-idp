@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/config/api_config.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -263,33 +264,44 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     if (state.currentSession == null) return;
 
     try {
-      // Use geolocator to get real GPS coordinates
-      // Import: import 'package:geolocator/geolocator.dart';
-      // final position = await Geolocator.getCurrentPosition(
-      //   desiredAccuracy: LocationAccuracy.high,
-      // );
-      // final newPoint = GeoPoint(
-      //   latitude: position.latitude,
-      //   longitude: position.longitude,
-      //   accuracy: position.accuracy,
-      //   timestamp: DateTime.now(),
-      // );
+      // Get real GPS position via geolocator
+      GeoPoint newPoint;
+      try {
+        final permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
+          // Try requesting permission once
+          if (permission == LocationPermission.denied) {
+            await Geolocator.requestPermission();
+          }
+        }
 
-      // TODO: Replace with Geolocator.getCurrentPosition() once geolocator
-      // permission flow is integrated. For now, skip recording if no real
-      // location is available.
-      final currentLocation = state.currentLocation;
-      if (currentLocation == null) {
-        AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
-        return;
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        newPoint = GeoPoint(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          accuracy: position.accuracy,
+          timestamp: DateTime.now(),
+        );
+      } catch (_) {
+        // Fall back to last known location
+        final currentLocation = state.currentLocation;
+        if (currentLocation == null) {
+          AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+          return;
+        }
+        newPoint = GeoPoint(
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          accuracy: currentLocation.accuracy,
+          timestamp: DateTime.now(),
+        );
       }
-
-      final newPoint = GeoPoint(
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        accuracy: currentLocation.accuracy,
-        timestamp: DateTime.now(),
-      );
 
       final updatedTrackPoints = [
         ...state.currentSession!.trackPoints,

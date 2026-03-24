@@ -23,6 +23,8 @@ import type {
   Sensor,
   SensorReading,
   IrrigationRecommendation,
+  IrrigationSchedule,
+  IrrigationScheduleCreate,
   ET0Calculation,
   FertilizerRecommendation,
   CropHealthAnalysis,
@@ -354,6 +356,42 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
   // Irrigation API
   // ═══════════════════════════════════════════════════════════════════════════
+
+  async getIrrigationSchedules() {
+    return this.request<IrrigationSchedule[]>("/api/v1/irrigation/schedules");
+  }
+
+  async createIrrigationSchedule(data: IrrigationScheduleCreate) {
+    return this.request<IrrigationSchedule>("/api/v1/irrigation/schedules", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateIrrigationSchedule(id: string, data: Partial<IrrigationScheduleCreate>) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteIrrigationSchedule(id: string) {
+    return this.request<void>(`/api/v1/irrigation/schedules/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  async startIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}/start`, {
+      method: "POST",
+    });
+  }
+
+  async stopIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}/stop`, {
+      method: "POST",
+    });
+  }
 
   async getIrrigationRecommendation(fieldId: string) {
     return this.request<IrrigationRecommendation>(

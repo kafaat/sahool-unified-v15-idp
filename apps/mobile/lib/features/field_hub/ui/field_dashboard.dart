@@ -4,6 +4,9 @@ import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../field/domain/entities/field.dart';
+import '../../tasks/domain/entities/task.dart';
+import '../../tasks/providers/tasks_provider.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 
 /// SAHOOL Field Dashboard - لوحة القيادة الزراعية
 /// تعرض المؤشرات الحيوية بأسلوب عدادات السيارة
@@ -625,8 +628,10 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
     );
   }
 
-  /// قسم المهام
+  /// قسم المهام - يعرض المهام من مزود المهام الحقيقي
   Widget _buildTasksSection() {
+    final tasksAsync = ref.watch(tasksProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -635,12 +640,67 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 12),
-        // TODO: Wire to task provider for real tasks
-        _buildTaskItem('ري حقل الذرة', 'اليوم 2:00 م', Icons.water_drop, false),
-        _buildTaskItem('فحص الآفات', 'غداً 8:00 ص', Icons.bug_report, false),
-        _buildTaskItem('تسميد القمح', 'تم', Icons.eco, true),
+        tasksAsync.when(
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          error: (_, __) => _buildTaskItem('فشل تحميل المهام', 'اسحب للتحديث', Icons.error_outline, false),
+          data: (tasks) {
+            if (tasks.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: SahoolColors.success.withValues(alpha: 0.05),
+                  borderRadius: SahoolRadius.mediumRadius,
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: SahoolColors.success),
+                    SizedBox(width: 12),
+                    Text('لا توجد مهام قادمة'),
+                  ],
+                ),
+              );
+            }
+            return Column(
+              children: tasks.take(5).map((task) {
+                final completed = task.status == TaskStatus.done;
+                return _buildTaskItem(
+                  task.title,
+                  completed ? 'تم' : _formatTaskTime(task.dueDate),
+                  _inferTaskIcon(task.title),
+                  completed,
+                );
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
+  }
+
+  /// Infer icon from task title keywords
+  IconData _inferTaskIcon(String title) {
+    final lower = title.toLowerCase();
+    if (lower.contains('ري') || lower.contains('irrigation') || lower.contains('water')) return Icons.water_drop;
+    if (lower.contains('آفة') || lower.contains('pest') || lower.contains('حشر')) return Icons.bug_report;
+    if (lower.contains('سماد') || lower.contains('تسميد') || lower.contains('fertiliz')) return Icons.eco;
+    if (lower.contains('حصاد') || lower.contains('harvest')) return Icons.agriculture;
+    if (lower.contains('فحص') || lower.contains('inspect')) return Icons.search;
+    return Icons.task_alt;
+  }
+
+  String _formatTaskTime(DateTime? date) {
+    if (date == null) return '';
+    final now = DateTime.now();
+    final diff = date.difference(now);
+    if (diff.isNegative) return 'متأخر';
+    if (diff.inDays == 0) return 'اليوم ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    if (diff.inDays == 1) return 'غداً ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    return '${date.day}/${date.month}';
   }
 
   Widget _buildTaskItem(String title, String time, IconData icon, bool completed) {
@@ -691,8 +751,11 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
     );
   }
 
-  /// توقعات الطقس
+  /// توقعات الطقس - يعرض بيانات حقيقية من خدمة الطقس
   Widget _buildWeatherForecast() {
+    final weatherState = ref.watch(weatherProvider);
+    final forecast = weatherState.data?.daily;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -708,20 +771,52 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
             borderRadius: SahoolRadius.largeRadius,
             boxShadow: SahoolShadows.small,
           ),
-          // TODO: Wire to weather service for real forecast data
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildWeatherDay('اليوم', Icons.wb_sunny, '--', '--'),
-              _buildWeatherDay('غداً', Icons.wb_cloudy, '--', '--'),
-              _buildWeatherDay('الأربعاء', Icons.grain, '--', '--'),
-              _buildWeatherDay('الخميس', Icons.wb_sunny, '--', '--'),
-              _buildWeatherDay('الجمعة', Icons.wb_sunny, '--', '--'),
-            ],
-          ),
+          child: weatherState.isLoading
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: forecast != null && forecast.isNotEmpty
+                      ? forecast.take(5).map((day) {
+                          return _buildWeatherDay(
+                            day.dayName,
+                            _getWeatherIcon(day.condition),
+                            '${day.tempMax.round()}°',
+                            '${day.tempMin.round()}°',
+                          );
+                        }).toList()
+                      : [
+                          _buildWeatherDay('اليوم', Icons.wb_sunny, '--', '--'),
+                          _buildWeatherDay('غداً', Icons.wb_cloudy, '--', '--'),
+                          _buildWeatherDay('بعد غد', Icons.wb_sunny, '--', '--'),
+                        ],
+                ),
         ),
       ],
     );
+  }
+
+  IconData _getWeatherIcon(String? condition) {
+    switch (condition?.toLowerCase()) {
+      case 'sunny':
+      case 'clear':
+        return Icons.wb_sunny;
+      case 'cloudy':
+      case 'partly_cloudy':
+        return Icons.wb_cloudy;
+      case 'rain':
+      case 'rainy':
+        return Icons.grain;
+      case 'storm':
+      case 'thunderstorm':
+        return Icons.thunderstorm;
+      default:
+        return Icons.wb_sunny;
+    }
   }
 
   Widget _buildWeatherDay(String day, IconData icon, String high, String low) {

@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/api_config.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/utils/app_logger.dart';
 
 /// AI Advisor Chat Screen - المستشار الذكي
 /// واجهة محادثة بسيطة مع دعم الصوت والكاميرا
@@ -16,6 +19,14 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
   final _scrollController = ScrollController();
   bool _isRecording = false;
   bool _isTyping = false;
+
+  /// Dio client for advisory-service
+  final Dio _advisoryDio = Dio(BaseOptions(
+    baseUrl: ApiConfig.effectiveBaseUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    receiveTimeout: ApiConfig.longOperationTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
 
   final List<_ChatMessage> _messages = [
     _ChatMessage(
@@ -47,7 +58,6 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
     _scrollToBottom();
 
-    // TODO: Wire to advisory-service POST /api/v1/advisory/chat
     _fetchAdvisorResponse(text);
   }
 
@@ -55,28 +65,47 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
   /// Falls back to offline message when API is unreachable.
   Future<void> _fetchAdvisorResponse(String query) async {
     try {
-      // TODO: Replace with actual API call:
-      // final response = await _apiClient.post('/api/v1/advisory/chat', data: {
-      //   'message': query,
-      //   'locale': 'ar',
-      // });
-      // final responseText = response.data['response'] as String;
+      final response = await _advisoryDio.post(
+        '/api/v1/advisory/chat',
+        data: {
+          'message': query,
+          'locale': 'ar',
+        },
+      );
 
-      // For now, show a "service unavailable" message instead of fake data
-      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
 
+      final responseData = response.data as Map<String, dynamic>;
+      final responseText = responseData['response'] as String? ??
+          responseData['answer'] as String? ??
+          'لم أتمكن من معالجة طلبك.';
+      final hasAction = responseData['has_action'] as bool? ?? false;
+
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: responseText,
+          isUser: false,
+          time: DateTime.now(),
+          hasAction: hasAction,
+        ));
+      });
+      _scrollToBottom();
+    } on DioException catch (e) {
+      AppLogger.w('Advisory API unavailable (${e.type.name}), showing offline message', tag: 'ADVISOR');
       if (!mounted) return;
       setState(() {
         _isTyping = false;
         _messages.add(_ChatMessage(
-          text: 'جاري الاتصال بخدمة المستشار الذكي...\n\n'
-              'الخدمة غير متاحة حالياً. يرجى المحاولة لاحقاً أو التحقق من الاتصال بالإنترنت.',
+          text: 'خدمة المستشار الذكي غير متاحة حالياً.\n'
+              'سيتم حفظ سؤالك وإرساله عند استعادة الاتصال.',
           isUser: false,
           time: DateTime.now(),
         ));
       });
       _scrollToBottom();
     } catch (e) {
+      AppLogger.e('Advisory chat error: $e', tag: 'ADVISOR');
       if (!mounted) return;
       setState(() {
         _isTyping = false;

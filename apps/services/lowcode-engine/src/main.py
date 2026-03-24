@@ -416,10 +416,11 @@ async def db_list_pages(
 
 async def db_update_page(
     page_id: str,
+    tenant_id: str,
     is_published: bool | None = None,
     updated_at: datetime | None = None,
 ) -> bool:
-    """Update a page in the database using safe parameterized queries."""
+    """Update a page in the database with tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return False
@@ -431,26 +432,29 @@ async def db_update_page(
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET is_published = $1, updated_at = $2
-                       WHERE id = $3""",
+                       WHERE id = $3 AND tenant_id = $4""",
                     is_published,
                     updated_at,
                     page_id,
+                    tenant_id,
                 )
             elif is_published is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET is_published = $1
-                       WHERE id = $2""",
+                       WHERE id = $2 AND tenant_id = $3""",
                     is_published,
                     page_id,
+                    tenant_id,
                 )
             elif updated_at is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET updated_at = $1
-                       WHERE id = $2""",
+                       WHERE id = $2 AND tenant_id = $3""",
                     updated_at,
                     page_id,
+                    tenant_id,
                 )
             # If no updates specified, nothing to do
         return True
@@ -1591,7 +1595,9 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
         p.updated_at = now
     else:
         # Update in database
-        db_updated = await db_update_page(page_id, is_published=True, updated_at=now)
+        db_updated = await db_update_page(
+            page_id, tenant_id=tenant_id or user.tenant_id, is_published=True, updated_at=now
+        )
         if db_updated:
             p.is_published = True
             p.updated_at = now

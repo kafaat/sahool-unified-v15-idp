@@ -37,8 +37,7 @@ void main() {
     test('copyWith should clear error', () {
       const state = FieldScoutState(error: 'some error');
       final copy = state.copyWith(error: null);
-      // Note: copyWith uses ?? so passing null keeps old value
-      // This tests the actual behavior
+      // Note: copyWith assigns error directly (not via ??), so passing null clears it
       expect(copy.error, isNull);
     });
   });

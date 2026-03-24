@@ -188,11 +188,16 @@ export default function IrrigationClient() {
     }
 
     try {
+      // Normalize datetime-local value to ISO 8601 with timezone
+      const scheduledAtISO = formData.scheduledAt
+        ? new Date(formData.scheduledAt).toISOString()
+        : new Date().toISOString();
+
       if (editingId) {
         const response = await apiClient.updateIrrigationSchedule(editingId, {
           fieldName: formData.fieldName,
           type: formData.type,
-          scheduledAt: formData.scheduledAt || new Date().toISOString(),
+          scheduledAt: scheduledAtISO,
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         });
@@ -203,7 +208,7 @@ export default function IrrigationClient() {
           setSchedules((prev) =>
             prev.map((s) =>
               s.id === editingId
-                ? { ...s, fieldName: formData.fieldName, type: formData.type, scheduledAt: formData.scheduledAt || s.scheduledAt, duration: formData.duration, waterAmount: formData.waterAmount }
+                ? { ...s, fieldName: formData.fieldName, type: formData.type, scheduledAt: scheduledAtISO, duration: formData.duration, waterAmount: formData.waterAmount }
                 : s
             )
           );
@@ -213,7 +218,7 @@ export default function IrrigationClient() {
         const payload = {
           fieldName: formData.fieldName,
           type: formData.type,
-          scheduledAt: formData.scheduledAt || new Date().toISOString(),
+          scheduledAt: scheduledAtISO,
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         };

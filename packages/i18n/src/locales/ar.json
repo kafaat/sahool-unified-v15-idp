@@ -206,7 +206,7 @@
   "irrigation": {
     "title": "إدارة الري",
     "schedule": "جدولة ري",
-    "newSchedule": "جدولة ري جديد",
+    "newSchedule": "جدولة ري جديدة",
     "editSchedule": "تعديل جدول الري",
     "deleteSchedule": "حذف جدول الري",
     "deleteConfirm": "هل أنت متأكد من حذف جدول الري؟",

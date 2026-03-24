@@ -69,6 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/map');
       }
     } on BiometricException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -111,6 +112,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
 
     setState(() {
       _isLoading = false;

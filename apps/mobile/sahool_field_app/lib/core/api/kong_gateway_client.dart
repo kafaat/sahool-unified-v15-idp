@@ -1108,6 +1108,9 @@ class KongGatewayClient {
             requestId: requestId);
       }
 
+      if (responseData == null) {
+        return ApiResponse(success: true, data: null, requestId: requestId);
+      }
       return ApiResponse.success(responseData as T, requestId: requestId);
     } on DioException catch (e) {
       _recordFailure(service.name);

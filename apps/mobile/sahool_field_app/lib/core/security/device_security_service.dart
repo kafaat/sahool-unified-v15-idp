@@ -521,9 +521,6 @@ class DeviceSecurityService {
   /// تفعيل تجاوز الأمان (للتطوير/الاختبار فقط)
   Future<void> enableSecurityBypass({required String reason}) async {
     if (kReleaseMode) {
-      if (kDebugMode) {
-        debugPrint('❌ Cannot enable security bypass in release mode');
-      }
       return;
     }
 

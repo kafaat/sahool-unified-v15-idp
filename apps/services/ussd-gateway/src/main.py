@@ -551,8 +551,21 @@ async def whatsapp_webhook(request: Request):
     """
     body = await request.body()
     if len(body) > 1_048_576:  # 1 MB limit
-        return {"status": "error", "message": "Payload too large"}
-    data = json.loads(body)
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=413,
+            content={"status": "error", "message": "Payload too large"},
+        )
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": "Invalid JSON payload"},
+        )
 
     # Handle different webhook types
     if "messages" in data:

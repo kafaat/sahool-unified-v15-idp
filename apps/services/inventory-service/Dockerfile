@@ -20,10 +20,10 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip || true
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/inventory-service/requirements.txt .

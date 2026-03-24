@@ -119,6 +119,9 @@ RUN --mount=type=cache,target=/root/.npm \
         npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
     fi
 
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps 2>/dev/null || true
+
 # Copy generated Prisma client from builder
 # Schema uses output = "./generated/client" so the actual client is at prisma/generated/client/
 # Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime

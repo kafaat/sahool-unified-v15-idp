@@ -96,6 +96,9 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps 2>/dev/null || true
+
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/research-core/prisma ./prisma/
 

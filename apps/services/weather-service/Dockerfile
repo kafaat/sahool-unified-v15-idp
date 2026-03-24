@@ -36,12 +36,13 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip and build tools with multi-mirror fallback
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -96,6 +97,14 @@ COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
 # Set virtual environment path
 ENV VIRTUAL_ENV=/home/sahool/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Strip build tools from production venv (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null; \
+    rm -rf /home/sahool/venv/lib/python*/site-packages/pip* \
+           /home/sahool/venv/lib/python*/site-packages/setuptools* \
+           /home/sahool/venv/lib/python*/site-packages/wheel* \
+           /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null; true
 
 # Copy shared modules
 COPY --chown=sahool:sahool shared/ /app/shared/

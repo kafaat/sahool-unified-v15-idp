@@ -26,14 +26,16 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install system dependencies (tini for proper PID 1 signal handling)
+# Install system dependencies and upgrade packages to patch CVEs (tini for proper PID 1 signal handling)
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
+    apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends \
         curl \
         ca-certificates \
         tini \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Configure npm registry mirror for network resilience
 RUN npm config set registry https://registry.npmmirror.com
@@ -73,6 +75,12 @@ FROM base AS production
 
 # Copy node_modules from dependencies stage
 COPY --from=dependencies /app/node_modules ./node_modules
+
+# Copy package files for npm audit
+COPY --from=dependencies /app/package*.json ./
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev 2>/dev/null || true
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist

@@ -18,13 +18,13 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/billing-core/requirements.txt .
@@ -71,6 +71,15 @@ RUN groupadd --system --gid 1000 sahool && \
 # Copy installed Python packages from builder
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
+
+# Strip build tools from production image (reduces attack surface and CVE footprint)
+RUN rm -rf /home/sahool/.local/lib/python*/site-packages/pip* \
+           /home/sahool/.local/lib/python*/site-packages/setuptools* \
+           /home/sahool/.local/lib/python*/site-packages/wheel* \
+           /home/sahool/.local/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/.local/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/.local/bin/pip* \
+           /home/sahool/.local/bin/wheel* 2>/dev/null; true
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY --chown=sahool:sahool shared/ ./shared/

@@ -40,8 +40,10 @@ class JWTConfigError(Exception):
 def _resolve_jwt_secret() -> str:
     """Resolve JWT secret from environment with security-safe fallback.
 
-    - production/staging: MUST have JWT_SECRET_KEY set, raises RuntimeError otherwise
-    - development/test: generates a random per-process secret and warns loudly
+    - production/staging: returns empty string so validate() can report the error
+      via JWTConfigError (not a crash at import time)
+    - development/test: generates a random per-process secret to prevent using
+      a known hardcoded constant that would allow token forgery
     """
     value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
     if value:
@@ -49,10 +51,13 @@ def _resolve_jwt_secret() -> str:
 
     env = os.getenv("ENVIRONMENT", "development")
     if env in ("production", "staging"):
-        raise RuntimeError(
-            "JWT_SECRET_KEY must be set in production/staging environments. "
-            "An empty or missing secret allows token forgery."
+        # Return empty string - validate() will catch this and raise JWTConfigError
+        # with actionable details. Crashing at import time prevents diagnostics.
+        logger.error(
+            "SECURITY: JWT_SECRET_KEY is not set in %s environment. "
+            "Service will reject all auth until configured.", env
         )
+        return ""
 
     # Generate a random per-process secret for dev/test - NOT a hardcoded constant
     fallback = secrets.token_hex(32)

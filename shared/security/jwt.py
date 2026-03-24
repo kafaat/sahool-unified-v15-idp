@@ -33,13 +33,20 @@ logger = logging.getLogger(__name__)
 
 
 def _get_required_env(key: str, default: str | None = None) -> str:
-    """Get required environment variable, raise error if missing in production/staging.
-    In development/test, generates a random per-process fallback for JWT secrets."""
+    """Get required environment variable.
+
+    In production/staging: returns empty string for JWT secrets so that
+    validate_jwt_configuration() can report the error properly.
+    In development/test: generates a random per-process fallback for JWT secrets.
+    """
     value = os.getenv(key, default)
     env = os.getenv("ENVIRONMENT", "development")
 
     if not value and env in ("production", "staging"):
-        raise RuntimeError(f"Required environment variable {key} is not set")
+        # Return empty string instead of raising - let validate_jwt_configuration()
+        # handle the error with proper JWTConfigError reporting.
+        logger.error(f"SECURITY: {key} is not set in {env} environment")
+        return ""
 
     if not value:
         # SECURITY FIX: Never use a hardcoded fallback - it enables token forgery

@@ -27,7 +27,7 @@ class ProfitabilityDashboardScreen extends ConsumerStatefulWidget {
 
 class _ProfitabilityDashboardScreenState
     extends ConsumerState<ProfitabilityDashboardScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
 
   @override
   void initState() {

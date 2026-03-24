@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../data/alerts_repository.dart';
+import '../domain/alert_models.dart';
 
 /// Alerts Screen - شاشة التنبيهات
 class AlertsScreen extends ConsumerStatefulWidget {
@@ -385,16 +386,4 @@ class _AlertCard extends StatelessWidget {
     if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
     return 'منذ ${diff.inDays} يوم';
   }
-}
-
-enum AlertType {
-  info(Icons.info, SahoolColors.info),
-  warning(Icons.warning_amber, SahoolColors.warning),
-  danger(Icons.error, SahoolColors.danger),
-  success(Icons.check_circle, SahoolColors.success);
-
-  final IconData icon;
-  final Color color;
-
-  const AlertType(this.icon, this.color);
 }

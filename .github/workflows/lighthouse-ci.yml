@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -139,7 +139,7 @@ jobs:
           kill $SERVER_PID || true
 
       - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: steps.flutter-build.outcome == 'success'
         with:
           name: lighthouse-flutter-web-results

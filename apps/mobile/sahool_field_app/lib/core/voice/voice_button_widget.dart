@@ -12,7 +12,7 @@ import 'voice_command_service.dart';
 
 class VoiceButtonWidget extends ConsumerStatefulWidget {
   final VoidCallback? onCommandReceived;
-  final Function(VoiceCommand)? onCommand;
+  final void Function(VoiceCommand)? onCommand;
   final double size;
   final Color? activeColor;
   final Color? inactiveColor;
@@ -176,7 +176,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
   }
 
   void _showHelp(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const VoiceHelpSheet(),
@@ -186,7 +186,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
 
 /// Floating Voice Button
 class FloatingVoiceButton extends ConsumerWidget {
-  final Function(VoiceCommand)? onCommand;
+  final void Function(VoiceCommand)? onCommand;
 
   const FloatingVoiceButton({
     super.key,

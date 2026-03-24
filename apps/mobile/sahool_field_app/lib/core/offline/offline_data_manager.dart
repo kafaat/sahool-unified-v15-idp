@@ -129,7 +129,7 @@ class OfflineDataManager {
     _startPeriodicSync();
 
     // تحديث عداد التغييرات المعلقة
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// حفظ بيانات محلياً
@@ -159,10 +159,10 @@ class OfflineDataManager {
     }
 
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
 
     // محاولة المزامنة الفورية إذا متصل
-    _trySyncNow();
+    unawaited(_trySyncNow());
   }
 
   /// الحصول على البيانات المحلية
@@ -200,7 +200,7 @@ class OfflineDataManager {
       (item) => item.id == id && item.entityType == entityType,
     );
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// تحديث حالة عنصر
@@ -222,7 +222,7 @@ class OfflineDataManager {
         syncedAt: status == LocalDataStatus.synced ? DateTime.now() : null,
       );
       await _saveLocalItems(items);
-      _updatePendingCount();
+      await _updatePendingCount();
     }
   }
 
@@ -323,7 +323,7 @@ class OfflineDataManager {
     final isOnline = connectivityResults.isNotEmpty &&
         !connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOnline && !_isSyncing) {
-      syncNow();
+      unawaited(syncNow());
     }
   }
 

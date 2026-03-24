@@ -118,7 +118,7 @@ class SahoolCachedTileImage extends ImageProvider<SahoolCachedTileImage> {
 
       // 4. حفظ الملف للمستقبل (Caching)
       // نحفظ بشكل غير متزامن لتجنب التأخير
-      file.writeAsBytes(bytes).catchError((e) {
+      file.writeAsBytes(bytes).then((_) {}, onError: (Object e) {
         debugPrint('Failed to cache tile: $e');
       });
 

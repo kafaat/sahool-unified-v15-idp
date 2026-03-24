@@ -29,5 +29,5 @@ class ColorMapper {
 
   /// إنشاء WeatherColor من Flutter Color
   static WeatherColor toWeather(Color flutterColor) =>
-      WeatherColor(flutterColor.value);
+      WeatherColor(flutterColor.toARGB32());
 }

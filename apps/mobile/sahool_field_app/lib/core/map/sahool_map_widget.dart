@@ -166,8 +166,8 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
             onPositionChanged: (position, hasGesture) {
               if (hasGesture && widget.onMapMoved != null) {
                 widget.onMapMoved!(
-                  position.center ?? center,
-                  position.zoom ?? widget.initialZoom,
+                  position.center,
+                  position.zoom,
                 );
               }
             },

@@ -390,12 +390,6 @@ class SkillClient {
     }
 
     try {
-      final payload = {
-        ...request.toJson(),
-        'request_id': requestId,
-        'stream': true,
-      };
-
       // For now, execute as single request and yield response
       // In production, implement actual streaming via WebSocket or Server-Sent Events
       final response = await executeSkill(request, timeout: executionTimeout);

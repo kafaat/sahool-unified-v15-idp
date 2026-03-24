@@ -267,27 +267,42 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
       // Get real GPS position via geolocator
       GeoPoint newPoint;
       try {
-        final permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          // Try requesting permission once
-          if (permission == LocationPermission.denied) {
-            await Geolocator.requestPermission();
-          }
+        LocationPermission effectivePermission = await Geolocator.checkPermission();
+        if (effectivePermission == LocationPermission.denied) {
+          effectivePermission = await Geolocator.requestPermission();
         }
 
-        final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 5),
-          ),
-        );
-        newPoint = GeoPoint(
-          latitude: position.latitude,
-          longitude: position.longitude,
-          accuracy: position.accuracy,
-          timestamp: DateTime.now(),
-        );
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+        if (effectivePermission == LocationPermission.deniedForever ||
+            !serviceEnabled) {
+          // Permission permanently denied or services disabled: fall back without
+          // attempting to query the current position to avoid noisy failures.
+          final currentLocation = state.currentLocation;
+          if (currentLocation == null) {
+            AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+            return;
+          }
+          newPoint = GeoPoint(
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            accuracy: currentLocation.accuracy,
+            timestamp: DateTime.now(),
+          );
+        } else {
+          final position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 5),
+            ),
+          );
+          newPoint = GeoPoint(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            accuracy: position.accuracy,
+            timestamp: DateTime.now(),
+          );
+        }
       } catch (_) {
         // Fall back to last known location
         final currentLocation = state.currentLocation;

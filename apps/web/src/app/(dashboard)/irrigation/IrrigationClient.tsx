@@ -23,6 +23,7 @@ import type {
   IrrigationScheduleType,
   IrrigationFrequency,
   IrrigationScheduleCreate,
+  Field,
 } from "@/lib/api/types";
 
 const initialMockSchedules: IrrigationSchedule[] = [
@@ -135,7 +136,23 @@ export default function IrrigationClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<IrrigationSchedule | null>(null);
+  const [fields, setFields] = useState<Field[]>([]);
   const { showToast } = useToast();
+
+  // Load available fields for the field selector
+  useEffect(() => {
+    async function loadFields() {
+      try {
+        const response = await apiClient.getFields("default", { limit: 200 });
+        if (response.success && response.data) {
+          setFields(response.data);
+        }
+      } catch {
+        // Fields will remain empty; the selector will show no options
+      }
+    }
+    loadFields();
+  }, []);
 
   // Load schedules from API on mount
   useEffect(() => {
@@ -578,11 +595,9 @@ export default function IrrigationClient() {
                     required
                   >
                     <option value="">اختر الحقل...</option>
-                    {Array.from(new Map(schedules.map((s) => [s.fieldId, s.fieldName || s.fieldId])).entries()).map(
-                      ([id, name]) => (
-                        <option key={id} value={id}>{name}</option>
-                      )
-                    )}
+                    {fields.map((f) => (
+                      <option key={f.id} value={f.id}>{f.name_ar || f.name}</option>
+                    ))}
                   </select>
                 </div>
               )}

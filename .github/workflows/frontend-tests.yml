@@ -1191,10 +1191,11 @@ jobs:
           sudo modprobe kvm 2>/dev/null || true
           sudo modprobe kvm_intel 2>/dev/null || sudo modprobe kvm_amd 2>/dev/null || true
           # Set permissions on /dev/kvm
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo usermod -aG kvm $(whoami) 2>/dev/null || true
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-          sudo chmod 666 /dev/kvm 2>/dev/null || true
+          sudo chmod 660 /dev/kvm 2>/dev/null || true
           # Verify KVM is available — without it the emulator is extremely slow
           if [ -e /dev/kvm ] && [ -w /dev/kvm ]; then
             echo "kvm_available=true" >> $GITHUB_OUTPUT

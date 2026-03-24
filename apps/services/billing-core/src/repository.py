@@ -343,9 +343,12 @@ class SubscriptionRepository:
 
         return subscription
 
-    async def get_by_id(self, subscription_id: uuid.UUID) -> Subscription | None:
-        """Get subscription by ID - الحصول على اشتراك بواسطة المعرف"""
-        result = await self.db.execute(select(Subscription).where(Subscription.id == subscription_id))
+    async def get_by_id(self, subscription_id: uuid.UUID, tenant_id: str | None = None) -> Subscription | None:
+        """Get subscription by ID with optional tenant isolation - الحصول على اشتراك بواسطة المعرف"""
+        query = select(Subscription).where(Subscription.id == subscription_id)
+        if tenant_id is not None:
+            query = query.where(Subscription.tenant_id == tenant_id)
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
     async def get_by_tenant(
@@ -521,9 +524,12 @@ class InvoiceRepository:
         self,
         invoice_id: uuid.UUID,
         include_payments: bool = False,
+        tenant_id: str | None = None,
     ) -> Invoice | None:
-        """Get invoice by ID - الحصول على فاتورة بواسطة المعرف"""
+        """Get invoice by ID with optional tenant isolation - الحصول على فاتورة بواسطة المعرف"""
         query = select(Invoice).where(Invoice.id == invoice_id)
+        if tenant_id is not None:
+            query = query.where(Invoice.tenant_id == tenant_id)
 
         if include_payments:
             query = query.options(selectinload(Invoice.payments))
@@ -531,9 +537,12 @@ class InvoiceRepository:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_by_invoice_number(self, invoice_number: str) -> Invoice | None:
-        """Get invoice by invoice number - الحصول على فاتورة بواسطة رقم الفاتورة"""
-        result = await self.db.execute(select(Invoice).where(Invoice.invoice_number == invoice_number))
+    async def get_by_invoice_number(self, invoice_number: str, tenant_id: str | None = None) -> Invoice | None:
+        """Get invoice by invoice number with optional tenant isolation - الحصول على فاتورة بواسطة رقم الفاتورة"""
+        query = select(Invoice).where(Invoice.invoice_number == invoice_number)
+        if tenant_id is not None:
+            query = query.where(Invoice.tenant_id == tenant_id)
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
     async def list_by_tenant(
@@ -696,9 +705,12 @@ class PaymentRepository:
 
         return payment
 
-    async def get_by_id(self, payment_id: uuid.UUID) -> Payment | None:
-        """Get payment by ID - الحصول على دفعة بواسطة المعرف"""
-        result = await self.db.execute(select(Payment).where(Payment.id == payment_id))
+    async def get_by_id(self, payment_id: uuid.UUID, tenant_id: str | None = None) -> Payment | None:
+        """Get payment by ID with optional tenant isolation - الحصول على دفعة بواسطة المعرف"""
+        query = select(Payment).where(Payment.id == payment_id)
+        if tenant_id is not None:
+            query = query.where(Payment.tenant_id == tenant_id)
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
     async def list_by_invoice(
@@ -842,9 +854,12 @@ class UsageRecordRepository:
 
         return record
 
-    async def get_by_id(self, record_id: uuid.UUID) -> UsageRecord | None:
-        """Get usage record by ID - الحصول على سجل استخدام بواسطة المعرف"""
-        result = await self.db.execute(select(UsageRecord).where(UsageRecord.id == record_id))
+    async def get_by_id(self, record_id: uuid.UUID, tenant_id: str | None = None) -> UsageRecord | None:
+        """Get usage record by ID with optional tenant isolation - الحصول على سجل استخدام بواسطة المعرف"""
+        query = select(UsageRecord).where(UsageRecord.id == record_id)
+        if tenant_id is not None:
+            query = query.where(UsageRecord.tenant_id == tenant_id)
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
     async def list_by_subscription(

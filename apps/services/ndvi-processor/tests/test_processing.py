@@ -220,11 +220,12 @@ class TestJobManagement:
     def test_cancel_nonexistent_job_fails(self):
         assert cancel_job("nope") is False
 
-    def test_list_jobs_all(self):
+    def test_list_jobs_by_tenant(self):
         create_job("t1", "f1", "ndvi", {})
         create_job("t2", "f2", "ndvi", {})
-        jobs = list_jobs()
-        assert len(jobs) == 2
+        jobs = list_jobs(tenant_id="t1")
+        assert len(jobs) == 1
+        assert jobs[0]["tenant_id"] == "t1"
 
     def test_list_jobs_filter_tenant(self):
         create_job("t1", "f1", "ndvi", {})
@@ -236,14 +237,14 @@ class TestJobManagement:
     def test_list_jobs_filter_field(self):
         create_job("t1", "f1", "ndvi", {})
         create_job("t1", "f2", "ndvi", {})
-        jobs = list_jobs(field_id="f2")
+        jobs = list_jobs(tenant_id="t1", field_id="f2")
         assert len(jobs) == 1
 
     def test_list_jobs_filter_status(self):
         j1 = create_job("t1", "f1", "ndvi", {})
         create_job("t1", "f2", "ndvi", {})
         update_job_status(j1, JobStatus.COMPLETED)
-        jobs = list_jobs(status="completed")
+        jobs = list_jobs(tenant_id="t1", status="completed")
         assert len(jobs) == 1
 
 

@@ -42,8 +42,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
 
-  /// Active spectral index for overlay coloring
-  SpectralIndex _activeSpectralIndex = SpectralIndex.ndvi;
+  /// Compute the active spectral index from the selected layer
+  SpectralIndex get _activeSpectralIndex {
+    switch (_selectedLayerIndex) {
+      case 3:
+        return SpectralIndex.ndwi;
+      case 4:
+        return SpectralIndex.evi;
+      case 5:
+        return SpectralIndex.savi;
+      default:
+        return SpectralIndex.ndvi;
+    }
+  }
 
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
@@ -210,14 +221,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       case 5: // SAVI
         // Use satellite imagery as base for spectral overlays
         tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        _activeSpectralIndex = const [
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndwi,
-          SpectralIndex.evi,
-          SpectralIndex.savi,
-        ][_selectedLayerIndex];
         break;
       default: // Map
         tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';

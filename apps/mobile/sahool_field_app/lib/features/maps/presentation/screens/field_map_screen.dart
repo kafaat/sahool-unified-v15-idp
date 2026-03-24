@@ -619,11 +619,36 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  /// Whether the map controller is attached to a live FlutterMap widget.
+  ///
+  /// The current build uses a placeholder view instead of FlutterMap,
+  /// so the controller is not attached and its methods must not be called.
+  bool get _isMapControllerAttached {
+    try {
+      // Accessing camera throws if the controller is not attached
+      _mapController.camera;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Center map on field bounds with padding and smooth animation
   ///
   /// Calculates the bounding box of the field geometry and uses
   /// the map controller to fit the bounds with appropriate padding.
   void _centerOnField() {
+    // Guard: controller must be attached to a FlutterMap widget
+    if (!_isMapControllerAttached) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الخريطة غير جاهزة بعد'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     // Check if we have field boundary data
     if (_fieldBoundary.isEmpty) {
       // Try to use initialCenter as fallback

@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/stores/auth.store";
 import { apiClient } from "@/lib/api/client";
 import type {
   IrrigationSchedule,
@@ -138,13 +139,16 @@ export default function IrrigationClient() {
   const [deleteTarget, setDeleteTarget] = useState<IrrigationSchedule | null>(null);
   const [fields, setFields] = useState<Field[]>([]);
   const { showToast } = useToast();
+  const { user } = useAuth();
+  const tenantId = user?.tenant_id ?? "default";
 
   // Load available fields for the field selector
   useEffect(() => {
+    let cancelled = false;
     async function loadFields() {
       try {
-        const response = await apiClient.getFields("default", { limit: 200 });
-        if (response.success && response.data) {
+        const response = await apiClient.getFields(tenantId, { limit: 200 });
+        if (!cancelled && response.success && response.data) {
           setFields(response.data);
         }
       } catch {
@@ -152,14 +156,16 @@ export default function IrrigationClient() {
       }
     }
     loadFields();
-  }, []);
+    return () => { cancelled = true; };
+  }, [tenantId]);
 
   // Load schedules from API on mount
   useEffect(() => {
+    let cancelled = false;
     async function loadSchedules() {
       try {
         const response = await apiClient.getIrrigationSchedules();
-        if (response.success && response.data) {
+        if (!cancelled && response.success && response.data) {
           setSchedules(response.data);
         }
       } catch {
@@ -167,6 +173,7 @@ export default function IrrigationClient() {
       }
     }
     loadSchedules();
+    return () => { cancelled = true; };
   }, []);
 
   const filteredSchedules = useMemo(() => {
@@ -207,7 +214,7 @@ export default function IrrigationClient() {
     });
   };
 
-  const totalWaterToday = schedules
+  const totalPlannedWater = schedules
     .filter((s) => s.status !== "completed")
     .reduce((sum, s) => sum + s.waterAmount, 0);
 
@@ -257,10 +264,14 @@ export default function IrrigationClient() {
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         });
-        if (response.success && response.data) {
+        if (!response.success) {
+          showToast({ type: "error", message: response.error || "Failed to update schedule", messageAr: "فشل تحديث الجدول" });
+          return;
+        }
+        if (response.data) {
           setSchedules((prev) => prev.map((s) => (s.id === editingId ? response.data! : s)));
         } else {
-          // Optimistic update if API returns no data
+          // Server confirmed success but returned no data - apply local update
           setSchedules((prev) =>
             prev.map((s) =>
               s.id === editingId
@@ -322,7 +333,10 @@ export default function IrrigationClient() {
       prev.map((s) => (s.id === id ? { ...s, status: "active" as IrrigationStatus } : s))
     );
     try {
-      await apiClient.startIrrigationSchedule(id);
+      const response = await apiClient.startIrrigationSchedule(id);
+      if (response.success && response.data) {
+        setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+      }
       showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
     } catch {
       if (previous) {
@@ -344,7 +358,10 @@ export default function IrrigationClient() {
       )
     );
     try {
-      await apiClient.stopIrrigationSchedule(id);
+      const response = await apiClient.stopIrrigationSchedule(id);
+      if (response.success && response.data) {
+        setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+      }
       showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
     } catch {
       if (previous) {
@@ -393,8 +410,8 @@ export default function IrrigationClient() {
               <Droplets className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">استهلاك اليوم</div>
-              <div className="text-xl font-bold text-blue-600">{totalWaterToday.toLocaleString()} م³</div>
+              <div className="text-sm text-gray-500">إجمالي الري المخطط</div>
+              <div className="text-xl font-bold text-blue-600">{totalPlannedWater.toLocaleString()} م³</div>
             </div>
           </div>
         </div>

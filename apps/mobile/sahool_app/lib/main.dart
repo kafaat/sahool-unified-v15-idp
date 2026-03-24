@@ -192,6 +192,8 @@ void main() async {
                 onContinueAnyway: shouldBlock
                     ? null
                     : () {
+                        // Guard against double-tap triggering multiple initializations
+                        if (_securityBypassRestart) return;
                         // User chose to continue anyway
                         AppLogger.w('User bypassed security warning',
                             tag: 'Security');

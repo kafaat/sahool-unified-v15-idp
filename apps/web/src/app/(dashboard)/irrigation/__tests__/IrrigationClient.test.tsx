@@ -5,6 +5,7 @@ import IrrigationClient from "../IrrigationClient";
 // Mock the API client
 vi.mock("@/lib/api/client", () => ({
   apiClient: {
+    getFields: vi.fn().mockResolvedValue({ success: true, data: [] }),
     getIrrigationSchedules: vi.fn().mockResolvedValue({ success: false }),
     createIrrigationSchedule: vi.fn().mockResolvedValue({ success: true, data: { id: "new-1", fieldId: "field-new", name: "ري جديد", type: "scheduled", status: "active", startDate: new Date().toISOString(), frequency: "daily", duration: 60, waterAmount: 100, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } }),
     updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
@@ -21,6 +22,13 @@ vi.mock("@/components/ui/toast", () => ({
   }),
 }));
 
+// Mock the auth store
+vi.mock("@/stores/auth.store", () => ({
+  useAuth: () => ({
+    user: { id: "test-user", tenant_id: "test-tenant-id" },
+  }),
+}));
+
 describe("IrrigationClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,7 +41,7 @@ describe("IrrigationClient", () => {
 
   it("should display stat cards", () => {
     render(<IrrigationClient />);
-    expect(screen.getByText("استهلاك اليوم")).toBeInTheDocument();
+    expect(screen.getByText("إجمالي الري المخطط")).toBeInTheDocument();
     expect(screen.getByText("نشط الآن")).toBeInTheDocument();
     expect(screen.getAllByText("متوقف").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("كفاءة الري")).toBeInTheDocument();

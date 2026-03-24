@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/utils/input_validator.dart';
 import '../services/otp_service.dart' as otp_svc;
+import '../services/otp_service.dart' show OTPChannel;
 import 'otp_verification_screen.dart';
 
 /// SAHOOL Forgot Password Screen

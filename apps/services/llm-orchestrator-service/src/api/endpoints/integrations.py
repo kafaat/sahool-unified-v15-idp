@@ -191,7 +191,7 @@ async def process_nlp(request: NLPRequest, _user=Depends(get_current_user)) -> N
 
 
 @router.get("/nlp/intent/{text}")
-async def classify_intent(text: str) -> dict[str, Any]:
+async def classify_intent(text: str, _user=Depends(get_current_user)) -> dict[str, Any]:
     """
     Classify the intent of a query.
     تصنيف نية الاستعلام
@@ -211,7 +211,7 @@ async def classify_intent(text: str) -> dict[str, Any]:
 
 
 @router.post("/satellite/ndvi")
-async def get_ndvi(request: NDVIRequest) -> dict[str, Any]:
+async def get_ndvi(request: NDVIRequest, _user=Depends(get_current_user)) -> dict[str, Any]:
     """
     Get NDVI for a field using Sentinel-2.
     الحصول على NDVI لحقل باستخدام Sentinel-2
@@ -237,7 +237,7 @@ async def get_ndvi(request: NDVIRequest) -> dict[str, Any]:
 
 
 @router.post("/satellite/crop-health", response_model=CropHealthResponse)
-async def analyze_crop_health(request: NDVIRequest) -> CropHealthResponse:
+async def analyze_crop_health(request: NDVIRequest, _user=Depends(get_current_user)) -> CropHealthResponse:
     """
     Comprehensive crop health analysis.
     تحليل شامل لصحة المحصول
@@ -329,7 +329,7 @@ async def get_recommended_datasets(region: str = "middle_east") -> dict[str, Any
 
 
 @router.post("/crew/query", response_model=CrewQueryResponse)
-async def query_crew(request: CrewQueryRequest) -> CrewQueryResponse:
+async def query_crew(request: CrewQueryRequest, _user=Depends(get_current_user)) -> CrewQueryResponse:
     """
     Query the agricultural AI crew (CrewAI).
     استعلام طاقم الذكاء الاصطناعي الزراعي

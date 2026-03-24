@@ -5,8 +5,11 @@ Manages low stock alerts, expiry warnings, and notifications
 
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .alert_manager import (
     AlertManager,
@@ -148,7 +151,7 @@ async def get_alerts(
         raise HTTPException(status_code=400, detail=str(e)) from e
     except RuntimeError as e:
         logger.error(f"Runtime error getting alerts: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error getting alerts: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -167,7 +170,7 @@ async def get_alert(alert_id: str):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error getting alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error getting alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -181,14 +184,14 @@ async def get_alerts_summary():
         return await manager.get_alert_summary()
     except RuntimeError as e:
         logger.error(f"Runtime error getting alert summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error getting alert summary: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/acknowledge")
-async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest):
+async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest, _user: User = Depends(get_current_user)):
     """Acknowledge an alert"""
     try:
         manager = get_alert_manager()
@@ -202,14 +205,14 @@ async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error acknowledging alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error acknowledging alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/resolve")
-async def resolve_alert(alert_id: str, data: ResolveAlertRequest):
+async def resolve_alert(alert_id: str, data: ResolveAlertRequest, _user: User = Depends(get_current_user)):
     """Resolve an alert"""
     try:
         manager = get_alert_manager()
@@ -223,14 +226,14 @@ async def resolve_alert(alert_id: str, data: ResolveAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error resolving alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error resolving alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/snooze")
-async def snooze_alert(alert_id: str, data: SnoozeAlertRequest):
+async def snooze_alert(alert_id: str, data: SnoozeAlertRequest, _user: User = Depends(get_current_user)):
     """Snooze an alert"""
     try:
         manager = get_alert_manager()
@@ -244,14 +247,14 @@ async def snooze_alert(alert_id: str, data: SnoozeAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error snoozing alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     except Exception as e:
         logger.error(f"Unexpected error snoozing alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/check-now")
-async def check_alerts_now(background_tasks: BackgroundTasks):
+async def check_alerts_now(background_tasks: BackgroundTasks, _user: User = Depends(get_current_user)):
     """Trigger immediate alert check"""
 
     async def run_check():
@@ -286,8 +289,9 @@ async def get_alert_settings(tenant_id: str = "tenant_demo"):
 
 
 @router.put("/settings")
-async def update_alert_settings(data: AlertSettingsModel, tenant_id: str = "tenant_demo"):
+async def update_alert_settings(data: AlertSettingsModel, _user: User = Depends(get_current_user)):
     """Update alert settings"""
     settings = data.model_dump()
+    tenant_id = getattr(_user, "tenant_id", "default")
     settings_db[tenant_id] = settings
     return settings

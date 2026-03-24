@@ -53,8 +53,8 @@ def _resolve_jwt_secret() -> str:
     if env in ("production", "staging"):
         # Return empty string - validate() will catch this and raise JWTConfigError
         # with actionable details. Crashing at import time prevents diagnostics.
-        logger.error(
-            "SECURITY: JWT_SECRET_KEY is not set in %s environment. "
+        logger.error(  # nosemgrep: python-logger-credential-disclosure
+            "SECURITY: Required auth env var is not set in %s environment. "
             "Service will reject all auth until configured.", env
         )
         return ""

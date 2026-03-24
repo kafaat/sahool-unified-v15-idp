@@ -158,25 +158,6 @@ async def get_alerts(
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-@router.get("/{alert_id}", response_model=InventoryAlertResponse)
-async def get_alert(alert_id: str, _user: User = Depends(get_current_user)):
-    """Get specific alert by ID"""
-    try:
-        manager = get_alert_manager()
-        alert = manager.alerts_db.get(alert_id)
-        if not alert:
-            raise HTTPException(status_code=404, detail="Alert not found")
-        return alert.to_dict()
-    except HTTPException:
-        raise
-    except RuntimeError as e:
-        logger.error(f"Runtime error getting alert: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error") from e
-    except Exception as e:
-        logger.error(f"Unexpected error getting alert: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error") from e
-
-
 @router.get("/summary")
 async def get_alerts_summary(_user: User = Depends(get_current_user)):
     """Get alert summary statistics"""
@@ -301,3 +282,22 @@ async def update_alert_settings(data: AlertSettingsModel, _user: User = Depends(
         raise HTTPException(status_code=403, detail="Tenant context required")
     settings_db[tenant_id] = settings
     return settings
+
+
+@router.get("/{alert_id}", response_model=InventoryAlertResponse)
+async def get_alert(alert_id: str, _user: User = Depends(get_current_user)):
+    """Get specific alert by ID"""
+    try:
+        manager = get_alert_manager()
+        alert = manager.alerts_db.get(alert_id)
+        if not alert:
+            raise HTTPException(status_code=404, detail="Alert not found")
+        return alert.to_dict()
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error getting alert: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
+    except Exception as e:
+        logger.error(f"Unexpected error getting alert: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error") from e

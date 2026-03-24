@@ -703,7 +703,7 @@ async def ingest_batch(batch: SensorReadingBatch):
                     ).encode(),
                 )
             except Exception as e:
-                logger.error(f"Failed to publish event: {e}")
+                logger.error(f"Failed to publish event: {e}", exc_info=True)
 
     accepted = sum(1 for r in results if r["status"] == "accepted")
     rejected = len(results) - accepted

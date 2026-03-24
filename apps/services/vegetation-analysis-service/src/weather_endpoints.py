@@ -58,7 +58,7 @@ def register_weather_endpoints(app):
             forecast = await weather_service.get_forecast(lat, lon, days)
             return forecast.to_dict()
         except Exception as e:
-            logger.error(f"Failed to get forecast: {e}")
+            logger.error(f"Failed to get forecast: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/weather/historical")
@@ -103,7 +103,7 @@ def register_weather_endpoints(app):
             logger.warning(f"Invalid date format: {e}")
             raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
-            logger.error(f"Failed to get historical weather: {e}")
+            logger.error(f"Failed to get historical weather: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/weather/gdd")
@@ -165,7 +165,7 @@ def register_weather_endpoints(app):
             logger.warning(f"Invalid date format: {e}")
             raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
-            logger.error(f"Failed to calculate GDD: {e}")
+            logger.error(f"Failed to calculate GDD: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/weather/water-balance")
@@ -226,7 +226,7 @@ def register_weather_endpoints(app):
             logger.warning(f"Invalid date format: {e}")
             raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
-            logger.error(f"Failed to calculate water balance: {e}")
+            logger.error(f"Failed to calculate water balance: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/weather/irrigation-advice")
@@ -298,7 +298,7 @@ def register_weather_endpoints(app):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to get irrigation advice: {e}")
+            logger.error(f"Failed to get irrigation advice: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/weather/frost-risk")
@@ -369,7 +369,7 @@ def register_weather_endpoints(app):
                 },
             }
         except Exception as e:
-            logger.error(f"Failed to assess frost risk: {e}")
+            logger.error(f"Failed to assess frost risk: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("Weather API endpoints registered successfully")

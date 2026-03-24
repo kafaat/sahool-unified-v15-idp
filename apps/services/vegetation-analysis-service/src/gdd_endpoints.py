@@ -161,7 +161,7 @@ def register_gdd_endpoints(app):
             logger.warning(f"Invalid GDD request: {e}")
             raise HTTPException(status_code=400, detail="Invalid crop code or GDD configuration") from e
         except Exception as e:
-            logger.error(f"Failed to generate GDD chart: {e}")
+            logger.error(f"Failed to generate GDD chart: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/forecast")
@@ -255,7 +255,7 @@ def register_gdd_endpoints(app):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to generate GDD forecast: {e}")
+            logger.error(f"Failed to generate GDD forecast: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/requirements/{crop_code}")
@@ -339,7 +339,7 @@ def register_gdd_endpoints(app):
                 detail=f"Crop '{crop_code}' not found. Available crops: {', '.join(crop_codes[:15])}...",
             ) from ve
         except Exception as e:
-            logger.error(f"Failed to get crop requirements: {e}")
+            logger.error(f"Failed to get crop requirements: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/stage/{crop_code}")
@@ -461,7 +461,7 @@ def register_gdd_endpoints(app):
                 detail=f"Crop '{crop_code}' not found. Available: {', '.join(crop_codes[:10])}...",
             ) from ve
         except Exception as e:
-            logger.error(f"Failed to get growth stage: {e}")
+            logger.error(f"Failed to get growth stage: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/crops")
@@ -514,7 +514,7 @@ def register_gdd_endpoints(app):
             crops = tracker.get_all_crops()
             return {"total_crops": len(crops), "crops": crops}
         except Exception as e:
-            logger.error(f"Failed to list crops: {e}")
+            logger.error(f"Failed to list crops: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("GDD API endpoints registered successfully")

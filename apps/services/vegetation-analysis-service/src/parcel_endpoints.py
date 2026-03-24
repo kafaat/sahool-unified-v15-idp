@@ -308,7 +308,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Region detection failed: {e}")
+            logger.error(f"Region detection failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/classify", response_model=dict)
@@ -401,7 +401,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel classification failed: {e}")
+            logger.error(f"Parcel classification failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/parcels/strategies", response_model=dict)
@@ -571,7 +571,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Crop classification failed: {e}")
+            logger.error(f"Crop classification failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
@@ -619,7 +619,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel merge failed: {e}")
+            logger.error(f"Parcel merge failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/split", response_model=dict)
@@ -668,7 +668,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel split failed: {e}")
+            logger.error(f"Parcel split failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/connect", response_model=dict)
@@ -717,7 +717,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel connect failed: {e}")
+            logger.error(f"Parcel connect failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
@@ -754,7 +754,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Quality inspection failed: {e}")
+            logger.error(f"Quality inspection failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/export-wkt", response_model=dict)
@@ -801,7 +801,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"WKT export failed: {e}")
+            logger.error(f"WKT export failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/batch-assign", response_model=dict)
@@ -862,7 +862,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Batch assign failed: {e}")
+            logger.error(f"Batch assign failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/statistics", response_model=dict)
@@ -893,7 +893,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Statistics calculation failed: {e}")
+            logger.error(f"Statistics calculation failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
@@ -952,7 +952,7 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Topology simplification failed: {e}")
+            logger.error(f"Topology simplification failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("Agricultural parcel detection endpoints registered (with GeoLabel 4.0)")

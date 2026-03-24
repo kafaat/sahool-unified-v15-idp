@@ -107,7 +107,7 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Boundary detection failed: {e}")
+            logger.error(f"Boundary detection failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/boundaries/refine", response_model=dict)
@@ -170,7 +170,7 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Boundary refinement failed: {e}")
+            logger.error(f"Boundary refinement failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/boundaries/{field_id}/changes", response_model=dict)
@@ -264,7 +264,7 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Change detection failed: {e}")
+            logger.error(f"Change detection failed: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("Field boundary detection endpoints registered")

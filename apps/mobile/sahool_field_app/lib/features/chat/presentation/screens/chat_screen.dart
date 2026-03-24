@@ -569,7 +569,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               // Call block user API
               final success = await ref.read(chatProvider.notifier).blockUser(
                     otherParticipant.userId,
-                    conversation.id as String,
+                    conversation.id,
                   );
 
               if (!mounted) return;
@@ -610,7 +610,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _handleMuteConversation(Conversation conversation) async {
-    final isMuted = conversation.isMuted as bool;
+    final isMuted = conversation.isMuted;
     final newMuteState = !isMuted;
 
     // Show loading indicator
@@ -637,7 +637,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
 
     final success = await ref.read(chatProvider.notifier).muteConversation(
-          conversation.id as String,
+          conversation.id,
           mute: newMuteState,
         );
 
@@ -707,7 +707,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
               final success = await ref
                   .read(chatProvider.notifier)
-                  .clearChatHistory(conversation.id as String);
+                  .clearChatHistory(conversation.id);
 
               if (!mounted) return;
 
@@ -836,7 +836,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       final success = await ref
                           .read(chatProvider.notifier)
                           .reportConversation(
-                            conversation.id as String,
+                            conversation.id,
                             reason: selectedReason!,
                             description: descriptionController.text.isNotEmpty
                                 ? descriptionController.text

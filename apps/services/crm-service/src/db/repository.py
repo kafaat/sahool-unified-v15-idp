@@ -72,30 +72,18 @@ class FarmerRepository:
             )
             return self._row_to_dict(row)
 
-    async def get_by_id(self, farmer_id: str | UUID, tenant_id: str | None = None) -> dict[str, Any] | None:
-        """Get farmer by ID, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = """
-                SELECT
-                    id, tenant_id, name, name_ar, phone, email, national_id,
-                    farm_size_hectares, location, location_ar, crops, status,
-                    engagement_score, tags, created_at, updated_at, last_interaction_at
-                FROM farmers
-                WHERE id = $1 AND tenant_id = $2
-            """
-            async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(query, UUID(str(farmer_id)), tenant_id)
-        else:
-            query = """
-                SELECT
-                    id, tenant_id, name, name_ar, phone, email, national_id,
-                    farm_size_hectares, location, location_ar, crops, status,
-                    engagement_score, tags, created_at, updated_at, last_interaction_at
-                FROM farmers
-                WHERE id = $1
-            """
-            async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(query, UUID(str(farmer_id)))
+    async def get_by_id(self, farmer_id: str | UUID, tenant_id: str) -> dict[str, Any] | None:
+        """Get farmer by ID with mandatory tenant isolation."""
+        query = """
+            SELECT
+                id, tenant_id, name, name_ar, phone, email, national_id,
+                farm_size_hectares, location, location_ar, crops, status,
+                engagement_score, tags, created_at, updated_at, last_interaction_at
+            FROM farmers
+            WHERE id = $1 AND tenant_id = $2
+        """
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(query, UUID(str(farmer_id)), tenant_id)
         return self._row_to_dict(row) if row else None
 
     async def list(
@@ -219,16 +207,11 @@ class FarmerRepository:
             async with self.pool.acquire() as conn:
                 return await conn.fetchval(query, tenant_id)
 
-    async def exists(self, farmer_id: str | UUID, tenant_id: str | None = None) -> bool:
-        """Check if farmer exists, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = "SELECT EXISTS(SELECT 1 FROM farmers WHERE id = $1 AND tenant_id = $2)"
-            async with self.pool.acquire() as conn:
-                return await conn.fetchval(query, UUID(str(farmer_id)), tenant_id)
-        else:
-            query = "SELECT EXISTS(SELECT 1 FROM farmers WHERE id = $1)"
-            async with self.pool.acquire() as conn:
-                return await conn.fetchval(query, UUID(str(farmer_id)))
+    async def exists(self, farmer_id: str | UUID, tenant_id: str) -> bool:
+        """Check if farmer exists with mandatory tenant isolation."""
+        query = "SELECT EXISTS(SELECT 1 FROM farmers WHERE id = $1 AND tenant_id = $2)"
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval(query, UUID(str(farmer_id)), tenant_id)
 
     def _row_to_dict(self, row: asyncpg.Record | None) -> dict[str, Any]:
         """Convert database row to dictionary."""

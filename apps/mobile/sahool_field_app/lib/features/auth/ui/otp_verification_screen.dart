@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/otp_service.dart' as otp_svc;
+import '../services/otp_service.dart' show OTPChannel;
 
 /// SAHOOL OTP Verification Screen
 /// شاشة التحقق من رمز OTP
@@ -15,9 +16,6 @@ import '../services/otp_service.dart' as otp_svc;
 /// - Countdown timer with resend option
 /// - Biometric support for quick verification
 /// - Deep linking support for App Store/Play Store patterns
-
-/// OTP Channel enum
-enum OTPChannel { sms, whatsapp, telegram, email }
 
 /// OTP Purpose enum
 enum OTPPurpose { passwordReset, phoneVerification, twoFactor }

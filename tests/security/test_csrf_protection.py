@@ -153,8 +153,8 @@ class TestCSRFTokenValidation:
 
     def test_validate_none_token(self, csrf_manager):
         """Test validation handles None gracefully."""
-        with pytest.raises((TypeError, AttributeError)):
-            csrf_manager.validate_token(None, "session123")
+        result = csrf_manager.validate_token(None, "session123")
+        assert result is False
 
 
 class TestCSRFMiddlewareIntegration:

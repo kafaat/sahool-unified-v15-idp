@@ -604,7 +604,7 @@ class TestRepositoryMaintenanceAlerts:
         db = MagicMock()
         db.query.return_value.filter.return_value.first.return_value = mock_alert
 
-        result = delete_maintenance_alert(db, "alert_001")
+        result = delete_maintenance_alert(db, "alert_001", tenant_id="t1")
         assert result is True
         db.delete.assert_called_once_with(mock_alert)
 
@@ -614,8 +614,16 @@ class TestRepositoryMaintenanceAlerts:
         db = MagicMock()
         db.query.return_value.filter.return_value.first.return_value = None
 
-        result = delete_maintenance_alert(db, "nonexistent")
+        result = delete_maintenance_alert(db, "nonexistent", tenant_id="t1")
         assert result is False
+
+    def test_delete_maintenance_alert_requires_tenant_id(self):
+        from src.repository import delete_maintenance_alert
+
+        db = MagicMock()
+
+        with pytest.raises(ValueError, match="tenant_id is required"):
+            delete_maintenance_alert(db, "alert_001")
 
 
 # ---------------------------------------------------------------------------

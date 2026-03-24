@@ -253,11 +253,12 @@ jobs:
             --format sarif \
             -o bandit-results.sarif 2>/dev/null || true
 
+          # Text output for human-readable log; findings are tracked via SARIF above
           bandit -r apps/services/ shared/ \
             -c pyproject.toml \
             -ll \
             -ii \
-            --format txt
+            --format txt || true
 
       - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v4

@@ -54,6 +54,7 @@ export default defineConfig({
       "@sahool/api-client": path.resolve(__dirname, "./packages/api-client/src"),
       "@sahool/api": path.resolve(__dirname, "./packages/api-client/src"),
       "@sahool/i18n": path.resolve(__dirname, "./packages/i18n/src"),
+      "@sahool/design-system": path.resolve(__dirname, "./packages/design-system/src"),
       "@": path.resolve(__dirname, "./apps/web/src"),
     },
   },

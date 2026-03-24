@@ -46,16 +46,16 @@ function DataTableInner<T>({
     return (
       <div
         className={cn(
-          "bg-white rounded-xl shadow-sm overflow-hidden",
+          "bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden",
           className,
         )}
       >
         <div className="animate-pulse">
-          <div className="h-12 bg-gray-100"></div>
+          <div className="h-12 bg-gray-100 dark:bg-gray-700"></div>
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="h-16 border-t border-gray-100 bg-gray-50"
+              className="h-16 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
             ></div>
           ))}
         </div>
@@ -67,28 +67,28 @@ function DataTableInner<T>({
     return (
       <div
         className={cn(
-          "bg-white rounded-xl shadow-sm p-8 text-center",
+          "bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center",
           className,
         )}
       >
-        <p className="text-gray-500">{emptyMessage}</p>
+        <p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
     <div
-      className={cn("bg-white rounded-xl shadow-sm overflow-hidden", className)}
+      className={cn("bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden", className)}
     >
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-100">
+          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
                   className={cn(
-                    "px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider",
+                    "px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider",
                     col.className,
                   )}
                 >
@@ -97,7 +97,7 @@ function DataTableInner<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
             {data.map((item) => (
               <tr
                 key={keyExtractor(item)}
@@ -107,7 +107,7 @@ function DataTableInner<T>({
                 role={onRowClick ? "button" : undefined}
                 aria-label={onRowClick ? "اضغط للتفاصيل" : undefined}
                 className={cn(
-                  "hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset",
+                  "hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset",
                   onRowClick && "cursor-pointer",
                 )}
               >

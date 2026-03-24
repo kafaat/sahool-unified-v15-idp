@@ -51,7 +51,7 @@ export function SensorReadings({
     return (
       <div className="bg-white rounded-lg shadow p-6 h-96 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-        <span className="mr-3 text-gray-600">جاري التحميل...</span>
+        <span className="ms-3 text-gray-600">جاري التحميل...</span>
       </div>
     );
   }

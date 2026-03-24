@@ -156,6 +156,11 @@ export function SensorMap() {
       // Cleanup markers
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+      // Cleanup map instance to prevent "Map container is already initialized" on re-mount
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
   }, [sensors]);
 
@@ -163,7 +168,7 @@ export function SensorMap() {
     return (
       <div className="bg-white rounded-lg shadow p-6 h-96 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-        <span className="mr-3 text-gray-600">جاري تحميل الخريطة...</span>
+        <span className="ms-3 text-gray-600">جاري تحميل الخريطة...</span>
       </div>
     );
   }

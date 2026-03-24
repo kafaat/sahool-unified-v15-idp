@@ -162,6 +162,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock}
+            aria-label={isOutOfStock ? "نفذت الكمية" : `أضف ${product.nameAr} إلى السلة`}
             className={`p-3 rounded-lg transition-all ${
               isOutOfStock
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"

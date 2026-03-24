@@ -252,6 +252,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
             disabled={isRefreshing}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50"
             title="Refresh health status"
+            aria-label="تحديث حالة الخدمات - Refresh health status"
           >
             <RefreshCw
               className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}

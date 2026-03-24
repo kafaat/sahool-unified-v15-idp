@@ -51,6 +51,7 @@ interface LivingFieldCardProps {
  */
 function getScoreColor(score: number): {
   border: string;
+  borderHex: string;
   bg: string;
   text: string;
   fill: string;
@@ -58,6 +59,7 @@ function getScoreColor(score: number): {
   if (score >= 70) {
     return {
       border: "border-green-500",
+      borderHex: "#22c55e",
       bg: "bg-green-50",
       text: "text-green-700",
       fill: "stroke-green-500",
@@ -66,6 +68,7 @@ function getScoreColor(score: number): {
   if (score >= 40) {
     return {
       border: "border-yellow-500",
+      borderHex: "#eab308",
       bg: "bg-yellow-50",
       text: "text-yellow-700",
       fill: "stroke-yellow-500",
@@ -73,6 +76,7 @@ function getScoreColor(score: number): {
   }
   return {
     border: "border-red-500",
+    borderHex: "#ef4444",
     bg: "bg-red-50",
     text: "text-red-700",
     fill: "stroke-red-500",

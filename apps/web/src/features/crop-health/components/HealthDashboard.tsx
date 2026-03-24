@@ -87,6 +87,7 @@ export const HealthDashboard: React.FC = () => {
               <input
                 type="text"
                 placeholder="ابحث في الحقول..."
+                aria-label="ابحث في الحقول | Search fields"
                 className="pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-64"
               />
             </div>
@@ -151,10 +152,12 @@ export const HealthDashboard: React.FC = () => {
                       {summary.healthyFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.healthyFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? (
+                            (summary.healthyFields / summary.totalFields) *
+                            100
+                          ).toFixed(1)
+                        : "0.0"}
                       %
                     </p>
                   </div>
@@ -171,10 +174,12 @@ export const HealthDashboard: React.FC = () => {
                       {summary.atRiskFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.atRiskFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? (
+                            (summary.atRiskFields / summary.totalFields) *
+                            100
+                          ).toFixed(1)
+                        : "0.0"}
                       %
                     </p>
                   </div>
@@ -191,10 +196,12 @@ export const HealthDashboard: React.FC = () => {
                       {summary.diseasedFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.diseasedFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? (
+                            (summary.diseasedFields / summary.totalFields) *
+                            100
+                          ).toFixed(1)
+                        : "0.0"}
                       %
                     </p>
                   </div>

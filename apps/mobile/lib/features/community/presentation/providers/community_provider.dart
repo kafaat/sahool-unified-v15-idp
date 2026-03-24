@@ -221,7 +221,7 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
       authorAvatarUrl: json['author_avatar_url'] as String?,
       title: (json['title'] ?? '') as String,
       content: (json['content'] ?? '') as String,
-      imageUrls: (json['image_urls'] ?? json['imageUrls'] as List?)?.cast<String>() ?? [],
+      imageUrls: ((json['image_urls'] ?? json['imageUrls']) as List?)?.cast<String>() ?? <String>[],
       category: (json['category'] ?? 'general') as String,
       categoryAr: (json['category_ar'] ?? json['categoryAr'] ?? 'عام') as String,
       likesCount: (json['likes_count'] ?? json['likesCount'] ?? 0) as int,

@@ -3,15 +3,15 @@
 // خطاف التخزين المحلي
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T,
+  initialValue: T
 ): [T, (value: T | ((prev: T) => T)) => void, () => void] {
   // Get stored value
   const readValue = useCallback((): T => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return initialValue;
     }
 
@@ -19,7 +19,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
         console.warn(`Error reading localStorage key "${key}":`, error);
       }
@@ -39,8 +39,8 @@ export function useLocalStorage<T>(
   // Set value
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
-      if (typeof window === "undefined") {
-        if (process.env.NODE_ENV === "development") {
+      if (typeof window === 'undefined') {
+        if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
           console.warn(`Cannot set localStorage key "${key}" in SSR`);
         }
@@ -57,30 +57,30 @@ export function useLocalStorage<T>(
         // Side effects: persist to localStorage and notify other tabs
         window.localStorage.setItem(key, JSON.stringify(newValue));
         window.dispatchEvent(
-          new StorageEvent("storage", {
+          new StorageEvent('storage', {
             key,
             newValue: JSON.stringify(newValue),
-          }),
+          })
         );
       } catch (error) {
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
           console.warn(`Error setting localStorage key "${key}":`, error);
         }
       }
     },
-    [key],
+    [key]
   );
 
   // Remove value
   const removeValue = useCallback(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
       window.localStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
         console.warn(`Error removing localStorage key "${key}":`, error);
       }
@@ -95,8 +95,8 @@ export function useLocalStorage<T>(
       }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [key]);
 
   return [storedValue, setValue, removeValue];

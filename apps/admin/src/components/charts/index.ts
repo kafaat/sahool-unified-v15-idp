@@ -8,10 +8,10 @@
  */
 
 // Default export: dynamic version (recommended for pages and layouts)
-export { default as AnalyticsChart } from "./AnalyticsChart.dynamic";
-export { default as AnalyticsChartDynamic } from "./AnalyticsChart.dynamic";
+export { default as AnalyticsChart } from './AnalyticsChart.dynamic';
+export { default as AnalyticsChartDynamic } from './AnalyticsChart.dynamic';
 
 // SparklineChart also dynamically loaded to prevent recharts leaking into initial bundle
-export { SparklineChart } from "./SparklineChart.dynamic";
+export { SparklineChart } from './SparklineChart.dynamic';
 
-export type { ChartType, ChartDataPoint, ChartSeries } from "./AnalyticsChart";
+export type { ChartType, ChartDataPoint, ChartSeries } from './AnalyticsChart';

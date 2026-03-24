@@ -3,18 +3,18 @@
  * Proxies request to backend with httpOnly cookie token
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS, API_PATHS } from "@/config/api";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { logger } from '@/lib/logger';
+import { API_URL, TIMEOUT_TIERS, API_PATHS } from '@/config/api';
 
 export async function GET(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("sahool_admin_token")?.value;
+    const token = cookieStore.get('sahool_admin_token')?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     // Forward request to backend API with token and timeout
@@ -24,10 +24,10 @@ export async function GET(_request: NextRequest) {
     let response: Response;
     try {
       response = await fetch(`${API_URL}${API_PATHS.auth.me}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         signal: controller.signal,
       });
@@ -35,12 +35,9 @@ export async function GET(_request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Invalid response from backend" },
-        { status: 502 },
-      );
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.json({ error: 'Invalid response from backend' }, { status: 502 });
     }
 
     const data = await response.json();
@@ -49,18 +46,18 @@ export async function GET(_request: NextRequest) {
       // Token might be expired or invalid - clear cookies
       if (response.status === 401) {
         const logoutResponse = NextResponse.json(
-          { error: data.message || data.detail || "Unauthorized" },
-          { status: 401 },
+          { error: data.message || data.detail || 'Unauthorized' },
+          { status: 401 }
         );
-        logoutResponse.cookies.delete("sahool_admin_token");
-        logoutResponse.cookies.delete("sahool_admin_refresh_token");
-        logoutResponse.cookies.delete("sahool_admin_last_activity");
+        logoutResponse.cookies.delete('sahool_admin_token');
+        logoutResponse.cookies.delete('sahool_admin_refresh_token');
+        logoutResponse.cookies.delete('sahool_admin_last_activity');
         return logoutResponse;
       }
 
       return NextResponse.json(
-        { error: data.message || data.detail || "Failed to fetch user" },
-        { status: response.status },
+        { error: data.message || data.detail || 'Failed to fetch user' },
+        { status: response.status }
       );
     }
 
@@ -69,10 +66,7 @@ export async function GET(_request: NextRequest) {
       data: data,
     });
   } catch (error) {
-    logger.production("Get current user error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.production('Get current user error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

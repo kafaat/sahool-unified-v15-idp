@@ -3,8 +3,8 @@
  * أنواع ميزة اللوجستيات
  */
 
-export type ShipmentStatus = "pending" | "in_transit" | "delivered" | "delayed" | "cancelled";
-export type CargoType = "fertilizers" | "seeds" | "equipment" | "produce" | "chemicals" | "other";
+export type ShipmentStatus = 'pending' | 'in_transit' | 'delivered' | 'delayed' | 'cancelled';
+export type CargoType = 'fertilizers' | 'seeds' | 'equipment' | 'produce' | 'chemicals' | 'other';
 
 export interface Shipment {
   id: string;
@@ -84,17 +84,17 @@ export interface Driver {
   name: string;
   phone: string;
   licenseNumber: string;
-  status: "available" | "on_trip" | "off_duty";
+  status: 'available' | 'on_trip' | 'off_duty';
   currentLocation?: { lat: number; lng: number };
 }
 
 export interface Vehicle {
   id: string;
   plateNumber: string;
-  type: "truck" | "van" | "pickup" | "trailer";
+  type: 'truck' | 'van' | 'pickup' | 'trailer';
   capacity: number;
   capacityUnit: string;
-  status: "available" | "in_use" | "maintenance";
+  status: 'available' | 'in_use' | 'maintenance';
 }
 
 export interface LogisticsStats {

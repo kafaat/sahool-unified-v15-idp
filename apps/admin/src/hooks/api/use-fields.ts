@@ -5,25 +5,25 @@
  * CRUD hooks for field operations via field-management-service.
  */
 
-"use client";
+'use client';
 
-import { useApiQuery, useApiMutation, invalidateQueries } from "./use-api-query";
+import { useApiQuery, useApiMutation, invalidateQueries } from './use-api-query';
 import {
   fetchFarms,
   fetchFarmById,
   getSatelliteTimeseries,
   getSatelliteIndices,
   fetchFieldIntelligence,
-} from "@/lib/api";
-import { apiClient } from "@/lib/api";
-import { API_URLS } from "@/config/api";
-import type { Farm } from "@/types";
+} from '@/lib/api';
+import { apiClient } from '@/lib/api';
+import { API_URLS } from '@/config/api';
+import type { Farm } from '@/types';
 
 /**
  * List all fields
  */
 export function useFields() {
-  return useApiQuery<Farm[]>(["fields"], fetchFarms, {
+  return useApiQuery<Farm[]>(['fields'], fetchFarms, {
     staleTime: 30000,
   });
 }
@@ -32,24 +32,17 @@ export function useFields() {
  * Get a single field by ID
  */
 export function useField(id: string) {
-  return useApiQuery<Farm>(
-    ["fields", id],
-    () => fetchFarmById(id),
-    { enabled: !!id },
-  );
+  return useApiQuery<Farm>(['fields', id], () => fetchFarmById(id), { enabled: !!id });
 }
 
 /**
  * NDVI time series for a field
  */
-export function useFieldNDVI(
-  fieldId: string,
-  options?: { from?: string; to?: string },
-) {
+export function useFieldNDVI(fieldId: string, options?: { from?: string; to?: string }) {
   return useApiQuery(
-    ["fields", fieldId, "ndvi", options?.from ?? "", options?.to ?? ""],
+    ['fields', fieldId, 'ndvi', options?.from ?? '', options?.to ?? ''],
     () => getSatelliteTimeseries(fieldId, options),
-    { enabled: !!fieldId, staleTime: 300000 },
+    { enabled: !!fieldId, staleTime: 300000 }
   );
 }
 
@@ -57,22 +50,20 @@ export function useFieldNDVI(
  * Satellite vegetation indices for a field
  */
 export function useFieldIndices(fieldId: string) {
-  return useApiQuery(
-    ["fields", fieldId, "indices"],
-    () => getSatelliteIndices(fieldId),
-    { enabled: !!fieldId, staleTime: 300000 },
-  );
+  return useApiQuery(['fields', fieldId, 'indices'], () => getSatelliteIndices(fieldId), {
+    enabled: !!fieldId,
+    staleTime: 300000,
+  });
 }
 
 /**
  * Field intelligence data
  */
 export function useFieldIntelligence(fieldId: string) {
-  return useApiQuery(
-    ["fields", fieldId, "intelligence"],
-    () => fetchFieldIntelligence(fieldId),
-    { enabled: !!fieldId, staleTime: 60000 },
-  );
+  return useApiQuery(['fields', fieldId, 'intelligence'], () => fetchFieldIntelligence(fieldId), {
+    enabled: !!fieldId,
+    staleTime: 60000,
+  });
 }
 
 /**
@@ -81,18 +72,15 @@ export function useFieldIntelligence(fieldId: string) {
 export function useCreateField() {
   return useApiMutation(
     async (data: Partial<Farm>) => {
-      const response = await apiClient.post(
-        API_URLS.fields.create,
-        data,
-      );
+      const response = await apiClient.post(API_URLS.fields.create, data);
       return response.data;
     },
     {
-      invalidateKeys: ["fields"],
+      invalidateKeys: ['fields'],
       onSuccess: () => {
-        invalidateQueries("dashboard");
+        invalidateQueries('dashboard');
       },
-    },
+    }
   );
 }
 
@@ -102,13 +90,10 @@ export function useCreateField() {
 export function useUpdateField() {
   return useApiMutation(
     async ({ id, data }: { id: string; data: Partial<Farm> }) => {
-      const response = await apiClient.put(
-        API_URLS.fields.update(id),
-        data,
-      );
+      const response = await apiClient.put(API_URLS.fields.update(id), data);
       return response.data;
     },
-    { invalidateKeys: ["fields"] },
+    { invalidateKeys: ['fields'] }
   );
 }
 
@@ -122,10 +107,10 @@ export function useDeleteField() {
       return { success: true };
     },
     {
-      invalidateKeys: ["fields"],
+      invalidateKeys: ['fields'],
       onSuccess: () => {
-        invalidateQueries("dashboard");
+        invalidateQueries('dashboard');
       },
-    },
+    }
   );
 }

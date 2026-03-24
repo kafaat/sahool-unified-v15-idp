@@ -11,7 +11,7 @@
  * @author SAHOOL Team
  */
 
-import { encryptSearchable, encrypt } from "./field-encryption";
+import { encryptSearchable, encrypt } from './field-encryption';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PII Detection Patterns
@@ -21,17 +21,17 @@ import { encryptSearchable, encrypt } from "./field-encryption";
  * PII Types supported
  */
 export enum PIIType {
-  NATIONAL_ID = "NATIONAL_ID",
-  PHONE = "PHONE",
-  EMAIL = "EMAIL",
-  CREDIT_CARD = "CREDIT_CARD",
-  SSN = "SSN", // Social Security Number
-  PASSPORT = "PASSPORT",
-  IBAN = "IBAN",
-  IP_ADDRESS = "IP_ADDRESS",
-  DATE_OF_BIRTH = "DATE_OF_BIRTH",
-  NAME = "NAME",
-  ADDRESS = "ADDRESS",
+  NATIONAL_ID = 'NATIONAL_ID',
+  PHONE = 'PHONE',
+  EMAIL = 'EMAIL',
+  CREDIT_CARD = 'CREDIT_CARD',
+  SSN = 'SSN', // Social Security Number
+  PASSPORT = 'PASSPORT',
+  IBAN = 'IBAN',
+  IP_ADDRESS = 'IP_ADDRESS',
+  DATE_OF_BIRTH = 'DATE_OF_BIRTH',
+  NAME = 'NAME',
+  ADDRESS = 'ADDRESS',
 }
 
 /**
@@ -144,7 +144,7 @@ export function detectPII(text: string, types?: PIIType[]): PIIDetection[] {
  * Luhn algorithm for credit card number validation.
  */
 function passesLuhn(digits: string): boolean {
-  const nums = digits.replace(/[\s-]/g, "");
+  const nums = digits.replace(/[\s-]/g, '');
   if (!/^\d+$/.test(nums)) return false;
   let sum = 0;
   let alt = false;
@@ -167,9 +167,7 @@ function passesIBANCheck(iban: string): boolean {
   // Move country code + check digits to end
   const rearranged = iban.slice(4) + iban.slice(0, 4);
   // Replace letters with numbers (A=10, B=11, ..., Z=35)
-  const numeric = rearranged.replace(/[A-Z]/g, (ch) =>
-    String(ch.charCodeAt(0) - 55),
-  );
+  const numeric = rearranged.replace(/[A-Z]/g, (ch) => String(ch.charCodeAt(0) - 55));
   // Compute mod-97 on large number (process in chunks)
   let remainder = 0;
   for (let i = 0; i < numeric.length; i += 7) {
@@ -185,19 +183,17 @@ function passesIBANCheck(iban: string): boolean {
 function calculateConfidence(type: PIIType, value: string): number {
   switch (type) {
     case PIIType.EMAIL:
-      return value.includes("@gmail.com") ||
-        value.includes("@yahoo.com") ||
-        value.includes("@outlook.com")
+      return value.includes('@gmail.com') ||
+        value.includes('@yahoo.com') ||
+        value.includes('@outlook.com')
         ? 0.95
         : 0.85;
 
     case PIIType.PHONE:
-      return value.startsWith("05") || value.startsWith("+966")
-        ? 0.95
-        : 0.8;
+      return value.startsWith('05') || value.startsWith('+966') ? 0.95 : 0.8;
 
     case PIIType.NATIONAL_ID:
-      return value.startsWith("1") || value.startsWith("2") ? 0.9 : 0.6;
+      return value.startsWith('1') || value.startsWith('2') ? 0.9 : 0.6;
 
     case PIIType.CREDIT_CARD:
       // Validate with Luhn algorithm
@@ -245,10 +241,10 @@ export function getPIITypes(text: string): PIIType[] {
  * Masking strategy
  */
 export enum MaskingStrategy {
-  FULL = "FULL", // Replace all characters with *
-  PARTIAL = "PARTIAL", // Show first/last few characters
-  HASH = "HASH", // Replace with hash
-  REMOVE = "REMOVE", // Remove completely
+  FULL = 'FULL', // Replace all characters with *
+  PARTIAL = 'PARTIAL', // Show first/last few characters
+  HASH = 'HASH', // Replace with hash
+  REMOVE = 'REMOVE', // Remove completely
 }
 
 /**
@@ -269,7 +265,7 @@ export enum MaskingStrategy {
 export function maskPII(
   text: string,
   strategy: MaskingStrategy = MaskingStrategy.PARTIAL,
-  types?: PIIType[],
+  types?: PIIType[]
 ): string {
   const detected = detectPII(text, types);
 
@@ -292,14 +288,10 @@ export function maskPII(
 /**
  * Mask a single value based on its type and strategy
  */
-function maskValue(
-  value: string,
-  type: PIIType,
-  strategy: MaskingStrategy,
-): string {
+function maskValue(value: string, type: PIIType, strategy: MaskingStrategy): string {
   switch (strategy) {
     case MaskingStrategy.FULL:
-      return "*".repeat(value.length);
+      return '*'.repeat(value.length);
 
     case MaskingStrategy.PARTIAL:
       return maskPartial(value, type);
@@ -308,7 +300,7 @@ function maskValue(
       return `[REDACTED:${value.substring(0, 4)}...]`;
 
     case MaskingStrategy.REMOVE:
-      return "[REDACTED]";
+      return '[REDACTED]';
 
     default:
       return maskPartial(value, type);
@@ -321,11 +313,11 @@ function maskValue(
 function maskPartial(value: string, type: PIIType): string {
   switch (type) {
     case PIIType.EMAIL: {
-      const [local, domain] = value.split("@");
+      const [local, domain] = value.split('@');
       const maskedLocal =
         local.length > 2
-          ? local[0] + "*".repeat(local.length - 2) + local[local.length - 1]
-          : local[0] + "*";
+          ? local[0] + '*'.repeat(local.length - 2) + local[local.length - 1]
+          : local[0] + '*';
       return `${maskedLocal}@${domain}`;
     }
 
@@ -333,14 +325,14 @@ function maskPartial(value: string, type: PIIType): string {
       if (value.length > 6) {
         const start = value.substring(0, 3);
         const end = value.substring(value.length - 3);
-        return `${start}${"*".repeat(value.length - 6)}${end}`;
+        return `${start}${'*'.repeat(value.length - 6)}${end}`;
       }
-      return "*".repeat(value.length);
+      return '*'.repeat(value.length);
     }
 
     case PIIType.CREDIT_CARD: {
       // Show last 4 digits only
-      const clean = value.replace(/[\s-]/g, "");
+      const clean = value.replace(/[\s-]/g, '');
       const last4 = clean.substring(clean.length - 4);
       return `****-****-****-${last4}`;
     }
@@ -349,9 +341,9 @@ function maskPartial(value: string, type: PIIType): string {
       if (value.length >= 4) {
         const start = value.substring(0, 2);
         const end = value.substring(value.length - 2);
-        return `${start}${"*".repeat(value.length - 4)}${end}`;
+        return `${start}${'*'.repeat(value.length - 4)}${end}`;
       }
-      return "*".repeat(value.length);
+      return '*'.repeat(value.length);
     }
 
     default: {
@@ -360,9 +352,9 @@ function maskPartial(value: string, type: PIIType): string {
         const visible = Math.ceil(value.length * 0.2);
         const start = value.substring(0, visible);
         const end = value.substring(value.length - visible);
-        return `${start}${"*".repeat(value.length - visible * 2)}${end}`;
+        return `${start}${'*'.repeat(value.length - visible * 2)}${end}`;
       }
-      return "*".repeat(value.length);
+      return '*'.repeat(value.length);
     }
   }
 }
@@ -385,10 +377,10 @@ export function redactPII(text: string): string {
  * Field sensitivity level
  */
 export enum SensitivityLevel {
-  PUBLIC = "PUBLIC", // No encryption needed
-  INTERNAL = "INTERNAL", // Hash or basic encryption
-  CONFIDENTIAL = "CONFIDENTIAL", // Strong encryption
-  RESTRICTED = "RESTRICTED", // Strong encryption + additional controls
+  PUBLIC = 'PUBLIC', // No encryption needed
+  INTERNAL = 'INTERNAL', // Hash or basic encryption
+  CONFIDENTIAL = 'CONFIDENTIAL', // Strong encryption
+  RESTRICTED = 'RESTRICTED', // Strong encryption + additional controls
 }
 
 /**
@@ -407,34 +399,30 @@ export enum SensitivityLevel {
  */
 export function shouldEncrypt(fieldName: string, value?: string): boolean {
   const sensitiveFields = [
-    "nationalId",
-    "national_id",
-    "ssn",
-    "password",
-    "passwordHash",
-    "password_hash",
-    "creditCard",
-    "credit_card",
-    "bankAccount",
-    "bank_account",
-    "iban",
-    "passport",
-    "dateOfBirth",
-    "date_of_birth",
-    "dob",
-    "salary",
-    "income",
-    "taxId",
-    "tax_id",
+    'nationalId',
+    'national_id',
+    'ssn',
+    'password',
+    'passwordHash',
+    'password_hash',
+    'creditCard',
+    'credit_card',
+    'bankAccount',
+    'bank_account',
+    'iban',
+    'passport',
+    'dateOfBirth',
+    'date_of_birth',
+    'dob',
+    'salary',
+    'income',
+    'taxId',
+    'tax_id',
   ];
 
   // Check field name
   const lowerFieldName = fieldName.toLowerCase();
-  if (
-    sensitiveFields.some((field) =>
-      lowerFieldName.includes(field.toLowerCase()),
-    )
-  ) {
+  if (sensitiveFields.some((field) => lowerFieldName.includes(field.toLowerCase()))) {
     return true;
   }
 
@@ -462,47 +450,22 @@ export function shouldEncrypt(fieldName: string, value?: string): boolean {
  * @param value - Value of the field (optional)
  * @returns Sensitivity level
  */
-export function getSensitivityLevel(
-  fieldName: string,
-  value?: string,
-): SensitivityLevel {
-  const restrictedFields = [
-    "password",
-    "passwordHash",
-    "creditCard",
-    "bankAccount",
-    "ssn",
-  ];
-  const confidentialFields = [
-    "nationalId",
-    "passport",
-    "dateOfBirth",
-    "salary",
-    "iban",
-  ];
-  const internalFields = ["phone", "email", "address"];
+export function getSensitivityLevel(fieldName: string, value?: string): SensitivityLevel {
+  const restrictedFields = ['password', 'passwordHash', 'creditCard', 'bankAccount', 'ssn'];
+  const confidentialFields = ['nationalId', 'passport', 'dateOfBirth', 'salary', 'iban'];
+  const internalFields = ['phone', 'email', 'address'];
 
   const lowerFieldName = fieldName.toLowerCase();
 
-  if (
-    restrictedFields.some((field) =>
-      lowerFieldName.includes(field.toLowerCase()),
-    )
-  ) {
+  if (restrictedFields.some((field) => lowerFieldName.includes(field.toLowerCase()))) {
     return SensitivityLevel.RESTRICTED;
   }
 
-  if (
-    confidentialFields.some((field) =>
-      lowerFieldName.includes(field.toLowerCase()),
-    )
-  ) {
+  if (confidentialFields.some((field) => lowerFieldName.includes(field.toLowerCase()))) {
     return SensitivityLevel.CONFIDENTIAL;
   }
 
-  if (
-    internalFields.some((field) => lowerFieldName.includes(field.toLowerCase()))
-  ) {
+  if (internalFields.some((field) => lowerFieldName.includes(field.toLowerCase()))) {
     return SensitivityLevel.INTERNAL;
   }
 
@@ -530,19 +493,17 @@ export function getSensitivityLevel(
  */
 export function shouldUseDeterministicEncryption(fieldName: string): boolean {
   const searchableFields = [
-    "nationalId",
-    "national_id",
-    "phone",
-    "email",
-    "passport",
-    "taxId",
-    "tax_id",
+    'nationalId',
+    'national_id',
+    'phone',
+    'email',
+    'passport',
+    'taxId',
+    'tax_id',
   ];
 
   const lowerFieldName = fieldName.toLowerCase();
-  return searchableFields.some((field) =>
-    lowerFieldName.includes(field.toLowerCase()),
-  );
+  return searchableFields.some((field) => lowerFieldName.includes(field.toLowerCase()));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -557,7 +518,7 @@ export function shouldUseDeterministicEncryption(fieldName: string): boolean {
  * @returns Encrypted value or original if encryption not needed
  */
 export function autoEncrypt(fieldName: string, value: string): string {
-  if (!value || typeof value !== "string") {
+  if (!value || typeof value !== 'string') {
     return value;
   }
 
@@ -578,13 +539,11 @@ export function autoEncrypt(fieldName: string, value: string): string {
  * @param data - Object to process
  * @returns Object with encrypted sensitive fields
  */
-export function encryptSensitiveFields<T extends Record<string, any>>(
-  data: T,
-): T {
+export function encryptSensitiveFields<T extends Record<string, any>>(data: T): T {
   const result: any = { ...data };
 
   for (const [key, value] of Object.entries(result)) {
-    if (typeof value === "string" && shouldEncrypt(key, value)) {
+    if (typeof value === 'string' && shouldEncrypt(key, value)) {
       result[key] = autoEncrypt(key, value);
     }
   }

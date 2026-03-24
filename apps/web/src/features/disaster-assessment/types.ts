@@ -3,10 +3,18 @@
  * أنواع ميزة تقييم الكوارث
  */
 
-export type RiskLevel = "low" | "medium" | "high" | "critical";
-export type DisasterType = "flood" | "drought" | "frost" | "pest" | "disease" | "storm" | "fire" | "other";
-export type EventSeverity = "minor" | "moderate" | "severe" | "catastrophic";
-export type EventStatus = "active" | "monitoring" | "resolved" | "closed";
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type DisasterType =
+  | 'flood'
+  | 'drought'
+  | 'frost'
+  | 'pest'
+  | 'disease'
+  | 'storm'
+  | 'fire'
+  | 'other';
+export type EventSeverity = 'minor' | 'moderate' | 'severe' | 'catastrophic';
+export type EventStatus = 'active' | 'monitoring' | 'resolved' | 'closed';
 
 export interface RiskAssessment {
   id: string;
@@ -39,15 +47,15 @@ export interface RiskIndicator {
   value: number;
   threshold: number;
   unit: string;
-  trend: "increasing" | "decreasing" | "stable";
+  trend: 'increasing' | 'decreasing' | 'stable';
 }
 
 export interface MitigationAction {
   id: string;
   action: string;
   actionAr: string;
-  priority: "high" | "medium" | "low";
-  status: "pending" | "in_progress" | "completed";
+  priority: 'high' | 'medium' | 'low';
+  status: 'pending' | 'in_progress' | 'completed';
   assignedTo?: string;
   dueDate?: string;
   cost?: number;
@@ -73,7 +81,7 @@ export interface DisasterEvent {
   affectedInfrastructure?: string[];
   responseActions?: string[];
   insuranceClaim?: {
-    status: "not_filed" | "filed" | "approved" | "rejected" | "paid";
+    status: 'not_filed' | 'filed' | 'approved' | 'rejected' | 'paid';
     amount?: number;
     claimNumber?: string;
   };
@@ -122,8 +130,8 @@ export interface DisasterStats {
 
 export interface WeatherAlert {
   id: string;
-  type: "storm" | "frost" | "heat" | "rain" | "wind";
-  severity: "advisory" | "watch" | "warning" | "emergency";
+  type: 'storm' | 'frost' | 'heat' | 'rain' | 'wind';
+  severity: 'advisory' | 'watch' | 'warning' | 'emergency';
   title: string;
   titleAr: string;
   description: string;

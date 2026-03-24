@@ -1,17 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Drone Management Page
  * إدارة الطائرات المسيّرة
  */
 
-import Header from "@/components/layout/Header";
-import {
-  Plane,
-  Navigation,
-  CheckCircle,
-  MapPin,
-} from "lucide-react";
+import Header from '@/components/layout/Header';
+import { Plane, Navigation, CheckCircle, MapPin } from 'lucide-react';
 
 export default function DronePage() {
   return (
@@ -69,8 +64,12 @@ export default function DronePage() {
       {/* Content placeholder */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
         <Plane className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">سيتم عرض قائمة أسطول الطائرات المسيّرة هنا</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">Drone fleet list and mission management will be displayed here</p>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          سيتم عرض قائمة أسطول الطائرات المسيّرة هنا
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
+          Drone fleet list and mission management will be displayed here
+        </p>
       </div>
     </div>
   );

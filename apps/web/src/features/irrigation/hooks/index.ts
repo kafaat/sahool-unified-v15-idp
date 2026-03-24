@@ -5,4 +5,4 @@ export {
   useDeleteSchedule,
   useUpdateScheduleStatus,
   irrigationKeys,
-} from "./useIrrigationSchedules";
+} from './useIrrigationSchedules';

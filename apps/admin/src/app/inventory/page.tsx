@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 // Inventory Management Page
 // صفحة إدارة المخزون
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import { useToast } from "@/components/ui/Toast";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Package,
   Search,
@@ -22,53 +22,53 @@ import {
   AlertTriangle,
   TrendingDown,
   Warehouse,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_INVENTORY } from "./inventory.mock";
-import type { InventoryItem } from "./inventory.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { MOCK_INVENTORY } from './inventory.mock';
+import type { InventoryItem } from './inventory.mock';
 
-type ModalMode = "view" | "create" | "edit";
+type ModalMode = 'view' | 'create' | 'edit';
 
 const CATEGORY_OPTIONS = [
-  { value: "seeds", label: "بذور" },
-  { value: "fertilizers", label: "أسمدة" },
-  { value: "pesticides", label: "مبيدات" },
-  { value: "equipment", label: "معدات" },
+  { value: 'seeds', label: 'بذور' },
+  { value: 'fertilizers', label: 'أسمدة' },
+  { value: 'pesticides', label: 'مبيدات' },
+  { value: 'equipment', label: 'معدات' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "in_stock", label: "متوفر" },
-  { value: "low_stock", label: "مخزون منخفض" },
-  { value: "out_of_stock", label: "نفذ" },
-  { value: "expired", label: "منتهي الصلاحية" },
+  { value: 'in_stock', label: 'متوفر' },
+  { value: 'low_stock', label: 'مخزون منخفض' },
+  { value: 'out_of_stock', label: 'نفذ' },
+  { value: 'expired', label: 'منتهي الصلاحية' },
 ];
 
-const EMPTY_FORM: Omit<InventoryItem, "id" | "lastUpdated"> = {
-  name: "",
-  nameAr: "",
-  category: "seeds",
-  categoryAr: "بذور",
-  farmId: "",
-  farmName: "",
-  farmNameAr: "",
+const EMPTY_FORM: Omit<InventoryItem, 'id' | 'lastUpdated'> = {
+  name: '',
+  nameAr: '',
+  category: 'seeds',
+  categoryAr: 'بذور',
+  farmId: '',
+  farmName: '',
+  farmNameAr: '',
   quantity: 0,
-  unit: "كيلو",
+  unit: 'كيلو',
   minQuantity: 0,
   value: 0,
-  currency: "SAR",
-  status: "in_stock",
+  currency: 'SAR',
+  status: 'in_stock',
 };
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<ModalMode>("view");
+  const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -83,8 +83,8 @@ export default function InventoryPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setInventory(MOCK_INVENTORY);
     } catch (error) {
-      logger.error("Failed to load inventory:", error);
-      toast.error("Failed to load inventory", "فشل تحميل المخزون");
+      logger.error('Failed to load inventory:', error);
+      toast.error('Failed to load inventory', 'فشل تحميل المخزون');
     } finally {
       setIsLoading(false);
     }
@@ -112,29 +112,32 @@ export default function InventoryPage() {
     });
   }, [inventory, searchQuery, categoryFilter, statusFilter]);
 
-  const stats = useMemo(() => ({
-    totalItems: inventory.length,
-    totalValue: inventory.reduce((acc, item) => acc + item.value, 0),
-    lowStock: inventory.filter((item) => item.status === "low_stock").length,
-    outOfStock: inventory.filter((item) => item.status === "out_of_stock").length,
-  }), [inventory]);
+  const stats = useMemo(
+    () => ({
+      totalItems: inventory.length,
+      totalValue: inventory.reduce((acc, item) => acc + item.value, 0),
+      lowStock: inventory.filter((item) => item.status === 'low_stock').length,
+      outOfStock: inventory.filter((item) => item.status === 'out_of_stock').length,
+    }),
+    [inventory]
+  );
 
-  const getStatusLabel = useCallback((status: InventoryItem["status"]) => {
-    const labels: Record<InventoryItem["status"], string> = {
-      in_stock: "متوفر",
-      low_stock: "مخزون منخفض",
-      out_of_stock: "نفذ",
-      expired: "منتهي الصلاحية",
+  const getStatusLabel = useCallback((status: InventoryItem['status']) => {
+    const labels: Record<InventoryItem['status'], string> = {
+      in_stock: 'متوفر',
+      low_stock: 'مخزون منخفض',
+      out_of_stock: 'نفذ',
+      expired: 'منتهي الصلاحية',
     };
     return labels[status];
   }, []);
 
-  const getStatusColor = (status: InventoryItem["status"]) => {
-    const colors: Record<InventoryItem["status"], string> = {
-      in_stock: "bg-green-100 text-green-800",
-      low_stock: "bg-yellow-100 text-yellow-800",
-      out_of_stock: "bg-red-100 text-red-800",
-      expired: "bg-gray-100 text-gray-800",
+  const getStatusColor = (status: InventoryItem['status']) => {
+    const colors: Record<InventoryItem['status'], string> = {
+      in_stock: 'bg-green-100 text-green-800',
+      low_stock: 'bg-yellow-100 text-yellow-800',
+      out_of_stock: 'bg-red-100 text-red-800',
+      expired: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
@@ -143,7 +146,7 @@ export default function InventoryPage() {
   const openCreate = useCallback(() => {
     setFormData(EMPTY_FORM);
     setSelectedItem(null);
-    setModalMode("create");
+    setModalMode('create');
     setModalOpen(true);
   }, []);
 
@@ -165,13 +168,13 @@ export default function InventoryPage() {
       expiryDate: item.expiryDate,
     });
     setSelectedItem(item);
-    setModalMode("edit");
+    setModalMode('edit');
     setModalOpen(true);
   }, []);
 
   const openView = useCallback((item: InventoryItem) => {
     setSelectedItem(item);
-    setModalMode("view");
+    setModalMode('view');
     setModalOpen(true);
   }, []);
 
@@ -182,28 +185,24 @@ export default function InventoryPage() {
 
   const handleSave = useCallback(() => {
     if (!formData.nameAr.trim()) {
-      toast.warning("Missing field", "يرجى إدخال اسم الصنف");
+      toast.warning('Missing field', 'يرجى إدخال اسم الصنف');
       return;
     }
 
-    const now = new Date().toISOString().split("T")[0] as string;
+    const now = new Date().toISOString().split('T')[0] as string;
 
-    if (modalMode === "create") {
+    if (modalMode === 'create') {
       const newItem: InventoryItem = {
         ...formData,
         id: crypto.randomUUID(),
         lastUpdated: now,
       };
       setInventory((prev) => [...prev, newItem]);
-      toast.success("Item added", "تمت إضافة الصنف بنجاح");
-    } else if (modalMode === "edit" && selectedItem) {
+      toast.success('Item added', 'تمت إضافة الصنف بنجاح');
+    } else if (modalMode === 'edit' && selectedItem) {
       const updated: InventoryItem = { ...selectedItem, ...formData, lastUpdated: now };
-      setInventory((prev) =>
-        prev.map((item) =>
-          item.id === selectedItem.id ? updated : item
-        )
-      );
-      toast.success("Item updated", "تم تحديث الصنف بنجاح");
+      setInventory((prev) => prev.map((item) => (item.id === selectedItem.id ? updated : item)));
+      toast.success('Item updated', 'تم تحديث الصنف بنجاح');
     }
     closeModal();
   }, [formData, modalMode, selectedItem, closeModal, toast]);
@@ -211,16 +210,25 @@ export default function InventoryPage() {
   const handleDelete = useCallback(() => {
     if (!deleteTarget) return;
     setInventory((prev) => prev.filter((item) => item.id !== deleteTarget.id));
-    toast.success("Item deleted", "تم حذف الصنف بنجاح");
+    toast.success('Item deleted', 'تم حذف الصنف بنجاح');
     setDeleteTarget(null);
   }, [deleteTarget, toast]);
 
   const handleExportCSV = useCallback(() => {
-    const headers = ["الصنف", "الفئة", "المزرعة", "الكمية", "الوحدة", "القيمة", "الحالة", "آخر تحديث"];
+    const headers = [
+      'الصنف',
+      'الفئة',
+      'المزرعة',
+      'الكمية',
+      'الوحدة',
+      'القيمة',
+      'الحالة',
+      'آخر تحديث',
+    ];
     // RFC 4180: wrap fields containing commas, quotes, or newlines
     const escapeCSV = (val: string | number): string => {
       const s = String(val);
-      if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
         return `"${s.replace(/"/g, '""')}"`;
       }
       return s;
@@ -235,34 +243,39 @@ export default function InventoryPage() {
       getStatusLabel(item.status),
       item.lastUpdated,
     ]);
-    const bom = "\uFEFF";
-    const csv = bom + [headers.map(escapeCSV).join(","), ...rows.map((r) => r.map(escapeCSV).join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const bom = '\uFEFF';
+    const csv =
+      bom +
+      [headers.map(escapeCSV).join(','), ...rows.map((r) => r.map(escapeCSV).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `inventory-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.info("Export complete", "تم تصدير البيانات");
+    toast.info('Export complete', 'تم تصدير البيانات');
   }, [filteredInventory, toast, getStatusLabel]);
 
-  const updateField = useCallback(<K extends keyof typeof EMPTY_FORM>(key: K, value: (typeof EMPTY_FORM)[K]) => {
-    setFormData((prev) => {
-      const next = { ...prev, [key]: value };
-      // Auto-sync categoryAr when category changes
-      if (key === "category") {
-        const match = CATEGORY_OPTIONS.find((o) => o.value === value);
-        if (match) next.categoryAr = match.label;
-      }
-      return next;
-    });
-  }, []);
+  const updateField = useCallback(
+    <K extends keyof typeof EMPTY_FORM>(key: K, value: (typeof EMPTY_FORM)[K]) => {
+      setFormData((prev) => {
+        const next = { ...prev, [key]: value };
+        // Auto-sync categoryAr when category changes
+        if (key === 'category') {
+          const match = CATEGORY_OPTIONS.find((o) => o.value === value);
+          if (match) next.categoryAr = match.label;
+        }
+        return next;
+      });
+    },
+    []
+  );
 
   const columns = [
     {
-      key: "name",
-      header: "الصنف",
+      key: 'name',
+      header: 'الصنف',
       render: (item: InventoryItem) => (
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">{item.nameAr}</p>
@@ -271,21 +284,25 @@ export default function InventoryPage() {
       ),
     },
     {
-      key: "farm",
-      header: "المزرعة",
+      key: 'farm',
+      header: 'المزرعة',
       render: (item: InventoryItem) => (
         <span className="text-gray-700 dark:text-gray-300">{item.farmNameAr}</span>
       ),
     },
     {
-      key: "quantity",
-      header: "الكمية",
+      key: 'quantity',
+      header: 'الكمية',
       render: (item: InventoryItem) => (
         <div>
-          <span className={cn(
-            "font-medium",
-            item.quantity <= item.minQuantity ? "text-red-600" : "text-gray-900 dark:text-gray-100"
-          )}>
+          <span
+            className={cn(
+              'font-medium',
+              item.quantity <= item.minQuantity
+                ? 'text-red-600'
+                : 'text-gray-900 dark:text-gray-100'
+            )}
+          >
             {item.quantity} {item.unit}
           </span>
           {item.quantity <= item.minQuantity && (
@@ -295,8 +312,8 @@ export default function InventoryPage() {
       ),
     },
     {
-      key: "value",
-      header: "القيمة",
+      key: 'value',
+      header: 'القيمة',
       render: (item: InventoryItem) => (
         <span className="font-medium text-gray-900 dark:text-gray-100">
           {item.value.toLocaleString()} {item.currency}
@@ -304,24 +321,28 @@ export default function InventoryPage() {
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (item: InventoryItem) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(item.status))}>
+        <span
+          className={cn('px-2 py-1 rounded-full text-xs font-medium', getStatusColor(item.status))}
+        >
           {getStatusLabel(item.status)}
         </span>
       ),
     },
     {
-      key: "lastUpdated",
-      header: "آخر تحديث",
+      key: 'lastUpdated',
+      header: 'آخر تحديث',
       render: (item: InventoryItem) => (
-        <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(item.lastUpdated)}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
+          {formatDate(item.lastUpdated)}
+        </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (item: InventoryItem) => (
         <div className="flex items-center gap-1">
           <button
@@ -350,7 +371,7 @@ export default function InventoryPage() {
           </button>
         </div>
       ),
-      className: "w-28",
+      className: 'w-28',
     },
   ];
 
@@ -366,7 +387,9 @@ export default function InventoryPage() {
               <Package className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalItems}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.totalItems}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الأصناف</p>
             </div>
           </div>
@@ -377,7 +400,9 @@ export default function InventoryPage() {
               <Warehouse className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalValue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.totalValue.toLocaleString()}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي القيمة (SAR)</p>
             </div>
           </div>
@@ -388,7 +413,9 @@ export default function InventoryPage() {
               <TrendingDown className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.lowStock}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.lowStock}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">مخزون منخفض</p>
             </div>
           </div>
@@ -399,7 +426,9 @@ export default function InventoryPage() {
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.outOfStock}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.outOfStock}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">نفذ</p>
             </div>
           </div>
@@ -452,7 +481,12 @@ export default function InventoryPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             aria-label="تحديث البيانات"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             onClick={handleExportCSV}
@@ -498,16 +532,21 @@ export default function InventoryPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="inventory-modal-title"
-          onKeyDown={(e) => { if (e.key === "Escape") closeModal(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeModal();
+          }}
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
           <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 animate-scale-in max-h-[85vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-              <h2 id="inventory-modal-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {modalMode === "create" && "إضافة صنف جديد"}
-                {modalMode === "edit" && "تعديل الصنف"}
-                {modalMode === "view" && "تفاصيل الصنف"}
+              <h2
+                id="inventory-modal-title"
+                className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
+                {modalMode === 'create' && 'إضافة صنف جديد'}
+                {modalMode === 'edit' && 'تعديل الصنف'}
+                {modalMode === 'view' && 'تفاصيل الصنف'}
               </h2>
               <button
                 autoFocus
@@ -521,19 +560,33 @@ export default function InventoryPage() {
 
             {/* Body */}
             <div className="p-6 space-y-4">
-              {modalMode === "view" && selectedItem ? (
+              {modalMode === 'view' && selectedItem ? (
                 <div className="space-y-4">
                   <DetailRow label="الاسم (عربي)" value={selectedItem.nameAr} />
                   <DetailRow label="الاسم (إنجليزي)" value={selectedItem.name} />
                   <DetailRow label="الفئة" value={selectedItem.categoryAr} />
                   <DetailRow label="المزرعة" value={selectedItem.farmNameAr} />
-                  <DetailRow label="الكمية" value={`${selectedItem.quantity} ${selectedItem.unit}`} />
-                  <DetailRow label="الحد الأدنى" value={`${selectedItem.minQuantity} ${selectedItem.unit}`} />
-                  <DetailRow label="القيمة" value={`${selectedItem.value.toLocaleString()} ${selectedItem.currency}`} />
+                  <DetailRow
+                    label="الكمية"
+                    value={`${selectedItem.quantity} ${selectedItem.unit}`}
+                  />
+                  <DetailRow
+                    label="الحد الأدنى"
+                    value={`${selectedItem.minQuantity} ${selectedItem.unit}`}
+                  />
+                  <DetailRow
+                    label="القيمة"
+                    value={`${selectedItem.value.toLocaleString()} ${selectedItem.currency}`}
+                  />
                   <DetailRow
                     label="الحالة"
                     value={
-                      <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(selectedItem.status))}>
+                      <span
+                        className={cn(
+                          'px-2 py-1 rounded-full text-xs font-medium',
+                          getStatusColor(selectedItem.status)
+                        )}
+                      >
                         {getStatusLabel(selectedItem.status)}
                       </span>
                     }
@@ -549,7 +602,7 @@ export default function InventoryPage() {
                     <input
                       type="text"
                       value={formData.nameAr}
-                      onChange={(e) => updateField("nameAr", e.target.value)}
+                      onChange={(e) => updateField('nameAr', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="مثال: سماد NPK"
                     />
@@ -558,7 +611,7 @@ export default function InventoryPage() {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => updateField("name", e.target.value)}
+                      onChange={(e) => updateField('name', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="e.g. NPK Fertilizer"
                     />
@@ -567,22 +620,30 @@ export default function InventoryPage() {
                     <FormField label="الفئة">
                       <select
                         value={formData.category}
-                        onChange={(e) => updateField("category", e.target.value as InventoryItem["category"])}
+                        onChange={(e) =>
+                          updateField('category', e.target.value as InventoryItem['category'])
+                        }
                         className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       >
                         {CATEGORY_OPTIONS.map((o) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
                         ))}
                       </select>
                     </FormField>
                     <FormField label="الحالة">
                       <select
                         value={formData.status}
-                        onChange={(e) => updateField("status", e.target.value as InventoryItem["status"])}
+                        onChange={(e) =>
+                          updateField('status', e.target.value as InventoryItem['status'])
+                        }
                         className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       >
                         {STATUS_OPTIONS.map((o) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
                         ))}
                       </select>
                     </FormField>
@@ -591,7 +652,7 @@ export default function InventoryPage() {
                     <input
                       type="text"
                       value={formData.farmNameAr}
-                      onChange={(e) => updateField("farmNameAr", e.target.value)}
+                      onChange={(e) => updateField('farmNameAr', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       placeholder="مثال: مزرعة الراشد"
                     />
@@ -602,7 +663,7 @@ export default function InventoryPage() {
                         type="number"
                         min={0}
                         value={formData.quantity}
-                        onChange={(e) => updateField("quantity", Number(e.target.value))}
+                        onChange={(e) => updateField('quantity', Number(e.target.value))}
                         className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
@@ -610,7 +671,7 @@ export default function InventoryPage() {
                       <input
                         type="text"
                         value={formData.unit}
-                        onChange={(e) => updateField("unit", e.target.value)}
+                        onChange={(e) => updateField('unit', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
@@ -619,7 +680,7 @@ export default function InventoryPage() {
                         type="number"
                         min={0}
                         value={formData.minQuantity}
-                        onChange={(e) => updateField("minQuantity", Number(e.target.value))}
+                        onChange={(e) => updateField('minQuantity', Number(e.target.value))}
                         className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       />
                     </FormField>
@@ -629,7 +690,7 @@ export default function InventoryPage() {
                       type="number"
                       min={0}
                       value={formData.value}
-                      onChange={(e) => updateField("value", Number(e.target.value))}
+                      onChange={(e) => updateField('value', Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                     />
                   </FormField>
@@ -638,7 +699,7 @@ export default function InventoryPage() {
             </div>
 
             {/* Footer */}
-            {modalMode !== "view" && (
+            {modalMode !== 'view' && (
               <div className="flex gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={closeModal}
@@ -650,7 +711,7 @@ export default function InventoryPage() {
                   onClick={handleSave}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-sahool-600 rounded-lg hover:bg-sahool-700 transition"
                 >
-                  {modalMode === "create" ? "إضافة" : "حفظ التعديلات"}
+                  {modalMode === 'create' ? 'إضافة' : 'حفظ التعديلات'}
                 </button>
               </div>
             )}
@@ -684,7 +745,15 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   );
 }
 
-function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function FormField({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

@@ -3,7 +3,7 @@
 // أنواع الأخطاء المخصصة لعميل API
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 /** V8-specific captureStackTrace (available in Node.js and Chrome) */
 interface ErrorWithCaptureStackTrace extends ErrorConstructor {
@@ -32,11 +32,11 @@ export class ApiError extends Error {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message);
-    this.name = "ApiError";
-    this.code = options.code || "API_ERROR";
+    this.name = 'ApiError';
+    this.code = options.code || 'API_ERROR';
     this.statusCode = options.statusCode;
     this.endpoint = options.endpoint;
     this.method = options.method;
@@ -45,7 +45,7 @@ export class ApiError extends Error {
     this.context = options.context;
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (typeof (Error as ErrorWithCaptureStackTrace).captureStackTrace === "function") {
+    if (typeof (Error as ErrorWithCaptureStackTrace).captureStackTrace === 'function') {
       (Error as ErrorWithCaptureStackTrace).captureStackTrace(this, this.constructor);
     }
   }
@@ -79,13 +79,13 @@ export class NetworkError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "NETWORK_ERROR",
+      code: 'NETWORK_ERROR',
     });
-    this.name = "NetworkError";
+    this.name = 'NetworkError';
   }
 }
 
@@ -100,14 +100,14 @@ export class AuthError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "AUTH_ERROR",
+      code: 'AUTH_ERROR',
       statusCode: 401,
     });
-    this.name = "AuthError";
+    this.name = 'AuthError';
   }
 }
 
@@ -122,14 +122,14 @@ export class AuthorizationError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "AUTHORIZATION_ERROR",
+      code: 'AUTHORIZATION_ERROR',
       statusCode: 403,
     });
-    this.name = "AuthorizationError";
+    this.name = 'AuthorizationError';
   }
 }
 
@@ -144,14 +144,14 @@ export class NotFoundError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "NOT_FOUND",
+      code: 'NOT_FOUND',
       statusCode: 404,
     });
-    this.name = "NotFoundError";
+    this.name = 'NotFoundError';
   }
 }
 
@@ -169,14 +169,14 @@ export class ValidationError extends ApiError {
       originalError?: Error;
       context?: Record<string, unknown>;
       validationErrors?: Record<string, string[]>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "VALIDATION_ERROR",
+      code: 'VALIDATION_ERROR',
       statusCode: 400,
     });
-    this.name = "ValidationError";
+    this.name = 'ValidationError';
     this.validationErrors = options.validationErrors;
   }
 
@@ -200,14 +200,14 @@ export class ServerError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "SERVER_ERROR",
+      code: 'SERVER_ERROR',
       statusCode: options.statusCode || 500,
     });
-    this.name = "ServerError";
+    this.name = 'ServerError';
   }
 }
 
@@ -225,13 +225,13 @@ export class TimeoutError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    },
+    }
   ) {
     super(message, {
       ...options,
-      code: "TIMEOUT_ERROR",
+      code: 'TIMEOUT_ERROR',
     });
-    this.name = "TimeoutError";
+    this.name = 'TimeoutError';
     this.timeout = options.timeout;
   }
 
@@ -257,14 +257,14 @@ export class RateLimitError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {},
+    } = {}
   ) {
     super(message, {
       ...options,
-      code: "RATE_LIMIT_ERROR",
+      code: 'RATE_LIMIT_ERROR',
       statusCode: 429,
     });
-    this.name = "RateLimitError";
+    this.name = 'RateLimitError';
     this.retryAfter = options.retryAfter;
   }
 
@@ -279,31 +279,24 @@ export class RateLimitError extends ApiError {
 /**
  * Parse an Axios error into a custom API error
  */
-export function parseAxiosError(
-  error: AxiosError,
-  endpoint?: string,
-  method?: string,
-): ApiError {
+export function parseAxiosError(error: AxiosError, endpoint?: string, method?: string): ApiError {
   const config = error.config;
   const response = error.response;
 
-  const errorEndpoint = endpoint || config?.url || "unknown";
-  const errorMethod = method || config?.method?.toUpperCase() || "unknown";
+  const errorEndpoint = endpoint || config?.url || 'unknown';
+  const errorMethod = method || config?.method?.toUpperCase() || 'unknown';
 
   // Network errors (no response received)
   if (!response) {
     // Timeout errors
-    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
       const timeout = config?.timeout || 0;
-      return new TimeoutError(
-        `Request timeout after ${timeout}ms: ${errorEndpoint}`,
-        {
-          timeout,
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-        },
-      );
+      return new TimeoutError(`Request timeout after ${timeout}ms: ${errorEndpoint}`, {
+        timeout,
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+      });
     }
 
     // Connection errors
@@ -328,7 +321,7 @@ export function parseAxiosError(
 
   switch (statusCode) {
     case 400:
-      return new ValidationError(errorMessage || "Validation error", {
+      return new ValidationError(errorMessage || 'Validation error', {
         endpoint: errorEndpoint,
         method: errorMethod,
         originalError: error,
@@ -337,29 +330,23 @@ export function parseAxiosError(
       });
 
     case 401:
-      return new AuthError(
-        errorMessage || "Unauthorized - authentication required",
-        {
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode },
-        },
-      );
+      return new AuthError(errorMessage || 'Unauthorized - authentication required', {
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode },
+      });
 
     case 403:
-      return new AuthorizationError(
-        errorMessage || "Forbidden - insufficient permissions",
-        {
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode },
-        },
-      );
+      return new AuthorizationError(errorMessage || 'Forbidden - insufficient permissions', {
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode },
+      });
 
     case 404:
-      return new NotFoundError(errorMessage || "Resource not found", {
+      return new NotFoundError(errorMessage || 'Resource not found', {
         endpoint: errorEndpoint,
         method: errorMethod,
         originalError: error,
@@ -367,11 +354,10 @@ export function parseAxiosError(
       });
 
     case 429: {
-      const retryAfterHeader = response.headers["retry-after"];
-      const retryAfter = typeof retryAfterHeader === "string"
-        ? parseInt(retryAfterHeader, 10)
-        : undefined;
-      return new RateLimitError(errorMessage || "Rate limit exceeded", {
+      const retryAfterHeader = response.headers['retry-after'];
+      const retryAfter =
+        typeof retryAfterHeader === 'string' ? parseInt(retryAfterHeader, 10) : undefined;
+      return new RateLimitError(errorMessage || 'Rate limit exceeded', {
         retryAfter,
         endpoint: errorEndpoint,
         method: errorMethod,
@@ -384,7 +370,7 @@ export function parseAxiosError(
     case 502:
     case 503:
     case 504:
-      return new ServerError(errorMessage || "Server error", {
+      return new ServerError(errorMessage || 'Server error', {
         statusCode,
         endpoint: errorEndpoint,
         method: errorMethod,
@@ -393,7 +379,7 @@ export function parseAxiosError(
       });
 
     default:
-      return new ApiError(errorMessage || "API error", {
+      return new ApiError(errorMessage || 'API error', {
         code: `HTTP_${statusCode}`,
         statusCode,
         endpoint: errorEndpoint,

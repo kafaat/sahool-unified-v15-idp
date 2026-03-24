@@ -9,10 +9,10 @@
  * - Normal localStorage operations still work
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import React from "react";
-import { ThemeProvider, useTheme } from "../theme.store";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import React from 'react';
+import { ThemeProvider, useTheme } from '../theme.store';
 
 function wrapper({ children }: { children: React.ReactNode }) {
   return <ThemeProvider>{children}</ThemeProvider>;
@@ -22,13 +22,13 @@ function wrapper({ children }: { children: React.ReactNode }) {
 // localStorage Failure Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Theme Store - localStorage unavailable (private browsing)", () => {
+describe('Theme Store - localStorage unavailable (private browsing)', () => {
   let getItemSpy: ReturnType<typeof vi.spyOn>;
   let setItemSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.remove('light', 'dark');
   });
 
   afterEach(() => {
@@ -37,15 +37,10 @@ describe("Theme Store - localStorage unavailable (private browsing)", () => {
     if (setItemSpy) setItemSpy.mockRestore();
   });
 
-  it("does not crash when localStorage.getItem throws SecurityError", () => {
-    getItemSpy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockImplementation(() => {
-        throw new DOMException(
-          "The operation is insecure.",
-          "SecurityError",
-        );
-      });
+  it('does not crash when localStorage.getItem throws SecurityError', () => {
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('The operation is insecure.', 'SecurityError');
+    });
 
     // Should not throw - the ThemeProvider should catch the error
     expect(() => {
@@ -54,74 +49,56 @@ describe("Theme Store - localStorage unavailable (private browsing)", () => {
   });
 
   it("falls back to 'system' theme when localStorage.getItem throws", () => {
-    getItemSpy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockImplementation(() => {
-        throw new DOMException(
-          "The operation is insecure.",
-          "SecurityError",
-        );
-      });
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('The operation is insecure.', 'SecurityError');
+    });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     // When localStorage is unavailable, theme should default to "system"
-    expect(result.current.theme).toBe("system");
+    expect(result.current.theme).toBe('system');
   });
 
   it("resolves to a valid theme ('light' or 'dark') even when localStorage fails", () => {
-    getItemSpy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockImplementation(() => {
-        throw new Error("Storage quota exceeded");
-      });
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Storage quota exceeded');
+    });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     // resolvedTheme should still be one of the valid values
-    expect(["light", "dark"]).toContain(result.current.resolvedTheme);
+    expect(['light', 'dark']).toContain(result.current.resolvedTheme);
   });
 
-  it("does not crash when localStorage.setItem throws on theme change", () => {
+  it('does not crash when localStorage.setItem throws on theme change', () => {
     // getItem works fine (returns null = no stored theme)
-    getItemSpy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockReturnValue(null);
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
 
     // setItem throws (e.g. quota exceeded in private browsing)
-    setItemSpy = vi
-      .spyOn(Storage.prototype, "setItem")
-      .mockImplementation(() => {
-        throw new DOMException(
-          "The quota has been exceeded.",
-          "QuotaExceededError",
-        );
-      });
+    setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+    });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     // Changing the theme should not crash even though setItem throws
     expect(() => {
       act(() => {
-        result.current.setTheme("dark");
+        result.current.setTheme('dark');
       });
     }).not.toThrow();
 
     // Theme should still update in memory even though localStorage failed
-    expect(result.current.theme).toBe("dark");
-    expect(result.current.resolvedTheme).toBe("dark");
+    expect(result.current.theme).toBe('dark');
+    expect(result.current.resolvedTheme).toBe('dark');
   });
 
-  it("handles toggleTheme gracefully when localStorage.setItem throws", () => {
-    getItemSpy = vi
-      .spyOn(Storage.prototype, "getItem")
-      .mockReturnValue(null);
+  it('handles toggleTheme gracefully when localStorage.setItem throws', () => {
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
 
-    setItemSpy = vi
-      .spyOn(Storage.prototype, "setItem")
-      .mockImplementation(() => {
-        throw new Error("Private browsing mode");
-      });
+    setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Private browsing mode');
+    });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
@@ -133,7 +110,7 @@ describe("Theme Store - localStorage unavailable (private browsing)", () => {
     }).not.toThrow();
 
     // Theme should have toggled in memory
-    expect(["light", "dark"]).toContain(result.current.resolvedTheme);
+    expect(['light', 'dark']).toContain(result.current.resolvedTheme);
   });
 });
 
@@ -141,23 +118,31 @@ describe("Theme Store - localStorage unavailable (private browsing)", () => {
 // localStorage Working Normally Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Theme Store - localStorage working normally", () => {
+describe('Theme Store - localStorage working normally', () => {
   const realLocalStorage = window.localStorage;
 
   function mockLocalStorageWithValue(themeValue: string | null) {
     const store: Record<string, string> = {};
     if (themeValue !== null) {
-      store["sahool-admin-theme"] = themeValue;
+      store['sahool-admin-theme'] = themeValue;
     }
     const mock = {
       getItem: vi.fn((key: string) => store[key] ?? null),
-      setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
-      removeItem: vi.fn((key: string) => { delete store[key]; }),
-      clear: vi.fn(() => { Object.keys(store).forEach((k) => delete store[k]); }),
+      setItem: vi.fn((key: string, value: string) => {
+        store[key] = value;
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete store[key];
+      }),
+      clear: vi.fn(() => {
+        Object.keys(store).forEach((k) => delete store[k]);
+      }),
       key: vi.fn((_index: number) => null),
-      get length() { return Object.keys(store).length; },
+      get length() {
+        return Object.keys(store).length;
+      },
     };
-    Object.defineProperty(window, "localStorage", {
+    Object.defineProperty(window, 'localStorage', {
       value: mock,
       writable: true,
       configurable: true,
@@ -167,27 +152,27 @@ describe("Theme Store - localStorage working normally", () => {
 
   afterEach(() => {
     // Restore real localStorage
-    Object.defineProperty(window, "localStorage", {
+    Object.defineProperty(window, 'localStorage', {
       value: realLocalStorage,
       writable: true,
       configurable: true,
     });
-    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.remove('light', 'dark');
   });
 
-  it("reads stored theme from localStorage on initialization", async () => {
-    const mock = mockLocalStorageWithValue("dark");
+  it('reads stored theme from localStorage on initialization', async () => {
+    const mock = mockLocalStorageWithValue('dark');
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.theme).toBe("dark");
-      expect(result.current.resolvedTheme).toBe("dark");
+      expect(result.current.theme).toBe('dark');
+      expect(result.current.resolvedTheme).toBe('dark');
     });
-    expect(mock.getItem).toHaveBeenCalledWith("sahool-admin-theme");
+    expect(mock.getItem).toHaveBeenCalledWith('sahool-admin-theme');
   });
 
-  it("persists theme change to localStorage via setItem", async () => {
+  it('persists theme change to localStorage via setItem', async () => {
     const mock = mockLocalStorageWithValue(null);
 
     const { result } = renderHook(() => useTheme(), { wrapper });
@@ -198,32 +183,32 @@ describe("Theme Store - localStorage working normally", () => {
     });
 
     act(() => {
-      result.current.setTheme("dark");
+      result.current.setTheme('dark');
     });
 
-    expect(mock.setItem).toHaveBeenCalledWith("sahool-admin-theme", "dark");
+    expect(mock.setItem).toHaveBeenCalledWith('sahool-admin-theme', 'dark');
   });
 
   it("reads 'light' theme from localStorage correctly", async () => {
-    mockLocalStorageWithValue("light");
+    mockLocalStorageWithValue('light');
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.theme).toBe("light");
-      expect(result.current.resolvedTheme).toBe("light");
+      expect(result.current.theme).toBe('light');
+      expect(result.current.resolvedTheme).toBe('light');
     });
   });
 
   it("reads 'system' theme from localStorage correctly", async () => {
-    mockLocalStorageWithValue("system");
+    mockLocalStorageWithValue('system');
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.theme).toBe("system");
+      expect(result.current.theme).toBe('system');
     });
-    expect(["light", "dark"]).toContain(result.current.resolvedTheme);
+    expect(['light', 'dark']).toContain(result.current.resolvedTheme);
   });
 
   it("defaults to 'system' when localStorage returns null", async () => {
@@ -232,7 +217,7 @@ describe("Theme Store - localStorage working normally", () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.theme).toBe("system");
+      expect(result.current.theme).toBe('system');
     });
   });
 });
@@ -241,48 +226,48 @@ describe("Theme Store - localStorage working normally", () => {
 // DOM Class Application Tests (with localStorage failures)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Theme Store - DOM updates when localStorage fails", () => {
+describe('Theme Store - DOM updates when localStorage fails', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.remove('light', 'dark');
   });
 
-  it("still applies theme class to document.documentElement when localStorage throws", () => {
-    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
-      throw new Error("SecurityError");
+  it('still applies theme class to document.documentElement when localStorage throws', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('SecurityError');
     });
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("SecurityError");
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('SecurityError');
     });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     act(() => {
-      result.current.setTheme("dark");
+      result.current.setTheme('dark');
     });
 
     // DOM should still be updated even when localStorage fails
-    expect(document.documentElement.classList.contains("dark")).toBe(true);
-    expect(document.documentElement.classList.contains("light")).toBe(false);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.classList.contains('light')).toBe(false);
   });
 
-  it("applies correct class after multiple theme changes with failing localStorage", () => {
-    vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("QuotaExceededError");
+  it('applies correct class after multiple theme changes with failing localStorage', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
     });
 
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     act(() => {
-      result.current.setTheme("dark");
+      result.current.setTheme('dark');
     });
-    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
 
     act(() => {
-      result.current.setTheme("light");
+      result.current.setTheme('light');
     });
-    expect(document.documentElement.classList.contains("light")).toBe(true);
-    expect(document.documentElement.classList.contains("dark")).toBe(false);
+    expect(document.documentElement.classList.contains('light')).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 });

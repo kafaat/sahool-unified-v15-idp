@@ -1,48 +1,48 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Admin Login Page
  * صفحة تسجيل الدخول للوحة الإدارة
  */
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/stores/auth.store";
-import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from "lucide-react";
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/stores/auth.store';
+import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get("returnTo") || "/dashboard";
+  const returnTo = searchParams.get('returnTo') || '/dashboard';
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Field-level validation errors
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [touched, setTouched] = useState({ email: false, password: false });
 
   // 2FA states
   const [requires2FA, setRequires2FA] = useState(false);
-  const [_tempToken, setTempToken] = useState("");
-  const [twoFACode, setTwoFACode] = useState("");
+  const [_tempToken, setTempToken] = useState('');
+  const [twoFACode, setTwoFACode] = useState('');
 
   const validateEmail = (value: string): string => {
-    if (!value.trim()) return "البريد الإلكتروني مطلوب";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "صيغة البريد الإلكتروني غير صحيحة";
-    return "";
+    if (!value.trim()) return 'البريد الإلكتروني مطلوب';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
+    return '';
   };
 
   const validatePassword = (value: string): string => {
-    if (!value) return "كلمة المرور مطلوبة";
-    if (value.length < 6) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
-    return "";
+    if (!value) return 'كلمة المرور مطلوبة';
+    if (value.length < 6) return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+    return '';
   };
 
   const handleEmailBlur = () => {
@@ -66,31 +66,22 @@ function LoginForm() {
     setTouched({ email: true, password: true });
     if (eErr || pErr) return;
 
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
-      const result = await login(
-        email,
-        password,
-        requires2FA ? twoFACode : undefined,
-      );
+      const result = await login(email, password, requires2FA ? twoFACode : undefined);
 
       // Check if 2FA is required
-      if (
-        result &&
-        typeof result === "object" &&
-        "requires_2fa" in result &&
-        result.requires_2fa
-      ) {
+      if (result && typeof result === 'object' && 'requires_2fa' in result && result.requires_2fa) {
         setRequires2FA(true);
-        setTempToken(result.temp_token || "");
-        setError("");
+        setTempToken(result.temp_token || '');
+        setError('');
       } else {
         router.push(returnTo);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "فشل تسجيل الدخول");
+      setError(err instanceof Error ? err.message : 'فشل تسجيل الدخول');
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +89,7 @@ function LoginForm() {
 
   const handle2FASubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
@@ -106,7 +97,7 @@ function LoginForm() {
       await login(email, password, twoFACode);
       router.push(returnTo);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "رمز التحقق غير صحيح");
+      setError(err instanceof Error ? err.message : 'رمز التحقق غير صحيح');
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +118,7 @@ function LoginForm() {
         {/* Login Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            {requires2FA ? "التحقق الثنائي" : "تسجيل الدخول"}
+            {requires2FA ? 'التحقق الثنائي' : 'تسجيل الدخول'}
           </h2>
 
           {error && (
@@ -142,10 +133,7 @@ function LoginForm() {
             </div>
           )}
 
-          <form
-            onSubmit={requires2FA ? handle2FASubmit : handleSubmit}
-            className="space-y-5"
-          >
+          <form onSubmit={requires2FA ? handle2FASubmit : handleSubmit} className="space-y-5">
             {!requires2FA && (
               <>
                 {/* Email Field */}
@@ -169,14 +157,14 @@ function LoginForm() {
                       onBlur={handleEmailBlur}
                       className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 outline-none transition ${
                         touched.email && emailError
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500"
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500'
                       } dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500`}
                       placeholder="admin@sahool.io"
                       required
                       dir="ltr"
                       aria-invalid={touched.email && !!emailError}
-                      aria-describedby={emailError ? "email-error" : undefined}
+                      aria-describedby={emailError ? 'email-error' : undefined}
                     />
                   </div>
                   {touched.email && emailError && (
@@ -206,7 +194,7 @@ function LoginForm() {
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       id="password"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
@@ -215,26 +203,22 @@ function LoginForm() {
                       onBlur={handlePasswordBlur}
                       className={`w-full pr-10 pl-12 py-3 border rounded-lg focus:ring-2 outline-none transition ${
                         touched.password && passwordError
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500"
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 dark:border-gray-600 focus:ring-sahool-500 focus:border-sahool-500'
                       } dark:bg-gray-700 dark:text-gray-100`}
                       placeholder="••••••••"
                       required
                       dir="ltr"
                       aria-invalid={touched.password && !!passwordError}
-                      aria-describedby={passwordError ? "password-error" : undefined}
+                      aria-describedby={passwordError ? 'password-error' : undefined}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                      aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                     >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                   {touched.password && passwordError && (
@@ -261,11 +245,7 @@ function LoginForm() {
                     id="twoFACode"
                     type="text"
                     value={twoFACode}
-                    onChange={(e) =>
-                      setTwoFACode(
-                        e.target.value.replace(/\D/g, "").slice(0, 6),
-                      )
-                    }
+                    onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-sahool-500 outline-none transition text-center text-2xl tracking-widest"
                     placeholder="000000"
                     required
@@ -289,12 +269,10 @@ function LoginForm() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>
-                    {requires2FA ? "جاري التحقق..." : "جاري تسجيل الدخول..."}
-                  </span>
+                  <span>{requires2FA ? 'جاري التحقق...' : 'جاري تسجيل الدخول...'}</span>
                 </>
               ) : (
-                <span>{requires2FA ? "تحقق" : "تسجيل الدخول"}</span>
+                <span>{requires2FA ? 'تحقق' : 'تسجيل الدخول'}</span>
               )}
             </button>
 
@@ -304,8 +282,8 @@ function LoginForm() {
                 type="button"
                 onClick={() => {
                   setRequires2FA(false);
-                  setTwoFACode("");
-                  setError("");
+                  setTwoFACode('');
+                  setError('');
                 }}
                 className="w-full text-sahool-600 py-2 px-4 rounded-lg font-medium hover:bg-sahool-50 transition"
               >
@@ -317,7 +295,7 @@ function LoginForm() {
           {/* Registration Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              ليس لديك حساب؟{" "}
+              ليس لديك حساب؟{' '}
               <Link
                 href="/register"
                 className="text-sahool-600 font-medium hover:text-sahool-700 hover:underline"

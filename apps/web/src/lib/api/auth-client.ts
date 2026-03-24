@@ -10,9 +10,8 @@
  * that need field, weather, sensor, irrigation, and other domain API methods.
  */
 
-import Cookies from "js-cookie";
-import { logger } from "../logger";
-
+import Cookies from 'js-cookie';
+import { logger } from '../logger';
 
 // ---------------------------------------------------------------------------
 // Types (inline to avoid importing the 510-line types.ts)
@@ -44,7 +43,7 @@ interface LoginResponse {
 // Config
 // ---------------------------------------------------------------------------
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const DEFAULT_TIMEOUT = 30000;
 
 // ---------------------------------------------------------------------------
@@ -73,20 +72,19 @@ class AuthApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit & { timeout?: number } = {},
+    options: RequestInit & { timeout?: number } = {}
   ): Promise<ApiResponse<T>> {
     const { timeout = DEFAULT_TIMEOUT, ...fetchOptions } = options;
 
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: HeadersInit = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...options.headers,
     };
 
     if (this.token) {
-      (headers as Record<string, string>)["Authorization"] =
-        `Bearer ${this.token}`;
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
     }
 
     try {
@@ -99,20 +97,20 @@ class AuthApiClient {
           ...fetchOptions,
           headers,
           signal: controller.signal,
-          credentials: "include",
+          credentials: 'include',
         });
       } finally {
         clearTimeout(timeoutId);
       }
 
       let data: any;
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers.get('content-type');
 
-      if (contentType && contentType.includes("application/json")) {
+      if (contentType && contentType.includes('application/json')) {
         try {
           data = await response.json();
         } catch {
-          return { success: false, error: "Invalid JSON response from server" };
+          return { success: false, error: 'Invalid JSON response from server' };
         }
       } else {
         data = await response.text();
@@ -121,26 +119,19 @@ class AuthApiClient {
       if (!response.ok) {
         return {
           success: false,
-          error:
-            data?.error ||
-            data?.message ||
-            `Request failed with status ${response.status}`,
+          error: data?.error || data?.message || `Request failed with status ${response.status}`,
         };
       }
 
-      return typeof data === "object" && data !== null
-        ? data
-        : { success: true, data: data as T };
+      return typeof data === 'object' && data !== null ? data : { success: true, data: data as T };
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        return { success: false, error: "Request timeout" };
+      if (error instanceof Error && error.name === 'AbortError') {
+        return { success: false, error: 'Request timeout' };
       }
       return {
         success: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Network error - please check your connection",
+          error instanceof Error ? error.message : 'Network error - please check your connection',
       };
     }
   }
@@ -153,22 +144,22 @@ class AuthApiClient {
     // Basic email validation (avoids importing the full validation.ts)
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      return { success: false as const, error: "Invalid email format" };
+      return { success: false as const, error: 'Invalid email format' };
     }
 
-    return this.request<LoginResponse>("/api/v1/auth/login", {
-      method: "POST",
+    return this.request<LoginResponse>('/api/v1/auth/login', {
+      method: 'POST',
       body: JSON.stringify({ email: trimmedEmail, password }),
     });
   }
 
   async getCurrentUser() {
-    return this.request<AuthUser>("/api/v1/auth/me");
+    return this.request<AuthUser>('/api/v1/auth/me');
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>("/api/v1/auth/refresh", {
-      method: "POST",
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
   }
@@ -179,11 +170,11 @@ class AuthApiClient {
    */
   async attemptTokenRefresh(): Promise<boolean> {
     try {
-      if (typeof window === "undefined") return false;
+      if (typeof window === 'undefined') return false;
 
-      const refreshTokenValue = Cookies.get("refresh_token");
+      const refreshTokenValue = Cookies.get('refresh_token');
       if (!refreshTokenValue) {
-        logger.warn("No refresh token available");
+        logger.warn('No refresh token available');
         return false;
       }
 
@@ -191,27 +182,27 @@ class AuthApiClient {
 
       if (response.success && response.data?.access_token) {
         // Clear any legacy path-scoped cookie before setting the root one
-        Cookies.remove("access_token");
+        Cookies.remove('access_token');
 
-        Cookies.set("access_token", response.data.access_token, {
+        Cookies.set('access_token', response.data.access_token, {
           expires: 7,
-          secure: window.location.protocol === "https:",
-          sameSite: "strict",
-          path: "/",
+          secure: window.location.protocol === 'https:',
+          sameSite: 'strict',
+          path: '/',
         });
         this.setToken(response.data.access_token);
         return true;
       } else {
         // Clear root-scoped + legacy path-scoped cookies
-        Cookies.remove("access_token", { path: "/" });
-        Cookies.remove("refresh_token", { path: "/" });
-        Cookies.remove("access_token");
-        Cookies.remove("refresh_token");
+        Cookies.remove('access_token', { path: '/' });
+        Cookies.remove('refresh_token', { path: '/' });
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
         this.clearToken();
         return false;
       }
     } catch (error) {
-      logger.error("Error refreshing token:", error);
+      logger.error('Error refreshing token:', error);
       return false;
     }
   }

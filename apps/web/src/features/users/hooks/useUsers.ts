@@ -3,18 +3,18 @@
  * خطافات React لميزة المستخدمين
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { usersApi } from "../api";
-import type { UserFilters, UserFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { usersApi } from '../api';
+import type { UserFilters, UserFormData } from '../types';
 
 export const userKeys = {
-  all: ["users"] as const,
-  lists: () => [...userKeys.all, "list"] as const,
+  all: ['users'] as const,
+  lists: () => [...userKeys.all, 'list'] as const,
   list: (filters?: UserFilters) => [...userKeys.lists(), filters] as const,
-  detail: (id: string) => [...userKeys.all, "detail", id] as const,
-  stats: () => [...userKeys.all, "stats"] as const,
+  detail: (id: string) => [...userKeys.all, 'detail', id] as const,
+  stats: () => [...userKeys.all, 'stats'] as const,
 };
 
 export function useUsers(filters?: UserFilters) {
@@ -79,7 +79,7 @@ export function useDeleteUser() {
 export function useToggleUserStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "active" | "suspended" }) =>
+    mutationFn: ({ id, status }: { id: string; status: 'active' | 'suspended' }) =>
       usersApi.toggleStatus(id, status),
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: userKeys.lists() });

@@ -1,18 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import {
-  Bug,
-  Search,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Leaf,
-  Camera,
-} from "lucide-react";
+import React, { useState, useMemo } from 'react';
+import { Bug, Search, AlertTriangle, CheckCircle, Clock, Leaf, Camera } from 'lucide-react';
 
-type DiseaseStatus = "active" | "treated" | "resolved" | "monitoring";
-type DiseaseSeverity = "low" | "medium" | "high" | "critical";
+type DiseaseStatus = 'active' | 'treated' | 'resolved' | 'monitoring';
+type DiseaseSeverity = 'low' | 'medium' | 'high' | 'critical';
 
 interface Disease {
   id: string;
@@ -32,80 +24,80 @@ interface Disease {
 
 const mockDiseases: Disease[] = [
   {
-    id: "1",
-    name: "Wheat Rust",
-    nameAr: "صدأ القمح",
-    cropType: "Wheat",
-    cropTypeAr: "قمح",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    severity: "high",
-    status: "active",
+    id: '1',
+    name: 'Wheat Rust',
+    nameAr: 'صدأ القمح',
+    cropType: 'Wheat',
+    cropTypeAr: 'قمح',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    severity: 'high',
+    status: 'active',
     affectedArea: 2.5,
-    detectedAt: "2025-01-24T10:00:00Z",
+    detectedAt: '2025-01-24T10:00:00Z',
   },
   {
-    id: "2",
-    name: "Powdery Mildew",
-    nameAr: "البياض الدقيقي",
-    cropType: "Barley",
-    cropTypeAr: "شعير",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    severity: "medium",
-    status: "treated",
+    id: '2',
+    name: 'Powdery Mildew',
+    nameAr: 'البياض الدقيقي',
+    cropType: 'Barley',
+    cropTypeAr: 'شعير',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    severity: 'medium',
+    status: 'treated',
     affectedArea: 1.2,
-    detectedAt: "2025-01-20T08:30:00Z",
-    treatment: "Fungicide application",
-    treatmentAr: "رش مبيد فطري",
+    detectedAt: '2025-01-20T08:30:00Z',
+    treatment: 'Fungicide application',
+    treatmentAr: 'رش مبيد فطري',
   },
   {
-    id: "3",
-    name: "Aphid Infestation",
-    nameAr: "إصابة المن",
-    cropType: "Vegetables",
-    cropTypeAr: "خضروات",
-    fieldId: "field-3",
-    fieldName: "حقل الخضروات",
-    severity: "low",
-    status: "monitoring",
+    id: '3',
+    name: 'Aphid Infestation',
+    nameAr: 'إصابة المن',
+    cropType: 'Vegetables',
+    cropTypeAr: 'خضروات',
+    fieldId: 'field-3',
+    fieldName: 'حقل الخضروات',
+    severity: 'low',
+    status: 'monitoring',
     affectedArea: 0.5,
-    detectedAt: "2025-01-23T14:00:00Z",
+    detectedAt: '2025-01-23T14:00:00Z',
   },
   {
-    id: "4",
-    name: "Root Rot",
-    nameAr: "تعفن الجذور",
-    cropType: "Date Palm",
-    cropTypeAr: "نخيل",
-    fieldId: "field-4",
-    fieldName: "بستان النخيل",
-    severity: "critical",
-    status: "active",
+    id: '4',
+    name: 'Root Rot',
+    nameAr: 'تعفن الجذور',
+    cropType: 'Date Palm',
+    cropTypeAr: 'نخيل',
+    fieldId: 'field-4',
+    fieldName: 'بستان النخيل',
+    severity: 'critical',
+    status: 'active',
     affectedArea: 0.8,
-    detectedAt: "2025-01-25T06:00:00Z",
+    detectedAt: '2025-01-25T06:00:00Z',
   },
   {
-    id: "5",
-    name: "Leaf Spot",
-    nameAr: "تبقع الأوراق",
-    cropType: "Tomato",
-    cropTypeAr: "طماطم",
-    fieldId: "field-5",
-    fieldName: "الصوب الزراعية",
-    severity: "medium",
-    status: "resolved",
+    id: '5',
+    name: 'Leaf Spot',
+    nameAr: 'تبقع الأوراق',
+    cropType: 'Tomato',
+    cropTypeAr: 'طماطم',
+    fieldId: 'field-5',
+    fieldName: 'الصوب الزراعية',
+    severity: 'medium',
+    status: 'resolved',
     affectedArea: 0.3,
-    detectedAt: "2025-01-15T09:00:00Z",
-    treatment: "Removed affected plants",
-    treatmentAr: "إزالة النباتات المصابة",
+    detectedAt: '2025-01-15T09:00:00Z',
+    treatment: 'Removed affected plants',
+    treatmentAr: 'إزالة النباتات المصابة',
   },
 ];
 
 export default function DiseasesClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<DiseaseStatus | "all">("all");
-  const [severityFilter, setSeverityFilter] = useState<DiseaseSeverity | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<DiseaseStatus | 'all'>('all');
+  const [severityFilter, setSeverityFilter] = useState<DiseaseSeverity | 'all'>('all');
 
   const filteredDiseases = useMemo(() => {
     return mockDiseases.filter((disease) => {
@@ -113,24 +105,24 @@ export default function DiseasesClient() {
         !searchTerm ||
         disease.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         disease.nameAr.includes(searchTerm);
-      const matchesStatus = statusFilter === "all" || disease.status === statusFilter;
-      const matchesSeverity = severityFilter === "all" || disease.severity === severityFilter;
+      const matchesStatus = statusFilter === 'all' || disease.status === statusFilter;
+      const matchesSeverity = severityFilter === 'all' || disease.severity === severityFilter;
       return matchesSearch && matchesStatus && matchesSeverity;
     });
   }, [searchTerm, statusFilter, severityFilter]);
 
   const getSeverityBadge = (severity: DiseaseSeverity) => {
     const styles = {
-      low: "bg-green-100 text-green-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      high: "bg-orange-100 text-orange-800",
-      critical: "bg-red-100 text-red-800",
+      low: 'bg-green-100 text-green-800',
+      medium: 'bg-yellow-100 text-yellow-800',
+      high: 'bg-orange-100 text-orange-800',
+      critical: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: "منخفض",
-      medium: "متوسط",
-      high: "عالي",
-      critical: "حرج",
+      low: 'منخفض',
+      medium: 'متوسط',
+      high: 'عالي',
+      critical: 'حرج',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[severity]}`}>
@@ -141,16 +133,16 @@ export default function DiseasesClient() {
 
   const getStatusBadge = (status: DiseaseStatus) => {
     const styles = {
-      active: "bg-red-100 text-red-800",
-      treated: "bg-blue-100 text-blue-800",
-      resolved: "bg-green-100 text-green-800",
-      monitoring: "bg-yellow-100 text-yellow-800",
+      active: 'bg-red-100 text-red-800',
+      treated: 'bg-blue-100 text-blue-800',
+      resolved: 'bg-green-100 text-green-800',
+      monitoring: 'bg-yellow-100 text-yellow-800',
     };
     const labels = {
-      active: "نشط",
-      treated: "تحت العلاج",
-      resolved: "تم الحل",
-      monitoring: "تحت المراقبة",
+      active: 'نشط',
+      treated: 'تحت العلاج',
+      resolved: 'تم الحل',
+      monitoring: 'تحت المراقبة',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -159,8 +151,8 @@ export default function DiseasesClient() {
     );
   };
 
-  const activeCount = mockDiseases.filter((d) => d.status === "active").length;
-  const criticalCount = mockDiseases.filter((d) => d.severity === "critical").length;
+  const activeCount = mockDiseases.filter((d) => d.status === 'active').length;
+  const criticalCount = mockDiseases.filter((d) => d.severity === 'critical').length;
 
   return (
     <div className="space-y-6">
@@ -209,7 +201,7 @@ export default function DiseasesClient() {
             <div>
               <div className="text-sm text-gray-500">تحت العلاج</div>
               <div className="text-xl font-bold text-blue-600">
-                {mockDiseases.filter((d) => d.status === "treated").length}
+                {mockDiseases.filter((d) => d.status === 'treated').length}
               </div>
             </div>
           </div>
@@ -222,7 +214,7 @@ export default function DiseasesClient() {
             <div>
               <div className="text-sm text-gray-500">تحت المراقبة</div>
               <div className="text-xl font-bold text-yellow-600">
-                {mockDiseases.filter((d) => d.status === "monitoring").length}
+                {mockDiseases.filter((d) => d.status === 'monitoring').length}
               </div>
             </div>
           </div>
@@ -235,7 +227,7 @@ export default function DiseasesClient() {
             <div>
               <div className="text-sm text-gray-500">تم الحل</div>
               <div className="text-xl font-bold text-green-600">
-                {mockDiseases.filter((d) => d.status === "resolved").length}
+                {mockDiseases.filter((d) => d.status === 'resolved').length}
               </div>
             </div>
           </div>
@@ -256,7 +248,7 @@ export default function DiseasesClient() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as DiseaseStatus | "all")}
+          onChange={(e) => setStatusFilter(e.target.value as DiseaseStatus | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الحالات</option>
@@ -267,7 +259,7 @@ export default function DiseasesClient() {
         </select>
         <select
           value={severityFilter}
-          onChange={(e) => setSeverityFilter(e.target.value as DiseaseSeverity | "all")}
+          onChange={(e) => setSeverityFilter(e.target.value as DiseaseSeverity | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الشدة</option>
@@ -287,10 +279,14 @@ export default function DiseasesClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المرض</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المحصول</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحقل</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المساحة المتأثرة</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  المساحة المتأثرة
+                </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الشدة</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">

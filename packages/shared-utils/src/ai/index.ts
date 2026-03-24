@@ -34,7 +34,7 @@ export {
   estimateTokens,
   detectPrimaryLanguage,
   type CompressionResult,
-} from "./context-compressor";
+} from './context-compressor';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Farm Memory Exports
@@ -50,7 +50,7 @@ export {
   type MemoryConfig,
   type MemoryEntry,
   type RecallResult,
-} from "./farm-memory";
+} from './farm-memory';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Recommendation Evaluator Exports
@@ -68,10 +68,10 @@ export {
   generateImprovements,
   type CriteriaScore,
   type EvaluationResult,
-} from "./recommendation-evaluator";
+} from './recommendation-evaluator';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Version
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const AI_CONTEXT_ENGINEERING_VERSION = "1.0.0";
+export const AI_CONTEXT_ENGINEERING_VERSION = '1.0.0';

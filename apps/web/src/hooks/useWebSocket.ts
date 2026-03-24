@@ -9,9 +9,9 @@
  * - Tab visibility awareness (pause when hidden)
  */
 
-import { useEffect, useRef, useCallback, useState } from "react";
-import { WSMessage } from "../types";
-import { logger } from "../lib/logger";
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { WSMessage } from '../types';
+import { logger } from '../lib/logger';
 
 interface UseWebSocketOptions {
   url: string;
@@ -41,9 +41,7 @@ export function useWebSocket({
   const pongTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onMessageRef = useRef(onMessage);
   const isMountedRef = useRef(true);
-  const isTabVisibleRef = useRef(
-    typeof document !== "undefined" ? !document.hidden : true,
-  );
+  const isTabVisibleRef = useRef(typeof document !== 'undefined' ? !document.hidden : true);
   const sendBufferRef = useRef<unknown[]>([]);
   // Use a ref for reconnect count in backoff calculation to keep connect() stable
   const reconnectCountRef = useRef(0);
@@ -66,8 +64,8 @@ export function useWebSocket({
         connectRef.current();
       }
     };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [isConnected, enabled]);
 
   // Flush buffered outbound messages over the now-open WebSocket
@@ -78,7 +76,7 @@ export function useWebSocket({
         try {
           wsRef.current?.send(JSON.stringify(msg));
         } catch (err) {
-          logger.error("Failed to flush buffered message:", err);
+          logger.error('Failed to flush buffered message:', err);
         }
       });
       sendBufferRef.current = [];
@@ -95,11 +93,11 @@ export function useWebSocket({
         // the stale-connection detector when heartbeatInterval < 10 s.
         if (pongTimeoutRef.current) return;
 
-        wsRef.current.send(JSON.stringify({ type: "ping", ts: Date.now() }));
+        wsRef.current.send(JSON.stringify({ type: 'ping', ts: Date.now() }));
 
         // Expect pong within 10 seconds
         pongTimeoutRef.current = setTimeout(() => {
-          logger.log("WebSocket heartbeat timeout - connection stale, reconnecting...");
+          logger.log('WebSocket heartbeat timeout - connection stale, reconnecting...');
           wsRef.current?.close();
         }, 10000);
       }
@@ -119,7 +117,13 @@ export function useWebSocket({
 
   const connect = useCallback(() => {
     // Don't connect if unmounted, disabled, tab hidden, or manually disconnected
-    if (!isMountedRef.current || !enabled || !isTabVisibleRef.current || !shouldReconnectRef.current) return;
+    if (
+      !isMountedRef.current ||
+      !enabled ||
+      !isTabVisibleRef.current ||
+      !shouldReconnectRef.current
+    )
+      return;
 
     try {
       // Clean up existing connection
@@ -138,7 +142,7 @@ export function useWebSocket({
       // Append token as query parameter when provided
       let connectUrl = url;
       if (token) {
-        const separator = url.includes("?") ? "&" : "?";
+        const separator = url.includes('?') ? '&' : '?';
         connectUrl = `${url}${separator}token=${encodeURIComponent(token)}`;
       }
 
@@ -154,7 +158,7 @@ export function useWebSocket({
         setError(null);
         setReconnectCount(0);
         reconnectCountRef.current = 0;
-        logger.log("WebSocket connected");
+        logger.log('WebSocket connected');
 
         // Flush any buffered outbound messages
         flushSendBuffer();
@@ -168,7 +172,7 @@ export function useWebSocket({
           const message: WSMessage = JSON.parse(event.data);
 
           // Handle pong response - clear pong timeout
-          if (message.type === "pong") {
+          if (message.type === 'pong') {
             if (pongTimeoutRef.current) {
               clearTimeout(pongTimeoutRef.current);
               pongTimeoutRef.current = null;
@@ -178,7 +182,7 @@ export function useWebSocket({
 
           onMessageRef.current?.(message);
         } catch (err) {
-          logger.error("Failed to parse WebSocket message:", err);
+          logger.error('Failed to parse WebSocket message:', err);
         }
       };
 
@@ -192,29 +196,26 @@ export function useWebSocket({
         // Authentication failure - don't reconnect
         const code = (event as CloseEvent)?.code;
         if (code === 4001 || code === 4003) {
-          setError("Authentication failed");
-          logger.log("WebSocket authentication failed, not reconnecting");
+          setError('Authentication failed');
+          logger.log('WebSocket authentication failed, not reconnecting');
           return;
         }
 
         // Don't reconnect if manually disconnected or unmounting
         if (!shouldReconnectRef.current) {
-          logger.log("WebSocket disconnected, reconnect suppressed");
+          logger.log('WebSocket disconnected, reconnect suppressed');
           return;
         }
 
         // Don't reconnect if tab is hidden
         if (!isTabVisibleRef.current) {
-          logger.log("WebSocket disconnected, tab hidden - waiting for visibility");
+          logger.log('WebSocket disconnected, tab hidden - waiting for visibility');
           return;
         }
 
         // Exponential backoff using ref to avoid dependency on state
         const currentCount = reconnectCountRef.current;
-        const backoff = Math.min(
-          reconnectInterval * Math.pow(2, currentCount),
-          60000
-        );
+        const backoff = Math.min(reconnectInterval * Math.pow(2, currentCount), 60000);
         logger.log(`WebSocket disconnected, reconnecting in ${backoff}ms...`);
         reconnectCountRef.current = currentCount + 1;
         setReconnectCount(reconnectCountRef.current);
@@ -230,12 +231,12 @@ export function useWebSocket({
 
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        logger.error("WebSocket error:", event);
-        setError("Connection unavailable");
+        logger.error('WebSocket error:', event);
+        setError('Connection unavailable');
       };
     } catch (err) {
-      logger.error("Failed to connect WebSocket:", err);
-      setError(err instanceof Error ? err.message : "Failed to connect");
+      logger.error('Failed to connect WebSocket:', err);
+      setError(err instanceof Error ? err.message : 'Failed to connect');
     }
   }, [url, token, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
 
@@ -269,16 +270,19 @@ export function useWebSocket({
     };
   }, [connect, enabled, stopHeartbeat]);
 
-  const send = useCallback((data: unknown) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
-    } else {
-      // Buffer outbound message for sending when reconnected
-      if (sendBufferRef.current.length < maxBufferSize) {
-        sendBufferRef.current.push(data);
+  const send = useCallback(
+    (data: unknown) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify(data));
+      } else {
+        // Buffer outbound message for sending when reconnected
+        if (sendBufferRef.current.length < maxBufferSize) {
+          sendBufferRef.current.push(data);
+        }
       }
-    }
-  }, [maxBufferSize]);
+    },
+    [maxBufferSize]
+  );
 
   const disconnect = useCallback(() => {
     shouldReconnectRef.current = false;

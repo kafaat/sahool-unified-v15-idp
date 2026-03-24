@@ -1,15 +1,15 @@
-"use client";
-import * as React from "react";
-import { clsx } from "clsx";
-import { X } from "lucide-react";
-import FocusLock from "react-focus-lock";
+'use client';
+import * as React from 'react';
+import { clsx } from 'clsx';
+import { X } from 'lucide-react';
+import FocusLock from 'react-focus-lock';
 
 export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   titleAr?: string;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   closeOnOverlay?: boolean;
   showCloseButton?: boolean;
   /** Optional description ID for aria-describedby */
@@ -27,12 +27,12 @@ export function Modal({
   onClose,
   title,
   titleAr,
-  size = "md",
+  size = 'md',
   closeOnOverlay = true,
   showCloseButton = true,
   descriptionId,
-  closeLabel = "Close",
-  closeLabelAr = "إغلاق",
+  closeLabel = 'Close',
+  closeLabelAr = 'إغلاق',
   initialFocusRef,
   children,
   className,
@@ -44,7 +44,7 @@ export function Modal({
 
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         e.preventDefault();
         e.stopPropagation();
         onClose();
@@ -55,8 +55,8 @@ export function Modal({
       // Store currently focused element
       previousActiveElement.current = document.activeElement;
 
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
 
       // Focus initial element or modal
       if (initialFocusRef?.current) {
@@ -66,18 +66,18 @@ export function Modal({
       }
 
       // Announce modal to screen readers
-      const announcement = titleAr || title || "Dialog opened";
-      const ariaLive = document.createElement("div");
-      ariaLive.setAttribute("role", "status");
-      ariaLive.setAttribute("aria-live", "polite");
-      ariaLive.setAttribute("aria-atomic", "true");
-      ariaLive.className = "sr-only";
+      const announcement = titleAr || title || 'Dialog opened';
+      const ariaLive = document.createElement('div');
+      ariaLive.setAttribute('role', 'status');
+      ariaLive.setAttribute('aria-live', 'polite');
+      ariaLive.setAttribute('aria-atomic', 'true');
+      ariaLive.className = 'sr-only';
       ariaLive.textContent = announcement;
       document.body.appendChild(ariaLive);
 
       return () => {
-        document.removeEventListener("keydown", handleEscape);
-        document.body.style.overflow = "unset";
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
         ariaLive.remove();
 
         // Restore focus to previous element
@@ -88,19 +88,19 @@ export function Modal({
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose, title, titleAr, initialFocusRef]);
 
   if (!isOpen) return null;
 
   const sizes = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl",
-    full: "max-w-full mx-4",
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+    full: 'max-w-full mx-4',
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -124,11 +124,11 @@ export function Modal({
           aria-describedby={descriptionId}
           tabIndex={-1}
           className={clsx(
-            "relative bg-white rounded-lg shadow-xl w-full",
+            'relative bg-white rounded-lg shadow-xl w-full',
             sizes[size],
-            "max-h-[90vh] flex flex-col",
-            "focus:outline-none",
-            className,
+            'max-h-[90vh] flex flex-col',
+            'focus:outline-none',
+            className
           )}
           {...props}
         >
@@ -139,9 +139,7 @@ export function Modal({
                 <h2 id={titleId} className="text-xl font-bold text-gray-900">
                   <span className="text-gray-900">{titleAr}</span>
                   {titleAr && title && <span className="mx-2">•</span>}
-                  {title && (
-                    <span className="text-gray-600 text-base">{title}</span>
-                  )}
+                  {title && <span className="text-gray-600 text-base">{title}</span>}
                 </h2>
               )}
               {showCloseButton && (
@@ -165,19 +163,16 @@ export function Modal({
   );
 }
 
-export function ModalFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function ModalFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={clsx(
-        "flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50",
-        className,
+        'flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50',
+        className
       )}
       {...props}
     />
   );
 }
 
-ModalFooter.displayName = "ModalFooter";
+ModalFooter.displayName = 'ModalFooter';

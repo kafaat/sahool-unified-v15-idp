@@ -3,8 +3,8 @@
  * أنواع ميزة الري
  */
 
-export type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
-export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+export type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
+export type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
 
 export interface IrrigationSchedule {
   id: string;

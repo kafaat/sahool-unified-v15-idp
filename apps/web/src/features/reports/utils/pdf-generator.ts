@@ -6,25 +6,25 @@
  * For actual PDF rendering, consider adding @react-pdf/renderer or jspdf to package.json
  */
 
-import { logger } from "@/lib/logger";
+import { logger } from '@/lib/logger';
 import type {
   PDFGenerationOptions,
   PDFChartConfig,
   FieldReportData,
   SeasonReportData,
   ReportSection,
-} from "../types/reports";
+} from '../types/reports';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Default PDF Options
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const DEFAULT_PDF_OPTIONS: PDFGenerationOptions = {
-  language: "both",
+  language: 'both',
   includeCharts: true,
   includeMaps: true,
-  pageSize: "A4",
-  orientation: "portrait",
+  pageSize: 'A4',
+  orientation: 'portrait',
   margins: {
     top: 40,
     bottom: 40,
@@ -67,8 +67,8 @@ export function formatRTLText(text: string): string {
  * Get text direction based on content
  * الحصول على اتجاه النص بناءً على المحتوى
  */
-export function getTextDirection(text: string): "ltr" | "rtl" {
-  return containsArabic(text) ? "rtl" : "ltr";
+export function getTextDirection(text: string): 'ltr' | 'rtl' {
+  return containsArabic(text) ? 'rtl' : 'ltr';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -81,7 +81,7 @@ export function getTextDirection(text: string): "ltr" | "rtl" {
  */
 export async function chartToBase64(
   chartElement: HTMLCanvasElement | HTMLElement,
-  format: "png" | "jpeg" = "png",
+  format: 'png' | 'jpeg' = 'png'
 ): Promise<string> {
   try {
     if (chartElement instanceof HTMLCanvasElement) {
@@ -90,15 +90,15 @@ export async function chartToBase64(
 
     // For non-canvas elements, use html2canvas if available
     // Note: Add html2canvas to package.json for this functionality
-    if (typeof window !== "undefined" && (window as any).html2canvas) {
+    if (typeof window !== 'undefined' && (window as any).html2canvas) {
       const canvas = await (window as any).html2canvas(chartElement);
       return canvas.toDataURL(`image/${format}`);
     }
 
-    throw new Error("Chart conversion not supported for this element type");
+    throw new Error('Chart conversion not supported for this element type');
   } catch (error) {
-    logger.error("Failed to convert chart to base64:", error);
-    return "";
+    logger.error('Failed to convert chart to base64:', error);
+    return '';
   }
 }
 
@@ -107,18 +107,18 @@ export async function chartToBase64(
  * إنشاء إعدادات الرسم البياني لـ PDF
  */
 export function generateChartConfig(
-  type: PDFChartConfig["type"],
+  type: PDFChartConfig['type'],
   labels: string[],
   data: number[],
   label: string,
-  options?: PDFChartConfig["options"],
+  options?: PDFChartConfig['options']
 ): PDFChartConfig {
   const colors = {
-    green: "#22c55e",
-    blue: "#3b82f6",
-    yellow: "#eab308",
-    red: "#ef4444",
-    gray: "#6b7280",
+    green: '#22c55e',
+    blue: '#3b82f6',
+    yellow: '#eab308',
+    red: '#ef4444',
+    gray: '#6b7280',
   };
 
   return {
@@ -130,14 +130,8 @@ export function generateChartConfig(
           label,
           data,
           backgroundColor:
-            type === "pie"
-              ? [
-                  colors.green,
-                  colors.blue,
-                  colors.yellow,
-                  colors.red,
-                  colors.gray,
-                ]
+            type === 'pie'
+              ? [colors.green, colors.blue, colors.yellow, colors.red, colors.gray]
               : colors.green,
           borderColor: colors.green,
         },
@@ -159,24 +153,21 @@ export function generateChartConfig(
  * Format date for PDF display
  * تنسيق التاريخ للعرض في PDF
  */
-export function formatDateForPDF(
-  date: string | Date,
-  language: "ar" | "en" = "en",
-): string {
-  const dateObj = typeof date === "string" ? new Date(date) : date;
+export function formatDateForPDF(date: string | Date, language: 'ar' | 'en' = 'en'): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
 
-  if (language === "ar") {
-    return dateObj.toLocaleDateString("ar-SA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+  if (language === 'ar') {
+    return dateObj.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   }
 
-  return dateObj.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 }
 
@@ -186,10 +177,10 @@ export function formatDateForPDF(
  */
 export function formatNumberForPDF(
   num: number,
-  language: "ar" | "en" = "en",
-  decimals = 2,
+  language: 'ar' | 'en' = 'en',
+  decimals = 2
 ): string {
-  const locale = language === "ar" ? "ar-SA" : "en-US";
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
   return num.toLocaleString(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -202,12 +193,12 @@ export function formatNumberForPDF(
  */
 export function formatCurrencyForPDF(
   amount: number,
-  currency = "SAR",
-  language: "ar" | "en" = "en",
+  currency = 'SAR',
+  language: 'ar' | 'en' = 'en'
 ): string {
-  const locale = language === "ar" ? "ar-SA" : "en-US";
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
   return new Intl.NumberFormat(locale, {
-    style: "currency",
+    style: 'currency',
     currency,
   }).format(amount);
 }
@@ -218,13 +209,13 @@ export function formatCurrencyForPDF(
  */
 export function formatArea(
   area: number,
-  unit: "hectare" | "acre" | "sqm" = "hectare",
-  language: "ar" | "en" = "en",
+  unit: 'hectare' | 'acre' | 'sqm' = 'hectare',
+  language: 'ar' | 'en' = 'en'
 ): string {
   const unitLabels = {
-    hectare: { en: "ha", ar: "هكتار" },
-    acre: { en: "acre", ar: "فدان" },
-    sqm: { en: "m²", ar: "م²" },
+    hectare: { en: 'ha', ar: 'هكتار' },
+    acre: { en: 'acre', ar: 'فدان' },
+    sqm: { en: 'm²', ar: 'م²' },
   };
 
   const formattedNumber = formatNumberForPDF(area, language);
@@ -239,23 +230,20 @@ export function formatArea(
  * Get section title in specified language
  * الحصول على عنوان القسم باللغة المحددة
  */
-export function getSectionTitle(
-  section: ReportSection,
-  language: "ar" | "en",
-): string {
+export function getSectionTitle(section: ReportSection, language: 'ar' | 'en'): string {
   const titles: Record<ReportSection, { en: string; ar: string }> = {
-    field_info: { en: "Field Information", ar: "معلومات الحقل" },
-    ndvi_trend: { en: "NDVI Trend Analysis", ar: "تحليل اتجاه NDVI" },
-    health_zones: { en: "Health Zones Map", ar: "خريطة مناطق الصحة" },
-    tasks_summary: { en: "Tasks Summary", ar: "ملخص المهام" },
-    weather_summary: { en: "Weather Summary", ar: "ملخص الطقس" },
-    recommendations: { en: "Recommendations", ar: "التوصيات" },
-    crop_stages: { en: "Crop Growth Stages", ar: "مراحل نمو المحصول" },
-    yield_estimate: { en: "Yield Estimate", ar: "تقدير المحصول" },
-    input_summary: { en: "Input Summary", ar: "ملخص المدخلات" },
-    cost_analysis: { en: "Cost Analysis", ar: "تحليل التكاليف" },
-    pest_disease: { en: "Pest & Disease Report", ar: "تقرير الآفات والأمراض" },
-    soil_analysis: { en: "Soil Analysis", ar: "تحليل التربة" },
+    field_info: { en: 'Field Information', ar: 'معلومات الحقل' },
+    ndvi_trend: { en: 'NDVI Trend Analysis', ar: 'تحليل اتجاه NDVI' },
+    health_zones: { en: 'Health Zones Map', ar: 'خريطة مناطق الصحة' },
+    tasks_summary: { en: 'Tasks Summary', ar: 'ملخص المهام' },
+    weather_summary: { en: 'Weather Summary', ar: 'ملخص الطقس' },
+    recommendations: { en: 'Recommendations', ar: 'التوصيات' },
+    crop_stages: { en: 'Crop Growth Stages', ar: 'مراحل نمو المحصول' },
+    yield_estimate: { en: 'Yield Estimate', ar: 'تقدير المحصول' },
+    input_summary: { en: 'Input Summary', ar: 'ملخص المدخلات' },
+    cost_analysis: { en: 'Cost Analysis', ar: 'تحليل التكاليف' },
+    pest_disease: { en: 'Pest & Disease Report', ar: 'تقرير الآفات والأمراض' },
+    soil_analysis: { en: 'Soil Analysis', ar: 'تحليل التربة' },
   };
 
   return titles[section][language];
@@ -267,30 +255,30 @@ export function getSectionTitle(
  */
 export function orderSections(
   sections: ReportSection[],
-  type: "field" | "season",
+  type: 'field' | 'season'
 ): ReportSection[] {
   const fieldOrder: ReportSection[] = [
-    "field_info",
-    "ndvi_trend",
-    "health_zones",
-    "soil_analysis",
-    "weather_summary",
-    "tasks_summary",
-    "pest_disease",
-    "recommendations",
+    'field_info',
+    'ndvi_trend',
+    'health_zones',
+    'soil_analysis',
+    'weather_summary',
+    'tasks_summary',
+    'pest_disease',
+    'recommendations',
   ];
 
   const seasonOrder: ReportSection[] = [
-    "field_info",
-    "crop_stages",
-    "ndvi_trend",
-    "yield_estimate",
-    "input_summary",
-    "cost_analysis",
-    "recommendations",
+    'field_info',
+    'crop_stages',
+    'ndvi_trend',
+    'yield_estimate',
+    'input_summary',
+    'cost_analysis',
+    'recommendations',
   ];
 
-  const orderArray = type === "field" ? fieldOrder : seasonOrder;
+  const orderArray = type === 'field' ? fieldOrder : seasonOrder;
 
   return [...sections].sort((a, b) => {
     const indexA = orderArray.indexOf(a);
@@ -310,15 +298,15 @@ export function orderSections(
 export function generateFieldReportHTML(
   data: FieldReportData,
   sections: ReportSection[],
-  language: "ar" | "en" | "both",
+  language: 'ar' | 'en' | 'both'
 ): string {
-  const orderedSections = orderSections(sections, "field");
-  const isRTL = language === "ar";
-  const dir = isRTL ? "rtl" : "ltr";
+  const orderedSections = orderSections(sections, 'field');
+  const isRTL = language === 'ar';
+  const dir = isRTL ? 'rtl' : 'ltr';
 
   let html = `
     <!DOCTYPE html>
-    <html dir="${dir}" lang="${language === "ar" ? "ar" : "en"}">
+    <html dir="${dir}" lang="${language === 'ar' ? 'ar' : 'en'}">
     <head>
       <meta charset="UTF-8">
       <style>
@@ -372,7 +360,7 @@ export function generateFieldReportHTML(
         }
         th, td {
           padding: 12px;
-          text-align: ${isRTL ? "right" : "left"};
+          text-align: ${isRTL ? 'right' : 'left'};
           border-bottom: 1px solid #e5e7eb;
         }
         th {
@@ -384,13 +372,13 @@ export function generateFieldReportHTML(
     <body>
       <div class="header">
         <h1>${escapeHtml(isRTL ? data.field.nameAr : data.field.name)}</h1>
-        <p>${isRTL ? "تقرير أداء الحقل" : "Field Performance Report"}</p>
+        <p>${isRTL ? 'تقرير أداء الحقل' : 'Field Performance Report'}</p>
       </div>
   `;
 
   // Add sections based on selected sections
   orderedSections.forEach((section) => {
-    const title = getSectionTitle(section, language === "ar" ? "ar" : "en");
+    const title = getSectionTitle(section, language === 'ar' ? 'ar' : 'en');
     html += `<div class="section"><h2 class="section-title">${title}</h2>`;
 
     // Add section-specific content
@@ -415,15 +403,15 @@ export function generateFieldReportHTML(
 export function generateSeasonReportHTML(
   data: SeasonReportData,
   sections: ReportSection[],
-  language: "ar" | "en" | "both",
+  language: 'ar' | 'en' | 'both'
 ): string {
-  const orderedSections = orderSections(sections, "season");
-  const isRTL = language === "ar";
-  const dir = isRTL ? "rtl" : "ltr";
+  const orderedSections = orderSections(sections, 'season');
+  const isRTL = language === 'ar';
+  const dir = isRTL ? 'rtl' : 'ltr';
 
   let html = `
     <!DOCTYPE html>
-    <html dir="${dir}" lang="${language === "ar" ? "ar" : "en"}">
+    <html dir="${dir}" lang="${language === 'ar' ? 'ar' : 'en'}">
     <head>
       <meta charset="UTF-8">
       <style>
@@ -438,12 +426,12 @@ export function generateSeasonReportHTML(
     <body>
       <div class="header">
         <h1>${escapeHtml(isRTL ? data.season.nameAr : data.season.name)}</h1>
-        <p>${isRTL ? "تقرير ملخص الموسم" : "Season Summary Report"}</p>
+        <p>${isRTL ? 'تقرير ملخص الموسم' : 'Season Summary Report'}</p>
       </div>
   `;
 
   orderedSections.forEach((section) => {
-    const title = getSectionTitle(section, language === "ar" ? "ar" : "en");
+    const title = getSectionTitle(section, language === 'ar' ? 'ar' : 'en');
     html += `<div class="section"><h2 class="section-title">${title}</h2>`;
     html += `<p>Section content for ${section}</p>`;
     html += `</div>`;
@@ -463,9 +451,9 @@ export function generateSeasonReportHTML(
  */
 export function downloadPDF(blob: Blob, filename: string): void {
   const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = url;
-  link.download = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
+  link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -478,10 +466,7 @@ export function downloadPDF(blob: Blob, filename: string): void {
  */
 export function generateShareLink(reportId: string, baseUrl?: string): string {
   const base =
-    baseUrl ||
-    (typeof window !== "undefined"
-      ? window.location.origin
-      : "https://sahool.app");
+    baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://sahool.app');
   return `${base}/reports/shared/${reportId}`;
 }
 
@@ -492,9 +477,9 @@ export function generateShareLink(reportId: string, baseUrl?: string): string {
 export function generateEmailShareContent(
   reportTitle: string,
   shareLink: string,
-  language: "ar" | "en",
+  language: 'ar' | 'en'
 ): { subject: string; body: string } {
-  if (language === "ar") {
+  if (language === 'ar') {
     return {
       subject: `تقرير SAHOOL: ${reportTitle}`,
       body: `مرحباً،\n\nيسعدني مشاركة تقرير SAHOOL معك:\n${reportTitle}\n\nيمكنك عرض التقرير على الرابط التالي:\n${shareLink}\n\nمع تحياتي،\nمنصة SAHOOL الزراعية`,
@@ -513,11 +498,11 @@ export function generateEmailShareContent(
  */
 export function escapeHtml(text: string): string {
   const map: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
   };
   return text.replace(/[&<>"']/g, (char) => map[char] ?? char);
 }

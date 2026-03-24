@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Advanced Field Analysis - Side-by-Side Comparison
 // تحليل الحقول المتقدم - مقارنة جنبًا إلى جنب
 
-import { useEffect, useState, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import { apiClient } from "@/lib/api-client";
-import { API_PATHS } from "@/config/api";
+import { useEffect, useState, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import { apiClient } from '@/lib/api-client';
+import { API_PATHS } from '@/config/api';
 import {
   ArrowLeftRight,
   Leaf,
@@ -18,8 +18,8 @@ import {
   Zap,
   Sun,
   CloudRain,
-} from "lucide-react";
-import { logger } from "../../../lib/logger";
+} from 'lucide-react';
+import { logger } from '../../../lib/logger';
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -37,7 +37,7 @@ interface FieldMetrics {
   governorate: string;
   plantingDate: string;
   ndvi: number;
-  ndviTrend: "up" | "down" | "stable";
+  ndviTrend: 'up' | 'down' | 'stable';
   lai: number;
   soilMoisture: number;
   soilMoistureTarget: number;
@@ -56,9 +56,9 @@ interface FieldMetrics {
   organicMatter: number;
   fertilizerApplied: number;
   irrigationApplied: number;
-  diseaseRisk: "low" | "medium" | "high";
-  pestPressure: "low" | "medium" | "high";
-  overallHealth: "excellent" | "good" | "fair" | "poor";
+  diseaseRisk: 'low' | 'medium' | 'high';
+  pestPressure: 'low' | 'medium' | 'high';
+  overallHealth: 'excellent' | 'good' | 'fair' | 'poor';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -67,18 +67,18 @@ interface FieldMetrics {
 
 const MOCK_FIELDS: FieldMetrics[] = [
   {
-    id: "FLD-001",
-    name: "حقل القمح الشمالي",
-    farmName: "مزرعة الوادي",
+    id: 'FLD-001',
+    name: 'حقل القمح الشمالي',
+    farmName: 'مزرعة الوادي',
     area: 5.2,
-    cropType: "قمح",
-    cropStage: "التفريع",
-    soilType: "طيني",
-    irrigationType: "محوري",
-    governorate: "صنعاء",
-    plantingDate: "2025-11-15",
+    cropType: 'قمح',
+    cropStage: 'التفريع',
+    soilType: 'طيني',
+    irrigationType: 'محوري',
+    governorate: 'صنعاء',
+    plantingDate: '2025-11-15',
     ndvi: 0.72,
-    ndviTrend: "up",
+    ndviTrend: 'up',
     lai: 3.8,
     soilMoisture: 45,
     soilMoistureTarget: 50,
@@ -97,23 +97,23 @@ const MOCK_FIELDS: FieldMetrics[] = [
     organicMatter: 2.5,
     fertilizerApplied: 120,
     irrigationApplied: 3200,
-    diseaseRisk: "low",
-    pestPressure: "low",
-    overallHealth: "good",
+    diseaseRisk: 'low',
+    pestPressure: 'low',
+    overallHealth: 'good',
   },
   {
-    id: "FLD-003",
-    name: "حقل القمح الشرقي",
-    farmName: "مزرعة الوادي",
+    id: 'FLD-003',
+    name: 'حقل القمح الشرقي',
+    farmName: 'مزرعة الوادي',
     area: 8.5,
-    cropType: "قمح",
-    cropStage: "التفريع",
-    soilType: "طيني رملي",
-    irrigationType: "تنقيط",
-    governorate: "صنعاء",
-    plantingDate: "2025-11-20",
+    cropType: 'قمح',
+    cropStage: 'التفريع',
+    soilType: 'طيني رملي',
+    irrigationType: 'تنقيط',
+    governorate: 'صنعاء',
+    plantingDate: '2025-11-20',
     ndvi: 0.58,
-    ndviTrend: "down",
+    ndviTrend: 'down',
     lai: 2.9,
     soilMoisture: 35,
     soilMoistureTarget: 48,
@@ -132,23 +132,23 @@ const MOCK_FIELDS: FieldMetrics[] = [
     organicMatter: 1.8,
     fertilizerApplied: 85,
     irrigationApplied: 2800,
-    diseaseRisk: "medium",
-    pestPressure: "medium",
-    overallHealth: "fair",
+    diseaseRisk: 'medium',
+    pestPressure: 'medium',
+    overallHealth: 'fair',
   },
   {
-    id: "FLD-007",
-    name: "حقل الطماطم",
-    farmName: "مزرعة السهل",
+    id: 'FLD-007',
+    name: 'حقل الطماطم',
+    farmName: 'مزرعة السهل',
     area: 3.2,
-    cropType: "طماطم",
-    cropStage: "الإزهار",
-    soilType: "طيني",
-    irrigationType: "تنقيط",
-    governorate: "إب",
-    plantingDate: "2026-01-10",
+    cropType: 'طماطم',
+    cropStage: 'الإزهار',
+    soilType: 'طيني',
+    irrigationType: 'تنقيط',
+    governorate: 'إب',
+    plantingDate: '2026-01-10',
     ndvi: 0.68,
-    ndviTrend: "stable",
+    ndviTrend: 'stable',
     lai: 4.2,
     soilMoisture: 52,
     soilMoistureTarget: 55,
@@ -167,23 +167,23 @@ const MOCK_FIELDS: FieldMetrics[] = [
     organicMatter: 3.2,
     fertilizerApplied: 180,
     irrigationApplied: 4500,
-    diseaseRisk: "medium",
-    pestPressure: "high",
-    overallHealth: "good",
+    diseaseRisk: 'medium',
+    pestPressure: 'high',
+    overallHealth: 'good',
   },
   {
-    id: "FLD-012",
-    name: "حقل الشعير",
-    farmName: "مزرعة الجبل",
+    id: 'FLD-012',
+    name: 'حقل الشعير',
+    farmName: 'مزرعة الجبل',
     area: 6.0,
-    cropType: "شعير",
-    cropStage: "السنبلة",
-    soilType: "رملي",
-    irrigationType: "محوري",
-    governorate: "تعز",
-    plantingDate: "2025-11-05",
+    cropType: 'شعير',
+    cropStage: 'السنبلة',
+    soilType: 'رملي',
+    irrigationType: 'محوري',
+    governorate: 'تعز',
+    plantingDate: '2025-11-05',
     ndvi: 0.65,
-    ndviTrend: "stable",
+    ndviTrend: 'stable',
     lai: 3.5,
     soilMoisture: 40,
     soilMoistureTarget: 42,
@@ -202,9 +202,9 @@ const MOCK_FIELDS: FieldMetrics[] = [
     organicMatter: 1.5,
     fertilizerApplied: 95,
     irrigationApplied: 2600,
-    diseaseRisk: "low",
-    pestPressure: "low",
-    overallHealth: "good",
+    diseaseRisk: 'low',
+    pestPressure: 'low',
+    overallHealth: 'good',
   },
 ];
 
@@ -213,29 +213,38 @@ const MOCK_FIELDS: FieldMetrics[] = [
 // ═══════════════════════════════════════════════════════════════
 
 function getRiskColor(risk: string): string {
-  const colors: Record<string, string> = { low: "text-green-600 dark:text-green-400", medium: "text-yellow-600 dark:text-yellow-400", high: "text-red-600 dark:text-red-400" };
-  return colors[risk] ?? "text-gray-600";
+  const colors: Record<string, string> = {
+    low: 'text-green-600 dark:text-green-400',
+    medium: 'text-yellow-600 dark:text-yellow-400',
+    high: 'text-red-600 dark:text-red-400',
+  };
+  return colors[risk] ?? 'text-gray-600';
 }
 
 function getRiskLabel(risk: string): string {
-  const labels: Record<string, string> = { low: "منخفض", medium: "متوسط", high: "مرتفع" };
+  const labels: Record<string, string> = { low: 'منخفض', medium: 'متوسط', high: 'مرتفع' };
   return labels[risk] ?? risk;
 }
 
-function getHealthColor(health: FieldMetrics["overallHealth"]): string {
-  const colors = { excellent: "text-emerald-600", good: "text-green-600", fair: "text-yellow-600", poor: "text-red-600" };
+function getHealthColor(health: FieldMetrics['overallHealth']): string {
+  const colors = {
+    excellent: 'text-emerald-600',
+    good: 'text-green-600',
+    fair: 'text-yellow-600',
+    poor: 'text-red-600',
+  };
   return colors[health];
 }
 
-function getHealthLabel(health: FieldMetrics["overallHealth"]): string {
-  const labels = { excellent: "ممتاز", good: "جيد", fair: "مقبول", poor: "ضعيف" };
+function getHealthLabel(health: FieldMetrics['overallHealth']): string {
+  const labels = { excellent: 'ممتاز', good: 'جيد', fair: 'مقبول', poor: 'ضعيف' };
   return labels[health];
 }
 
-function compareValue(a: number, b: number): { diff: number; better: "a" | "b" | "equal" } {
+function compareValue(a: number, b: number): { diff: number; better: 'a' | 'b' | 'equal' } {
   const diff = a - b;
-  if (Math.abs(diff) < 0.01) return { diff: 0, better: "equal" };
-  return { diff, better: diff > 0 ? "a" : "b" };
+  if (Math.abs(diff) < 0.01) return { diff: 0, better: 'equal' };
+  return { diff, better: diff > 0 ? 'a' : 'b' };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -245,8 +254,8 @@ function compareValue(a: number, b: number): { diff: number; better: "a" | "b" |
 export default function FieldComparePage() {
   const [fields, setFields] = useState<FieldMetrics[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [fieldAId, setFieldAId] = useState<string>("");
-  const [fieldBId, setFieldBId] = useState<string>("");
+  const [fieldAId, setFieldAId] = useState<string>('');
+  const [fieldBId, setFieldBId] = useState<string>('');
 
   const loadFields = useCallback(async () => {
     setIsLoading(true);
@@ -256,10 +265,10 @@ export default function FieldComparePage() {
         const data = Array.isArray(result.data) ? result.data : [];
         setFields(data.length > 0 ? data : MOCK_FIELDS);
       } else {
-        throw new Error(result.error || "Failed to fetch fields");
+        throw new Error(result.error || 'Failed to fetch fields');
       }
     } catch {
-      logger.info("Using mock field data for comparison");
+      logger.info('Using mock field data for comparison');
       setFields(MOCK_FIELDS);
     } finally {
       setIsLoading(false);
@@ -291,7 +300,7 @@ export default function FieldComparePage() {
     icon,
     valueA,
     valueB,
-    unit = "",
+    unit = '',
     higherIsBetter = true,
     format,
   }: {
@@ -303,34 +312,32 @@ export default function FieldComparePage() {
     higherIsBetter?: boolean;
     format?: (v: number | string) => string;
   }) {
-    const numA = typeof valueA === "number" ? valueA : 0;
-    const numB = typeof valueB === "number" ? valueB : 0;
-    const isNumeric = typeof valueA === "number" && typeof valueB === "number";
-    const comparison = isNumeric ? compareValue(numA, numB) : { diff: 0, better: "equal" as const };
+    const numA = typeof valueA === 'number' ? valueA : 0;
+    const numB = typeof valueB === 'number' ? valueB : 0;
+    const isNumeric = typeof valueA === 'number' && typeof valueB === 'number';
+    const comparison = isNumeric ? compareValue(numA, numB) : { diff: 0, better: 'equal' as const };
 
-    const getHighlight = (side: "a" | "b") => {
-      if (!isNumeric || comparison.better === "equal") return "";
-      const isBetter = higherIsBetter
-        ? comparison.better === side
-        : comparison.better !== side;
+    const getHighlight = (side: 'a' | 'b') => {
+      if (!isNumeric || comparison.better === 'equal') return '';
+      const isBetter = higherIsBetter ? comparison.better === side : comparison.better !== side;
       return isBetter
-        ? "bg-emerald-50 dark:bg-emerald-900/10 font-semibold text-emerald-700 dark:text-emerald-400"
-        : "";
+        ? 'bg-emerald-50 dark:bg-emerald-900/10 font-semibold text-emerald-700 dark:text-emerald-400'
+        : '';
     };
 
-    const displayA = format ? format(valueA) : `${valueA}${unit ? ` ${unit}` : ""}`;
-    const displayB = format ? format(valueB) : `${valueB}${unit ? ` ${unit}` : ""}`;
+    const displayA = format ? format(valueA) : `${valueA}${unit ? ` ${unit}` : ''}`;
+    const displayB = format ? format(valueB) : `${valueB}${unit ? ` ${unit}` : ''}`;
 
     return (
       <tr className="border-b border-gray-100 dark:border-gray-800">
-        <td className={`px-4 py-3 text-center ${getHighlight("a")}`}>{displayA}</td>
+        <td className={`px-4 py-3 text-center ${getHighlight('a')}`}>{displayA}</td>
         <td className="px-4 py-3 text-center">
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             {icon}
             <span>{label}</span>
           </div>
         </td>
-        <td className={`px-4 py-3 text-center ${getHighlight("b")}`}>{displayB}</td>
+        <td className={`px-4 py-3 text-center ${getHighlight('b')}`}>{displayB}</td>
       </tr>
     );
   }
@@ -354,11 +361,15 @@ export default function FieldComparePage() {
     return (
       <tr className="border-b border-gray-100 dark:border-gray-800">
         <td className="px-4 py-3 text-center">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorFn(valueA)} ${
-            valueA === "low" ? "bg-green-100 dark:bg-green-900/30" :
-            valueA === "medium" ? "bg-yellow-100 dark:bg-yellow-900/30" :
-            "bg-red-100 dark:bg-red-900/30"
-          }`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${colorFn(valueA)} ${
+              valueA === 'low'
+                ? 'bg-green-100 dark:bg-green-900/30'
+                : valueA === 'medium'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                  : 'bg-red-100 dark:bg-red-900/30'
+            }`}
+          >
             {labelFn(valueA)}
           </span>
         </td>
@@ -369,11 +380,15 @@ export default function FieldComparePage() {
           </div>
         </td>
         <td className="px-4 py-3 text-center">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorFn(valueB)} ${
-            valueB === "low" ? "bg-green-100 dark:bg-green-900/30" :
-            valueB === "medium" ? "bg-yellow-100 dark:bg-yellow-900/30" :
-            "bg-red-100 dark:bg-red-900/30"
-          }`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${colorFn(valueB)} ${
+              valueB === 'low'
+                ? 'bg-green-100 dark:bg-green-900/30'
+                : valueB === 'medium'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                  : 'bg-red-100 dark:bg-red-900/30'
+            }`}
+          >
             {labelFn(valueB)}
           </span>
         </td>
@@ -466,8 +481,12 @@ export default function FieldComparePage() {
                   className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{field.name}</h3>
-                    <span className={`text-sm font-semibold ${getHealthColor(field.overallHealth)}`}>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      {field.name}
+                    </h3>
+                    <span
+                      className={`text-sm font-semibold ${getHealthColor(field.overallHealth)}`}
+                    >
                       {getHealthLabel(field.overallHealth)}
                     </span>
                   </div>
@@ -486,7 +505,9 @@ export default function FieldComparePage() {
             {/* Comparison Table */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
               <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">مقارنة المؤشرات</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  مقارنة المؤشرات
+                </h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -506,42 +527,130 @@ export default function FieldComparePage() {
                   <tbody>
                     {/* Vegetation Section */}
                     <tr className="bg-emerald-50/50 dark:bg-emerald-900/5">
-                      <td colSpan={3} className="px-4 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider"
+                      >
                         مؤشرات الغطاء النباتي
                       </td>
                     </tr>
-                    <ComparisonRow label="NDVI" icon={<Leaf className="w-4 h-4" />} valueA={fieldA.ndvi} valueB={fieldB.ndvi} />
-                    <ComparisonRow label="LAI" icon={<Layers className="w-4 h-4" />} valueA={fieldA.lai} valueB={fieldB.lai} />
+                    <ComparisonRow
+                      label="NDVI"
+                      icon={<Leaf className="w-4 h-4" />}
+                      valueA={fieldA.ndvi}
+                      valueB={fieldB.ndvi}
+                    />
+                    <ComparisonRow
+                      label="LAI"
+                      icon={<Layers className="w-4 h-4" />}
+                      valueA={fieldA.lai}
+                      valueB={fieldB.lai}
+                    />
 
                     {/* Soil Section */}
                     <tr className="bg-amber-50/50 dark:bg-amber-900/5">
-                      <td colSpan={3} className="px-4 py-2 text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-2 text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider"
+                      >
                         التربة والمغذيات
                       </td>
                     </tr>
-                    <ComparisonRow label="رطوبة التربة" icon={<Droplets className="w-4 h-4" />} valueA={fieldA.soilMoisture} valueB={fieldB.soilMoisture} unit="%" />
-                    <ComparisonRow label="النيتروجين" valueA={fieldA.nitrogenLevel} valueB={fieldB.nitrogenLevel} unit="ppm" />
-                    <ComparisonRow label="الفوسفور" valueA={fieldA.phosphorusLevel} valueB={fieldB.phosphorusLevel} unit="ppm" />
-                    <ComparisonRow label="البوتاسيوم" valueA={fieldA.potassiumLevel} valueB={fieldB.potassiumLevel} unit="ppm" />
-                    <ComparisonRow label="pH" valueA={fieldA.ph} valueB={fieldB.ph} higherIsBetter={false} />
-                    <ComparisonRow label="EC" valueA={fieldA.ec} valueB={fieldB.ec} unit="dS/m" higherIsBetter={false} />
-                    <ComparisonRow label="المادة العضوية" valueA={fieldA.organicMatter} valueB={fieldB.organicMatter} unit="%" />
+                    <ComparisonRow
+                      label="رطوبة التربة"
+                      icon={<Droplets className="w-4 h-4" />}
+                      valueA={fieldA.soilMoisture}
+                      valueB={fieldB.soilMoisture}
+                      unit="%"
+                    />
+                    <ComparisonRow
+                      label="النيتروجين"
+                      valueA={fieldA.nitrogenLevel}
+                      valueB={fieldB.nitrogenLevel}
+                      unit="ppm"
+                    />
+                    <ComparisonRow
+                      label="الفوسفور"
+                      valueA={fieldA.phosphorusLevel}
+                      valueB={fieldB.phosphorusLevel}
+                      unit="ppm"
+                    />
+                    <ComparisonRow
+                      label="البوتاسيوم"
+                      valueA={fieldA.potassiumLevel}
+                      valueB={fieldB.potassiumLevel}
+                      unit="ppm"
+                    />
+                    <ComparisonRow
+                      label="pH"
+                      valueA={fieldA.ph}
+                      valueB={fieldB.ph}
+                      higherIsBetter={false}
+                    />
+                    <ComparisonRow
+                      label="EC"
+                      valueA={fieldA.ec}
+                      valueB={fieldB.ec}
+                      unit="dS/m"
+                      higherIsBetter={false}
+                    />
+                    <ComparisonRow
+                      label="المادة العضوية"
+                      valueA={fieldA.organicMatter}
+                      valueB={fieldB.organicMatter}
+                      unit="%"
+                    />
 
                     {/* Climate Section */}
                     <tr className="bg-blue-50/50 dark:bg-blue-900/5">
-                      <td colSpan={3} className="px-4 py-2 text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wider">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-2 text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wider"
+                      >
                         المناخ والري
                       </td>
                     </tr>
-                    <ComparisonRow label="درجة الحرارة" icon={<Thermometer className="w-4 h-4" />} valueA={fieldA.temperature} valueB={fieldB.temperature} unit="°م" higherIsBetter={false} />
-                    <ComparisonRow label="الرطوبة" icon={<Sun className="w-4 h-4" />} valueA={fieldA.humidity} valueB={fieldB.humidity} unit="%" />
-                    <ComparisonRow label="هطول 7 أيام" icon={<CloudRain className="w-4 h-4" />} valueA={fieldA.rainfall7d} valueB={fieldB.rainfall7d} unit="مم" />
-                    <ComparisonRow label="ET الفعلي" valueA={fieldA.etActual} valueB={fieldB.etActual} unit="مم/يوم" />
-                    <ComparisonRow label="الري المطبق" valueA={fieldA.irrigationApplied} valueB={fieldB.irrigationApplied} unit="م³" />
+                    <ComparisonRow
+                      label="درجة الحرارة"
+                      icon={<Thermometer className="w-4 h-4" />}
+                      valueA={fieldA.temperature}
+                      valueB={fieldB.temperature}
+                      unit="°م"
+                      higherIsBetter={false}
+                    />
+                    <ComparisonRow
+                      label="الرطوبة"
+                      icon={<Sun className="w-4 h-4" />}
+                      valueA={fieldA.humidity}
+                      valueB={fieldB.humidity}
+                      unit="%"
+                    />
+                    <ComparisonRow
+                      label="هطول 7 أيام"
+                      icon={<CloudRain className="w-4 h-4" />}
+                      valueA={fieldA.rainfall7d}
+                      valueB={fieldB.rainfall7d}
+                      unit="مم"
+                    />
+                    <ComparisonRow
+                      label="ET الفعلي"
+                      valueA={fieldA.etActual}
+                      valueB={fieldB.etActual}
+                      unit="مم/يوم"
+                    />
+                    <ComparisonRow
+                      label="الري المطبق"
+                      valueA={fieldA.irrigationApplied}
+                      valueB={fieldB.irrigationApplied}
+                      unit="م³"
+                    />
 
                     {/* Yield Section */}
                     <tr className="bg-purple-50/50 dark:bg-purple-900/5">
-                      <td colSpan={3} className="px-4 py-2 text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wider">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-2 text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wider"
+                      >
                         الإنتاجية والتكلفة
                       </td>
                     </tr>
@@ -560,8 +669,12 @@ export default function FieldComparePage() {
                     />
                     <ComparisonRow
                       label="نسبة التحقيق"
-                      valueA={Number(((fieldA.yieldEstimate / (fieldA.yieldTarget || 1)) * 100).toFixed(1))}
-                      valueB={Number(((fieldB.yieldEstimate / (fieldB.yieldTarget || 1)) * 100).toFixed(1))}
+                      valueA={Number(
+                        ((fieldA.yieldEstimate / (fieldA.yieldTarget || 1)) * 100).toFixed(1)
+                      )}
+                      valueB={Number(
+                        ((fieldB.yieldEstimate / (fieldB.yieldTarget || 1)) * 100).toFixed(1)
+                      )}
                       unit="%"
                     />
                     <ComparisonRow
@@ -574,7 +687,10 @@ export default function FieldComparePage() {
 
                     {/* Risk Section */}
                     <tr className="bg-red-50/50 dark:bg-red-900/5">
-                      <td colSpan={3} className="px-4 py-2 text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-2 text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider"
+                      >
                         المخاطر
                       </td>
                     </tr>
@@ -599,7 +715,9 @@ export default function FieldComparePage() {
 
             {/* Key Insights */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">الملاحظات الرئيسية</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                الملاحظات الرئيسية
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* NDVI Difference */}
                 {Math.abs(fieldA.ndvi - fieldB.ndvi) > 0.05 && (
@@ -608,7 +726,7 @@ export default function FieldComparePage() {
                     <div className="text-sm">
                       <p className="font-medium text-gray-900 dark:text-gray-100">فرق NDVI ملحوظ</p>
                       <p className="text-gray-500 dark:text-gray-400">
-                        {fieldA.ndvi > fieldB.ndvi ? fieldA.name : fieldB.name} يتفوق بـ{" "}
+                        {fieldA.ndvi > fieldB.ndvi ? fieldA.name : fieldB.name} يتفوق بـ{' '}
                         {Math.abs(fieldA.ndvi - fieldB.ndvi).toFixed(2)} نقطة في مؤشر الغطاء النباتي
                       </p>
                     </div>
@@ -620,9 +738,12 @@ export default function FieldComparePage() {
                   <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <Droplets className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">فارق رطوبة التربة</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        فارق رطوبة التربة
+                      </p>
                       <p className="text-gray-500 dark:text-gray-400">
-                        فرق {Math.abs(fieldA.soilMoisture - fieldB.soilMoisture)}% في رطوبة التربة — تحقق من كفاءة الري
+                        فرق {Math.abs(fieldA.soilMoisture - fieldB.soilMoisture)}% في رطوبة التربة —
+                        تحقق من كفاءة الري
                       </p>
                     </div>
                   </div>
@@ -633,9 +754,12 @@ export default function FieldComparePage() {
                   <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <Zap className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">فرق مستوى النيتروجين</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        فرق مستوى النيتروجين
+                      </p>
                       <p className="text-gray-500 dark:text-gray-400">
-                        {fieldA.nitrogenLevel < fieldB.nitrogenLevel ? fieldA.name : fieldB.name} يحتاج تسميد نيتروجيني إضافي
+                        {fieldA.nitrogenLevel < fieldB.nitrogenLevel ? fieldA.name : fieldB.name}{' '}
+                        يحتاج تسميد نيتروجيني إضافي
                       </p>
                     </div>
                   </div>
@@ -649,9 +773,12 @@ export default function FieldComparePage() {
                     <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <BarChart3 className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
                       <div className="text-sm">
-                        <p className="font-medium text-gray-900 dark:text-gray-100">فجوة الإنتاجية</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          فجوة الإنتاجية
+                        </p>
                         <p className="text-gray-500 dark:text-gray-400">
-                          {achieveA > achieveB ? fieldA.name : fieldB.name} أقرب للهدف بنسبة {Math.abs(achieveA - achieveB).toFixed(1)}%
+                          {achieveA > achieveB ? fieldA.name : fieldB.name} أقرب للهدف بنسبة{' '}
+                          {Math.abs(achieveA - achieveB).toFixed(1)}%
                         </p>
                       </div>
                     </div>
@@ -666,7 +793,7 @@ export default function FieldComparePage() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">تحذير ملوحة</p>
                       <p className="text-gray-500 dark:text-gray-400">
                         {fieldA.ec > 2.0 && fieldB.ec > 2.0
-                          ? "كلا الحقلين يعاني من ارتفاع الملوحة"
+                          ? 'كلا الحقلين يعاني من ارتفاع الملوحة'
                           : `${fieldA.ec > 2.0 ? fieldA.name : fieldB.name} يعاني من ارتفاع EC (${Math.max(fieldA.ec, fieldB.ec)} dS/m)`}
                       </p>
                     </div>

@@ -14,9 +14,9 @@
  * @module AuthModule
  */
 
-import { Module, DynamicModule, Global } from "@nestjs/common";
-import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
-import { PassportModule } from "@nestjs/passport";
+import { Module, DynamicModule, Global } from '@nestjs/common';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 // Import all guards
 import {
@@ -26,24 +26,18 @@ import {
   FarmAccessGuard,
   OptionalAuthGuard,
   ActiveAccountGuard,
-} from "./guards/jwt.guard";
+} from './guards/jwt.guard';
 
-import {
-  TokenRevocationGuard,
-  TokenRevocationInterceptor,
-} from "./guards/token-revocation.guard";
+import { TokenRevocationGuard, TokenRevocationInterceptor } from './guards/token-revocation.guard';
 
 // Import strategy
-import { JwtStrategy } from "./strategies/jwt.strategy";
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 // Import services
-import {
-  UserValidationService,
-  IUserRepository,
-} from "./services/user-validation.service";
+import { UserValidationService, IUserRepository } from './services/user-validation.service';
 
 // Import config
-import { JWTConfig } from "./config/jwt.config";
+import { JWTConfig } from './config/jwt.config';
 
 /**
  * Configuration options for AuthModule
@@ -144,12 +138,8 @@ export class AuthModule {
       try {
         JWTConfig.validate();
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        console.error(
-          "[AuthModule] Configuration validation failed:",
-          errorMessage,
-        );
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[AuthModule] Configuration validation failed:', errorMessage);
         throw error;
       }
     }
@@ -179,9 +169,7 @@ export class AuthModule {
       {
         provide: JwtStrategy,
         useFactory: (userValidationService?: UserValidationService) => {
-          return new JwtStrategy(
-            enableUserValidation ? userValidationService : undefined,
-          );
+          return new JwtStrategy(enableUserValidation ? userValidationService : undefined);
         },
         inject: enableUserValidation ? [UserValidationService] : [],
       },
@@ -194,7 +182,7 @@ export class AuthModule {
         useFactory: (redis: any) => {
           return new UserValidationService(redis, userRepository);
         },
-        inject: ["REDIS_CLIENT"],
+        inject: ['REDIS_CLIENT'],
       });
     }
 
@@ -206,7 +194,7 @@ export class AuthModule {
     // Add global guard if enabled
     if (enableGlobalGuard) {
       providers.push({
-        provide: "APP_GUARD",
+        provide: 'APP_GUARD',
         useClass: JwtAuthGuard,
       });
     }
@@ -214,7 +202,7 @@ export class AuthModule {
     return {
       module: AuthModule,
       imports: [
-        PassportModule.register({ defaultStrategy: "jwt" }),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.register(jwtModuleOptions),
       ],
       providers,
@@ -229,9 +217,7 @@ export class AuthModule {
         ActiveAccountGuard,
         JwtStrategy,
         ...(enableUserValidation ? [UserValidationService] : []),
-        ...(enableTokenRevocation
-          ? [TokenRevocationGuard, TokenRevocationInterceptor]
-          : []),
+        ...(enableTokenRevocation ? [TokenRevocationGuard, TokenRevocationInterceptor] : []),
       ],
     };
   }
@@ -258,15 +244,13 @@ export class AuthModule {
    */
   static forRootAsync(options: {
     imports?: any[];
-    useFactory: (
-      ...args: any[]
-    ) => Promise<AuthModuleOptions> | AuthModuleOptions;
+    useFactory: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
     inject?: any[];
   }): DynamicModule {
     return {
       module: AuthModule,
       imports: [
-        PassportModule.register({ defaultStrategy: "jwt" }),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.registerAsync({
           imports: options.imports,
           useFactory: async (...args: any[]) => {

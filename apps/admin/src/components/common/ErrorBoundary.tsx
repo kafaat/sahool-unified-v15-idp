@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
-import { logger } from "../../lib/logger";
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '../../lib/logger';
 
 interface Props {
   children: ReactNode;
@@ -45,7 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log to console (works in all environments via critical)
-    logger.critical("Admin ErrorBoundary caught an error:", {
+    logger.critical('Admin ErrorBoundary caught an error:', {
       message: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
    * Uses dynamic import to avoid bundling @sentry/nextjs into this chunk.
    */
   private reportToSentry = (error: Error, errorInfo: ErrorInfo): Promise<string | undefined> => {
-    return import("@sentry/nextjs")
+    return import('@sentry/nextjs')
       .then((Sentry) => {
         const eventId = Sentry.captureException(error, {
           contexts: {
@@ -79,12 +79,12 @@ export class ErrorBoundary extends Component<Props, State> {
             },
           },
           tags: {
-            errorBoundary: "admin",
-            componentName: this.props.componentName || "unknown",
+            errorBoundary: 'admin',
+            componentName: this.props.componentName || 'unknown',
           },
           extra: {
             componentStack: errorInfo.componentStack,
-            url: typeof window !== "undefined" ? window.location.href : undefined,
+            url: typeof window !== 'undefined' ? window.location.href : undefined,
           },
         });
 
@@ -92,7 +92,7 @@ export class ErrorBoundary extends Component<Props, State> {
         return eventId;
       })
       .catch((sentryError) => {
-        logger.critical("Failed to report error to Sentry:", sentryError);
+        logger.critical('Failed to report error to Sentry:', sentryError);
         return undefined;
       });
   };
@@ -100,25 +100,25 @@ export class ErrorBoundary extends Component<Props, State> {
   private logErrorToServer = async (
     error: Error,
     errorInfo: ErrorInfo,
-    eventId?: string | null,
+    eventId?: string | null
   ): Promise<void> => {
     try {
-      await fetch("/api/log-error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: error.message,
           stack: error.stack,
           componentStack: errorInfo.componentStack,
-          url: typeof window !== "undefined" ? window.location.href : "unknown",
-          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+          url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
           timestamp: new Date().toISOString(),
           eventId: eventId ?? this.state.eventId,
         }),
       });
     } catch (e) {
       // Silent fail in production, log in development
-      logger.error("Failed to log error to server:", e);
+      logger.error('Failed to log error to server:', e);
     }
   };
 
@@ -133,9 +133,7 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div
-          className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900"
-        >
+        <div className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl w-full">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
@@ -166,13 +164,11 @@ export class ErrorBoundary extends Component<Props, State> {
             {this.state.error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <h3 className="font-medium text-red-800 mb-2">رسالة الخطأ:</h3>
-                <code className="text-sm text-red-700 block">
-                  {this.state.error.message}
-                </code>
+                <code className="text-sm text-red-700 block">{this.state.error.message}</code>
               </div>
             )}
 
-            {process.env.NODE_ENV === "development" && this.state.error?.stack && (
+            {process.env.NODE_ENV === 'development' && this.state.error?.stack && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-800 font-medium">
                   Stack Trace (للمطورين)
@@ -183,7 +179,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            {process.env.NODE_ENV === "development" && this.state.errorInfo?.componentStack && (
+            {process.env.NODE_ENV === 'development' && this.state.errorInfo?.componentStack && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-800 font-medium">
                   Component Stack
@@ -197,9 +193,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {this.state.eventId && (
               <div className="bg-gray-100 rounded-lg p-3 mb-4 text-sm">
                 <span className="text-gray-600">معرف الخطأ للدعم الفني: </span>
-                <code className="text-gray-800 font-mono select-all">
-                  {this.state.eventId}
-                </code>
+                <code className="text-gray-800 font-mono select-all">{this.state.eventId}</code>
               </div>
             )}
 

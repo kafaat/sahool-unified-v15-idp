@@ -1,94 +1,105 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo, useRef } from "react";
-import { Satellite, MapPin, Layers, TrendingUp, Download, AlertTriangle, Droplets } from "lucide-react";
-import { logger } from "@/lib/logger";
-import { useSatelliteFields, useSatelliteStats } from "@/features/satellite";
-import type { SatelliteField, IndexType } from "@/features/satellite";
+import React, { useState, useMemo, useRef } from 'react';
+import {
+  Satellite,
+  MapPin,
+  Layers,
+  TrendingUp,
+  Download,
+  AlertTriangle,
+  Droplets,
+} from 'lucide-react';
+import { logger } from '@/lib/logger';
+import { useSatelliteFields, useSatelliteStats } from '@/features/satellite';
+import type { SatelliteField, IndexType } from '@/features/satellite';
 
-const INDEX_CONFIG: Record<IndexType, {
-  label: string;
-  labelAr: string;
-  unit: string;
-  colorStops: Array<{ max: number; color: string; bgClass: string; label: string }>;
-  description: string;
-}> = {
+const INDEX_CONFIG: Record<
+  IndexType,
+  {
+    label: string;
+    labelAr: string;
+    unit: string;
+    colorStops: Array<{ max: number; color: string; bgClass: string; label: string }>;
+    description: string;
+  }
+> = {
   ndvi: {
-    label: "NDVI",
-    labelAr: "مؤشر الغطاء النباتي",
-    unit: "",
-    description: "كثافة الغطاء النباتي",
+    label: 'NDVI',
+    labelAr: 'مؤشر الغطاء النباتي',
+    unit: '',
+    description: 'كثافة الغطاء النباتي',
     colorStops: [
-      { max: 0.15, color: "bg-red-500", bgClass: "text-red-600", label: "حرج" },
-      { max: 0.3, color: "bg-orange-500", bgClass: "text-orange-600", label: "ضعيف" },
-      { max: 0.5, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "متوسط" },
-      { max: 0.7, color: "bg-green-400", bgClass: "text-green-600", label: "جيد" },
-      { max: 1.0, color: "bg-green-600", bgClass: "text-green-700", label: "ممتاز" },
+      { max: 0.15, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
+      { max: 0.3, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
+      { max: 0.5, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
+      { max: 0.7, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
+      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
     ],
   },
   ndwi: {
-    label: "NDWI",
-    labelAr: "مؤشر المياه",
-    unit: "",
-    description: "محتوى الماء في الغطاء النباتي",
+    label: 'NDWI',
+    labelAr: 'مؤشر المياه',
+    unit: '',
+    description: 'محتوى الماء في الغطاء النباتي',
     colorStops: [
-      { max: -0.1, color: "bg-red-500", bgClass: "text-red-600", label: "جفاف شديد" },
-      { max: 0.0, color: "bg-orange-500", bgClass: "text-orange-600", label: "إجهاد مائي" },
-      { max: 0.2, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "منخفض" },
-      { max: 0.4, color: "bg-blue-400", bgClass: "text-blue-600", label: "كافٍ" },
-      { max: 1.0, color: "bg-blue-600", bgClass: "text-blue-700", label: "ممتاز" },
+      { max: -0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'جفاف شديد' },
+      { max: 0.0, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'إجهاد مائي' },
+      { max: 0.2, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'منخفض' },
+      { max: 0.4, color: 'bg-blue-400', bgClass: 'text-blue-600', label: 'كافٍ' },
+      { max: 1.0, color: 'bg-blue-600', bgClass: 'text-blue-700', label: 'ممتاز' },
     ],
   },
   evi: {
-    label: "EVI",
-    labelAr: "مؤشر الغطاء المحسن",
-    unit: "",
-    description: "الغطاء النباتي مع تصحيح جوي",
+    label: 'EVI',
+    labelAr: 'مؤشر الغطاء المحسن',
+    unit: '',
+    description: 'الغطاء النباتي مع تصحيح جوي',
     colorStops: [
-      { max: 0.1, color: "bg-red-500", bgClass: "text-red-600", label: "حرج" },
-      { max: 0.25, color: "bg-orange-500", bgClass: "text-orange-600", label: "ضعيف" },
-      { max: 0.4, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "متوسط" },
-      { max: 0.6, color: "bg-green-400", bgClass: "text-green-600", label: "جيد" },
-      { max: 1.0, color: "bg-green-600", bgClass: "text-green-700", label: "ممتاز" },
+      { max: 0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
+      { max: 0.25, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
+      { max: 0.4, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
+      { max: 0.6, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
+      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
     ],
   },
   savi: {
-    label: "SAVI",
-    labelAr: "مؤشر الغطاء المعدل للتربة",
-    unit: "",
-    description: "الغطاء النباتي مع تصحيح التربة (مناسب للبيئة الجافة)",
+    label: 'SAVI',
+    labelAr: 'مؤشر الغطاء المعدل للتربة',
+    unit: '',
+    description: 'الغطاء النباتي مع تصحيح التربة (مناسب للبيئة الجافة)',
     colorStops: [
-      { max: 0.1, color: "bg-red-500", bgClass: "text-red-600", label: "حرج" },
-      { max: 0.25, color: "bg-orange-500", bgClass: "text-orange-600", label: "ضعيف" },
-      { max: 0.4, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "متوسط" },
-      { max: 0.6, color: "bg-green-400", bgClass: "text-green-600", label: "جيد" },
-      { max: 1.0, color: "bg-green-600", bgClass: "text-green-700", label: "ممتاز" },
+      { max: 0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
+      { max: 0.25, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
+      { max: 0.4, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
+      { max: 0.6, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
+      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
     ],
   },
   ndre: {
-    label: "NDRE",
-    labelAr: "مؤشر الحافة الحمراء",
-    unit: "",
-    description: "تركيز الكلوروفيل (مناسب للبن)",
+    label: 'NDRE',
+    labelAr: 'مؤشر الحافة الحمراء',
+    unit: '',
+    description: 'تركيز الكلوروفيل (مناسب للبن)',
     colorStops: [
-      { max: 0.05, color: "bg-red-500", bgClass: "text-red-600", label: "نقص شديد" },
-      { max: 0.15, color: "bg-orange-500", bgClass: "text-orange-600", label: "نقص" },
-      { max: 0.3, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "متوسط" },
-      { max: 0.5, color: "bg-green-400", bgClass: "text-green-600", label: "جيد" },
-      { max: 1.0, color: "bg-green-600", bgClass: "text-green-700", label: "ممتاز" },
+      { max: 0.05, color: 'bg-red-500', bgClass: 'text-red-600', label: 'نقص شديد' },
+      { max: 0.15, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'نقص' },
+      { max: 0.3, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
+      { max: 0.5, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
+      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
     ],
   },
   lai: {
-    label: "LAI",
-    labelAr: "مؤشر مساحة الأوراق",
-    unit: "m²/m²",
-    description: "نسبة مساحة الأوراق إلى مساحة الأرض",
+    label: 'LAI',
+    labelAr: 'مؤشر مساحة الأوراق',
+    unit: 'm²/m²',
+    description: 'نسبة مساحة الأوراق إلى مساحة الأرض',
     colorStops: [
-      { max: 1.0, color: "bg-red-500", bgClass: "text-red-600", label: "متناثر" },
-      { max: 2.0, color: "bg-orange-500", bgClass: "text-orange-600", label: "خفيف" },
-      { max: 3.5, color: "bg-yellow-500", bgClass: "text-yellow-600", label: "متوسط" },
-      { max: 5.0, color: "bg-green-400", bgClass: "text-green-600", label: "كثيف" },
-      { max: 8.0, color: "bg-green-600", bgClass: "text-green-700", label: "كثيف جداً" },
+      { max: 1.0, color: 'bg-red-500', bgClass: 'text-red-600', label: 'متناثر' },
+      { max: 2.0, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'خفيف' },
+      { max: 3.5, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
+      { max: 5.0, color: 'bg-green-400', bgClass: 'text-green-600', label: 'كثيف' },
+      { max: 8.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'كثيف جداً' },
     ],
   },
 };
@@ -100,7 +111,7 @@ const indexTypes = Object.entries(INDEX_CONFIG).map(([value, config]) => ({
 }));
 
 export default function SatelliteClient() {
-  const [selectedIndex, setSelectedIndex] = useState<IndexType>("ndvi");
+  const [selectedIndex, setSelectedIndex] = useState<IndexType>('ndvi');
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const warnedIndicesRef = useRef(new Set<string>());
 
@@ -108,38 +119,38 @@ export default function SatelliteClient() {
   const { data: fields = [], isLoading, error } = useSatelliteFields();
   const { data: stats } = useSatelliteStats();
 
-  const getHealthColor = (status: SatelliteField["healthStatus"]) => {
-    const colors: Record<SatelliteField["healthStatus"], string> = {
-      excellent: "text-green-700 bg-green-100",
-      good: "text-green-600 bg-green-50",
-      moderate: "text-yellow-600 bg-yellow-100",
-      poor: "text-orange-600 bg-orange-100",
-      critical: "text-red-600 bg-red-100",
+  const getHealthColor = (status: SatelliteField['healthStatus']) => {
+    const colors: Record<SatelliteField['healthStatus'], string> = {
+      excellent: 'text-green-700 bg-green-100',
+      good: 'text-green-600 bg-green-50',
+      moderate: 'text-yellow-600 bg-yellow-100',
+      poor: 'text-orange-600 bg-orange-100',
+      critical: 'text-red-600 bg-red-100',
     };
     return colors[status];
   };
 
-  const getHealthLabel = (status: SatelliteField["healthStatus"]) => {
-    const labels: Record<SatelliteField["healthStatus"], string> = {
-      excellent: "ممتاز",
-      good: "جيد",
-      moderate: "متوسط",
-      poor: "ضعيف",
-      critical: "حرج",
+  const getHealthLabel = (status: SatelliteField['healthStatus']) => {
+    const labels: Record<SatelliteField['healthStatus'], string> = {
+      excellent: 'ممتاز',
+      good: 'جيد',
+      moderate: 'متوسط',
+      poor: 'ضعيف',
+      critical: 'حرج',
     };
     return labels[status];
   };
 
   // Get the value of the currently selected index for a field
   const getIndexValue = (field: SatelliteField): number => {
-    if (selectedIndex === "ndvi") return field.indices.ndvi;
+    if (selectedIndex === 'ndvi') return field.indices.ndvi;
     const value = field.indices[selectedIndex];
     if (value == null) {
       const key = `${selectedIndex}:${field.id}`;
-      if (process.env.NODE_ENV !== "production" && !warnedIndicesRef.current.has(key)) {
+      if (process.env.NODE_ENV !== 'production' && !warnedIndicesRef.current.has(key)) {
         warnedIndicesRef.current.add(key);
         logger.warn(
-          `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`,
+          `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`
         );
       }
       return field.indices.ndvi;
@@ -161,14 +172,14 @@ export default function SatelliteClient() {
 
   // Normalize a value to 0-100% for the progress bar based on index range
   const getBarWidth = (value: number): number => {
-    if (selectedIndex === "lai") return Math.min((value / 8) * 100, 100);
-    return Math.max(Math.min((value + 1) / 2 * 100, 100), 0); // normalized [-1, 1] → [0, 100]
+    if (selectedIndex === 'lai') return Math.min((value / 8) * 100, 100);
+    return Math.max(Math.min(((value + 1) / 2) * 100, 100), 0); // normalized [-1, 1] → [0, 100]
   };
 
   const activeConfig = INDEX_CONFIG[selectedIndex];
 
   const avgIndex = useMemo(() => {
-    if (fields.length === 0) return "0.00";
+    if (fields.length === 0) return '0.00';
     const values = fields.map((f) => getIndexValue(f));
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -239,7 +250,9 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">آخر التقاط</div>
-              <div className="text-lg font-bold text-gray-900">{stats?.lastCapture ?? "2026-01-24"}</div>
+              <div className="text-lg font-bold text-gray-900">
+                {stats?.lastCapture ?? '2026-01-24'}
+              </div>
             </div>
           </div>
         </div>
@@ -251,7 +264,7 @@ export default function SatelliteClient() {
             <div>
               <div className="text-sm text-gray-500">متوسط {activeConfig.label}</div>
               <div className="text-lg font-bold text-green-600">
-                {selectedIndex === "ndvi" ? (stats?.averageNdvi?.toFixed(2) ?? avgIndex) : avgIndex}
+                {selectedIndex === 'ndvi' ? (stats?.averageNdvi?.toFixed(2) ?? avgIndex) : avgIndex}
               </div>
             </div>
           </div>
@@ -263,7 +276,9 @@ export default function SatelliteClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">الحقول المراقبة</div>
-              <div className="text-lg font-bold text-purple-600">{stats?.totalFields ?? fields.length}</div>
+              <div className="text-lg font-bold text-purple-600">
+                {stats?.totalFields ?? fields.length}
+              </div>
             </div>
           </div>
         </div>
@@ -296,7 +311,9 @@ export default function SatelliteClient() {
             </div>
           </div>
           <div className="p-4 flex justify-between items-center text-sm">
-            <span className="text-gray-500">المصدر: Sentinel-2 L2A | {activeConfig.description}</span>
+            <span className="text-gray-500">
+              المصدر: Sentinel-2 L2A | {activeConfig.description}
+            </span>
             <div className="flex gap-3 flex-wrap">
               {activeConfig.colorStops.map((stop) => (
                 <div key={stop.max} className="flex items-center gap-1.5">
@@ -315,15 +332,13 @@ export default function SatelliteClient() {
           </div>
           <div className="divide-y max-h-[500px] overflow-y-auto">
             {fields.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
-                لا توجد حقول مراقبة
-              </div>
+              <div className="p-4 text-center text-gray-500">لا توجد حقول مراقبة</div>
             ) : (
               fields.map((field) => (
                 <div
                   key={field.id}
                   className={`p-4 cursor-pointer transition-colors ${
-                    selectedField === field.id ? "bg-sahool-green-50" : "hover:bg-gray-50"
+                    selectedField === field.id ? 'bg-sahool-green-50' : 'hover:bg-gray-50'
                   }`}
                   onClick={() => setSelectedField(field.id)}
                 >
@@ -332,7 +347,9 @@ export default function SatelliteClient() {
                       <h3 className="font-medium text-gray-900">{field.fieldNameAr}</h3>
                       <p className="text-sm text-gray-500">{field.fieldName}</p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthColor(field.healthStatus)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthColor(field.healthStatus)}`}
+                    >
                       {getHealthLabel(field.healthStatus)}
                     </span>
                   </div>
@@ -340,18 +357,23 @@ export default function SatelliteClient() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-gray-500">{activeConfig.label}:</span>
-                      <span className={`font-medium mr-1 ${getIndexColor(getIndexValue(field)).bgClass}`}>
+                      <span
+                        className={`font-medium mr-1 ${getIndexColor(getIndexValue(field)).bgClass}`}
+                      >
                         {getIndexValue(field).toFixed(2)}
                       </span>
-                      {selectedIndex === "ndvi" && (
-                        <span className={field.indices.ndviChange >= 0 ? "text-green-600" : "text-red-600"}>
-                          ({field.indices.ndviChange >= 0 ? "+" : ""}{field.indices.ndviChange.toFixed(2)})
+                      {selectedIndex === 'ndvi' && (
+                        <span
+                          className={
+                            field.indices.ndviChange >= 0 ? 'text-green-600' : 'text-red-600'
+                          }
+                        >
+                          ({field.indices.ndviChange >= 0 ? '+' : ''}
+                          {field.indices.ndviChange.toFixed(2)})
                         </span>
                       )}
                     </div>
-                    <div className="text-gray-500">
-                      {field.area} هكتار
-                    </div>
+                    <div className="text-gray-500">{field.area} هكتار</div>
                   </div>
 
                   <div className="mt-2">
@@ -374,9 +396,7 @@ export default function SatelliteClient() {
         <div className="bg-white rounded-lg border border-orange-200 overflow-hidden">
           <div className="p-4 border-b bg-orange-50 flex items-center gap-2">
             <Droplets className="w-5 h-5 text-orange-600" />
-            <h2 className="font-semibold text-orange-800">
-              تنبيهات الإجهاد المائي (NDWI)
-            </h2>
+            <h2 className="font-semibold text-orange-800">تنبيهات الإجهاد المائي (NDWI)</h2>
             <span className="px-2 py-0.5 bg-orange-200 text-orange-800 text-xs font-medium rounded-full">
               {waterStressFields.length}
             </span>
@@ -390,7 +410,9 @@ export default function SatelliteClient() {
               >
                 <div>
                   <h3 className="font-medium text-gray-900 text-sm">{field.fieldNameAr}</h3>
-                  <p className="text-xs text-gray-500">{field.fieldName} — {field.area} هكتار</p>
+                  <p className="text-xs text-gray-500">
+                    {field.fieldName} — {field.area} هكتار
+                  </p>
                 </div>
                 <div className="text-left">
                   <span className="text-sm font-bold text-orange-600">

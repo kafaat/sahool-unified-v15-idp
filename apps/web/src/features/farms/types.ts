@@ -3,7 +3,7 @@
  * أنواع ميزة المزارع
  */
 
-export type FarmStatus = "active" | "inactive" | "seasonal";
+export type FarmStatus = 'active' | 'inactive' | 'seasonal';
 
 export interface Farm {
   id: string;

@@ -41,40 +41,40 @@
  * Add new models here as they are onboarded to multi-tenancy.
  */
 const TENANT_MODELS = new Set([
-  "field",
-  "farm",
-  "task",
-  "ndviReading",
-  "fieldBoundaryHistory",
-  "syncStatus",
-  "product",
-  "order",
-  "orderItem",
-  "wallet",
-  "transaction",
-  "loan",
-  "creditEvent",
-  "escrow",
-  "scheduledPayment",
-  "walletAuditLog",
-  "sellerProfile",
-  "buyerProfile",
-  "productReview",
-  "reviewResponse",
-  "message",
-  "channel",
-  "channelMember",
-  "device",
-  "deviceReading",
-  "assessment",
-  "hazard",
-  "researchTrial",
-  "experiment",
-  "dataPoint",
-  "cropModel",
-  "growthStage",
-  "yieldPrediction",
-  "laiReading",
+  'field',
+  'farm',
+  'task',
+  'ndviReading',
+  'fieldBoundaryHistory',
+  'syncStatus',
+  'product',
+  'order',
+  'orderItem',
+  'wallet',
+  'transaction',
+  'loan',
+  'creditEvent',
+  'escrow',
+  'scheduledPayment',
+  'walletAuditLog',
+  'sellerProfile',
+  'buyerProfile',
+  'productReview',
+  'reviewResponse',
+  'message',
+  'channel',
+  'channelMember',
+  'device',
+  'deviceReading',
+  'assessment',
+  'hazard',
+  'researchTrial',
+  'experiment',
+  'dataPoint',
+  'cropModel',
+  'growthStage',
+  'yieldPrediction',
+  'laiReading',
 ]);
 
 /**
@@ -90,12 +90,8 @@ const TENANT_MODELS = new Set([
  * @param tenantId - Tenant ID to set for RLS
  * @param isAdmin - Whether to grant super_admin bypass
  */
-async function setRlsContext(
-  client: any,
-  tenantId: string,
-  isAdmin: boolean,
-): Promise<void> {
-  const adminFlag = isAdmin ? "true" : "false";
+async function setRlsContext(client: any, tenantId: string, isAdmin: boolean): Promise<void> {
+  const adminFlag = isAdmin ? 'true' : 'false';
   await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, false)`;
   await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, false)`;
 }
@@ -112,10 +108,7 @@ async function setRlsContext(
  * @param isAdmin - If true, sets app.is_super_admin = 'true' to bypass RLS
  * @returns Prisma Client Extension configuration
  */
-export function createTenantExtension(
-  tenantId: string,
-  isAdmin: boolean = false,
-) {
+export function createTenantExtension(tenantId: string, isAdmin: boolean = false) {
   /** Inject tenantId into where clause for tenant-aware models. */
   function injectTenantWhere(args: any, model: string): void {
     if (TENANT_MODELS.has(lowerFirst(model))) {
@@ -124,7 +117,7 @@ export function createTenantExtension(
   }
 
   return {
-    name: "tenant-isolation",
+    name: 'tenant-isolation',
     query: {
       $allModels: {
         async findMany({ args, query, model }: any) {
@@ -203,10 +196,10 @@ export function createTenantExtension(
 export async function initializeRlsContext(
   client: any,
   tenantId: string,
-  isAdmin: boolean = false,
+  isAdmin: boolean = false
 ): Promise<void> {
   try {
-    if (typeof client.$transaction === "function") {
+    if (typeof client.$transaction === 'function') {
       // Root Prisma client - wrap in transaction
       await client.$transaction(async (tx: any) => {
         await setRlsContext(tx, tenantId, isAdmin);

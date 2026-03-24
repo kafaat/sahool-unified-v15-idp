@@ -1,18 +1,26 @@
-"use client";
+'use client';
 
 // Sahool Admin Dashboard - Main Page
 // الصفحة الرئيسية للوحة تحكم سهول - غرفة العمليات المركزية
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import AlertBadge from "@/components/ui/AlertBadge";
-import { fetchDashboardStats, fetchFarms, fetchDiagnoses, fetchYieldTrends, fetchCropDistribution, fetchWeeklyActivity, fetchPlatformMetrics } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
-import { t } from "@/lib/i18n";
-import type { DashboardStats, Farm, DiagnosisRecord } from "@/types";
-import type { BaseFarmData } from "@/components/maps/FarmsMap";
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import AlertBadge from '@/components/ui/AlertBadge';
+import {
+  fetchDashboardStats,
+  fetchFarms,
+  fetchDiagnoses,
+  fetchYieldTrends,
+  fetchCropDistribution,
+  fetchWeeklyActivity,
+  fetchPlatformMetrics,
+} from '@/lib/api';
+import { formatDate } from '@/lib/utils';
+import { t } from '@/lib/i18n';
+import type { DashboardStats, Farm, DiagnosisRecord } from '@/types';
+import type { BaseFarmData } from '@/components/maps/FarmsMap';
 import {
   MapPin,
   Leaf,
@@ -27,23 +35,23 @@ import {
   Sun,
   Wifi,
   WifiOff,
-} from "lucide-react";
-import Link from "next/link";
-import { useWebSocket, useWebSocketEvent } from "@/hooks/useWebSocket";
-import { useRealTimeAlerts } from "@/hooks/useRealTimeAlerts";
-import type { SensorMessage, DiagnosisMessage } from "@/hooks/useWebSocket";
-import { logger } from "../../lib/logger";
+} from 'lucide-react';
+import Link from 'next/link';
+import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
+import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
+import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
+import { logger } from '../../lib/logger';
 import {
   YieldTrendChart,
   WeeklyActivityChart,
   CropDistributionChart,
-} from "./DashboardCharts.dynamic";
+} from './DashboardCharts.dynamic';
 
 // Dynamic import for map (no SSR) with error handling
 const FarmsMap = dynamic(
   () =>
-    import("@/components/maps/FarmsMap").catch((err) => {
-      logger.error("Failed to load FarmsMap:", err);
+    import('@/components/maps/FarmsMap').catch((err) => {
+      logger.error('Failed to load FarmsMap:', err);
       // Return a fallback component on error
       return {
         default: () => (
@@ -60,7 +68,7 @@ const FarmsMap = dynamic(
         <p className="text-gray-500 dark:text-gray-400">جاري تحميل الخريطة...</p>
       </div>
     ),
-  },
+  }
 );
 
 export default function DashboardPage() {
@@ -70,9 +78,15 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
-  const [yieldTrendData, setYieldTrendData] = useState<Array<{ month: string; yield: number; forecast: number }>>([]);
-  const [cropDistributionData, setCropDistributionData] = useState<Array<{ name: string; value: number }>>([]);
-  const [weeklyActivityData, setWeeklyActivityData] = useState<Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>>([]);
+  const [yieldTrendData, setYieldTrendData] = useState<
+    Array<{ month: string; yield: number; forecast: number }>
+  >([]);
+  const [cropDistributionData, setCropDistributionData] = useState<
+    Array<{ name: string; value: number }>
+  >([]);
+  const [weeklyActivityData, setWeeklyActivityData] = useState<
+    Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>
+  >([]);
   const [platformMetrics, setPlatformMetrics] = useState<{
     activeFarmers: number;
     dailySales: number;
@@ -85,7 +99,7 @@ export default function DashboardPage() {
   const { isConnected } = useWebSocket({ autoConnect: true });
   const { unreadCount, criticalAlerts } = useRealTimeAlerts({
     enableNotifications: true,
-    minSeverity: "medium",
+    minSeverity: 'medium',
   });
 
   // Load initial data with individual error handling using Promise.allSettled
@@ -96,7 +110,7 @@ export default function DashboardPage() {
           fetchDashboardStats(),
           fetchFarms(),
           fetchDiagnoses({ limit: 5 }),
-          fetchYieldTrends("30d"),
+          fetchYieldTrends('30d'),
           fetchCropDistribution(),
           fetchWeeklyActivity(),
           fetchPlatformMetrics(),
@@ -105,66 +119,66 @@ export default function DashboardPage() {
         let failedCount = 0;
 
         // Handle stats result
-        if (results[0].status === "fulfilled") {
+        if (results[0].status === 'fulfilled') {
           setStats(results[0].value);
         } else {
-          logger.error("Failed to load dashboard stats:", results[0].reason);
+          logger.error('Failed to load dashboard stats:', results[0].reason);
           failedCount++;
         }
 
         // Handle farms result
-        if (results[1].status === "fulfilled") {
+        if (results[1].status === 'fulfilled') {
           setFarms(results[1].value);
         } else {
-          logger.error("Failed to load farms:", results[1].reason);
+          logger.error('Failed to load farms:', results[1].reason);
           failedCount++;
         }
 
         // Handle diagnoses result
-        if (results[2].status === "fulfilled") {
+        if (results[2].status === 'fulfilled') {
           setRecentDiagnoses(results[2].value.slice(0, 5));
         } else {
-          logger.error("Failed to load diagnoses:", results[2].reason);
+          logger.error('Failed to load diagnoses:', results[2].reason);
           failedCount++;
         }
 
         // Handle yield trends
-        if (results[3].status === "fulfilled") {
+        if (results[3].status === 'fulfilled') {
           setYieldTrendData(results[3].value);
         } else {
-          logger.error("Failed to load yield trends:", results[3].reason);
+          logger.error('Failed to load yield trends:', results[3].reason);
         }
 
         // Handle crop distribution
-        if (results[4].status === "fulfilled") {
+        if (results[4].status === 'fulfilled') {
           setCropDistributionData(results[4].value);
         } else {
-          logger.error("Failed to load crop distribution:", results[4].reason);
+          logger.error('Failed to load crop distribution:', results[4].reason);
         }
 
         // Handle weekly activity
-        if (results[5].status === "fulfilled") {
+        if (results[5].status === 'fulfilled') {
           setWeeklyActivityData(results[5].value);
         } else {
-          logger.error("Failed to load weekly activity:", results[5].reason);
+          logger.error('Failed to load weekly activity:', results[5].reason);
         }
 
         // Handle platform metrics
-        if (results[6].status === "fulfilled") {
+        if (results[6].status === 'fulfilled') {
           setPlatformMetrics(results[6].value);
         } else {
-          logger.error("Failed to load platform metrics:", results[6].reason);
+          logger.error('Failed to load platform metrics:', results[6].reason);
         }
 
         // Show error if core requests failed
         if (failedCount === 3) {
-          setLoadError("فشل تحميل بيانات لوحة التحكم. يرجى التحقق من الاتصال.");
+          setLoadError('فشل تحميل بيانات لوحة التحكم. يرجى التحقق من الاتصال.');
         } else if (failedCount > 0) {
           logger.warn(`${failedCount} of 3 dashboard data requests failed`);
         }
       } catch (error) {
-        logger.error("Failed to load dashboard data:", error);
-        setLoadError("حدث خطأ غير متوقع. يرجى تحديث الصفحة.");
+        logger.error('Failed to load dashboard data:', error);
+        setLoadError('حدث خطأ غير متوقع. يرجى تحديث الصفحة.');
       } finally {
         setIsLoading(false);
       }
@@ -173,12 +187,10 @@ export default function DashboardPage() {
   }, []);
 
   // Real-time diagnosis updates via WebSocket
-  useWebSocketEvent<DiagnosisMessage>("diagnosis", (diagnosis) => {
+  useWebSocketEvent<DiagnosisMessage>('diagnosis', (diagnosis) => {
     // Update weekly diagnoses count
     setStats((prev) =>
-      prev
-        ? { ...prev, weeklyDiagnoses: (prev.weeklyDiagnoses || 0) + 1 }
-        : prev,
+      prev ? { ...prev, weeklyDiagnoses: (prev.weeklyDiagnoses || 0) + 1 } : prev
     );
 
     // Add to recent diagnoses
@@ -188,17 +200,17 @@ export default function DashboardPage() {
         farmId: diagnosis.farmId,
         farmName: diagnosis.farmName,
         diseaseNameAr: diagnosis.diseaseNameAr,
-        diseaseName: "",
-        diseaseId: "",
-        imageUrl: "/api/placeholder/400/300",
+        diseaseName: '',
+        diseaseId: '',
+        imageUrl: '/api/placeholder/400/300',
         thumbnailUrl: undefined,
-        cropType: "",
+        cropType: '',
         confidence: diagnosis.confidence,
         severity: diagnosis.severity,
-        status: "pending",
+        status: 'pending',
         location: { lat: 0, lng: 0 },
         diagnosedAt: diagnosis.timestamp,
-        createdBy: "",
+        createdBy: '',
       };
 
       return [newDiagnosis, ...prev].slice(0, 5);
@@ -206,9 +218,9 @@ export default function DashboardPage() {
   });
 
   // Real-time sensor updates via WebSocket
-  useWebSocketEvent<SensorMessage>("sensor", (sensor) => {
+  useWebSocketEvent<SensorMessage>('sensor', (sensor) => {
     // Log sensor readings - can be extended to show live sensor data
-    logger.debug("New sensor reading:", sensor);
+    logger.debug('New sensor reading:', sensor);
   });
 
   // Update critical alerts count from real-time data
@@ -230,13 +242,10 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="p-6">
-        <Header title={t("dashboard.title")} subtitle={t("dashboard.overview")} />
+        <Header title={t('dashboard.title')} subtitle={t('dashboard.overview')} />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-32 bg-gray-200 animate-pulse rounded-xl"
-            ></div>
+            <div key={i} className="h-32 bg-gray-200 animate-pulse rounded-xl"></div>
           ))}
         </div>
       </div>
@@ -247,7 +256,7 @@ export default function DashboardPage() {
   if (loadError && !stats && farms.length === 0) {
     return (
       <div className="p-6">
-        <Header title={t("dashboard.title")} subtitle={t("dashboard.overview")} />
+        <Header title={t('dashboard.title')} subtitle={t('dashboard.overview')} />
         <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-700 font-medium">{loadError}</p>
@@ -265,7 +274,7 @@ export default function DashboardPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
-        <Header title={t("dashboard.title")} subtitle={t("dashboard.overview")} />
+        <Header title={t('dashboard.title')} subtitle={t('dashboard.overview')} />
 
         {/* WebSocket Connection Status */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
@@ -291,26 +300,26 @@ export default function DashboardPage() {
       {/* Statistics Cards */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title={t("dashboard.stats.farms")}
+          title={t('dashboard.stats.farms')}
           value={stats?.totalFarms || 0}
           icon={MapPin}
           iconColor="text-blue-600"
         />
         <StatCard
-          title={t("dashboard.stats.area")}
-          value={stats?.totalArea?.toFixed(1) || "0"}
-          suffix={t("units.hectare")}
+          title={t('dashboard.stats.area')}
+          value={stats?.totalArea?.toFixed(1) || '0'}
+          suffix={t('units.hectare')}
           icon={Leaf}
           iconColor="text-green-600"
         />
         <StatCard
-          title={t("dashboard.stats.diagnoses")}
+          title={t('dashboard.stats.diagnoses')}
           value={stats?.weeklyDiagnoses || 0}
           icon={Bug}
           iconColor="text-purple-600"
         />
         <StatCard
-          title={t("dashboard.stats.alerts")}
+          title={t('dashboard.stats.alerts')}
           value={stats?.criticalAlerts || 0}
           icon={AlertTriangle}
           iconColor="text-red-600"
@@ -320,19 +329,19 @@ export default function DashboardPage() {
       {/* Second Row - More Stats */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
-          title={t("dashboard.stats.health")}
-          value={`${stats?.avgHealthScore?.toFixed(1) || "0"}%`}
+          title={t('dashboard.stats.health')}
+          value={`${stats?.avgHealthScore?.toFixed(1) || '0'}%`}
           icon={Activity}
           iconColor="text-emerald-600"
         />
         <StatCard
-          title={t("dashboard.stats.reviews")}
+          title={t('dashboard.stats.reviews')}
           value={stats?.pendingReviews || 0}
           icon={Eye}
           iconColor="text-amber-600"
         />
         <StatCard
-          title={t("dashboard.stats.activeFarms")}
+          title={t('dashboard.stats.activeFarms')}
           value={stats?.activeFarms || 0}
           icon={TrendingUp}
           iconColor="text-cyan-600"
@@ -344,7 +353,9 @@ export default function DashboardPage() {
         {/* Yield Trend Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900 dark:text-gray-100">{t("dashboard.charts.yield")}</h3>
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">
+              {t('dashboard.charts.yield')}
+            </h3>
             <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
               آخر 6 أشهر
             </span>
@@ -357,7 +368,9 @@ export default function DashboardPage() {
         {/* Weekly Activity Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900 dark:text-gray-100">{t("dashboard.charts.activity")}</h3>
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">
+              {t('dashboard.charts.activity')}
+            </h3>
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1">
                 <span className="w-3 h-3 rounded-full bg-sahool-600"></span>
@@ -383,7 +396,9 @@ export default function DashboardPage() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Crop Distribution Pie Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">{t("dashboard.charts.crops")}</h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {t('dashboard.charts.crops')}
+          </h3>
           <div className="h-48">
             <CropDistributionChart data={cropDistributionData} />
           </div>
@@ -395,32 +410,49 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Users className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">{platformMetrics?.activeFarmers?.toLocaleString() || "—"}</p>
+              <p className="text-2xl font-bold">
+                {platformMetrics?.activeFarmers?.toLocaleString() || '—'}
+              </p>
               <p className="text-xs opacity-80">مزارع نشط</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <DollarSign className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">{platformMetrics?.dailySales ? `$${(platformMetrics.dailySales / 1000).toFixed(0)}K` : "—"}</p>
+              <p className="text-2xl font-bold">
+                {platformMetrics?.dailySales
+                  ? `$${(platformMetrics.dailySales / 1000).toFixed(0)}K`
+                  : '—'}
+              </p>
               <p className="text-xs opacity-80">مبيعات اليوم</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Droplets className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">{platformMetrics?.irrigationOps?.toLocaleString() || "—"}</p>
+              <p className="text-2xl font-bold">
+                {platformMetrics?.irrigationOps?.toLocaleString() || '—'}
+              </p>
               <p className="text-xs opacity-80">عملية ري</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Sun className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">{platformMetrics?.avgTemperature ? `${platformMetrics.avgTemperature}°` : "—"}</p>
+              <p className="text-2xl font-bold">
+                {platformMetrics?.avgTemperature ? `${platformMetrics.avgTemperature}°` : '—'}
+              </p>
               <p className="text-xs opacity-80">متوسط الحرارة</p>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-white/20">
             <div className="flex items-center justify-between text-sm">
               <span className="opacity-80">نسبة النمو الشهري</span>
-              <span className="font-bold text-green-300">{platformMetrics?.monthlyGrowthRate ? `+${platformMetrics.monthlyGrowthRate}%` : "—"}</span>
+              <span className="font-bold text-green-300">
+                {platformMetrics?.monthlyGrowthRate
+                  ? `+${platformMetrics.monthlyGrowthRate}%`
+                  : '—'}
+              </span>
             </div>
             <div className="mt-2 h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-green-400 rounded-full" style={{ width: `${Math.min(platformMetrics?.monthlyGrowthRate || 0, 100)}%` }}></div>
+              <div
+                className="h-full bg-green-400 rounded-full"
+                style={{ width: `${Math.min(platformMetrics?.monthlyGrowthRate || 0, 100)}%` }}
+              ></div>
             </div>
           </div>
         </div>
@@ -525,19 +557,15 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">المساحة</p>
-              <p className="font-medium dark:text-gray-200">
-                {selectedFarm.area.toFixed(1)} هكتار
-              </p>
+              <p className="font-medium dark:text-gray-200">{selectedFarm.area.toFixed(1)} هكتار</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">المحاصيل</p>
-              <p className="font-medium dark:text-gray-200">{selectedFarm.crops.join(", ")}</p>
+              <p className="font-medium dark:text-gray-200">{selectedFarm.crops.join(', ')}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">مستوى الصحة</p>
-              <p className="font-bold text-sahool-600">
-                {selectedFarm.healthScore}%
-              </p>
+              <p className="font-bold text-sahool-600">{selectedFarm.healthScore}%</p>
             </div>
           </div>
           <div className="mt-4 flex gap-3">

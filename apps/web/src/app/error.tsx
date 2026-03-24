@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * Root Error Boundary
  * حد الخطأ الرئيسي
  */
 
-import { useEffect } from "react";
-import { AlertTriangle } from "lucide-react";
-import { logger } from "@/lib/logger";
+import { useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export default function Error({
   error,
@@ -18,7 +18,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    logger.error("Application error:", error);
+    logger.error('Application error:', error);
   }, [error]);
 
   return (
@@ -29,9 +29,7 @@ export default function Error({
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">حدث خطأ</h1>
         <h2 className="text-lg text-gray-700 mb-4">Something went wrong</h2>
-        <p className="text-gray-600 mb-6">
-          عذراً، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.
-        </p>
+        <p className="text-gray-600 mb-6">عذراً، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.</p>
         <p className="text-sm text-gray-500 mb-6">
           Sorry, an unexpected error occurred. Please try again.
         </p>

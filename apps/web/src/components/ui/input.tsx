@@ -1,5 +1,5 @@
-import * as React from "react";
-import { clsx } from "clsx";
+import * as React from 'react';
+import { clsx } from 'clsx';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -19,7 +19,7 @@ export function Input({
   helperText,
   leftIcon,
   rightIcon,
-  type = "text",
+  type = 'text',
   id,
   ref,
   ...props
@@ -35,10 +35,7 @@ export function Input({
   return (
     <div className="w-full">
       {(label || labelAr) && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1.5"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1.5">
           <span className="text-gray-900 font-semibold">{labelAr}</span>
           {labelAr && label && <span className="mx-1">•</span>}
           {label && <span className="text-gray-600 text-xs">{label}</span>}
@@ -57,15 +54,15 @@ export function Input({
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={clsx(
-            "block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900",
-            "placeholder:text-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent",
-            "disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed",
-            "transition-colors",
-            error && "border-red-500 focus:ring-red-500",
-            leftIcon && "ps-10",
-            rightIcon && "pe-10",
-            className,
+            'block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900',
+            'placeholder:text-gray-400',
+            'focus:outline-none focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent',
+            'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
+            'transition-colors',
+            error && 'border-red-500 focus:ring-red-500',
+            leftIcon && 'ps-10',
+            rightIcon && 'pe-10',
+            className
           )}
           {...props}
         />
@@ -89,4 +86,4 @@ export function Input({
   );
 }
 
-Input.displayName = "Input";
+Input.displayName = 'Input';

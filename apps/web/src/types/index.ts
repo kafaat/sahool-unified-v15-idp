@@ -69,7 +69,7 @@ export type {
   PaginatedResponse,
   ApiClientConfig,
   ServicePorts,
-} from "@sahool/api-client";
+} from '@sahool/api-client';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Web-specific type extensions
@@ -83,7 +83,7 @@ import type {
   HealthStatus,
   AlertSeverity,
   AlertCategory,
-} from "@sahool/api-client";
+} from '@sahool/api-client';
 
 /** Extended Field type with web dashboard display properties */
 export interface DashboardField extends BaseField {
@@ -107,15 +107,15 @@ export interface DashboardState {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type WSMessageType =
-  | "kpi_update"
-  | "alert_new"
-  | "alert_dismiss"
-  | "field_update"
-  | "ndvi_update"
-  | "weather_update"
-  | "sensor_reading"
-  | "ping"
-  | "pong";
+  | 'kpi_update'
+  | 'alert_new'
+  | 'alert_dismiss'
+  | 'field_update'
+  | 'ndvi_update'
+  | 'weather_update'
+  | 'sensor_reading'
+  | 'ping'
+  | 'pong';
 
 export interface WSMessage<T = unknown> {
   type: WSMessageType;

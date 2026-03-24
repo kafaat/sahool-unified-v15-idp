@@ -3,26 +3,24 @@
  * خطافات React لميزة صحة المحصول
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { HealthRecord, DiagnosisRequest, HealthFilters } from "../types";
-import { cropHealthApi } from "../api";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { HealthRecord, DiagnosisRequest, HealthFilters } from '../types';
+import { cropHealthApi } from '../api';
 
 // Query Keys
 const HEALTH_KEYS = {
-  all: ["crop-health"] as const,
-  summary: (filters?: HealthFilters) =>
-    [...HEALTH_KEYS.all, "summary", filters] as const,
-  records: (filters?: HealthFilters) =>
-    [...HEALTH_KEYS.all, "records", filters] as const,
-  record: (id: string) => [...HEALTH_KEYS.all, "record", id] as const,
-  diagnoses: () => [...HEALTH_KEYS.all, "diagnoses"] as const,
-  diagnosis: (id: string) => [...HEALTH_KEYS.all, "diagnosis", id] as const,
-  result: (id: string) => [...HEALTH_KEYS.all, "result", id] as const,
-  diseases: () => [...HEALTH_KEYS.all, "diseases"] as const,
-  alerts: () => [...HEALTH_KEYS.all, "alerts"] as const,
-  consultations: () => [...HEALTH_KEYS.all, "consultations"] as const,
+  all: ['crop-health'] as const,
+  summary: (filters?: HealthFilters) => [...HEALTH_KEYS.all, 'summary', filters] as const,
+  records: (filters?: HealthFilters) => [...HEALTH_KEYS.all, 'records', filters] as const,
+  record: (id: string) => [...HEALTH_KEYS.all, 'record', id] as const,
+  diagnoses: () => [...HEALTH_KEYS.all, 'diagnoses'] as const,
+  diagnosis: (id: string) => [...HEALTH_KEYS.all, 'diagnosis', id] as const,
+  result: (id: string) => [...HEALTH_KEYS.all, 'result', id] as const,
+  diseases: () => [...HEALTH_KEYS.all, 'diseases'] as const,
+  alerts: () => [...HEALTH_KEYS.all, 'alerts'] as const,
+  consultations: () => [...HEALTH_KEYS.all, 'consultations'] as const,
 };
 
 /**
@@ -65,8 +63,7 @@ export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Partial<HealthRecord>) =>
-      cropHealthApi.createHealthRecord(data),
+    mutationFn: (data: Partial<HealthRecord>) => cropHealthApi.createHealthRecord(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.all });
     },
@@ -119,8 +116,7 @@ export function useCreateDiagnosis() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Partial<DiagnosisRequest>) =>
-      cropHealthApi.submitDiagnosis(data),
+    mutationFn: (data: Partial<DiagnosisRequest>) => cropHealthApi.submitDiagnosis(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.diagnoses() });
     },
@@ -196,11 +192,8 @@ export function useRequestConsultation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
-      diagnosisId: string;
-      question?: string;
-      questionAr?: string;
-    }) => cropHealthApi.requestConsultation(data),
+    mutationFn: (data: { diagnosisId: string; question?: string; questionAr?: string }) =>
+      cropHealthApi.requestConsultation(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.consultations() });
     },

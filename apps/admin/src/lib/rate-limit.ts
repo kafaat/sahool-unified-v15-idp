@@ -6,8 +6,8 @@
  * Protects admin API routes from abuse.
  */
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 interface RateLimitEntry {
   timestamps: number[];
@@ -57,13 +57,13 @@ export interface RateLimitConfig {
  */
 export function checkRateLimit(
   request: NextRequest,
-  config: RateLimitConfig = {},
+  config: RateLimitConfig = {}
 ): NextResponse | null {
   const { limit = 60, windowMs = 60000 } = config;
 
   // Extract client identifier
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || "anonymous";
+  const forwarded = request.headers.get('x-forwarded-for');
+  const ip = forwarded?.split(',')[0]?.trim() || 'anonymous';
   const key = `${ip}:${request.nextUrl.pathname}`;
 
   const now = Date.now();
@@ -81,27 +81,23 @@ export function checkRateLimit(
 
   // Check limit
   if (entry.timestamps.length >= limit) {
-    const retryAfter = Math.ceil(
-      (entry.timestamps[0]! + windowMs - now) / 1000,
-    );
+    const retryAfter = Math.ceil((entry.timestamps[0]! + windowMs - now) / 1000);
 
     return NextResponse.json(
       {
-        error: "Too many requests",
-        errorAr: "عدد الطلبات كثير جداً",
+        error: 'Too many requests',
+        errorAr: 'عدد الطلبات كثير جداً',
         retryAfter,
       },
       {
         status: 429,
         headers: {
-          "Retry-After": String(retryAfter),
-          "X-RateLimit-Limit": String(limit),
-          "X-RateLimit-Remaining": "0",
-          "X-RateLimit-Reset": String(
-            Math.ceil((entry.timestamps[0]! + windowMs) / 1000),
-          ),
+          'Retry-After': String(retryAfter),
+          'X-RateLimit-Limit': String(limit),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(Math.ceil((entry.timestamps[0]! + windowMs) / 1000)),
         },
-      },
+      }
     );
   }
 
@@ -119,22 +115,20 @@ export function checkRateLimit(
  */
 export function rateLimitHeaders(
   request: NextRequest,
-  config: RateLimitConfig = {},
+  config: RateLimitConfig = {}
 ): Record<string, string> {
   const { limit = 60, windowMs = 60000 } = config;
 
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || "anonymous";
+  const forwarded = request.headers.get('x-forwarded-for');
+  const ip = forwarded?.split(',')[0]?.trim() || 'anonymous';
   const key = `${ip}:${request.nextUrl.pathname}`;
 
   const entry = store.get(key);
-  const remaining = entry
-    ? Math.max(0, limit - entry.timestamps.length)
-    : limit;
+  const remaining = entry ? Math.max(0, limit - entry.timestamps.length) : limit;
 
   return {
-    "X-RateLimit-Limit": String(limit),
-    "X-RateLimit-Remaining": String(remaining),
-    "X-RateLimit-Reset": String(Math.ceil((Date.now() + windowMs) / 1000)),
+    'X-RateLimit-Limit': String(limit),
+    'X-RateLimit-Remaining': String(remaining),
+    'X-RateLimit-Reset': String(Math.ceil((Date.now() + windowMs) / 1000)),
   };
 }

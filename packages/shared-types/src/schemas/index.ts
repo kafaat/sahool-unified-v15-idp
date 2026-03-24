@@ -17,7 +17,7 @@
  * @version 16.0.0
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Auth / User Schemas - مخططات المصادقة والمستخدمين
@@ -28,16 +28,16 @@ import { z } from "zod";
  * Aligned with UserRole in auth.ts
  */
 export const UserRoleSchema = z.enum([
-  "admin",
-  "super_admin",
-  "manager",
-  "operator",
-  "expert",
-  "farmer",
-  "agronomist",
-  "researcher",
-  "field_officer",
-  "viewer",
+  'admin',
+  'super_admin',
+  'manager',
+  'operator',
+  'expert',
+  'farmer',
+  'agronomist',
+  'researcher',
+  'field_officer',
+  'viewer',
 ]);
 
 /**
@@ -45,8 +45,10 @@ export const UserRoleSchema = z.enum([
  * Validates email format and minimum password length.
  */
 export const LoginRequestSchema = z.object({
-  email: z.string().email("Invalid email address | بريد إلكتروني غير صالح"),
-  password: z.string().min(8, "Password must be at least 8 characters | يجب أن تكون كلمة المرور 8 أحرف على الأقل"),
+  email: z.string().email('Invalid email address | بريد إلكتروني غير صالح'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters | يجب أن تكون كلمة المرور 8 أحرف على الأقل'),
 });
 
 /**
@@ -56,7 +58,7 @@ export const LoginRequestSchema = z.object({
 export const LoginResponseSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string().optional(),
-  token_type: z.string().default("Bearer"),
+  token_type: z.string().default('Bearer'),
   expires_in: z.number().positive().optional(),
   user: z.lazy(() => UserSchema),
   requires_2fa: z.boolean().optional(),
@@ -106,7 +108,7 @@ export const PermissionSchema = z.object({
   name: z.string(),
   resource: z.string(),
   action: z.string(),
-  scope: z.enum(["own", "tenant", "global"]).optional(),
+  scope: z.enum(['own', 'tenant', 'global']).optional(),
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -124,7 +126,7 @@ export const CoordinateSchema = z.tuple([z.number(), z.number()]);
  * Aligned with GeoJSONPoint in field.ts
  */
 export const GeoPointSchema = z.object({
-  type: z.literal("Point"),
+  type: z.literal('Point'),
   coordinates: CoordinateSchema,
 });
 
@@ -133,7 +135,7 @@ export const GeoPointSchema = z.object({
  * Aligned with GeoJSONPolygon in field.ts
  */
 export const GeoPolygonSchema = z.object({
-  type: z.literal("Polygon"),
+  type: z.literal('Polygon'),
   coordinates: z.array(z.array(CoordinateSchema)),
 });
 
@@ -142,7 +144,7 @@ export const GeoPolygonSchema = z.object({
  * Aligned with GeoJSONMultiPolygon in field.ts
  */
 export const GeoMultiPolygonSchema = z.object({
-  type: z.literal("MultiPolygon"),
+  type: z.literal('MultiPolygon'),
   coordinates: z.array(z.array(z.array(CoordinateSchema))),
 });
 
@@ -150,7 +152,7 @@ export const GeoMultiPolygonSchema = z.object({
  * Field geometry: either a Polygon or MultiPolygon.
  * Aligned with FieldGeometry in field.ts
  */
-export const FieldGeometrySchema = z.discriminatedUnion("type", [
+export const FieldGeometrySchema = z.discriminatedUnion('type', [
   GeoPolygonSchema,
   GeoMultiPolygonSchema,
 ]);
@@ -163,26 +165,20 @@ export const FieldGeometrySchema = z.discriminatedUnion("type", [
  * Field status enum.
  * Aligned with FieldStatus in field.ts
  */
-export const FieldStatusSchema = z.enum([
-  "active",
-  "fallow",
-  "preparing",
-  "harvested",
-  "inactive",
-]);
+export const FieldStatusSchema = z.enum(['active', 'fallow', 'preparing', 'harvested', 'inactive']);
 
 /**
  * Soil type classification.
  * Aligned with SoilType in field.ts
  */
 export const SoilTypeSchema = z.enum([
-  "clay",
-  "sandy",
-  "loamy",
-  "silty",
-  "peaty",
-  "chalky",
-  "mixed",
+  'clay',
+  'sandy',
+  'loamy',
+  'silty',
+  'peaty',
+  'chalky',
+  'mixed',
 ]);
 
 /**
@@ -190,13 +186,13 @@ export const SoilTypeSchema = z.enum([
  * Aligned with IrrigationType in field.ts
  */
 export const IrrigationTypeSchema = z.enum([
-  "drip",
-  "sprinkler",
-  "flood",
-  "pivot",
-  "furrow",
-  "rainfed",
-  "subsurface",
+  'drip',
+  'sprinkler',
+  'flood',
+  'pivot',
+  'furrow',
+  'rainfed',
+  'subsurface',
 ]);
 
 /**
@@ -214,11 +210,13 @@ export const SoilAnalysisSchema = z.object({
   sulfur: z.number().nonnegative().optional(),
   electricalConductivity: z.number().nonnegative().optional(),
   cec: z.number().nonnegative().optional(),
-  texture: z.object({
-    sand: z.number().min(0).max(100),
-    silt: z.number().min(0).max(100),
-    clay: z.number().min(0).max(100),
-  }).optional(),
+  texture: z
+    .object({
+      sand: z.number().min(0).max(100),
+      silt: z.number().min(0).max(100),
+      clay: z.number().min(0).max(100),
+    })
+    .optional(),
   sampleDate: z.string(),
   labName: z.string().optional(),
 });
@@ -241,12 +239,14 @@ export const FieldSchema = z.object({
   areaHectares: z.number().positive().optional(),
   geometry: FieldGeometrySchema.optional(),
   centroid: GeoPointSchema.optional(),
-  boundingBox: z.object({
-    minLon: z.number(),
-    minLat: z.number(),
-    maxLon: z.number(),
-    maxLat: z.number(),
-  }).optional(),
+  boundingBox: z
+    .object({
+      minLon: z.number(),
+      minLat: z.number(),
+      maxLon: z.number(),
+      maxLat: z.number(),
+    })
+    .optional(),
 
   // Health & Analysis
   healthScore: z.number().min(0).max(1).optional(),
@@ -319,8 +319,8 @@ export const FieldFiltersSchema = z.object({
   search: z.string().optional(),
   page: z.number().int().positive().optional(),
   limit: z.number().int().positive().optional(),
-  sortBy: z.enum(["name", "areaHectares", "createdAt", "updatedAt"]).optional(),
-  sortOrder: z.enum(["asc", "desc"]).optional(),
+  sortBy: z.enum(['name', 'areaHectares', 'createdAt', 'updatedAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -388,11 +388,11 @@ export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =
  * Advisory type enum.
  */
 export const AdvisoryTypeSchema = z.enum([
-  "irrigation",
-  "fertilizer",
-  "pest",
-  "disease",
-  "general",
+  'irrigation',
+  'fertilizer',
+  'pest',
+  'disease',
+  'general',
 ]);
 
 /**
@@ -403,12 +403,7 @@ export const AdvisoryTypeSchema = z.enum([
  *   advisory  -> [!]   action within 1 week
  *   informational -> [.]  for awareness
  */
-export const AdvisoryPrioritySchema = z.enum([
-  "critical",
-  "warning",
-  "advisory",
-  "informational",
-]);
+export const AdvisoryPrioritySchema = z.enum(['critical', 'warning', 'advisory', 'informational']);
 
 /**
  * Advisory entity schema.
@@ -437,27 +432,27 @@ export const AdvisorySchema = z.object({
 /**
  * Locale enum. Aligned with Locale in contracts/api-responses.ts
  */
-export const LocaleSchema = z.enum(["ar", "en"]);
+export const LocaleSchema = z.enum(['ar', 'en']);
 
 /**
  * Severity enum. Aligned with Severity in contracts/api-responses.ts
  */
-export const SeveritySchema = z.enum(["low", "medium", "high", "critical"]);
+export const SeveritySchema = z.enum(['low', 'medium', 'high', 'critical']);
 
 /**
  * Priority enum. Aligned with Priority in contracts/api-responses.ts
  */
-export const PrioritySchema = z.enum(["urgent", "high", "medium", "low"]);
+export const PrioritySchema = z.enum(['urgent', 'high', 'medium', 'low']);
 
 /**
  * Health status enum. Aligned with HealthStatus in contracts/api-responses.ts
  */
-export const HealthStatusSchema = z.enum(["healthy", "moderate", "stressed", "critical"]);
+export const HealthStatusSchema = z.enum(['healthy', 'moderate', 'stressed', 'critical']);
 
 /**
  * Trend direction enum. Aligned with TrendDirection in contracts/api-responses.ts
  */
-export const TrendDirectionSchema = z.enum(["up", "down", "stable"]);
+export const TrendDirectionSchema = z.enum(['up', 'down', 'stable']);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Crop Schemas - مخططات المحاصيل
@@ -468,19 +463,19 @@ export const TrendDirectionSchema = z.enum(["up", "down", "stable"]);
  * Aligned with CropStage in field.ts
  */
 export const CropStageSchema = z.enum([
-  "germination",
-  "seedling",
-  "vegetative",
-  "tillering",
-  "stem_elongation",
-  "booting",
-  "heading",
-  "flowering",
-  "pollination",
-  "grain_fill",
-  "ripening",
-  "maturity",
-  "harvest",
+  'germination',
+  'seedling',
+  'vegetative',
+  'tillering',
+  'stem_elongation',
+  'booting',
+  'heading',
+  'flowering',
+  'pollination',
+  'grain_fill',
+  'ripening',
+  'maturity',
+  'harvest',
 ]);
 
 /**
@@ -488,15 +483,15 @@ export const CropStageSchema = z.enum([
  * Aligned with CropCategory in field.ts
  */
 export const CropCategorySchema = z.enum([
-  "cereals",
-  "legumes",
-  "vegetables",
-  "fruits",
-  "oilseeds",
-  "fiber",
-  "fodder",
-  "cash_crops",
-  "spices",
+  'cereals',
+  'legumes',
+  'vegetables',
+  'fruits',
+  'oilseeds',
+  'fiber',
+  'fodder',
+  'cash_crops',
+  'spices',
 ]);
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -508,18 +503,18 @@ export const CropCategorySchema = z.enum([
  * Aligned with OperationType in field.ts
  */
 export const OperationTypeSchema = z.enum([
-  "irrigation",
-  "fertilization",
-  "spraying",
-  "tillage",
-  "planting",
-  "harvesting",
-  "scouting",
-  "pruning",
-  "weeding",
-  "mulching",
-  "soil_sampling",
-  "other",
+  'irrigation',
+  'fertilization',
+  'spraying',
+  'tillage',
+  'planting',
+  'harvesting',
+  'scouting',
+  'pruning',
+  'weeding',
+  'mulching',
+  'soil_sampling',
+  'other',
 ]);
 
 /**
@@ -527,11 +522,11 @@ export const OperationTypeSchema = z.enum([
  * Aligned with OperationStatus in field.ts
  */
 export const OperationStatusSchema = z.enum([
-  "planned",
-  "in_progress",
-  "completed",
-  "cancelled",
-  "failed",
+  'planned',
+  'in_progress',
+  'completed',
+  'cancelled',
+  'failed',
 ]);
 
 // ═══════════════════════════════════════════════════════════════════════════

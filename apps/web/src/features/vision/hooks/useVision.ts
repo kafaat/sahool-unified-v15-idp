@@ -8,26 +8,21 @@
  * تصنيف النضج، تجزئة الأوراق، وإدارة النماذج.
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { visionApi } from "../api";
-import type {
-  PestDetection,
-  DiseaseDetection,
-  WeedDetection,
-  ModelInfo,
-} from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { visionApi } from '../api';
+import type { PestDetection, DiseaseDetection, WeedDetection, ModelInfo } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys - مفاتيح الاستعلام
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const visionKeys = {
-  all: ["vision"] as const,
-  models: () => [...visionKeys.all, "models"] as const,
-  modelInfo: (variant: string) => [...visionKeys.all, "modelInfo", variant] as const,
-  detections: () => [...visionKeys.all, "detections"] as const,
+  all: ['vision'] as const,
+  models: () => [...visionKeys.all, 'models'] as const,
+  modelInfo: (variant: string) => [...visionKeys.all, 'modelInfo', variant] as const,
+  detections: () => [...visionKeys.all, 'detections'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

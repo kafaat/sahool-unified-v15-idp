@@ -3,8 +3,8 @@
  * أنواع ميزة المستخدمين
  */
 
-export type UserRole = "admin" | "manager" | "farmer" | "viewer" | "agronomist";
-export type UserStatus = "active" | "inactive" | "suspended" | "pending";
+export type UserRole = 'admin' | 'manager' | 'farmer' | 'viewer' | 'agronomist';
+export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending';
 
 export interface User {
   id: string;
@@ -19,7 +19,7 @@ export interface User {
   farmIds: string[];
   lastLogin?: string;
   twoFactorEnabled: boolean;
-  language: "ar" | "en";
+  language: 'ar' | 'en';
   createdAt: string;
   updatedAt: string;
 }
@@ -36,7 +36,7 @@ export interface UserFormData {
   nameAr: string;
   phone?: string;
   role: UserRole;
-  language?: "ar" | "en";
+  language?: 'ar' | 'en';
   farmIds?: string[];
 }
 

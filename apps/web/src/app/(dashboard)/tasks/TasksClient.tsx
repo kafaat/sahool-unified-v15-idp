@@ -1,23 +1,20 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Tasks Page Client Component
  * صفحة المهام
  */
 
-import React, { useState } from "react";
-import { TasksList } from "@/features/tasks";
-import { TaskForm } from "@/features/tasks/components/TaskForm";
-import { TaskFiltersComponent as TaskFilters } from "@/features/tasks/components/TaskFilters";
-import { Modal } from "@/components/ui/modal";
-import { Plus, Filter } from "lucide-react";
-import type {
-  TaskFilters as TaskFiltersType,
-  TaskFormData,
-} from "@/features/tasks/types";
-import { ErrorTracking } from "@/lib/monitoring/error-tracking";
-import { useCreateTask } from "@/features/tasks/hooks/useTasks";
-import { useToast } from "@/components/ui/toast";
+import React, { useState } from 'react';
+import { TasksList } from '@/features/tasks';
+import { TaskForm } from '@/features/tasks/components/TaskForm';
+import { TaskFiltersComponent as TaskFilters } from '@/features/tasks/components/TaskFilters';
+import { Modal } from '@/components/ui/modal';
+import { Plus, Filter } from 'lucide-react';
+import type { TaskFilters as TaskFiltersType, TaskFormData } from '@/features/tasks/types';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import { useCreateTask } from '@/features/tasks/hooks/useTasks';
+import { useToast } from '@/components/ui/toast';
 
 export default function TasksClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -32,9 +29,9 @@ export default function TasksClient() {
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
     ErrorTracking.addBreadcrumb({
-      type: "click",
-      category: "ui",
-      message: "Task clicked",
+      type: 'click',
+      category: 'ui',
+      message: 'Task clicked',
       data: { taskId },
     });
   };
@@ -54,9 +51,9 @@ export default function TasksClient() {
   const handleSubmit = async (data: TaskFormData) => {
     try {
       ErrorTracking.addBreadcrumb({
-        type: "click",
-        category: "ui",
-        message: "Creating task",
+        type: 'click',
+        category: 'ui',
+        message: 'Creating task',
         data: { taskTitle: data?.title },
       });
 
@@ -65,9 +62,9 @@ export default function TasksClient() {
 
       // Show success message
       showToast({
-        type: "success",
-        messageAr: "تم إنشاء المهمة بنجاح",
-        message: "Task created successfully",
+        type: 'success',
+        messageAr: 'تم إنشاء المهمة بنجاح',
+        message: 'Task created successfully',
       });
 
       // Close the modal
@@ -75,16 +72,15 @@ export default function TasksClient() {
     } catch (error) {
       // Show error message
       showToast({
-        type: "error",
-        messageAr: "فشل في إنشاء المهمة",
-        message:
-          error instanceof Error ? error.message : "Failed to create task",
+        type: 'error',
+        messageAr: 'فشل في إنشاء المهمة',
+        message: error instanceof Error ? error.message : 'Failed to create task',
       });
 
       ErrorTracking.captureError(
-        error instanceof Error ? error : new Error("Failed to create task"),
+        error instanceof Error ? error : new Error('Failed to create task'),
         undefined,
-        { data },
+        { data }
       );
     }
   };
@@ -103,8 +99,8 @@ export default function TasksClient() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 border-2 rounded-lg transition-colors ${
                 showFilters
-                  ? "border-blue-600 bg-blue-50 text-blue-600"
-                  : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                  ? 'border-blue-600 bg-blue-50 text-blue-600'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
               }`}
             >
               <Filter className="w-5 h-5" />

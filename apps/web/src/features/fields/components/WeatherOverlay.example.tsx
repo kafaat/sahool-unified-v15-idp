@@ -7,25 +7,21 @@
  * on a field map to display real-time weather information.
  */
 
-import React from "react";
-import { MapContainer, TileLayer, Polygon } from "react-leaflet";
-import { WeatherOverlay } from "./WeatherOverlay";
-import type { Field } from "../types";
+import React from 'react';
+import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import { WeatherOverlay } from './WeatherOverlay';
+import type { Field } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Basic Usage
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function BasicWeatherOverlayExample() {
-  const fieldId = "field-123";
+  const fieldId = 'field-123';
 
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.3694, 44.191]}
-        zoom={13}
-        className="h-full w-full"
-      >
+      <MapContainer center={[15.3694, 44.191]} zoom={13} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -43,15 +39,11 @@ export function BasicWeatherOverlayExample() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function PositionedWeatherOverlayExample() {
-  const fieldId = "field-123";
+  const fieldId = 'field-123';
 
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.3694, 44.191]}
-        zoom={13}
-        className="h-full w-full"
-      >
+      <MapContainer center={[15.3694, 44.191]} zoom={13} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -75,15 +67,11 @@ export function PositionedWeatherOverlayExample() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function ExpandedWeatherOverlayExample() {
-  const fieldId = "field-123";
+  const fieldId = 'field-123';
 
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.3694, 44.191]}
-        zoom={13}
-        className="h-full w-full"
-      >
+      <MapContainer center={[15.3694, 44.191]} zoom={13} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -107,15 +95,10 @@ interface FieldWithWeatherProps {
 export function FieldWithWeather({ field }: FieldWithWeatherProps) {
   // Convert polygon coordinates for Leaflet (expects [lat, lng])
   const polygonPositions =
-    field.polygon?.coordinates[0].map(
-      ([lng, lat]) => [lat, lng] as [number, number],
-    ) || [];
+    field.polygon?.coordinates[0].map(([lng, lat]) => [lat, lng] as [number, number]) || [];
 
   const center = field.centroid?.coordinates
-    ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [
-        number,
-        number,
-      ])
+    ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [number, number])
     : ([15.3694, 44.191] as [number, number]);
 
   return (
@@ -131,8 +114,8 @@ export function FieldWithWeather({ field }: FieldWithWeatherProps) {
           <Polygon
             positions={polygonPositions}
             pathOptions={{
-              color: "#10b981",
-              fillColor: "#10b981",
+              color: '#10b981',
+              fillColor: '#10b981',
               fillOpacity: 0.2,
             }}
           />
@@ -149,19 +132,14 @@ export function FieldWithWeather({ field }: FieldWithWeatherProps) {
 // Example 5: With Field Details Panel
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function FieldMapWithWeatherAndDetails({
-  field,
-}: FieldWithWeatherProps) {
+export function FieldMapWithWeatherAndDetails({ field }: FieldWithWeatherProps) {
   const polygonPositions =
     field.polygon?.coordinates?.[0]?.map(
-      ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
+      ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
     ) ?? [];
 
   const center = field.centroid?.coordinates
-    ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [
-        number,
-        number,
-      ])
+    ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [number, number])
     : ([15.3694, 44.191] as [number, number]);
 
   return (
@@ -176,8 +154,8 @@ export function FieldMapWithWeatherAndDetails({
           <Polygon
             positions={polygonPositions}
             pathOptions={{
-              color: "#10b981",
-              fillColor: "#10b981",
+              color: '#10b981',
+              fillColor: '#10b981',
               fillOpacity: 0.2,
             }}
           />
@@ -188,9 +166,7 @@ export function FieldMapWithWeatherAndDetails({
       </MapContainer>
 
       {/* Field details panel in bottom-left outside map */}
-      <div
-        className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-xs z-[1000]"
-             >
+      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-xs z-[1000]">
         <h3 className="text-lg font-bold mb-2">{field.nameAr || field.name}</h3>
         <div className="space-y-1 text-sm text-gray-600">
           <p>المساحة: {field.area} هكتار</p>

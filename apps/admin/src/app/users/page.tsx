@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 // Users Management Page - Dynamic with Full CRUD
 // صفحة إدارة المستخدمين - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { useToast } from "@/components/ui/Toast";
-import Header from "@/components/layout/Header";
-import StatusBadge from "@/components/ui/StatusBadge";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
-import { t } from "@/lib/i18n";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useToast } from '@/components/ui/Toast';
+import Header from '@/components/layout/Header';
+import StatusBadge from '@/components/ui/StatusBadge';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 import {
   Users,
   Search,
@@ -24,26 +24,31 @@ import {
   UserX,
   X,
   Save,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { userService, type User as ApiUser, type CreateUserData, type UpdateUserData } from "@/lib/api";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import {
+  userService,
+  type User as ApiUser,
+  type CreateUserData,
+  type UpdateUserData,
+} from '@/lib/api';
 
 // Extended User interface for UI
-interface User extends Omit<ApiUser, "role"> {
+interface User extends Omit<ApiUser, 'role'> {
   nameAr?: string;
   farmCount?: number;
   lastLogin?: string;
   avatar?: string;
-  role: "admin" | "manager" | "farmer" | "researcher" | "expert" | "viewer";
+  role: 'admin' | 'manager' | 'farmer' | 'researcher' | 'expert' | 'viewer';
 }
 
 export default function UsersPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -71,17 +76,17 @@ export default function UsersPage() {
       });
 
       // Map API users to UI format
-      const mappedUsers: User[] = response.data.map(user => ({
+      const mappedUsers: User[] = response.data.map((user) => ({
         ...user,
         nameAr: user.name,
         farmCount: user.farmCount ?? 0,
-        lastLogin: user.lastLogin ?? "",
+        lastLogin: user.lastLogin ?? '',
       }));
 
       setUsers(mappedUsers);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
-      logger.error("Failed to load users:", error);
+      logger.error('Failed to load users:', error);
       setUsers([]);
     } finally {
       setIsLoading(false);
@@ -99,10 +104,10 @@ export default function UsersPage() {
       await userService.create(data);
       await loadUsers();
       setShowCreateModal(false);
-      logger.info("User created successfully");
+      logger.info('User created successfully');
     } catch (error) {
-      logger.error("Failed to create user:", error);
-      toast.error("Failed to create user", "فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to create user:', error);
+      toast.error('Failed to create user', 'فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -115,10 +120,10 @@ export default function UsersPage() {
       await loadUsers();
       setShowEditModal(false);
       setSelectedUser(null);
-      logger.info("User updated successfully");
+      logger.info('User updated successfully');
     } catch (error) {
-      logger.error("Failed to update user:", error);
-      toast.error("Failed to update user", "فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to update user:', error);
+      toast.error('Failed to update user', 'فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -131,10 +136,10 @@ export default function UsersPage() {
       await loadUsers();
       setShowDeleteModal(false);
       setSelectedUser(null);
-      logger.info("User deleted successfully");
+      logger.info('User deleted successfully');
     } catch (error) {
-      logger.error("Failed to delete user:", error);
-      toast.error("Failed to delete user", "فشل حذف المستخدم. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to delete user:', error);
+      toast.error('Failed to delete user', 'فشل حذف المستخدم. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -145,41 +150,44 @@ export default function UsersPage() {
     return users;
   }, [users]);
 
-  const stats = useMemo(() => ({
-    total: users.length,
-    active: users.filter((u) => u.status === "active").length,
-    farmers: users.filter((u) => u.role === "farmer").length,
-    pending: users.filter((u) => u.status === "pending").length,
-  }), [users]);
+  const stats = useMemo(
+    () => ({
+      total: users.length,
+      active: users.filter((u) => u.status === 'active').length,
+      farmers: users.filter((u) => u.role === 'farmer').length,
+      pending: users.filter((u) => u.status === 'pending').length,
+    }),
+    [users]
+  );
 
-  const getRoleLabel = (role: User["role"]) => {
-    const labels: Record<User["role"], string> = {
-      admin: "مدير",
-      manager: "مشرف",
-      expert: "خبير",
-      farmer: "مزارع",
-      researcher: "باحث",
-      viewer: "مشاهد",
+  const getRoleLabel = (role: User['role']) => {
+    const labels: Record<User['role'], string> = {
+      admin: 'مدير',
+      manager: 'مشرف',
+      expert: 'خبير',
+      farmer: 'مزارع',
+      researcher: 'باحث',
+      viewer: 'مشاهد',
     };
     return labels[role];
   };
 
-  const getRoleColor = (role: User["role"]) => {
-    const colors: Record<User["role"], string> = {
-      admin: "bg-purple-100 text-purple-800",
-      manager: "bg-indigo-100 text-indigo-800",
-      expert: "bg-blue-100 text-blue-800",
-      farmer: "bg-green-100 text-green-800",
-      researcher: "bg-teal-100 text-teal-800",
-      viewer: "bg-gray-100 text-gray-800",
+  const getRoleColor = (role: User['role']) => {
+    const colors: Record<User['role'], string> = {
+      admin: 'bg-purple-100 text-purple-800',
+      manager: 'bg-indigo-100 text-indigo-800',
+      expert: 'bg-blue-100 text-blue-800',
+      farmer: 'bg-green-100 text-green-800',
+      researcher: 'bg-teal-100 text-teal-800',
+      viewer: 'bg-gray-100 text-gray-800',
     };
     return colors[role];
   };
 
   const columns = [
     {
-      key: "name",
-      header: "المستخدم",
+      key: 'name',
+      header: 'المستخدم',
       render: (user: User) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sahool-100 rounded-full flex items-center justify-center">
@@ -193,48 +201,50 @@ export default function UsersPage() {
       ),
     },
     {
-      key: "phone",
-      header: "الهاتف",
+      key: 'phone',
+      header: 'الهاتف',
       render: (user: User) => (
-        <span className="text-gray-700 dark:text-gray-300 text-sm" dir="ltr">{user.phone}</span>
+        <span className="text-gray-700 dark:text-gray-300 text-sm" dir="ltr">
+          {user.phone}
+        </span>
       ),
     },
     {
-      key: "role",
-      header: "الدور",
+      key: 'role',
+      header: 'الدور',
       render: (user: User) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getRoleColor(user.role))}>
+        <span className={cn('px-2 py-1 rounded-full text-xs font-medium', getRoleColor(user.role))}>
           {getRoleLabel(user.role)}
         </span>
       ),
     },
     {
-      key: "farmCount",
-      header: t("nav.farms"),
+      key: 'farmCount',
+      header: t('nav.farms'),
       render: (user: User) => (
         <span className="text-gray-700 dark:text-gray-300">{user.farmCount}</span>
       ),
     },
     {
-      key: "status",
-      header: t("farms.status"),
+      key: 'status',
+      header: t('farms.status'),
       render: (user: User) => <StatusBadge status={user.status} />,
     },
     {
-      key: "lastLogin",
-      header: "آخر دخول",
+      key: 'lastLogin',
+      header: 'آخر دخول',
       render: (user: User) => (
         <span className="text-gray-500 dark:text-gray-400 text-sm">
-          {user.lastLogin ? formatDate(user.lastLogin) : "لم يسجل دخول"}
+          {user.lastLogin ? formatDate(user.lastLogin) : 'لم يسجل دخول'}
         </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (user: User) => (
         <div className="flex items-center gap-1">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedUser(user);
@@ -245,37 +255,37 @@ export default function UsersPage() {
           >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedUser(user);
               setShowEditModal(true);
             }}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            title={t("common.edit")}
+            title={t('common.edit')}
           >
             <Edit className="w-4 h-4 text-blue-500" />
           </button>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedUser(user);
               setShowDeleteModal(true);
             }}
             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-            title={t("common.delete")}
+            title={t('common.delete')}
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
         </div>
       ),
-      className: "w-32",
+      className: 'w-32',
     },
   ];
 
   return (
     <div className="p-6">
-      <Header title={t("nav.users")} subtitle={`${users.length} مستخدم مسجل`} />
+      <Header title={t('nav.users')} subtitle={`${users.length} مستخدم مسجل`} />
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -331,7 +341,7 @@ export default function UsersPage() {
           <div className="relative flex-1 min-w-[200px]">
             <input
               type="text"
-              placeholder={`${t("common.search")}...`}
+              placeholder={`${t('common.search')}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
@@ -367,21 +377,26 @@ export default function UsersPage() {
             onClick={loadUsers}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             disabled
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title={t("common.export")}
+            title={t('common.export')}
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <button 
+          <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            {t("common.add")}
+            {t('common.add')}
           </button>
         </div>
       </div>
@@ -435,10 +450,13 @@ export default function UsersPage() {
       {showDeleteModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t("common.confirm")}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              {t('common.confirm')}
+            </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              هل أنت متأكد من حذف المستخدم <strong>{selectedUser.nameAr || selectedUser.name}</strong>؟
-              هذا الإجراء لا يمكن التراجع عنه.
+              هل أنت متأكد من حذف المستخدم{' '}
+              <strong>{selectedUser.nameAr || selectedUser.name}</strong>؟ هذا الإجراء لا يمكن
+              التراجع عنه.
             </p>
             <div className="flex gap-3">
               <button
@@ -449,14 +467,14 @@ export default function UsersPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                {t("common.cancel")}
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => handleDelete(selectedUser.id)}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? `${t("common.loading")}` : t("common.delete")}
+                {isSubmitting ? `${t('common.loading')}` : t('common.delete')}
               </button>
             </div>
           </div>
@@ -467,21 +485,21 @@ export default function UsersPage() {
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-center gap-2">
           <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t("common.previous")}
+            {t('common.previous')}
           </button>
           <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
             صفحة {page} من {totalPages}
           </span>
           <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t("common.next")}
+            {t('common.next')}
           </button>
         </div>
       )}
@@ -505,12 +523,12 @@ function UserFormModal({
 }) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    role: user?.role || ("farmer" as User["role"]),
-    status: user?.status || ("active" as User["status"]),
-    password: "",
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    role: user?.role || ('farmer' as User['role']),
+    status: user?.status || ('active' as User['status']),
+    password: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -519,7 +537,7 @@ function UserFormModal({
     if (!user) {
       // Create mode - password required
       if (!formData.password) {
-        toast.warning("Please enter a password", "يرجى إدخال كلمة المرور");
+        toast.warning('Please enter a password', 'يرجى إدخال كلمة المرور');
         return;
       }
       onSubmit(formData as CreateUserData);
@@ -611,7 +629,7 @@ function UserFormModal({
             </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as User["role"] })}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as User['role'] })}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             >
               <option value="farmer">مزارع</option>
@@ -630,7 +648,9 @@ function UserFormModal({
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as User["status"] })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value as User['status'] })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="active">نشط</option>
@@ -648,7 +668,7 @@ function UserFormModal({
               disabled={isSubmitting}
               className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
-              {t("common.cancel")}
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -656,7 +676,7 @@ function UserFormModal({
               className="flex-1 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {isSubmitting ? t("common.loading") : user ? t("common.save") : t("common.add")}
+              {isSubmitting ? t('common.loading') : user ? t('common.save') : t('common.add')}
             </button>
           </div>
         </form>

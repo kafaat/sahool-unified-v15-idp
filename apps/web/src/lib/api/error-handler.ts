@@ -1,7 +1,7 @@
 /**
  * Centralized Error Handler for Web Application
  * Provides consistent error handling across all API calls
- * 
+ *
  * معالج أخطاء مركزي لتوحيد معالجة الأخطاء
  */
 

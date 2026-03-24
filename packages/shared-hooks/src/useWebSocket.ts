@@ -3,7 +3,7 @@
 // اتصال WebSocket للتحديثات الفورية
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 // Maximum delay between reconnection attempts (30 seconds)
 const MAX_RECONNECT_DELAY = 30000;
@@ -46,9 +46,7 @@ export function useWebSocket({
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttemptsRef = useRef(0);
 
   // Use refs for callbacks to avoid unnecessary reconnections when callbacks change
@@ -72,7 +70,7 @@ export function useWebSocket({
   }, [onMessage, onConnect, onDisconnect, onError]);
 
   const connect = useCallback(() => {
-    if (!enabled || typeof window === "undefined" || !isMountedRef.current) return;
+    if (!enabled || typeof window === 'undefined' || !isMountedRef.current) return;
 
     // Clean up existing WebSocket before creating new one
     if (wsRef.current) {
@@ -102,7 +100,7 @@ export function useWebSocket({
           const message: WSMessage = JSON.parse(event.data);
           callbacksRef.current.onMessage?.(message);
         } catch (err) {
-          console.error("Failed to parse WebSocket message:", err);
+          console.error('Failed to parse WebSocket message:', err);
         }
       };
 
@@ -115,7 +113,7 @@ export function useWebSocket({
         if (isMountedRef.current && reconnectAttemptsRef.current < maxReconnectAttempts) {
           const delay = Math.min(
             reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current),
-            MAX_RECONNECT_DELAY,
+            MAX_RECONNECT_DELAY
           );
           reconnectAttemptsRef.current++;
           reconnectTimeoutRef.current = setTimeout(connect, delay);
@@ -124,12 +122,12 @@ export function useWebSocket({
 
       wsRef.current.onerror = (event) => {
         if (!isMountedRef.current) return;
-        setError("Connection error");
+        setError('Connection error');
         callbacksRef.current.onError?.(event);
       };
     } catch (err) {
       if (isMountedRef.current) {
-        setError(err instanceof Error ? err.message : "Failed to connect");
+        setError(err instanceof Error ? err.message : 'Failed to connect');
       }
     }
   }, [url, reconnectInterval, maxReconnectAttempts, enabled]);

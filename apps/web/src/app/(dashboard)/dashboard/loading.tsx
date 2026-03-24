@@ -5,7 +5,11 @@
 
 export default function Loading() {
   return (
-    <div className="space-y-6 animate-pulse" role="status" aria-label="جاري تحميل لوحة التحكم - Loading dashboard">
+    <div
+      className="space-y-6 animate-pulse"
+      role="status"
+      aria-label="جاري تحميل لوحة التحكم - Loading dashboard"
+    >
       <span className="sr-only">جاري تحميل لوحة التحكم - Loading dashboard</span>
       {/* Header skeleton */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -16,10 +20,7 @@ export default function Loading() {
       {/* Stat cards skeleton - 4 KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-          >
+          <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="h-4 bg-gray-200 rounded w-24" />
               <div className="h-10 w-10 bg-gray-100 rounded-lg" />
@@ -33,10 +34,7 @@ export default function Loading() {
       {/* Charts skeleton - 2 side-by-side charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-          >
+          <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div className="h-5 bg-gray-200 rounded w-40 mb-4" />
             <div className="h-64 bg-gray-100 rounded" />
           </div>

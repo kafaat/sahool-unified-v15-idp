@@ -3,7 +3,7 @@
  * خطافات التقويم الفلكي باستخدام React Query
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 import {
   getToday,
   getWeeklyForecast,
@@ -14,7 +14,7 @@ import {
   getProverbs,
   getProverbOfTheDay,
   getWisdomToday,
-} from "../api";
+} from '../api';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // خيارات الخطافات - Hook Options
@@ -36,7 +36,7 @@ export function useToday(options?: AstronomicalHookOptions) {
   const { enabled = true } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "today"],
+    queryKey: ['astronomical', 'today'],
     queryFn: getToday,
     staleTime: 30 * 60 * 1000, // 30 دقيقة - 30 minutes
     refetchInterval: 60 * 60 * 1000, // ساعة واحدة - 1 hour
@@ -50,13 +50,11 @@ export function useToday(options?: AstronomicalHookOptions) {
  * خطاف للحصول على التوقعات الأسبوعية
  * Hook to get weekly forecast
  */
-export function useWeeklyForecast(
-  options?: AstronomicalHookOptions & { startDate?: string },
-) {
+export function useWeeklyForecast(options?: AstronomicalHookOptions & { startDate?: string }) {
   const { enabled = true, startDate } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "weekly-forecast", startDate],
+    queryKey: ['astronomical', 'weekly-forecast', startDate],
     queryFn: () => getWeeklyForecast(startDate),
     staleTime: 60 * 60 * 1000, // ساعة واحدة - 1 hour
     enabled,
@@ -69,13 +67,11 @@ export function useWeeklyForecast(
  * خطاف للحصول على مرحلة القمر
  * Hook to get moon phase
  */
-export function useMoonPhase(
-  options?: AstronomicalHookOptions & { date?: string },
-) {
+export function useMoonPhase(options?: AstronomicalHookOptions & { date?: string }) {
   const { enabled = true, date } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "moon-phase", date],
+    queryKey: ['astronomical', 'moon-phase', date],
     queryFn: () => getMoonPhase(date),
     staleTime: 60 * 60 * 1000, // ساعة واحدة - 1 hour
     enabled,
@@ -88,13 +84,11 @@ export function useMoonPhase(
  * خطاف للحصول على المنزلة القمرية
  * Hook to get lunar mansion
  */
-export function useLunarMansion(
-  options?: AstronomicalHookOptions & { date?: string },
-) {
+export function useLunarMansion(options?: AstronomicalHookOptions & { date?: string }) {
   const { enabled = true, date } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "lunar-mansion", date],
+    queryKey: ['astronomical', 'lunar-mansion', date],
     queryFn: () => getLunarMansion(date),
     staleTime: 24 * 60 * 60 * 1000, // 24 ساعة - 24 hours
     enabled,
@@ -108,14 +102,11 @@ export function useLunarMansion(
  * Hook to get crop calendar
  * @param crop - اسم المحصول
  */
-export function useCropCalendar(
-  crop: string,
-  options?: AstronomicalHookOptions,
-) {
+export function useCropCalendar(crop: string, options?: AstronomicalHookOptions) {
   const { enabled = true } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "crop-calendar", crop],
+    queryKey: ['astronomical', 'crop-calendar', crop],
     queryFn: () => getCropCalendar(crop),
     staleTime: 24 * 60 * 60 * 1000, // 24 ساعة - 24 hours
     enabled: enabled && !!crop,
@@ -131,13 +122,13 @@ export function useCropCalendar(
  * @param days - عدد الأيام للبحث
  */
 export function useBestDays(
-  activity: string = "زراعة",
-  options?: AstronomicalHookOptions & { days?: number },
+  activity: string = 'زراعة',
+  options?: AstronomicalHookOptions & { days?: number }
 ) {
   const { enabled = true, days = 30 } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "best-days", activity, days],
+    queryKey: ['astronomical', 'best-days', activity, days],
     queryFn: () => getBestDays(activity, days),
     staleTime: 24 * 60 * 60 * 1000, // 24 ساعة - 24 hours
     enabled: enabled && !!activity,
@@ -158,7 +149,7 @@ export function useProverbs(options?: AstronomicalHookOptions) {
   const { enabled = true } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "proverbs"],
+    queryKey: ['astronomical', 'proverbs'],
     queryFn: getProverbs,
     staleTime: 7 * 24 * 60 * 60 * 1000, // أسبوع - 1 week (البيانات ثابتة)
     enabled,
@@ -175,7 +166,7 @@ export function useProverbOfTheDay(options?: AstronomicalHookOptions) {
   const { enabled = true } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "proverb-of-the-day"],
+    queryKey: ['astronomical', 'proverb-of-the-day'],
     queryFn: getProverbOfTheDay,
     staleTime: 24 * 60 * 60 * 1000, // 24 ساعة - 24 hours
     enabled,
@@ -192,7 +183,7 @@ export function useWisdomToday(options?: AstronomicalHookOptions) {
   const { enabled = true } = options || {};
 
   return useQuery({
-    queryKey: ["astronomical", "wisdom-today"],
+    queryKey: ['astronomical', 'wisdom-today'],
     queryFn: getWisdomToday,
     staleTime: 24 * 60 * 60 * 1000, // 24 ساعة - 24 hours
     enabled,

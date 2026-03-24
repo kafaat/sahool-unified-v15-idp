@@ -9,7 +9,7 @@
  * @author SAHOOL Team
  */
 
-import * as crypto from "crypto";
+import * as crypto from 'crypto';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -20,8 +20,8 @@ import * as crypto from "crypto";
  * Uses crypto.timingSafeEqual under the hood.
  */
 function constantTimeEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a, "utf8");
-  const bufB = Buffer.from(b, "utf8");
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
   if (bufA.length !== bufB.length) {
     // Pad shorter buffer to prevent length leak through timingSafeEqual
     const maxLen = Math.max(bufA.length, bufB.length);
@@ -36,7 +36,7 @@ function constantTimeEqual(a: string, b: string): boolean {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
-const ALGORITHM = "aes-256-gcm";
+const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // 128 bits
 const AUTH_TAG_LENGTH = 16; // 128 bits
 const SALT_LENGTH = 32; // 256 bits
@@ -53,15 +53,15 @@ const PBKDF2_ITERATIONS = 100000;
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
   if (!key) {
-    throw new Error("ENCRYPTION_KEY environment variable is not set");
+    throw new Error('ENCRYPTION_KEY environment variable is not set');
   }
 
   // Key should be 64 hex characters (32 bytes)
   if (key.length !== 64) {
-    throw new Error("ENCRYPTION_KEY must be 64 hex characters (32 bytes)");
+    throw new Error('ENCRYPTION_KEY must be 64 hex characters (32 bytes)');
   }
 
-  return Buffer.from(key, "hex");
+  return Buffer.from(key, 'hex');
 }
 
 /**
@@ -70,18 +70,14 @@ function getEncryptionKey(): Buffer {
 function getDeterministicKey(): Buffer {
   const key = process.env.DETERMINISTIC_ENCRYPTION_KEY;
   if (!key) {
-    throw new Error(
-      "DETERMINISTIC_ENCRYPTION_KEY environment variable is not set",
-    );
+    throw new Error('DETERMINISTIC_ENCRYPTION_KEY environment variable is not set');
   }
 
   if (key.length !== 64) {
-    throw new Error(
-      "DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)",
-    );
+    throw new Error('DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)');
   }
 
-  return Buffer.from(key, "hex");
+  return Buffer.from(key, 'hex');
 }
 
 /**
@@ -94,19 +90,17 @@ function getPreviousKey(): Buffer | null {
   }
 
   if (key.length !== 64) {
-    throw new Error(
-      "PREVIOUS_ENCRYPTION_KEY must be 64 hex characters (32 bytes)",
-    );
+    throw new Error('PREVIOUS_ENCRYPTION_KEY must be 64 hex characters (32 bytes)');
   }
 
-  return Buffer.from(key, "hex");
+  return Buffer.from(key, 'hex');
 }
 
 /**
  * Generate a new encryption key (for setup/rotation)
  */
 export function generateEncryptionKey(): string {
-  return crypto.randomBytes(KEY_LENGTH).toString("hex");
+  return crypto.randomBytes(KEY_LENGTH).toString('hex');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -135,16 +129,16 @@ export function encrypt(plaintext: string): string {
     const iv = crypto.randomBytes(IV_LENGTH);
     const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
-    let encrypted = cipher.update(plaintext, "utf8", "base64");
-    encrypted += cipher.final("base64");
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
 
     const authTag = cipher.getAuthTag();
 
     // Format: iv:authTag:ciphertext (all base64 encoded)
-    return `${iv.toString("base64")}:${authTag.toString("base64")}:${encrypted}`;
+    return `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted}`;
   } catch (error) {
     throw new Error(
-      `Encryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -179,7 +173,7 @@ export function decrypt(encryptedData: string): string {
       }
     }
     throw new Error(
-      `Decryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -188,16 +182,16 @@ export function decrypt(encryptedData: string): string {
  * Helper function to decrypt with a specific key
  */
 function decryptWithKey(encryptedData: string, key: Buffer): string {
-  const parts = encryptedData.split(":");
+  const parts = encryptedData.split(':');
   if (parts.length !== 3) {
-    throw new Error("Invalid encrypted data format");
+    throw new Error('Invalid encrypted data format');
   }
 
   const [ivBase64, authTagBase64, encryptedBase64] = parts;
 
-  const iv = Buffer.from(ivBase64, "base64");
-  const authTag = Buffer.from(authTagBase64, "base64");
-  const encrypted = Buffer.from(encryptedBase64, "base64");
+  const iv = Buffer.from(ivBase64, 'base64');
+  const authTag = Buffer.from(authTagBase64, 'base64');
+  const encrypted = Buffer.from(encryptedBase64, 'base64');
 
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, {
     authTagLength: AUTH_TAG_LENGTH,
@@ -207,7 +201,7 @@ function decryptWithKey(encryptedData: string, key: Buffer): string {
   let decrypted = decipher.update(encrypted);
   decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-  return decrypted.toString("utf8");
+  return decrypted.toString('utf8');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -240,23 +234,23 @@ export function encryptDeterministic(plaintext: string): string {
     // Use HMAC-SHA256 to derive a deterministic IV from the plaintext
     // This ensures same plaintext always gets same IV
     const deterministicIV = crypto
-      .createHmac("sha256", key)
+      .createHmac('sha256', key)
       .update(plaintext)
       .digest()
       .slice(0, IV_LENGTH);
 
     const cipher = crypto.createCipheriv(ALGORITHM, key, deterministicIV);
 
-    let encrypted = cipher.update(plaintext, "utf8", "base64");
-    encrypted += cipher.final("base64");
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
 
     const authTag = cipher.getAuthTag();
 
     // Format: authTag:ciphertext (IV is deterministic and not stored)
-    return `${authTag.toString("base64")}:${encrypted}`;
+    return `${authTag.toString('base64')}:${encrypted}`;
   } catch (error) {
     throw new Error(
-      `Deterministic encryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Deterministic encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -273,35 +267,30 @@ export function encryptDeterministic(plaintext: string): string {
  * @param hint - The suspected original plaintext
  * @returns Decrypted plaintext
  */
-export function decryptDeterministic(
-  encryptedData: string,
-  hint?: string,
-): string {
+export function decryptDeterministic(encryptedData: string, hint?: string): string {
   if (!encryptedData) {
     return encryptedData;
   }
 
   if (!hint) {
-    throw new Error(
-      "Deterministic decryption requires the original value as hint",
-    );
+    throw new Error('Deterministic decryption requires the original value as hint');
   }
 
   try {
     const key = getDeterministicKey();
-    const parts = encryptedData.split(":");
+    const parts = encryptedData.split(':');
 
     if (parts.length !== 2) {
-      throw new Error("Invalid deterministic encrypted data format");
+      throw new Error('Invalid deterministic encrypted data format');
     }
 
     const [authTagBase64, encryptedBase64] = parts;
-    const authTag = Buffer.from(authTagBase64, "base64");
-    const encrypted = Buffer.from(encryptedBase64, "base64");
+    const authTag = Buffer.from(authTagBase64, 'base64');
+    const encrypted = Buffer.from(encryptedBase64, 'base64');
 
     // Re-derive the same deterministic IV from the hint
     const deterministicIV = crypto
-      .createHmac("sha256", key)
+      .createHmac('sha256', key)
       .update(hint)
       .digest()
       .slice(0, IV_LENGTH);
@@ -314,10 +303,10 @@ export function decryptDeterministic(
     let decrypted = decipher.update(encrypted);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-    return decrypted.toString("utf8");
+    return decrypted.toString('utf8');
   } catch (error) {
     throw new Error(
-      `Deterministic decryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Deterministic decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -343,23 +332,19 @@ export function encryptSearchable(plaintext: string): string {
 
     // Derive deterministic IV using HMAC-SHA256(key, plaintext)
     // This is per-deployment (key-dependent) unlike the old fixed salt
-    const iv = crypto
-      .createHmac("sha256", key)
-      .update(plaintext)
-      .digest()
-      .slice(0, IV_LENGTH);
+    const iv = crypto.createHmac('sha256', key).update(plaintext).digest().slice(0, IV_LENGTH);
 
     // Use CTR mode which is deterministic with same IV
-    const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+    const cipher = crypto.createCipheriv('aes-256-ctr', key, iv);
 
-    let encrypted = cipher.update(plaintext, "utf8", "base64");
-    encrypted += cipher.final("base64");
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
 
     // Prefix with version tag so decryptSearchable knows the format
     return `s2:${encrypted}`;
   } catch (error) {
     throw new Error(
-      `Searchable encryption failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Searchable encryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -376,61 +361,52 @@ export function encryptSearchable(plaintext: string): string {
  * @param encryptedData - The encrypted string
  * @param hint - The suspected original plaintext (required for decryption)
  */
-export function decryptSearchable(
-  encryptedData: string,
-  hint?: string,
-): string {
+export function decryptSearchable(encryptedData: string, hint?: string): string {
   if (!encryptedData) {
     return encryptedData;
   }
 
   if (!hint) {
-    throw new Error(
-      "Searchable decryption requires the original value as hint",
-    );
+    throw new Error('Searchable decryption requires the original value as hint');
   }
 
   // v2 format: "s2:<base64 ciphertext>"
-  if (encryptedData.startsWith("s2:")) {
+  if (encryptedData.startsWith('s2:')) {
     const ciphertextBase64 = encryptedData.slice(3);
     const key = getDeterministicKey();
 
     // Derive the same deterministic IV from the hint
-    const iv = crypto
-      .createHmac("sha256", key)
-      .update(hint)
-      .digest()
-      .slice(0, IV_LENGTH);
+    const iv = crypto.createHmac('sha256', key).update(hint).digest().slice(0, IV_LENGTH);
 
-    const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
-    let decrypted = decipher.update(ciphertextBase64, "base64", "utf8");
-    decrypted += decipher.final("utf8");
+    const decipher = crypto.createDecipheriv('aes-256-ctr', key, iv);
+    let decrypted = decipher.update(ciphertextBase64, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
 
     // Verify the decrypted text matches the hint (CTR mode will always
     // "decrypt" something — we need to confirm it's correct)
     // Use constant-time comparison to prevent timing side-channel attacks
     if (!constantTimeEqual(decrypted, hint)) {
-      throw new Error("Searchable decryption: hint does not match");
+      throw new Error('Searchable decryption: hint does not match');
     }
 
     return decrypted;
   }
 
   // Legacy format with random salt: "s1:<salt>:<ciphertext>"
-  if (encryptedData.startsWith("s1:")) {
-    const parts = encryptedData.split(":");
+  if (encryptedData.startsWith('s1:')) {
+    const parts = encryptedData.split(':');
     if (parts.length !== 3) {
-      throw new Error("Invalid s1 encrypted data format");
+      throw new Error('Invalid s1 encrypted data format');
     }
     const key = getDeterministicKey();
-    const salt = Buffer.from(parts[1], "base64");
-    const iv = crypto.pbkdf2Sync(hint, salt, 1000, IV_LENGTH, "sha256");
-    const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
-    let decrypted = decipher.update(parts[2], "base64", "utf8");
-    decrypted += decipher.final("utf8");
+    const salt = Buffer.from(parts[1], 'base64');
+    const iv = crypto.pbkdf2Sync(hint, salt, 1000, IV_LENGTH, 'sha256');
+    const decipher = crypto.createDecipheriv('aes-256-ctr', key, iv);
+    let decrypted = decipher.update(parts[2], 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
     // Use constant-time comparison to prevent timing side-channel attacks
     if (!constantTimeEqual(decrypted, hint)) {
-      throw new Error("Searchable decryption: hint does not match");
+      throw new Error('Searchable decryption: hint does not match');
     }
     return decrypted;
   }
@@ -442,9 +418,7 @@ export function decryptSearchable(
     return hint;
   }
 
-  throw new Error(
-    "Searchable decryption failed: hint does not match encrypted data",
-  );
+  throw new Error('Searchable decryption failed: hint does not match encrypted data');
 }
 
 /**
@@ -460,13 +434,13 @@ export function encryptLegacySearchable(plaintext: string): string {
 
   const key = getDeterministicKey();
   const salt = crypto.randomBytes(SALT_LENGTH);
-  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
-  const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, 'sha256');
+  const cipher = crypto.createCipheriv('aes-256-ctr', key, iv);
 
-  let encrypted = cipher.update(plaintext, "utf8", "base64");
-  encrypted += cipher.final("base64");
+  let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
 
-  return `s1:${salt.toString("base64")}:${encrypted}`;
+  return `s1:${salt.toString('base64')}:${encrypted}`;
 }
 
 /**
@@ -476,12 +450,12 @@ export function encryptLegacySearchable(plaintext: string): string {
  */
 function verifyFixedSaltLegacy(plaintext: string): string {
   const key = getDeterministicKey();
-  const salt = Buffer.from("sahool-deterministic-salt");
-  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
-  const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+  const salt = Buffer.from('sahool-deterministic-salt');
+  const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, 'sha256');
+  const cipher = crypto.createCipheriv('aes-256-ctr', key, iv);
 
-  let encrypted = cipher.update(plaintext, "utf8", "base64");
-  encrypted += cipher.final("base64");
+  let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
 
   return encrypted;
 }
@@ -501,13 +475,13 @@ function verifyFixedSaltLegacy(plaintext: string): string {
 export function encryptFields<T extends Record<string, any>>(
   data: T,
   fields: (keyof T)[],
-  deterministic = false,
+  deterministic = false
 ): T {
   const result = { ...data };
   const encryptFn = deterministic ? encryptSearchable : encrypt;
 
   for (const field of fields) {
-    if (result[field] && typeof result[field] === "string") {
+    if (result[field] && typeof result[field] === 'string') {
       result[field] = encryptFn(result[field] as string) as any;
     }
   }
@@ -526,13 +500,13 @@ export function encryptFields<T extends Record<string, any>>(
 export function decryptFields<T extends Record<string, any>>(
   data: T,
   fields: (keyof T)[],
-  deterministic = false,
+  deterministic = false
 ): T {
   const result = { ...data };
   const decryptFn = deterministic ? (val: string) => val : decrypt; // Searchable needs hint — skip in batch
 
   for (const field of fields) {
-    if (result[field] && typeof result[field] === "string") {
+    if (result[field] && typeof result[field] === 'string') {
       try {
         result[field] = decryptFn(result[field] as string) as any;
       } catch (error) {
@@ -553,7 +527,7 @@ export function decryptFields<T extends Record<string, any>>(
  * Check if data is encrypted (basic heuristic check)
  */
 export function isEncrypted(data: string): boolean {
-  if (!data || typeof data !== "string") {
+  if (!data || typeof data !== 'string') {
     return false;
   }
 
@@ -587,9 +561,7 @@ export function rotateEncryption(encryptedData: string): string {
  * Validate encryption key format
  */
 export function validateEncryptionKey(key: string): boolean {
-  return (
-    typeof key === "string" && key.length === 64 && /^[0-9a-f]+$/i.test(key)
-  );
+  return typeof key === 'string' && key.length === 64 && /^[0-9a-f]+$/i.test(key);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -606,27 +578,27 @@ export function validateEncryptionKey(key: string): boolean {
  */
 export function migrateSearchableEncryption(
   legacyCiphertext: string,
-  plaintext: string,
+  plaintext: string
 ): string | null {
   if (!legacyCiphertext || !plaintext) {
     return null;
   }
 
   // Already migrated
-  if (legacyCiphertext.startsWith("s2:")) {
+  if (legacyCiphertext.startsWith('s2:')) {
     return legacyCiphertext;
   }
 
   // Handle s1: format (random-salt legacy) - verify by decrypting
-  if (legacyCiphertext.startsWith("s1:")) {
-    const parts = legacyCiphertext.split(":");
+  if (legacyCiphertext.startsWith('s1:')) {
+    const parts = legacyCiphertext.split(':');
     if (parts.length === 3) {
-      const salt = Buffer.from(parts[1]!, "base64");
+      const salt = Buffer.from(parts[1]!, 'base64');
       const key = getDeterministicKey();
-      const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, "sha256");
-      const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
-      let encrypted = cipher.update(plaintext, "utf8", "base64");
-      encrypted += cipher.final("base64");
+      const iv = crypto.pbkdf2Sync(plaintext, salt, 1000, IV_LENGTH, 'sha256');
+      const cipher = crypto.createCipheriv('aes-256-ctr', key, iv);
+      let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+      encrypted += cipher.final('base64');
       if (encrypted !== parts[2]) {
         return null; // plaintext doesn't match
       }
@@ -649,11 +621,11 @@ export function migrateSearchableEncryption(
  * Check if a searchable-encrypted value uses the legacy (v1) format.
  */
 export function isLegacySearchable(encryptedData: string): boolean {
-  if (!encryptedData || typeof encryptedData !== "string") {
+  if (!encryptedData || typeof encryptedData !== 'string') {
     return false;
   }
   // v2 values start with "s2:", everything else is legacy (fixed-salt raw base64 or s1: random-salt)
-  return !encryptedData.startsWith("s2:");
+  return !encryptedData.startsWith('s2:');
 }
 
 export default {

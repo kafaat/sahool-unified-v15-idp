@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Compliance Reports Page
 // صفحة تقارير الامتثال
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Search,
   RefreshCw,
@@ -17,17 +17,17 @@ import {
   FileText,
   Award,
   Clock,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_RECORDS } from "./compliance.mock";
-import type { ComplianceRecord } from "./compliance.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { MOCK_RECORDS } from './compliance.mock';
+import type { ComplianceRecord } from './compliance.mock';
 
 export default function CompliancePage() {
   const [records, setRecords] = useState<ComplianceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [standardFilter, setStandardFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [standardFilter, setStandardFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadRecords();
@@ -39,7 +39,7 @@ export default function CompliancePage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setRecords(MOCK_RECORDS);
     } catch (error) {
-      logger.error("Failed to load compliance records:", error);
+      logger.error('Failed to load compliance records:', error);
     } finally {
       setIsLoading(false);
     }
@@ -62,57 +62,64 @@ export default function CompliancePage() {
     });
   }, [records, searchQuery, standardFilter, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: records.length,
-    compliant: records.filter((r) => r.status === "compliant").length,
-    partial: records.filter((r) => r.status === "partial").length,
-    expired: records.filter((r) => r.status === "expired").length,
-    avgScore: Math.round(records.filter(r => r.score > 0).reduce((acc, r) => acc + r.score, 0) / records.filter(r => r.score > 0).length) || 0,
-  }), [records]);
+  const stats = useMemo(
+    () => ({
+      total: records.length,
+      compliant: records.filter((r) => r.status === 'compliant').length,
+      partial: records.filter((r) => r.status === 'partial').length,
+      expired: records.filter((r) => r.status === 'expired').length,
+      avgScore:
+        Math.round(
+          records.filter((r) => r.score > 0).reduce((acc, r) => acc + r.score, 0) /
+            records.filter((r) => r.score > 0).length
+        ) || 0,
+    }),
+    [records]
+  );
 
-  const getStandardLabel = (standard: ComplianceRecord["standard"]) => {
-    const labels: Record<ComplianceRecord["standard"], string> = {
-      globalgap: "GlobalGAP",
-      organic: "عضوي",
-      iso: "ISO 22000",
-      haccp: "HACCP",
+  const getStandardLabel = (standard: ComplianceRecord['standard']) => {
+    const labels: Record<ComplianceRecord['standard'], string> = {
+      globalgap: 'GlobalGAP',
+      organic: 'عضوي',
+      iso: 'ISO 22000',
+      haccp: 'HACCP',
     };
     return labels[standard];
   };
 
-  const getStatusLabel = (status: ComplianceRecord["status"]) => {
-    const labels: Record<ComplianceRecord["status"], string> = {
-      compliant: "متوافق",
-      partial: "جزئي",
-      non_compliant: "غير متوافق",
-      pending: "قيد التدقيق",
-      expired: "منتهي",
+  const getStatusLabel = (status: ComplianceRecord['status']) => {
+    const labels: Record<ComplianceRecord['status'], string> = {
+      compliant: 'متوافق',
+      partial: 'جزئي',
+      non_compliant: 'غير متوافق',
+      pending: 'قيد التدقيق',
+      expired: 'منتهي',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: ComplianceRecord["status"]) => {
-    const colors: Record<ComplianceRecord["status"], string> = {
-      compliant: "bg-green-100 text-green-800",
-      partial: "bg-yellow-100 text-yellow-800",
-      non_compliant: "bg-red-100 text-red-800",
-      pending: "bg-blue-100 text-blue-800",
-      expired: "bg-gray-100 text-gray-800",
+  const getStatusColor = (status: ComplianceRecord['status']) => {
+    const colors: Record<ComplianceRecord['status'], string> = {
+      compliant: 'bg-green-100 text-green-800',
+      partial: 'bg-yellow-100 text-yellow-800',
+      non_compliant: 'bg-red-100 text-red-800',
+      pending: 'bg-blue-100 text-blue-800',
+      expired: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 85) return "text-green-600";
-    if (score >= 70) return "text-yellow-600";
-    if (score > 0) return "text-red-600";
-    return "text-gray-400";
+    if (score >= 85) return 'text-green-600';
+    if (score >= 70) return 'text-yellow-600';
+    if (score > 0) return 'text-red-600';
+    return 'text-gray-400';
   };
 
   const columns = [
     {
-      key: "farm",
-      header: "المزرعة",
+      key: 'farm',
+      header: 'المزرعة',
       render: (record: ComplianceRecord) => (
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">{record.farmNameAr}</p>
@@ -121,8 +128,8 @@ export default function CompliancePage() {
       ),
     },
     {
-      key: "standard",
-      header: "المعيار",
+      key: 'standard',
+      header: 'المعيار',
       render: (record: ComplianceRecord) => (
         <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
           {getStandardLabel(record.standard)}
@@ -130,31 +137,29 @@ export default function CompliancePage() {
       ),
     },
     {
-      key: "score",
-      header: "النتيجة",
+      key: 'score',
+      header: 'النتيجة',
       render: (record: ComplianceRecord) => (
-        <span className={cn("text-lg font-bold", getScoreColor(record.score))}>
-          {record.score > 0 ? `${record.score}%` : "—"}
+        <span className={cn('text-lg font-bold', getScoreColor(record.score))}>
+          {record.score > 0 ? `${record.score}%` : '—'}
         </span>
       ),
     },
     {
-      key: "findings",
-      header: "الملاحظات",
+      key: 'findings',
+      header: 'الملاحظات',
       render: (record: ComplianceRecord) => (
         <div className="text-sm">
           <span className="text-gray-600 dark:text-gray-400">{record.findings} ملاحظة</span>
           {record.criticalFindings > 0 && (
-            <span className="text-red-600 font-medium mr-2">
-              ({record.criticalFindings} حرجة)
-            </span>
+            <span className="text-red-600 font-medium mr-2">({record.criticalFindings} حرجة)</span>
           )}
         </div>
       ),
     },
     {
-      key: "audit",
-      header: "التدقيق",
+      key: 'audit',
+      header: 'التدقيق',
       render: (record: ComplianceRecord) => (
         <div className="text-sm">
           {record.lastAudit && (
@@ -165,28 +170,41 @@ export default function CompliancePage() {
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (record: ComplianceRecord) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(record.status))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(record.status)
+          )}
+        >
           {getStatusLabel(record.status)}
         </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (_record: ComplianceRecord) => (
         <div className="flex items-center gap-1">
-          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض التقرير (قريبًا)">
+          <button
+            disabled
+            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="عرض التقرير (قريبًا)"
+          >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تحميل (قريبًا)">
+          <button
+            disabled
+            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تحميل (قريبًا)"
+          >
             <Download className="w-4 h-4 text-gray-500" />
           </button>
         </div>
       ),
-      className: "w-24",
+      className: 'w-24',
     },
   ];
 
@@ -213,7 +231,9 @@ export default function CompliancePage() {
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.compliant}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.compliant}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">متوافق</p>
             </div>
           </div>
@@ -246,7 +266,9 @@ export default function CompliancePage() {
               <Award className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.avgScore}%</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.avgScore}%
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">متوسط النتيجة</p>
             </div>
           </div>
@@ -296,7 +318,12 @@ export default function CompliancePage() {
             onClick={loadRecords}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-300',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             disabled

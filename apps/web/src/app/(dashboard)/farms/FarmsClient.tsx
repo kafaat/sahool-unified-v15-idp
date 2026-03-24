@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle } from "lucide-react";
-import { useFarms, useFarmStats } from "@/features/farms";
-import type { FarmStatus } from "@/features/farms";
+import React, { useState, useMemo } from 'react';
+import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle } from 'lucide-react';
+import { useFarms, useFarmStats } from '@/features/farms';
+import type { FarmStatus } from '@/features/farms';
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
-  active: { color: "bg-green-100 text-green-800", labelAr: "نشطة" },
-  inactive: { color: "bg-gray-100 text-gray-800", labelAr: "غير نشطة" },
-  seasonal: { color: "bg-blue-100 text-blue-800", labelAr: "موسمية" },
+  active: { color: 'bg-green-100 text-green-800', labelAr: 'نشطة' },
+  inactive: { color: 'bg-gray-100 text-gray-800', labelAr: 'غير نشطة' },
+  seasonal: { color: 'bg-blue-100 text-blue-800', labelAr: 'موسمية' },
 };
 
 export default function FarmsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const { data: farms = [], isLoading, error } = useFarms();
   const { data: stats } = useFarmStats();
 
@@ -69,7 +69,9 @@ export default function FarmsClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المزارع</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalFarms ?? farms.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalFarms ?? farms.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">مزارع نشطة</div>
@@ -81,7 +83,9 @@ export default function FarmsClient() {
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">المساحة المزروعة</div>
-          <div className="text-2xl font-bold text-sahool-green-600">{stats?.cultivatedAreaHa ?? 0} هـ</div>
+          <div className="text-2xl font-bold text-sahool-green-600">
+            {stats?.cultivatedAreaHa ?? 0} هـ
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي العمال</div>
@@ -109,7 +113,10 @@ export default function FarmsClient() {
           filteredFarms.map((farm) => {
             const st = statusConfig[farm.status];
             return (
-              <div key={farm.id} className="bg-white rounded-lg border hover:shadow-md transition-shadow">
+              <div
+                key={farm.id}
+                className="bg-white rounded-lg border hover:shadow-md transition-shadow"
+              >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -147,7 +154,9 @@ export default function FarmsClient() {
                       <div className="text-xs text-gray-500">هكتار كلي</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-sahool-green-600">{farm.cultivatedAreaHa}</div>
+                      <div className="text-lg font-bold text-sahool-green-600">
+                        {farm.cultivatedAreaHa}
+                      </div>
                       <div className="text-xs text-gray-500">مزروع</div>
                     </div>
                     <div>
@@ -160,9 +169,7 @@ export default function FarmsClient() {
                   <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
                     عرض التفاصيل
                   </button>
-                  <button className="text-gray-500 hover:text-gray-700 text-sm">
-                    تعديل
-                  </button>
+                  <button className="text-gray-500 hover:text-gray-700 text-sm">تعديل</button>
                 </div>
               </div>
             );

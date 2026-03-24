@@ -5,10 +5,10 @@
  * Server-side route protection for Next.js App Router
  */
 
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import * as jose from "jose";
-import { logger } from "@/lib/logger";
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import * as jose from 'jose';
+import { logger } from '@/lib/logger';
 
 // Types
 export type Permission = string;
@@ -58,7 +58,7 @@ export interface RouteGuardOptions {
  */
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const token = cookieStore.get('access_token')?.value;
 
   if (!token) {
     return null;
@@ -88,11 +88,11 @@ export async function getCurrentUser(): Promise<User | null> {
     });
 
     // Validate payload structure
-    if (!payload.sub || typeof payload.sub !== "string") {
+    if (!payload.sub || typeof payload.sub !== 'string') {
       return null;
     }
 
-    if (!payload.tenant_id || typeof payload.tenant_id !== "string") {
+    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
       return null;
     }
 
@@ -100,20 +100,18 @@ export async function getCurrentUser(): Promise<User | null> {
     return {
       id: payload.sub,
       roles: Array.isArray(payload.roles) ? (payload.roles as string[]) : [],
-      permissions: Array.isArray(payload.permissions)
-        ? (payload.permissions as string[])
-        : [],
+      permissions: Array.isArray(payload.permissions) ? (payload.permissions as string[]) : [],
       tenantId: payload.tenant_id,
     };
   } catch (error) {
     // Log specific JWT errors for debugging (in development only)
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === 'development') {
       if (error instanceof jose.errors.JWTExpired) {
-        logger.error("JWT token has expired");
+        logger.error('JWT token has expired');
       } else if (error instanceof jose.errors.JWTClaimValidationFailed) {
-        logger.error("JWT claim validation failed");
+        logger.error('JWT claim validation failed');
       } else if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
-        logger.error("JWT signature verification failed");
+        logger.error('JWT signature verification failed');
       }
     }
     // Return null without exposing details in production
@@ -166,9 +164,7 @@ export function checkAccess(user: User | null, options: RouteGuardOptions): bool
  *   return <div>Protected content</div>;
  * }
  */
-export async function requireAuth(
-  redirectTo: string = "/login",
-): Promise<User> {
+export async function requireAuth(redirectTo: string = '/login'): Promise<User> {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -189,7 +185,7 @@ export async function requireAuth(
  */
 export async function requirePermission(
   permission: Permission | Permission[],
-  options: Omit<RouteGuardOptions, "permission"> = {},
+  options: Omit<RouteGuardOptions, 'permission'> = {}
 ): Promise<User> {
   const user = await requireAuth(options.redirectTo);
 
@@ -197,7 +193,7 @@ export async function requirePermission(
     if (options.onUnauthorized) {
       options.onUnauthorized();
     }
-    redirect(options.redirectTo || "/unauthorized");
+    redirect(options.redirectTo || '/unauthorized');
   }
 
   return user;
@@ -214,7 +210,7 @@ export async function requirePermission(
  */
 export async function requireRole(
   role: Role | Role[],
-  options: Omit<RouteGuardOptions, "role"> = {},
+  options: Omit<RouteGuardOptions, 'role'> = {}
 ): Promise<User> {
   const user = await requireAuth(options.redirectTo);
 
@@ -222,7 +218,7 @@ export async function requireRole(
     if (options.onUnauthorized) {
       options.onUnauthorized();
     }
-    redirect(options.redirectTo || "/unauthorized");
+    redirect(options.redirectTo || '/unauthorized');
   }
 
   return user;
@@ -237,10 +233,8 @@ export async function requireRole(
  *   return <SystemSettings />;
  * }
  */
-export async function requireAdmin(
-  options: Omit<RouteGuardOptions, "role"> = {},
-): Promise<User> {
-  return requireRole(["admin", "super_admin"], options);
+export async function requireAdmin(options: Omit<RouteGuardOptions, 'role'> = {}): Promise<User> {
+  return requireRole(['admin', 'super_admin'], options);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -258,17 +252,17 @@ export async function requireAdmin(
  */
 export function withRouteGuard<P extends object>(
   PageComponent: React.ComponentType<P & { user: User }>,
-  options: RouteGuardOptions,
+  options: RouteGuardOptions
 ) {
   return async function GuardedPage(props: P) {
     const user = await getCurrentUser();
 
     if (!user) {
-      redirect(options.redirectTo || "/login");
+      redirect(options.redirectTo || '/login');
     }
 
     if (!checkAccess(user, options)) {
-      redirect(options.redirectTo || "/unauthorized");
+      redirect(options.redirectTo || '/unauthorized');
     }
 
     return <PageComponent {...props} user={user} />;

@@ -16,17 +16,17 @@
 /**
  * Determines if the application is running in production mode
  */
-export const IS_PRODUCTION = process.env.NODE_ENV === "production";
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 /**
  * Determines if the application is running in development mode
  */
-export const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 /**
  * Determines if the application is running in test mode
  */
-export const IS_TEST = process.env.NODE_ENV === "test";
+export const IS_TEST = process.env.NODE_ENV === 'test';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Base URL Configuration
@@ -37,8 +37,7 @@ export const IS_TEST = process.env.NODE_ENV === "test";
  * In production: Uses NEXT_PUBLIC_API_URL
  * In development: Falls back to localhost:8000 (Kong gateway port)
  */
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
  * Alias for API_BASE_URL for backward compatibility
@@ -49,8 +48,7 @@ export const API_URL = API_BASE_URL;
 /**
  * Base hostname without port for direct service access in development
  */
-export const API_BASE_HOST =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
+export const API_BASE_HOST = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Service Ports (from unified contracts)
@@ -80,7 +78,7 @@ import {
   CHAT_ENDPOINTS,
   YIELD_ENDPOINTS,
   buildUrl,
-} from "@sahool/shared-types/contracts";
+} from '@sahool/shared-types/contracts';
 
 /**
  * Port mapping for all backend services
@@ -316,18 +314,19 @@ export const API_PATHS = {
   // Crop Health & Diagnoses (from unified contracts)
   cropHealth: {
     diagnoses: CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST,
-    diagnosisById: (id: string) => buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }),
+    diagnosisById: (id: string) =>
+      buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }),
     stats: CROP_HEALTH_ENDPOINTS.DIAGNOSES_STATS,
     analyze: CROP_HEALTH_ENDPOINTS.ANALYZE,
   },
 
   // Weather Services (direct service paths - not Kong-routed)
   weather: {
-    current: "/weather/current",
-    forecast: "/weather/forecast",
-    agricultural: "/weather/agricultural-report",
+    current: '/weather/current',
+    forecast: '/weather/forecast',
+    agricultural: '/weather/agricultural-report',
     alerts: (locationId: string) => `/v1/alerts/${locationId}`,
-    locations: "/v1/locations",
+    locations: '/v1/locations',
     byLocation: (locationId: string) => `/v1/current/${locationId}`,
     forecastByLocation: (locationId: string) => `/v1/forecast/${locationId}`,
   },
@@ -335,9 +334,9 @@ export const API_PATHS = {
   // Satellite & Vegetation (direct service paths - not Kong-routed)
   satellite: {
     timeseries: (fieldId: string) => `/v1/timeseries/${fieldId}`,
-    analyze: "/v1/analyze",
+    analyze: '/v1/analyze',
     indices: (fieldId: string) => `/v1/indices/${fieldId}`,
-    satellites: "/v1/satellites",
+    satellites: '/v1/satellites',
   },
 
   // Dashboard & Indicators (from unified contracts)
@@ -406,21 +405,21 @@ export const API_PATHS = {
 
   // Analytics (admin-specific, no unified contract)
   analytics: {
-    overview: "/api/v1/analytics/overview",
-    reports: "/api/v1/analytics/reports",
-    export: "/api/v1/analytics/export",
+    overview: '/api/v1/analytics/overview',
+    reports: '/api/v1/analytics/reports',
+    export: '/api/v1/analytics/export',
   },
 
   // Copilot (admin-specific routing, different from Kong paths)
   copilot: {
-    chat: "/api/v1/chat",
-    chatHistory: "/api/v1/chat/history",
+    chat: '/api/v1/chat',
+    chatHistory: '/api/v1/chat/history',
     chatById: (id: string) => `/api/v1/chat/${id}`,
-    tools: "/api/v1/tools",
+    tools: '/api/v1/tools',
     toolExecute: (toolName: string) => `/api/v1/tools/${toolName}/execute`,
-    ragDocuments: "/api/v1/rag/documents",
-    ragSearch: "/api/v1/rag/search",
-    guardLogs: "/api/v1/security/guard-logs",
+    ragDocuments: '/api/v1/rag/documents',
+    ragSearch: '/api/v1/rag/search',
+    guardLogs: '/api/v1/security/guard-logs',
   },
 
   // Billing (from unified contracts)
@@ -470,10 +469,10 @@ export const API_PATHS = {
 
   // Vision (direct service paths - vision service internal routing)
   vision: {
-    detectPest: "/api/v1/detect/pest",
-    detectDisease: "/api/v1/detect/disease",
-    detectWeed: "/api/v1/detect/weed",
-    models: "/api/v1/models/versions",
+    detectPest: '/api/v1/detect/pest',
+    detectDisease: '/api/v1/detect/disease',
+    detectWeed: '/api/v1/detect/weed',
+    models: '/api/v1/models/versions',
   },
 
   // Terrain (from unified contracts)
@@ -602,8 +601,7 @@ export const API_URLS = {
   // Notification endpoints
   notificationEndpoints: {
     list: `${SERVICE_URLS.notifications}${API_PATHS.notifications.list}`,
-    byId: (id: string) =>
-      `${SERVICE_URLS.notifications}${API_PATHS.notifications.byId(id)}`,
+    byId: (id: string) => `${SERVICE_URLS.notifications}${API_PATHS.notifications.byId(id)}`,
     markRead: (id: string) =>
       `${SERVICE_URLS.notifications}${API_PATHS.notifications.markRead(id)}`,
     markAllRead: `${SERVICE_URLS.notifications}${API_PATHS.notifications.markAllRead}`,
@@ -666,9 +664,11 @@ export const API_URLS = {
   // Traceability endpoints
   traceabilityEndpoints: {
     batches: `${SERVICE_URLS.traceability}${API_PATHS.traceability.batches}`,
-    batchById: (id: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.batchById(id)}`,
+    batchById: (id: string) =>
+      `${SERVICE_URLS.traceability}${API_PATHS.traceability.batchById(id)}`,
     events: `${SERVICE_URLS.traceability}${API_PATHS.traceability.events}`,
-    qrCode: (batchId: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
+    qrCode: (batchId: string) =>
+      `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
   },
 
   // Vision endpoints
@@ -730,9 +730,9 @@ export const RETRY_DELAY = 1000;
  * Default request headers
  */
 export const DEFAULT_HEADERS: Readonly<Record<string, string>> = {
-  "Content-Type": "application/json",
-  Accept: "application/json",
-  "Accept-Language": "ar,en",
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'Accept-Language': 'ar,en',
 } as const;
 
 /**
@@ -759,71 +759,71 @@ export const API_CONFIG = {
  */
 export type ServiceName =
   // Core Services
-  | "field-core" // @deprecated - use "field-management"
-  | "field-management"
-  | "auth"
-  | "users"
-  | "ws-gateway"
+  | 'field-core' // @deprecated - use "field-management"
+  | 'field-management'
+  | 'auth'
+  | 'users'
+  | 'ws-gateway'
   // Satellite & Remote Sensing
-  | "satellite" // @deprecated - use "vegetation-analysis"
-  | "vegetation-analysis"
-  | "ndvi-processor"
+  | 'satellite' // @deprecated - use "vegetation-analysis"
+  | 'vegetation-analysis'
+  | 'ndvi-processor'
   // Weather
-  | "weather"
+  | 'weather'
   // AI & Analytics
-  | "indicators"
-  | "crop-health" // @deprecated - use "crop-intelligence"
-  | "crop-intelligence"
-  | "advisory"
-  | "yield-prediction"
-  | "field-intelligence"
-  | "analytics"
-  | "copilot"
-  | "ai-advisor"
-  | "ai-agents"
-  | "knowledge-graph"
+  | 'indicators'
+  | 'crop-health' // @deprecated - use "crop-intelligence"
+  | 'crop-intelligence'
+  | 'advisory'
+  | 'yield-prediction'
+  | 'field-intelligence'
+  | 'analytics'
+  | 'copilot'
+  | 'ai-advisor'
+  | 'ai-agents'
+  | 'knowledge-graph'
   // IoT & Sensors
-  | "virtual-sensors"
-  | "iot-gateway"
-  | "iot-service"
+  | 'virtual-sensors'
+  | 'iot-gateway'
+  | 'iot-service'
   // Operations
-  | "irrigation"
-  | "task"
-  | "equipment"
-  | "inventory"
-  | "logistics"
-  | "supply-chain"
+  | 'irrigation'
+  | 'task'
+  | 'equipment'
+  | 'inventory'
+  | 'logistics'
+  | 'supply-chain'
   // Communication
-  | "notifications"
-  | "field-chat" // @deprecated Use "chat-service" instead. Sunset: v17.0.0
-  | "chat-service"
-  | "community-chat" // @deprecated Use "chat-service" instead. Sunset: v17.0.0
+  | 'notifications'
+  | 'field-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
+  | 'chat-service'
+  | 'community-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
   // Configuration & Misc
-  | "provider-config"
-  | "alerts"
-  | "reports"
-  | "astronomical-calendar"
-  | "lowcode"
+  | 'provider-config'
+  | 'alerts'
+  | 'reports'
+  | 'astronomical-calendar'
+  | 'lowcode'
   // Billing & Audit
-  | "billing"
-  | "audit"
+  | 'billing'
+  | 'audit'
   // Agriculture Domain
-  | "drone"
-  | "soil-analysis"
-  | "pest-detection"
-  | "traceability"
-  | "globalgap"
-  | "cooperative"
-  | "crm"
+  | 'drone'
+  | 'soil-analysis'
+  | 'pest-detection'
+  | 'traceability'
+  | 'globalgap'
+  | 'cooperative'
+  | 'crm'
   // Community & Business
-  | "marketplace"
-  | "research"
+  | 'marketplace'
+  | 'research'
   // Vision & Terrain
-  | "yolo-vision"
-  | "terrain-core"
-  | "hydrology"
-  | "leveling-optimizer"
-  | "edge-orchestrator";
+  | 'yolo-vision'
+  | 'terrain-core'
+  | 'hydrology'
+  | 'leveling-optimizer'
+  | 'edge-orchestrator';
 
 /**
  * API configuration interface for service-specific settings

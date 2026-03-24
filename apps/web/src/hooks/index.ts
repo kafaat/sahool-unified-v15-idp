@@ -3,9 +3,9 @@
  * فهرس الخطافات
  */
 
-export { useKPIs } from "./useKPIs";
-export { useAlerts } from "./useAlerts";
-export { useWebSocket } from "./useWebSocket";
+export { useKPIs } from './useKPIs';
+export { useAlerts } from './useAlerts';
+export { useWebSocket } from './useWebSocket';
 export {
   useFormValidation,
   validationPatterns,
@@ -13,7 +13,7 @@ export {
   type FieldConfig,
   type FieldState,
   type FormState,
-} from "./useFormValidation";
+} from './useFormValidation';
 
 // AI Skills Hooks
-export * from "./ai";
+export * from './ai';

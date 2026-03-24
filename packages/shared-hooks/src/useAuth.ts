@@ -3,14 +3,14 @@
 // خطاف التوثيق الموحد
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import Cookies from "js-cookie";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type UserRole = "admin" | "supervisor" | "viewer" | "farmer";
+export type UserRole = 'admin' | 'supervisor' | 'viewer' | 'farmer';
 
 export interface User {
   id: string;
@@ -60,8 +60,8 @@ export interface UseAuthReturn {
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DEFAULT_TOKEN_KEY = "sahool_auth_token";
-const DEFAULT_USER_KEY = "sahool_auth_user";
+const DEFAULT_TOKEN_KEY = 'sahool_auth_token';
+const DEFAULT_USER_KEY = 'sahool_auth_user';
 
 const ROLE_HIERARCHY: Record<UserRole, number> = {
   admin: 4,
@@ -76,7 +76,7 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 
 export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
   const {
-    apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001",
+    apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001',
     tokenKey = DEFAULT_TOKEN_KEY,
     userKey = DEFAULT_USER_KEY,
     onLogout,
@@ -103,7 +103,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
   // Initialize user from storage
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       setIsLoading(false);
       return;
     }
@@ -129,21 +129,21 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
     (token: string): void => {
       Cookies.set(tokenKey, token, {
         expires: 7,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
       });
     },
-    [tokenKey],
+    [tokenKey]
   );
 
   const setUserData = useCallback(
     (userData: User): void => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         localStorage.setItem(userKey, JSON.stringify(userData));
         setUser(userData);
       }
     },
-    [userKey],
+    [userKey]
   );
 
   const login = useCallback(
@@ -160,25 +160,21 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
       try {
         const response = await fetch(`${apiUrl}/api/v1/auth/login`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(credentials),
           signal: abortController.signal,
         });
 
         if (!response.ok) {
-          const errorData = await response
-            .json()
-            .catch(() => ({ message: "فشل تسجيل الدخول" }));
+          const errorData = await response.json().catch(() => ({ message: 'فشل تسجيل الدخول' }));
           // Handle 401 Unauthorized
           if (response.status === 401) {
             onUnauthorized?.();
           }
-          throw new Error(
-            errorData.message || errorData.detail || "فشل تسجيل الدخول",
-          );
+          throw new Error(errorData.message || errorData.detail || 'فشل تسجيل الدخول');
         }
 
         const data: AuthResponse = await response.json();
@@ -191,10 +187,10 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         return data;
       } catch (err) {
         // Don't update state if the request was aborted
-        if (err instanceof DOMException && err.name === "AbortError") {
+        if (err instanceof DOMException && err.name === 'AbortError') {
           throw err;
         }
-        const message = err instanceof Error ? err.message : "فشل تسجيل الدخول";
+        const message = err instanceof Error ? err.message : 'فشل تسجيل الدخول';
         if (mountedRef.current) {
           setError(message);
         }
@@ -211,12 +207,12 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         }
       }
     },
-    [apiUrl, setToken, setUserData, onUnauthorized],
+    [apiUrl, setToken, setUserData, onUnauthorized]
   );
 
   const logout = useCallback((): void => {
     Cookies.remove(tokenKey);
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       localStorage.removeItem(userKey);
     }
     setUser(null);
@@ -228,7 +224,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
       if (!user) return false;
       return ROLE_HIERARCHY[user.role] >= ROLE_HIERARCHY[requiredRole];
     },
-    [user],
+    [user]
   );
 
   const getAuthHeaders = useCallback((): Record<string, string> => {

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Mobile Sidebar Drawer (overlay + close button)
@@ -8,8 +8,8 @@
  * Handles the backdrop overlay and the close button inside the sidebar panel.
  */
 
-import { useEffect } from "react";
-import { X } from "lucide-react";
+import { useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface MobileSidebarDrawerProps {
   onClose: () => void;
@@ -19,12 +19,12 @@ export default function MobileSidebarDrawer({ onClose }: MobileSidebarDrawerProp
   // Close on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   return (

@@ -11,35 +11,41 @@ export interface Detection {
 }
 
 export interface PestDetection {
-  detections: Array<Detection & {
-    species: string;
-    speciesAr: string;
-    severity: "low" | "medium" | "high" | "critical";
-    recommendation: string;
-    recommendationAr: string;
-  }>;
+  detections: Array<
+    Detection & {
+      species: string;
+      speciesAr: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      recommendation: string;
+      recommendationAr: string;
+    }
+  >;
   imageUrl?: string;
   processedAt: string;
 }
 
 export interface DiseaseDetection {
-  detections: Array<Detection & {
-    disease: string;
-    diseaseAr: string;
-    affectedArea: number;
-    treatment: string;
-    treatmentAr: string;
-  }>;
+  detections: Array<
+    Detection & {
+      disease: string;
+      diseaseAr: string;
+      affectedArea: number;
+      treatment: string;
+      treatmentAr: string;
+    }
+  >;
   imageUrl?: string;
   processedAt: string;
 }
 
 export interface WeedDetection {
-  detections: Array<Detection & {
-    species: string;
-    speciesAr: string;
-    coverage: number;
-  }>;
+  detections: Array<
+    Detection & {
+      species: string;
+      speciesAr: string;
+      coverage: number;
+    }
+  >;
   totalCoverage: number;
   imageUrl?: string;
   processedAt: string;
@@ -53,7 +59,7 @@ export interface PlantCount {
 }
 
 export interface RipenessResult {
-  stage: "unripe" | "early_ripe" | "half_ripe" | "ripe" | "overripe";
+  stage: 'unripe' | 'early_ripe' | 'half_ripe' | 'ripe' | 'overripe';
   stageAr: string;
   confidence: number;
   distribution: Record<string, number>;

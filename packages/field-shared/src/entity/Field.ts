@@ -8,7 +8,7 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
+} from 'typeorm';
 
 /**
  * Field Entity - Geospatial Agricultural Field Model
@@ -25,9 +25,9 @@ import {
  * @see apps/services/field-management-service/prisma/schema.prisma
  * @see packages/shared-types/src/field.ts
  */
-@Entity("fields")
+@Entity('fields')
 export class Field {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   /**
@@ -40,16 +40,16 @@ export class Field {
   @Column({ length: 255 })
   name!: string;
 
-  @Column({ name: "tenant_id", length: 100 })
+  @Column({ name: 'tenant_id', length: 100 })
   tenantId!: string;
 
-  @Column({ name: "crop_type", length: 100, nullable: true })
+  @Column({ name: 'crop_type', length: 100, nullable: true })
   cropType?: string;
 
-  @Column({ name: "owner_id", type: "uuid", nullable: true })
+  @Column({ name: 'owner_id', type: 'uuid', nullable: true })
   ownerId?: string;
 
-  @Column({ name: "farm_id", type: "uuid", nullable: true })
+  @Column({ name: 'farm_id', type: 'uuid', nullable: true })
   farmId?: string;
 
   /**
@@ -58,8 +58,8 @@ export class Field {
    */
   @Index({ spatial: true })
   @Column({
-    type: "geometry",
-    spatialFeatureType: "Polygon",
+    type: 'geometry',
+    spatialFeatureType: 'Polygon',
     srid: 4326,
     nullable: true,
   })
@@ -69,8 +69,8 @@ export class Field {
    * Field centroid for quick map display
    */
   @Column({
-    type: "geometry",
-    spatialFeatureType: "Point",
+    type: 'geometry',
+    spatialFeatureType: 'Point',
     srid: 4326,
     nullable: true,
   })
@@ -80,8 +80,8 @@ export class Field {
    * Area in hectares (calculated from boundary)
    */
   @Column({
-    name: "area_hectares",
-    type: "decimal",
+    name: 'area_hectares',
+    type: 'decimal',
     precision: 10,
     scale: 4,
     nullable: true,
@@ -93,8 +93,8 @@ export class Field {
    * Updated by NDVI Engine
    */
   @Column({
-    name: "health_score",
-    type: "decimal",
+    name: 'health_score',
+    type: 'decimal',
     precision: 3,
     scale: 2,
     nullable: true,
@@ -105,8 +105,8 @@ export class Field {
    * Latest NDVI value (-1.0 to 1.0)
    */
   @Column({
-    name: "ndvi_value",
-    type: "decimal",
+    name: 'ndvi_value',
+    type: 'decimal',
     precision: 4,
     scale: 3,
     nullable: true,
@@ -117,40 +117,40 @@ export class Field {
    * Field status
    */
   @Column({
-    type: "enum",
-    enum: ["active", "fallow", "harvested", "preparing", "inactive"],
-    default: "active",
+    type: 'enum',
+    enum: ['active', 'fallow', 'harvested', 'preparing', 'inactive'],
+    default: 'active',
   })
   status!: string;
 
   /**
    * Planting date for current crop
    */
-  @Column({ name: "planting_date", type: "date", nullable: true })
+  @Column({ name: 'planting_date', type: 'date', nullable: true })
   plantingDate?: Date;
 
   /**
    * Expected harvest date
    */
-  @Column({ name: "expected_harvest", type: "date", nullable: true })
+  @Column({ name: 'expected_harvest', type: 'date', nullable: true })
   expectedHarvest?: Date;
 
   /**
    * Irrigation type
    */
-  @Column({ name: "irrigation_type", length: 50, nullable: true })
+  @Column({ name: 'irrigation_type', length: 50, nullable: true })
   irrigationType?: string;
 
   /**
    * Soil type classification
    */
-  @Column({ name: "soil_type", length: 100, nullable: true })
+  @Column({ name: 'soil_type', length: 100, nullable: true })
   soilType?: string;
 
   /**
    * Additional metadata as JSON
    */
-  @Column({ type: "jsonb", nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   metadata?: object;
 
   // ─── Sync Metadata (offline-first support) ─────────────────────────────────
@@ -158,16 +158,16 @@ export class Field {
   /**
    * Soft delete flag
    */
-  @Column({ name: "is_deleted", default: false })
+  @Column({ name: 'is_deleted', default: false })
   isDeleted!: boolean;
 
   /**
    * Server-side last update timestamp for sync
    */
   @Column({
-    name: "server_updated_at",
-    type: "timestamptz",
-    default: () => "now()",
+    name: 'server_updated_at',
+    type: 'timestamptz',
+    default: () => 'now()',
   })
   serverUpdatedAt!: Date;
 
@@ -179,9 +179,9 @@ export class Field {
 
   // ─── Timestamps ────────────────────────────────────────────────────────────
 
-  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
 }

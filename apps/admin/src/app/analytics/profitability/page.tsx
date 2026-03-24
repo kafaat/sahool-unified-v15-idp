@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Profitability Analytics
 // تحليل الربحية
 
-import { useEffect, useState, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import { fetchProfitabilityData } from "@/lib/api/analytics";
+import { useEffect, useState, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import { fetchProfitabilityData } from '@/lib/api/analytics';
 import {
   DollarSign,
   TrendingUp,
@@ -15,13 +15,13 @@ import {
   Calendar,
   Target,
   PieChart as PieChartIcon,
-} from "lucide-react";
-import { logger } from "../../../lib/logger";
+} from 'lucide-react';
+import { logger } from '../../../lib/logger';
 import {
   DynamicMonthlyTrendChart,
   DynamicCropProfitabilityChart,
   DynamicCostBreakdownChart,
-} from "./ProfitabilityCharts.dynamic";
+} from './ProfitabilityCharts.dynamic';
 
 interface ProfitabilityData {
   summary: {
@@ -65,9 +65,7 @@ interface ProfitabilityData {
 export default function ProfitabilityPage() {
   const [data, setData] = useState<ProfitabilityData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "month" | "quarter" | "year"
-  >("month");
+  const [selectedPeriod, setSelectedPeriod] = useState<'month' | 'quarter' | 'year'>('month');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +75,7 @@ export default function ProfitabilityPage() {
       });
       setData(profitData);
     } catch (error) {
-      logger.error("Failed to load profitability data:", error);
+      logger.error('Failed to load profitability data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -110,9 +108,7 @@ export default function ProfitabilityPage() {
         />
         <select
           value={selectedPeriod}
-          onChange={(e) =>
-            setSelectedPeriod(e.target.value as "month" | "quarter" | "year")
-          }
+          onChange={(e) => setSelectedPeriod(e.target.value as 'month' | 'quarter' | 'year')}
           className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
         >
           <option value="month">شهري</option>
@@ -167,9 +163,7 @@ export default function ProfitabilityPage() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Crop Profitability Comparison */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">
-            مقارنة ربحية المحاصيل
-          </h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">مقارنة ربحية المحاصيل</h3>
           <div className="h-80">
             <DynamicCropProfitabilityChart data={data.byCrop} />
           </div>
@@ -187,9 +181,7 @@ export default function ProfitabilityPage() {
       {/* Crop Details Table */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-          <h3 className="font-bold text-gray-900 dark:text-gray-100">
-            تفاصيل الربحية حسب المحصول
-          </h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100">تفاصيل الربحية حسب المحصول</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -246,13 +238,13 @@ export default function ProfitabilityPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`text-sm font-medium ${crop.margin >= 20 ? "text-green-600" : crop.margin >= 10 ? "text-yellow-600" : "text-red-600"}`}
+                      className={`text-sm font-medium ${crop.margin >= 20 ? 'text-green-600' : crop.margin >= 10 ? 'text-yellow-600' : 'text-red-600'}`}
                     >
                       {crop.margin.toFixed(1)}%
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                    ${crop.area > 0 ? (crop.profit / crop.area).toFixed(2) : "0.00"}
+                    ${crop.area > 0 ? (crop.profit / crop.area).toFixed(2) : '0.00'}
                   </td>
                 </tr>
               ))}

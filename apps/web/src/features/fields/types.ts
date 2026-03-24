@@ -8,12 +8,12 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface GeoPolygon {
-  type: "Polygon";
+  type: 'Polygon';
   coordinates: number[][][];
 }
 
 export interface GeoPoint {
-  type: "Point";
+  type: 'Point';
   coordinates: [number, number]; // [lng, lat]
 }
 
@@ -21,21 +21,9 @@ export interface GeoPoint {
 // Field Core Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type FieldStatus = "active" | "inactive" | "deleted";
-export type IrrigationType =
-  | "drip"
-  | "sprinkler"
-  | "flood"
-  | "manual"
-  | "other";
-export type SoilType =
-  | "clay"
-  | "sandy"
-  | "loam"
-  | "silt"
-  | "peat"
-  | "chalk"
-  | "other";
+export type FieldStatus = 'active' | 'inactive' | 'deleted';
+export type IrrigationType = 'drip' | 'sprinkler' | 'flood' | 'manual' | 'other';
+export type SoilType = 'clay' | 'sandy' | 'loam' | 'silt' | 'peat' | 'chalk' | 'other';
 
 export interface Field {
   id: string;
@@ -74,8 +62,8 @@ export interface FieldZone {
   boundary: [number, number][];
   area: number; // hectares
   ndviValue: number;
-  ndviTrend: "improving" | "stable" | "declining";
-  healthStatus: "excellent" | "good" | "moderate" | "poor" | "critical";
+  ndviTrend: 'improving' | 'stable' | 'declining';
+  healthStatus: 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
   lastUpdated: Date;
 }
 
@@ -84,13 +72,8 @@ export interface FieldAlert {
   id: string;
   fieldId: string;
   zoneId?: string;
-  type:
-    | "ndvi_drop"
-    | "weather_warning"
-    | "soil_moisture"
-    | "task_overdue"
-    | "astral_favorable";
-  severity: "critical" | "warning" | "info";
+  type: 'ndvi_drop' | 'weather_warning' | 'soil_moisture' | 'task_overdue' | 'astral_favorable';
+  severity: 'critical' | 'warning' | 'info';
   title: string;
   titleAr: string;
   message: string;
@@ -109,7 +92,7 @@ export interface LivingFieldScore {
   hydration: number;
   attention: number;
   astral: number;
-  trend: "improving" | "stable" | "declining";
+  trend: 'improving' | 'stable' | 'declining';
   alerts: FieldAlert[];
   recommendations: FieldRecommendation[];
   lastUpdated: Date;
@@ -118,17 +101,17 @@ export interface LivingFieldScore {
 // Field Recommendation
 export interface FieldRecommendation {
   id: string;
-  type: "task" | "alert" | "info";
-  priority: "high" | "medium" | "low";
+  type: 'task' | 'alert' | 'info';
+  priority: 'high' | 'medium' | 'low';
   title: string;
   titleAr: string;
   description: string;
   descriptionAr: string;
   action?: {
-    type: "create_task" | "view_details" | "external_link";
+    type: 'create_task' | 'view_details' | 'external_link';
     data: Record<string, any>;
   };
-  source: "ndvi" | "weather" | "irrigation" | "astronomical" | "ai";
+  source: 'ndvi' | 'weather' | 'irrigation' | 'astronomical' | 'ai';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -145,7 +128,7 @@ export interface FieldFormData {
   farmId?: string;
   description?: string;
   descriptionAr?: string;
-  status?: "active" | "inactive";
+  status?: 'active' | 'inactive';
   soilType?: string;
   irrigationType?: string;
   plantingDate?: string;
@@ -186,12 +169,12 @@ export interface FieldStats {
 // View & UI Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type FieldViewMode = "grid" | "list" | "map";
+export type FieldViewMode = 'grid' | 'list' | 'map';
 
 export interface FieldViewSettings {
   mode: FieldViewMode;
-  sortBy?: "name" | "area" | "crop" | "createdAt" | "healthScore";
-  sortOrder?: "asc" | "desc";
+  sortBy?: 'name' | 'area' | 'crop' | 'createdAt' | 'healthScore';
+  sortOrder?: 'asc' | 'desc';
   showInactive?: boolean;
 }
 

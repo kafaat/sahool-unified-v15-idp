@@ -1,25 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, Suspense, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Shield, Clock, RefreshCw, CheckCircle, Loader2, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { useToast } from "@/components/ui/toast";
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Shield, Clock, RefreshCw, CheckCircle, Loader2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { useToast } from '@/components/ui/toast';
 
 const OTP_LENGTH = 6;
 const OTP_EXPIRATION_SECONDS = 300; // 5 minutes
 const RESEND_COOLDOWN_SECONDS = 60; // 1 minute
 
-type Purpose = "password_reset" | "verify_phone";
-type Channel = "sms" | "whatsapp" | "telegram";
+type Purpose = 'password_reset' | 'verify_phone';
+type Channel = 'sms' | 'whatsapp' | 'telegram';
 
 interface VerifyOTPFormProps {
   identifier: string;
@@ -39,18 +33,18 @@ function OTPInput({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !value[index] && index > 0) {
+    if (e.key === 'Backspace' && !value[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleChange = (index: number, inputValue: string) => {
     // Only accept digits
-    const digit = inputValue.replace(/\D/g, "").slice(-1);
+    const digit = inputValue.replace(/\D/g, '').slice(-1);
 
-    const newValue = value.split("");
+    const newValue = value.split('');
     newValue[index] = digit;
-    const newOtp = newValue.join("");
+    const newOtp = newValue.join('');
     onChange(newOtp);
 
     // Move to next input if digit entered
@@ -61,8 +55,8 @@ function OTPInput({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    onChange(pastedData.padEnd(OTP_LENGTH, ""));
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+    onChange(pastedData.padEnd(OTP_LENGTH, ''));
 
     // Focus the next empty input or last input
     const nextIndex = Math.min(pastedData.length, OTP_LENGTH - 1);
@@ -80,7 +74,7 @@ function OTPInput({
           type="text"
           inputMode="numeric"
           maxLength={1}
-          value={value[index] || ""}
+          value={value[index] || ''}
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
@@ -99,22 +93,22 @@ function OTPInput({
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 function getChannelLabel(channel: Channel): { ar: string; en: string } {
   const labels: Record<Channel, { ar: string; en: string }> = {
-    sms: { ar: "رسالة نصية", en: "SMS" },
-    whatsapp: { ar: "واتساب", en: "WhatsApp" },
-    telegram: { ar: "تيليجرام", en: "Telegram" },
+    sms: { ar: 'رسالة نصية', en: 'SMS' },
+    whatsapp: { ar: 'واتساب', en: 'WhatsApp' },
+    telegram: { ar: 'تيليجرام', en: 'Telegram' },
   };
   return labels[channel] || labels.sms;
 }
 
 function getPurposeLabel(purpose: Purpose): { ar: string; en: string } {
   const labels: Record<Purpose, { ar: string; en: string }> = {
-    password_reset: { ar: "إعادة تعيين كلمة المرور", en: "Password Reset" },
-    verify_phone: { ar: "التحقق من رقم الهاتف", en: "Phone Verification" },
+    password_reset: { ar: 'إعادة تعيين كلمة المرور', en: 'Password Reset' },
+    verify_phone: { ar: 'التحقق من رقم الهاتف', en: 'Phone Verification' },
   };
   return labels[purpose] || labels.verify_phone;
 }
@@ -123,7 +117,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [expirationTime, setExpirationTime] = useState(OTP_EXPIRATION_SECONDS);
@@ -158,9 +152,9 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
   const handleVerify = useCallback(async () => {
     if (otp.length !== OTP_LENGTH) {
       showToast({
-        type: "error",
-        messageAr: "الرجاء إدخال رمز التحقق كاملًا",
-        message: "Please enter the complete verification code",
+        type: 'error',
+        messageAr: 'الرجاء إدخال رمز التحقق كاملًا',
+        message: 'Please enter the complete verification code',
       });
       return;
     }
@@ -168,10 +162,10 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/verify-otp", {
-        method: "POST",
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           identifier,
@@ -181,40 +175,41 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         }),
       });
 
-      const data: { message?: string; error?: string; reset_token?: string; resetToken?: string } = await response.json();
+      const data: { message?: string; error?: string; reset_token?: string; resetToken?: string } =
+        await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Verification failed");
+        throw new Error(data.message || data.error || 'Verification failed');
       }
 
       setIsSuccess(true);
       showToast({
-        type: "success",
-        messageAr: "تم التحقق بنجاح",
-        message: "Verification successful",
+        type: 'success',
+        messageAr: 'تم التحقق بنجاح',
+        message: 'Verification successful',
       });
 
       // Redirect based on purpose
       setTimeout(() => {
-        if (purpose === "password_reset") {
+        if (purpose === 'password_reset') {
           // For password reset, redirect to reset-password with token
           const resetToken = data.reset_token || data.resetToken;
           if (resetToken) {
             router.push(`/reset-password?token=${resetToken}`);
           } else {
-            router.push("/login");
+            router.push('/login');
           }
         } else {
           // For phone verification, redirect to dashboard
-          router.push("/dashboard");
+          router.push('/dashboard');
         }
       }, 2000);
     } catch {
       // Do not expose server error details to the user
       showToast({
-        type: "error",
-        messageAr: "رمز التحقق غير صحيح أو منتهي الصلاحية",
-        message: "Invalid or expired verification code. Please try again.",
+        type: 'error',
+        messageAr: 'رمز التحقق غير صحيح أو منتهي الصلاحية',
+        message: 'Invalid or expired verification code. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -234,10 +229,10 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
     setIsResending(true);
 
     try {
-      const response = await fetch("/api/auth/send-otp", {
-        method: "POST",
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           identifier,
@@ -249,22 +244,22 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
       const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Failed to resend OTP");
+        throw new Error(data.message || data.error || 'Failed to resend OTP');
       }
 
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
       setExpirationTime(OTP_EXPIRATION_SECONDS);
-      setOtp("");
+      setOtp('');
       showToast({
-        type: "success",
-        messageAr: "تم إرسال رمز تحقق جديد",
-        message: "New verification code sent",
+        type: 'success',
+        messageAr: 'تم إرسال رمز تحقق جديد',
+        message: 'New verification code sent',
       });
     } catch {
       showToast({
-        type: "error",
-        messageAr: "فشل في إرسال رمز التحقق. الرجاء المحاولة مرة أخرى.",
-        message: "Failed to resend verification code. Please try again.",
+        type: 'error',
+        messageAr: 'فشل في إرسال رمز التحقق. الرجاء المحاولة مرة أخرى.',
+        message: 'Failed to resend verification code. Please try again.',
       });
     } finally {
       setIsResending(false);
@@ -285,9 +280,9 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
             )}
           </div>
           <CardTitle className="text-2xl">
-            <div>{isSuccess ? "تم التحقق بنجاح" : "التحقق من الرمز"}</div>
+            <div>{isSuccess ? 'تم التحقق بنجاح' : 'التحقق من الرمز'}</div>
             <div className="text-base text-gray-600 mt-1">
-              {isSuccess ? "Verification Successful" : "Verify Code"}
+              {isSuccess ? 'Verification Successful' : 'Verify Code'}
             </div>
           </CardTitle>
           <CardDescription>
@@ -321,7 +316,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
             <div className="text-center space-y-4">
               <Loader2 className="w-6 h-6 animate-spin text-sahool-green-600 mx-auto" />
               <p className="text-sm text-gray-600">
-                {purpose === "password_reset" ? (
+                {purpose === 'password_reset' ? (
                   <>
                     سيتم توجيهك لإعادة تعيين كلمة المرور
                     <br />
@@ -339,15 +334,11 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
           ) : (
             <div className="space-y-6">
               {/* OTP Input */}
-              <OTPInput
-                value={otp}
-                onChange={setOtp}
-                disabled={isLoading || isExpired}
-              />
+              <OTPInput value={otp} onChange={setOtp} disabled={isLoading || isExpired} />
 
               {/* Timer */}
               <div className="flex items-center justify-center gap-2 text-sm">
-                <Clock className={`w-4 h-4 ${isExpired ? "text-red-500" : "text-gray-500"}`} />
+                <Clock className={`w-4 h-4 ${isExpired ? 'text-red-500' : 'text-gray-500'}`} />
                 {isExpired ? (
                   <span className="text-red-500">
                     <span>انتهت صلاحية الرمز</span>
@@ -435,19 +426,19 @@ function VerifyOTPWithParams() {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const identifier = searchParams.get("identifier") || "";
-  const purpose = (searchParams.get("purpose") as Purpose) || "verify_phone";
-  const channel = (searchParams.get("channel") as Channel) || "sms";
+  const identifier = searchParams.get('identifier') || '';
+  const purpose = (searchParams.get('purpose') as Purpose) || 'verify_phone';
+  const channel = (searchParams.get('channel') as Channel) || 'sms';
 
   // Validate required params
   useEffect(() => {
     if (!identifier) {
       showToast({
-        type: "error",
-        messageAr: "معرف غير صالح",
-        message: "Invalid identifier",
+        type: 'error',
+        messageAr: 'معرف غير صالح',
+        message: 'Invalid identifier',
       });
-      router.push("/login");
+      router.push('/login');
     }
   }, [identifier, router, showToast]);
 
@@ -459,13 +450,7 @@ function VerifyOTPWithParams() {
     );
   }
 
-  return (
-    <VerifyOTPForm
-      identifier={identifier}
-      purpose={purpose}
-      channel={channel}
-    />
-  );
+  return <VerifyOTPForm identifier={identifier} purpose={purpose} channel={channel} />;
 }
 
 export default function VerifyOTPClient() {

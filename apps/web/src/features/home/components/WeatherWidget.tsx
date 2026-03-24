@@ -1,28 +1,20 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Weather Widget Component
  * مكون عنصر الطقس
  */
 
-import React, { useState, useCallback } from "react";
-import {
-  Cloud,
-  CloudRain,
-  Sun,
-  Wind,
-  Droplets,
-  RefreshCw,
-} from "lucide-react";
-import { useWeather } from "../hooks/useWeather";
+import React, { useState, useCallback } from 'react';
+import { Cloud, CloudRain, Sun, Wind, Droplets, RefreshCw } from 'lucide-react';
+import { useWeather } from '../hooks/useWeather';
 
 const getWeatherIcon = (condition?: string) => {
   if (!condition) return <Cloud className="w-8 h-8" />;
 
   const lower = condition.toLowerCase();
-  if (lower.includes("rain"))
-    return <CloudRain className="w-8 h-8 text-blue-500" />;
-  if (lower.includes("clear") || lower.includes("sunny"))
+  if (lower.includes('rain')) return <CloudRain className="w-8 h-8 text-blue-500" />;
+  if (lower.includes('clear') || lower.includes('sunny'))
     return <Sun className="w-8 h-8 text-yellow-500" />;
   return <Cloud className="w-8 h-8 text-gray-400 dark:text-gray-500" />;
 };
@@ -41,9 +33,9 @@ export const WeatherWidget: React.FC = () => {
   }, [refetch]);
 
   const lastUpdated = dataUpdatedAt
-    ? new Date(dataUpdatedAt).toLocaleTimeString("ar-EG", {
-        hour: "2-digit",
-        minute: "2-digit",
+    ? new Date(dataUpdatedAt).toLocaleTimeString('ar-EG', {
+        hour: '2-digit',
+        minute: '2-digit',
       })
     : null;
 
@@ -51,9 +43,7 @@ export const WeatherWidget: React.FC = () => {
     return (
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6 transition-colors">
         <div className="h-48 flex items-center justify-center">
-          <div className="animate-pulse text-gray-400 dark:text-gray-500">
-            جاري التحميل...
-          </div>
+          <div className="animate-pulse text-gray-400 dark:text-gray-500">جاري التحميل...</div>
         </div>
       </div>
     );
@@ -74,18 +64,12 @@ export const WeatherWidget: React.FC = () => {
     <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            الطقس الحالي
-          </h3>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Current Weather
-          </span>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">الطقس الحالي</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Current Weather</span>
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && (
-            <span className="text-xs text-gray-400 dark:text-gray-500">
-              {lastUpdated}
-            </span>
+            <span className="text-xs text-gray-400 dark:text-gray-500">{lastUpdated}</span>
           )}
           <button
             onClick={handleRefresh}
@@ -94,9 +78,7 @@ export const WeatherWidget: React.FC = () => {
             title="تحديث الطقس"
             aria-label="تحديث الطقس"
           >
-            <RefreshCw
-              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -122,27 +104,21 @@ export const WeatherWidget: React.FC = () => {
           <Droplets className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">الرطوبة</p>
-            <p className="font-semibold text-gray-900 dark:text-white">
-              {weather.humidity}%
-            </p>
+            <p className="font-semibold text-gray-900 dark:text-white">{weather.humidity}%</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Wind className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">الرياح</p>
-            <p className="font-semibold text-gray-900 dark:text-white">
-              {weather.windSpeed} km/h
-            </p>
+            <p className="font-semibold text-gray-900 dark:text-white">{weather.windSpeed} km/h</p>
           </div>
         </div>
       </div>
 
       {weather.location && (
         <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            {weather.location}
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">{weather.location}</p>
         </div>
       )}
     </div>

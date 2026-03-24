@@ -3,15 +3,15 @@
  * إعداد الاختبارات
  */
 
-import { expect, afterEach, vi } from "vitest";
+import { expect, afterEach, vi } from 'vitest';
 
 // Only set up DOM-related mocks when running in a browser-like environment
-const isBrowser = typeof window !== "undefined";
+const isBrowser = typeof window !== 'undefined';
 
 if (isBrowser) {
   // Dynamic imports for browser-only modules
-  const { cleanup } = await import("@testing-library/react");
-  const matchers = await import("@testing-library/jest-dom/matchers");
+  const { cleanup } = await import('@testing-library/react');
+  const matchers = await import('@testing-library/jest-dom/matchers');
 
   // Extend Vitest's expect with Testing Library matchers
   expect.extend(matchers);
@@ -22,7 +22,7 @@ if (isBrowser) {
   });
 
   // Mock window.matchMedia
-  Object.defineProperty(window, "matchMedia", {
+  Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
       matches: false,
@@ -43,7 +43,7 @@ if (isBrowser) {
     unobserve = vi.fn();
   }
 
-  Object.defineProperty(window, "IntersectionObserver", {
+  Object.defineProperty(window, 'IntersectionObserver', {
     writable: true,
     value: MockIntersectionObserver,
   });
@@ -55,7 +55,7 @@ if (isBrowser) {
     unobserve = vi.fn();
   }
 
-  Object.defineProperty(window, "ResizeObserver", {
+  Object.defineProperty(window, 'ResizeObserver', {
     writable: true,
     value: MockResizeObserver,
   });
@@ -71,17 +71,17 @@ if (isBrowser) {
     clear: vi.fn(),
   };
 
-  Object.defineProperty(window, "localStorage", {
+  Object.defineProperty(window, 'localStorage', {
     value: localStorageMock,
   });
 
   // Mock sessionStorage
-  Object.defineProperty(window, "sessionStorage", {
+  Object.defineProperty(window, 'sessionStorage', {
     value: localStorageMock,
   });
 
   // Mock performance
-  Object.defineProperty(window, "performance", {
+  Object.defineProperty(window, 'performance', {
     value: {
       ...performance,
       now: vi.fn(() => Date.now()),
@@ -94,5 +94,5 @@ if (isBrowser) {
 }
 
 // Console spy for tests (works in both environments)
-vi.spyOn(console, "error").mockImplementation(() => {});
-vi.spyOn(console, "warn").mockImplementation(() => {});
+vi.spyOn(console, 'error').mockImplementation(() => {});
+vi.spyOn(console, 'warn').mockImplementation(() => {});

@@ -3,9 +3,9 @@
  * أنواع ميزة الإشعارات
  */
 
-export type NotificationType = "alert" | "info" | "warning" | "success" | "system";
-export type NotificationPriority = "low" | "medium" | "high" | "urgent";
-export type NotificationChannel = "push" | "email" | "sms" | "in_app";
+export type NotificationType = 'alert' | 'info' | 'warning' | 'success' | 'system';
+export type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type NotificationChannel = 'push' | 'email' | 'sms' | 'in_app';
 
 export interface Notification {
   id: string;

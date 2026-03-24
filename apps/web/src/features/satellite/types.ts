@@ -3,8 +3,8 @@
  * أنواع ميزة صور الأقمار الصناعية
  */
 
-export type HealthStatus = "excellent" | "good" | "moderate" | "poor" | "critical";
-export type IndexType = "ndvi" | "ndwi" | "evi" | "lai" | "ndre" | "savi";
+export type HealthStatus = 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
+export type IndexType = 'ndvi' | 'ndwi' | 'evi' | 'lai' | 'ndre' | 'savi';
 
 export interface SatelliteField {
   id: string;
@@ -40,13 +40,13 @@ export interface SatelliteImage {
   id: string;
   fieldId: string;
   captureDate: string;
-  source: "sentinel-2" | "landsat-8" | "planet" | "drone";
+  source: 'sentinel-2' | 'landsat-8' | 'planet' | 'drone';
   cloudCoverage: number;
   resolution: number;
   indexType: IndexType;
   imageUrl: string;
   thumbnailUrl: string;
-  processingStatus: "pending" | "processing" | "completed" | "failed";
+  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
   metadata: Record<string, unknown>;
 }
 
@@ -68,7 +68,7 @@ export interface TimeSeriesData {
 export interface SatelliteStats {
   totalFields: number;
   averageNdvi: number;
-  ndviTrend: "up" | "down" | "stable";
+  ndviTrend: 'up' | 'down' | 'stable';
   lastCapture: string;
   fieldsMonitored: number;
   alertsCount: number;

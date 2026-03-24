@@ -1,0 +1,1664 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Platform Hardening Summary — PR #1316 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#platform-hardening-summary-pr-1316" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Platform Hardening Summary — PR #1316
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="platform-hardening-summary-pr-1316">Platform Hardening Summary — PR #1316<a class="headerlink" href="#platform-hardening-summary-pr-1316" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-24
+<strong>Branch</strong>: <code>claude/fix-review-issues-P7Xks</code>
+<strong>Total Commits</strong>: 10
+<strong>Files Changed</strong>: ~70
+<strong>PR</strong>: #1316 — Comprehensive platform hardening</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This PR delivers comprehensive platform hardening across 4 categories:
+security (tenant isolation &amp; RLS), database improvements (indexes &amp; migrations),
+infrastructure (Helm, CI/CD, monitoring), and API/service fixes (validation &amp; error handling).</p>
+<hr />
+<h2 id="1-security-tenant-isolation-rls-6-commits">1. Security — Tenant Isolation &amp; RLS (6 commits)<a class="headerlink" href="#1-security-tenant-isolation-rls-6-commits" title="Permanent link">&para;</a></h2>
+<h3 id="cross-tenant-sql-vulnerability-fixes">Cross-Tenant SQL Vulnerability Fixes<a class="headerlink" href="#cross-tenant-sql-vulnerability-fixes" title="Permanent link">&para;</a></h3>
+<p>15+ SQL queries were missing <code>tenant_id</code> in WHERE clauses, allowing potential
+cross-tenant data access at the database level.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Fix Applied</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lowcode-engine</code></td>
+<td>Added tenant_id to UPDATE/DELETE/SELECT queries</td>
+</tr>
+<tr>
+<td><code>ground-vision-service</code></td>
+<td>Added tenant_id to UPDATE/DELETE/SELECT queries</td>
+</tr>
+<tr>
+<td><code>copilot-api</code></td>
+<td>Added tenant_id to session UUID seed (prevents collision)</td>
+</tr>
+<tr>
+<td><code>traceability-service</code></td>
+<td>Added tenant_id to UPDATE/DELETE/SELECT queries</td>
+</tr>
+<tr>
+<td><code>cooperative-service</code></td>
+<td>Added tenant_id to UPDATE/DELETE/SELECT queries</td>
+</tr>
+<tr>
+<td><code>billing-core</code></td>
+<td>Added tenant_id to 5 repository methods</td>
+</tr>
+<tr>
+<td><code>provider-config</code></td>
+<td>Added tenant_id to <code>get_config_version()</code> and rollback endpoint</td>
+</tr>
+<tr>
+<td><code>inventory-service</code></td>
+<td>Added tenant_id scoping</td>
+</tr>
+<tr>
+<td><code>globalgap-compliance</code></td>
+<td>Added tenant_id to <code>get_by_id()</code> methods</td>
+</tr>
+</tbody>
+</table>
+<h3 id="row-level-security-rls-policies">Row-Level Security (RLS) Policies<a class="headerlink" href="#row-level-security-rls-policies" title="Permanent link">&para;</a></h3>
+<p>New RLS migrations enforce tenant isolation at the PostgreSQL level:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Tables Protected</th>
+<th>Migration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/digital_twin</code></td>
+<td>field_daily_state, field_observation, irrigation_recommendation</td>
+<td><code>002_rls_policies.sql</code></td>
+</tr>
+<tr>
+<td><code>shared/calibration</code></td>
+<td>calibration_run, parameter_set, parameter_change_log</td>
+<td><code>s16_011_rls_policies.sql</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RLS Policy Details:</strong>
+- Tenant isolation via <code>current_setting('app.current_tenant', true)</code>
+- Super-admin bypass via <code>current_setting('app.is_super_admin', true)</code>
+- <code>nullif()</code> protection on UUID casts (digital_twin) to handle empty string resets
+- Variable names aligned with <code>shared/db/tenant_connection.py</code> helper</p>
+<h3 id="session-uuid-collision-fix-copilot-api">Session UUID Collision Fix (copilot-api)<a class="headerlink" href="#session-uuid-collision-fix-copilot-api" title="Permanent link">&para;</a></h3>
+<p><strong>Before</strong>: <code>uuid5(NAMESPACE_URL, f"sahool:copilot:session:{session_id}")</code>
+<strong>After</strong>: <code>uuid5(NAMESPACE_URL, f"sahool:copilot:session:{tenant_id}:{session_id}")</code></p>
+<p>Two tenants using the same <code>session_id</code> would no longer collide on the same UUID.</p>
+<hr />
+<h2 id="2-database-improvements-4-commits">2. Database Improvements (4 commits)<a class="headerlink" href="#2-database-improvements-4-commits" title="Permanent link">&para;</a></h2>
+<h3 id="new-compound-indexes-16">New Compound Indexes (16+)<a class="headerlink" href="#new-compound-indexes-16" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Indexes Added</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat-service</code></td>
+<td>[tenantId, createdAt], [tenantId, isRead, createdAt]</td>
+</tr>
+<tr>
+<td><code>field-management-service</code></td>
+<td>[tenantId, cropType, createdAt], [tenantId, plantingDate, status]</td>
+</tr>
+<tr>
+<td><code>disaster-assessment</code></td>
+<td>[tenantId, type, severity], [tenantId, startDate, status]</td>
+</tr>
+<tr>
+<td><code>weather-service</code></td>
+<td>[tenantId, locationId, timestamp]</td>
+</tr>
+<tr>
+<td><code>iot-service</code></td>
+<td>Tenant-scoped compounds on SensorReading, Sensor, Actuator, ActuatorCommand</td>
+</tr>
+<tr>
+<td><code>alert-service</code></td>
+<td>tenant+status+created_at, tenant+severity+created_at</td>
+</tr>
+<tr>
+<td><code>shared/libs/audit</code></td>
+<td>(resource_type, resource_id, tenant_id), (action, tenant_id)</td>
+</tr>
+<tr>
+<td><code>shared/libs/outbox</code></td>
+<td>(published, tenant_id), (retry_count, published)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="query-safety-caps-limit">Query Safety Caps (LIMIT)<a class="headerlink" href="#query-safety-caps-limit" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Max Results</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/ai/vector_store</code></td>
+<td>50,000</td>
+<td>Prevent memory exhaustion on vector queries</td>
+</tr>
+<tr>
+<td><code>shared/digital_twin</code></td>
+<td>3,660</td>
+<td>Cap daily state queries (10 years × 366 days)</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>5,000</td>
+<td>Cap alert list queries</td>
+</tr>
+<tr>
+<td><code>drone-service</code></td>
+<td>1,000 per page</td>
+<td>Pagination limit on list endpoints</td>
+</tr>
+</tbody>
+</table>
+<h3 id="financial-constraints-marketplace-service">Financial Constraints (marketplace-service)<a class="headerlink" href="#financial-constraints-marketplace-service" title="Permanent link">&para;</a></h3>
+<p>New CHECK constraints on financial tables:
+- Wallet balance ≥ 0
+- Transaction amount &gt; 0
+- Prevents negative balance and zero-amount transactions</p>
+<h3 id="schema-changes">Schema Changes<a class="headerlink" href="#schema-changes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Change</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>research-core</code></td>
+<td><code>onDelete: Cascade</code> → <code>SetNull</code> on optional relations</td>
+<td>Prevent unintended data loss</td>
+</tr>
+<tr>
+<td><code>inventory-service</code></td>
+<td>FK StockTransfer→InventoryItem with <code>onDelete: Restrict</code></td>
+<td>Prevent orphaned transfers</td>
+</tr>
+<tr>
+<td><code>hydrology-service</code></td>
+<td><code>tenant_id</code> made NOT NULL (backfill existing NULLs)</td>
+<td>Enforce tenant data integrity</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-infrastructure-2-commits">3. Infrastructure (2 commits)<a class="headerlink" href="#3-infrastructure-2-commits" title="Permanent link">&para;</a></h2>
+<h3 id="cicd-job-timeouts">CI/CD Job Timeouts<a class="headerlink" href="#cicd-job-timeouts" title="Permanent link">&para;</a></h3>
+<p>Added <code>timeout-minutes</code> to 17 GitHub Actions workflows to prevent hung jobs:</p>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>Timeout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load-testing.yml</code></td>
+<td>30 min</td>
+</tr>
+<tr>
+<td><code>mobile-ci.yml</code></td>
+<td>20 min</td>
+</tr>
+<tr>
+<td><code>release.yml</code></td>
+<td>30 min</td>
+</tr>
+<tr>
+<td><code>test.yml</code></td>
+<td>20 min</td>
+</tr>
+<tr>
+<td><code>security-audit.yml</code></td>
+<td>30 min</td>
+</tr>
+<tr>
+<td><code>ci-yolo26-vision.yml</code></td>
+<td>25 min</td>
+</tr>
+<tr>
+<td><code>ci-terrain-services.yml</code></td>
+<td>20 min</td>
+</tr>
+<tr>
+<td><code>ci-edge-orchestrator.yml</code></td>
+<td>20 min</td>
+</tr>
+<tr>
+<td>...and 9 more</td>
+<td>15-30 min</td>
+</tr>
+</tbody>
+</table>
+<h3 id="networkpolicy-templates-7-services">NetworkPolicy Templates (7 services)<a class="headerlink" href="#networkpolicy-templates-7-services" title="Permanent link">&para;</a></h3>
+<p>New Kubernetes NetworkPolicies for network isolation:</p>
+<ul>
+<li><code>crop-intelligence-service</code></li>
+<li><code>edge-orchestrator-service</code></li>
+<li><code>hydrology-service</code></li>
+<li><code>inventory-service</code></li>
+<li><code>leveling-optimizer-service</code></li>
+<li><code>terrain-core-service</code></li>
+<li><code>yolo26-vision-service</code></li>
+</ul>
+<h3 id="vision-service-monitoring-11-alerts">Vision Service Monitoring (11 alerts)<a class="headerlink" href="#vision-service-monitoring-11-alerts" title="Permanent link">&para;</a></h3>
+<p>New Prometheus alert rules in <code>vision-alerts.yml</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Alerts</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Availability (3)</td>
+<td>Service down, high latency (&gt;5s), high error rate (&gt;5%)</td>
+<td></td>
+</tr>
+<tr>
+<td>Detection Quality (3)</td>
+<td>Low confidence (&lt;0.3), high false positive rate, model load failure</td>
+<td></td>
+</tr>
+<tr>
+<td>GPU Resources (3)</td>
+<td>GPU memory &gt;90%, &gt;95% critical, batch queue backlog</td>
+<td></td>
+</tr>
+<tr>
+<td>Critical Pest (2)</td>
+<td>RPW/Locust detection alert, disease outbreak pattern</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="supply-chain-security">Supply Chain Security<a class="headerlink" href="#supply-chain-security" title="Permanent link">&para;</a></h3>
+<p>Pinned <code>trivy-action</code> to verified SHA (<code>6e7e780</code>) in <code>quality-orchestrator.yml</code>
+to mitigate the March 19, 2026 tag hijack attack (76 of 77 tags compromised).</p>
+<hr />
+<h2 id="4-api-service-fixes-2-commits">4. API &amp; Service Fixes (2 commits)<a class="headerlink" href="#4-api-service-fixes-2-commits" title="Permanent link">&para;</a></h2>
+<h3 id="input-validation">Input Validation<a class="headerlink" href="#input-validation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drone-service</code></td>
+<td><code>offset: Query(0, ge=0)</code>, <code>limit: Query(500, ge=1, le=1000)</code></td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>Pydantic models for USSD, SMS, WhatsApp endpoints</td>
+</tr>
+</tbody>
+</table>
+<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>Return 413 for oversized payloads (was 200), return 400 for invalid JSON</td>
+</tr>
+<tr>
+<td><code>task-service</code></td>
+<td>Fix <code>/health</code> endpoint crash (readiness_check returns JSONResponse, not dict)</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>Fix <code>RateLimiter()</code> init with unsupported keyword args</td>
+</tr>
+</tbody>
+</table>
+<h3 id="health-check-improvements">Health Check Improvements<a class="headerlink" href="#health-check-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task-service</code></td>
+<td><code>/readyz</code> now actually verifies DB connectivity (returns 503 when unhealthy)</td>
+</tr>
+<tr>
+<td><code>task-service</code></td>
+<td><code>/health</code> extracts payload from JSONResponse correctly</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="review-findings-addressed">Review Findings Addressed<a class="headerlink" href="#review-findings-addressed" title="Permanent link">&para;</a></h2>
+<h3 id="high-confidence-from-codeql-copilot">High-Confidence (from CodeQL &amp; Copilot)<a class="headerlink" href="#high-confidence-from-codeql-copilot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Severity</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RateLimiter wrong keyword args</td>
+<td>Error</td>
+<td>Use default constructor</td>
+</tr>
+<tr>
+<td>Cross-tenant session UUID collision</td>
+<td>Critical</td>
+<td>Include tenant_id in UUID seed</td>
+</tr>
+<tr>
+<td>RLS variable name mismatches (×4)</td>
+<td>High</td>
+<td>Align with tenant_connection.py</td>
+</tr>
+<tr>
+<td>readiness_check return type mismatch</td>
+<td>High</td>
+<td>Extract payload via helper</td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-confidence-verified-and-fixed">Low-Confidence (verified and fixed)<a class="headerlink" href="#low-confidence-verified-and-fixed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Real?</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty string → uuid cast in RLS</td>
+<td>Yes</td>
+<td>Added <code>nullif()</code> wrapper</td>
+</tr>
+<tr>
+<td>drone-service negative offset</td>
+<td>Yes</td>
+<td>Added <code>Query(ge=0)</code> validation</td>
+</tr>
+<tr>
+<td>ussd-gateway json.loads + 413</td>
+<td>Yes</td>
+<td>Added error handling + proper status codes</td>
+</tr>
+<tr>
+<td>provider-config cross-tenant reads</td>
+<td>Yes</td>
+<td>Added tenant_id to get_config_version</td>
+</tr>
+<tr>
+<td>research-core cascade on optional</td>
+<td>Yes</td>
+<td>Changed to SetNull</td>
+</tr>
+<tr>
+<td>hydrology 'unknown' on UUID column</td>
+<td>No</td>
+<td>Column is VARCHAR(255), not UUID</td>
+</tr>
+<tr>
+<td>task-service sync SQLAlchemy</td>
+<td>Valid but pre-existing</td>
+<td>Not in scope</td>
+</tr>
+<tr>
+<td>NetworkPolicy egress too broad</td>
+<td>Low priority</td>
+<td>Not in scope</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="files-changed-summary">Files Changed Summary<a class="headerlink" href="#files-changed-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Files</th>
+<th>Key Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Security</td>
+<td>~20</td>
+<td>Closed 15+ cross-tenant vulnerabilities, 2 RLS migrations</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>~18</td>
+<td>16+ compound indexes, financial constraints, schema fixes</td>
+</tr>
+<tr>
+<td>Infrastructure</td>
+<td>~25</td>
+<td>17 CI timeouts, 7 NetworkPolicies, 11 monitoring alerts</td>
+</tr>
+<tr>
+<td>API/Service</td>
+<td>~7</td>
+<td>Input validation, error handling, health checks</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~70</strong></td>
+<td><strong>Comprehensive platform hardening</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last Updated: 2026-03-24</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

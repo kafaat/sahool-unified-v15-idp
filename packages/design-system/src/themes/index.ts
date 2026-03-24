@@ -47,9 +47,6 @@ import type {
   Direction,
   LayoutConfig,
   ColorCategory,
-  CropHealthLevel,
-  NDVILevel,
-  MoistureLevel,
 } from "./types";
 
 /**
@@ -393,7 +390,7 @@ export function applyTheme(mode: "light" | "dark"): void {
     const cssVariables = getThemeCSSVariables(mode);
     const varKeys = Object.keys(cssVariables) as Array<keyof typeof cssVariables>;
     varKeys.forEach((key) => {
-      root.style.setProperty(key, cssVariables[key]);
+      root.style.setProperty(key, cssVariables[key] ?? null);
     });
   }
 }

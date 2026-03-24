@@ -187,7 +187,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: isSelected ? cat.color.withOpacity(0.15) : Colors.white,
+              color: isSelected ? cat.color.withValues(alpha: 0.15) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? cat.color : Colors.grey[300]!,
@@ -290,7 +290,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: severityColor.withOpacity(0.1),
+                  color: severityColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -342,7 +342,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   // Placeholder image
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: SahoolColors.primary.withOpacity(0.1),
+                      color: SahoolColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Center(

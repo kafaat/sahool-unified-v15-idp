@@ -84,7 +84,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                                   'مشمس',
                                   style: TextStyle(
                                     fontSize: 20,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                   ),
                                 ),
                               ],
@@ -101,7 +101,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                             Text(
                               'الحقل الشمالي • صنعاء',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -348,7 +348,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
         ),
         const SizedBox(height: 16),
         OrganicCard(
-          color: SahoolColors.harvestGold.withOpacity(0.1),
+          color: SahoolColors.harvestGold.withValues(alpha: 0.1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -357,7 +357,7 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: SahoolColors.harvestGold.withOpacity(0.2),
+                      color: SahoolColors.harvestGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -542,7 +542,7 @@ class _WeatherStat extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
           ),
         ),
@@ -575,7 +575,7 @@ class _HourlyItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -648,7 +648,7 @@ class _InsightCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: statusColor),
@@ -736,10 +736,10 @@ class _DayForecast extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color:
-            isToday ? SahoolColors.forestGreen.withOpacity(0.1) : Colors.white,
+            isToday ? SahoolColors.forestGreen.withValues(alpha: 0.1) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: isToday
-            ? Border.all(color: SahoolColors.forestGreen.withOpacity(0.3))
+            ? Border.all(color: SahoolColors.forestGreen.withValues(alpha: 0.3))
             : null,
       ),
       child: Row(

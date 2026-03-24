@@ -30,6 +30,7 @@ import {
 } from "../hooks/useReports";
 import type {
   ReportHistoryFilters,
+  ReportHistoryItem,
   ReportType,
   ReportStatus,
 } from "../types/reports";
@@ -52,7 +53,7 @@ interface ReportHistoryProps {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
+const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
   fieldId,
   onViewReport,
   onShareReport,
@@ -75,7 +76,7 @@ export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
     setFilters((prev) => ({ ...prev, search }));
   };
 
-  const handleFilterChange = (key: keyof ReportHistoryFilters, value: any) => {
+  const handleFilterChange = (key: keyof ReportHistoryFilters, value: string | undefined) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -317,14 +318,17 @@ export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
       )}
     </div>
   );
-});
+};
+
+export const ReportHistory = React.memo(ReportHistoryComponent);
+ReportHistory.displayName = "ReportHistory";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Report Card Component - Memoized to prevent re-renders when sibling cards change
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface ReportCardProps {
-  report: any; // ReportHistoryItem
+  report: ReportHistoryItem;
   compact?: boolean;
   onView?: (reportId: string) => void;
   onShare?: (reportId: string) => void;
@@ -334,7 +338,7 @@ interface ReportCardProps {
   isDownloading?: boolean;
 }
 
-const ReportCard: React.FC<ReportCardProps> = React.memo(({
+const ReportCardComponent: React.FC<ReportCardProps> = ({
   report,
   compact = false,
   onView,
@@ -521,6 +525,9 @@ const ReportCard: React.FC<ReportCardProps> = React.memo(({
       )}
     </div>
   );
-});
+};
+
+const ReportCard = React.memo(ReportCardComponent);
+ReportCard.displayName = "ReportCard";
 
 export default ReportHistory;

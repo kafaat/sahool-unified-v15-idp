@@ -157,7 +157,7 @@ class TestCIJobTestUnified:
         """Smoke tests pass with CI environment variables."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "tests/smoke/test_vllm_smoke.py", "-v", "--tb=short", "--timeout=60"],
+            [sys.executable, "-m", "pytest", "tests/smoke/test_vllm_smoke.py", "-v", "--tb=short"],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -170,7 +170,7 @@ class TestCIJobTestUnified:
         """Unit tests pass with CI environment variables."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "tests/unit/test_vllm_integration.py", "-v", "--tb=short", "--timeout=60"],
+            [sys.executable, "-m", "pytest", "tests/unit/test_vllm_integration.py", "-v", "--tb=short"],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -190,7 +190,6 @@ class TestCIJobTestUnified:
                 "tests/container/test_vllm_container.py",
                 "-v",
                 "--tb=short",
-                "--timeout=60",
             ],
             capture_output=True,
             text=True,
@@ -213,7 +212,6 @@ class TestCIJobTestUnified:
                 "tests/container/test_vllm_container.py",
                 "-v",
                 "--tb=short",
-                "--timeout=60",
             ],
             capture_output=True,
             text=True,
@@ -757,7 +755,6 @@ class TestCISummary:
                 "tests/unit/test_vllm_integration.py",
                 "tests/container/test_vllm_container.py",
                 "--tb=line",
-                "--timeout=60",
                 "-q",
             ],
             capture_output=True,

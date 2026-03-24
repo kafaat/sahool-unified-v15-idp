@@ -1,61 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/research_repository.dart';
+import '../domain/research_models.dart';
 
-/// شاشة قائمة التجارب البحثية
-/// Experiments List Screen
-class ExperimentsListScreen extends StatefulWidget {
+/// شاشة قائمة التجارب البحثية - مربوطة بـ research-core API
+/// Experiments List Screen - Connected to research-core service
+class ExperimentsListScreen extends ConsumerStatefulWidget {
   const ExperimentsListScreen({super.key});
 
   @override
-  State<ExperimentsListScreen> createState() => _ExperimentsListScreenState();
+  ConsumerState<ExperimentsListScreen> createState() =>
+      _ExperimentsListScreenState();
 }
 
-class _ExperimentsListScreenState extends State<ExperimentsListScreen>
+class _ExperimentsListScreenState extends ConsumerState<ExperimentsListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // Demo data
-  final List<Experiment> _experiments = [
-    Experiment(
-      id: '1',
-      title: 'تجربة أصناف القمح المقاومة للجفاف',
-      titleEn: 'Drought-Resistant Wheat Varieties Trial',
-      status: ExperimentStatus.active,
-      plotsCount: 15,
-      startDate: DateTime(2025, 1, 1),
-      principalResearcher: 'د. فاطمة حسن',
-      progress: 0.45,
-    ),
-    Experiment(
-      id: '2',
-      title: 'تجربة تقنيات الري الذكي',
-      titleEn: 'Smart Irrigation Techniques Trial',
-      status: ExperimentStatus.active,
-      plotsCount: 8,
-      startDate: DateTime(2025, 1, 15),
-      principalResearcher: 'أحمد الراشد',
-      progress: 0.30,
-    ),
-    Experiment(
-      id: '3',
-      title: 'تجربة الأسمدة العضوية',
-      titleEn: 'Organic Fertilizers Trial',
-      status: ExperimentStatus.draft,
-      plotsCount: 12,
-      startDate: DateTime(2025, 2, 1),
-      principalResearcher: 'د. فاطمة حسن',
-      progress: 0.0,
-    ),
-    Experiment(
-      id: '4',
-      title: 'تجربة مقاومة الآفات الطبيعية',
-      titleEn: 'Natural Pest Resistance Trial',
-      status: ExperimentStatus.completed,
-      plotsCount: 10,
-      startDate: DateTime(2024, 6, 1),
-      principalResearcher: 'محمد علي',
-      progress: 1.0,
-    ),
-  ];
 
   @override
   void initState() {
@@ -69,16 +29,19 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
     super.dispose();
   }
 
-  List<Experiment> _getFilteredExperiments(ExperimentStatus? status) {
-    if (status == null) return _experiments;
-    return _experiments.where((e) => e.status == status).toList();
+  List<Experiment> _getFilteredExperiments(
+      List<Experiment> all, ExperimentStatus? status) {
+    if (status == null) return all;
+    return all.where((e) => e.status == status).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final experimentsAsync = ref.watch(experimentsProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('التجارب البحثية 🔬'),
+        title: const Text('التجارب البحثية'),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -96,21 +59,52 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
+              final experiments = experimentsAsync.valueOrNull ?? [];
               showSearch(
                 context: context,
-                delegate: _ExperimentSearchDelegate(experiments: _experiments),
+                delegate:
+                    _ExperimentSearchDelegate(experiments: experiments),
               );
             },
           ),
         ],
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildExperimentsList(null),
-          _buildExperimentsList(ExperimentStatus.active),
-          _buildExperimentsList(ExperimentStatus.completed),
-        ],
+      body: experimentsAsync.when(
+        data: (experiments) => TabBarView(
+          controller: _tabController,
+          children: [
+            _buildExperimentsList(experiments, null),
+            _buildExperimentsList(experiments, ExperimentStatus.active),
+            _buildExperimentsList(experiments, ExperimentStatus.completed),
+          ],
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Colors.indigo),
+        ),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                error.toString(),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(experimentsProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToCreateExperiment(),
@@ -122,8 +116,9 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
     );
   }
 
-  Widget _buildExperimentsList(ExperimentStatus? status) {
-    final experiments = _getFilteredExperiments(status);
+  Widget _buildExperimentsList(
+      List<Experiment> allExperiments, ExperimentStatus? status) {
+    final experiments = _getFilteredExperiments(allExperiments, status);
 
     if (experiments.isEmpty) {
       return Center(
@@ -141,15 +136,18 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: experiments.length,
-      itemBuilder: (context, index) {
-        return _ExperimentCard(
-          experiment: experiments[index],
-          onTap: () => _navigateToExperiment(experiments[index]),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: () => ref.refresh(experimentsProvider.future),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: experiments.length,
+        itemBuilder: (context, index) {
+          return _ExperimentCard(
+            experiment: experiments[index],
+            onTap: () => _navigateToExperiment(experiments[index]),
+          );
+        },
+      ),
     );
   }
 
@@ -170,11 +168,9 @@ class _ExperimentsListScreenState extends State<ExperimentsListScreen>
       ),
     );
 
-    // Handle navigation result if experiment was created
+    // Refresh experiments list if a new experiment was created
     if (result != null && mounted) {
-      setState(() {
-        _experiments.insert(0, result);
-      });
+      ref.invalidate(experimentsProvider);
     }
   }
 }
@@ -240,16 +236,14 @@ class _ExperimentCard extends StatelessWidget {
               // Info Row
               Row(
                 children: [
-                  Icon(Icons.person_outline,
-                      size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.person_outline, size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
                     experiment.principalResearcher,
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                   const SizedBox(width: 16),
-                  Icon(Icons.calendar_today,
-                      size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
                     _formatDate(experiment.startDate),
@@ -269,8 +263,7 @@ class _ExperimentCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: experiment.progress,
                           backgroundColor: Colors.grey.shade200,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.indigo),
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.indigo),
                           minHeight: 6,
                         ),
                       ),
@@ -310,9 +303,9 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: config.color.withOpacity(0.1),
+        color: config.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: config.color.withOpacity(0.3)),
+        border: Border.all(color: config.color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -377,8 +370,7 @@ class ExperimentDetailsScreen extends StatelessWidget {
                 final result = await Navigator.push<Experiment>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        EditExperimentScreen(experiment: experiment),
+                    builder: (context) => EditExperimentScreen(experiment: experiment),
                   ),
                 );
                 // Handle result when returning - pop details screen if experiment was updated
@@ -397,8 +389,7 @@ class ExperimentDetailsScreen extends StatelessWidget {
           children: [
             // Title Card
             Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -548,14 +539,11 @@ class ExperimentDetailsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         // Demo plots list
-        ...List.generate(
-            3,
-            (index) => _PlotListItem(
-                  plotCode: 'B-${(index + 1).toString().padLeft(2, '0')}',
-                  treatmentCode: 'T${index + 1}',
-                  lastObservation:
-                      DateTime.now().subtract(Duration(days: index)),
-                )),
+        ...List.generate(3, (index) => _PlotListItem(
+          plotCode: 'B-${(index + 1).toString().padLeft(2, '0')}',
+          treatmentCode: 'T${index + 1}',
+          lastObservation: DateTime.now().subtract(Duration(days: index)),
+        )),
       ],
     );
   }
@@ -577,7 +565,7 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -679,7 +667,7 @@ class _PlotListItem extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.indigo.withOpacity(0.1),
+            color: Colors.indigo.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.grid_view, color: Colors.indigo),
@@ -710,38 +698,6 @@ class _PlotListItem extends StatelessWidget {
       ),
     );
   }
-}
-
-// ============ Models ============
-
-enum ExperimentStatus {
-  draft,
-  active,
-  paused,
-  completed,
-  locked,
-}
-
-class Experiment {
-  final String id;
-  final String title;
-  final String titleEn;
-  final ExperimentStatus status;
-  final int plotsCount;
-  final DateTime startDate;
-  final String principalResearcher;
-  final double progress;
-
-  Experiment({
-    required this.id,
-    required this.title,
-    required this.titleEn,
-    required this.status,
-    required this.plotsCount,
-    required this.startDate,
-    required this.principalResearcher,
-    required this.progress,
-  });
 }
 
 // ============ Placeholder Screens ============
@@ -944,7 +900,7 @@ class _SearchResultCard extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.indigo.withOpacity(0.1),
+            color: Colors.indigo.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.science, color: Colors.indigo),
@@ -964,8 +920,7 @@ class _SearchResultCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.person_outline,
-                    size: 14, color: Colors.grey.shade500),
+                Icon(Icons.person_outline, size: 14, color: Colors.grey.shade500),
                 const SizedBox(width: 4),
                 Text(
                   experiment.principalResearcher,

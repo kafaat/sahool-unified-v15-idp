@@ -49,8 +49,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["NDVI Integration"])
 
 
-async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
-    """Extract tenant ID from request header"""
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+) -> str:
+    """Extract and validate tenant ID from request header.
+    استخراج والتحقق من معرّف المستأجر من ترويسة الطلب.
+    """
+    if not x_tenant_id or x_tenant_id == "default":
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id header is required | ترويسة معرّف المستأجر مطلوبة",
+        )
     return x_tenant_id
 
 

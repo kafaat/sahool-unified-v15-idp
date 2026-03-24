@@ -40,8 +40,8 @@ class DriftRiskCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                _getRiskColor(riskLevel).withOpacity(0.1),
-                _getRiskColor(riskLevel).withOpacity(0.05),
+                _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                _getRiskColor(riskLevel).withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -83,7 +83,7 @@ class DriftRiskCard extends StatelessWidget {
                       ? 'مستوى الخطر: $riskScore/100'
                       : 'Risk Level: $riskScore/100',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
 
@@ -271,9 +271,9 @@ class DriftRiskCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,10 +370,10 @@ class CompactDriftRiskIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getRiskColor(riskLevel).withOpacity(0.1),
+        color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getRiskColor(riskLevel).withOpacity(0.5),
+          color: _getRiskColor(riskLevel).withValues(alpha: 0.5),
         ),
       ),
       child: Row(

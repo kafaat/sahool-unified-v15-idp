@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
@@ -107,6 +108,115 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Migrations
+# ═══════════════════════════════════════════════════════════════════════════════
+
+MIGRATIONS = [
+    Migration(
+        version=1,
+        description="Create crop_health_observations table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_health_observations (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                zone_id VARCHAR(255) NOT NULL,
+                captured_at TIMESTAMP WITH TIME ZONE,
+                source VARCHAR(50),
+                growth_stage VARCHAR(50),
+                ndvi FLOAT,
+                evi FLOAT,
+                ndre FLOAT,
+                lci FLOAT,
+                ndwi FLOAT,
+                savi FLOAT,
+                cloud_pct FLOAT DEFAULT 0,
+                notes TEXT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_health_observations",
+    ),
+    Migration(
+        version=2,
+        description="Create crop_zones table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_zones (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                zone_id VARCHAR(255) NOT NULL,
+                field_id VARCHAR(255) NOT NULL,
+                name VARCHAR(255),
+                name_ar VARCHAR(255),
+                geometry JSONB,
+                area_hectares FLOAT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                UNIQUE(zone_id, field_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_zones",
+    ),
+    Migration(
+        version=3,
+        description="Create disease_detections table",
+        up="""
+            CREATE TABLE IF NOT EXISTS disease_detections (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                disease_name VARCHAR(255) NOT NULL,
+                disease_name_ar VARCHAR(255),
+                confidence FLOAT,
+                severity VARCHAR(50),
+                detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                tenant_id VARCHAR(255)
+            )
+        """,
+        down="DROP TABLE IF EXISTS disease_detections",
+    ),
+    Migration(
+        version=4,
+        description="Create processed_events table for NATS idempotency",
+        up="""
+            CREATE TABLE IF NOT EXISTS processed_events (
+                tenant_id      TEXT        NOT NULL DEFAULT '_global',
+                event_id       TEXT        NOT NULL,
+                subject        TEXT        NOT NULL,
+                service        TEXT        NOT NULL,
+                correlation_id TEXT,
+                status         TEXT        NOT NULL DEFAULT 'processed',
+                processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                PRIMARY KEY (tenant_id, event_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS processed_events",
+    ),
+    Migration(
+        version=5,
+        description="Add indexes for observations, zones, diseases, and events",
+        up="""
+            CREATE INDEX IF NOT EXISTS idx_observations_field_zone
+                ON crop_health_observations(field_id, zone_id);
+            CREATE INDEX IF NOT EXISTS idx_zones_field
+                ON crop_zones(field_id);
+            CREATE INDEX IF NOT EXISTS idx_disease_field
+                ON disease_detections(field_id);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
+                ON processed_events (processed_at);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
+                ON processed_events (correlation_id)
+                WHERE correlation_id IS NOT NULL;
+        """,
+        down="""
+            DROP INDEX IF EXISTS idx_processed_events_correlation;
+            DROP INDEX IF EXISTS idx_processed_events_ttl;
+            DROP INDEX IF EXISTS idx_disease_field;
+            DROP INDEX IF EXISTS idx_zones_field;
+            DROP INDEX IF EXISTS idx_observations_field_zone;
+        """,
+    ),
+]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Feature Schema Definition (v1.0)
@@ -586,90 +696,10 @@ async def lifespan(app: FastAPI):
             app.state.db_connected = True
             logger.info("Connected to database")
 
-            # Create tables if not exist
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_health_observations (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        zone_id VARCHAR(255) NOT NULL,
-                        captured_at TIMESTAMP WITH TIME ZONE,
-                        source VARCHAR(50),
-                        growth_stage VARCHAR(50),
-                        ndvi FLOAT,
-                        evi FLOAT,
-                        ndre FLOAT,
-                        lci FLOAT,
-                        ndwi FLOAT,
-                        savi FLOAT,
-                        cloud_pct FLOAT DEFAULT 0,
-                        notes TEXT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_zones (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        zone_id VARCHAR(255) NOT NULL,
-                        field_id VARCHAR(255) NOT NULL,
-                        name VARCHAR(255),
-                        name_ar VARCHAR(255),
-                        geometry JSONB,
-                        area_hectares FLOAT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        UNIQUE(zone_id, field_id)
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS disease_detections (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        disease_name VARCHAR(255) NOT NULL,
-                        disease_name_ar VARCHAR(255),
-                        confidence FLOAT,
-                        severity VARCHAR(50),
-                        detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255)
-                    )
-                """)
-                # Create processed_events table for NATS subscriber idempotency (Spec §4)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS processed_events (
-                        tenant_id      TEXT        NOT NULL DEFAULT '_global',
-                        event_id       TEXT        NOT NULL,
-                        subject        TEXT        NOT NULL,
-                        service        TEXT        NOT NULL,
-                        correlation_id TEXT,
-                        status         TEXT        NOT NULL DEFAULT 'processed',
-                        processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        PRIMARY KEY (tenant_id, event_id)
-                    )
-                """)
-                # Create indexes for faster queries
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_observations_field_zone
-                    ON crop_health_observations(field_id, zone_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_zones_field
-                    ON crop_zones(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_disease_field
-                    ON disease_detections(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
-                    ON processed_events (processed_at)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
-                    ON processed_events (correlation_id)
-                    WHERE correlation_id IS NOT NULL
-                """)
-            logger.info("Database tables initialized")
+            # Run versioned migrations
+            migration_runner = SimpleMigrationRunner(app.state.db_pool, service_name="crop-intelligence-service")
+            await migration_runner.run(MIGRATIONS)
+            logger.info("Database migrations applied")
         except Exception as e:
             logger.warning("Failed to connect to database", error=str(e))
             app.state.db_pool = None
@@ -1001,12 +1031,17 @@ async def publish_disease_detected(
     confidence: float,
     severity: str | None = None,
     zone_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Publish disease detection event
     نشر حدث اكتشاف مرض
 
-    Subject: sahool.crop.disease_detected
+    Uses tenant-scoped subject when tenant_id is available for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Subject (global): sahool.crop.disease_detected
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.disease_detected
     """
     data = {
         "field_id": field_id,
@@ -1014,9 +1049,19 @@ async def publish_disease_detected(
         "confidence": confidence,
         "severity": severity,
         "zone_id": zone_id,
+        "tenant_id": tenant_id,
         "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
-    return await publish_event("sahool.crop.disease_detected", data)
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        subject = get_tenant_subject(tenant_id, "crop", "disease_detected")
+    else:
+        # TODO: Ensure tenant_id is always passed for full tenant isolation
+        # TODO: التأكد من تمرير معرف المستأجر دائماً لعزل البيانات الكامل
+        subject = "sahool.crop.disease_detected"
+    return await publish_event(subject, data)
 
 
 async def publish_health_assessed(
@@ -1025,12 +1070,17 @@ async def publish_health_assessed(
     health_score_ar: str,
     issues: list[str],
     zone_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Publish health assessment event
     نشر حدث تقييم الصحة
 
-    Subject: sahool.crop.health_assessed
+    Uses tenant-scoped subject when tenant_id is available for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Subject (global): sahool.crop.health_assessed
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.health_assessed
     """
     data = {
         "field_id": field_id,
@@ -1038,9 +1088,19 @@ async def publish_health_assessed(
         "health_score_ar": health_score_ar,
         "issues": issues,
         "zone_id": zone_id,
+        "tenant_id": tenant_id,
         "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
-    return await publish_event("sahool.crop.health_assessed", data)
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        subject = get_tenant_subject(tenant_id, "crop", "health_assessed")
+    else:
+        # TODO: Ensure tenant_id is always passed for full tenant isolation
+        # TODO: التأكد من تمرير معرف المستأجر دائماً لعزل البيانات الكامل
+        subject = "sahool.crop.health_assessed"
+    return await publish_event(subject, data)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1593,6 +1653,7 @@ async def detect_crop_diseases(
                 disease=detection.disease_type.value,
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
+                tenant_id=tenant_id,
             )
             # Store in database with tenant isolation
             await db_store_disease_detection(
@@ -1611,6 +1672,7 @@ async def detect_crop_diseases(
             health_score=health_en,
             health_score_ar=health_ar,
             issues=issues,
+            tenant_id=tenant_id,
         )
 
     return {
@@ -1643,6 +1705,9 @@ async def analyze_zone_diseases(
     humidity_pct: float | None = Query(default=None, ge=0, le=100),
     temp_c: float | None = Query(default=None, ge=-50, le=60),
     crop_type: CropType = Query(default=CropType.UNKNOWN),
+    tenant_id: str | None = Query(
+        default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
+    ),
 ):
     """
     تحليل أمراض المنطقة من آخر رصد
@@ -1679,7 +1744,8 @@ async def analyze_zone_diseases(
 
     health_en, health_ar = get_overall_health_status(detections)
 
-    # Publish disease detection events to NATS
+    # Publish disease detection events to NATS with tenant isolation
+    # نشر أحداث اكتشاف الأمراض مع عزل المستأجر
     if detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1688,6 +1754,7 @@ async def analyze_zone_diseases(
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
                 zone_id=zone_id,
+                tenant_id=tenant_id,
             )
 
     # Publish health assessment event
@@ -1698,6 +1765,7 @@ async def analyze_zone_diseases(
         health_score_ar=health_ar,
         issues=issues,
         zone_id=zone_id,
+        tenant_id=tenant_id,
     )
 
     # Get zone metadata
@@ -2169,6 +2237,9 @@ async def comprehensive_analysis(
     humidity_pct: float = Query(default=50, ge=0, le=100),
     field_area_hectares: float = Query(default=1.0, gt=0),
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    tenant_id: str | None = Query(
+        default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
+    ),
 ):
     """تحليل شامل للحقل"""
     try:
@@ -2231,6 +2302,7 @@ async def comprehensive_analysis(
         overall_status = "good"
 
     if field_id:
+        # Publish events with tenant isolation | نشر الأحداث مع عزل المستأجر
         if diseases:
             for disease in diseases:
                 await publish_disease_detected(
@@ -2238,6 +2310,7 @@ async def comprehensive_analysis(
                     disease=disease.disease_type.value,
                     confidence=disease.confidence,
                     severity=disease.severity.value if disease.severity else None,
+                    tenant_id=tenant_id,
                 )
 
         all_issues = []
@@ -2250,6 +2323,7 @@ async def comprehensive_analysis(
             health_score=overall_status,
             health_score_ar=health_ar,
             issues=all_issues,
+            tenant_id=tenant_id,
         )
 
     return {

@@ -40,7 +40,7 @@ class LunarMansionCard extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -70,7 +70,7 @@ class LunarMansionCard extends StatelessWidget {
                       Text(
                         mansion.nameEn,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -81,7 +81,7 @@ class LunarMansionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: scoreColor.withOpacity(0.3),
+                    color: scoreColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: scoreColor, width: 2),
                   ),
@@ -156,7 +156,7 @@ class LunarMansionCard extends StatelessWidget {
                         .map((crop) => Chip(
                               label: Text(crop),
                               backgroundColor:
-                                  Colors.green.withOpacity(0.1),
+                                  Colors.green.withValues(alpha: 0.1),
                             ))
                         .toList(),
                   ),
@@ -176,7 +176,7 @@ class LunarMansionCard extends StatelessWidget {
                     children: mansion.activities
                         .map((activity) => Chip(
                               label: Text(activity),
-                              backgroundColor: Colors.blue.withOpacity(0.1),
+                              backgroundColor: Colors.blue.withValues(alpha: 0.1),
                             ))
                         .toList(),
                   ),
@@ -196,7 +196,7 @@ class LunarMansionCard extends StatelessWidget {
                     children: mansion.avoid
                         .map((item) => Chip(
                               label: Text(item),
-                              backgroundColor: Colors.red.withOpacity(0.1),
+                              backgroundColor: Colors.red.withValues(alpha: 0.1),
                             ))
                         .toList(),
                   ),
@@ -210,9 +210,9 @@ class LunarMansionCard extends StatelessWidget {
   }
 
   Color _getScoreColor(int score) {
-    if (score >= 80) return Colors.green;
-    if (score >= 60) return Colors.lightGreen;
-    if (score >= 40) return Colors.orange;
+    if (score >= 8) return Colors.green;
+    if (score >= 6) return Colors.lightGreen;
+    if (score >= 4) return Colors.orange;
     return Colors.red;
   }
 }
@@ -235,7 +235,7 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

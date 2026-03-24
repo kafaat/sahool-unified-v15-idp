@@ -196,4 +196,6 @@ export const PermissionsMatrix: React.FC<PermissionsMatrixProps> = React.memo(({
   );
 });
 
+PermissionsMatrix.displayName = "PermissionsMatrix";
+
 export default PermissionsMatrix;

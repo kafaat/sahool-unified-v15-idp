@@ -200,7 +200,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -233,7 +233,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.blue),
                     ),
@@ -268,8 +268,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     return Chip(
       avatar: Icon(icon, size: 16, color: color),
       label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
+      backgroundColor: color.withValues(alpha: 0.1),
+      side: BorderSide(color: color.withValues(alpha: 0.3)),
       padding: EdgeInsets.zero,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
@@ -356,7 +356,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         onPressed: onPressed,
         style: IconButton.styleFrom(
           backgroundColor:
-              isActive ? color.withOpacity(0.1) : Colors.transparent,
+              isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
         ),
       ),
     );
@@ -377,7 +377,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF367C2B).withOpacity(0.1),
+                    color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -707,7 +707,7 @@ class _MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.green.withOpacity(0.1)
+      ..color = Colors.green.withValues(alpha: 0.1)
       ..strokeWidth = 1;
 
     // رسم خطوط أفقية
@@ -730,7 +730,7 @@ class _MapGridPainter extends CustomPainter {
 
     // رسم بعض المربعات لمحاكاة الحقول
     final fieldPaint = Paint()
-      ..color = Colors.green.withOpacity(0.3)
+      ..color = Colors.green.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     final fieldRects = [

@@ -10,7 +10,8 @@ export type { Column, EnhancedDataTableProps, SortDirection } from "./EnhancedDa
 
 // Status indicators
 export { default as StatCard } from "./StatCard";
-export { default as StatusBadge } from "./StatusBadge";
+export { StatusBadge } from "./StatusBadge";
+export type { StatusBadgeProps } from "./StatusBadge";
 export { default as AlertBadge } from "./AlertBadge";
 
 // Navigation

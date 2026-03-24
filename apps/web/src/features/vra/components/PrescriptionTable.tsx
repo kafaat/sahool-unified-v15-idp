@@ -324,4 +324,6 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = React.memo(({
   );
 });
 
+PrescriptionTable.displayName = "PrescriptionTable";
+
 export default PrescriptionTable;

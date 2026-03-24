@@ -80,7 +80,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
     try {
       final controller = ref.read(fieldControllerProvider(_tenantId).notifier);
       final field = controller.getFieldById(widget.fieldId!);
-      if (field != null) {
+      if (field != null && mounted) {
         setState(() {
           _nameController.text = field.name;
           _selectedCrop = field.cropType;
@@ -106,6 +106,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
 
       await _loadCrops();
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _cropsError = 'فشل تحميل قائمة المحاصيل';
         _isLoadingCrops = false;
@@ -114,6 +115,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   }
 
   Future<void> _loadCrops() async {
+    if (!mounted) return;
     setState(() {
       _isLoadingCrops = true;
       _cropsError = null;
@@ -121,11 +123,13 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
 
     try {
       final crops = await _cropsRepository.getAllCrops();
+      if (!mounted) return;
       setState(() {
         _crops = crops;
         _isLoadingCrops = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _cropsError = 'فشل تحميل قائمة المحاصيل';
         _isLoadingCrops = false;
@@ -522,8 +526,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   Widget _buildMapCard() {
     return OrganicCard(
       color: _hasBoundary
-          ? SahoolColors.sageGreen.withOpacity(0.1)
-          : SahoolColors.paleOlive.withOpacity(0.5),
+          ? SahoolColors.sageGreen.withValues(alpha: 0.1)
+          : SahoolColors.paleOlive.withValues(alpha: 0.5),
       child: Column(
         children: [
           Icon(

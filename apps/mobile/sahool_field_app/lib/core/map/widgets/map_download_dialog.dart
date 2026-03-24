@@ -44,7 +44,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.1),
+                    color: SahoolColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child:
@@ -137,7 +137,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? SahoolColors.primary.withOpacity(0.1)
+                      ? SahoolColors.primary.withValues(alpha: 0.1)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
@@ -331,7 +331,7 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
 Future<void> showMapDownloadDialog(BuildContext context) async {
   final mapManager = OfflineMapManager();
 
-  await showDialog(
+  await showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (context) => MapDownloadDialog(mapManager: mapManager),

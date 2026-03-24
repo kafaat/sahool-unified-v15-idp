@@ -43,6 +43,7 @@ const nextConfig = {
     "@sahool/shared-types",
     "@sahool/api-client",
     "@sahool/i18n",
+    "@sahool/design-system",
   ],
 
   // ESLint errors must be fixed before build succeeds

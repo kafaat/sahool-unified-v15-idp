@@ -252,7 +252,7 @@ class _MapScreenState extends State<MapScreen> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: field.statusColor.withOpacity(0.4),
+                          color: field.statusColor.withValues(alpha: 0.4),
                           blurRadius: 12,
                           spreadRadius: 2,
                         ),
@@ -406,7 +406,7 @@ class _MapScreenState extends State<MapScreen> {
       label: Text(label),
       selected: isSelected,
       onSelected: (_) {},
-      selectedColor: SahoolColors.primary.withOpacity(0.2),
+      selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
       checkmarkColor: SahoolColors.primary,
     );
   }
@@ -486,7 +486,7 @@ class _MapScreenState extends State<MapScreen> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? SahoolColors.primary.withOpacity(0.1)
+                        ? SahoolColors.primary.withValues(alpha: 0.1)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -617,7 +617,7 @@ class _MapScreenState extends State<MapScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),

@@ -31,7 +31,6 @@ class OutboxProcessor {
   bool _isProcessing = false;
   bool _isPaused = false;
   int _consecutiveFailures = 0;
-  DateTime? _lastProcessTime;
   Timer? _processTimer;
   Timer? _retryTimer;
   StreamSubscription<bool>? _connectivitySubscription;
@@ -220,7 +219,7 @@ class OutboxProcessor {
 
         // Add delay between items to respect rate limits
         if (processed > 0) {
-          await Future.delayed(config.itemDelay);
+          await Future<void>.delayed(config.itemDelay);
         }
 
         final result = await _processEntry(entry);
@@ -253,13 +252,11 @@ class OutboxProcessor {
           case ProcessEntryStatus.rateLimited:
             // Stop processing and wait
             AppLogger.w('Rate limited, pausing processing', tag: 'PROCESSOR');
-            await Future.delayed(config.rateLimitDelay);
+            await Future<void>.delayed(config.rateLimitDelay);
             skipped++;
             break;
         }
       }
-
-      _lastProcessTime = DateTime.now();
 
       final success = failed == 0;
       final state =
@@ -319,37 +316,36 @@ class OutboxProcessor {
       }
 
       // Make API request
-      dynamic response;
       switch (entry.method.toUpperCase()) {
         case 'POST':
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PUT':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PATCH':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'DELETE':
-          response = await _apiClient.delete(
+          await _apiClient.delete(
             entry.apiEndpoint,
             headers: headers,
           );
           break;
         default:
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,

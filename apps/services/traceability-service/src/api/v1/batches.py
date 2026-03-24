@@ -260,7 +260,9 @@ async def list_batches(req: Request, tenant_id: str = Depends(get_tenant_id), fa
 
 
 @router.put("/batches/{batch_id}")
-async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def update_batch(
+    batch_id: str, request: BatchUpdateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Update batch details - تحديث تفاصيل الدفعة"""
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id, tenant_id)
@@ -291,7 +293,9 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request,
 
 
 @router.post("/batches/{batch_id}/events/harvest")
-async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def record_harvest_event(
+    batch_id: str, request: HarvestEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record harvest event - تسجيل حدث الحصاد"""
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id, tenant_id)
@@ -325,7 +329,9 @@ async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req:
 
 
 @router.post("/batches/{batch_id}/events/processing")
-async def record_processing_event(batch_id: str, request: ProcessingEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def record_processing_event(
+    batch_id: str, request: ProcessingEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record processing event - تسجيل حدث المعالجة"""
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id, tenant_id)
@@ -354,7 +360,9 @@ async def record_processing_event(batch_id: str, request: ProcessingEventRequest
 
 
 @router.post("/batches/{batch_id}/events/storage")
-async def record_storage_event(batch_id: str, request: StorageEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def record_storage_event(
+    batch_id: str, request: StorageEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record storage event - تسجيل حدث التخزين"""
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id, tenant_id)
@@ -383,7 +391,9 @@ async def record_storage_event(batch_id: str, request: StorageEventRequest, req:
 
 
 @router.post("/batches/{batch_id}/events/transport")
-async def record_transport_event(batch_id: str, request: TransportEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def record_transport_event(
+    batch_id: str, request: TransportEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record transport event - تسجيل حدث النقل"""
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id, tenant_id)
@@ -657,7 +667,13 @@ class RecallInitiateRequest(BaseModel):
 
 
 @router.post("/batches/{batch_id}/recall")
-async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)):
+async def initiate_recall(
+    batch_id: str,
+    request: RecallInitiateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(get_current_user),
+):
     """Initiate product recall - بدء استرجاع المنتج (GS1 EPCIS compliant)"""
     pool = await _get_db(req)
     batch = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))

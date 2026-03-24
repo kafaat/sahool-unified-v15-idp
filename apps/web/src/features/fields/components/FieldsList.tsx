@@ -57,6 +57,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({
             <input
               type="text"
               placeholder="ابحث عن حقل... | Search fields..."
+              aria-label="ابحث عن حقل | Search fields"
               className="w-full pr-10 pl-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
               onChange={(e) => handleSearch(e.target.value)}
             />
@@ -65,24 +66,30 @@ export const FieldsList: React.FC<FieldsListProps> = ({
 
         <div className="flex items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg" role="group" aria-label="وضع العرض | View mode">
             <button
               onClick={() => setViewMode("grid")}
+              aria-label="عرض شبكي | Grid view"
+              aria-pressed={viewMode === "grid"}
               className={`p-2 rounded ${viewMode === "grid" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
-              <Grid3x3 className="w-5 h-5" />
+              <Grid3x3 className="w-5 h-5" aria-hidden="true" />
             </button>
             <button
               onClick={() => setViewMode("list")}
+              aria-label="عرض قائمة | List view"
+              aria-pressed={viewMode === "list"}
               className={`p-2 rounded ${viewMode === "list" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
-              <List className="w-5 h-5" />
+              <List className="w-5 h-5" aria-hidden="true" />
             </button>
             <button
               onClick={() => setViewMode("map")}
+              aria-label="عرض خريطة | Map view"
+              aria-pressed={viewMode === "map"}
               className={`p-2 rounded ${viewMode === "map" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
-              <MapIcon className="w-5 h-5" />
+              <MapIcon className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 

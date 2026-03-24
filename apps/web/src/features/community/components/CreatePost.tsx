@@ -139,7 +139,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+                onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
                 placeholder="أضف وسماً..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />

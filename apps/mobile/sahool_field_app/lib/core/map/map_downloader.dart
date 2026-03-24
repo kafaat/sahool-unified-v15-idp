@@ -37,8 +37,8 @@ class MapDownloader {
     required LatLngBounds bounds,
     int minZoom = 10,
     int maxZoom = 16,
-    Function(double progress)? onProgress,
-    Function(int downloaded, int total)? onTileDownloaded,
+    void Function(double progress)? onProgress,
+    void Function(int downloaded, int total)? onTileDownloaded,
   }) async {
     _isCancelled = false;
 

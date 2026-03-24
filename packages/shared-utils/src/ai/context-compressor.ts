@@ -29,8 +29,10 @@ const CHARS_PER_TOKEN_MIXED = 3.0;
 
 // Default compression ratios
 const DEFAULT_FIELD_COMPRESSION_RATIO = 0.3;
-const DEFAULT_WEATHER_COMPRESSION_RATIO = 0.4;
-const DEFAULT_HISTORY_COMPRESSION_RATIO = 0.25;
+/** Default compression ratio for weather data / نسبة ضغط بيانات الطقس الافتراضية */
+export const DEFAULT_WEATHER_COMPRESSION_RATIO = 0.4;
+/** Default compression ratio for history data / نسبة ضغط البيانات التاريخية الافتراضية */
+export const DEFAULT_HISTORY_COMPRESSION_RATIO = 0.25;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Enums & Models
@@ -160,7 +162,7 @@ export function detectPrimaryLanguage(text: string): string {
  */
 export class ContextCompressor {
   private defaultStrategy: CompressionStrategy;
-  private maxTokens: number;
+  readonly maxTokens: number;
   private preserveArabicDiacritics: boolean;
   private priorityFieldKeys: Set<string>;
   private priorityWeatherKeys: Set<string>;
@@ -660,7 +662,7 @@ export class ContextCompressor {
       if (!(action in actionGroups)) {
         actionGroups[action] = [];
       }
-      actionGroups[action].push(entry);
+      actionGroups[action]!.push(entry);
     }
 
     // Create summary entries

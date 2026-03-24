@@ -370,7 +370,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -551,7 +551,7 @@ class _StoryItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(left: 16),
+        margin: const EdgeInsetsDirectional.only(end: 16),
         child: Column(
           children: [
             Container(
@@ -630,7 +630,7 @@ class _CategoryChip extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? SahoolColors.forestGreen
-                : Colors.grey.withOpacity(0.3),
+                : Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -693,7 +693,7 @@ class _PostCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: OrganicCard(
-        color: isExpertPost ? SahoolColors.forestGreen.withOpacity(0.05) : null,
+        color: isExpertPost ? SahoolColors.forestGreen.withValues(alpha: 0.05) : null,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,7 +738,7 @@ class _PostCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: SahoolColors.forestGreen.withOpacity(0.1),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -898,7 +898,7 @@ class _NotificationItem extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: isNew
-                  ? SahoolColors.forestGreen.withOpacity(0.1)
+                  ? SahoolColors.forestGreen.withValues(alpha: 0.1)
                   : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
@@ -959,11 +959,11 @@ class _CommentItem extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isExpert
-            ? SahoolColors.forestGreen.withOpacity(0.05)
+            ? SahoolColors.forestGreen.withValues(alpha: 0.05)
             : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: isExpert
-            ? Border.all(color: SahoolColors.forestGreen.withOpacity(0.2))
+            ? Border.all(color: SahoolColors.forestGreen.withValues(alpha: 0.2))
             : null,
       ),
       child: Column(

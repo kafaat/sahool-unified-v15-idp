@@ -129,9 +129,9 @@ class NdviBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -337,7 +337,7 @@ class _NdviChartPainter extends CustomPainter {
 
     // Draw grid
     final gridPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 1;
 
     for (int i = 0; i <= 4; i++) {
@@ -356,7 +356,9 @@ class _NdviChartPainter extends CustomPainter {
     final range = maxValue - minValue;
 
     for (int i = 0; i < history.length; i++) {
-      final x = padding + chartWidth * (i / (history.length - 1));
+      final x = history.length == 1
+          ? padding + chartWidth / 2
+          : padding + chartWidth * (i / (history.length - 1));
       final normalizedY =
           range > 0 ? (history[i].value - minValue) / range : 0.5;
       final y = size.height - padding - chartHeight * normalizedY;

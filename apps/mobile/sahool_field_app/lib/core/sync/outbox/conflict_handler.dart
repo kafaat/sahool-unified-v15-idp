@@ -369,7 +369,7 @@ class ConflictHandler {
   }
 
   /// Merge arrays (union with deduplication)
-  List _mergeArrays(List local, List server) {
+  List<dynamic> _mergeArrays(List<dynamic> local, List<dynamic> server) {
     final result = <dynamic>[];
     final seen = <dynamic>{};
 
@@ -432,7 +432,6 @@ class ConflictHandler {
     required ConflictStrategy strategy,
   }) async {
     final messageAr = _getConflictMessageAr(entityType, strategy);
-    final messageEn = _getConflictMessageEn(entityType, strategy);
 
     await _db.addSyncEvent(
       tenantId: tenantId,
@@ -450,11 +449,6 @@ class ConflictHandler {
     final entityAr = _getEntityTypeAr(entityType);
     final strategyAr = _getStrategyAr(strategy);
     return 'تم اكتشاف تعارض في $entityAr. $strategyAr';
-  }
-
-  String _getConflictMessageEn(String entityType, ConflictStrategy strategy) {
-    final strategyEn = _getStrategyEn(strategy);
-    return 'Conflict detected in $entityType. $strategyEn';
   }
 
   String _getEntityTypeAr(String type) {
@@ -485,22 +479,6 @@ class ConflictHandler {
     }
   }
 
-  String _getStrategyEn(ConflictStrategy strategy) {
-    switch (strategy) {
-      case ConflictStrategy.localWins:
-        return 'Local changes kept.';
-      case ConflictStrategy.serverWins:
-        return 'Server version applied.';
-      case ConflictStrategy.lastWriteWins:
-        return 'Latest update applied.';
-      case ConflictStrategy.merge:
-        return 'Changes merged.';
-      case ConflictStrategy.fieldLevel:
-        return 'Field-level merge applied.';
-      case ConflictStrategy.custom:
-        return 'Custom rule applied.';
-    }
-  }
 }
 
 /// Conflict detection result

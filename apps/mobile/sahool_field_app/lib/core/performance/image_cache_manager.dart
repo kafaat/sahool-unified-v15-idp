@@ -104,7 +104,7 @@ class SahoolImageCacheManager {
   Future<void> preloadImages(
     List<String> urls, {
     int concurrency = 3,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     int completed = 0;
     final total = urls.length;

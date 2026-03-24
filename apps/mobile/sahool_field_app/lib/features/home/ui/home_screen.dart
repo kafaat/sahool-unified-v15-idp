@@ -53,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Row(
@@ -107,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -237,7 +237,7 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color:
-                                        SahoolColors.sageGreen.withOpacity(0.2),
+                                        SahoolColors.sageGreen.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
@@ -435,7 +435,7 @@ class HomeScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: [
@@ -501,7 +501,7 @@ class HomeScreen extends ConsumerWidget {
                 .map(
                   (f) => Polygon(
                     points: f.boundary,
-                    color: SahoolColors.harvestGold.withOpacity(0.4),
+                    color: SahoolColors.harvestGold.withValues(alpha: 0.4),
                     borderColor: Colors.white,
                     borderStrokeWidth: 2,
                   ),

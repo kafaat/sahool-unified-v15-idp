@@ -195,10 +195,10 @@ class ErrorStateWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _getErrorColor(error.severity).withOpacity(0.1),
+        color: _getErrorColor(error.severity).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _getErrorColor(error.severity).withOpacity(0.3),
+          color: _getErrorColor(error.severity).withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -255,7 +255,7 @@ class ErrorStateWidget extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _getErrorColor(error.severity).withOpacity(0.1),
+                color: _getErrorColor(error.severity).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

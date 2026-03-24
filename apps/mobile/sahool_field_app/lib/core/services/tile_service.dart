@@ -147,7 +147,7 @@ class TileService {
     required LatLngBounds bounds,
     required List<int> zoomLevels,
     double? quality,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     final startTime = DateTime.now();
     int totalTiles = 0;
@@ -254,7 +254,7 @@ class TileService {
     required double radiusKm,
     required List<int> zoomLevels,
     double? quality,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     // احسب حدود المنطقة من نصف القطر - Calculate bounds from radius
     final bounds = _boundsFromRadius(center, radiusKm);

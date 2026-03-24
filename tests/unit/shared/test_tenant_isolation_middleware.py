@@ -85,11 +85,11 @@ def user_b(tenant_b_id) -> User:
 
 @pytest.fixture
 def admin_user(tenant_a_id) -> User:
-    """Admin user belonging to tenant A but can access any tenant."""
+    """Super admin user belonging to tenant A but can access any tenant."""
     return User(
         id="admin-001",
         email="admin@sahool.app",
-        roles=["admin"],
+        roles=["super_admin"],
         tenant_id=tenant_a_id,
         permissions=["*"],
         is_active=True,

@@ -14,7 +14,6 @@ import 'offline_sync_engine.dart';
 
 class OutboxRepository {
   static const String _storageKey = 'sahool_outbox';
-  static const String _statsKey = 'sahool_outbox_stats';
   static const int _maxCompletedItems = 100;
 
   SharedPreferences? _prefs;

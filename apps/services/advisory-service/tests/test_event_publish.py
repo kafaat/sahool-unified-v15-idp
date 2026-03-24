@@ -110,7 +110,7 @@ class TestAdvisorPublisher:
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
         subject = call_args[0][0]
-        assert subject == "sahool.advisory.recommendation_issued"
+        assert subject == "sahool.tenant.t1.advisory.recommendation_issued"
 
     @pytest.mark.asyncio
     async def test_publish_auto_connects(self):

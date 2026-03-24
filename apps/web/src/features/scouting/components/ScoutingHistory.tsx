@@ -469,9 +469,6 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(({
                             {format(
                               new Date(session.startTime),
                               "MMM dd, yyyy",
-                              {
-                                locale: isArabic ? undefined : undefined,
-                              },
                             )}
                           </span>
                         </div>
@@ -634,5 +631,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(({
     </div>
   );
 });
+
+ScoutingHistory.displayName = "ScoutingHistory";
 
 export default ScoutingHistory;

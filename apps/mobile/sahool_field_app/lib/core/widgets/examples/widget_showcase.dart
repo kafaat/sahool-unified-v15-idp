@@ -254,7 +254,7 @@ class _LoadingOverlayExampleState extends State<LoadingOverlayExample> {
 
   Future<void> _performAction() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     setState(() => _isLoading = false);
   }
 
@@ -288,7 +288,7 @@ class _LoadingButtonExampleState extends State<LoadingButtonExample> {
 
   Future<void> _submit() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     setState(() => _isLoading = false);
   }
 
@@ -334,7 +334,7 @@ class AsyncBuilderExample extends StatelessWidget {
   const AsyncBuilderExample({super.key});
 
   Future<String> _fetchData() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     return 'البيانات المحملة';
   }
 
@@ -481,7 +481,7 @@ class _FieldListScreenState extends State<FieldListScreen> {
     });
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
       // Simulate loading
       setState(() {
         _fields = []; // Empty list for demonstration

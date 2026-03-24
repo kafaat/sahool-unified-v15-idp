@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
+import '../../data/models/conversation_model.dart';
 import '../../data/models/message_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/message_bubble.dart';
@@ -132,7 +133,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             padding: const EdgeInsets.only(left: 16),
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: SahoolTheme.primary.withOpacity(0.1),
+              backgroundColor: SahoolTheme.primary.withValues(alpha: 0.1),
               backgroundImage: otherParticipant?.avatarUrl != null
                   ? NetworkImage(otherParticipant!.avatarUrl!)
                   : null,
@@ -353,14 +354,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildInfoBanner(conversation) {
+  Widget _buildInfoBanner(Conversation conversation) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.1),
+        color: SahoolTheme.primary.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: SahoolTheme.primary.withOpacity(0.3),
+            color: SahoolTheme.primary.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -462,7 +463,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _handleMenuAction(String action, conversation) {
+  void _handleMenuAction(String action, Conversation conversation) {
     switch (action) {
       case 'view_profile':
         // Navigate to user profile
@@ -513,7 +514,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showBlockConfirmation(conversation) {
+  void _showBlockConfirmation(Conversation conversation) {
     final currentUserId = ref.read(chatUserIdProvider);
     final otherParticipant = conversation.getOtherParticipant(currentUserId);
 
@@ -568,7 +569,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               // Call block user API
               final success = await ref.read(chatProvider.notifier).blockUser(
                     otherParticipant.userId,
-                    conversation.id as String,
+                    conversation.id,
                   );
 
               if (!mounted) return;
@@ -608,8 +609,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Future<void> _handleMuteConversation(conversation) async {
-    final isMuted = conversation.isMuted as bool;
+  Future<void> _handleMuteConversation(Conversation conversation) async {
+    final isMuted = conversation.isMuted;
     final newMuteState = !isMuted;
 
     // Show loading indicator
@@ -636,7 +637,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
 
     final success = await ref.read(chatProvider.notifier).muteConversation(
-          conversation.id as String,
+          conversation.id,
           mute: newMuteState,
         );
 
@@ -665,7 +666,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showClearChatConfirmation(conversation) {
+  void _showClearChatConfirmation(Conversation conversation) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -706,7 +707,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
               final success = await ref
                   .read(chatProvider.notifier)
-                  .clearChatHistory(conversation.id as String);
+                  .clearChatHistory(conversation.id);
 
               if (!mounted) return;
 
@@ -740,7 +741,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  void _showReportDialog(conversation) {
+  void _showReportDialog(Conversation conversation) {
     String? selectedReason;
     final descriptionController = TextEditingController();
 
@@ -835,7 +836,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       final success = await ref
                           .read(chatProvider.notifier)
                           .reportConversation(
-                            conversation.id as String,
+                            conversation.id,
                             reason: selectedReason!,
                             description: descriptionController.text.isNotEmpty
                                 ? descriptionController.text

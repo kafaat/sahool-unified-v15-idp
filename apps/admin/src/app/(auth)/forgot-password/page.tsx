@@ -272,7 +272,7 @@ export default function ForgotPasswordPage() {
 
         {/* Footer */}
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-6">
-          © 2025 سهول - جميع الحقوق محفوظة
+          © {new Date().getFullYear()} سهول - جميع الحقوق محفوظة
         </p>
       </div>
     </div>

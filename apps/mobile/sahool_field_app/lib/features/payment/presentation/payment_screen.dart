@@ -203,7 +203,7 @@ class _TharwattBanner extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(15),
             ),
             child: const Icon(
@@ -229,7 +229,7 @@ class _TharwattBanner extends StatelessWidget {
                 Text(
                   'المدفوعات الرقمية الآمنة',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
                   ),
                 ),
@@ -239,7 +239,7 @@ class _TharwattBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.3),
+              color: Colors.green.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Row(
@@ -291,7 +291,7 @@ class _ServiceCard extends StatelessWidget {
           color: const Color(0xFF16213E),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -302,7 +302,7 @@ class _ServiceCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -320,7 +320,7 @@ class _ServiceCard extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 12,
               ),
             ),
@@ -355,13 +355,13 @@ class _RecentTransactions extends ConsumerWidget {
             Icon(
               Icons.receipt_long_outlined,
               size: 48,
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 12),
             Text(
               'لا توجد معاملات بعد',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -405,7 +405,7 @@ class _TransactionTile extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -452,7 +452,7 @@ class _TransactionTile extends StatelessWidget {
               Text(
                 _formatDate(transaction.createdAt),
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 11,
                 ),
               ),
@@ -532,7 +532,7 @@ class _DepositSheetState extends ConsumerState<_DepositSheet> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -647,15 +647,15 @@ class _DepositSheetState extends ConsumerState<_DepositSheet> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
         suffixText: suffix,
         prefixText: prefix,
         suffixStyle: const TextStyle(color: Colors.white),
         prefixStyle: const TextStyle(color: Colors.white70),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -755,7 +755,7 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.2),
+                    color: Colors.orange.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -884,15 +884,15 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
         suffixText: suffix,
         prefixText: prefix,
         suffixStyle: const TextStyle(color: Colors.white),
         prefixStyle: const TextStyle(color: Colors.white70),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -993,7 +993,7 @@ class _TransferSheetState extends ConsumerState<_TransferSheet> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -1096,15 +1096,15 @@ class _TransferSheetState extends ConsumerState<_TransferSheet> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
         suffixText: suffix,
         prefixText: prefix,
         suffixStyle: const TextStyle(color: Colors.white),
         prefixStyle: const TextStyle(color: Colors.white70),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1208,7 +1208,7 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.2),
+                    color: Colors.purple.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -1254,7 +1254,7 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                   return ChoiceChip(
                     label: Text(op.nameAr),
                     selected: isSelected,
-                    selectedColor: Colors.purple.withOpacity(0.3),
+                    selectedColor: Colors.purple.withValues(alpha: 0.3),
                     backgroundColor: const Color(0xFF0F3460),
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.purple : Colors.white,
@@ -1273,7 +1273,7 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                   return ChoiceChip(
                     label: Text(op.nameAr),
                     selected: isSelected,
-                    selectedColor: Colors.purple.withOpacity(0.3),
+                    selectedColor: Colors.purple.withValues(alpha: 0.3),
                     backgroundColor: const Color(0xFF0F3460),
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.purple : Colors.white,
@@ -1294,12 +1294,12 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                 labelText: 'رقم الهاتف',
                 hintText: '777XXXXXX',
                 prefixText: '+967',
-                labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
                 prefixStyle: const TextStyle(color: Colors.white70),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1322,7 +1322,7 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                 return ChoiceChip(
                   label: Text('$amount ر.ي'),
                   selected: isSelected,
-                  selectedColor: Colors.purple.withOpacity(0.3),
+                  selectedColor: Colors.purple.withValues(alpha: 0.3),
                   backgroundColor: const Color(0xFF0F3460),
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.purple : Colors.white,
@@ -1438,10 +1438,10 @@ class _MethodChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color:
-              isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
+              isSelected ? Colors.orange.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.orange : Colors.white.withOpacity(0.3),
+            color: isSelected ? Colors.orange : Colors.white.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -1518,13 +1518,13 @@ class _TransactionsHistoryScreenState
                       Icon(
                         Icons.receipt_long_outlined,
                         size: 64,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'لا توجد معاملات',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 16,
                         ),
                       ),

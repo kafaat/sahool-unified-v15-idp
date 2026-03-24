@@ -252,6 +252,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
             disabled={isRefreshing}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50"
             title="Refresh health status"
+            aria-label="تحديث حالة الخدمات - Refresh health status"
           >
             <RefreshCw
               className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
@@ -288,8 +289,12 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
         {services.map((service) => (
           <div
             key={service.endpoint}
-            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)}`}
+            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)} focus:outline-none focus:ring-2 focus:ring-blue-500`}
             onClick={() => onServiceClick?.(service)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onServiceClick?.(service); } }}
+            tabIndex={onServiceClick ? 0 : undefined}
+            role={onServiceClick ? "button" : undefined}
+            aria-label={`${service.nameAr} - ${service.name}: ${service.status === "healthy" ? "سليم" : service.status === "degraded" ? "متدهور" : service.status === "unhealthy" ? "معطل" : "جاري الفحص"}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

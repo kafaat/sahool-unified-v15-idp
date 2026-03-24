@@ -398,8 +398,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: _isRecording
-                    ? SahoolColors.danger.withOpacity(0.1)
-                    : SahoolColors.harvestGold.withOpacity(0.2),
+                    ? SahoolColors.danger.withValues(alpha: 0.1)
+                    : SahoolColors.harvestGold.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -447,7 +447,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.location_on, color: Colors.blue),
@@ -488,6 +488,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
 
     // محاكاة تحليل الذكاء الاصطناعي
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       setState(() {
         _isAnalyzing = false;
         _diagnosis = DiagnosisResult(
@@ -630,10 +631,10 @@ class _SeverityOption extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : Colors.white,
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? color : Colors.grey.withOpacity(0.2),
+              color: isSelected ? color : Colors.grey.withValues(alpha: 0.2),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -676,7 +677,7 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

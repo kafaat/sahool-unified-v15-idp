@@ -4,10 +4,12 @@
 // صفحة إدارة المستخدمين - ديناميكية مع جميع عمليات CRUD
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 import Header from "@/components/layout/Header";
 import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import {
   Users,
   Search,
@@ -36,6 +38,7 @@ interface User extends Omit<ApiUser, "role"> {
 }
 
 export default function UsersPage() {
+  const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,7 +102,7 @@ export default function UsersPage() {
       logger.info("User created successfully");
     } catch (error) {
       logger.error("Failed to create user:", error);
-      alert("فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to create user", "فشل إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +118,7 @@ export default function UsersPage() {
       logger.info("User updated successfully");
     } catch (error) {
       logger.error("Failed to update user:", error);
-      alert("فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to update user", "فشل تحديث المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,7 +134,7 @@ export default function UsersPage() {
       logger.info("User deleted successfully");
     } catch (error) {
       logger.error("Failed to delete user:", error);
-      alert("فشل حذف المستخدم. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to delete user", "فشل حذف المستخدم. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -207,14 +210,14 @@ export default function UsersPage() {
     },
     {
       key: "farmCount",
-      header: "المزارع",
+      header: t("nav.farms"),
       render: (user: User) => (
         <span className="text-gray-700 dark:text-gray-300">{user.farmCount}</span>
       ),
     },
     {
       key: "status",
-      header: "الحالة",
+      header: t("farms.status"),
       render: (user: User) => <StatusBadge status={user.status} />,
     },
     {
@@ -249,7 +252,7 @@ export default function UsersPage() {
               setShowEditModal(true);
             }}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            title="تعديل"
+            title={t("common.edit")}
           >
             <Edit className="w-4 h-4 text-blue-500" />
           </button>
@@ -260,7 +263,7 @@ export default function UsersPage() {
               setShowDeleteModal(true);
             }}
             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-            title="حذف"
+            title={t("common.delete")}
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
@@ -272,7 +275,7 @@ export default function UsersPage() {
 
   return (
     <div className="p-6">
-      <Header title="إدارة المستخدمين" subtitle={`${users.length} مستخدم مسجل`} />
+      <Header title={t("nav.users")} subtitle={`${users.length} مستخدم مسجل`} />
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -328,7 +331,7 @@ export default function UsersPage() {
           <div className="relative flex-1 min-w-[200px]">
             <input
               type="text"
-              placeholder="بحث بالاسم أو البريد..."
+              placeholder={`${t("common.search")}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
@@ -369,7 +372,7 @@ export default function UsersPage() {
           <button
             disabled
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            title={t("common.export")}
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -378,7 +381,7 @@ export default function UsersPage() {
             className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            إضافة مستخدم
+            {t("common.add")}
           </button>
         </div>
       </div>
@@ -432,7 +435,7 @@ export default function UsersPage() {
       {showDeleteModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t("common.confirm")}</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               هل أنت متأكد من حذف المستخدم <strong>{selectedUser.nameAr || selectedUser.name}</strong>؟
               هذا الإجراء لا يمكن التراجع عنه.
@@ -446,14 +449,14 @@ export default function UsersPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                إلغاء
+                {t("common.cancel")}
               </button>
               <button
                 onClick={() => handleDelete(selectedUser.id)}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? "جاري الحذف..." : "حذف"}
+                {isSubmitting ? `${t("common.loading")}` : t("common.delete")}
               </button>
             </div>
           </div>
@@ -468,7 +471,7 @@ export default function UsersPage() {
             disabled={page === 1}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            السابق
+            {t("common.previous")}
           </button>
           <span className="px-4 py-2 text-gray-600 dark:text-gray-400">
             صفحة {page} من {totalPages}
@@ -478,7 +481,7 @@ export default function UsersPage() {
             disabled={page === totalPages}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            التالي
+            {t("common.next")}
           </button>
         </div>
       )}
@@ -500,6 +503,7 @@ function UserFormModal({
   onSubmit: (data: CreateUserData | UpdateUserData) => void;
   isSubmitting: boolean;
 }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -511,11 +515,11 @@ function UserFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       // Create mode - password required
       if (!formData.password) {
-        alert("يرجى إدخال كلمة المرور");
+        toast.warning("Please enter a password", "يرجى إدخال كلمة المرور");
         return;
       }
       onSubmit(formData as CreateUserData);
@@ -644,7 +648,7 @@ function UserFormModal({
               disabled={isSubmitting}
               className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
-              إلغاء
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
@@ -652,7 +656,7 @@ function UserFormModal({
               className="flex-1 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {isSubmitting ? "جاري الحفظ..." : user ? "تحديث" : "إضافة"}
+              {isSubmitting ? t("common.loading") : user ? t("common.save") : t("common.add")}
             </button>
           </div>
         </form>

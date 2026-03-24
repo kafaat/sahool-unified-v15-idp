@@ -12,7 +12,7 @@ import 'voice_command_service.dart';
 
 class VoiceButtonWidget extends ConsumerStatefulWidget {
   final VoidCallback? onCommandReceived;
-  final Function(VoiceCommand)? onCommand;
+  final void Function(VoiceCommand)? onCommand;
   final double size;
   final Color? activeColor;
   final Color? inactiveColor;
@@ -97,7 +97,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
                 boxShadow: [
                   BoxShadow(
                     color: (isListening ? activeColor : inactiveColor)
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
                     blurRadius: isListening ? 20 : 8,
                     spreadRadius: isListening ? 5 : 2,
                   ),
@@ -121,7 +121,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: activeColor.withOpacity(1 - value),
+                                color: activeColor.withValues(alpha: 1 - value),
                                 width: 2,
                               ),
                             ),
@@ -176,7 +176,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
   }
 
   void _showHelp(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const VoiceHelpSheet(),
@@ -186,7 +186,7 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
 
 /// Floating Voice Button
 class FloatingVoiceButton extends ConsumerWidget {
-  final Function(VoiceCommand)? onCommand;
+  final void Function(VoiceCommand)? onCommand;
 
   const FloatingVoiceButton({
     super.key,
@@ -434,7 +434,7 @@ class _PulsingDotState extends State<_PulsingDot>
           height: 12,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.color.withOpacity(0.5 + _controller.value * 0.5),
+            color: widget.color.withValues(alpha: 0.5 + _controller.value * 0.5),
           ),
         );
       },

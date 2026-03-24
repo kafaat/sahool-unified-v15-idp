@@ -108,7 +108,7 @@ class _InfoSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Padding(
-          padding: const EdgeInsets.only(right: 26),
+          padding: const EdgeInsetsDirectional.only(start: 26),
           child: Text(
             content,
             style: theme.textTheme.bodyMedium?.copyWith(

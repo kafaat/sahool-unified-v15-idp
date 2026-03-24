@@ -333,16 +333,30 @@ class TestTenantIsolation:
             enforce_tenant(user, requested_tenant_id="tenant-B")
         assert exc_info.value.status_code == 403
 
-    def test_admin_can_access_other_tenant(self):
-        """Admin users should be able to access any tenant."""
+    def test_super_admin_can_access_other_tenant(self):
+        """Super admin users should be able to access any tenant."""
+        user = User(
+            id="admin-001",
+            email="admin@example.com",
+            roles=["super_admin"],
+            tenant_id="tenant-A",
+        )
+        result = enforce_tenant(user, requested_tenant_id="tenant-B")
+        assert result == "tenant-B"
+
+    def test_regular_admin_cannot_access_other_tenant(self):
+        """Regular admin users cannot cross tenant boundaries (only super_admin can)."""
         user = User(
             id="admin-001",
             email="admin@example.com",
             roles=["admin"],
             tenant_id="tenant-A",
         )
-        result = enforce_tenant(user, requested_tenant_id="tenant-B")
-        assert result == "tenant-B"
+        from fastapi import HTTPException
+
+        with pytest.raises(HTTPException) as exc_info:
+            enforce_tenant(user, requested_tenant_id="tenant-B")
+        assert exc_info.value.status_code == 403
 
     def test_user_without_tenant_raises_error(self):
         """Bug: User with no tenant_id and no requested_tenant_id should fail."""

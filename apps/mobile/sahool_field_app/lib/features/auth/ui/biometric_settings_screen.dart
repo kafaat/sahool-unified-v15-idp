@@ -238,7 +238,7 @@ class _BiometricSettingsScreenState
         gradient: LinearGradient(
           colors: [
             SahoolColors.primary,
-            SahoolColors.primary.withOpacity(0.8),
+            SahoolColors.primary.withValues(alpha: 0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -246,7 +246,7 @@ class _BiometricSettingsScreenState
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.primary.withOpacity(0.3),
+            color: SahoolColors.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -258,7 +258,7 @@ class _BiometricSettingsScreenState
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -284,7 +284,7 @@ class _BiometricSettingsScreenState
                 ? 'سجّل دخولك بسرعة وأمان باستخدام بصمتك'
                 : 'جهازك لا يدعم المصادقة بالبصمة',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
@@ -302,7 +302,7 @@ class _BiometricSettingsScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -315,7 +315,7 @@ class _BiometricSettingsScreenState
             height: 48,
             decoration: BoxDecoration(
               color: _isEnabled
-                  ? SahoolColors.primary.withOpacity(0.1)
+                  ? SahoolColors.primary.withValues(alpha: 0.1)
                   : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
@@ -386,7 +386,7 @@ class _BiometricSettingsScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -402,7 +402,7 @@ class _BiometricSettingsScreenState
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: SahoolColors.primary.withOpacity(0.1),
+                    color: SahoolColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(

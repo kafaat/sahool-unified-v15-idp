@@ -298,54 +298,66 @@ class GlobalGAPRegistrationRepository(BaseRepository):
             row = await self._fetchrow(query, ggn, tenant_id)
         return dict(row) if row else None
 
-    async def get_by_farm_id(self, farm_id: UUID) -> list[dict[str, Any]]:
+    async def get_by_farm_id(self, farm_id: UUID, tenant_id: UUID | None = None) -> list[dict[str, Any]]:
         """
-        Get all registrations for a farm
-        الحصول على جميع التسجيلات لمزرعة
+        Get all registrations for a farm with tenant isolation.
+        الحصول على جميع التسجيلات لمزرعة مع عزل المستأجر.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_by_farm_id")
         query = """
             SELECT * FROM globalgap_registrations
-            WHERE farm_id = $1
+            WHERE farm_id = $1 AND tenant_id = $2
             ORDER BY created_at DESC
         """
-        rows = await self._fetch(query, farm_id)
+        rows = await self._fetch(query, farm_id, tenant_id)
         return [dict(row) for row in rows]
 
-    async def get_active_registrations(self, farm_id: UUID | None = None) -> list[dict[str, Any]]:
+    async def get_active_registrations(
+        self, tenant_id: UUID | None = None, farm_id: UUID | None = None
+    ) -> list[dict[str, Any]]:
         """
-        Get active registrations, optionally filtered by farm
-        الحصول على التسجيلات النشطة، اختياريًا مصفاة حسب المزرعة
+        Get active registrations with tenant isolation, optionally filtered by farm.
+        الحصول على التسجيلات النشطة مع عزل المستأجر، اختياريًا مصفاة حسب المزرعة.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_active_registrations")
         if farm_id:
             query = """
                 SELECT * FROM globalgap_registrations
-                WHERE farm_id = $1 AND certificate_status = 'ACTIVE'
+                WHERE farm_id = $1 AND tenant_id = $2 AND certificate_status = 'ACTIVE'
                 ORDER BY created_at DESC
             """
-            rows = await self._fetch(query, farm_id)
+            rows = await self._fetch(query, farm_id, tenant_id)
         else:
             query = """
                 SELECT * FROM globalgap_registrations
-                WHERE certificate_status = 'ACTIVE'
+                WHERE tenant_id = $1 AND certificate_status = 'ACTIVE'
                 ORDER BY created_at DESC
             """
-            rows = await self._fetch(query)
+            rows = await self._fetch(query, tenant_id)
 
         return [dict(row) for row in rows]
 
-    async def get_expiring_soon(self, days: int = 30) -> list[dict[str, Any]]:
+    async def get_expiring_soon(self, tenant_id: UUID | None = None, days: int = 30) -> list[dict[str, Any]]:
         """
-        Get certificates expiring within specified days
-        الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة
+        Get certificates expiring within specified days with tenant isolation.
+        الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة مع عزل المستأجر.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_expiring_soon")
         query = """
             SELECT * FROM globalgap_registrations
-            WHERE certificate_status = 'ACTIVE'
+            WHERE tenant_id = $1
+              AND certificate_status = 'ACTIVE'
               AND valid_to IS NOT NULL
-              AND valid_to <= CURRENT_DATE + $1::interval
+              AND valid_to <= CURRENT_DATE + $2::interval
             ORDER BY valid_to ASC
         """
-        rows = await self._fetch(query, f"{days} days")
+        rows = await self._fetch(query, tenant_id, f"{days} days")
         return [dict(row) for row in rows]
 
     async def update_status(

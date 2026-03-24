@@ -98,11 +98,11 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                       return Polygon(
                         points: f.boundary,
                         color: isSelected
-                            ? SahoolProColors.tractorYellow.withOpacity(0.4)
+                            ? SahoolProColors.tractorYellow.withValues(alpha: 0.4)
                             : (isSynced
-                                ? SahoolProColors.johnGreen.withOpacity(0.3)
+                                ? SahoolProColors.johnGreen.withValues(alpha: 0.3)
                                 : SahoolProColors.warningOrange
-                                    .withOpacity(0.3)),
+                                    .withValues(alpha: 0.3)),
                         borderColor: isSelected
                             ? Colors.white
                             : (isSynced
@@ -161,7 +161,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -344,9 +344,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -452,7 +452,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? SahoolProColors.johnGreen.withOpacity(0.1)
+                      ? SahoolProColors.johnGreen.withValues(alpha: 0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -611,7 +611,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -651,7 +651,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
             Container(
               padding: EdgeInsets.all(isPrimary ? 14 : 10),
               decoration: BoxDecoration(
-                color: isPrimary && isEnabled ? color : color.withOpacity(0.1),
+                color: isPrimary && isEnabled ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

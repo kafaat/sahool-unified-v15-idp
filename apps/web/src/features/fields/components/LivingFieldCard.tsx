@@ -51,6 +51,7 @@ interface LivingFieldCardProps {
  */
 function getScoreColor(score: number): {
   border: string;
+  borderHex: string;
   bg: string;
   text: string;
   fill: string;
@@ -58,6 +59,7 @@ function getScoreColor(score: number): {
   if (score >= 70) {
     return {
       border: "border-green-500",
+      borderHex: "#22c55e",
       bg: "bg-green-50",
       text: "text-green-700",
       fill: "stroke-green-500",
@@ -66,6 +68,7 @@ function getScoreColor(score: number): {
   if (score >= 40) {
     return {
       border: "border-yellow-500",
+      borderHex: "#eab308",
       bg: "bg-yellow-50",
       text: "text-yellow-700",
       fill: "stroke-yellow-500",
@@ -73,6 +76,7 @@ function getScoreColor(score: number): {
   }
   return {
     border: "border-red-500",
+    borderHex: "#ef4444",
     bg: "bg-red-50",
     text: "text-red-700",
     fill: "stroke-red-500",
@@ -234,7 +238,7 @@ const SubScore: React.FC<SubScoreProps> = ({ score, icon, label, labelAr }) => {
   return (
     <div
       className="relative flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-md cursor-help"
-      style={{ borderColor: colors.border.replace("border-", "") }}
+      style={{ borderColor: colors.borderHex }}
       onMouseEnter={() => setShowInfo(true)}
       onMouseLeave={() => setShowInfo(false)}
     >
@@ -244,7 +248,7 @@ const SubScore: React.FC<SubScoreProps> = ({ score, icon, label, labelAr }) => {
 
       {/* Tooltip */}
       {showInfo && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 pointer-events-none" role="tooltip">
           {label}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
             <div className="border-4 border-transparent border-t-gray-900" />

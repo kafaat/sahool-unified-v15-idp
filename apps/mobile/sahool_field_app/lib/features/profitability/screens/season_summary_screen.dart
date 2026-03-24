@@ -26,7 +26,7 @@ class SeasonSummaryScreen extends ConsumerStatefulWidget {
 }
 
 class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
   String _sortBy = 'profit'; // profit, roi, revenue, cost
 
   @override
@@ -161,7 +161,7 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
 
     return Card(
       elevation: 2,
-      color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -241,7 +241,7 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -392,8 +392,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: crop.isProfitable
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.orange.withOpacity(0.1),
+                              ? Colors.green.withValues(alpha: 0.1)
+                              : Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

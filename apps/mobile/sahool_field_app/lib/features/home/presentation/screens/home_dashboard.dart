@@ -94,7 +94,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.agriculture, color: Colors.white, size: 24),

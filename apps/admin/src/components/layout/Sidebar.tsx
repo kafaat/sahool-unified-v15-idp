@@ -69,6 +69,7 @@ import {
   Wheat,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
+import { t } from "@/lib/i18n";
 import dynamic from "next/dynamic";
 
 // Lazy-load mobile drawer overlay -- only needed on small screens after user interaction
@@ -86,32 +87,29 @@ const MobileSidebarCloseButtonLazy = dynamic(
   { ssr: false },
 );
 
-// Main navigation sections
-const mainNavigation = [
-  { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+// Navigation arrays are functions so t() is called at render time (supports locale switching)
+const getMainNavigation = () => [
+  { name: t("nav.dashboard"), href: "/dashboard", icon: LayoutDashboard },
 ];
 
-// Operations section
-const operationsNav = [
-  { name: "المزارع", href: "/farms", icon: MapPin },
+const getOperationsNav = () => [
+  { name: t("nav.farms"), href: "/farms", icon: MapPin },
   { name: "المواسم الزراعية", href: "/seasons", icon: CalendarDays },
-  { name: "إدارة الأمراض", href: "/diseases", icon: Bug },
-  { name: "الري الذكي", href: "/irrigation", icon: Droplets },
+  { name: t("nav.diseases"), href: "/diseases", icon: Bug },
+  { name: t("nav.irrigation"), href: "/irrigation", icon: Droplets },
   { name: "المهام", href: "/tasks", icon: CheckSquare },
 ];
 
-// Monitoring section
-const monitoringNav = [
-  { name: "المستشعرات", href: "/sensors", icon: Cpu },
-  { name: "التنبيهات", href: "/alerts", icon: Bell },
+const getMonitoringNav = () => [
+  { name: t("nav.sensors"), href: "/sensors", icon: Cpu },
+  { name: t("nav.alerts"), href: "/alerts", icon: Bell },
   { name: "الطقس والمناخ", href: "/weather", icon: CloudSun },
-  { name: "مركز رصد الأوبئة", href: "/epidemic", icon: Activity },
-  { name: "حاسبة الإنتاجية", href: "/yield", icon: TrendingUp },
+  { name: t("nav.epidemic"), href: "/epidemic", icon: Activity },
+  { name: t("nav.yield"), href: "/yield", icon: TrendingUp },
 ];
 
-// Management section
-const managementNav = [
-  { name: "المستخدمون", href: "/users", icon: Users },
+const getManagementNav = () => [
+  { name: t("nav.users"), href: "/users", icon: Users },
   { name: "المعدات", href: "/equipment", icon: Wrench },
   { name: "تتبع الأسطول", href: "/equipment/fleet-tracking", icon: Truck },
   { name: "التعاونيات", href: "/cooperatives", icon: Handshake },
@@ -143,10 +141,9 @@ const auditNav = [
   { name: "سجل التدقيق", href: "/audit", icon: ClipboardList },
 ];
 
-// System section
-const systemNav = [
-  { name: "الدعم الفني", href: "/support", icon: MessageCircle, badge: 5 },
-  { name: "الإعدادات", href: "/settings", icon: Settings },
+const getSystemNav = () => [
+  { name: t("nav.support"), href: "/support", icon: MessageCircle, badge: 5 },
+  { name: t("nav.settings"), href: "/settings", icon: Settings },
 ];
 
 const precisionAgricultureNav = [
@@ -245,7 +242,7 @@ export default React.memo(function Sidebar() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">سهول</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">لوحة التحكم</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t("nav.dashboard")}</p>
             </div>
           </Link>
         </div>
@@ -257,7 +254,7 @@ export default React.memo(function Sidebar() {
         >
           {/* Main Section */}
           <div>
-            {mainNavigation.map((item) => {
+            {getMainNavigation().map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
@@ -292,7 +289,7 @@ export default React.memo(function Sidebar() {
                 العمليات
               </h3>
             </div>
-            {operationsNav.map((item) => {
+            {getOperationsNav().map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
@@ -327,7 +324,7 @@ export default React.memo(function Sidebar() {
                 المراقبة
               </h3>
             </div>
-            {monitoringNav.map((item) => {
+            {getMonitoringNav().map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
@@ -362,7 +359,7 @@ export default React.memo(function Sidebar() {
                 الإدارة
               </h3>
             </div>
-            {managementNav.map((item) => {
+            {getManagementNav().map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
@@ -467,7 +464,7 @@ export default React.memo(function Sidebar() {
                 النظام
               </h3>
             </div>
-            {systemNav.map((item) => {
+            {getSystemNav().map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
@@ -660,7 +657,7 @@ export default React.memo(function Sidebar() {
             aria-label="تسجيل الخروج"
           >
             <LogOut className="w-4 h-4" />
-            تسجيل الخروج
+            {t("nav.logout")}
           </button>
         </div>
       </aside>

@@ -35,6 +35,10 @@ export default defineConfig({
         __dirname,
         "../../packages/api-client/src",
       ),
+      "@sahool/shared-ui": path.resolve(
+        __dirname,
+        "../../packages/shared-ui/src",
+      ),
       "@": path.resolve(__dirname, "./src"),
     },
   },

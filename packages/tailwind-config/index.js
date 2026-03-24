@@ -61,14 +61,14 @@ module.exports = {
           dark: "#388E3C",
         },
         secondary: {
-          DEFAULT: "#0891b2",
-          light: "#06b6d4",
-          dark: "#0e7490",
+          DEFAULT: "#2196F3",
+          light: "#64B5F6",
+          dark: "#1976D2",
         },
         accent: {
-          DEFAULT: "#d97706",
-          light: "#f59e0b",
-          dark: "#b45309",
+          DEFAULT: "#FF9800",
+          light: "#FFB74D",
+          dark: "#F57C00",
         },
         success: {
           DEFAULT: "#4CAF50",
@@ -76,14 +76,20 @@ module.exports = {
           dark: "#388E3C",
         },
         warning: {
-          DEFAULT: "#f59e0b",
-          light: "#fbbf24",
-          dark: "#d97706",
+          DEFAULT: "#FF9800",
+          light: "#FFB74D",
+          dark: "#F57C00",
         },
+        error: {
+          DEFAULT: "#F44336",
+          light: "#E57373",
+          dark: "#D32F2F",
+        },
+        // Backward-compatible alias for 'error'
         danger: {
-          DEFAULT: "#dc2626",
-          light: "#ef4444",
-          dark: "#b91c1c",
+          DEFAULT: "#F44336",
+          light: "#E57373",
+          dark: "#D32F2F",
         },
       },
 

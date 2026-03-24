@@ -194,10 +194,10 @@ class SecurityUtils {
     final parts = token.split('.');
     if (parts.length != 3) return false;
 
-    // Check if each part is valid base64
+    // Check if each part is valid base64url (JWT parts are unpadded)
     try {
       for (final part in parts) {
-        base64Url.decode(part);
+        base64Url.decode(base64Url.normalize(part));
       }
       return true;
     } catch (e) {

@@ -38,7 +38,7 @@ class WaterBalanceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.water_drop, color: Colors.blue),
@@ -205,7 +205,7 @@ class WaterBalanceCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            SahoolColors.forestGreen.withOpacity(0.6),
+                            SahoolColors.forestGreen.withValues(alpha: 0.6),
                             SahoolColors.forestGreen,
                           ],
                         ),
@@ -292,9 +292,9 @@ class WaterBalanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -465,7 +465,7 @@ class _MoistureGaugePainter extends CustomPainter {
       startAngle: startAngle,
       endAngle: startAngle + sweepAngle * percent,
       colors: [
-        color.withOpacity(0.5),
+        color.withValues(alpha: 0.5),
         color,
       ],
     );
@@ -596,7 +596,7 @@ class CompactWaterBalanceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
@@ -605,7 +605,7 @@ class CompactWaterBalanceCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: moistureColor.withOpacity(0.1),
+                color: moistureColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -649,7 +649,7 @@ class CompactWaterBalanceCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: SahoolColors.harvestGold.withOpacity(0.1),
+                  color: SahoolColors.harvestGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

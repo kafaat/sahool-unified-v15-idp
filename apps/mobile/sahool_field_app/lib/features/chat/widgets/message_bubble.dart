@@ -84,7 +84,7 @@ class MessageBubble extends StatelessWidget {
   Widget _buildAvatar() {
     return CircleAvatar(
       radius: 16,
-      backgroundColor: SahoolTheme.primary.withOpacity(0.1),
+      backgroundColor: SahoolTheme.primary.withValues(alpha: 0.1),
       backgroundImage: message.senderAvatar != null
           ? NetworkImage(message.senderAvatar!)
           : null,
@@ -239,13 +239,13 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: message.isMine
-            ? SahoolTheme.primary.withOpacity(0.9)
+            ? SahoolTheme.primary.withValues(alpha: 0.9)
             : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: message.isMine
               ? SahoolTheme.primaryLight
-              : SahoolTheme.primary.withOpacity(0.3),
+              : SahoolTheme.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -302,13 +302,13 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: message.isMine
-            ? SahoolTheme.primary.withOpacity(0.9)
+            ? SahoolTheme.primary.withValues(alpha: 0.9)
             : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: message.isMine
               ? SahoolTheme.primaryLight
-              : SahoolTheme.primary.withOpacity(0.3),
+              : SahoolTheme.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

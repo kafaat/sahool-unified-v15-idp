@@ -155,7 +155,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 children: [
                   Text(
                     'إنجاز الأسبوع',
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -168,7 +168,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   Text(
                     'مهمة مكتملة',
-                    style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
                   ),
                 ],
               ),
@@ -188,7 +188,7 @@ class _TasksScreenState extends State<TasksScreen> {
                         child: CircularProgressIndicator(
                           value: 0.8,
                           strokeWidth: 8,
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
                           valueColor: const AlwaysStoppedAnimation(
                             SahoolColors.harvestGold,
                           ),
@@ -313,7 +313,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -579,7 +579,7 @@ class _FilterChip extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? SahoolColors.forestGreen
-                : Colors.grey.withOpacity(0.3),
+                : Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -685,7 +685,7 @@ class _TaskCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: typeColor.withOpacity(0.1),
+                color: typeColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(typeIcon, color: typeColor, size: 22),

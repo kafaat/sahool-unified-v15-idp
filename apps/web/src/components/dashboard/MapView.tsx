@@ -379,22 +379,28 @@ const MapView = React.memo<MapViewProps>(function MapView({
       {/* Base Layer Toggle */}
       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-1.5 flex gap-1">
         <button
+          type="button"
           onClick={() => setActiveBaseLayer("osm")}
           className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
             activeBaseLayer === "osm"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
+          aria-label="عرض خريطة الشوارع"
+          aria-pressed={activeBaseLayer === "osm"}
         >
           خريطة
         </button>
         <button
+          type="button"
           onClick={() => setActiveBaseLayer("satellite")}
           className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
             activeBaseLayer === "satellite"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
+          aria-label="عرض صور القمر الصناعي"
+          aria-pressed={activeBaseLayer === "satellite"}
         >
           قمر صناعي
         </button>

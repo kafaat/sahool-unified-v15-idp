@@ -24,9 +24,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              SahoolColors.primary.withOpacity(0.1),
+              SahoolColors.primary.withValues(alpha: 0.1),
               Colors.white,
-              SahoolColors.secondary.withOpacity(0.1),
+              SahoolColors.secondary.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -204,7 +204,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? color : Colors.grey[300]!,
@@ -213,7 +213,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -226,7 +226,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 40, color: color),

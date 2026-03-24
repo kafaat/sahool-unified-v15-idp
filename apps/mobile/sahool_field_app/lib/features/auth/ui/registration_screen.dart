@@ -253,7 +253,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: SahoolColors.primary.withOpacity(0.1),
+                            color: SahoolColors.primary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -687,9 +687,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolColors.info.withOpacity(0.1),
+        color: SahoolColors.info.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SahoolColors.info.withOpacity(0.3)),
+        border: Border.all(color: SahoolColors.info.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

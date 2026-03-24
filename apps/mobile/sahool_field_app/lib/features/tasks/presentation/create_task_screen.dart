@@ -293,7 +293,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? _getPriorityColor(priority).withOpacity(0.2)
+                      ? _getPriorityColor(priority).withValues(alpha: 0.2)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(

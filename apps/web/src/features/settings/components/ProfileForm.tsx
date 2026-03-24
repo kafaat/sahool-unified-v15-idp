@@ -6,6 +6,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { User, MapPin, Building2, Upload, Loader2, Check } from "lucide-react";
 import {
   useUserProfile,
@@ -99,10 +100,13 @@ export const ProfileForm: React.FC = () => {
         <div className="flex items-center gap-6">
           <div className="relative">
             {avatarPreview ? (
-              <img
+              <Image
                 src={avatarPreview}
-                alt="Profile"
+                alt="الصورة الشخصية"
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                unoptimized={avatarPreview.startsWith("data:")}
               />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">

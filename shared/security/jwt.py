@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 def _get_required_env(key: str, default: str | None = None) -> str:
     """Get required environment variable, raise error if missing in production/staging.
-    In development/test, a non-empty value is still required for security."""
+    In development/test, generates a random per-process fallback for JWT secrets."""
     value = os.getenv(key, default)
     env = os.getenv("ENVIRONMENT", "development")
 
@@ -42,13 +42,15 @@ def _get_required_env(key: str, default: str | None = None) -> str:
         raise RuntimeError(f"Required environment variable {key} is not set")
 
     if not value:
-        # SECURITY FIX: Never allow an empty JWT secret, even in development.
-        # An empty secret means anyone can forge valid tokens.
+        # SECURITY FIX: Never use a hardcoded fallback - it enables token forgery
+        # by anyone who knows the repository constant.
         if key == "JWT_SECRET_KEY":
-            fallback = "dev-only-insecure-key-must-not-use-in-prod-32ch"
+            import secrets as _secrets
+
+            fallback = _secrets.token_hex(32)
             logger.warning(
-                f"{key} not set - using insecure development fallback. "
-                "Set JWT_SECRET_KEY in your environment for proper security."
+                f"{key} not set - using random per-process fallback. "
+                "Tokens will NOT survive restarts. Set JWT_SECRET_KEY for persistence."
             )
             return fallback
         logger.warning(f"Using default value for {key} - NOT SAFE FOR PRODUCTION")

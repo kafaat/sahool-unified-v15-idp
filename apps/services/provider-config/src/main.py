@@ -1526,6 +1526,7 @@ async def update_tenant_config(
         return {"success": True, "message": "Configuration updated successfully"}
 
     except Exception as e:
+        logger.error(f"Failed to update config: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to update config")
 
 
@@ -1564,6 +1565,7 @@ async def reset_tenant_config(
         return {"success": True, "message": "Configuration reset to defaults"}
 
     except Exception as e:
+        logger.error(f"Failed to reset config: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to reset config")
 
 
@@ -1593,6 +1595,7 @@ async def get_config_history(
             "total": len(history),
         }
     except Exception as e:
+        logger.error(f"Failed to get history: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to get history")
 
 
@@ -1637,6 +1640,7 @@ async def rollback_config(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Failed to rollback: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to rollback")
 
 

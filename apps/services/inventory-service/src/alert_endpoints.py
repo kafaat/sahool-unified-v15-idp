@@ -275,7 +275,9 @@ settings_db = {}  # In-memory settings storage
 @router.get("/settings")
 async def get_alert_settings(_user: User = Depends(get_current_user)):
     """Get alert settings"""
-    tenant_id = getattr(_user, "tenant_id", "default")
+    tenant_id = getattr(_user, "tenant_id", None)
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required")
     settings = settings_db.get(
         tenant_id,
         {
@@ -293,6 +295,8 @@ async def get_alert_settings(_user: User = Depends(get_current_user)):
 async def update_alert_settings(data: AlertSettingsModel, _user: User = Depends(get_current_user)):
     """Update alert settings"""
     settings = data.model_dump()
-    tenant_id = getattr(_user, "tenant_id", "default")
+    tenant_id = getattr(_user, "tenant_id", None)
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required")
     settings_db[tenant_id] = settings
     return settings

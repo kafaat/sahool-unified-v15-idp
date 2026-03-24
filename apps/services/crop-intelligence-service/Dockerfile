@@ -88,12 +88,13 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
 
 # Strip build tools from production venv (reduces attack surface and CVE footprint)
-RUN pip uninstall -y pip setuptools wheel 2>/dev/null; \
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
     rm -rf /home/sahool/venv/lib/python*/site-packages/pip* \
            /home/sahool/venv/lib/python*/site-packages/setuptools* \
            /home/sahool/venv/lib/python*/site-packages/wheel* \
            /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
-           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null; true
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Set environment
 ENV VIRTUAL_ENV=/home/sahool/venv \

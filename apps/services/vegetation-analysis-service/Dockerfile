@@ -73,12 +73,13 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /install /usr/local
 
 # Strip build tools from production image (reduces attack surface and CVE footprint)
-RUN pip uninstall -y pip setuptools wheel 2>/dev/null; \
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
     rm -rf /usr/local/lib/python*/site-packages/pip* \
            /usr/local/lib/python*/site-packages/setuptools* \
            /usr/local/lib/python*/site-packages/wheel* \
            /usr/local/lib/python*/site-packages/_distutils_hack* \
-           /usr/local/lib/python*/site-packages/pkg_resources* 2>/dev/null; true
+           /usr/local/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/

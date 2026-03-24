@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import secrets
 from typing import Dict, List
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,32 @@ class JWTConfigError(Exception):
     pass
 
 
+def _resolve_jwt_secret() -> str:
+    """Resolve JWT secret from environment with security-safe fallback.
+
+    - production/staging: MUST have JWT_SECRET_KEY set, raises RuntimeError otherwise
+    - development/test: generates a random per-process secret and warns loudly
+    """
+    value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
+    if value:
+        return value
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be set in production/staging environments. "
+            "An empty or missing secret allows token forgery."
+        )
+
+    # Generate a random per-process secret for dev/test - NOT a hardcoded constant
+    fallback = secrets.token_hex(32)
+    logger.warning(
+        "JWT_SECRET_KEY not set - using random per-process fallback. "
+        "Tokens will NOT survive restarts. Set JWT_SECRET_KEY for persistence."
+    )
+    return fallback
+
+
 class JWTConfig:
     """JWT Configuration Settings - HS256 Only"""
 
@@ -43,8 +70,10 @@ class JWTConfig:
     # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
     # Note: Use get_signing_key()/get_verification_key() methods instead of reading
     # this attribute directly, as they re-read from env at call time.
-    # SECURITY: Never default to empty string - an empty secret allows token forgery.
-    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or "dev-only-insecure-key-must-not-use-in-prod-32ch"
+    # SECURITY: In production/staging, JWT_SECRET_KEY MUST be set via environment.
+    # In development/test, a per-process random fallback is generated to prevent
+    # using a known hardcoded secret that would allow token forgery.
+    JWT_SECRET: str = _resolve_jwt_secret()
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
     JWT_ALGORITHM: str = "HS256"

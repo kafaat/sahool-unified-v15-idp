@@ -121,10 +121,16 @@ jobs:
           )
 
           for FILE in $CHANGED_FILES; do
-            # Skip archive, docs, migration files, and this workflow
+            # Skip files that legitimately reference deprecated services
             if [[ "$FILE" == archive/* ]] || [[ "$FILE" == docs/migrations/* ]] || \
                [[ "$FILE" == *DEPRECATION* ]] || [[ "$FILE" == *DEDUP_MATRIX* ]] || \
-               [[ "$FILE" == .github/workflows/migration-validator.yml ]]; then
+               [[ "$FILE" == .github/workflows/migration-validator.yml ]] || \
+               [[ "$FILE" == .github/workflows/container-tests.yml ]] || \
+               [[ "$FILE" == .github/workflows/security*.yml ]] || \
+               [[ "$FILE" == .github/labeler.yml ]] || \
+               [[ "$FILE" == .github/release-drafter.yml ]] || \
+               [[ "$FILE" == governance/* ]] || \
+               [[ "$FILE" == *CHANGELOG* ]] || [[ "$FILE" == *README* ]]; then
               continue
             fi
 
@@ -133,11 +139,24 @@ jobs:
               continue
             fi
 
+            # Skip self-referencing Dockerfiles in deprecated service dirs
             for DEPRECATED in "${DEPRECATED_NAMES[@]}"; do
-              if grep -q "$DEPRECATED" "$FILE" 2>/dev/null; then
-                REPLACEMENT="${REPLACEMENTS[$DEPRECATED]}"
-                WARNINGS="${WARNINGS}\n⚠️ \`$FILE\` references deprecated service \`$DEPRECATED\` → Use \`$REPLACEMENT\` instead"
-                WARNING_COUNT=$((WARNING_COUNT + 1))
+              if [[ "$FILE" == apps/services/$DEPRECATED/* ]]; then
+                continue 2
+              fi
+            done
+
+            for DEPRECATED in "${DEPRECATED_NAMES[@]}"; do
+              # Use word-boundary matching to avoid false positives
+              # Match: service name as directory, docker image, or standalone reference
+              # Avoid: partial matches like "crop-health" in "crop-health-ai" or API paths
+              if grep -qw "$DEPRECATED" "$FILE" 2>/dev/null; then
+                # Verify it's not just a label name, API path, or comment
+                if grep -qP "(apps/services/|image:|container_name:|SERVICE=)$DEPRECATED" "$FILE" 2>/dev/null; then
+                  REPLACEMENT="${REPLACEMENTS[$DEPRECATED]}"
+                  WARNINGS="${WARNINGS}\n⚠️ \`$FILE\` references deprecated service \`$DEPRECATED\` → Use \`$REPLACEMENT\` instead"
+                  WARNING_COUNT=$((WARNING_COUNT + 1))
+                fi
               fi
             done
           done

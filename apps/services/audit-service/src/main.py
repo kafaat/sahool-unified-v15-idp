@@ -14,6 +14,11 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
+
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path as PathLib
 from typing import Literal
@@ -50,7 +55,10 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 def sanitize_log_input(value: str) -> str:

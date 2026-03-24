@@ -27,6 +27,11 @@ except ImportError:
 
 import logging
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
@@ -64,7 +69,10 @@ from .processing import (
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ============== Application Lifecycle ==============

@@ -11,6 +11,11 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import (
     FastAPI,
     Header,
@@ -65,7 +70,10 @@ logging.basicConfig(
     level=LOG_LEVEL_MAP.get(LOG_LEVEL, logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger("ws-gateway")
+if structlog is not None:
+    logger = structlog.get_logger("ws-gateway")
+else:
+    logger = logging.getLogger("ws-gateway")
 
 
 async def validate_jwt_token(token: str) -> dict:

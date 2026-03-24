@@ -1,0 +1,5 @@
+# Gitleaks False Positive Allowlist
+# These are NOT real secrets - they are development-only placeholder values
+
+# Dev-only JWT fallback in auth config (not a real secret, contains "insecure" and "must-not-use-in-prod")
+35cfc637aa2a526f40c5f56c97376904df827b40:shared/auth/config.py:generic-secret:47

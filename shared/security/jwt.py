@@ -36,7 +36,7 @@ def _get_required_env(key: str, default: str | None = None) -> str:
     """Get required environment variable.
 
     In production/staging: returns empty string for JWT secrets so that
-    validate_jwt_configuration() can report the error properly.
+    validate_jwt_configuration() can report the error via RuntimeError/AuthError.
     In development/test: generates a random per-process fallback for JWT secrets.
     """
     value = os.getenv(key, default)
@@ -44,7 +44,7 @@ def _get_required_env(key: str, default: str | None = None) -> str:
 
     if not value and env in ("production", "staging"):
         # Return empty string instead of raising - let validate_jwt_configuration()
-        # handle the error with proper JWTConfigError reporting.
+        # handle the error with proper RuntimeError/AuthError reporting.
         logger.error(f"SECURITY: {key} is not set in {env} environment")
         return ""
 

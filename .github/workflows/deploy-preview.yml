@@ -37,10 +37,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -107,7 +107,7 @@ jobs:
 
       - name: Comment Preview URL
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const surgeUrl = '${{ steps.surge.outputs.url }}';
@@ -168,7 +168,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -197,7 +197,7 @@ jobs:
 
       - name: Comment Flutter Preview URL
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const owner = context.repo.owner;
@@ -243,7 +243,7 @@ jobs:
 
       - name: Comment cleanup
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             await github.rest.issues.createComment({

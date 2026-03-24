@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Install hadolint
         run: |
@@ -104,7 +104,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -126,7 +126,7 @@ jobs:
           fi
 
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gitleaks-report
@@ -299,7 +299,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Free disk space
         run: |
@@ -429,7 +429,7 @@ jobs:
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ github.run_id }}
@@ -606,7 +606,7 @@ jobs:
 
       - name: Upload vulnerability report
         if: always() && steps.build_result.outputs.success == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-report-${{ matrix.service.name }}
           path: |
@@ -637,7 +637,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       # Docker Compose config validation only parses YAML - no image pulls or builds needed
       - name: Create CI environment file
@@ -716,10 +716,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
@@ -751,7 +751,7 @@ jobs:
             2>&1 | tee smoke-test-output.txt
 
       - name: Upload test results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: python-container-test-results
@@ -833,7 +833,7 @@ jobs:
           echo "download_success=false" >> $GITHUB_OUTPUT
 
       - name: Download artifacts (fallback)
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           path: test-artifacts
@@ -915,7 +915,7 @@ jobs:
           cat test-summary.json
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: test-summary
           path: test-summary.json

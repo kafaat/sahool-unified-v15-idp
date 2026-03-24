@@ -63,7 +63,7 @@ jobs:
       argocd_available: ${{ steps.secrets.outputs.argocd_available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check required secrets
         id: secrets
@@ -156,7 +156,7 @@ jobs:
         service: ${{ fromJson(needs.validate.outputs.services_json) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Install ArgoCD CLI
         run: |
@@ -226,10 +226,10 @@ jobs:
     if: needs.validate.outputs.environment == 'staging'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -328,7 +328,7 @@ jobs:
         service: ${{ fromJson(needs.validate.outputs.services_json) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Install ArgoCD CLI
         run: |
@@ -405,10 +405,10 @@ jobs:
     if: needs.validate.outputs.environment == 'production'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 

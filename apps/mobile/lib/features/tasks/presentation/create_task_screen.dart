@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
+import '../../home/logic/home_providers.dart';
 
 /// شاشة إنشاء مهمة جديدة
 /// Create New Task Screen
@@ -220,35 +221,45 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   }
 
   Widget _buildFieldSelector() {
-    // مثال على قائمة الحقول
-    final fields = [
-      {'id': 'field1', 'name': 'حقل القمح الشمالي'},
-      {'id': 'field2', 'name': 'حقل الذرة الغربي'},
-      {'id': 'field3', 'name': 'حقل الشعير'},
-      {'id': 'field4', 'name': 'حقل البرسيم'},
-    ];
+    final fieldsAsync = ref.watch(dashboardFieldsProvider);
 
-    return DropdownButtonFormField<String>(
-      value: _selectedFieldId,
-      decoration: const InputDecoration(
-        prefixIcon: Icon(Icons.landscape),
-        hintText: 'اختر الحقل',
+    return fieldsAsync.when(
+      loading: () => const InputDecorator(
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.landscape),
+          hintText: 'جاري تحميل الحقول...',
+        ),
+        child: Text('جاري التحميل...'),
       ),
-      items: fields.map((field) {
-        return DropdownMenuItem<String>(
-          value: field['id'],
-          child: Text(field['name']!),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() => _selectedFieldId = value);
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'الرجاء اختيار الحقل';
-        }
-        return null;
-      },
+      error: (err, _) => const InputDecorator(
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.error_outline),
+          hintText: 'خطأ في تحميل الحقول',
+        ),
+        child: Text('خطأ في تحميل الحقول'),
+      ),
+      data: (fields) => DropdownButtonFormField<String>(
+        value: _selectedFieldId,
+        decoration: const InputDecoration(
+          prefixIcon: Icon(Icons.landscape),
+          hintText: 'اختر الحقل',
+        ),
+        items: fields.map((field) {
+          return DropdownMenuItem<String>(
+            value: field.id,
+            child: Text(field.name),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() => _selectedFieldId = value);
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'الرجاء اختيار الحقل';
+          }
+          return null;
+        },
+      ),
     );
   }
 

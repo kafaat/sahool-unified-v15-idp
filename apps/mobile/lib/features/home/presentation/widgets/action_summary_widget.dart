@@ -27,7 +27,7 @@ class ActionSummaryWidget extends ConsumerWidget {
               children: [
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 12),
-                Text('خطأ في تحميل الإجراءات: ${err.toString().substring(0, 40)}'),
+                Text('خطأ في تحميل الإجراءات: ${err.toString().length > 40 ? '${err.toString().substring(0, 40)}...' : err.toString()}'),
               ],
             ),
           ),

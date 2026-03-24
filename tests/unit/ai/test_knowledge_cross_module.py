@@ -309,8 +309,7 @@ class TestGraphBuilderIntegration:
             assert hasattr(entity, "entity_type"), "Each entity should have an entity_type"
             assert hasattr(entity, "name"), "Each entity should have a name"
             assert entity.name, f"Entity name should be non-empty, got: {entity.name!r}"
-        # Verify relations reference existing entity names
-        entity_names = {e.name for e in graph.entities}
+        # Verify relations have required attributes
         for relation in graph.relations:
             assert hasattr(relation, "source_id"), "Each relation should have a source_id"
             assert hasattr(relation, "target_id"), "Each relation should have a target_id"

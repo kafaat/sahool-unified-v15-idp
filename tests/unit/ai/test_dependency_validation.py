@@ -21,11 +21,11 @@ from shared.ai.knowledge.persistence import (
 )
 from shared.ai.knowledge.cache import KnowledgeCache
 from shared.ai.knowledge.metrics import KnowledgeMetrics
+import shared.events.subjects as subjects_mod
 from shared.events.subjects import (
     SAHOOL_FIELD_CREATED,
     get_tenant_subject,
 )
-import shared.events.subjects as subjects_mod
 from shared.pivot_management.geometry import PivotGeometry
 from shared.pivot_management.vri_converter import VRIPrescription, ndvi_to_vri_prescription
 from shared.field_boundaries.geometry import (

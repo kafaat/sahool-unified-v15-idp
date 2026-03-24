@@ -1,0 +1,6 @@
+# GitLeaks False Positives
+# These are NOT real secrets - they are env var NAME references in log messages
+
+# shared/auth/config.py - log message references "JWT_SECRET_KEY" (the env var name, not a secret value)
+e0d17aec80cd47a0ce21116a2a1136820dd30101:shared/auth/config.py:generic-secret:46
+35cfc637aa2a526f40c5f56c97376904df827b40:shared/auth/config.py:generic-secret:47

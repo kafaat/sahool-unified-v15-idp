@@ -381,24 +381,27 @@ jobs:
       - name: Create reports directory
         run: mkdir -p reports
 
+      - name: Install Trivy
+        run: |
+          TRIVY_VERSION="0.69.3"
+          curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            -o trivy.tar.gz && \
+          tar -xzf trivy.tar.gz trivy && \
+          sudo mv trivy /usr/local/bin/trivy && \
+          rm -f trivy.tar.gz && \
+          trivy --version
+        continue-on-error: true
+
       - name: Trivy – Scan Dockerfiles (config)
-        uses: aquasecurity/trivy-action@0.38.0
-        with:
-          scan-type: config
-          scan-ref: .
-          format: json
-          output: reports/trivy-config.json
-          severity: CRITICAL,HIGH,MEDIUM
+        run: |
+          trivy config --format json --output reports/trivy-config.json \
+            --severity CRITICAL,HIGH,MEDIUM . || true
         continue-on-error: true
 
       - name: Trivy – Scan filesystem for vulnerabilities
-        uses: aquasecurity/trivy-action@0.38.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: json
-          output: reports/trivy-fs.json
-          severity: CRITICAL,HIGH
+        run: |
+          trivy fs --format json --output reports/trivy-fs.json \
+            --severity CRITICAL,HIGH . || true
         continue-on-error: true
 
       - name: Upload container/infra reports

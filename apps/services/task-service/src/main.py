@@ -318,28 +318,37 @@ async def readiness_check():
     is_ready = db_ok  # Database is required for readiness
     status_code = 200 if is_ready else 503
 
+    payload = {
+        "status": "ready" if is_ready else "not_ready",
+        "service": SERVICE_NAME,
+        "version": SERVICE_VERSION,
+        "checks": {
+            "database": "connected" if db_ok else "disconnected",
+            "nats": nats_status,
+            "redis": "available" if redis_ok else "unavailable",
+        },
+    }
+
     from fastapi.responses import JSONResponse as _JSONResponse
 
-    return _JSONResponse(
-        status_code=status_code,
-        content={
-            "status": "ready" if is_ready else "not_ready",
-            "service": SERVICE_NAME,
-            "version": SERVICE_VERSION,
-            "checks": {
-                "database": "connected" if db_ok else "disconnected",
-                "nats": nats_status,
-                "redis": "available" if redis_ok else "unavailable",
-            },
-        },
-    )
+    return _JSONResponse(status_code=status_code, content=payload)
+
+
+def _readiness_payload(readiness_response) -> dict:
+    """Extract payload dict from readiness response (JSONResponse or dict)."""
+    if hasattr(readiness_response, "body"):
+        import json
+
+        return json.loads(readiness_response.body)
+    return readiness_response
 
 
 @app.get("/health")
 async def combined_health():
     """Combined health status"""
     liveness = await health_check()
-    readiness = await readiness_check()
+    readiness_resp = await readiness_check()
+    readiness = _readiness_payload(readiness_resp)
     return {
         **liveness,
         "ready": readiness["status"] == "ready",

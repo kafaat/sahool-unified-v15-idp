@@ -10,29 +10,29 @@
 ALTER TABLE calibration_run ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation_calrun ON calibration_run
-    USING (tenant_id = current_setting('app.current_tenant_id', true))
-    WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true));
+    USING (tenant_id = current_setting('app.current_tenant', true))
+    WITH CHECK (tenant_id = current_setting('app.current_tenant', true));
 
 -- 2. parameter_set
 ALTER TABLE parameter_set ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation_paramset ON parameter_set
-    USING (tenant_id = current_setting('app.current_tenant_id', true))
-    WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true));
+    USING (tenant_id = current_setting('app.current_tenant', true))
+    WITH CHECK (tenant_id = current_setting('app.current_tenant', true));
 
 -- 3. parameter_change_log
 ALTER TABLE parameter_change_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation_paramlog ON parameter_change_log
-    USING (tenant_id = current_setting('app.current_tenant_id', true))
-    WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true));
+    USING (tenant_id = current_setting('app.current_tenant', true))
+    WITH CHECK (tenant_id = current_setting('app.current_tenant', true));
 
 -- Super-admin bypass
 CREATE POLICY superadmin_bypass_calrun ON calibration_run
-    USING (current_setting('app.is_superadmin', true) = 'true');
+    USING (current_setting('app.is_super_admin', true) = 'true');
 
 CREATE POLICY superadmin_bypass_paramset ON parameter_set
-    USING (current_setting('app.is_superadmin', true) = 'true');
+    USING (current_setting('app.is_super_admin', true) = 'true');
 
 CREATE POLICY superadmin_bypass_paramlog ON parameter_change_log
-    USING (current_setting('app.is_superadmin', true) = 'true');
+    USING (current_setting('app.is_super_admin', true) = 'true');

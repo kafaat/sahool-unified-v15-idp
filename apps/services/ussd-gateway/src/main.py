@@ -38,13 +38,10 @@ SERVICE_VERSION = "16.0.0"
 try:
     from shared.auth.rate_limiting import RateLimiter
 
-    _rate_limiter = RateLimiter(
-        requests_per_minute=30,
-        requests_per_hour=500,
-    )
+    rate_limiter = RateLimiter()  # noqa: F841 — used by middleware
     RATE_LIMITER_AVAILABLE = True
 except ImportError:
-    _rate_limiter = None
+    rate_limiter = None  # noqa: F841
     RATE_LIMITER_AVAILABLE = False
     logger.warning("Rate limiter not available, endpoints are unprotected")
 

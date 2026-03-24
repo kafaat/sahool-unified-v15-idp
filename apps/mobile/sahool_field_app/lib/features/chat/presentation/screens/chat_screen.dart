@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
+import '../../data/models/conversation_model.dart';
 import '../../data/models/message_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/message_bubble.dart';

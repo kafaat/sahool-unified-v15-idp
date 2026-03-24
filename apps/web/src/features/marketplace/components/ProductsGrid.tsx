@@ -65,6 +65,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({
               <input
                 type="text"
                 placeholder="ابحث عن منتجات... | Search products..."
+                aria-label="ابحث عن منتجات | Search products"
                 className="w-full pr-10 pl-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                 onChange={(e) => handleSearch(e.target.value)}
               />
@@ -79,6 +80,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({
               onChange={(e) =>
                 handleSortChange(e.target.value as ProductFilters["sortBy"])
               }
+              aria-label="ترتيب حسب | Sort by"
               className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             >
               <option value="">ترتيب حسب</option>

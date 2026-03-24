@@ -17,7 +17,6 @@ import { Search, Filter, Loader2 } from "lucide-react";
 
 interface EquipmentListProps {
   onFieldClick?: (equipmentId: string) => void;
-  onCreateClick?: () => void;
 }
 
 export function EquipmentList({ onFieldClick }: EquipmentListProps) {

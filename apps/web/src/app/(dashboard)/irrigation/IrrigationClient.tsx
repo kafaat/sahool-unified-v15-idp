@@ -298,18 +298,25 @@ export default function IrrigationClient() {
   }, [deleteTarget, showToast]);
 
   const handleStart = useCallback(async (id: string) => {
+    const previous = schedules.find((s) => s.id === id);
     setSchedules((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: "active" as IrrigationStatus } : s))
     );
     try {
       await apiClient.startIrrigationSchedule(id);
+      showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
     } catch {
-      // Optimistic update already applied
+      if (previous) {
+        setSchedules((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: previous.status } : s))
+        );
+      }
+      showToast({ type: "error", message: "Failed to start irrigation", messageAr: "فشل بدء الري" });
     }
-    showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
-  }, [showToast]);
+  }, [schedules, showToast]);
 
   const handleStop = useCallback(async (id: string) => {
+    const previous = schedules.find((s) => s.id === id);
     setSchedules((prev) =>
       prev.map((s) =>
         s.id === id
@@ -319,11 +326,16 @@ export default function IrrigationClient() {
     );
     try {
       await apiClient.stopIrrigationSchedule(id);
+      showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
     } catch {
-      // Optimistic update already applied
+      if (previous) {
+        setSchedules((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: previous.status } : s))
+        );
+      }
+      showToast({ type: "error", message: "Failed to pause irrigation", messageAr: "فشل إيقاف الري" });
     }
-    showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
-  }, [showToast]);
+  }, [schedules, showToast]);
 
   return (
     <div className="space-y-6">

@@ -211,8 +211,11 @@
     "deleteSchedule": "حذف جدول الري",
     "deleteConfirm": "هل أنت متأكد من حذف جدول الري؟",
     "fieldName": "اسم الحقل",
-    "type": "نوع الري",
-    "scheduledAt": "الموعد",
+    "scheduleName": "اسم الجدول",
+    "scheduleType": "نوع الجدول",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "frequency": "التكرار",
     "duration": "المدة",
     "durationUnit": "دقيقة",
     "waterAmount": "كمية المياه",
@@ -222,23 +225,30 @@
     "start": "بدء الري",
     "stop": "إيقاف الري",
     "todayUsage": "استهلاك اليوم",
-    "inProgress": "جاري الآن",
+    "activeCount": "نشط",
     "scheduledToday": "مجدول اليوم",
     "efficiency": "كفاءة الري",
-    "overdueAlert": "جدول ري متأخر يتطلب اهتماماً",
-    "types": {
+    "statuses": {
+      "active": "نشط",
+      "paused": "متوقف",
+      "completed": "مكتمل"
+    },
+    "scheduleTypes": {
+      "manual": "يدوي",
+      "automatic": "تلقائي",
+      "scheduled": "مجدول"
+    },
+    "frequencies": {
+      "daily": "يومي",
+      "weekly": "أسبوعي",
+      "custom": "مخصص"
+    },
+    "methods": {
       "drip": "تنقيط",
       "sprinkler": "رشاشات",
       "pivot": "محوري",
       "flood": "غمر",
       "manual": "يدوي"
-    },
-    "statuses": {
-      "scheduled": "مجدول",
-      "in_progress": "جاري",
-      "completed": "مكتمل",
-      "cancelled": "ملغي",
-      "overdue": "متأخر"
     }
   },
   "equipment": {

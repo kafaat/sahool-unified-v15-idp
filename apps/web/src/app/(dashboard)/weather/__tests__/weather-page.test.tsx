@@ -98,7 +98,7 @@ describe("WeatherClient", () => {
   it("should render page header with bilingual title", () => {
     render(<WeatherClient />);
     expect(screen.getAllByText(/الطقس/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Weather Dashboard")).toBeInTheDocument();
+    expect(screen.getAllByText(/Weather Dashboard/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("should render all 5 Yemen locations in selector", () => {

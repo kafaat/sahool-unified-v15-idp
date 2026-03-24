@@ -242,7 +242,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: build-logs-${{ github.run_number }}
           path: |
@@ -265,7 +265,7 @@ jobs:
           fi
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-apk-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/**/*.apk
@@ -274,7 +274,7 @@ jobs:
 
       - name: Upload Debug Symbols
         if: ${{ github.event.inputs.build_type == 'release' }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-symbols-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/symbols/

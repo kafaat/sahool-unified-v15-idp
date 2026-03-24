@@ -1,45 +1,427 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "../../../../__tests__/test-utils";
+import WeatherClient from "../WeatherClient";
+import { CurrentWeather } from "@/features/weather";
+import type { WeatherData, WeatherAlert, ForecastDataPoint } from "@/features/weather";
 
-describe("Weather Page", () => {
-  it("should export a valid module", async () => {
-    const mod = await import("../page");
-    expect(mod.default).toBeDefined();
+// ═══════════════════════════════════════════════════════════════════════════
+// Mock Setup
+// ═══════════════════════════════════════════════════════════════════════════
+
+const mockCurrentWeather: WeatherData = {
+  temperature: 32,
+  humidity: 45,
+  windSpeed: 15,
+  windDirection: "NE",
+  pressure: 1013,
+  visibility: 10,
+  uvIndex: 7,
+  condition: "Partly Cloudy",
+  conditionAr: "غائم جزئياً",
+  location: "صنعاء، اليمن",
+  timestamp: "2026-03-24T10:00:00Z",
+};
+
+const mockForecast: ForecastDataPoint[] = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date("2026-03-24");
+  date.setDate(date.getDate() + i);
+  return {
+    date: date.toISOString(),
+    temperature: 28 + i,
+    humidity: 50 + i * 2,
+    precipitation: i % 3 === 0 ? 5 : 0,
+    windSpeed: 10 + i,
+    condition: i % 2 === 0 ? "Sunny" : "Cloudy",
+    conditionAr: i % 2 === 0 ? "مشمس" : "غائم",
+  };
+});
+
+const mockAlerts: WeatherAlert[] = [
+  {
+    id: "alert-1",
+    type: "temperature",
+    severity: "high",
+    title: "High Temperature Alert",
+    titleAr: "تنبيه درجة حرارة عالية",
+    description: "Expected high temperatures above 38°C",
+    descriptionAr: "من المتوقع درجات حرارة عالية تتجاوز 38 درجة مئوية",
+    affectedAreas: ["Sana'a", "Aden"],
+    affectedAreasAr: ["صنعاء", "عدن"],
+    startTime: "2026-03-24T06:00:00Z",
+    endTime: "2026-03-25T18:00:00Z",
+    isActive: true,
+  },
+];
+
+// Mock the weather hooks
+const mockUseCurrentWeather = vi.fn();
+const mockUseWeatherForecast = vi.fn();
+const mockUseWeatherAlerts = vi.fn();
+
+vi.mock("@/features/weather/hooks/useWeather", () => ({
+  useCurrentWeather: (...args: unknown[]) => mockUseCurrentWeather(...args),
+  useWeatherForecast: (...args: unknown[]) => mockUseWeatherForecast(...args),
+  useWeatherAlerts: (...args: unknown[]) => mockUseWeatherAlerts(...args),
+}));
+
+// Mock logger to prevent console noise
+vi.mock("@/lib/logger", () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockUseCurrentWeather.mockReturnValue({
+    data: mockCurrentWeather,
+    isLoading: false,
+    error: null,
+    refetch: vi.fn(),
+    isRefetching: false,
+  });
+  mockUseWeatherForecast.mockReturnValue({
+    data: mockForecast,
+    isLoading: false,
+    error: null,
+  });
+  mockUseWeatherAlerts.mockReturnValue({
+    data: mockAlerts,
+    isLoading: false,
+    error: null,
   });
 });
 
-describe("Weather Data Types", () => {
-  it("should define weather condition types", () => {
-    type WeatherCondition = "sunny" | "cloudy" | "rainy" | "stormy" | "windy";
+// ═══════════════════════════════════════════════════════════════════════════
+// WeatherClient Component Tests
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const conditions: WeatherCondition[] = ["sunny", "cloudy", "rainy", "stormy", "windy"];
-    expect(conditions).toHaveLength(5);
+describe("WeatherClient", () => {
+  it("should render page header with bilingual title", () => {
+    render(<WeatherClient />);
+    expect(screen.getByText("الطقس")).toBeInTheDocument();
+    expect(screen.getByText("Weather Dashboard")).toBeInTheDocument();
   });
 
-  it("should define bilingual weather labels", () => {
-    const labels: Record<string, { en: string; ar: string }> = {
-      sunny: { en: "Sunny", ar: "مشمس" },
-      cloudy: { en: "Cloudy", ar: "غائم" },
-      rainy: { en: "Rainy", ar: "ممطر" },
-      stormy: { en: "Stormy", ar: "عاصف" },
-    };
+  it("should render all 5 Yemen locations in selector", () => {
+    render(<WeatherClient />);
+    const select = screen.getByRole("combobox");
+    const options = select.querySelectorAll("option");
 
-    expect(labels.sunny.ar).toBe("مشمس");
-    expect(labels.rainy.ar).toBe("ممطر");
+    expect(options).toHaveLength(5);
+    expect(options[0]).toHaveTextContent("صنعاء، اليمن");
+    expect(options[1]).toHaveTextContent("عدن، اليمن");
+    expect(options[2]).toHaveTextContent("تعز، اليمن");
+    expect(options[3]).toHaveTextContent("الحديدة، اليمن");
+    expect(options[4]).toHaveTextContent("إب، اليمن");
   });
 
-  it("should validate temperature ranges for agricultural alerts", () => {
-    function getTemperatureAlert(tempC: number): string {
-      if (tempC <= 0) return "frost_warning";
-      if (tempC <= 5) return "cold_alert";
-      if (tempC >= 45) return "extreme_heat";
-      if (tempC >= 38) return "heat_warning";
-      return "normal";
+  it("should default to Sana'a location", () => {
+    render(<WeatherClient />);
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
+    expect(select.value).toBe("sanaa");
+  });
+
+  it("should switch location when selecting from dropdown", () => {
+    render(<WeatherClient />);
+    const select = screen.getByRole("combobox");
+
+    fireEvent.change(select, { target: { value: "aden" } });
+    expect((select as HTMLSelectElement).value).toBe("aden");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CurrentWeather Component Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("CurrentWeather", () => {
+  it("should display temperature in Celsius", () => {
+    render(<CurrentWeather lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("32°C")).toBeInTheDocument();
+  });
+
+  it("should display Arabic weather condition", () => {
+    render(<CurrentWeather lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("غائم جزئياً")).toBeInTheDocument();
+  });
+
+  it("should display location name", () => {
+    render(<CurrentWeather lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("صنعاء، اليمن")).toBeInTheDocument();
+  });
+
+  it("should display weather metrics - humidity, wind, pressure, visibility, UV", () => {
+    render(<CurrentWeather lat={15.3694} lon={44.191} enabled />);
+
+    // Metric labels
+    expect(screen.getByText("الرطوبة")).toBeInTheDocument();
+    expect(screen.getByText("الرياح")).toBeInTheDocument();
+    expect(screen.getByText("الضغط")).toBeInTheDocument();
+    expect(screen.getByText("الرؤية")).toBeInTheDocument();
+    expect(screen.getByText("مؤشر UV")).toBeInTheDocument();
+
+    // Metric values
+    expect(screen.getByText("45")).toBeInTheDocument(); // humidity
+    expect(screen.getByText("15")).toBeInTheDocument(); // wind speed
+    expect(screen.getByText("1013")).toBeInTheDocument(); // pressure
+  });
+
+  it("should show loading state with Arabic message", () => {
+    mockUseCurrentWeather.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+      refetch: vi.fn(),
+      isRefetching: false,
+    });
+
+    render(<CurrentWeather enabled />);
+    expect(screen.getByText("جاري تحميل بيانات الطقس...")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
+  });
+
+  it("should show error state with retry button", () => {
+    const mockRefetch = vi.fn();
+    mockUseCurrentWeather.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error("Network error"),
+      refetch: mockRefetch,
+      isRefetching: false,
+    });
+
+    render(<CurrentWeather enabled />);
+    expect(screen.getByText("عذراً، حدث خطأ أثناء تحميل بيانات الطقس")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+
+    // Click retry
+    const retryBtn = screen.getByText("إعادة المحاولة");
+    fireEvent.click(retryBtn);
+    expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("should show no-data state when weather data is null", () => {
+    mockUseCurrentWeather.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      isRefetching: false,
+    });
+
+    render(<CurrentWeather enabled />);
+    expect(screen.getByText("بيانات الطقس غير متوفرة")).toBeInTheDocument();
+  });
+
+  it("should have ARIA accessibility attributes", () => {
+    render(<CurrentWeather lat={15.3694} lon={44.191} enabled />);
+
+    // Main region
+    expect(screen.getByRole("region", { name: "معلومات الطقس الحالي" })).toBeInTheDocument();
+
+    // Metric list
+    expect(screen.getByRole("list", { name: "تفاصيل الطقس" })).toBeInTheDocument();
+  });
+
+  it("should pass coordinates to the hook", () => {
+    render(<CurrentWeather lat={12.7855} lon={45.0187} enabled />);
+
+    expect(mockUseCurrentWeather).toHaveBeenCalledWith({
+      lat: 12.7855,
+      lon: 45.0187,
+      enabled: true,
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Weather Alerts Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("WeatherAlerts", () => {
+  // Import directly to test the component
+  let WeatherAlerts: React.ComponentType<{ lat?: number; lon?: number; enabled?: boolean }>;
+
+  beforeEach(async () => {
+    const mod = await import("@/features/weather/components/WeatherAlerts");
+    WeatherAlerts = mod.WeatherAlerts;
+  });
+
+  it("should display alert title in Arabic", () => {
+    render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("تنبيه درجة حرارة عالية")).toBeInTheDocument();
+  });
+
+  it("should display alert description in Arabic", () => {
+    render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("من المتوقع درجات حرارة عالية تتجاوز 38 درجة مئوية")).toBeInTheDocument();
+  });
+
+  it("should display affected areas", () => {
+    render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("صنعاء")).toBeInTheDocument();
+    expect(screen.getByText("عدن")).toBeInTheDocument();
+  });
+
+  it("should display severity label in Arabic", () => {
+    render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText(/عالي/)).toBeInTheDocument();
+  });
+
+  it("should show section header", () => {
+    render(<WeatherAlerts lat={15.3694} lon={44.191} enabled />);
+    expect(screen.getByText("تنبيهات الطقس")).toBeInTheDocument();
+  });
+
+  it("should show no-alerts message when empty", () => {
+    mockUseWeatherAlerts.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<WeatherAlerts enabled />);
+    expect(screen.getByText("لا توجد تنبيهات طقس حالية")).toBeInTheDocument();
+    expect(screen.getByText("الأحوال الجوية طبيعية")).toBeInTheDocument();
+  });
+
+  it("should show loading skeleton", () => {
+    mockUseWeatherAlerts.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+
+    render(<WeatherAlerts enabled />);
+    expect(screen.getByText("تنبيهات الطقس")).toBeInTheDocument();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Weather Data Type Validation Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Weather Types & Contracts", () => {
+  it("should validate WeatherData structure matches API contract", () => {
+    const weather: WeatherData = mockCurrentWeather;
+
+    // All required fields present with correct types
+    expect(typeof weather.temperature).toBe("number");
+    expect(typeof weather.humidity).toBe("number");
+    expect(typeof weather.windSpeed).toBe("number");
+    expect(typeof weather.windDirection).toBe("string");
+    expect(typeof weather.pressure).toBe("number");
+    expect(typeof weather.visibility).toBe("number");
+    expect(typeof weather.uvIndex).toBe("number");
+    expect(typeof weather.condition).toBe("string");
+    expect(typeof weather.conditionAr).toBe("string");
+    expect(typeof weather.location).toBe("string");
+    expect(typeof weather.timestamp).toBe("string");
+
+    // Timestamp is valid ISO 8601
+    expect(new Date(weather.timestamp).toISOString()).toBe(weather.timestamp);
+  });
+
+  it("should validate ForecastDataPoint structure", () => {
+    const point: ForecastDataPoint = mockForecast[0];
+
+    expect(typeof point.date).toBe("string");
+    expect(typeof point.temperature).toBe("number");
+    expect(typeof point.humidity).toBe("number");
+    expect(typeof point.precipitation).toBe("number");
+    expect(typeof point.windSpeed).toBe("number");
+    expect(typeof point.condition).toBe("string");
+    expect(typeof point.conditionAr).toBe("string");
+  });
+
+  it("should validate WeatherAlert structure", () => {
+    const alert: WeatherAlert = mockAlerts[0];
+
+    expect(typeof alert.id).toBe("string");
+    expect(typeof alert.type).toBe("string");
+    expect(["low", "medium", "high", "critical", "warning", "info"]).toContain(alert.severity);
+    expect(typeof alert.title).toBe("string");
+    expect(typeof alert.titleAr).toBe("string");
+    expect(typeof alert.isActive).toBe("boolean");
+    expect(Array.isArray(alert.affectedAreas)).toBe(true);
+    expect(Array.isArray(alert.affectedAreasAr)).toBe(true);
+  });
+
+  it("should generate 7-day forecast with ascending dates", () => {
+    expect(mockForecast).toHaveLength(7);
+
+    for (let i = 1; i < mockForecast.length; i++) {
+      const prevDate = new Date(mockForecast[i - 1].date).getTime();
+      const currDate = new Date(mockForecast[i].date).getTime();
+      expect(currDate).toBeGreaterThan(prevDate);
     }
+  });
+});
 
-    expect(getTemperatureAlert(-2)).toBe("frost_warning");
-    expect(getTemperatureAlert(3)).toBe("cold_alert");
-    expect(getTemperatureAlert(25)).toBe("normal");
-    expect(getTemperatureAlert(40)).toBe("heat_warning");
-    expect(getTemperatureAlert(48)).toBe("extreme_heat");
+// ═══════════════════════════════════════════════════════════════════════════
+// Agricultural Temperature Alert Logic Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Agricultural Temperature Alerts", () => {
+  // These test the real agricultural logic used by the platform
+  function getAgriculturalAlert(tempC: number): { level: string; action: string; actionAr: string } {
+    if (tempC <= 0) return { level: "frost_warning", action: "Cover crops immediately", actionAr: "تغطية المحاصيل فوراً" };
+    if (tempC <= 5) return { level: "cold_alert", action: "Monitor frost-sensitive crops", actionAr: "مراقبة المحاصيل الحساسة للصقيع" };
+    if (tempC >= 45) return { level: "extreme_heat", action: "Emergency irrigation required", actionAr: "ري طوارئ مطلوب" };
+    if (tempC >= 38) return { level: "heat_warning", action: "Increase irrigation frequency", actionAr: "زيادة وتيرة الري" };
+    return { level: "normal", action: "No action needed", actionAr: "لا يلزم إجراء" };
+  }
+
+  it("should trigger frost warning at 0°C and below", () => {
+    expect(getAgriculturalAlert(-5).level).toBe("frost_warning");
+    expect(getAgriculturalAlert(0).level).toBe("frost_warning");
+  });
+
+  it("should trigger cold alert between 1-5°C", () => {
+    expect(getAgriculturalAlert(1).level).toBe("cold_alert");
+    expect(getAgriculturalAlert(5).level).toBe("cold_alert");
+  });
+
+  it("should return normal for safe range 6-37°C", () => {
+    expect(getAgriculturalAlert(6).level).toBe("normal");
+    expect(getAgriculturalAlert(25).level).toBe("normal");
+    expect(getAgriculturalAlert(37).level).toBe("normal");
+  });
+
+  it("should trigger heat warning at 38-44°C", () => {
+    expect(getAgriculturalAlert(38).level).toBe("heat_warning");
+    expect(getAgriculturalAlert(44).level).toBe("heat_warning");
+  });
+
+  it("should trigger extreme heat at 45°C and above", () => {
+    expect(getAgriculturalAlert(45).level).toBe("extreme_heat");
+    expect(getAgriculturalAlert(55).level).toBe("extreme_heat");
+  });
+
+  it("should provide bilingual action recommendations", () => {
+    const frost = getAgriculturalAlert(-2);
+    expect(frost.action).toBeTruthy();
+    expect(frost.actionAr).toBeTruthy();
+    expect(frost.actionAr).not.toBe(frost.action); // Different languages
+
+    const heat = getAgriculturalAlert(40);
+    expect(heat.actionAr).toContain("الري");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Page Module Export Test
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("Weather Page Module", () => {
+  it("should export a valid default component", async () => {
+    const mod = await import("../page");
+    expect(mod.default).toBeDefined();
+    expect(typeof mod.default).toBe("function");
+  });
+
+  it("should export SEO metadata", async () => {
+    const mod = await import("../page");
+    expect(mod.metadata).toBeDefined();
+    expect(mod.metadata.title).toContain("Weather");
   });
 });

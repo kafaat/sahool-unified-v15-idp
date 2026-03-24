@@ -3,12 +3,12 @@
  * اختبارات خطافات لوحة التحكم
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
-import { invalidateQueries } from "../use-api-query";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { invalidateQueries } from '../use-api-query';
 
 // Mock the api module
-vi.mock("@/lib/api", () => ({
+vi.mock('@/lib/api', () => ({
   fetchDashboardStats: vi.fn().mockResolvedValue({
     totalFarms: 156,
     activeFarms: 142,
@@ -20,16 +20,16 @@ vi.mock("@/lib/api", () => ({
     weeklyDiagnoses: 47,
   }),
   fetchYieldTrends: vi.fn().mockResolvedValue([
-    { month: "Jan", yield: 4.2, forecast: 4.5 },
-    { month: "Feb", yield: 4.8, forecast: 4.7 },
+    { month: 'Jan', yield: 4.2, forecast: 4.5 },
+    { month: 'Feb', yield: 4.8, forecast: 4.7 },
   ]),
   fetchCropDistribution: vi.fn().mockResolvedValue([
-    { name: "Wheat", value: 45 },
-    { name: "Barley", value: 30 },
+    { name: 'Wheat', value: 45 },
+    { name: 'Barley', value: 30 },
   ]),
-  fetchWeeklyActivity: vi.fn().mockResolvedValue([
-    { day: "Mon", diagnoses: 12, irrigations: 8, alerts: 3 },
-  ]),
+  fetchWeeklyActivity: vi
+    .fn()
+    .mockResolvedValue([{ day: 'Mon', diagnoses: 12, irrigations: 8, alerts: 3 }]),
   fetchPlatformMetrics: vi.fn().mockResolvedValue({
     activeFarmers: 89,
     dailySales: 15000,
@@ -46,14 +46,14 @@ import {
   useCropDistribution,
   useWeeklyActivity,
   usePlatformMetrics,
-} from "../use-dashboard";
+} from '../use-dashboard';
 
 beforeEach(() => {
-  invalidateQueries("");
+  invalidateQueries('');
 });
 
-describe("useDashboardStats", () => {
-  it("fetches dashboard statistics", async () => {
+describe('useDashboardStats', () => {
+  it('fetches dashboard statistics', async () => {
     const { result } = renderHook(() => useDashboardStats());
 
     await waitFor(() => {
@@ -64,13 +64,13 @@ describe("useDashboardStats", () => {
       expect.objectContaining({
         totalFarms: 156,
         activeFarms: 142,
-      }),
+      })
     );
   });
 });
 
-describe("useYieldTrends", () => {
-  it("fetches yield trends with default period", async () => {
+describe('useYieldTrends', () => {
+  it('fetches yield trends with default period', async () => {
     const { result } = renderHook(() => useYieldTrends());
 
     await waitFor(() => {
@@ -78,12 +78,12 @@ describe("useYieldTrends", () => {
     });
 
     expect(result.current.data).toHaveLength(2);
-    expect(result.current.data?.[0]).toHaveProperty("month");
-    expect(result.current.data?.[0]).toHaveProperty("yield");
+    expect(result.current.data?.[0]).toHaveProperty('month');
+    expect(result.current.data?.[0]).toHaveProperty('yield');
   });
 
-  it("accepts custom period", async () => {
-    const { result } = renderHook(() => useYieldTrends("7d"));
+  it('accepts custom period', async () => {
+    const { result } = renderHook(() => useYieldTrends('7d'));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -91,8 +91,8 @@ describe("useYieldTrends", () => {
   });
 });
 
-describe("useCropDistribution", () => {
-  it("fetches crop distribution data", async () => {
+describe('useCropDistribution', () => {
+  it('fetches crop distribution data', async () => {
     const { result } = renderHook(() => useCropDistribution());
 
     await waitFor(() => {
@@ -100,14 +100,14 @@ describe("useCropDistribution", () => {
     });
 
     expect(result.current.data).toEqual([
-      { name: "Wheat", value: 45 },
-      { name: "Barley", value: 30 },
+      { name: 'Wheat', value: 45 },
+      { name: 'Barley', value: 30 },
     ]);
   });
 });
 
-describe("useWeeklyActivity", () => {
-  it("fetches weekly activity data", async () => {
+describe('useWeeklyActivity', () => {
+  it('fetches weekly activity data', async () => {
     const { result } = renderHook(() => useWeeklyActivity());
 
     await waitFor(() => {
@@ -116,15 +116,15 @@ describe("useWeeklyActivity", () => {
 
     expect(result.current.data?.[0]).toEqual(
       expect.objectContaining({
-        day: "Mon",
+        day: 'Mon',
         diagnoses: 12,
-      }),
+      })
     );
   });
 });
 
-describe("usePlatformMetrics", () => {
-  it("fetches platform metrics", async () => {
+describe('usePlatformMetrics', () => {
+  it('fetches platform metrics', async () => {
     const { result } = renderHook(() => usePlatformMetrics());
 
     await waitFor(() => {
@@ -135,7 +135,7 @@ describe("usePlatformMetrics", () => {
       expect.objectContaining({
         activeFarmers: 89,
         dailySales: 15000,
-      }),
+      })
     );
   });
 });

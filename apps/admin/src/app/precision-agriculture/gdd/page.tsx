@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 // GDD (Growing Degree Days) Monitoring
 // مراقبة درجات النمو الحرارية
 
-import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
+import { useEffect, useState } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
 // AlertBadge import removed - using inline alerts
-import { fetchGDDData } from "@/lib/api/precision";
+import { fetchGDDData } from '@/lib/api/precision';
 import {
   Thermometer,
   Sprout,
@@ -16,12 +16,9 @@ import {
   Calendar,
   MapPin,
   Clock,
-} from "lucide-react";
-import { logger } from "../../../lib/logger";
-import {
-  DynamicGDDStageDistributionChart,
-  DynamicGDDHistoryChart,
-} from "./GDDCharts.dynamic";
+} from 'lucide-react';
+import { logger } from '../../../lib/logger';
+import { DynamicGDDStageDistributionChart, DynamicGDDHistoryChart } from './GDDCharts.dynamic';
 
 interface GDDField {
   id: string;
@@ -39,7 +36,7 @@ interface GDDField {
   daysToNextStage: number;
   gddToNextStage: number;
   alerts: Array<{
-    type: "info" | "warning" | "critical";
+    type: 'info' | 'warning' | 'critical';
     message: string;
     messageAr: string;
   }>;
@@ -69,7 +66,7 @@ export default function GDDPage() {
         setSelectedField(data[0] ?? null);
       }
     } catch (error) {
-      logger.error("Failed to load GDD data:", error);
+      logger.error('Failed to load GDD data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -78,9 +75,7 @@ export default function GDDPage() {
   const stats = {
     totalFields: fields.length,
     activeMonitoring: fields.length,
-    criticalAlerts: fields.filter((f) =>
-      f.alerts.some((a) => a.type === "critical"),
-    ).length,
+    criticalAlerts: fields.filter((f) => f.alerts.some((a) => a.type === 'critical')).length,
     nearTransition: fields.filter((f) => f.daysToNextStage <= 7).length,
   };
 
@@ -90,7 +85,7 @@ export default function GDDPage() {
       acc[stage] = (acc[stage] || 0) + 1;
       return acc;
     },
-    {} as Record<string, number>,
+    {} as Record<string, number>
   );
 
   const stageData = Object.entries(stageDistribution).map(([stage, count]) => ({
@@ -253,11 +248,11 @@ export default function GDDPage() {
                     <div
                       key={index}
                       className={`flex items-start gap-2 p-2 rounded-lg text-sm ${
-                        alert.type === "critical"
-                          ? "bg-red-50 text-red-700"
-                          : alert.type === "warning"
-                            ? "bg-yellow-50 text-yellow-700"
-                            : "bg-blue-50 text-blue-700"
+                        alert.type === 'critical'
+                          ? 'bg-red-50 text-red-700'
+                          : alert.type === 'warning'
+                            ? 'bg-yellow-50 text-yellow-700'
+                            : 'bg-blue-50 text-blue-700'
                       }`}
                     >
                       <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />

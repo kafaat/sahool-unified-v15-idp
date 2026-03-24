@@ -17,12 +17,12 @@
 /**
  * Types of detections supported by the vision service
  */
-export type DetectionType = "pest" | "disease" | "weed" | "plant";
+export type DetectionType = 'pest' | 'disease' | 'weed' | 'plant';
 
 /**
  * Device type where inference was performed
  */
-export type DeviceType = "cloud" | "edge" | "mobile";
+export type DeviceType = 'cloud' | 'edge' | 'mobile';
 
 /**
  * Bounding box coordinates for detected objects
@@ -80,35 +80,35 @@ export interface DetectionWithImage extends Detection {
  * فئات الآفات المكتشفة
  */
 export type PestClass =
-  | "locust"              // جراد
-  | "aphid"               // من
-  | "whitefly"            // ذبابة بيضاء
-  | "thrips"              // تربس
-  | "spider_mite"         // عنكبوت أحمر
-  | "leafhopper"          // نطاط الأوراق
-  | "armyworm"            // دودة الحشد
-  | "cutworm"             // دودة قاطعة
-  | "stem_borer"          // حفار الساق
-  | "fruit_fly"           // ذبابة الفاكهة
-  | "weevil"              // سوسة
-  | "bollworm"            // دودة اللوز
-  | "red_palm_weevil"     // سوسة النخيل الحمراء
-  | "dubas_bug"           // حشرة الدوباس
-  | "scale_insect"        // حشرة قشرية
-  | "mealybug"            // البق الدقيقي
-  | "grasshopper"         // جندب
-  | "unknown_pest";       // آفة غير معروفة
+  | 'locust' // جراد
+  | 'aphid' // من
+  | 'whitefly' // ذبابة بيضاء
+  | 'thrips' // تربس
+  | 'spider_mite' // عنكبوت أحمر
+  | 'leafhopper' // نطاط الأوراق
+  | 'armyworm' // دودة الحشد
+  | 'cutworm' // دودة قاطعة
+  | 'stem_borer' // حفار الساق
+  | 'fruit_fly' // ذبابة الفاكهة
+  | 'weevil' // سوسة
+  | 'bollworm' // دودة اللوز
+  | 'red_palm_weevil' // سوسة النخيل الحمراء
+  | 'dubas_bug' // حشرة الدوباس
+  | 'scale_insect' // حشرة قشرية
+  | 'mealybug' // البق الدقيقي
+  | 'grasshopper' // جندب
+  | 'unknown_pest'; // آفة غير معروفة
 
 /**
  * Pest detection with specific metadata
  */
 export interface PestDetection extends Detection {
-  detectionType: "pest";
+  detectionType: 'pest';
   pestClass: PestClass;
   pestClassAr: string;
-  lifeCycleStage?: "egg" | "larva" | "nymph" | "pupa" | "adult";
+  lifeCycleStage?: 'egg' | 'larva' | 'nymph' | 'pupa' | 'adult';
   lifeCycleStageAr?: string;
-  estimatedPopulationDensity?: "low" | "medium" | "high" | "severe";
+  estimatedPopulationDensity?: 'low' | 'medium' | 'high' | 'severe';
   estimatedPopulationDensityAr?: string;
   actionThresholdReached: boolean;
   recommendedAction?: string;
@@ -125,45 +125,45 @@ export interface PestDetection extends Detection {
  * فئات الأمراض المكتشفة
  */
 export type DiseaseClass =
-  | "rust"                    // صدأ
-  | "powdery_mildew"          // بياض دقيقي
-  | "downy_mildew"            // بياض زغبي
-  | "blight"                  // لفحة
-  | "leaf_spot"               // تبقع الأوراق
-  | "anthracnose"             // أنثراكنوز
-  | "fusarium_wilt"           // ذبول فيوزاريوم
-  | "verticillium_wilt"       // ذبول فيرتيسيليوم
-  | "root_rot"                // تعفن الجذور
-  | "bacterial_blight"        // لفحة بكتيرية
-  | "viral_mosaic"            // موزاييك فيروسي
-  | "smut"                    // تفحم
-  | "ergot"                   // أرغوت
-  | "scab"                    // جرب
-  | "canker"                  // تقرح
-  | "damping_off"             // سقوط البادرات
-  | "black_rot"               // عفن أسود
-  | "gray_mold"               // عفن رمادي
-  | "nutrient_deficiency"     // نقص عناصر غذائية
-  | "unknown_disease";        // مرض غير معروف
+  | 'rust' // صدأ
+  | 'powdery_mildew' // بياض دقيقي
+  | 'downy_mildew' // بياض زغبي
+  | 'blight' // لفحة
+  | 'leaf_spot' // تبقع الأوراق
+  | 'anthracnose' // أنثراكنوز
+  | 'fusarium_wilt' // ذبول فيوزاريوم
+  | 'verticillium_wilt' // ذبول فيرتيسيليوم
+  | 'root_rot' // تعفن الجذور
+  | 'bacterial_blight' // لفحة بكتيرية
+  | 'viral_mosaic' // موزاييك فيروسي
+  | 'smut' // تفحم
+  | 'ergot' // أرغوت
+  | 'scab' // جرب
+  | 'canker' // تقرح
+  | 'damping_off' // سقوط البادرات
+  | 'black_rot' // عفن أسود
+  | 'gray_mold' // عفن رمادي
+  | 'nutrient_deficiency' // نقص عناصر غذائية
+  | 'unknown_disease'; // مرض غير معروف
 
 /**
  * Disease severity level
  */
-export type DiseaseSeverity = "trace" | "light" | "moderate" | "severe" | "very_severe";
+export type DiseaseSeverity = 'trace' | 'light' | 'moderate' | 'severe' | 'very_severe';
 
 /**
  * Disease detection with specific metadata
  */
 export interface DiseaseDetection extends Detection {
-  detectionType: "disease";
+  detectionType: 'disease';
   diseaseClass: DiseaseClass;
   diseaseClassAr: string;
   severity: DiseaseSeverity;
   severityAr: string;
   severityPercent: number;
-  affectedPlantPart: "leaf" | "stem" | "root" | "fruit" | "flower" | "whole_plant";
+  affectedPlantPart: 'leaf' | 'stem' | 'root' | 'fruit' | 'flower' | 'whole_plant';
   affectedPlantPartAr: string;
-  spreadRisk: "low" | "medium" | "high";
+  spreadRisk: 'low' | 'medium' | 'high';
   spreadRiskAr: string;
   isTreatable: boolean;
   recommendedTreatment?: string;
@@ -181,33 +181,33 @@ export interface DiseaseDetection extends Detection {
  * فئات الأعشاب الضارة المكتشفة
  */
 export type WeedClass =
-  | "broadleaf"               // عريضة الأوراق
-  | "grass_weed"              // حشائش نجيلية
-  | "sedge"                   // سعد
-  | "thistle"                 // شوك
-  | "bindweed"                // لبلاب
-  | "pigweed"                 // رجلة
-  | "lambsquarters"           // قطف
-  | "purslane"                // بقلة
-  | "nutsedge"                // سعد مثلث
-  | "barnyard_grass"          // دنيبة
-  | "crabgrass"               // نجم
-  | "wild_oat"                // شوفان بري
-  | "dodder"                  // حامول
-  | "broomrape"               // هالوك
-  | "unknown_weed";           // عشب ضار غير معروف
+  | 'broadleaf' // عريضة الأوراق
+  | 'grass_weed' // حشائش نجيلية
+  | 'sedge' // سعد
+  | 'thistle' // شوك
+  | 'bindweed' // لبلاب
+  | 'pigweed' // رجلة
+  | 'lambsquarters' // قطف
+  | 'purslane' // بقلة
+  | 'nutsedge' // سعد مثلث
+  | 'barnyard_grass' // دنيبة
+  | 'crabgrass' // نجم
+  | 'wild_oat' // شوفان بري
+  | 'dodder' // حامول
+  | 'broomrape' // هالوك
+  | 'unknown_weed'; // عشب ضار غير معروف
 
 /**
  * Weed detection with specific metadata
  */
 export interface WeedDetection extends Detection {
-  detectionType: "weed";
+  detectionType: 'weed';
   weedClass: WeedClass;
   weedClassAr: string;
-  growthStage: "seedling" | "vegetative" | "flowering" | "seeding";
+  growthStage: 'seedling' | 'vegetative' | 'flowering' | 'seeding';
   growthStageAr: string;
   coveragePercent: number;
-  competitionLevel: "low" | "medium" | "high";
+  competitionLevel: 'low' | 'medium' | 'high';
   competitionLevelAr: string;
   isParasitic: boolean;
   resistanceProfile?: string[];
@@ -225,18 +225,18 @@ export interface WeedDetection extends Detection {
  * Plant identification detection
  */
 export interface PlantDetection extends Detection {
-  detectionType: "plant";
+  detectionType: 'plant';
   scientificName: string;
   commonName: string;
   commonNameAr: string;
   family: string;
   familyAr: string;
-  growthHabit: "annual" | "biennial" | "perennial";
+  growthHabit: 'annual' | 'biennial' | 'perennial';
   growthHabitAr: string;
   isAgronomicCrop: boolean;
   varietyMatch?: string;
   varietyConfidence?: number;
-  healthStatus: "healthy" | "stressed" | "diseased" | "damaged";
+  healthStatus: 'healthy' | 'stressed' | 'diseased' | 'damaged';
   healthStatusAr: string;
 }
 
@@ -318,7 +318,7 @@ export interface FieldDetectionSummary {
   }>;
   healthScore: number;
   healthScoreAr: string;
-  alertLevel: "none" | "low" | "medium" | "high" | "critical";
+  alertLevel: 'none' | 'low' | 'medium' | 'high' | 'critical';
   alertLevelAr: string;
   recommendations: string[];
   recommendationsAr: string[];
@@ -364,5 +364,5 @@ export interface ModelDeploymentStatus {
   edgeVersion?: string;
   mobileVersion?: string;
   lastSync: string;
-  syncStatus: "synced" | "syncing" | "pending" | "failed";
+  syncStatus: 'synced' | 'syncing' | 'pending' | 'failed';
 }

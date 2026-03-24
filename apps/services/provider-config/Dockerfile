@@ -19,10 +19,10 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # Upgrade pip and install build tools
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY constraints.txt .

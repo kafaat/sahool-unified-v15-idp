@@ -3,9 +3,9 @@
  * RESTful endpoints for geospatial operations
  */
 
-import { Router, Request, Response } from "express";
-import { logger } from "../middleware/logger";
-import { geoService } from "./geo-service";
+import { Router, Request, Response } from 'express';
+import { logger } from '../middleware/logger';
+import { geoService } from './geo-service';
 
 export const geoRoutes = Router();
 
@@ -31,8 +31,7 @@ function isValidLongitude(lng: number): boolean {
  * Validate UUID format
  */
 function isValidUUID(uuid: string): boolean {
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 }
 
@@ -50,7 +49,7 @@ function isValidUUID(uuid: string): boolean {
  * - radius: Radius in kilometers (required)
  * - tenantId: Tenant ID filter (optional)
  */
-geoRoutes.get("/fields/radius", async (req: Request, res: Response) => {
+geoRoutes.get('/fields/radius', async (req: Request, res: Response) => {
   try {
     const lat = parseFloat(req.query.lat as string);
     const lng = parseFloat(req.query.lng as string);
@@ -60,34 +59,29 @@ geoRoutes.get("/fields/radius", async (req: Request, res: Response) => {
     // Validation
     if (isNaN(lat) || isNaN(lng) || isNaN(radius)) {
       return res.status(400).json({
-        error: "Invalid parameters. lat, lng, and radius must be valid numbers",
+        error: 'Invalid parameters. lat, lng, and radius must be valid numbers',
       });
     }
 
     if (!isValidLatitude(lat)) {
       return res.status(400).json({
-        error: "Invalid latitude. Must be between -90 and 90",
+        error: 'Invalid latitude. Must be between -90 and 90',
       });
     }
 
     if (!isValidLongitude(lng)) {
       return res.status(400).json({
-        error: "Invalid longitude. Must be between -180 and 180",
+        error: 'Invalid longitude. Must be between -180 and 180',
       });
     }
 
     if (radius <= 0 || radius > 1000) {
       return res.status(400).json({
-        error: "Invalid radius. Must be between 0 and 1000 km",
+        error: 'Invalid radius. Must be between 0 and 1000 km',
       });
     }
 
-    const fields = await geoService.findFieldsInRadius(
-      lat,
-      lng,
-      radius,
-      tenantId,
-    );
+    const fields = await geoService.findFieldsInRadius(lat, lng, radius, tenantId);
 
     res.json({
       center: { lat, lng },
@@ -96,8 +90,8 @@ geoRoutes.get("/fields/radius", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    logger.error("Error finding fields in radius:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error finding fields in radius:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -111,7 +105,7 @@ geoRoutes.get("/fields/radius", async (req: Request, res: Response) => {
  * - limit: Maximum number of results (optional, default: 10)
  * - tenantId: Tenant ID filter (optional)
  */
-geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
+geoRoutes.get('/farms/nearby', async (req: Request, res: Response) => {
   try {
     const lat = parseFloat(req.query.lat as string);
     const lng = parseFloat(req.query.lng as string);
@@ -121,25 +115,25 @@ geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
     // Validation
     if (isNaN(lat) || isNaN(lng)) {
       return res.status(400).json({
-        error: "Invalid parameters. lat and lng must be valid numbers",
+        error: 'Invalid parameters. lat and lng must be valid numbers',
       });
     }
 
     if (!isValidLatitude(lat)) {
       return res.status(400).json({
-        error: "Invalid latitude. Must be between -90 and 90",
+        error: 'Invalid latitude. Must be between -90 and 90',
       });
     }
 
     if (!isValidLongitude(lng)) {
       return res.status(400).json({
-        error: "Invalid longitude. Must be between -180 and 180",
+        error: 'Invalid longitude. Must be between -180 and 180',
       });
     }
 
     if (limit <= 0 || limit > 100) {
       return res.status(400).json({
-        error: "Invalid limit. Must be between 1 and 100",
+        error: 'Invalid limit. Must be between 1 and 100',
       });
     }
 
@@ -152,8 +146,8 @@ geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
       farms,
     });
   } catch (error: any) {
-    logger.error("Error finding nearby farms:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error finding nearby farms:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -164,26 +158,24 @@ geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
  * Path parameters:
  * - fieldId: UUID of the field
  */
-geoRoutes.get("/fields/:fieldId/area", async (req: Request, res: Response) => {
+geoRoutes.get('/fields/:fieldId/area', async (req: Request, res: Response) => {
   try {
-    const fieldId = Array.isArray(req.params.fieldId)
-      ? req.params.fieldId[0]
-      : req.params.fieldId;
+    const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
 
     if (!isValidUUID(fieldId)) {
       return res.status(400).json({
-        error: "Invalid field ID format",
+        error: 'Invalid field ID format',
       });
     }
 
     const result = await geoService.calculateFieldArea(fieldId);
     res.json(result);
   } catch (error: any) {
-    logger.error("Error calculating field area:", error);
-    if (error.message.includes("not found")) {
+    logger.error('Error calculating field area:', error);
+    if (error.message.includes('not found')) {
       res.status(404).json({ error: error.message });
     } else {
-      res.status(500).json({ error: error.message || "Internal server error" });
+      res.status(500).json({ error: error.message || 'Internal server error' });
     }
   }
 });
@@ -199,41 +191,36 @@ geoRoutes.get("/fields/:fieldId/area", async (req: Request, res: Response) => {
  * - lat: Latitude
  * - lng: Longitude
  */
-geoRoutes.post(
-  "/fields/:fieldId/contains-point",
-  async (req: Request, res: Response) => {
-    try {
-      const fieldId = Array.isArray(req.params.fieldId)
-        ? req.params.fieldId[0]
-        : req.params.fieldId;
-      const { lat, lng } = req.body;
+geoRoutes.post('/fields/:fieldId/contains-point', async (req: Request, res: Response) => {
+  try {
+    const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
+    const { lat, lng } = req.body;
 
-      if (!isValidUUID(fieldId)) {
-        return res.status(400).json({
-          error: "Invalid field ID format",
-        });
-      }
-
-      if (typeof lat !== "number" || typeof lng !== "number") {
-        return res.status(400).json({
-          error: "lat and lng must be numbers",
-        });
-      }
-
-      if (!isValidLatitude(lat) || !isValidLongitude(lng)) {
-        return res.status(400).json({
-          error: "Invalid coordinates",
-        });
-      }
-
-      const result = await geoService.checkPointInField(lat, lng, fieldId);
-      res.json(result);
-    } catch (error: any) {
-      logger.error("Error checking point in field:", error);
-      res.status(500).json({ error: error.message || "Internal server error" });
+    if (!isValidUUID(fieldId)) {
+      return res.status(400).json({
+        error: 'Invalid field ID format',
+      });
     }
-  },
-);
+
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({
+        error: 'lat and lng must be numbers',
+      });
+    }
+
+    if (!isValidLatitude(lat) || !isValidLongitude(lng)) {
+      return res.status(400).json({
+        error: 'Invalid coordinates',
+      });
+    }
+
+    const result = await geoService.checkPointInField(lat, lng, fieldId);
+    res.json(result);
+  } catch (error: any) {
+    logger.error('Error checking point in field:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
 
 /**
  * GET /api/geo/fields/bbox
@@ -246,7 +233,7 @@ geoRoutes.post(
  * - maxLng: Maximum longitude (east)
  * - tenantId: Tenant ID filter (optional)
  */
-geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
+geoRoutes.get('/fields/bbox', async (req: Request, res: Response) => {
   try {
     const minLat = parseFloat(req.query.minLat as string);
     const minLng = parseFloat(req.query.minLng as string);
@@ -257,7 +244,7 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
     // Validation
     if (isNaN(minLat) || isNaN(minLng) || isNaN(maxLat) || isNaN(maxLng)) {
       return res.status(400).json({
-        error: "Invalid parameters. All coordinates must be valid numbers",
+        error: 'Invalid parameters. All coordinates must be valid numbers',
       });
     }
 
@@ -268,23 +255,17 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
       !isValidLongitude(maxLng)
     ) {
       return res.status(400).json({
-        error: "Invalid coordinates",
+        error: 'Invalid coordinates',
       });
     }
 
     if (minLat >= maxLat || minLng >= maxLng) {
       return res.status(400).json({
-        error: "Invalid bounding box. Min values must be less than max values",
+        error: 'Invalid bounding box. Min values must be less than max values',
       });
     }
 
-    const fields = await geoService.findFieldsInBBox(
-      minLat,
-      minLng,
-      maxLat,
-      maxLng,
-      tenantId,
-    );
+    const fields = await geoService.findFieldsInBBox(minLat, minLng, maxLat, maxLng, tenantId);
 
     res.json({
       bbox: { minLat, minLng, maxLat, maxLng },
@@ -292,8 +273,8 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    logger.error("Error finding fields in bbox:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error finding fields in bbox:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -305,49 +286,38 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
  * - fieldId1: UUID of the first field
  * - fieldId2: UUID of the second field
  */
-geoRoutes.get(
-  "/fields/:fieldId1/distance/:fieldId2",
-  async (req: Request, res: Response) => {
-    try {
-      const fieldId1 = Array.isArray(req.params.fieldId1)
-        ? req.params.fieldId1[0]
-        : req.params.fieldId1;
-      const fieldId2 = Array.isArray(req.params.fieldId2)
-        ? req.params.fieldId2[0]
-        : req.params.fieldId2;
+geoRoutes.get('/fields/:fieldId1/distance/:fieldId2', async (req: Request, res: Response) => {
+  try {
+    const fieldId1 = Array.isArray(req.params.fieldId1)
+      ? req.params.fieldId1[0]
+      : req.params.fieldId1;
+    const fieldId2 = Array.isArray(req.params.fieldId2)
+      ? req.params.fieldId2[0]
+      : req.params.fieldId2;
 
-      if (!isValidUUID(fieldId1) || !isValidUUID(fieldId2)) {
-        return res.status(400).json({
-          error: "Invalid field ID format",
-        });
-      }
-
-      if (fieldId1 === fieldId2) {
-        return res.status(400).json({
-          error: "Cannot calculate distance between the same field",
-        });
-      }
-
-      const result = await geoService.calculateFieldsDistance(
-        fieldId1,
-        fieldId2,
-      );
-      res.json(result);
-    } catch (error: any) {
-      logger.error("Error calculating fields distance:", error);
-      if (
-        error.message.includes("not found") ||
-        error.message.includes("Could not calculate")
-      ) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res
-          .status(500)
-          .json({ error: error.message || "Internal server error" });
-      }
+    if (!isValidUUID(fieldId1) || !isValidUUID(fieldId2)) {
+      return res.status(400).json({
+        error: 'Invalid field ID format',
+      });
     }
-  },
-);
+
+    if (fieldId1 === fieldId2) {
+      return res.status(400).json({
+        error: 'Cannot calculate distance between the same field',
+      });
+    }
+
+    const result = await geoService.calculateFieldsDistance(fieldId1, fieldId2);
+    res.json(result);
+  } catch (error: any) {
+    logger.error('Error calculating fields distance:', error);
+    if (error.message.includes('not found') || error.message.includes('Could not calculate')) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  }
+});
 
 /**
  * GET /api/geo/region/stats
@@ -360,7 +330,7 @@ geoRoutes.get(
  * - maxLng: Maximum longitude (east)
  * - tenantId: Tenant ID filter (optional)
  */
-geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
+geoRoutes.get('/region/stats', async (req: Request, res: Response) => {
   try {
     const minLat = parseFloat(req.query.minLat as string);
     const minLng = parseFloat(req.query.minLng as string);
@@ -371,7 +341,7 @@ geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
     // Validation
     if (isNaN(minLat) || isNaN(minLng) || isNaN(maxLat) || isNaN(maxLng)) {
       return res.status(400).json({
-        error: "Invalid parameters. All coordinates must be valid numbers",
+        error: 'Invalid parameters. All coordinates must be valid numbers',
       });
     }
 
@@ -382,31 +352,25 @@ geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
       !isValidLongitude(maxLng)
     ) {
       return res.status(400).json({
-        error: "Invalid coordinates",
+        error: 'Invalid coordinates',
       });
     }
 
     if (minLat >= maxLat || minLng >= maxLng) {
       return res.status(400).json({
-        error: "Invalid bounding box",
+        error: 'Invalid bounding box',
       });
     }
 
-    const stats = await geoService.getRegionFieldStats(
-      minLat,
-      minLng,
-      maxLat,
-      maxLng,
-      tenantId,
-    );
+    const stats = await geoService.getRegionFieldStats(minLat, minLng, maxLat, maxLng, tenantId);
 
     res.json({
       region: { minLat, minLng, maxLat, maxLng },
       statistics: stats,
     });
   } catch (error: any) {
-    logger.error("Error getting region stats:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error getting region stats:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -417,34 +381,27 @@ geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
  * Path parameters:
  * - fieldId: UUID of the field
  */
-geoRoutes.get(
-  "/fields/:fieldId/geojson",
-  async (req: Request, res: Response) => {
-    try {
-      const fieldId = Array.isArray(req.params.fieldId)
-        ? req.params.fieldId[0]
-        : req.params.fieldId;
+geoRoutes.get('/fields/:fieldId/geojson', async (req: Request, res: Response) => {
+  try {
+    const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
 
-      if (!isValidUUID(fieldId)) {
-        return res.status(400).json({
-          error: "Invalid field ID format",
-        });
-      }
-
-      const geojson = await geoService.getFieldGeoJSON(fieldId);
-      res.json(geojson);
-    } catch (error: any) {
-      logger.error("Error getting field GeoJSON:", error);
-      if (error.message.includes("not found")) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res
-          .status(500)
-          .json({ error: error.message || "Internal server error" });
-      }
+    if (!isValidUUID(fieldId)) {
+      return res.status(400).json({
+        error: 'Invalid field ID format',
+      });
     }
-  },
-);
+
+    const geojson = await geoService.getFieldGeoJSON(fieldId);
+    res.json(geojson);
+  } catch (error: any) {
+    logger.error('Error getting field GeoJSON:', error);
+    if (error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  }
+});
 
 /**
  * GET /api/geo/farms/:farmId/geojson
@@ -453,26 +410,24 @@ geoRoutes.get(
  * Path parameters:
  * - farmId: UUID of the farm
  */
-geoRoutes.get("/farms/:farmId/geojson", async (req: Request, res: Response) => {
+geoRoutes.get('/farms/:farmId/geojson', async (req: Request, res: Response) => {
   try {
-    const farmId = Array.isArray(req.params.farmId)
-      ? req.params.farmId[0]
-      : req.params.farmId;
+    const farmId = Array.isArray(req.params.farmId) ? req.params.farmId[0] : req.params.farmId;
 
     if (!isValidUUID(farmId)) {
       return res.status(400).json({
-        error: "Invalid farm ID format",
+        error: 'Invalid farm ID format',
       });
     }
 
     const geojson = await geoService.getFarmGeoJSON(farmId);
     res.json(geojson);
   } catch (error: any) {
-    logger.error("Error getting farm GeoJSON:", error);
-    if (error.message.includes("not found")) {
+    logger.error('Error getting farm GeoJSON:', error);
+    if (error.message.includes('not found')) {
       res.status(404).json({ error: error.message });
     } else {
-      res.status(500).json({ error: error.message || "Internal server error" });
+      res.status(500).json({ error: error.message || 'Internal server error' });
     }
   }
 });
@@ -484,15 +439,13 @@ geoRoutes.get("/farms/:farmId/geojson", async (req: Request, res: Response) => {
  * Path parameters:
  * - farmId: UUID of the farm
  */
-geoRoutes.get("/farms/:farmId/fields", async (req: Request, res: Response) => {
+geoRoutes.get('/farms/:farmId/fields', async (req: Request, res: Response) => {
   try {
-    const farmId = Array.isArray(req.params.farmId)
-      ? req.params.farmId[0]
-      : req.params.farmId;
+    const farmId = Array.isArray(req.params.farmId) ? req.params.farmId[0] : req.params.farmId;
 
     if (!isValidUUID(farmId)) {
       return res.status(400).json({
-        error: "Invalid farm ID format",
+        error: 'Invalid farm ID format',
       });
     }
 
@@ -504,8 +457,8 @@ geoRoutes.get("/farms/:farmId/fields", async (req: Request, res: Response) => {
       fields,
     });
   } catch (error: any) {
-    logger.error("Error getting farm fields:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error getting farm fields:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -525,22 +478,20 @@ geoRoutes.get("/farms/:farmId/fields", async (req: Request, res: Response) => {
  * - farm_id: Farm ID (optional)
  * - boundary_geojson: GeoJSON Polygon object
  */
-geoRoutes.post("/fields", async (req: Request, res: Response) => {
+geoRoutes.post('/fields', async (req: Request, res: Response) => {
   try {
-    const { name, tenant_id, crop_type, owner_id, farm_id, boundary_geojson } =
-      req.body;
+    const { name, tenant_id, crop_type, owner_id, farm_id, boundary_geojson } = req.body;
 
     // Validation
     if (!name || !tenant_id || !crop_type || !boundary_geojson) {
       return res.status(400).json({
-        error:
-          "Missing required fields: name, tenant_id, crop_type, boundary_geojson",
+        error: 'Missing required fields: name, tenant_id, crop_type, boundary_geojson',
       });
     }
 
     if (farm_id && !isValidUUID(farm_id)) {
       return res.status(400).json({
-        error: "Invalid farm ID format",
+        error: 'Invalid farm ID format',
       });
     }
 
@@ -555,8 +506,8 @@ geoRoutes.post("/fields", async (req: Request, res: Response) => {
 
     res.status(201).json(field);
   } catch (error: any) {
-    logger.error("Error creating field:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error creating field:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
@@ -570,44 +521,34 @@ geoRoutes.post("/fields", async (req: Request, res: Response) => {
  * Body:
  * - boundary_geojson: GeoJSON Polygon object
  */
-geoRoutes.put(
-  "/fields/:fieldId/boundary",
-  async (req: Request, res: Response) => {
-    try {
-      const fieldId = Array.isArray(req.params.fieldId)
-        ? req.params.fieldId[0]
-        : req.params.fieldId;
-      const { boundary_geojson } = req.body;
+geoRoutes.put('/fields/:fieldId/boundary', async (req: Request, res: Response) => {
+  try {
+    const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
+    const { boundary_geojson } = req.body;
 
-      if (!isValidUUID(fieldId)) {
-        return res.status(400).json({
-          error: "Invalid field ID format",
-        });
-      }
-
-      if (!boundary_geojson) {
-        return res.status(400).json({
-          error: "Missing required field: boundary_geojson",
-        });
-      }
-
-      const field = await geoService.updateFieldBoundary(
-        fieldId,
-        boundary_geojson,
-      );
-      res.json(field);
-    } catch (error: any) {
-      logger.error("Error updating field boundary:", error);
-      if (error.message.includes("not found")) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res
-          .status(500)
-          .json({ error: error.message || "Internal server error" });
-      }
+    if (!isValidUUID(fieldId)) {
+      return res.status(400).json({
+        error: 'Invalid field ID format',
+      });
     }
-  },
-);
+
+    if (!boundary_geojson) {
+      return res.status(400).json({
+        error: 'Missing required field: boundary_geojson',
+      });
+    }
+
+    const field = await geoService.updateFieldBoundary(fieldId, boundary_geojson);
+    res.json(field);
+  } catch (error: any) {
+    logger.error('Error updating field boundary:', error);
+    if (error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  }
+});
 
 /**
  * POST /api/geo/farms
@@ -624,7 +565,7 @@ geoRoutes.put(
  * - phone: Phone number (optional)
  * - email: Email (optional)
  */
-geoRoutes.post("/farms", async (req: Request, res: Response) => {
+geoRoutes.post('/farms', async (req: Request, res: Response) => {
   try {
     const {
       name,
@@ -643,18 +584,17 @@ geoRoutes.post("/farms", async (req: Request, res: Response) => {
       !name ||
       !tenant_id ||
       !owner_id ||
-      typeof location_lat !== "number" ||
-      typeof location_lng !== "number"
+      typeof location_lat !== 'number' ||
+      typeof location_lng !== 'number'
     ) {
       return res.status(400).json({
-        error:
-          "Missing required fields: name, tenant_id, owner_id, location_lat, location_lng",
+        error: 'Missing required fields: name, tenant_id, owner_id, location_lat, location_lng',
       });
     }
 
     if (!isValidLatitude(location_lat) || !isValidLongitude(location_lng)) {
       return res.status(400).json({
-        error: "Invalid coordinates",
+        error: 'Invalid coordinates',
       });
     }
 
@@ -672,8 +612,8 @@ geoRoutes.post("/farms", async (req: Request, res: Response) => {
 
     res.status(201).json(farm);
   } catch (error: any) {
-    logger.error("Error creating farm:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    logger.error('Error creating farm:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 

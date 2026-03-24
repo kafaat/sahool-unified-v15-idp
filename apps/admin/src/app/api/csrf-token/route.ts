@@ -6,14 +6,14 @@
  * POST - Refresh existing token
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 import {
   createCsrfTokenPayload,
   serializeCsrfTokenPayload,
   getCsrfCookieOptions,
   CSRF_CONFIG,
-} from "@/lib/csrf";
-import { logger } from "@/lib/logger";
+} from '@/lib/csrf';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/csrf-token
@@ -42,20 +42,14 @@ export async function GET(_request: NextRequest) {
     });
 
     // Security headers
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate",
-    );
-    response.headers.set("Pragma", "no-cache");
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
 
     return response;
   } catch (error) {
-    logger.error("[CSRF] Token generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate CSRF token" },
-      { status: 500 },
-    );
+    logger.error('[CSRF] Token generation error:', error);
+    return NextResponse.json({ error: 'Failed to generate CSRF token' }, { status: 500 });
   }
 }
 
@@ -87,19 +81,13 @@ export async function POST(_request: NextRequest) {
     });
 
     // Security headers
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate",
-    );
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
 
     return response;
   } catch (error) {
-    logger.error("[CSRF] Token refresh error:", error);
-    return NextResponse.json(
-      { error: "Failed to refresh CSRF token" },
-      { status: 500 },
-    );
+    logger.error('[CSRF] Token refresh error:', error);
+    return NextResponse.json({ error: 'Failed to refresh CSRF token' }, { status: 500 });
   }
 }
 
@@ -111,9 +99,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: new Headers({
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
-      "Access-Control-Max-Age": "86400",
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-CSRF-Token',
+      'Access-Control-Max-Age': '86400',
     }),
   });
 }

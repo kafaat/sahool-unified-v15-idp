@@ -1,38 +1,32 @@
-"use client";
+'use client';
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Lock, ArrowRight, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { useToast } from "@/components/ui/toast";
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Lock, ArrowRight, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { useToast } from '@/components/ui/toast';
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = searchParams.get('token');
   const { showToast } = useToast();
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Password validation
   const passwordErrors: string[] = [];
   if (newPassword.length > 0 && newPassword.length < 8) {
-    passwordErrors.push("Password must be at least 8 characters");
+    passwordErrors.push('Password must be at least 8 characters');
   }
   if (confirmPassword.length > 0 && newPassword !== confirmPassword) {
-    passwordErrors.push("Passwords do not match");
+    passwordErrors.push('Passwords do not match');
   }
 
   const isFormValid = newPassword.length >= 8 && newPassword === confirmPassword && token;
@@ -42,18 +36,18 @@ function ResetPasswordForm() {
 
     if (!token) {
       showToast({
-        type: "error",
-        messageAr: "رمز إعادة التعيين غير صالح",
-        message: "Invalid reset token",
+        type: 'error',
+        messageAr: 'رمز إعادة التعيين غير صالح',
+        message: 'Invalid reset token',
       });
       return;
     }
 
     if (newPassword !== confirmPassword) {
       showToast({
-        type: "error",
-        messageAr: "كلمات المرور غير متطابقة",
-        message: "Passwords do not match",
+        type: 'error',
+        messageAr: 'كلمات المرور غير متطابقة',
+        message: 'Passwords do not match',
       });
       return;
     }
@@ -61,10 +55,10 @@ function ResetPasswordForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           token,
@@ -75,25 +69,25 @@ function ResetPasswordForm() {
       const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Failed to reset password");
+        throw new Error(data.message || data.error || 'Failed to reset password');
       }
 
       setIsSuccess(true);
       showToast({
-        type: "success",
-        messageAr: "تم تغيير كلمة المرور بنجاح",
-        message: "Password reset successful",
+        type: 'success',
+        messageAr: 'تم تغيير كلمة المرور بنجاح',
+        message: 'Password reset successful',
       });
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        router.push("/login");
+        router.push('/login');
       }, 3000);
     } catch (error) {
       showToast({
-        type: "error",
-        messageAr: "فشل في إعادة تعيين كلمة المرور",
-        message: error instanceof Error ? error.message : "An error occurred",
+        type: 'error',
+        messageAr: 'فشل في إعادة تعيين كلمة المرور',
+        message: error instanceof Error ? error.message : 'An error occurred',
       });
     } finally {
       setIsLoading(false);
@@ -148,17 +142,15 @@ function ResetPasswordForm() {
             )}
           </div>
           <CardTitle className="text-2xl">
-            <div>{isSuccess ? "تم التغيير بنجاح" : "إعادة تعيين كلمة المرور"}</div>
+            <div>{isSuccess ? 'تم التغيير بنجاح' : 'إعادة تعيين كلمة المرور'}</div>
             <div className="text-base text-gray-600 mt-1">
-              {isSuccess ? "Password Changed" : "Reset Password"}
+              {isSuccess ? 'Password Changed' : 'Reset Password'}
             </div>
           </CardTitle>
           <CardDescription>
             {isSuccess ? (
               <>
-                <div className="text-gray-600">
-                  يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة
-                </div>
+                <div className="text-gray-600">يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة</div>
                 <div className="text-xs text-gray-500 mt-1">
                   You can now login with your new password
                 </div>

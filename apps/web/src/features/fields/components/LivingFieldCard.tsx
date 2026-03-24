@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Living Field Card Component
@@ -15,7 +15,7 @@
  * - Color coding: green (>70), yellow (40-70), red (<40)
  */
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -28,17 +28,17 @@ import {
   Eye,
   Moon,
   Info,
-} from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+} from 'lucide-react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   useLivingFieldScore,
   type FieldAlert,
   type Recommendation,
   type LivingFieldScore,
-} from "../hooks/useLivingFieldScore";
+} from '../hooks/useLivingFieldScore';
 
-type TrendType = LivingFieldScore["trend"];
+type TrendType = LivingFieldScore['trend'];
 
 interface LivingFieldCardProps {
   fieldId: string;
@@ -58,28 +58,28 @@ function getScoreColor(score: number): {
 } {
   if (score >= 70) {
     return {
-      border: "border-green-500",
-      borderHex: "#22c55e",
-      bg: "bg-green-50",
-      text: "text-green-700",
-      fill: "stroke-green-500",
+      border: 'border-green-500',
+      borderHex: '#22c55e',
+      bg: 'bg-green-50',
+      text: 'text-green-700',
+      fill: 'stroke-green-500',
     };
   }
   if (score >= 40) {
     return {
-      border: "border-yellow-500",
-      borderHex: "#eab308",
-      bg: "bg-yellow-50",
-      text: "text-yellow-700",
-      fill: "stroke-yellow-500",
+      border: 'border-yellow-500',
+      borderHex: '#eab308',
+      bg: 'bg-yellow-50',
+      text: 'text-yellow-700',
+      fill: 'stroke-yellow-500',
     };
   }
   return {
-    border: "border-red-500",
-    borderHex: "#ef4444",
-    bg: "bg-red-50",
-    text: "text-red-700",
-    fill: "stroke-red-500",
+    border: 'border-red-500',
+    borderHex: '#ef4444',
+    bg: 'bg-red-50',
+    text: 'text-red-700',
+    fill: 'stroke-red-500',
   };
 }
 
@@ -93,26 +93,26 @@ function getTrendIcon(trend: TrendType): {
   labelAr: string;
 } {
   switch (trend) {
-    case "improving":
+    case 'improving':
       return {
         icon: <TrendingUp className="w-5 h-5" />,
-        color: "text-green-600",
-        label: "Improving",
-        labelAr: "يتحسن",
+        color: 'text-green-600',
+        label: 'Improving',
+        labelAr: 'يتحسن',
       };
-    case "declining":
+    case 'declining':
       return {
         icon: <TrendingDown className="w-5 h-5" />,
-        color: "text-red-600",
-        label: "Declining",
-        labelAr: "يتراجع",
+        color: 'text-red-600',
+        label: 'Declining',
+        labelAr: 'يتراجع',
       };
     default:
       return {
         icon: <Minus className="w-5 h-5" />,
-        color: "text-gray-600",
-        label: "Stable",
-        labelAr: "مستقر",
+        color: 'text-gray-600',
+        label: 'Stable',
+        labelAr: 'مستقر',
       };
   }
 }
@@ -120,18 +120,16 @@ function getTrendIcon(trend: TrendType): {
 /**
  * Get alert severity badge variant
  */
-function getAlertVariant(
-  severity: string,
-): "default" | "success" | "warning" | "danger" {
+function getAlertVariant(severity: string): 'default' | 'success' | 'warning' | 'danger' {
   switch (severity) {
-    case "critical":
-    case "emergency":
-      return "danger";
-    case "warning":
-      return "warning";
-    case "info":
+    case 'critical':
+    case 'emergency':
+      return 'danger';
+    case 'warning':
+      return 'warning';
+    case 'info':
     default:
-      return "default";
+      return 'default';
   }
 }
 
@@ -214,9 +212,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       </div>
 
       {/* Label */}
-      <span className="mt-2 text-sm font-medium text-gray-700 text-center">
-        {labelAr}
-      </span>
+      <span className="mt-2 text-sm font-medium text-gray-700 text-center">{labelAr}</span>
     </div>
   );
 };
@@ -248,7 +244,10 @@ const SubScore: React.FC<SubScoreProps> = ({ score, icon, label, labelAr }) => {
 
       {/* Tooltip */}
       {showInfo && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 pointer-events-none" role="tooltip">
+        <div
+          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 pointer-events-none"
+          role="tooltip"
+        >
           {label}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
             <div className="border-4 border-transparent border-t-gray-900" />
@@ -267,18 +266,16 @@ const AlertItem: React.FC<{ alert: FieldAlert }> = ({ alert }) => {
     <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
       <AlertCircle
         className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-          alert.severity === "critical" || alert.severity === "emergency"
-            ? "text-red-600"
-            : alert.severity === "warning"
-              ? "text-yellow-600"
-              : "text-gray-600"
+          alert.severity === 'critical' || alert.severity === 'emergency'
+            ? 'text-red-600'
+            : alert.severity === 'warning'
+              ? 'text-yellow-600'
+              : 'text-gray-600'
         }`}
       />
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-gray-900 text-sm">{alert.titleAr}</h4>
-        <p className="text-xs text-gray-600 mt-1">
-          {alert.messageAr || alert.message}
-        </p>
+        <p className="text-xs text-gray-600 mt-1">{alert.messageAr || alert.message}</p>
       </div>
       <Badge variant={getAlertVariant(alert.severity)} size="sm">
         {alert.severity}
@@ -290,18 +287,16 @@ const AlertItem: React.FC<{ alert: FieldAlert }> = ({ alert }) => {
 /**
  * Recommendation item component
  */
-const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({
-  recommendation,
-}) => {
+const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({ recommendation }) => {
   const priorityColorMap: Record<string, string> = {
-    urgent: "border-l-red-500 bg-red-50",
-    high: "border-l-orange-500 bg-orange-50",
-    medium: "border-l-yellow-500 bg-yellow-50",
-    low: "border-l-blue-500 bg-blue-50",
+    urgent: 'border-l-red-500 bg-red-50',
+    high: 'border-l-orange-500 bg-orange-50',
+    medium: 'border-l-yellow-500 bg-yellow-50',
+    low: 'border-l-blue-500 bg-blue-50',
   };
 
   const priorityColors =
-    priorityColorMap[recommendation.priority] || "border-l-gray-500 bg-gray-50";
+    priorityColorMap[recommendation.priority] || 'border-l-gray-500 bg-gray-50';
 
   return (
     <div className={`border-l-4 p-3 rounded-r-lg ${priorityColors}`}>
@@ -316,33 +311,31 @@ const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({
           <p className="text-xs text-gray-600 mt-1">
             {recommendation.descriptionAr || recommendation.description}
           </p>
-          {recommendation.actionItems &&
-            recommendation.actionItems.length > 0 && (
-              <ul className="text-xs text-gray-500 mt-2 list-disc list-inside">
-                {recommendation.actionItems.slice(0, 3).map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            )}
+          {recommendation.actionItems && recommendation.actionItems.length > 0 && (
+            <ul className="text-xs text-gray-500 mt-2 list-disc list-inside">
+              {recommendation.actionItems.slice(0, 3).map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          )}
         </div>
         <Badge
           size="sm"
           variant={
-            recommendation.priority === "urgent" ||
-            recommendation.priority === "high"
-              ? "danger"
-              : recommendation.priority === "medium"
-                ? "warning"
-                : "default"
+            recommendation.priority === 'urgent' || recommendation.priority === 'high'
+              ? 'danger'
+              : recommendation.priority === 'medium'
+                ? 'warning'
+                : 'default'
           }
         >
-          {recommendation.priority === "urgent"
-            ? "عاجل"
-            : recommendation.priority === "high"
-              ? "عالي"
-              : recommendation.priority === "medium"
-                ? "متوسط"
-                : "منخفض"}
+          {recommendation.priority === 'urgent'
+            ? 'عاجل'
+            : recommendation.priority === 'high'
+              ? 'عالي'
+              : recommendation.priority === 'medium'
+                ? 'متوسط'
+                : 'منخفض'}
         </Badge>
       </div>
     </div>
@@ -387,12 +380,8 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mb-3" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              خطأ في تحميل البيانات
-            </h3>
-            <p className="text-sm text-gray-600">
-              حدث خطأ أثناء تحميل بيانات الحقل
-            </p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+            <p className="text-sm text-gray-600">حدث خطأ أثناء تحميل بيانات الحقل</p>
           </div>
         </CardContent>
       </Card>
@@ -408,10 +397,10 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h2 className="text-xl font-bold text-gray-900">
-              {fieldNameAr || fieldName || "الحقل الحي"}
+              {fieldNameAr || fieldName || 'الحقل الحي'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {fieldName && fieldNameAr ? fieldName : "Living Field Score"}
+              {fieldName && fieldNameAr ? fieldName : 'Living Field Score'}
             </p>
           </div>
 
@@ -427,8 +416,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
           <div className="mt-3 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-orange-600" />
             <span className="text-sm text-gray-700">
-              {score.alerts.length}{" "}
-              {score.alerts.length === 1 ? "تنبيه" : "تنبيهات"}
+              {score.alerts.length} {score.alerts.length === 1 ? 'تنبيه' : 'تنبيهات'}
             </span>
           </div>
         )}
@@ -510,9 +498,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         {score.recommendations.length > 0 && (
           <div className="border-t border-gray-200 pt-4">
             <button
-              onClick={() =>
-                setExpandedRecommendations(!expandedRecommendations)
-              }
+              onClick={() => setExpandedRecommendations(!expandedRecommendations)}
               className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200"
             >
               <span className="flex items-center gap-2">
@@ -529,17 +515,12 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
             {/* Animated expansion */}
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                expandedRecommendations
-                  ? "max-h-96 opacity-100 mt-3"
-                  : "max-h-0 opacity-0"
+                expandedRecommendations ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'
               }`}
             >
               <div className="space-y-2 overflow-y-auto max-h-80">
                 {score.recommendations.map((recommendation) => (
-                  <RecommendationItem
-                    key={recommendation.id}
-                    recommendation={recommendation}
-                  />
+                  <RecommendationItem key={recommendation.id} recommendation={recommendation} />
                 ))}
               </div>
             </div>
@@ -552,9 +533,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
             <div className="text-gray-400 mb-2">
               <Heart className="w-8 h-8 mx-auto" />
             </div>
-            <p className="text-sm text-gray-600">
-              الحقل في حالة ممتازة! لا توجد تنبيهات أو توصيات
-            </p>
+            <p className="text-sm text-gray-600">الحقل في حالة ممتازة! لا توجد تنبيهات أو توصيات</p>
           </div>
         )}
       </CardContent>

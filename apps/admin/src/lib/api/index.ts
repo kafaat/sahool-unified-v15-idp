@@ -1,7 +1,7 @@
 /**
  * SAHOOL Admin API Services Index
  * مركز خدمات API الإدارية
- * 
+ *
  * Central export point for all API services
  * نقطة التصدير المركزية لجميع خدمات API
  */
@@ -29,7 +29,7 @@ export {
   type PaginationParams,
   type PaginatedResponse,
   type ApiResponse,
-} from "./services";
+} from './services';
 
 export {
   // Extended Services
@@ -49,11 +49,11 @@ export {
   type CreateExperimentData,
   type MarketplaceListing,
   type CreateListingData,
-} from "./extended-services";
+} from './extended-services';
 
 // Combined services object for convenience
-import coreServices from "./services";
-import extendedServices from "./extended-services";
+import coreServices from './services';
+import extendedServices from './extended-services';
 
 export const apiServices = {
   ...coreServices,

@@ -15,9 +15,9 @@
 // Common Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type DataSource = "sentinel-2" | "landsat-8" | "modis" | "gee" | "copernicus" | "mock";
+export type DataSource = 'sentinel-2' | 'landsat-8' | 'modis' | 'gee' | 'copernicus' | 'mock';
 
-export type Resolution = "high" | "medium" | "low"; // 1-3m, 10-16m, 30m
+export type Resolution = 'high' | 'medium' | 'low'; // 1-3m, 10-16m, 30m
 
 export interface GeoCoordinates {
   latitude: number;
@@ -47,14 +47,14 @@ export interface MonitoringMetadata {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type MainCropType =
-  | "wheat"      // القمح
-  | "corn"       // الذرة
-  | "rice"       // الأرز
-  | "soybean"    // فول الصويا
-  | "cotton"     // القطن
-  | "sorghum"    // الذرة الرفيعة
-  | "barley"     // الشعير
-  | "millet";    // الدخن
+  | 'wheat' // القمح
+  | 'corn' // الذرة
+  | 'rice' // الأرز
+  | 'soybean' // فول الصويا
+  | 'cotton' // القطن
+  | 'sorghum' // الذرة الرفيعة
+  | 'barley' // الشعير
+  | 'millet'; // الدخن
 
 export interface CropDistribution {
   id: string;
@@ -70,7 +70,7 @@ export interface CropDistribution {
   centroid: GeoCoordinates;
   metadata: MonitoringMetadata;
   seasonYear: number;
-  seasonType: "winter" | "summer" | "perennial";
+  seasonType: 'winter' | 'summer' | 'perennial';
 }
 
 export interface CropAreaMonitoringResult {
@@ -79,7 +79,7 @@ export interface CropAreaMonitoringResult {
   totalAreaHectares: number;
   crops: CropDistribution[];
   accuracyPercent: number; // 85-95%
-  updateFrequency: "monthly" | "seasonal";
+  updateFrequency: 'monthly' | 'seasonal';
   lastUpdated: string;
   nextUpdateExpected: string;
 }
@@ -90,17 +90,17 @@ export interface CropAreaMonitoringResult {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type EconomicCropType =
-  | "tea"           // الشاي
-  | "oil_tea"       // الشاي الزيتي
-  | "sugarcane"     // قصب السكر
-  | "tobacco"       // التبغ
-  | "coffee"        // البن
-  | "dates"         // التمور
-  | "grapes"        // العنب
-  | "mango"         // المانجو
-  | "citrus"        // الحمضيات
-  | "olives"        // الزيتون
-  | "qat";          // القات
+  | 'tea' // الشاي
+  | 'oil_tea' // الشاي الزيتي
+  | 'sugarcane' // قصب السكر
+  | 'tobacco' // التبغ
+  | 'coffee' // البن
+  | 'dates' // التمور
+  | 'grapes' // العنب
+  | 'mango' // المانجو
+  | 'citrus' // الحمضيات
+  | 'olives' // الزيتون
+  | 'qat'; // القات
 
 export interface EconomicCropDistribution {
   id: string;
@@ -113,7 +113,7 @@ export interface EconomicCropDistribution {
   areaHectares: number;
   estimatedValue: number; // USD
   valueCurrency: string;
-  qualityGrade: "A" | "B" | "C";
+  qualityGrade: 'A' | 'B' | 'C';
   boundingBox: BoundingBox;
   centroid: GeoCoordinates;
   metadata: MonitoringMetadata;
@@ -127,7 +127,7 @@ export interface EconomicCropMonitoringResult {
   totalEstimatedValue: number;
   crops: EconomicCropDistribution[];
   accuracyPercent: number; // 95%
-  updateFrequency: "seasonal";
+  updateFrequency: 'seasonal';
   lastUpdated: string;
 }
 
@@ -139,16 +139,16 @@ export interface EconomicCropMonitoringResult {
 export type GrowthLevel = 1 | 2 | 3 | 4 | 5;
 
 export type GrowthStatus =
-  | "very_poor"   // سيئ جداً
-  | "poor"        // سيئ
-  | "normal"      // طبيعي
-  | "good"        // جيد
-  | "excellent";  // ممتاز
+  | 'very_poor' // سيئ جداً
+  | 'poor' // سيئ
+  | 'normal' // طبيعي
+  | 'good' // جيد
+  | 'excellent'; // ممتاز
 
 export interface GrowthIndicators {
-  ndvi: number;        // Normalized Difference Vegetation Index
-  evi: number;         // Enhanced Vegetation Index
-  lai: number;         // Leaf Area Index
+  ndvi: number; // Normalized Difference Vegetation Index
+  evi: number; // Enhanced Vegetation Index
+  lai: number; // Leaf Area Index
   chlorophyllContent: number;
   waterStressIndex: number;
 }
@@ -173,8 +173,8 @@ export interface CropGrowthStatus {
 
 export interface RiskAlert {
   id: string;
-  type: "disease" | "pest" | "nutrient_deficiency" | "water_stress" | "heat_stress";
-  severity: "low" | "medium" | "high" | "critical";
+  type: 'disease' | 'pest' | 'nutrient_deficiency' | 'water_stress' | 'heat_stress';
+  severity: 'low' | 'medium' | 'high' | 'critical';
   titleEn: string;
   titleAr: string;
   descriptionEn: string;
@@ -190,9 +190,9 @@ export interface CropGrowthMonitoringResult {
   fieldId: string;
   currentStatus: CropGrowthStatus;
   historicalStatuses: CropGrowthStatus[];
-  trend: "improving" | "stable" | "declining";
+  trend: 'improving' | 'stable' | 'declining';
   accuracyPercent: number; // 85%
-  updateFrequency: "10_days";
+  updateFrequency: '10_days';
   lastUpdated: string;
   nextUpdateExpected: string;
 }
@@ -203,15 +203,15 @@ export interface CropGrowthMonitoringResult {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type MaturityStage =
-  | "vegetative"      // نمو خضري
-  | "flowering"       // إزهار
-  | "fruit_set"       // عقد الثمار
-  | "development"     // تطور
-  | "maturation"      // نضج
-  | "harvest_ready";  // جاهز للحصاد
+  | 'vegetative' // نمو خضري
+  | 'flowering' // إزهار
+  | 'fruit_set' // عقد الثمار
+  | 'development' // تطور
+  | 'maturation' // نضج
+  | 'harvest_ready'; // جاهز للحصاد
 
 export interface MaturityIndex {
-  value: number;           // 0-100
+  value: number; // 0-100
   stage: MaturityStage;
   stageAr: string;
   daysToOptimalHarvest: number;
@@ -228,7 +228,7 @@ export interface CropMaturityStatus {
   fieldNameAr: string;
   cropType: string;
   maturityIndex: MaturityIndex;
-  qualityPrediction: "A" | "B" | "C";
+  qualityPrediction: 'A' | 'B' | 'C';
   qualityFactors: {
     moistureContent: number;
     sugarContent?: number;
@@ -252,7 +252,7 @@ export interface CropMaturityMonitoringResult {
   currentStatus: CropMaturityStatus;
   projectedHarvestDate: string;
   accuracyPercent: number; // 85%
-  updateFrequency: "10_days";
+  updateFrequency: '10_days';
   lastUpdated: string;
 }
 
@@ -264,10 +264,10 @@ export interface CropMaturityMonitoringResult {
 export type SeedlingLevel = 1 | 2 | 3 | 4;
 
 export type SeedlingStatus =
-  | "weak"           // شتلات ضعيفة - تدخل فوري مطلوب
-  | "moderate"       // شتلات متوسطة - مراقبة مستمرة
-  | "good"           // شتلات جيدة - صيانة عادية
-  | "excellent";     // شتلات ممتازة - نمو مزدهر
+  | 'weak' // شتلات ضعيفة - تدخل فوري مطلوب
+  | 'moderate' // شتلات متوسطة - مراقبة مستمرة
+  | 'good' // شتلات جيدة - صيانة عادية
+  | 'excellent'; // شتلات ممتازة - نمو مزدهر
 
 export interface SeedlingCondition {
   id: string;
@@ -278,25 +278,25 @@ export interface SeedlingCondition {
   seedlingLevel: SeedlingLevel;
   seedlingStatus: SeedlingStatus;
   seedlingStatusAr: string;
-  emergenceRate: number;        // percentage of expected seedlings
-  uniformityScore: number;      // 0-100
+  emergenceRate: number; // percentage of expected seedlings
+  uniformityScore: number; // 0-100
   densityPerSquareMeter: number;
-  soilMoistureStatus: "critical" | "low" | "optimal" | "high";
+  soilMoistureStatus: 'critical' | 'low' | 'optimal' | 'high';
   soilMoistureStatusAr: string;
   earlyDiseaseRisk: {
     detected: boolean;
     type?: string;
-    severity?: "low" | "medium" | "high";
+    severity?: 'low' | 'medium' | 'high';
     affectedAreaPercent?: number;
   };
   earlyPestRisk: {
     detected: boolean;
     type?: string;
-    severity?: "low" | "medium" | "high";
+    severity?: 'low' | 'medium' | 'high';
     affectedAreaPercent?: number;
   };
   interventionRequired: boolean;
-  interventionType?: "irrigation" | "fertilization" | "pest_control" | "replanting";
+  interventionType?: 'irrigation' | 'fertilization' | 'pest_control' | 'replanting';
   recommendations: string[];
   recommendationsAr: string[];
   metadata: MonitoringMetadata;
@@ -308,8 +308,8 @@ export interface SeedlingMonitoringResult {
   fieldId: string;
   currentCondition: SeedlingCondition;
   historicalConditions: SeedlingCondition[];
-  trend: "improving" | "stable" | "declining";
-  updateFrequency: "8_to_10_days";
+  trend: 'improving' | 'stable' | 'declining';
+  updateFrequency: '8_to_10_days';
   lastUpdated: string;
   nextUpdateExpected: string;
 }
@@ -338,7 +338,7 @@ export interface YieldInputs {
   plantedAreaHa: number;
   cropType: string;
   plantingDate: string;
-  irrigationType: "rainfed" | "drip" | "sprinkler" | "flood";
+  irrigationType: 'rainfed' | 'drip' | 'sprinkler' | 'flood';
 }
 
 export interface YieldEstimate {
@@ -354,14 +354,14 @@ export interface YieldEstimate {
     max: number;
   };
   yieldPerHectare: number;
-  comparisonToAverage: number;      // percentage +/-
-  comparisonToLastYear?: number;    // percentage +/-
+  comparisonToAverage: number; // percentage +/-
+  comparisonToLastYear?: number; // percentage +/-
   yieldFactors: {
-    vegetationHealth: number;       // 0-1
-    biomassAccumulation: number;    // 0-1
-    thermalTime: number;            // 0-1
-    waterAvailability: number;      // 0-1
-    soilQuality: number;            // 0-1
+    vegetationHealth: number; // 0-1
+    biomassAccumulation: number; // 0-1
+    thermalTime: number; // 0-1
+    waterAvailability: number; // 0-1
+    soilQuality: number; // 0-1
   };
   riskFactors: string[];
   riskFactorsAr: string[];
@@ -378,7 +378,7 @@ export interface YieldEstimationResult {
   currentEstimate: YieldEstimate;
   historicalEstimates: YieldEstimate[];
   accuracyPercent: number; // 80%
-  updateFrequency: "critical_stage";
+  updateFrequency: 'critical_stage';
   lastUpdated: string;
 }
 
@@ -472,12 +472,12 @@ export interface MonitoringApiResponse<T> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface VegetationIndices {
-  ndvi: number;   // Normalized Difference Vegetation Index
-  evi: number;    // Enhanced Vegetation Index
-  savi: number;   // Soil Adjusted Vegetation Index
-  lai: number;    // Leaf Area Index
-  ndwi?: number;  // Normalized Difference Water Index
-  ndmi?: number;  // Normalized Difference Moisture Index
+  ndvi: number; // Normalized Difference Vegetation Index
+  evi: number; // Enhanced Vegetation Index
+  savi: number; // Soil Adjusted Vegetation Index
+  lai: number; // Leaf Area Index
+  ndwi?: number; // Normalized Difference Water Index
+  ndmi?: number; // Normalized Difference Moisture Index
 }
 
 export interface SpectralBands {

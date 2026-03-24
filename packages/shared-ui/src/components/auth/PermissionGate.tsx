@@ -5,9 +5,9 @@
  * Controls visibility of UI elements based on user permissions
  */
 
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
 // Types imported from shared-hooks
 type Permission = string;
@@ -90,9 +90,7 @@ export function PermissionGate({
     // Check permissions
     if (permission) {
       const permissions = Array.isArray(permission) ? permission : [permission];
-      const hasPermissionAccess = requireAll
-        ? auth.canAll(permissions)
-        : auth.canAny(permissions);
+      const hasPermissionAccess = requireAll ? auth.canAll(permissions) : auth.canAny(permissions);
 
       if (!hasPermissionAccess) return false;
     }
@@ -122,13 +120,11 @@ export function PermissionGate({
 export function withPermission<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   permission: Permission | Permission[],
-  options: { requireAll?: boolean; fallback?: React.ComponentType } = {},
+  options: { requireAll?: boolean; fallback?: React.ComponentType } = {}
 ) {
   const { requireAll = false, fallback: FallbackComponent } = options;
 
-  return function PermissionWrappedComponent(
-    props: P & { auth: PermissionGateProps["auth"] },
-  ) {
+  return function PermissionWrappedComponent(props: P & { auth: PermissionGateProps['auth'] }) {
     const { auth, ...rest } = props;
 
     return (
@@ -153,14 +149,9 @@ export function RoleGate({
   children,
   fallback = null,
   auth,
-}: Omit<PermissionGateProps, "permission"> & { role: Role | Role[] }) {
+}: Omit<PermissionGateProps, 'permission'> & { role: Role | Role[] }) {
   return (
-    <PermissionGate
-      role={role}
-      requireAll={requireAll}
-      fallback={fallback}
-      auth={auth}
-    >
+    <PermissionGate role={role} requireAll={requireAll} fallback={fallback} auth={auth}>
       {children}
     </PermissionGate>
   );
@@ -173,9 +164,9 @@ export function AdminGate({
   children,
   fallback = null,
   auth,
-}: Pick<PermissionGateProps, "children" | "fallback" | "auth">) {
+}: Pick<PermissionGateProps, 'children' | 'fallback' | 'auth'>) {
   return (
-    <RoleGate role={["admin", "super_admin"]} fallback={fallback} auth={auth}>
+    <RoleGate role={['admin', 'super_admin']} fallback={fallback} auth={auth}>
       {children}
     </RoleGate>
   );

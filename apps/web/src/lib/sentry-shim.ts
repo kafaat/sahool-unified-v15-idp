@@ -11,7 +11,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 const noop = (..._args: unknown[]): undefined => undefined;
-const noopIntegration = (..._args: unknown[]) => ({ name: "noop" });
+const noopIntegration = (..._args: unknown[]) => ({ name: 'noop' });
 
 // Core lifecycle
 export const init = noop;

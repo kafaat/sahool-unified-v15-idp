@@ -438,11 +438,16 @@ def seed_demo_data(db: Session):
 
 
 def get_tenant_id(user: User | None = Depends(get_current_user)) -> str:
-    """Extract tenant ID from authenticated user or header (fallback)"""
+    """Extract tenant ID from authenticated user.
+    SECURITY: Never fall back to a shared tenant - this would bypass tenant isolation."""
     if AUTH_AVAILABLE and user:
         return user.tenant_id
-    # Fallback to demo tenant for backward compatibility
-    return "tenant_demo"
+    # SECURITY FIX: Reject requests without valid tenant context instead of falling back
+    # to a shared "tenant_demo" namespace which bypasses tenant isolation.
+    raise HTTPException(
+        status_code=401,
+        detail="Authentication required - cannot determine tenant context",
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 /**
  * Client (Farmer) Sidebar Navigation
  * شريط التنقل الجانبي للعميل (المزارع)
@@ -11,11 +11,11 @@
  * Modeled after John Deere Operations Center, Trimble Ag, and similar
  * agricultural platforms where farmers see only their operational tools.
  */
-import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { clsx } from "clsx";
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { clsx } from 'clsx';
 import {
   LayoutDashboard,
   Sprout,
@@ -31,7 +31,7 @@ import {
   Truck,
   AlertTriangle,
   Bell,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface NavItem {
   labelKey: string;
@@ -50,92 +50,92 @@ interface NavItem {
  */
 const navItems: NavItem[] = [
   {
-    labelKey: "dashboard",
-    href: "/dashboard",
+    labelKey: 'dashboard',
+    href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    labelKey: "farms",
-    href: "/farms",
+    labelKey: 'farms',
+    href: '/farms',
     icon: Building2,
   },
   {
-    labelKey: "crops",
-    href: "/crops",
+    labelKey: 'crops',
+    href: '/crops',
     icon: Sprout,
   },
   {
-    labelKey: "inventory",
-    href: "/inventory",
+    labelKey: 'inventory',
+    href: '/inventory',
     icon: Package,
   },
   {
-    labelKey: "seasons",
-    href: "/seasons",
+    labelKey: 'seasons',
+    href: '/seasons',
     icon: Calendar,
   },
   {
-    labelKey: "pivotIrrigation",
-    href: "/pivot-irrigation",
+    labelKey: 'pivotIrrigation',
+    href: '/pivot-irrigation',
     icon: Droplets,
   },
   {
-    labelKey: "reports",
-    href: "/reports",
+    labelKey: 'reports',
+    href: '/reports',
     icon: FileBarChart,
   },
   {
-    labelKey: "documents",
-    href: "/documents",
+    labelKey: 'documents',
+    href: '/documents',
     icon: FileText,
   },
   {
-    labelKey: "analytics",
-    href: "/analytics",
+    labelKey: 'analytics',
+    href: '/analytics',
     icon: TrendingUp,
   },
   {
-    labelKey: "satellite",
-    href: "/satellite",
+    labelKey: 'satellite',
+    href: '/satellite',
     icon: Satellite,
   },
   {
-    labelKey: "logistics",
-    href: "/logistics",
+    labelKey: 'logistics',
+    href: '/logistics',
     icon: Truck,
   },
   {
-    labelKey: "disasterAssessment",
-    href: "/disaster-assessment",
+    labelKey: 'disasterAssessment',
+    href: '/disaster-assessment',
     icon: AlertTriangle,
   },
   {
-    labelKey: "alerts",
-    href: "/alerts",
+    labelKey: 'alerts',
+    href: '/alerts',
     icon: AlertTriangle,
   },
   {
-    labelKey: "notifications",
-    href: "/notifications",
+    labelKey: 'notifications',
+    href: '/notifications',
     icon: Bell,
   },
   {
-    labelKey: "settings",
-    href: "/settings",
+    labelKey: 'settings',
+    href: '/settings',
     icon: Settings,
   },
 ];
 
 export const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
-  const t = useTranslations("nav");
-  const tCommon = useTranslations("common");
+  const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
 
   return (
     <aside
       className="w-64 bg-white border-e border-gray-200 flex flex-col h-full"
       role="navigation"
-      aria-label={t("mainNav")}
+      aria-label={t('mainNav')}
     >
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
@@ -144,10 +144,8 @@ export const Sidebar = React.memo(function Sidebar() {
             <div className="w-6 h-6 bg-white rounded-full" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
-              {tCommon("appName")}
-            </h1>
-            <p className="text-xs text-gray-500">{tCommon("tagline")}</p>
+            <h1 className="text-xl font-bold text-gray-900">{tCommon('appName')}</h1>
+            <p className="text-xs text-gray-500">{tCommon('tagline')}</p>
           </div>
         </Link>
       </div>
@@ -156,8 +154,7 @@ export const Sidebar = React.memo(function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
 
             return (
@@ -165,28 +162,26 @@ export const Sidebar = React.memo(function Sidebar() {
                 <Link
                   href={item.href}
                   className={clsx(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                    "hover:bg-sahool-green-50 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
+                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                    'hover:bg-sahool-green-50 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500',
                     isActive
-                      ? "bg-sahool-green-100 text-sahool-green-700 font-medium"
-                      : "text-gray-700",
+                      ? 'bg-sahool-green-100 text-sahool-green-700 font-medium'
+                      : 'text-gray-700'
                   )}
-                  aria-current={isActive ? "page" : undefined}
+                  aria-current={isActive ? 'page' : undefined}
                   aria-label={t(item.labelKey)}
                 >
                   <Icon
                     className={clsx(
-                      "w-5 h-5 flex-shrink-0",
+                      'w-5 h-5 flex-shrink-0',
                       isActive
-                        ? "text-sahool-green-600"
-                        : "text-gray-400 group-hover:text-sahool-green-600",
+                        ? 'text-sahool-green-600'
+                        : 'text-gray-400 group-hover:text-sahool-green-600'
                     )}
                     aria-hidden="true"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">
-                      {t(item.labelKey)}
-                    </div>
+                    <div className="text-sm font-medium">{t(item.labelKey)}</div>
                   </div>
                 </Link>
               </li>
@@ -198,7 +193,7 @@ export const Sidebar = React.memo(function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 text-center">
-          <div className="font-medium">{t("version")} 16.0.0</div>
+          <div className="font-medium">{t('version')} 16.0.0</div>
         </div>
       </div>
     </aside>

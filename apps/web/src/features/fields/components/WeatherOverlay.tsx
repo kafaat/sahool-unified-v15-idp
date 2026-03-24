@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Weather Overlay Component
@@ -13,7 +13,7 @@
  * - Collapsible panel
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
   Cloud,
   CloudRain,
@@ -27,15 +27,15 @@ import {
   CloudSnow,
   CloudLightning,
   Thermometer,
-} from "lucide-react";
-import { useField } from "../hooks/useField";
+} from 'lucide-react';
+import { useField } from '../hooks/useField';
 import {
   useCurrentWeather,
   useWeatherForecast,
   useWeatherAlerts,
-} from "@/features/weather/hooks/useWeather";
-import { Badge } from "@/components/ui/badge";
-import type { WeatherData, WeatherAlert } from "@/features/weather/types";
+} from '@/features/weather/hooks/useWeather';
+import { Badge } from '@/components/ui/badge';
+import type { WeatherData, WeatherAlert } from '@/features/weather/types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -43,11 +43,11 @@ import type { WeatherData, WeatherAlert } from "@/features/weather/types";
 
 export interface WeatherOverlayProps {
   fieldId: string;
-  position?: "topright" | "topleft" | "bottomright" | "bottomleft";
+  position?: 'topright' | 'topleft' | 'bottomright' | 'bottomleft';
   expanded?: boolean;
 }
 
-type Position = "topright" | "topleft" | "bottomright" | "bottomleft";
+type Position = 'topright' | 'topleft' | 'bottomright' | 'bottomleft';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
@@ -63,64 +63,45 @@ type Position = "topright" | "topleft" | "bottomright" | "bottomleft";
  * so we map numeric sizes to their full class strings.
  */
 const SIZE_CLASSES: Record<number, string> = {
-  4: "w-4 h-4",
-  5: "w-5 h-5",
-  6: "w-6 h-6",
-  8: "w-8 h-8",
-  10: "w-10 h-10",
-  12: "w-12 h-12",
-  16: "w-16 h-16",
-  24: "w-24 h-24",
+  4: 'w-4 h-4',
+  5: 'w-5 h-5',
+  6: 'w-6 h-6',
+  8: 'w-8 h-8',
+  10: 'w-10 h-10',
+  12: 'w-12 h-12',
+  16: 'w-16 h-16',
+  24: 'w-24 h-24',
 };
 
 const getWeatherIcon = (condition?: string, size: number = 6) => {
-  const iconClass = SIZE_CLASSES[size] || "w-6 h-6";
+  const iconClass = SIZE_CLASSES[size] || 'w-6 h-6';
 
-  if (!condition)
-    return <Cloud className={iconClass} aria-hidden="true" />;
+  if (!condition) return <Cloud className={iconClass} aria-hidden="true" />;
 
   const lower = condition.toLowerCase();
 
-  if (lower.includes("rain") || lower.includes("ممطر")) {
-    return (
-      <CloudRain className={`${iconClass} text-blue-500`} aria-hidden="true" />
-    );
+  if (lower.includes('rain') || lower.includes('ممطر')) {
+    return <CloudRain className={`${iconClass} text-blue-500`} aria-hidden="true" />;
   }
-  if (lower.includes("drizzle") || lower.includes("رذاذ")) {
-    return (
-      <CloudDrizzle
-        className={`${iconClass} text-blue-400`}
-        aria-hidden="true"
-      />
-    );
+  if (lower.includes('drizzle') || lower.includes('رذاذ')) {
+    return <CloudDrizzle className={`${iconClass} text-blue-400`} aria-hidden="true" />;
   }
-  if (lower.includes("thunder") || lower.includes("رعد")) {
-    return (
-      <CloudLightning
-        className={`${iconClass} text-yellow-500`}
-        aria-hidden="true"
-      />
-    );
+  if (lower.includes('thunder') || lower.includes('رعد')) {
+    return <CloudLightning className={`${iconClass} text-yellow-500`} aria-hidden="true" />;
   }
-  if (lower.includes("snow") || lower.includes("ثلج")) {
-    return (
-      <CloudSnow className={`${iconClass} text-blue-300`} aria-hidden="true" />
-    );
+  if (lower.includes('snow') || lower.includes('ثلج')) {
+    return <CloudSnow className={`${iconClass} text-blue-300`} aria-hidden="true" />;
   }
   if (
-    lower.includes("clear") ||
-    lower.includes("sunny") ||
-    lower.includes("صافي") ||
-    lower.includes("مشمس")
+    lower.includes('clear') ||
+    lower.includes('sunny') ||
+    lower.includes('صافي') ||
+    lower.includes('مشمس')
   ) {
-    return (
-      <Sun className={`${iconClass} text-yellow-500`} aria-hidden="true" />
-    );
+    return <Sun className={`${iconClass} text-yellow-500`} aria-hidden="true" />;
   }
-  if (lower.includes("cloud") || lower.includes("غائم")) {
-    return (
-      <Cloud className={`${iconClass} text-gray-400`} aria-hidden="true" />
-    );
+  if (lower.includes('cloud') || lower.includes('غائم')) {
+    return <Cloud className={`${iconClass} text-gray-400`} aria-hidden="true" />;
   }
 
   return <Cloud className={`${iconClass} text-gray-400`} aria-hidden="true" />;
@@ -132,14 +113,14 @@ const getWeatherIcon = (condition?: string, size: number = 6) => {
  */
 const getWindDirectionAr = (direction: string): string => {
   const directionMap: Record<string, string> = {
-    N: "شمال",
-    NE: "شمال شرق",
-    E: "شرق",
-    SE: "جنوب شرق",
-    S: "جنوب",
-    SW: "جنوب غرب",
-    W: "غرب",
-    NW: "شمال غرب",
+    N: 'شمال',
+    NE: 'شمال شرق',
+    E: 'شرق',
+    SE: 'جنوب شرق',
+    S: 'جنوب',
+    SW: 'جنوب غرب',
+    W: 'غرب',
+    NW: 'شمال غرب',
   };
   return directionMap[direction] || direction;
 };
@@ -150,10 +131,10 @@ const getWindDirectionAr = (direction: string): string => {
  */
 const getPositionClasses = (position: Position): string => {
   const positionMap: Record<Position, string> = {
-    topright: "top-4 right-4",
-    topleft: "top-4 left-4",
-    bottomright: "bottom-4 right-4",
-    bottomleft: "bottom-4 left-4",
+    topright: 'top-4 right-4',
+    topleft: 'top-4 left-4',
+    bottomright: 'bottom-4 right-4',
+    bottomleft: 'bottom-4 left-4',
   };
   return positionMap[position];
 };
@@ -162,12 +143,10 @@ const getPositionClasses = (position: Position): string => {
  * Get severity badge variant
  * الحصول على نوع شارة الخطورة
  */
-const getSeverityVariant = (
-  severity: string,
-): "default" | "warning" | "danger" => {
-  if (severity === "critical" || severity === "severe") return "danger";
-  if (severity === "warning" || severity === "moderate") return "warning";
-  return "default";
+const getSeverityVariant = (severity: string): 'default' | 'warning' | 'danger' => {
+  if (severity === 'critical' || severity === 'severe') return 'danger';
+  if (severity === 'warning' || severity === 'moderate') return 'warning';
+  return 'default';
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -184,35 +163,31 @@ interface CompactWeatherProps {
   onExpand: () => void;
 }
 
-const CompactWeather = React.memo<CompactWeatherProps>(
-  ({ weather, alertsCount, onExpand }) => {
-    return (
-      <button
-        onClick={onExpand}
-        className="w-full flex items-center justify-between gap-3 hover:bg-white/10 rounded-lg p-2 transition-colors"
-        aria-label="توسيع معلومات الطقس"
-        aria-expanded="false"
-      >
-        <div className="flex items-center gap-2">
-          {getWeatherIcon(weather.condition, 6)}
-          <span className="text-2xl font-bold text-white">
-            {Math.round(weather.temperature)}°
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          {alertsCount > 0 && (
-            <Badge variant="danger" size="sm" className="animate-pulse">
-              {alertsCount}
-            </Badge>
-          )}
-          <ChevronDown className="w-4 h-4 text-white" aria-hidden="true" />
-        </div>
-      </button>
-    );
-  },
-);
+const CompactWeather = React.memo<CompactWeatherProps>(({ weather, alertsCount, onExpand }) => {
+  return (
+    <button
+      onClick={onExpand}
+      className="w-full flex items-center justify-between gap-3 hover:bg-white/10 rounded-lg p-2 transition-colors"
+      aria-label="توسيع معلومات الطقس"
+      aria-expanded="false"
+    >
+      <div className="flex items-center gap-2">
+        {getWeatherIcon(weather.condition, 6)}
+        <span className="text-2xl font-bold text-white">{Math.round(weather.temperature)}°</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {alertsCount > 0 && (
+          <Badge variant="danger" size="sm" className="animate-pulse">
+            {alertsCount}
+          </Badge>
+        )}
+        <ChevronDown className="w-4 h-4 text-white" aria-hidden="true" />
+      </div>
+    </button>
+  );
+});
 
-CompactWeather.displayName = "CompactWeather";
+CompactWeather.displayName = 'CompactWeather';
 
 /**
  * Expanded weather display
@@ -227,10 +202,7 @@ interface ExpandedWeatherProps {
 
 const ExpandedWeather = React.memo<ExpandedWeatherProps>(
   ({ weather, alerts, rainfallForecast, onCollapse }) => {
-    const activeAlerts = useMemo(
-      () => alerts.filter((a) => a.isActive),
-      [alerts],
-    );
+    const activeAlerts = useMemo(() => alerts.filter((a) => a.isActive), [alerts]);
 
     return (
       <div className="space-y-4">
@@ -251,37 +223,24 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
         <div className="flex items-center gap-4">
           {getWeatherIcon(weather.condition, 12)}
           <div>
-            <p className="text-4xl font-bold text-white">
-              {Math.round(weather.temperature)}°C
-            </p>
-            <p className="text-sm text-white/80 mt-1">
-              {weather.conditionAr || weather.condition}
-            </p>
+            <p className="text-4xl font-bold text-white">{Math.round(weather.temperature)}°C</p>
+            <p className="text-sm text-white/80 mt-1">{weather.conditionAr || weather.condition}</p>
           </div>
         </div>
 
         {/* Weather metrics grid */}
         <div className="grid grid-cols-2 gap-3">
           {/* Temperature */}
-          <div
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-                     >
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
-              <Thermometer
-                className="w-4 h-4 text-white/80"
-                aria-hidden="true"
-              />
+              <Thermometer className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الحرارة</p>
             </div>
-            <p className="text-lg font-bold text-white">
-              {Math.round(weather.temperature)}°C
-            </p>
+            <p className="text-lg font-bold text-white">{Math.round(weather.temperature)}°C</p>
           </div>
 
           {/* Humidity */}
-          <div
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-                     >
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <Droplets className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الرطوبة</p>
@@ -290,32 +249,22 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
           </div>
 
           {/* Wind */}
-          <div
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-                     >
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <Wind className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الرياح</p>
             </div>
-            <p className="text-lg font-bold text-white">
-              {weather.windSpeed} km/h
-            </p>
-            <p className="text-xs text-white/70">
-              {getWindDirectionAr(weather.windDirection)}
-            </p>
+            <p className="text-lg font-bold text-white">{weather.windSpeed} km/h</p>
+            <p className="text-xs text-white/70">{getWindDirectionAr(weather.windDirection)}</p>
           </div>
 
           {/* Rainfall forecast */}
-          <div
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-                     >
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <CloudRain className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الأمطار المتوقعة</p>
             </div>
-            <p className="text-lg font-bold text-white">
-              {rainfallForecast.toFixed(1)} mm
-            </p>
+            <p className="text-lg font-bold text-white">{rainfallForecast.toFixed(1)} mm</p>
             <p className="text-xs text-white/70">24 ساعة</p>
           </div>
         </div>
@@ -324,10 +273,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
         {activeAlerts.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <AlertTriangle
-                className="w-4 h-4 text-yellow-300"
-                aria-hidden="true"
-              />
+              <AlertTriangle className="w-4 h-4 text-yellow-300" aria-hidden="true" />
               <p className="text-sm font-semibold text-white">تنبيهات الطقس</p>
             </div>
             <div className="space-y-2">
@@ -344,15 +290,10 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
                         {alert.titleAr || alert.title}
                       </p>
                       {alert.descriptionAr && (
-                        <p className="text-xs text-white/80 mt-1">
-                          {alert.descriptionAr}
-                        </p>
+                        <p className="text-xs text-white/80 mt-1">{alert.descriptionAr}</p>
                       )}
                     </div>
-                    <Badge
-                      variant={getSeverityVariant(alert.severity)}
-                      size="sm"
-                    >
+                    <Badge variant={getSeverityVariant(alert.severity)} size="sm">
                       {alert.severity}
                     </Badge>
                   </div>
@@ -370,17 +311,17 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
-ExpandedWeather.displayName = "ExpandedWeather";
+ExpandedWeather.displayName = 'ExpandedWeather';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const WeatherOverlay = React.memo<WeatherOverlayProps>(
-  ({ fieldId, position = "topright", expanded: expandedProp }) => {
+  ({ fieldId, position = 'topright', expanded: expandedProp }) => {
     // State
     const [isExpanded, setIsExpanded] = useState(expandedProp ?? false);
 
@@ -443,11 +384,7 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
           aria-busy="true"
         >
           <div className="bg-gradient-to-br from-blue-500/90 to-cyan-600/90 backdrop-blur-md rounded-lg shadow-lg p-4 min-w-[200px]">
-            <div
-              className="animate-pulse text-white text-sm text-center"
-                         >
-              جاري تحميل الطقس...
-            </div>
+            <div className="animate-pulse text-white text-sm text-center">جاري تحميل الطقس...</div>
           </div>
         </div>
       );
@@ -456,14 +393,9 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
     // Error state
     if (weatherError || !weather) {
       return (
-        <div
-          className={`absolute ${getPositionClasses(position)} z-[1000]`}
-          role="alert"
-        >
+        <div className={`absolute ${getPositionClasses(position)} z-[1000]`} role="alert">
           <div className="bg-gradient-to-br from-gray-500/90 to-gray-600/90 backdrop-blur-md rounded-lg shadow-lg p-4 min-w-[200px]">
-            <div
-              className="flex items-center gap-2 text-white text-sm"
-                         >
+            <div className="flex items-center gap-2 text-white text-sm">
               <Cloud className="w-4 h-4 opacity-50" aria-hidden="true" />
               <span>بيانات الطقس غير متوفرة</span>
             </div>
@@ -499,11 +431,7 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
         {/* Alert badge for severe weather (visible when collapsed) */}
         {!isExpanded && activeAlertsCount > 0 && (
           <div className="absolute -top-2 -right-2" aria-hidden="true">
-            <Badge
-              variant="danger"
-              size="sm"
-              className="animate-pulse shadow-lg"
-            >
+            <Badge variant="danger" size="sm" className="animate-pulse shadow-lg">
               <AlertTriangle className="w-3 h-3 mr-1" />
               {activeAlertsCount}
             </Badge>
@@ -511,9 +439,9 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
-WeatherOverlay.displayName = "WeatherOverlay";
+WeatherOverlay.displayName = 'WeatherOverlay';
 
 export default WeatherOverlay;

@@ -18,30 +18,36 @@
  * Edge device hardware type
  */
 export type EdgeDeviceType =
-  | "jetson_orin"         // NVIDIA Jetson Orin
-  | "jetson_nano"         // NVIDIA Jetson Nano
-  | "jetson_xavier"       // NVIDIA Jetson Xavier
-  | "raspberry_pi_4"      // Raspberry Pi 4
-  | "raspberry_pi_5"      // Raspberry Pi 5
-  | "coral_dev_board"     // Google Coral Dev Board
-  | "intel_nuc"           // Intel NUC
-  | "custom";             // Custom device
+  | 'jetson_orin' // NVIDIA Jetson Orin
+  | 'jetson_nano' // NVIDIA Jetson Nano
+  | 'jetson_xavier' // NVIDIA Jetson Xavier
+  | 'raspberry_pi_4' // Raspberry Pi 4
+  | 'raspberry_pi_5' // Raspberry Pi 5
+  | 'coral_dev_board' // Google Coral Dev Board
+  | 'intel_nuc' // Intel NUC
+  | 'custom'; // Custom device
 
 /**
  * Device status
  */
 export type DeviceStatus =
-  | "online"              // متصل
-  | "offline"             // غير متصل
-  | "busy"                // مشغول
-  | "maintenance"         // صيانة
-  | "error"               // خطأ
-  | "updating";           // تحديث
+  | 'online' // متصل
+  | 'offline' // غير متصل
+  | 'busy' // مشغول
+  | 'maintenance' // صيانة
+  | 'error' // خطأ
+  | 'updating'; // تحديث
 
 /**
  * Connection type
  */
-export type ConnectionType = "wifi" | "ethernet" | "cellular_4g" | "cellular_5g" | "lora" | "satellite";
+export type ConnectionType =
+  | 'wifi'
+  | 'ethernet'
+  | 'cellular_4g'
+  | 'cellular_5g'
+  | 'lora'
+  | 'satellite';
 
 /**
  * Geographic point for device location
@@ -62,22 +68,22 @@ export interface GeoPoint {
  * Model format for edge deployment
  */
 export type ModelFormat =
-  | "tensorrt"            // NVIDIA TensorRT
-  | "onnx"                // Open Neural Network Exchange
-  | "tflite"              // TensorFlow Lite
-  | "pytorch"             // PyTorch
-  | "openvino";           // Intel OpenVINO
+  | 'tensorrt' // NVIDIA TensorRT
+  | 'onnx' // Open Neural Network Exchange
+  | 'tflite' // TensorFlow Lite
+  | 'pytorch' // PyTorch
+  | 'openvino'; // Intel OpenVINO
 
 /**
  * Model deployment status
  */
 export type DeploymentStatus =
-  | "pending"             // قيد الانتظار
-  | "downloading"         // جاري التحميل
-  | "installing"          // جاري التثبيت
-  | "deployed"            // تم النشر
-  | "failed"              // فشل
-  | "uninstalling";       // جاري الإزالة
+  | 'pending' // قيد الانتظار
+  | 'downloading' // جاري التحميل
+  | 'installing' // جاري التثبيت
+  | 'deployed' // تم النشر
+  | 'failed' // فشل
+  | 'uninstalling'; // جاري الإزالة
 
 /**
  * Deployed model on edge device
@@ -108,7 +114,7 @@ export interface ModelDeploymentRequest {
   modelId: string;
   modelVersion: string;
   format: ModelFormat;
-  priority?: "low" | "normal" | "high";
+  priority?: 'low' | 'normal' | 'high';
   scheduledTime?: Date;
   replaceExisting?: boolean;
 }
@@ -144,7 +150,7 @@ export interface HardwareSpecs {
   gpuCudaCores?: number;
   tensorCores?: number;
   hasNpu?: boolean;
-  npuTops?: number;              // Tera Operations Per Second
+  npuTops?: number; // Tera Operations Per Second
 }
 
 /**
@@ -238,27 +244,27 @@ export interface UpdateEdgeDevicePayload {
  * Sync status
  */
 export type SyncStatus =
-  | "synced"              // متزامن
-  | "syncing"             // جاري المزامنة
-  | "pending"             // قيد الانتظار
-  | "failed"              // فشل
-  | "conflict";           // تعارض
+  | 'synced' // متزامن
+  | 'syncing' // جاري المزامنة
+  | 'pending' // قيد الانتظار
+  | 'failed' // فشل
+  | 'conflict'; // تعارض
 
 /**
  * Sync direction
  */
-export type SyncDirection = "upload" | "download" | "bidirectional";
+export type SyncDirection = 'upload' | 'download' | 'bidirectional';
 
 /**
  * Data type for synchronization
  */
 export type SyncDataType =
-  | "detections"          // Detections data
-  | "models"              // Model files
-  | "configurations"      // Device configurations
-  | "telemetry"           // System telemetry
-  | "logs"                // Device logs
-  | "media";              // Images/videos
+  | 'detections' // Detections data
+  | 'models' // Model files
+  | 'configurations' // Device configurations
+  | 'telemetry' // System telemetry
+  | 'logs' // Device logs
+  | 'media'; // Images/videos
 
 /**
  * Sync job
@@ -295,7 +301,7 @@ export interface SyncConfiguration {
   maxSyncBytesPerDay?: number;
   priorityDataTypes: SyncDataType[];
   excludedDataTypes?: SyncDataType[];
-  conflictResolution: "cloud_wins" | "device_wins" | "newest_wins" | "manual";
+  conflictResolution: 'cloud_wins' | 'device_wins' | 'newest_wins' | 'manual';
   conflictResolutionAr: string;
   lastSyncAt?: Date;
   nextScheduledSync?: Date;
@@ -308,11 +314,11 @@ export interface OfflineQueueItem {
   queueId: string;
   deviceId: string;
   dataType: SyncDataType;
-  action: "create" | "update" | "delete";
+  action: 'create' | 'update' | 'delete';
   payload: Record<string, unknown>;
   createdAt: Date;
   retryCount: number;
-  status: "queued" | "processing" | "synced" | "failed";
+  status: 'queued' | 'processing' | 'synced' | 'failed';
   statusAr: string;
   error?: string;
 }
@@ -331,7 +337,7 @@ export interface DeviceTelemetry {
   metrics: SystemMetrics;
   location?: GeoPoint;
   connectionQuality?: {
-    signalStrength: number;         // dBm
+    signalStrength: number; // dBm
     latencyMs: number;
     packetLossPercent: number;
   };
@@ -344,7 +350,7 @@ export interface DeviceTelemetry {
   };
   alerts?: Array<{
     alertId: string;
-    type: "warning" | "error" | "critical";
+    type: 'warning' | 'error' | 'critical';
     message: string;
     messageAr: string;
     timestamp: Date;
@@ -356,7 +362,7 @@ export interface DeviceTelemetry {
  */
 export interface AggregatedTelemetry {
   deviceId: string;
-  period: "hourly" | "daily" | "weekly" | "monthly";
+  period: 'hourly' | 'daily' | 'weekly' | 'monthly';
   startTime: Date;
   endTime: Date;
   avgCpuUsage: number;
@@ -417,12 +423,12 @@ export interface FleetSummary {
 export interface DeviceHealthReport {
   deviceId: string;
   deviceName: string;
-  overallHealth: "healthy" | "degraded" | "unhealthy" | "critical";
+  overallHealth: 'healthy' | 'degraded' | 'unhealthy' | 'critical';
   overallHealthAr: string;
-  healthScore: number;              // 0-100
+  healthScore: number; // 0-100
   issues: Array<{
-    category: "hardware" | "software" | "connectivity" | "performance";
-    severity: "low" | "medium" | "high" | "critical";
+    category: 'hardware' | 'software' | 'connectivity' | 'performance';
+    severity: 'low' | 'medium' | 'high' | 'critical';
     description: string;
     descriptionAr: string;
     recommendation: string;
@@ -449,8 +455,8 @@ export interface DeviceFilters {
   search?: string;
   page?: number;
   limit?: number;
-  sortBy?: "deviceName" | "status" | "lastSyncAt" | "registeredAt";
-  sortOrder?: "asc" | "desc";
+  sortBy?: 'deviceName' | 'status' | 'lastSyncAt' | 'registeredAt';
+  sortOrder?: 'asc' | 'desc';
 }
 
 /**
@@ -473,12 +479,18 @@ export interface DeviceListResponse {
 export interface DeviceCommand {
   commandId: string;
   deviceId: string;
-  command: "restart" | "update_firmware" | "sync_now" | "clear_cache" | "run_diagnostics" | "shutdown";
+  command:
+    | 'restart'
+    | 'update_firmware'
+    | 'sync_now'
+    | 'clear_cache'
+    | 'run_diagnostics'
+    | 'shutdown';
   commandAr: string;
   parameters?: Record<string, unknown>;
   issuedAt: Date;
   issuedBy: string;
-  status: "pending" | "sent" | "acknowledged" | "completed" | "failed" | "timeout";
+  status: 'pending' | 'sent' | 'acknowledged' | 'completed' | 'failed' | 'timeout';
   statusAr: string;
   completedAt?: Date;
   result?: Record<string, unknown>;
@@ -491,12 +503,12 @@ export interface DeviceCommand {
  */
 export interface OTAUpdateRequest {
   deviceIds: string[];
-  updateType: "firmware" | "os" | "model" | "application";
+  updateType: 'firmware' | 'os' | 'model' | 'application';
   version: string;
   downloadUrl: string;
   checksum: string;
   scheduledTime?: Date;
-  priority?: "low" | "normal" | "high" | "critical";
+  priority?: 'low' | 'normal' | 'high' | 'critical';
   rollbackOnFailure?: boolean;
 }
 
@@ -509,9 +521,16 @@ export interface OTAUpdateStatus {
   updateType: string;
   targetVersion: string;
   currentVersion: string;
-  status: "scheduled" | "downloading" | "installing" | "verifying" | "completed" | "failed" | "rolled_back";
+  status:
+    | 'scheduled'
+    | 'downloading'
+    | 'installing'
+    | 'verifying'
+    | 'completed'
+    | 'failed'
+    | 'rolled_back';
   statusAr: string;
-  progress: number;                 // 0-100
+  progress: number; // 0-100
   startedAt?: Date;
   completedAt?: Date;
   error?: string;

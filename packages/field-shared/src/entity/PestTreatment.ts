@@ -7,8 +7,8 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { PestIncident } from "./PestIncident";
+} from 'typeorm';
+import { PestIncident } from './PestIncident';
 
 /**
  * Pest Treatment Entity - علاجات الآفات
@@ -16,64 +16,64 @@ import { PestIncident } from "./PestIncident";
  * Records treatment actions taken for pest incidents
  * Tracks application details, effectiveness, and costs
  */
-@Entity("pest_treatments")
-@Index("idx_pest_treatment_incident", ["incidentId"])
-@Index("idx_pest_treatment_tenant", ["tenantId"])
-@Index("idx_pest_treatment_date", ["treatmentDate"])
+@Entity('pest_treatments')
+@Index('idx_pest_treatment_incident', ['incidentId'])
+@Index('idx_pest_treatment_tenant', ['tenantId'])
+@Index('idx_pest_treatment_date', ['treatmentDate'])
 export class PestTreatment {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   // ─────────────────────────────────────────────────────────────────────────
   // References
   // ─────────────────────────────────────────────────────────────────────────
 
-  @Column({ name: "incident_id", type: "uuid" })
+  @Column({ name: 'incident_id', type: 'uuid' })
   incidentId!: string;
 
-  @Column({ name: "tenant_id", length: 100 })
+  @Column({ name: 'tenant_id', length: 100 })
   tenantId!: string;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Treatment Details
   // ─────────────────────────────────────────────────────────────────────────
 
-  @Column({ name: "treatment_date", type: "timestamptz" })
+  @Column({ name: 'treatment_date', type: 'timestamptz' })
   treatmentDate!: Date;
 
   @Column({ length: 255 })
   method!: string;
 
-  @Column({ name: "product_used", length: 255 })
+  @Column({ name: 'product_used', length: 255 })
   productUsed!: string;
 
-  @Column({ name: "product_id", type: "uuid", nullable: true })
+  @Column({ name: 'product_id', type: 'uuid', nullable: true })
   productId?: string;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Application Details
   // ─────────────────────────────────────────────────────────────────────────
 
-  @Column({ type: "decimal", precision: 10, scale: 3 })
+  @Column({ type: 'decimal', precision: 10, scale: 3 })
   quantity!: number;
 
   @Column({ length: 50 })
   unit!: string;
 
-  @Column({ name: "applied_by", length: 255 })
+  @Column({ name: 'applied_by', length: 255 })
   appliedBy!: string;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Results
   // ─────────────────────────────────────────────────────────────────────────
 
-  @Column({ type: "smallint", nullable: true })
+  @Column({ type: 'smallint', nullable: true })
   effectiveness?: number; // 1-5 scale
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   cost?: number;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: 'text', nullable: true })
   notes?: string;
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -81,18 +81,18 @@ export class PestTreatment {
   // ─────────────────────────────────────────────────────────────────────────
 
   @ManyToOne(() => PestIncident, (incident: PestIncident) => incident.treatments, {
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: "incident_id" })
+  @JoinColumn({ name: 'incident_id' })
   incident?: PestIncident;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Timestamps
   // ─────────────────────────────────────────────────────────────────────────
 
-  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
 }

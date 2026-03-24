@@ -5,7 +5,11 @@
 
 export default function Loading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل الري - Loading irrigation">
+    <div
+      className="p-6 space-y-6 animate-pulse"
+      role="status"
+      aria-label="جاري تحميل الري - Loading irrigation"
+    >
       <span className="sr-only">جاري تحميل الري - Loading irrigation</span>
       {/* Header skeleton */}
       <div>
@@ -16,10 +20,7 @@ export default function Loading() {
       {/* Stat cards skeleton - 4 irrigation KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-          >
+          <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="h-4 bg-gray-200 rounded w-24" />
               <div className="h-10 w-10 bg-gray-100 rounded-lg" />
@@ -40,10 +41,7 @@ export default function Loading() {
           </div>
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
-              >
+              <div key={i} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                 <div className="h-8 w-8 bg-gray-200 rounded-full" />
                 <div className="flex-1">
                   <div className="h-4 bg-gray-200 rounded w-40 mb-2" />

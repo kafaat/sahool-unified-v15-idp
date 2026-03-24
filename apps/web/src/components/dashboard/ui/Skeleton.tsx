@@ -1,50 +1,45 @@
-import React from "react";
-import { clsx } from "clsx";
+import React from 'react';
+import { clsx } from 'clsx';
 
 interface SkeletonProps {
   className?: string;
-  variant?: "text" | "rectangular" | "circular";
+  variant?: 'text' | 'rectangular' | 'circular';
   width?: string | number;
   height?: string | number;
   /** Animation type */
-  animation?: "pulse" | "wave" | "none";
+  animation?: 'pulse' | 'wave' | 'none';
   /** Screen reader label */
   label?: string;
 }
 
 export const Skeleton = React.memo<SkeletonProps>(function Skeleton({
-  className = "",
-  variant = "rectangular",
+  className = '',
+  variant = 'rectangular',
   width,
   height,
-  animation = "pulse",
-  label = "جاري التحميل",
+  animation = 'pulse',
+  label = 'جاري التحميل',
 }) {
   const variantStyles = {
-    text: "h-4 rounded",
-    rectangular: "rounded-lg",
-    circular: "rounded-full",
+    text: 'h-4 rounded',
+    rectangular: 'rounded-lg',
+    circular: 'rounded-full',
   };
 
   const animationStyles = {
-    pulse: "animate-pulse",
-    wave: "skeleton-wave",
-    none: "",
+    pulse: 'animate-pulse',
+    wave: 'skeleton-wave',
+    none: '',
   };
 
   const style: React.CSSProperties = {
-    width: width || "100%",
-    height: height || (variant === "text" ? "1rem" : "100%"),
+    width: width || '100%',
+    height: height || (variant === 'text' ? '1rem' : '100%'),
   };
 
   return (
     <div
-      className={clsx(
-        "bg-gray-200",
-        variantStyles[variant],
-        animationStyles[animation],
-        className,
-      )}
+      className={clsx('bg-gray-200', variantStyles[variant], animationStyles[animation], className)}
       style={style}
       role="status"
       aria-busy="true"
@@ -127,15 +122,11 @@ export const SkeletonTableRow = React.memo(function SkeletonTableRow({
   columns?: number;
 }) {
   return (
-    <tr
-      role="status"
-      aria-busy="true"
-      aria-label="جاري تحميل الصف - Loading row"
-    >
+    <tr role="status" aria-busy="true" aria-label="جاري تحميل الصف - Loading row">
       {Array.from({ length: columns }).map((_, i) => (
         <td key={i} className="px-4 py-3">
           <Skeleton
-            width={i === 0 ? "80%" : i === columns - 1 ? 60 : "60%"}
+            width={i === 0 ? '80%' : i === columns - 1 ? 60 : '60%'}
             height={16}
             variant="text"
           />
@@ -193,11 +184,7 @@ export const SkeletonChart = React.memo(function SkeletonChart({
 });
 
 /** Map Skeleton */
-export const SkeletonMap = React.memo(function SkeletonMap({
-  height = 300,
-}: {
-  height?: number;
-}) {
+export const SkeletonMap = React.memo(function SkeletonMap({ height = 300 }: { height?: number }) {
   return (
     <div
       className="bg-white rounded-xl overflow-hidden relative"

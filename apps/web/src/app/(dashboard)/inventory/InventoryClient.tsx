@@ -1,28 +1,30 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Package, Plus, Search, AlertTriangle } from "lucide-react";
-import { useInventory, useInventoryStats } from "@/features/inventory";
-import type { InventoryItem, InventoryCategory } from "@/features/inventory";
+import React, { useState, useMemo } from 'react';
+import { Package, Plus, Search, AlertTriangle } from 'lucide-react';
+import { useInventory, useInventoryStats } from '@/features/inventory';
+import type { InventoryItem, InventoryCategory } from '@/features/inventory';
 
-const categories: Array<{ value: InventoryCategory | "all"; label: string; labelAr: string }> = [
-  { value: "all", label: "All Categories", labelAr: "جميع الفئات" },
-  { value: "fertilizers", label: "Fertilizers", labelAr: "الأسمدة" },
-  { value: "seeds", label: "Seeds", labelAr: "البذور" },
-  { value: "pesticides", label: "Pesticides", labelAr: "المبيدات" },
-  { value: "equipment", label: "Equipment", labelAr: "المعدات" },
-  { value: "fuel", label: "Fuel", labelAr: "الوقود" },
-  { value: "other", label: "Other", labelAr: "أخرى" },
+const categories: Array<{ value: InventoryCategory | 'all'; label: string; labelAr: string }> = [
+  { value: 'all', label: 'All Categories', labelAr: 'جميع الفئات' },
+  { value: 'fertilizers', label: 'Fertilizers', labelAr: 'الأسمدة' },
+  { value: 'seeds', label: 'Seeds', labelAr: 'البذور' },
+  { value: 'pesticides', label: 'Pesticides', labelAr: 'المبيدات' },
+  { value: 'equipment', label: 'Equipment', labelAr: 'المعدات' },
+  { value: 'fuel', label: 'Fuel', labelAr: 'الوقود' },
+  { value: 'other', label: 'Other', labelAr: 'أخرى' },
 ];
 
 export default function InventoryClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | 'all'>('all');
 
   // Fetch data using React Query hooks
-  const { data: inventory = [], isLoading, error } = useInventory(
-    selectedCategory !== "all" ? { category: selectedCategory } : undefined
-  );
+  const {
+    data: inventory = [],
+    isLoading,
+    error,
+  } = useInventory(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useInventoryStats();
 
   // Filter inventory based on search term
@@ -30,24 +32,22 @@ export default function InventoryClient() {
     if (!searchTerm) return inventory;
     const term = searchTerm.toLowerCase();
     return inventory.filter(
-      (item) =>
-        item.name.toLowerCase().includes(term) ||
-        item.nameAr.includes(searchTerm)
+      (item) => item.name.toLowerCase().includes(term) || item.nameAr.includes(searchTerm)
     );
   }, [inventory, searchTerm]);
 
-  const getStatusBadge = (status: InventoryItem["status"]) => {
+  const getStatusBadge = (status: InventoryItem['status']) => {
     const styles = {
-      in_stock: "bg-green-100 text-green-800",
-      low_stock: "bg-yellow-100 text-yellow-800",
-      out_of_stock: "bg-red-100 text-red-800",
-      expired: "bg-red-100 text-red-800",
+      in_stock: 'bg-green-100 text-green-800',
+      low_stock: 'bg-yellow-100 text-yellow-800',
+      out_of_stock: 'bg-red-100 text-red-800',
+      expired: 'bg-red-100 text-red-800',
     };
     const labels = {
-      in_stock: "متوفر",
-      low_stock: "مخزون منخفض",
-      out_of_stock: "نفذ المخزون",
-      expired: "منتهي الصلاحية",
+      in_stock: 'متوفر',
+      low_stock: 'مخزون منخفض',
+      out_of_stock: 'نفذ المخزون',
+      expired: 'منتهي الصلاحية',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -113,7 +113,9 @@ export default function InventoryClient() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي العناصر</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalItems ?? inventory.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalItems ?? inventory.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">القيمة الإجمالية</div>
@@ -145,7 +147,7 @@ export default function InventoryClient() {
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as InventoryCategory | "all")}
+          onChange={(e) => setSelectedCategory(e.target.value as InventoryCategory | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {categories.map((cat) => (
@@ -167,7 +169,9 @@ export default function InventoryClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الكمية</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الموقع</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -197,7 +201,9 @@ export default function InventoryClient() {
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {item.quantity} {item.unitAr || item.unit}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{item.locationAr || item.location}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {item.locationAr || item.location}
+                    </td>
                     <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
                     <td className="px-4 py-3">
                       <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">

@@ -46,10 +46,7 @@ export default function DisastersLoading() {
       {/* Table skeleton */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
-          >
+          <div key={i} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
             <div className="h-16 bg-gray-100 dark:bg-gray-700 rounded" />
           </div>
         ))}

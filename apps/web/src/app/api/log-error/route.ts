@@ -3,9 +3,9 @@
  * نقطة نهاية API لتسجيل الأخطاء
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { isRateLimited } from "@/lib/rate-limiter";
-import { logger } from "@/lib/logger";
+import { NextRequest, NextResponse } from 'next/server';
+import { isRateLimited } from '@/lib/rate-limiter';
+import { logger } from '@/lib/logger';
 
 interface ErrorLogPayload {
   type: string;
@@ -29,7 +29,7 @@ interface ErrorLogPayload {
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000, // 1 minute
   maxRequests: 10,
-  keyPrefix: "error-log",
+  keyPrefix: 'error-log',
 };
 
 /**
@@ -37,19 +37,19 @@ const RATE_LIMIT_CONFIG = {
  * الحصول على عنوان IP للعميل
  */
 function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
 
   if (forwarded) {
-    const firstIp = forwarded.split(",")[0];
-    return firstIp ? firstIp.trim() : "unknown";
+    const firstIp = forwarded.split(',')[0];
+    return firstIp ? firstIp.trim() : 'unknown';
   }
 
   if (realIp) {
     return realIp;
   }
 
-  return "unknown";
+  return 'unknown';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -64,35 +64,29 @@ export async function POST(request: NextRequest) {
 
     if (rateLimited) {
       return NextResponse.json(
-        { error: "Too many error reports. Please try again later." },
-        { status: 429 },
+        { error: 'Too many error reports. Please try again later.' },
+        { status: 429 }
       );
     }
 
     // Validate content-type before parsing JSON
-    const contentType = request.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Content-Type must be application/json" },
-        { status: 400 },
-      );
+    const contentType = request.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type must be application/json' }, { status: 400 });
     }
 
     let payload: ErrorLogPayload;
     try {
       payload = await request.json();
     } catch {
-      return NextResponse.json(
-        { error: "Invalid JSON body" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
     // Validate required fields
     if (!payload.message || !payload.type) {
       return NextResponse.json(
-        { error: "Missing required fields: message, type" },
-        { status: 400 },
+        { error: 'Missing required fields: message, type' },
+        { status: 400 }
       );
     }
 
@@ -103,14 +97,14 @@ export async function POST(request: NextRequest) {
     const safeStack = payload.stack ? String(payload.stack).slice(0, MAX_STACK_LEN) : undefined;
 
     // Log to console in development
-    if (process.env.NODE_ENV === "development") {
-      logger.error("[Error Log]", JSON.stringify(payload, null, 2));
+    if (process.env.NODE_ENV === 'development') {
+      logger.error('[Error Log]', JSON.stringify(payload, null, 2));
     }
 
     // Build log entry with explicit fields (avoid spread to prevent log injection)
     const logEntry = {
-      level: "error",
-      service: "sahool-web",
+      level: 'error',
+      service: 'sahool-web',
       type: String(payload.type),
       message: safeMessage,
       stack: safeStack,
@@ -118,8 +112,8 @@ export async function POST(request: NextRequest) {
       timestamp: payload.timestamp,
       receivedAt: new Date().toISOString(),
       requestHeaders: {
-        userAgent: request.headers.get("user-agent"),
-        referer: request.headers.get("referer"),
+        userAgent: request.headers.get('user-agent'),
+        referer: request.headers.get('referer'),
       },
     };
 
@@ -134,7 +128,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, logged: true });
   } catch (error) {
     // Critical error - always log
-    logger.critical("[Error Log API] Failed to process error:", error);
-    return NextResponse.json({ error: "Failed to log error" }, { status: 500 });
+    logger.critical('[Error Log API] Failed to process error:', error);
+    return NextResponse.json({ error: 'Failed to log error' }, { status: 500 });
   }
 }

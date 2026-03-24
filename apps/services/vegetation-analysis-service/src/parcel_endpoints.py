@@ -13,7 +13,10 @@ Supports 4 detection strategies:
 import logging
 from datetime import datetime
 
-from fastapi import HTTPException, Query
+from fastapi import Depends, HTTPException, Query
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -118,6 +121,7 @@ def register_parcel_endpoints(app, land_detector):
         min_area: float = Query(0.05, description="Minimum parcel area (hectares)"),
         smoothing: int = Query(2, description="Smoothing iterations"),
         target_shape: str = Query("irregular", description="Shape regularization"),
+        _user: User = Depends(get_current_user),
     ):
         """
         Automatically generate agricultural parcels around a point.
@@ -211,17 +215,17 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel auto-generation failed: {e}")
+            logger.error(f"Parcel auto-generation failed: {e}", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail={
-                    "en": f"Parcel detection failed: {str(e)}",
-                    "ar": f"فشل كشف القطع: {str(e)}",
+                    "en": "Parcel detection failed. Please try again or adjust parameters.",
+                    "ar": "فشل كشف القطع. يرجى المحاولة مرة أخرى أو تعديل المعلمات.",
                 },
             ) from e
 
     @app.post("/v1/parcels/detect-region", response_model=dict)
-    async def detect_parcels_in_region(request: RegionDetectionRequest):
+    async def detect_parcels_in_region(request: RegionDetectionRequest, _user: User = Depends(get_current_user)):
         """
         Detect agricultural parcels in a geographic region.
         كشف القطع الزراعية في منطقة جغرافية محددة
@@ -304,11 +308,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Region detection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Region detection failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/classify", response_model=dict)
-    async def classify_parcels(request: ParcelClassifyRequest):
+    async def classify_parcels(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Classify existing vector parcels as agricultural/non-agricultural.
         تصنيف القطع المتجهة الموجودة كأراضي زراعية/غير زراعية
@@ -397,11 +401,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel classification failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Parcel classification failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/parcels/strategies", response_model=dict)
-    async def list_detection_strategies():
+    async def list_detection_strategies(_user: User = Depends(get_current_user)):
         """
         List available detection strategies and their descriptions.
         عرض استراتيجيات الكشف المتاحة ووصفها
@@ -510,7 +514,7 @@ def register_parcel_endpoints(app, land_detector):
     # =========================================================================
 
     @app.post("/v1/parcels/classify-crops", response_model=dict)
-    async def classify_crops(request: ParcelClassifyRequest):
+    async def classify_crops(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Classify crop types for parcels using ML+DL dual-path engine.
         تصنيف أنواع المحاصيل للقطع باستخدام محرك مزدوج (تعلم آلي + تعلم عميق)
@@ -567,15 +571,15 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Crop classification failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Crop classification failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
     # GeoLabel 4.0: Parcel Editing Endpoints (Merge / Split / Connect)
     # =========================================================================
 
     @app.post("/v1/parcels/merge", response_model=dict)
-    async def merge_parcels(request: ParcelMergeRequest):
+    async def merge_parcels(request: ParcelMergeRequest, _user: User = Depends(get_current_user)):
         """
         Merge multiple parcels into one (GeoLabel fast merge).
         دمج عدة قطع في قطعة واحدة (دمج سريع GeoLabel)
@@ -615,11 +619,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel merge failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Parcel merge failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/split", response_model=dict)
-    async def split_parcel(request: ParcelSplitRequest):
+    async def split_parcel(request: ParcelSplitRequest, _user: User = Depends(get_current_user)):
         """
         Split a parcel along a cutting line (GeoLabel fast split).
         تقسيم قطعة على طول خط القطع (تقسيم سريع GeoLabel)
@@ -664,11 +668,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel split failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Parcel split failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/connect", response_model=dict)
-    async def connect_parcels(request: ParcelConnectRequest):
+    async def connect_parcels(request: ParcelConnectRequest, _user: User = Depends(get_current_user)):
         """
         Connect nearby parcel fragments (GeoLabel fast connect).
         ربط أجزاء القطع القريبة (ربط سريع GeoLabel)
@@ -713,15 +717,15 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel connect failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Parcel connect failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
     # GeoLabel 4.0: Quality Inspection & WKT Export
     # =========================================================================
 
     @app.post("/v1/parcels/inspect", response_model=dict)
-    async def inspect_parcels(request: ParcelClassifyRequest):
+    async def inspect_parcels(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Run quality inspection on parcels (GeoLabel quality browser).
         فحص جودة القطع (متصفح جودة GeoLabel)
@@ -750,11 +754,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Quality inspection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Quality inspection failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/export-wkt", response_model=dict)
-    async def export_wkt(request: ParcelClassifyRequest):
+    async def export_wkt(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Export parcels as WKT (Well-Known Text) format.
         تصدير القطع بتنسيق WKT
@@ -797,11 +801,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"WKT export failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"WKT export failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/batch-assign", response_model=dict)
-    async def batch_assign_attribute(request: BatchAssignRequest):
+    async def batch_assign_attribute(request: BatchAssignRequest, _user: User = Depends(get_current_user)):
         """
         Batch assign attribute to multiple parcels (GeoLabel attribute brush).
         تعيين سمة مجمّعة لعدة قطع (فرشاة السمات GeoLabel)
@@ -858,11 +862,11 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Batch assign failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Batch assign failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/parcels/statistics", response_model=dict)
-    async def get_parcel_statistics(request: ParcelClassifyRequest):
+    async def get_parcel_statistics(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Get statistical summary of parcels.
         الحصول على ملخص إحصائي للقطع
@@ -889,15 +893,15 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Statistics calculation failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Statistics calculation failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     # =========================================================================
     # GeoLabel 4.0: Topology-Preserving Simplification
     # =========================================================================
 
     @app.post("/v1/parcels/simplify-topology", response_model=dict)
-    async def simplify_with_topology(request: ParcelClassifyRequest):
+    async def simplify_with_topology(request: ParcelClassifyRequest, _user: User = Depends(get_current_user)):
         """
         Simplify parcel boundaries while preserving topology.
         تبسيط حدود القطع مع الحفاظ على الطوبولوجيا
@@ -948,8 +952,8 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Topology simplification failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Topology simplification failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("Agricultural parcel detection endpoints registered (with GeoLabel 4.0)")
 

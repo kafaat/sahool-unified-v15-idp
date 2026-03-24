@@ -32,8 +32,8 @@ RUN mkdir -p /root/.pip && \
     printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Upgrade pip with fallback to Aliyun mirror
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || \
-    pip install --no-cache-dir --index-url https://pypi.org/simple --upgrade pip || true
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --index-url https://pypi.org/simple --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
 
 # Install dependencies with fallback to Aliyun mirror
 COPY apps/services/advisory-service/requirements.txt .

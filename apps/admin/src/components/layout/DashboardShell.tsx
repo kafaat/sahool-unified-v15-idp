@@ -1,22 +1,19 @@
-"use client";
+'use client';
 
-import Sidebar from "@/components/layout/Sidebar";
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Sidebar from '@/components/layout/Sidebar';
+import { AuthGuard } from '@/components/auth/AuthGuard';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 interface DashboardShellProps {
   children: React.ReactNode;
-  requiredRole?: "admin" | "supervisor" | "viewer";
+  requiredRole?: 'admin' | 'supervisor' | 'viewer';
 }
 
 /**
  * Client-side dashboard shell with sidebar and auth guard.
  * Used by server-component layouts to enable metadata exports.
  */
-export default function DashboardShell({
-  children,
-  requiredRole = "viewer",
-}: DashboardShellProps) {
+export default function DashboardShell({ children, requiredRole = 'viewer' }: DashboardShellProps) {
   return (
     <AuthGuard requiredRole={requiredRole}>
       {/* Skip to main content - accessibility */}
@@ -28,17 +25,11 @@ export default function DashboardShell({
       </a>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Sidebar />
-        <main
-          id="main-content"
-          className="ms-0 lg:ms-64 min-h-screen"
-          aria-label="المحتوى الرئيسي"
-        >
+        <main id="main-content" className="ms-0 lg:ms-64 min-h-screen" aria-label="المحتوى الرئيسي">
           <div className="px-6 pt-4">
             <Breadcrumbs className="mb-2" />
           </div>
-          <div className="animate-page-enter">
-            {children}
-          </div>
+          <div className="animate-page-enter">{children}</div>
         </main>
       </div>
     </AuthGuard>

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Copilot Chat Page
@@ -8,17 +8,8 @@
  * Connects to copilot-api service on port 8088.
  */
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Send,
-  Bot,
-  User,
-  Sparkles,
-  Loader2,
-  Trash2,
-  RotateCcw,
-  Leaf,
-} from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Bot, User, Sparkles, Loader2, Trash2, RotateCcw, Leaf } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -26,7 +17,7 @@ import {
 
 interface ChatMessage {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
 }
@@ -35,21 +26,20 @@ interface ChatMessage {
 // Constants
 // ---------------------------------------------------------------------------
 
-const COPILOT_API_BASE =
-  process.env.NEXT_PUBLIC_COPILOT_API_URL || "";
+const COPILOT_API_BASE = process.env.NEXT_PUBLIC_COPILOT_API_URL || '';
 
 const QUICK_QUESTIONS = [
-  { label: "متى أسقي القمح؟", icon: "droplet" },
-  { label: "ما أفضل سماد للطماطم؟", icon: "leaf" },
-  { label: "كيف أكتشف أمراض المحاصيل؟", icon: "bug" },
-  { label: "ما توقعات الطقس اليوم؟", icon: "cloud" },
-  { label: "نصائح لتحسين الإنتاجية", icon: "trending" },
-  { label: "جدول الري الأمثل لهذا الأسبوع", icon: "calendar" },
+  { label: 'متى أسقي القمح؟', icon: 'droplet' },
+  { label: 'ما أفضل سماد للطماطم؟', icon: 'leaf' },
+  { label: 'كيف أكتشف أمراض المحاصيل؟', icon: 'bug' },
+  { label: 'ما توقعات الطقس اليوم؟', icon: 'cloud' },
+  { label: 'نصائح لتحسين الإنتاجية', icon: 'trending' },
+  { label: 'جدول الري الأمثل لهذا الأسبوع', icon: 'calendar' },
 ];
 
 const WELCOME_MESSAGE: ChatMessage = {
-  id: "welcome",
-  role: "assistant",
+  id: 'welcome',
+  role: 'assistant',
   content: `مرحبا! أنا مساعد سهول الذكي 🌱
 
 أستطيع مساعدتك في:
@@ -80,11 +70,11 @@ function generateId(): string {
 }
 
 function generateSessionId(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
   // Fallback UUID v4 using crypto.getRandomValues where available
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
     const bytes = new Uint8Array(16);
     crypto.getRandomValues(bytes);
 
@@ -99,17 +89,32 @@ function generateSessionId(): string {
 
     const hex = (i: number) => byteToHex[bytes[i]!]!;
     return (
-      hex(0) + hex(1) + hex(2) + hex(3) + "-" +
-      hex(4) + hex(5) + "-" +
-      hex(6) + hex(7) + "-" +
-      hex(8) + hex(9) + "-" +
-      hex(10) + hex(11) + hex(12) + hex(13) + hex(14) + hex(15)
+      hex(0) +
+      hex(1) +
+      hex(2) +
+      hex(3) +
+      '-' +
+      hex(4) +
+      hex(5) +
+      '-' +
+      hex(6) +
+      hex(7) +
+      '-' +
+      hex(8) +
+      hex(9) +
+      '-' +
+      hex(10) +
+      hex(11) +
+      hex(12) +
+      hex(13) +
+      hex(14) +
+      hex(15)
     );
   }
 
   // Last-resort fallback: deterministic ID without relying on Math.random.
   // This should only be hit in very constrained environments (e.g. SSR).
-  return "00000000-0000-4000-8000-000000000000";
+  return '00000000-0000-4000-8000-000000000000';
 }
 
 // Session ID is generated per page load - not persisted to storage.
@@ -119,7 +124,7 @@ function generateSessionId(): string {
 let _cachedSessionId: string | null = null;
 
 function getStoredSessionId(): string {
-  if (typeof window === "undefined") return generateSessionId();
+  if (typeof window === 'undefined') return generateSessionId();
   if (!_cachedSessionId) {
     _cachedSessionId = generateSessionId();
   }
@@ -127,9 +132,9 @@ function getStoredSessionId(): string {
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString("ar-SA", {
-    hour: "2-digit",
-    minute: "2-digit",
+  return date.toLocaleTimeString('ar-SA', {
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -139,7 +144,7 @@ function formatTime(date: Date): string {
 
 export default function CopilotPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [sessionId] = useState<string>(getStoredSessionId);
   const [error, setError] = useState<string | null>(null);
@@ -150,7 +155,7 @@ export default function CopilotPage() {
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
   useEffect(() => {
@@ -166,14 +171,11 @@ export default function CopilotPage() {
   // Non-streaming fallback
   // -------------------------------------------------------------------
   const fallbackNonStreaming = useCallback(
-    async (
-      allMessages: Array<{ role: string; content: string }>,
-      assistantId: string,
-    ) => {
+    async (allMessages: Array<{ role: string; content: string }>, assistantId: string) => {
       const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: sessionId,
           messages: allMessages,
@@ -186,22 +188,18 @@ export default function CopilotPage() {
           errorData?.detail?.error_ar ||
             errorData?.detail?.error ||
             errorData?.detail ||
-            `HTTP ${response.status}`,
+            `HTTP ${response.status}`
         );
       }
 
       const data = await response.json();
-      const content = data.message?.content || "";
+      const content = data.message?.content || '';
 
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? { ...m, content, timestamp: new Date() }
-            : m,
-        ),
+        prev.map((m) => (m.id === assistantId ? { ...m, content, timestamp: new Date() } : m))
       );
     },
-    [sessionId],
+    [sessionId]
   );
 
   // -------------------------------------------------------------------
@@ -214,7 +212,7 @@ export default function CopilotPage() {
       setError(null);
       const userMessage: ChatMessage = {
         id: generateId(),
-        role: "user",
+        role: 'user',
         content: content.trim(),
         timestamp: new Date(),
       };
@@ -222,21 +220,21 @@ export default function CopilotPage() {
       const assistantId = generateId();
       const assistantMessage: ChatMessage = {
         id: assistantId,
-        role: "assistant",
-        content: "",
+        role: 'assistant',
+        content: '',
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
-      setInput("");
+      setInput('');
       setIsStreaming(true);
 
       // Build the request body
       const allUserMessages = [
         ...messages
-          .filter((m) => m.id !== "welcome")
+          .filter((m) => m.id !== 'welcome')
           .map((m) => ({ role: m.role, content: m.content })),
-        { role: "user" as const, content: content.trim() },
+        { role: 'user' as const, content: content.trim() },
       ];
 
       const requestBody = JSON.stringify({
@@ -250,19 +248,16 @@ export default function CopilotPage() {
       abortControllerRef.current = controller;
 
       try {
-        const response = await fetch(
-          `${COPILOT_API_BASE}/api/v1/chat/stream`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "text/event-stream",
-            },
-            body: requestBody,
-            signal: controller.signal,
+        const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat/stream`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
           },
-        );
+          body: requestBody,
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
@@ -270,35 +265,33 @@ export default function CopilotPage() {
             errorData?.detail?.error_ar ||
               errorData?.detail?.error ||
               errorData?.detail ||
-              `HTTP ${response.status}`,
+              `HTTP ${response.status}`
           );
         }
 
         const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response stream");
+        if (!reader) throw new Error('No response stream');
 
         const decoder = new TextDecoder();
-        let accumulated = "";
+        let accumulated = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          const lines = chunk.split('\n');
 
           for (const line of lines) {
-            if (line.startsWith("data: ")) {
+            if (line.startsWith('data: ')) {
               const data = line.slice(6);
-              if (data === "[DONE]") break;
+              if (data === '[DONE]') break;
               accumulated += data;
               // Update the assistant message content
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: accumulated, timestamp: new Date() }
-                    : m,
-                ),
+                  m.id === assistantId ? { ...m, content: accumulated, timestamp: new Date() } : m
+                )
               );
             }
           }
@@ -309,7 +302,7 @@ export default function CopilotPage() {
           await fallbackNonStreaming(allUserMessages, assistantId);
         }
       } catch (err: unknown) {
-        if (err instanceof DOMException && err.name === "AbortError") {
+        if (err instanceof DOMException && err.name === 'AbortError') {
           // User cancelled - do nothing
           return;
         }
@@ -321,9 +314,7 @@ export default function CopilotPage() {
           await fallbackNonStreaming(allUserMessages, assistantId);
         } catch (fallbackErr) {
           const errorMessage =
-            fallbackErr instanceof Error
-              ? fallbackErr.message
-              : "حدث خطأ في الاتصال";
+            fallbackErr instanceof Error ? fallbackErr.message : 'حدث خطأ في الاتصال';
           setError(errorMessage);
           setMessages((prev) =>
             prev.map((m) =>
@@ -332,8 +323,8 @@ export default function CopilotPage() {
                     ...m,
                     content: `عذرا، حدث خطأ أثناء الاتصال بالمساعد الذكي.\n\nSorry, an error occurred while connecting to the AI assistant.\n\n_${errorMessage}_`,
                   }
-                : m,
-            ),
+                : m
+            )
           );
         }
       } finally {
@@ -342,7 +333,7 @@ export default function CopilotPage() {
         inputRef.current?.focus();
       }
     },
-    [isStreaming, messages, sessionId, fallbackNonStreaming],
+    [isStreaming, messages, sessionId, fallbackNonStreaming]
   );
 
   // -------------------------------------------------------------------
@@ -354,7 +345,7 @@ export default function CopilotPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage(input);
     }
@@ -376,9 +367,7 @@ export default function CopilotPage() {
   };
 
   const handleRetry = () => {
-    const lastUserMessage = [...messages]
-      .reverse()
-      .find((m) => m.role === "user");
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
     if (lastUserMessage) {
       // Remove the last assistant message
       setMessages((prev) => prev.slice(0, -1));
@@ -389,9 +378,7 @@ export default function CopilotPage() {
   // -------------------------------------------------------------------
   // Render helpers
   // -------------------------------------------------------------------
-  const hasUserMessages = messages.some(
-    (m) => m.role === "user",
-  );
+  const hasUserMessages = messages.some((m) => m.role === 'user');
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] -m-6">
@@ -403,9 +390,7 @@ export default function CopilotPage() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                المساعد الذكي
-              </h1>
+              <h1 className="text-xl font-bold text-gray-900">المساعد الذكي</h1>
               <p className="text-sm text-gray-500">AI Copilot</p>
             </div>
           </div>
@@ -436,8 +421,8 @@ export default function CopilotPage() {
 
         {/* Typing indicator */}
         {isStreaming &&
-          messages[messages.length - 1]?.role === "assistant" &&
-          messages[messages.length - 1]?.content === "" && (
+          messages[messages.length - 1]?.role === 'assistant' &&
+          messages[messages.length - 1]?.content === '' && (
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-sahool-green-500 to-sahool-green-700 rounded-lg flex items-center justify-center">
                 <Bot className="w-4 h-4 text-white" />
@@ -502,10 +487,10 @@ export default function CopilotPage() {
               rows={1}
               disabled={isStreaming}
               className="w-full resize-none rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-sahool-green-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sahool-green-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
-              style={{ minHeight: "48px", maxHeight: "120px" }}
+              style={{ minHeight: '48px', maxHeight: '120px' }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
-                target.style.height = "48px";
+                target.style.height = '48px';
                 target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
               }}
             />
@@ -538,50 +523,38 @@ export default function CopilotPage() {
 // ---------------------------------------------------------------------------
 
 function MessageBubble({ message }: { message: ChatMessage }) {
-  const isUser = message.role === "user";
+  const isUser = message.role === 'user';
 
   return (
-    <div
-      className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}
-    >
+    <div className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
       {/* Avatar */}
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-          isUser
-            ? "bg-blue-600"
-            : "bg-gradient-to-br from-sahool-green-500 to-sahool-green-700"
+          isUser ? 'bg-blue-600' : 'bg-gradient-to-br from-sahool-green-500 to-sahool-green-700'
         }`}
       >
-        {isUser ? (
-          <User className="w-4 h-4 text-white" />
-        ) : (
-          <Bot className="w-4 h-4 text-white" />
-        )}
+        {isUser ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
       </div>
 
       {/* Message Content */}
       <div
         className={`max-w-[80%] sm:max-w-[70%] ${
           isUser
-            ? "bg-blue-600 text-white rounded-2xl rounded-tl-md"
-            : "bg-white text-gray-900 rounded-2xl rounded-tr-md border border-gray-200 shadow-sm"
+            ? 'bg-blue-600 text-white rounded-2xl rounded-tl-md'
+            : 'bg-white text-gray-900 rounded-2xl rounded-tr-md border border-gray-200 shadow-sm'
         } px-4 py-3`}
       >
         {/* Render markdown-like content */}
         <div
           className={`text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words ${
-            isUser ? "text-white" : "text-gray-800"
+            isUser ? 'text-white' : 'text-gray-800'
           }`}
         >
           <MessageContent content={message.content} isUser={isUser} />
         </div>
 
         {/* Timestamp */}
-        <div
-          className={`text-[11px] mt-1.5 ${
-            isUser ? "text-blue-200" : "text-gray-400"
-          }`}
-        >
+        <div className={`text-[11px] mt-1.5 ${isUser ? 'text-blue-200' : 'text-gray-400'}`}>
           {formatTime(message.timestamp)}
         </div>
       </div>
@@ -593,40 +566,31 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 // MessageContent - simple markdown rendering
 // ---------------------------------------------------------------------------
 
-function MessageContent({
-  content,
-  isUser,
-}: {
-  content: string;
-  isUser: boolean;
-}) {
+function MessageContent({ content, isUser }: { content: string; isUser: boolean }) {
   if (!content) return null;
 
   // Split content into lines and render with basic formatting
-  const lines = content.split("\n");
+  const lines = content.split('\n');
 
   return (
     <>
       {lines.map((line, i) => {
         // Horizontal rule
-        if (line.trim() === "---") {
+        if (line.trim() === '---') {
           return (
-            <hr
-              key={i}
-              className={`my-2 ${isUser ? "border-blue-400" : "border-gray-200"}`}
-            />
+            <hr key={i} className={`my-2 ${isUser ? 'border-blue-400' : 'border-gray-200'}`} />
           );
         }
 
         // Heading (## or ###)
-        if (line.startsWith("### ")) {
+        if (line.startsWith('### ')) {
           return (
             <p key={i} className="font-bold text-base mt-2 mb-1">
               {line.slice(4)}
             </p>
           );
         }
-        if (line.startsWith("## ")) {
+        if (line.startsWith('## ')) {
           return (
             <p key={i} className="font-bold text-base mt-2 mb-1">
               {line.slice(3)}
@@ -635,7 +599,7 @@ function MessageContent({
         }
 
         // Bullet point
-        if (line.startsWith("- ")) {
+        if (line.startsWith('- ')) {
           return (
             <div key={i} className="flex gap-2 my-0.5">
               <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-current opacity-60" />
@@ -649,18 +613,14 @@ function MessageContent({
         if (numberedMatch) {
           return (
             <div key={i} className="flex gap-2 my-0.5">
-              <span className="flex-shrink-0 font-medium opacity-70">
-                {numberedMatch[1]}.
-              </span>
-              <span>
-                {renderInline(line.slice(numberedMatch[0].length), isUser)}
-              </span>
+              <span className="flex-shrink-0 font-medium opacity-70">{numberedMatch[1]}.</span>
+              <span>{renderInline(line.slice(numberedMatch[0].length), isUser)}</span>
             </div>
           );
         }
 
         // Empty line
-        if (line.trim() === "") {
+        if (line.trim() === '') {
           return <div key={i} className="h-2" />;
         }
 
@@ -696,14 +656,14 @@ function renderInline(text: string, isUser: boolean): React.ReactNode {
       parts.push(
         <strong key={match.index} className="font-bold">
           {match[2]}
-        </strong>,
+        </strong>
       );
     } else if (match[3]) {
       // *italic*
       parts.push(
         <em key={match.index} className="italic">
           {match[3]}
-        </em>,
+        </em>
       );
     } else if (match[4]) {
       // `code`
@@ -711,20 +671,18 @@ function renderInline(text: string, isUser: boolean): React.ReactNode {
         <code
           key={match.index}
           className={`px-1 py-0.5 rounded text-xs font-mono ${
-            isUser
-              ? "bg-blue-500/30 text-blue-100"
-              : "bg-gray-100 text-sahool-green-700"
+            isUser ? 'bg-blue-500/30 text-blue-100' : 'bg-gray-100 text-sahool-green-700'
           }`}
         >
           {match[4]}
-        </code>,
+        </code>
       );
     } else if (match[5]) {
       // _italic_
       parts.push(
         <em key={match.index} className="italic">
           {match[5]}
-        </em>,
+        </em>
       );
     }
 

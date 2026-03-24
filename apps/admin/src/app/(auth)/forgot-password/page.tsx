@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Admin Forgot Password Page
@@ -7,12 +7,22 @@
  * Supports multi-channel OTP: Email, SMS, WhatsApp, Telegram
  */
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2, Mail, Leaf, ArrowRight, CheckCircle, MessageSquare, MessageCircle, Send, Phone } from "lucide-react";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Loader2,
+  Mail,
+  Leaf,
+  ArrowRight,
+  CheckCircle,
+  MessageSquare,
+  MessageCircle,
+  Send,
+  Phone,
+} from 'lucide-react';
 
-type RecoveryChannel = "email" | "sms" | "whatsapp" | "telegram";
+type RecoveryChannel = 'email' | 'sms' | 'whatsapp' | 'telegram';
 
 interface ChannelOption {
   id: RecoveryChannel;
@@ -22,35 +32,45 @@ interface ChannelOption {
 }
 
 const CHANNEL_OPTIONS: ChannelOption[] = [
-  { id: "email", labelAr: "البريد الإلكتروني", labelEn: "Email", icon: <Mail className="w-5 h-5" /> },
-  { id: "sms", labelAr: "رسالة نصية", labelEn: "SMS", icon: <MessageSquare className="w-5 h-5" /> },
-  { id: "whatsapp", labelAr: "واتساب", labelEn: "WhatsApp", icon: <MessageCircle className="w-5 h-5" /> },
-  { id: "telegram", labelAr: "تيليجرام", labelEn: "Telegram", icon: <Send className="w-5 h-5" /> },
+  {
+    id: 'email',
+    labelAr: 'البريد الإلكتروني',
+    labelEn: 'Email',
+    icon: <Mail className="w-5 h-5" />,
+  },
+  { id: 'sms', labelAr: 'رسالة نصية', labelEn: 'SMS', icon: <MessageSquare className="w-5 h-5" /> },
+  {
+    id: 'whatsapp',
+    labelAr: 'واتساب',
+    labelEn: 'WhatsApp',
+    icon: <MessageCircle className="w-5 h-5" />,
+  },
+  { id: 'telegram', labelAr: 'تيليجرام', labelEn: 'Telegram', icon: <Send className="w-5 h-5" /> },
 ];
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [channel, setChannel] = useState<RecoveryChannel>("email");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
+  const [channel, setChannel] = useState<RecoveryChannel>('email');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const isEmailChannel = channel === "email";
+  const isEmailChannel = channel === 'email';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
       if (isEmailChannel) {
         // Email channel - use existing forgot-password endpoint
-        const response = await fetch("/api/auth/forgot-password", {
-          method: "POST",
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({ email }),
         });
@@ -58,40 +78,40 @@ export default function ForgotPasswordPage() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || data.error || "فشل في إرسال طلب إعادة تعيين كلمة المرور");
+          throw new Error(data.message || data.error || 'فشل في إرسال طلب إعادة تعيين كلمة المرور');
         }
 
         setIsSuccess(true);
       } else {
         // SMS/WhatsApp/Telegram - use send-otp endpoint
-        const response = await fetch("/api/auth/send-otp", {
-          method: "POST",
+        const response = await fetch('/api/auth/send-otp', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             identifier: phone,
             channel,
-            purpose: "password_reset",
+            purpose: 'password_reset',
           }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || data.error || "فشل في إرسال رمز التحقق");
+          throw new Error(data.message || data.error || 'فشل في إرسال رمز التحقق');
         }
 
         // Redirect to OTP verification page
         const params = new URLSearchParams({
           identifier: phone,
-          purpose: "password_reset",
+          purpose: 'password_reset',
           channel,
         });
         router.push(`/verify-otp?${params.toString()}`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
+      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {
       setIsLoading(false);
     }
@@ -121,8 +141,8 @@ export default function ForgotPasswordPage() {
                 تم إرسال رابط إعادة التعيين
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فسيتم إرسال رابط
-                إعادة تعيين كلمة المرور إليه.
+                إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فسيتم إرسال رابط إعادة تعيين كلمة
+                المرور إليه.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 الرابط صالح لمدة ساعة واحدة فقط.
@@ -148,9 +168,7 @@ export default function ForgotPasswordPage() {
               </p>
 
               {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">
-                  {error}
-                </div>
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">{error}</div>
               )}
 
               {/* Channel Selector */}
@@ -167,8 +185,8 @@ export default function ForgotPasswordPage() {
                       onClick={() => setChannel(option.id)}
                       className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                         channel === option.id
-                          ? "border-green-600 bg-green-50 text-green-700"
-                          : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
                       }`}
                     >
                       {option.icon}
@@ -230,9 +248,9 @@ export default function ForgotPasswordPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      {channel === "sms" && "سيتم إرسال رمز التحقق عبر رسالة نصية"}
-                      {channel === "whatsapp" && "سيتم إرسال رمز التحقق عبر واتساب"}
-                      {channel === "telegram" && "سيتم إرسال رمز التحقق عبر تيليجرام"}
+                      {channel === 'sms' && 'سيتم إرسال رمز التحقق عبر رسالة نصية'}
+                      {channel === 'whatsapp' && 'سيتم إرسال رمز التحقق عبر واتساب'}
+                      {channel === 'telegram' && 'سيتم إرسال رمز التحقق عبر تيليجرام'}
                     </p>
                   </div>
                 )}
@@ -249,9 +267,7 @@ export default function ForgotPasswordPage() {
                       <span>جاري الإرسال...</span>
                     </>
                   ) : (
-                    <span>
-                      {isEmailChannel ? "إرسال رابط إعادة التعيين" : "إرسال رمز التحقق"}
-                    </span>
+                    <span>{isEmailChannel ? 'إرسال رابط إعادة التعيين' : 'إرسال رمز التحقق'}</span>
                   )}
                 </button>
               </form>

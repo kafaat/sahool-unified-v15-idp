@@ -1,9 +1,22 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import { AlertTriangle, Shield, CloudRain, Thermometer, Wind, MapPin, Clock, FileText } from "lucide-react";
-import { useDisasterRisks, useDisasterEvents, useDisasterStats } from "@/features/disaster-assessment";
-import type { RiskAssessment, DisasterEvent } from "@/features/disaster-assessment";
+import React, { useMemo } from 'react';
+import {
+  AlertTriangle,
+  Shield,
+  CloudRain,
+  Thermometer,
+  Wind,
+  MapPin,
+  Clock,
+  FileText,
+} from 'lucide-react';
+import {
+  useDisasterRisks,
+  useDisasterEvents,
+  useDisasterStats,
+} from '@/features/disaster-assessment';
+import type { RiskAssessment, DisasterEvent } from '@/features/disaster-assessment';
 
 export default function DisasterAssessmentClient() {
   // Fetch data using React Query hooks
@@ -13,27 +26,27 @@ export default function DisasterAssessmentClient() {
 
   const isLoading = risksLoading || eventsLoading;
 
-  const getRiskColor = (level: RiskAssessment["riskLevel"]) => {
+  const getRiskColor = (level: RiskAssessment['riskLevel']) => {
     const colors = {
-      low: "text-green-600 bg-green-100 border-green-200",
-      medium: "text-yellow-600 bg-yellow-100 border-yellow-200",
-      high: "text-orange-600 bg-orange-100 border-orange-200",
-      critical: "text-red-600 bg-red-100 border-red-200",
+      low: 'text-green-600 bg-green-100 border-green-200',
+      medium: 'text-yellow-600 bg-yellow-100 border-yellow-200',
+      high: 'text-orange-600 bg-orange-100 border-orange-200',
+      critical: 'text-red-600 bg-red-100 border-red-200',
     };
     return colors[level];
   };
 
-  const getRiskLabel = (level: RiskAssessment["riskLevel"]) => {
+  const getRiskLabel = (level: RiskAssessment['riskLevel']) => {
     const labels = {
-      low: "منخفض",
-      medium: "متوسط",
-      high: "مرتفع",
-      critical: "حرج",
+      low: 'منخفض',
+      medium: 'متوسط',
+      high: 'مرتفع',
+      critical: 'حرج',
     };
     return labels[level];
   };
 
-  const getRiskIcon = (type: RiskAssessment["type"]) => {
+  const getRiskIcon = (type: RiskAssessment['type']) => {
     const icons: Record<string, React.ReactNode> = {
       drought: <Thermometer className="w-5 h-5" />,
       flood: <CloudRain className="w-5 h-5" />,
@@ -45,50 +58,52 @@ export default function DisasterAssessmentClient() {
     return icons[type] || <AlertTriangle className="w-5 h-5" />;
   };
 
-  const getSeverityColor = (severity: DisasterEvent["severity"]) => {
-    const colors: Record<DisasterEvent["severity"], string> = {
-      minor: "text-yellow-600 bg-yellow-100",
-      moderate: "text-orange-600 bg-orange-100",
-      severe: "text-red-600 bg-red-100",
-      catastrophic: "text-purple-600 bg-purple-100",
+  const getSeverityColor = (severity: DisasterEvent['severity']) => {
+    const colors: Record<DisasterEvent['severity'], string> = {
+      minor: 'text-yellow-600 bg-yellow-100',
+      moderate: 'text-orange-600 bg-orange-100',
+      severe: 'text-red-600 bg-red-100',
+      catastrophic: 'text-purple-600 bg-purple-100',
     };
     return colors[severity];
   };
 
-  const getSeverityLabel = (severity: DisasterEvent["severity"]) => {
-    const labels: Record<DisasterEvent["severity"], string> = {
-      minor: "طفيف",
-      moderate: "متوسط",
-      severe: "شديد",
-      catastrophic: "كارثي",
+  const getSeverityLabel = (severity: DisasterEvent['severity']) => {
+    const labels: Record<DisasterEvent['severity'], string> = {
+      minor: 'طفيف',
+      moderate: 'متوسط',
+      severe: 'شديد',
+      catastrophic: 'كارثي',
     };
     return labels[severity];
   };
 
-  const getStatusColor = (status: DisasterEvent["status"]) => {
-    const colors: Record<DisasterEvent["status"], string> = {
-      active: "text-red-600 bg-red-100",
-      monitoring: "text-blue-600 bg-blue-100",
-      resolved: "text-green-600 bg-green-100",
-      closed: "text-gray-600 bg-gray-100",
+  const getStatusColor = (status: DisasterEvent['status']) => {
+    const colors: Record<DisasterEvent['status'], string> = {
+      active: 'text-red-600 bg-red-100',
+      monitoring: 'text-blue-600 bg-blue-100',
+      resolved: 'text-green-600 bg-green-100',
+      closed: 'text-gray-600 bg-gray-100',
     };
     return colors[status];
   };
 
-  const getStatusLabel = (status: DisasterEvent["status"]) => {
-    const labels: Record<DisasterEvent["status"], string> = {
-      active: "نشط",
-      monitoring: "قيد المراقبة",
-      resolved: "تم الحل",
-      closed: "مغلق",
+  const getStatusLabel = (status: DisasterEvent['status']) => {
+    const labels: Record<DisasterEvent['status'], string> = {
+      active: 'نشط',
+      monitoring: 'قيد المراقبة',
+      resolved: 'تم الحل',
+      closed: 'مغلق',
     };
     return labels[status];
   };
 
   const localStats = useMemo(() => {
-    const criticalRisks = risks.filter(r => r.riskLevel === "critical" || r.riskLevel === "high").length;
+    const criticalRisks = risks.filter(
+      (r) => r.riskLevel === 'critical' || r.riskLevel === 'high'
+    ).length;
     const totalPotentialLoss = risks.reduce((acc, r) => acc + r.potentialLoss, 0);
-    const activeEvents = events.filter(e => e.status !== "resolved").length;
+    const activeEvents = events.filter((e) => e.status !== 'resolved').length;
     return { criticalRisks, totalPotentialLoss, activeEvents, totalRisks: risks.length };
   }, [risks, events]);
 
@@ -167,7 +182,9 @@ export default function DisasterAssessmentClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي المخاطر</div>
-              <div className="text-lg font-bold text-amber-600">{stats?.activeRisks ?? localStats.totalRisks}</div>
+              <div className="text-lg font-bold text-amber-600">
+                {stats?.activeRisks ?? localStats.totalRisks}
+              </div>
             </div>
           </div>
         </div>
@@ -178,7 +195,9 @@ export default function DisasterAssessmentClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">حوادث نشطة</div>
-              <div className="text-lg font-bold text-purple-600">{stats?.activeEvents ?? localStats.activeEvents}</div>
+              <div className="text-lg font-bold text-purple-600">
+                {stats?.activeEvents ?? localStats.activeEvents}
+              </div>
             </div>
           </div>
         </div>
@@ -190,7 +209,8 @@ export default function DisasterAssessmentClient() {
             <div>
               <div className="text-sm text-gray-500">الخسائر المحتملة</div>
               <div className="text-lg font-bold text-blue-600">
-                {((stats?.totalPotentialLoss ?? localStats.totalPotentialLoss) / 1000).toFixed(0)}K ريال
+                {((stats?.totalPotentialLoss ?? localStats.totalPotentialLoss) / 1000).toFixed(0)}K
+                ريال
               </div>
             </div>
           </div>
@@ -202,9 +222,7 @@ export default function DisasterAssessmentClient() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">تقييم المخاطر الحالية</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {risks.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
-              لا توجد مخاطر مسجلة
-            </div>
+            <div className="col-span-full text-center py-8 text-gray-500">لا توجد مخاطر مسجلة</div>
           ) : (
             risks.map((risk) => (
               <div
@@ -213,7 +231,9 @@ export default function DisasterAssessmentClient() {
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getRiskColor(risk.riskLevel)}`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${getRiskColor(risk.riskLevel)}`}
+                    >
                       {getRiskIcon(risk.type)}
                     </div>
                     <div>
@@ -221,7 +241,9 @@ export default function DisasterAssessmentClient() {
                       <p className="text-sm text-gray-500">{risk.affectedAreaAr}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(risk.riskLevel)}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(risk.riskLevel)}`}
+                  >
                     {getRiskLabel(risk.riskLevel)}
                   </span>
                 </div>
@@ -232,7 +254,7 @@ export default function DisasterAssessmentClient() {
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex-1 h-2 bg-gray-200 rounded-full">
                         <div
-                          className={`h-full rounded-full ${risk.probability >= 70 ? "bg-red-500" : risk.probability >= 40 ? "bg-yellow-500" : "bg-green-500"}`}
+                          className={`h-full rounded-full ${risk.probability >= 70 ? 'bg-red-500' : risk.probability >= 40 ? 'bg-yellow-500' : 'bg-green-500'}`}
                           style={{ width: `${risk.probability}%` }}
                         />
                       </div>
@@ -241,7 +263,9 @@ export default function DisasterAssessmentClient() {
                   </div>
                   <div>
                     <span className="text-gray-500">الخسائر المحتملة:</span>
-                    <div className="font-medium mt-1">{risk.potentialLoss.toLocaleString()} ريال</div>
+                    <div className="font-medium mt-1">
+                      {risk.potentialLoss.toLocaleString()} ريال
+                    </div>
                   </div>
                 </div>
 
@@ -271,15 +295,15 @@ export default function DisasterAssessmentClient() {
         </div>
         <div className="divide-y">
           {events.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              لا توجد حوادث مسجلة
-            </div>
+            <div className="p-8 text-center text-gray-500">لا توجد حوادث مسجلة</div>
           ) : (
             events.map((event) => (
               <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getSeverityColor(event.severity)}`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${getSeverityColor(event.severity)}`}
+                    >
                       <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div>
@@ -296,13 +320,19 @@ export default function DisasterAssessmentClient() {
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <div className="text-sm text-gray-500">الأضرار المقدرة</div>
-                      <div className="font-semibold text-gray-900">{event.damageEstimate.toLocaleString()} ريال</div>
+                      <div className="font-semibold text-gray-900">
+                        {event.damageEstimate.toLocaleString()} ريال
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(event.severity)}`}
+                      >
                         {getSeverityLabel(event.severity)}
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}
+                      >
                         {getStatusLabel(event.status)}
                       </span>
                     </div>

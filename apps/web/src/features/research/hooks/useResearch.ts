@@ -3,19 +3,19 @@
  * خطافات React لميزة الأبحاث والتجارب
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { researchApi } from "../api";
-import type { ResearchFilters, ResearchFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { researchApi } from '../api';
+import type { ResearchFilters, ResearchFormData } from '../types';
 
 export const researchKeys = {
-  all: ["research"] as const,
-  lists: () => [...researchKeys.all, "list"] as const,
+  all: ['research'] as const,
+  lists: () => [...researchKeys.all, 'list'] as const,
   list: (filters?: ResearchFilters) => [...researchKeys.lists(), filters] as const,
-  detail: (id: string) => [...researchKeys.all, "detail", id] as const,
-  stats: () => [...researchKeys.all, "stats"] as const,
-  milestones: (trialId: string) => [...researchKeys.all, "milestones", trialId] as const,
+  detail: (id: string) => [...researchKeys.all, 'detail', id] as const,
+  stats: () => [...researchKeys.all, 'stats'] as const,
+  milestones: (trialId: string) => [...researchKeys.all, 'milestones', trialId] as const,
 };
 
 export function useResearchTrials(filters?: ResearchFilters) {

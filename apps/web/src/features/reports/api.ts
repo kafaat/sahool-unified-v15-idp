@@ -3,36 +3,25 @@
  * طبقة API لميزة التقارير
  */
 
-import { API_PREFIX } from "@sahool/shared-types/contracts";
-import { createApiClient } from "@/lib/api/factory";
+import { API_PREFIX } from '@sahool/shared-types/contracts';
+import { createApiClient } from '@/lib/api/factory';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 // Types
 export type ReportType =
-  | "field_performance"
-  | "yield_analysis"
-  | "ndvi_summary"
-  | "irrigation"
-  | "weather"
-  | "disease"
-  | "financial"
-  | "custom";
-export type ReportFormat = "pdf" | "excel" | "csv" | "json";
-export type ReportStatus =
-  | "pending"
-  | "generating"
-  | "ready"
-  | "failed"
-  | "expired";
-export type ReportPeriod =
-  | "daily"
-  | "weekly"
-  | "monthly"
-  | "quarterly"
-  | "yearly"
-  | "custom";
+  | 'field_performance'
+  | 'yield_analysis'
+  | 'ndvi_summary'
+  | 'irrigation'
+  | 'weather'
+  | 'disease'
+  | 'financial'
+  | 'custom';
+export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json';
+export type ReportStatus = 'pending' | 'generating' | 'ready' | 'failed' | 'expired';
+export type ReportPeriod = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
 
 export interface Report {
   id: string;
@@ -106,11 +95,11 @@ export const reportsApi = {
    */
   getReports: async (filters?: ReportFilters): Promise<Report[]> => {
     const params = new URLSearchParams();
-    if (filters?.type) params.set("type", filters.type);
-    if (filters?.status) params.set("status", filters.status);
-    if (filters?.format) params.set("format", filters.format);
-    if (filters?.startDate) params.set("start_date", filters.startDate);
-    if (filters?.endDate) params.set("end_date", filters.endDate);
+    if (filters?.type) params.set('type', filters.type);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.format) params.set('format', filters.format);
+    if (filters?.startDate) params.set('start_date', filters.startDate);
+    if (filters?.endDate) params.set('end_date', filters.endDate);
 
     const response = await api.get(`${API_PREFIX}/reports?${params.toString()}`);
     return response.data;
@@ -135,9 +124,7 @@ export const reportsApi = {
   /**
    * Get report download URL
    */
-  getDownloadUrl: async (
-    id: string,
-  ): Promise<{ url: string; expiresAt: string }> => {
+  getDownloadUrl: async (id: string): Promise<{ url: string; expiresAt: string }> => {
     const response = await api.get(`${API_PREFIX}/reports/${id}/download`);
     return response.data;
   },
@@ -169,7 +156,7 @@ export const reportsApi = {
    * Schedule a recurring report
    */
   scheduleReport: async (
-    request: GenerateReportRequest & { schedule: string; recipients: string[] },
+    request: GenerateReportRequest & { schedule: string; recipients: string[] }
   ): Promise<{ scheduleId: string }> => {
     const response = await api.post(`${API_PREFIX}/reports/schedule`, request);
     return response.data;

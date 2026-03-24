@@ -3,22 +3,22 @@
  * خطافات React لميزة أجهزة الحافة
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { edgeApi } from "../api";
-import type { EdgeDevice, EdgeFilters } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { edgeApi } from '../api';
+import type { EdgeDevice, EdgeFilters } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const edgeKeys = {
-  all: ["edge-devices"] as const,
-  lists: () => [...edgeKeys.all, "list"] as const,
+  all: ['edge-devices'] as const,
+  lists: () => [...edgeKeys.all, 'list'] as const,
   list: (filters?: EdgeFilters) => [...edgeKeys.lists(), filters] as const,
-  detail: (id: string) => [...edgeKeys.all, "detail", id] as const,
-  metrics: (id: string) => [...edgeKeys.all, "metrics", id] as const,
+  detail: (id: string) => [...edgeKeys.all, 'detail', id] as const,
+  metrics: (id: string) => [...edgeKeys.all, 'metrics', id] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -74,7 +74,7 @@ export function useCreateEdgeDevice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<EdgeDevice, "id">) => edgeApi.createDevice(data),
+    mutationFn: (data: Omit<EdgeDevice, 'id'>) => edgeApi.createDevice(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: edgeKeys.lists() });
     },
@@ -89,13 +89,8 @@ export function useUpdateEdgeDevice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<EdgeDevice>;
-    }) => edgeApi.updateDevice(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<EdgeDevice> }) =>
+      edgeApi.updateDevice(id, data),
     onSuccess: (updatedDevice: EdgeDevice) => {
       queryClient.invalidateQueries({ queryKey: edgeKeys.lists() });
       queryClient.setQueryData(edgeKeys.detail(updatedDevice.id), updatedDevice);

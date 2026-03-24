@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Field Form Component
  * مكون نموذج الحقل
  */
 
-import React, { useState } from "react";
-import { Save, X } from "lucide-react";
-import type { Field, FieldFormData } from "../types";
+import React, { useState } from 'react';
+import { Save, X } from 'lucide-react';
+import type { Field, FieldFormData } from '../types';
 
 interface FieldFormProps {
   field?: Field;
@@ -28,14 +28,14 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   isSubmitting = false,
 }) => {
   const [formData, setFormData] = useState<FieldFormData>({
-    name: field?.name || "",
-    nameAr: field?.nameAr || "",
+    name: field?.name || '',
+    nameAr: field?.nameAr || '',
     area: field?.area || 0,
-    crop: field?.crop || "",
-    cropAr: field?.cropAr || "",
-    description: field?.description || "",
-    descriptionAr: field?.descriptionAr || "",
-    farmId: field?.farmId || "",
+    crop: field?.crop || '',
+    cropAr: field?.cropAr || '',
+    description: field?.description || '',
+    descriptionAr: field?.descriptionAr || '',
+    farmId: field?.farmId || '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -45,7 +45,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     // Field name (Arabic) validation
     const trimmedNameAr = formData.nameAr.trim();
     if (!trimmedNameAr) {
-      newErrors.nameAr = "اسم الحقل بالعربية مطلوب";
+      newErrors.nameAr = 'اسم الحقل بالعربية مطلوب';
     } else if (trimmedNameAr.length < MIN_NAME_LENGTH) {
       newErrors.nameAr = `الاسم قصير جداً (الحد الأدنى ${MIN_NAME_LENGTH} أحرف)`;
     } else if (trimmedNameAr.length > MAX_NAME_LENGTH) {
@@ -55,7 +55,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     // Field name (English) validation
     const trimmedName = formData.name.trim();
     if (!trimmedName) {
-      newErrors.name = "Field name in English is required";
+      newErrors.name = 'Field name in English is required';
     } else if (trimmedName.length < MIN_NAME_LENGTH) {
       newErrors.name = `Name too short (minimum ${MIN_NAME_LENGTH} characters)`;
     } else if (trimmedName.length > MAX_NAME_LENGTH) {
@@ -64,7 +64,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
     // Area validation
     if (!formData.area || formData.area <= 0) {
-      newErrors.area = "المساحة مطلوبة وأكبر من صفر";
+      newErrors.area = 'المساحة مطلوبة وأكبر من صفر';
     } else if (formData.area < MIN_AREA_HECTARES) {
       newErrors.area = `الحد الأدنى للمساحة ${MIN_AREA_HECTARES} هكتار`;
     } else if (formData.area > MAX_AREA_HECTARES) {
@@ -87,35 +87,27 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     });
   };
 
-  const handleChange = <K extends keyof FieldFormData>(
-    field: K,
-    value: FieldFormData[K],
-  ) => {
+  const handleChange = <K extends keyof FieldFormData>(field: K, value: FieldFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-xl border-2 border-gray-200 p-6"
-    >
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        {field ? "تعديل الحقل" : "إضافة حقل جديد"}
+        {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
       </h2>
 
       <div className="space-y-6">
         {/* Name (Arabic) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            الاسم (بالعربية) *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الاسم (بالعربية) *</label>
           <input
             type="text"
             required
             maxLength={MAX_NAME_LENGTH}
             value={formData.nameAr}
-            onChange={(e) => handleChange("nameAr", e.target.value)}
-            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.nameAr ? "border-red-400" : "border-gray-200"}`}
+            onChange={(e) => handleChange('nameAr', e.target.value)}
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.nameAr ? 'border-red-400' : 'border-gray-200'}`}
             placeholder="أدخل اسم الحقل"
           />
           {errors.nameAr && <p className="mt-1 text-sm text-red-600">{errors.nameAr}</p>}
@@ -123,16 +115,14 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
         {/* Name (English) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Name (English) *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
           <input
             type="text"
             required
             maxLength={MAX_NAME_LENGTH}
             value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.name ? "border-red-400" : "border-gray-200"}`}
+            onChange={(e) => handleChange('name', e.target.value)}
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
             placeholder="Enter field name"
             dir="ltr"
           />
@@ -141,9 +131,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
         {/* Area */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            المساحة (هكتار) *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">المساحة (هكتار) *</label>
           <input
             type="number"
             required
@@ -151,8 +139,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             max={MAX_AREA_HECTARES}
             step="0.01"
             value={formData.area}
-            onChange={(e) => handleChange("area", parseFloat(e.target.value) || 0)}
-            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.area ? "border-red-400" : "border-gray-200"}`}
+            onChange={(e) => handleChange('area', parseFloat(e.target.value) || 0)}
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.area ? 'border-red-400' : 'border-gray-200'}`}
             placeholder="0.0"
           />
           {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area}</p>}
@@ -160,13 +148,11 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
         {/* Crop (Arabic) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            المحصول (بالعربية)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">المحصول (بالعربية)</label>
           <input
             type="text"
             value={formData.cropAr}
-            onChange={(e) => handleChange("cropAr", e.target.value)}
+            onChange={(e) => handleChange('cropAr', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="نوع المحصول"
           />
@@ -174,13 +160,11 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
         {/* Crop (English) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Crop (English)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Crop (English)</label>
           <input
             type="text"
             value={formData.crop}
-            onChange={(e) => handleChange("crop", e.target.value)}
+            onChange={(e) => handleChange('crop', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Crop type"
             dir="ltr"
@@ -189,12 +173,10 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
         {/* Description (Arabic) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            الوصف (بالعربية)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الوصف (بالعربية)</label>
           <textarea
             value={formData.descriptionAr}
-            onChange={(e) => handleChange("descriptionAr", e.target.value)}
+            onChange={(e) => handleChange('descriptionAr', e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف الحقل"
@@ -208,7 +190,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
+            onChange={(e) => handleChange('description', e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Field description"
@@ -236,7 +218,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          <span>{isSubmitting ? "جاري الحفظ..." : "حفظ"}</span>
+          <span>{isSubmitting ? 'جاري الحفظ...' : 'حفظ'}</span>
         </button>
       </div>
     </form>

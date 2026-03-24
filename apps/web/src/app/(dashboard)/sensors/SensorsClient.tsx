@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
   Radio,
   Search,
@@ -11,10 +11,10 @@ import {
   Droplets,
   Wind,
   AlertTriangle,
-} from "lucide-react";
+} from 'lucide-react';
 
-type SensorType = "soil_moisture" | "temperature" | "humidity" | "wind" | "rain" | "ndvi";
-type SensorStatus = "online" | "offline" | "warning" | "maintenance";
+type SensorType = 'soil_moisture' | 'temperature' | 'humidity' | 'wind' | 'rain' | 'ndvi';
+type SensorStatus = 'online' | 'offline' | 'warning' | 'maintenance';
 
 interface Sensor {
   id: string;
@@ -32,98 +32,106 @@ interface Sensor {
 
 const mockSensors: Sensor[] = [
   {
-    id: "1",
-    name: "Soil Moisture Sensor A1",
-    nameAr: "حساس رطوبة التربة A1",
-    type: "soil_moisture",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    status: "online",
+    id: '1',
+    name: 'Soil Moisture Sensor A1',
+    nameAr: 'حساس رطوبة التربة A1',
+    type: 'soil_moisture',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    status: 'online',
     lastReading: 42,
-    unit: "%",
+    unit: '%',
     battery: 85,
-    lastUpdate: "2025-01-25T09:30:00Z",
+    lastUpdate: '2025-01-25T09:30:00Z',
   },
   {
-    id: "2",
-    name: "Temperature Sensor B2",
-    nameAr: "حساس الحرارة B2",
-    type: "temperature",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    status: "online",
+    id: '2',
+    name: 'Temperature Sensor B2',
+    nameAr: 'حساس الحرارة B2',
+    type: 'temperature',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    status: 'online',
     lastReading: 28,
-    unit: "°C",
+    unit: '°C',
     battery: 72,
-    lastUpdate: "2025-01-25T09:28:00Z",
+    lastUpdate: '2025-01-25T09:28:00Z',
   },
   {
-    id: "3",
-    name: "Humidity Sensor C3",
-    nameAr: "حساس الرطوبة C3",
-    type: "humidity",
-    fieldId: "field-3",
-    fieldName: "حقل القمح",
-    status: "warning",
+    id: '3',
+    name: 'Humidity Sensor C3',
+    nameAr: 'حساس الرطوبة C3',
+    type: 'humidity',
+    fieldId: 'field-3',
+    fieldName: 'حقل القمح',
+    status: 'warning',
     lastReading: 65,
-    unit: "%",
+    unit: '%',
     battery: 15,
-    lastUpdate: "2025-01-25T09:25:00Z",
+    lastUpdate: '2025-01-25T09:25:00Z',
   },
   {
-    id: "4",
-    name: "Wind Sensor D4",
-    nameAr: "حساس الرياح D4",
-    type: "wind",
-    fieldId: "field-4",
-    fieldName: "بستان النخيل",
-    status: "offline",
+    id: '4',
+    name: 'Wind Sensor D4',
+    nameAr: 'حساس الرياح D4',
+    type: 'wind',
+    fieldId: 'field-4',
+    fieldName: 'بستان النخيل',
+    status: 'offline',
     lastReading: 0,
-    unit: "km/h",
+    unit: 'km/h',
     battery: 0,
-    lastUpdate: "2025-01-24T18:00:00Z",
+    lastUpdate: '2025-01-24T18:00:00Z',
   },
   {
-    id: "5",
-    name: "Soil Moisture Sensor E5",
-    nameAr: "حساس رطوبة التربة E5",
-    type: "soil_moisture",
-    fieldId: "field-5",
-    fieldName: "الصوب الزراعية",
-    status: "online",
+    id: '5',
+    name: 'Soil Moisture Sensor E5',
+    nameAr: 'حساس رطوبة التربة E5',
+    type: 'soil_moisture',
+    fieldId: 'field-5',
+    fieldName: 'الصوب الزراعية',
+    status: 'online',
     lastReading: 55,
-    unit: "%",
+    unit: '%',
     battery: 90,
-    lastUpdate: "2025-01-25T09:29:00Z",
+    lastUpdate: '2025-01-25T09:29:00Z',
   },
   {
-    id: "6",
-    name: "Temperature Sensor F6",
-    nameAr: "حساس الحرارة F6",
-    type: "temperature",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    status: "maintenance",
+    id: '6',
+    name: 'Temperature Sensor F6',
+    nameAr: 'حساس الحرارة F6',
+    type: 'temperature',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    status: 'maintenance',
     lastReading: 25,
-    unit: "°C",
+    unit: '°C',
     battery: 50,
-    lastUpdate: "2025-01-23T12:00:00Z",
+    lastUpdate: '2025-01-23T12:00:00Z',
   },
 ];
 
 const sensorTypes: Record<SensorType, { icon: React.ReactNode; label: string; labelAr: string }> = {
-  soil_moisture: { icon: <Droplets className="w-5 h-5" />, label: "Soil Moisture", labelAr: "رطوبة التربة" },
-  temperature: { icon: <Thermometer className="w-5 h-5" />, label: "Temperature", labelAr: "الحرارة" },
-  humidity: { icon: <Droplets className="w-5 h-5" />, label: "Humidity", labelAr: "الرطوبة" },
-  wind: { icon: <Wind className="w-5 h-5" />, label: "Wind", labelAr: "الرياح" },
-  rain: { icon: <Droplets className="w-5 h-5" />, label: "Rain", labelAr: "الأمطار" },
-  ndvi: { icon: <Radio className="w-5 h-5" />, label: "NDVI", labelAr: "مؤشر النبات" },
+  soil_moisture: {
+    icon: <Droplets className="w-5 h-5" />,
+    label: 'Soil Moisture',
+    labelAr: 'رطوبة التربة',
+  },
+  temperature: {
+    icon: <Thermometer className="w-5 h-5" />,
+    label: 'Temperature',
+    labelAr: 'الحرارة',
+  },
+  humidity: { icon: <Droplets className="w-5 h-5" />, label: 'Humidity', labelAr: 'الرطوبة' },
+  wind: { icon: <Wind className="w-5 h-5" />, label: 'Wind', labelAr: 'الرياح' },
+  rain: { icon: <Droplets className="w-5 h-5" />, label: 'Rain', labelAr: 'الأمطار' },
+  ndvi: { icon: <Radio className="w-5 h-5" />, label: 'NDVI', labelAr: 'مؤشر النبات' },
 };
 
 export default function SensorsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<SensorStatus | "all">("all");
-  const [typeFilter, setTypeFilter] = useState<SensorType | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<SensorStatus | 'all'>('all');
+  const [typeFilter, setTypeFilter] = useState<SensorType | 'all'>('all');
 
   const filteredSensors = useMemo(() => {
     return mockSensors.filter((sensor) => {
@@ -131,24 +139,24 @@ export default function SensorsClient() {
         !searchTerm ||
         sensor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sensor.nameAr.includes(searchTerm);
-      const matchesStatus = statusFilter === "all" || sensor.status === statusFilter;
-      const matchesType = typeFilter === "all" || sensor.type === typeFilter;
+      const matchesStatus = statusFilter === 'all' || sensor.status === statusFilter;
+      const matchesType = typeFilter === 'all' || sensor.type === typeFilter;
       return matchesSearch && matchesStatus && matchesType;
     });
   }, [searchTerm, statusFilter, typeFilter]);
 
   const getStatusBadge = (status: SensorStatus) => {
     const styles = {
-      online: "bg-green-100 text-green-800",
-      offline: "bg-red-100 text-red-800",
-      warning: "bg-yellow-100 text-yellow-800",
-      maintenance: "bg-blue-100 text-blue-800",
+      online: 'bg-green-100 text-green-800',
+      offline: 'bg-red-100 text-red-800',
+      warning: 'bg-yellow-100 text-yellow-800',
+      maintenance: 'bg-blue-100 text-blue-800',
     };
     const labels = {
-      online: "متصل",
-      offline: "غير متصل",
-      warning: "تحذير",
-      maintenance: "صيانة",
+      online: 'متصل',
+      offline: 'غير متصل',
+      warning: 'تحذير',
+      maintenance: 'صيانة',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -158,20 +166,20 @@ export default function SensorsClient() {
   };
 
   const getStatusIcon = (status: SensorStatus) => {
-    if (status === "online") return <Wifi className="w-4 h-4 text-green-500" />;
-    if (status === "offline") return <WifiOff className="w-4 h-4 text-red-500" />;
+    if (status === 'online') return <Wifi className="w-4 h-4 text-green-500" />;
+    if (status === 'offline') return <WifiOff className="w-4 h-4 text-red-500" />;
     return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
   };
 
   const getBatteryColor = (level: number) => {
-    if (level > 50) return "text-green-600";
-    if (level > 20) return "text-yellow-600";
-    return "text-red-600";
+    if (level > 50) return 'text-green-600';
+    if (level > 20) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  const onlineCount = mockSensors.filter((s) => s.status === "online").length;
-  const offlineCount = mockSensors.filter((s) => s.status === "offline").length;
-  const warningCount = mockSensors.filter((s) => s.status === "warning" || s.battery < 20).length;
+  const onlineCount = mockSensors.filter((s) => s.status === 'online').length;
+  const offlineCount = mockSensors.filter((s) => s.status === 'offline').length;
+  const warningCount = mockSensors.filter((s) => s.status === 'warning' || s.battery < 20).length;
 
   return (
     <div className="space-y-6">
@@ -259,7 +267,7 @@ export default function SensorsClient() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as SensorStatus | "all")}
+          onChange={(e) => setStatusFilter(e.target.value as SensorStatus | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الحالات</option>
@@ -270,7 +278,7 @@ export default function SensorsClient() {
         </select>
         <select
           value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as SensorType | "all")}
+          onChange={(e) => setTypeFilter(e.target.value as SensorType | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الأنواع</option>
@@ -287,16 +295,20 @@ export default function SensorsClient() {
           <div
             key={sensor.id}
             className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
-              sensor.status === "offline" ? "border-red-200" : ""
+              sensor.status === 'offline' ? 'border-red-200' : ''
             }`}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  sensor.status === "online" ? "bg-green-100 text-green-600" :
-                  sensor.status === "offline" ? "bg-red-100 text-red-600" :
-                  "bg-yellow-100 text-yellow-600"
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    sensor.status === 'online'
+                      ? 'bg-green-100 text-green-600'
+                      : sensor.status === 'offline'
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-yellow-100 text-yellow-600'
+                  }`}
+                >
                   {sensorTypes[sensor.type].icon}
                 </div>
                 <div>
@@ -311,7 +323,8 @@ export default function SensorsClient() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">القراءة الأخيرة</span>
                 <span className="text-lg font-bold text-gray-900">
-                  {sensor.lastReading}{sensor.unit}
+                  {sensor.lastReading}
+                  {sensor.unit}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -328,7 +341,7 @@ export default function SensorsClient() {
 
             <div className="mt-4 pt-4 border-t flex justify-between items-center">
               <span className="text-xs text-gray-400">
-                آخر تحديث: {new Date(sensor.lastUpdate).toLocaleTimeString("ar-SA")}
+                آخر تحديث: {new Date(sensor.lastUpdate).toLocaleTimeString('ar-SA')}
               </span>
               <button
                 disabled

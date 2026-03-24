@@ -6,7 +6,7 @@
  * Used to protect against Cross-Site Request Forgery attacks
  */
 
-import type { NextRequest } from "next/server";
+import type { NextRequest } from 'next/server';
 // Note: randomBytes is available from crypto if needed for future token generation
 // Currently using edge-compatible Web Crypto API instead
 
@@ -29,12 +29,7 @@ function timingSafeCompare(a: string, b: string): boolean {
 /**
  * State-changing HTTP methods that require CSRF protection
  */
-export const CSRF_PROTECTED_METHODS = [
-  "POST",
-  "PUT",
-  "DELETE",
-  "PATCH",
-] as const;
+export const CSRF_PROTECTED_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'] as const;
 
 /**
  * CSRF configuration for admin
@@ -49,12 +44,12 @@ export interface CsrfConfig {
  * Default CSRF configuration for admin
  */
 const DEFAULT_CONFIG: Required<CsrfConfig> = {
-  cookieName: "sahool_admin_csrf",
-  headerName: "x-csrf-token",
+  cookieName: 'sahool_admin_csrf',
+  headerName: 'x-csrf-token',
   excludePaths: [
-    "/api/auth/login", // Login needs to work without CSRF token initially
-    "/api/health", // Health checks are read-only
-    "/login", // Login page renders without CSRF
+    '/api/auth/login', // Login needs to work without CSRF token initially
+    '/api/health', // Health checks are read-only
+    '/login', // Login page renders without CSRF
     // Note: /api/auth/logout is NOT excluded - logout must be CSRF-protected
     // to prevent malicious logout attacks (logout CSRF)
   ],
@@ -67,9 +62,7 @@ export function generateCsrfToken(): string {
   // Use Web Crypto API for Edge Runtime compatibility
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -77,7 +70,7 @@ export function generateCsrfToken(): string {
  */
 export function validateCsrfToken(
   cookieToken: string | undefined,
-  headerToken: string | undefined,
+  headerToken: string | undefined
 ): boolean {
   if (!cookieToken || !headerToken) {
     return false;
@@ -97,20 +90,13 @@ export function validateCsrfToken(
 /**
  * Check if request requires CSRF validation
  */
-export function requiresCsrfValidation(
-  request: NextRequest,
-  config: CsrfConfig = {},
-): boolean {
+export function requiresCsrfValidation(request: NextRequest, config: CsrfConfig = {}): boolean {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
   const method = request.method;
   const pathname = request.nextUrl.pathname;
 
   // Only validate state-changing methods
-  if (
-    !CSRF_PROTECTED_METHODS.includes(
-      method as (typeof CSRF_PROTECTED_METHODS)[number],
-    )
-  ) {
+  if (!CSRF_PROTECTED_METHODS.includes(method as (typeof CSRF_PROTECTED_METHODS)[number])) {
     return false;
   }
 
@@ -127,7 +113,7 @@ export function requiresCsrfValidation(
  */
 export function validateCsrfRequest(
   request: NextRequest,
-  config: CsrfConfig = {},
+  config: CsrfConfig = {}
 ): { valid: boolean; error?: string } {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
 
@@ -141,7 +127,7 @@ export function validateCsrfRequest(
   if (!cookieToken) {
     return {
       valid: false,
-      error: "CSRF token cookie not found",
+      error: 'CSRF token cookie not found',
     };
   }
 
@@ -150,7 +136,7 @@ export function validateCsrfRequest(
   if (!headerToken) {
     return {
       valid: false,
-      error: "CSRF token header not found",
+      error: 'CSRF token header not found',
     };
   }
 
@@ -159,7 +145,7 @@ export function validateCsrfRequest(
   if (!tokensMatch) {
     return {
       valid: false,
-      error: "CSRF token mismatch",
+      error: 'CSRF token mismatch',
     };
   }
 

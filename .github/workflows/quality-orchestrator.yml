@@ -29,15 +29,15 @@ jobs:
     timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-lint-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -45,7 +45,7 @@ jobs:
             pip-lint-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -68,7 +68,7 @@ jobs:
         run: npx oxlint . --format json > reports/oxlint.json || true
 
       - name: Upload lint reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-lint-format
           path: reports/
@@ -83,15 +83,15 @@ jobs:
     timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-typecheck-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -99,7 +99,7 @@ jobs:
             pip-typecheck-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -125,7 +125,7 @@ jobs:
         run: npx pyright shared/ai/ || true
 
       - name: Upload type-check reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-type-check
           path: reports/
@@ -139,15 +139,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-security-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -180,7 +180,7 @@ jobs:
           category: "/language:python"
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-security-sast
           path: reports/
@@ -194,15 +194,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-depaudit-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -210,7 +210,7 @@ jobs:
             pip-depaudit-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -230,7 +230,7 @@ jobs:
         run: pip-audit --format json -o reports/pip-audit.json || true
 
       - name: Upload dependency reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-dependency-security
           path: reports/
@@ -245,10 +245,10 @@ jobs:
     timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -269,7 +269,7 @@ jobs:
         run: npx depcheck --json > reports/depcheck.json || true
 
       - name: Upload architecture reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-architecture
           path: reports/
@@ -284,15 +284,15 @@ jobs:
     timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-complexity-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -312,7 +312,7 @@ jobs:
         run: radon cc apps/ shared/ -j -n C > reports/radon.json || true
 
       - name: Upload dead-code/complexity reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-dead-code-complexity
           path: reports/
@@ -327,15 +327,15 @@ jobs:
     timeout-minutes: 30
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-tests-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -343,7 +343,7 @@ jobs:
             pip-tests-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -369,7 +369,7 @@ jobs:
           NATS_URL: ""
 
       - name: Upload test reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-tests
           path: reports/
@@ -384,33 +384,36 @@ jobs:
     timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Create reports directory
         run: mkdir -p reports
 
+      - name: Install Trivy
+        run: |
+          TRIVY_VERSION="0.69.3"
+          curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            -o trivy.tar.gz && \
+          tar -xzf trivy.tar.gz trivy && \
+          sudo mv trivy /usr/local/bin/trivy && \
+          rm -f trivy.tar.gz && \
+          trivy --version
+        continue-on-error: true
+
       - name: Trivy – Scan Dockerfiles (config)
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
-        with:
-          scan-type: config
-          scan-ref: .
-          format: json
-          output: reports/trivy-config.json
-          severity: CRITICAL,HIGH,MEDIUM
+        run: |
+          trivy config --format json --output reports/trivy-config.json \
+            --severity CRITICAL,HIGH,MEDIUM . || true
         continue-on-error: true
 
       - name: Trivy – Scan filesystem for vulnerabilities
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: json
-          output: reports/trivy-fs.json
-          severity: CRITICAL,HIGH
+        run: |
+          trivy fs --format json --output reports/trivy-fs.json \
+            --severity CRITICAL,HIGH . || true
         continue-on-error: true
 
       - name: Upload container/infra reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-container-infra
           path: reports/
@@ -434,10 +437,10 @@ jobs:
       - tests
       - container-infra
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -445,56 +448,56 @@ jobs:
         run: mkdir -p reports
 
       - name: Download lint-format reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-lint-format
           path: reports/
         continue-on-error: true
 
       - name: Download type-check reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-type-check
           path: reports/
         continue-on-error: true
 
       - name: Download security-sast reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-security-sast
           path: reports/
         continue-on-error: true
 
       - name: Download dependency-security reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-dependency-security
           path: reports/
         continue-on-error: true
 
       - name: Download architecture reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-architecture
           path: reports/
         continue-on-error: true
 
       - name: Download dead-code-complexity reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-dead-code-complexity
           path: reports/
         continue-on-error: true
 
       - name: Download test reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-tests
           path: reports/
         continue-on-error: true
 
       - name: Download container-infra reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-container-infra
           path: reports/
@@ -509,7 +512,7 @@ jobs:
 
       - name: Comment PR with quality summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -561,7 +564,7 @@ jobs:
             }
 
       - name: Upload final quality report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: quality-report
           path: quality-report.md

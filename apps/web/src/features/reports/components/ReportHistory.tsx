@@ -5,9 +5,9 @@
  * Displays a list of previously generated reports with filtering and actions
  */
 
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from 'react';
 import {
   FileText,
   Download,
@@ -22,20 +22,16 @@ import {
   XCircle,
   Loader2,
   AlertCircle,
-} from "lucide-react";
-import {
-  useReportHistory,
-  useDeleteFieldReport,
-  useDownloadReport,
-} from "../hooks/useReports";
+} from 'lucide-react';
+import { useReportHistory, useDeleteFieldReport, useDownloadReport } from '../hooks/useReports';
 import type {
   ReportHistoryFilters,
   ReportHistoryItem,
   ReportType,
   ReportStatus,
-} from "../types/reports";
-import { formatDateForPDF } from "../utils/pdf-generator";
-import { logger } from "@/lib/logger";
+} from '../types/reports';
+import { formatDateForPDF } from '../utils/pdf-generator';
+import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -64,7 +60,7 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
     fieldId,
     type: undefined,
     status: undefined,
-    search: "",
+    search: '',
   });
   const [showFilterPanel, setShowFilterPanel] = useState(false);
 
@@ -80,34 +76,40 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleDelete = useCallback(async (reportId: string, reportTitle: string) => {
-    if (
-      window.confirm(
-        `هل تريد حذف التقرير "${reportTitle}"؟\nAre you sure you want to delete "${reportTitle}"?`,
-      )
-    ) {
-      try {
-        await deleteMutation.mutateAsync(reportId);
-      } catch (error) {
-        logger.error("Failed to delete report:", error);
+  const handleDelete = useCallback(
+    async (reportId: string, reportTitle: string) => {
+      if (
+        window.confirm(
+          `هل تريد حذف التقرير "${reportTitle}"؟\nAre you sure you want to delete "${reportTitle}"?`
+        )
+      ) {
+        try {
+          await deleteMutation.mutateAsync(reportId);
+        } catch (error) {
+          logger.error('Failed to delete report:', error);
+        }
       }
-    }
-  }, [deleteMutation]);
+    },
+    [deleteMutation]
+  );
 
-  const handleDownload = useCallback(async (reportId: string) => {
-    try {
-      await downloadMutation.mutateAsync(reportId);
-    } catch (error) {
-      logger.error("Failed to download report:", error);
-    }
-  }, [downloadMutation]);
+  const handleDownload = useCallback(
+    async (reportId: string) => {
+      try {
+        await downloadMutation.mutateAsync(reportId);
+      } catch (error) {
+        logger.error('Failed to download report:', error);
+      }
+    },
+    [downloadMutation]
+  );
 
   const clearFilters = () => {
     setFilters({
       fieldId,
       type: undefined,
       status: undefined,
-      search: "",
+      search: '',
       startDate: undefined,
       endDate: undefined,
     });
@@ -139,11 +141,7 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
 
   const reportsList = reports || [];
   const hasActiveFilters =
-    filters.type ||
-    filters.status ||
-    filters.search ||
-    filters.startDate ||
-    filters.endDate;
+    filters.type || filters.status || filters.search || filters.startDate || filters.endDate;
 
   return (
     <div className="space-y-6">
@@ -159,8 +157,8 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
               onClick={() => setShowFilterPanel(!showFilterPanel)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 showFilterPanel || hasActiveFilters
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -178,11 +176,11 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              value={filters.search || ""}
+              value={filters.search || ''}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="ابحث في التقارير... Search reports..."
               className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                         />
+            />
           </div>
 
           {/* Filter Panel */}
@@ -195,10 +193,8 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
                     نوع التقرير
                   </label>
                   <select
-                    value={filters.type || ""}
-                    onChange={(e) =>
-                      handleFilterChange("type", e.target.value || undefined)
-                    }
+                    value={filters.type || ''}
+                    onChange={(e) => handleFilterChange('type', e.target.value || undefined)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   >
                     <option value="">الكل</option>
@@ -211,14 +207,10 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
 
                 {/* Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الحالة
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
                   <select
-                    value={filters.status || ""}
-                    onChange={(e) =>
-                      handleFilterChange("status", e.target.value || undefined)
-                    }
+                    value={filters.status || ''}
+                    onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   >
                     <option value="">الكل</option>
@@ -232,18 +224,11 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
 
                 {/* Date Range */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    من تاريخ
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">من تاريخ</label>
                   <input
                     type="date"
-                    value={filters.startDate || ""}
-                    onChange={(e) =>
-                      handleFilterChange(
-                        "startDate",
-                        e.target.value || undefined,
-                      )
-                    }
+                    value={filters.startDate || ''}
+                    onChange={(e) => handleFilterChange('startDate', e.target.value || undefined)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
@@ -302,16 +287,10 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
         <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
           <div className="flex items-center justify-between">
             <span>
-              إجمالي التقارير:{" "}
-              <span className="font-bold text-gray-900">
-                {reportsList.length}
-              </span>
+              إجمالي التقارير: <span className="font-bold text-gray-900">{reportsList.length}</span>
             </span>
             <span>
-              Total Reports:{" "}
-              <span className="font-bold text-gray-900">
-                {reportsList.length}
-              </span>
+              Total Reports: <span className="font-bold text-gray-900">{reportsList.length}</span>
             </span>
           </div>
         </div>
@@ -321,7 +300,7 @@ const ReportHistoryComponent: React.FC<ReportHistoryProps> = ({
 };
 
 export const ReportHistory = React.memo(ReportHistoryComponent);
-ReportHistory.displayName = "ReportHistory";
+ReportHistory.displayName = 'ReportHistory';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Report Card Component - Memoized to prevent re-renders when sibling cards change
@@ -350,14 +329,14 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
 }) => {
   const getStatusIcon = (status: ReportStatus) => {
     switch (status) {
-      case "ready":
+      case 'ready':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "generating":
-      case "pending":
+      case 'generating':
+      case 'pending':
         return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
-      case "failed":
+      case 'failed':
         return <XCircle className="w-5 h-5 text-red-500" />;
-      case "expired":
+      case 'expired':
         return <Clock className="w-5 h-5 text-gray-400" />;
       default:
         return <FileText className="w-5 h-5 text-gray-400" />;
@@ -366,24 +345,24 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
 
   const getStatusLabel = (status: ReportStatus) => {
     const labels = {
-      ready: { ar: "جاهز", en: "Ready" },
-      generating: { ar: "قيد الإنشاء", en: "Generating" },
-      pending: { ar: "معلق", en: "Pending" },
-      failed: { ar: "فشل", en: "Failed" },
-      expired: { ar: "منتهي", en: "Expired" },
+      ready: { ar: 'جاهز', en: 'Ready' },
+      generating: { ar: 'قيد الإنشاء', en: 'Generating' },
+      pending: { ar: 'معلق', en: 'Pending' },
+      failed: { ar: 'فشل', en: 'Failed' },
+      expired: { ar: 'منتهي', en: 'Expired' },
     };
     return labels[status] || { ar: status, en: status };
   };
 
   const getTypeLabel = (type: ReportType) => {
     const labels = {
-      field: { ar: "تقرير حقل", en: "Field Report" },
-      season: { ar: "تقرير موسم", en: "Season Report" },
-      scouting: { ar: "تقرير استكشاف", en: "Scouting Report" },
-      tasks: { ar: "تقرير مهام", en: "Tasks Report" },
-      ndvi: { ar: "تقرير NDVI", en: "NDVI Report" },
-      weather: { ar: "تقرير طقس", en: "Weather Report" },
-      comprehensive: { ar: "تقرير شامل", en: "Comprehensive Report" },
+      field: { ar: 'تقرير حقل', en: 'Field Report' },
+      season: { ar: 'تقرير موسم', en: 'Season Report' },
+      scouting: { ar: 'تقرير استكشاف', en: 'Scouting Report' },
+      tasks: { ar: 'تقرير مهام', en: 'Tasks Report' },
+      ndvi: { ar: 'تقرير NDVI', en: 'NDVI Report' },
+      weather: { ar: 'تقرير طقس', en: 'Weather Report' },
+      comprehensive: { ar: 'تقرير شامل', en: 'Comprehensive Report' },
     };
     return labels[type] || { ar: type, en: type };
   };
@@ -397,13 +376,9 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
         {/* Report Info */}
         <div className="flex-1">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-1">
-              {getStatusIcon(report.status)}
-            </div>
+            <div className="flex-shrink-0 mt-1">{getStatusIcon(report.status)}</div>
             <div className="flex-1">
-              <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                {report.titleAr}
-              </h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-1">{report.titleAr}</h4>
               <p className="text-sm text-gray-600 mb-3">{report.title}</p>
 
               {/* Meta Info */}
@@ -414,7 +389,7 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{formatDateForPDF(report.createdAt, "ar")}</span>
+                  <span>{formatDateForPDF(report.createdAt, 'ar')}</span>
                 </div>
                 {report.pageCount && (
                   <div className="flex items-center gap-1">
@@ -434,14 +409,13 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
                 <div className="mt-3 flex items-center gap-2">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      report.status === "ready"
-                        ? "bg-green-100 text-green-700"
-                        : report.status === "generating" ||
-                            report.status === "pending"
-                          ? "bg-blue-100 text-blue-700"
-                          : report.status === "failed"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-700"
+                      report.status === 'ready'
+                        ? 'bg-green-100 text-green-700'
+                        : report.status === 'generating' || report.status === 'pending'
+                          ? 'bg-blue-100 text-blue-700'
+                          : report.status === 'failed'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {statusLabel.ar} • {statusLabel.en}
@@ -451,11 +425,11 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
                   </span>
                   {report.language && (
                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                      {report.language === "both"
-                        ? "عربي + EN"
-                        : report.language === "ar"
-                          ? "عربي"
-                          : "English"}
+                      {report.language === 'both'
+                        ? 'عربي + EN'
+                        : report.language === 'ar'
+                          ? 'عربي'
+                          : 'English'}
                     </span>
                   )}
                 </div>
@@ -465,7 +439,7 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
         </div>
 
         {/* Actions */}
-        {report.status === "ready" && (
+        {report.status === 'ready' && (
           <div className="flex items-center gap-2">
             {onView && (
               <button
@@ -518,7 +492,7 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
         <div className="mt-4 pt-4 border-t border-gray-100">
           <span className="text-sm text-gray-600">
             <span className="font-medium">{report.fieldNameAr}</span>
-            {" • "}
+            {' • '}
             <span className="text-gray-500">{report.fieldName}</span>
           </span>
         </div>
@@ -528,6 +502,6 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
 };
 
 const ReportCard = React.memo(ReportCardComponent);
-ReportCard.displayName = "ReportCard";
+ReportCard.displayName = 'ReportCard';
 
 export default ReportHistory;

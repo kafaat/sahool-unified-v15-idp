@@ -13,7 +13,7 @@
  * 3. Use the helper functions for soft delete operations
  */
 
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types & Interfaces
@@ -105,13 +105,9 @@ export interface SoftDeleteConfig {
  * ```
  */
 export function createSoftDeleteMiddleware(
-  config: SoftDeleteConfig = {},
+  config: SoftDeleteConfig = {}
 ): (params: any, next: (params: any) => Promise<any>) => Promise<any> {
-  const {
-    excludedModels = [],
-    enableLogging = false,
-    logger = console.log,
-  } = config;
+  const { excludedModels = [], enableLogging = false, logger = console.log } = config;
 
   return async (params, next) => {
     const model = params.model;
@@ -131,8 +127,8 @@ export function createSoftDeleteMiddleware(
     // ─────────────────────────────────────────────────────────────────────────
     // Handle DELETE operations - convert to UPDATE
     // ─────────────────────────────────────────────────────────────────────────
-    if (params.action === "delete") {
-      params.action = "update";
+    if (params.action === 'delete') {
+      params.action = 'update';
       params.args.data = {
         deletedAt: new Date(),
         deletedBy: (params.args as any).deletedBy || null,
@@ -146,8 +142,8 @@ export function createSoftDeleteMiddleware(
     // ─────────────────────────────────────────────────────────────────────────
     // Handle DELETE MANY operations - convert to UPDATE MANY
     // ─────────────────────────────────────────────────────────────────────────
-    if (params.action === "deleteMany") {
-      params.action = "updateMany";
+    if (params.action === 'deleteMany') {
+      params.action = 'updateMany';
       params.args.data = {
         deletedAt: new Date(),
         deletedBy: (params.args as any).deletedBy || null,
@@ -161,14 +157,7 @@ export function createSoftDeleteMiddleware(
     // ─────────────────────────────────────────────────────────────────────────
     // Handle FIND operations - filter out deleted records
     // ─────────────────────────────────────────────────────────────────────────
-    const readActions = [
-      "findUnique",
-      "findFirst",
-      "findMany",
-      "count",
-      "aggregate",
-      "groupBy",
-    ];
+    const readActions = ['findUnique', 'findFirst', 'findMany', 'count', 'aggregate', 'groupBy'];
 
     if (readActions.includes(params.action)) {
       // Check if user explicitly wants to include deleted records
@@ -220,7 +209,7 @@ export function createSoftDeleteMiddleware(
 export async function softDelete<T extends { update: any }>(
   prismaModel: T,
   where: any,
-  options: SoftDeleteOptions = {},
+  options: SoftDeleteOptions = {}
 ): Promise<any> {
   return prismaModel.update({
     where,
@@ -254,7 +243,7 @@ export async function softDelete<T extends { update: any }>(
 export async function softDeleteMany<T extends { updateMany: any }>(
   prismaModel: T,
   where: any,
-  options: SoftDeleteOptions = {},
+  options: SoftDeleteOptions = {}
 ): Promise<{ count: number }> {
   return prismaModel.updateMany({
     where,
@@ -287,7 +276,7 @@ export async function softDeleteMany<T extends { updateMany: any }>(
 export async function restore<T extends { update: any }>(
   prismaModel: T,
   where: any,
-  options: RestoreOptions = {},
+  options: RestoreOptions = {}
 ): Promise<any> {
   return prismaModel.update({
     where,
@@ -325,7 +314,7 @@ export async function restore<T extends { update: any }>(
 export async function restoreMany<T extends { updateMany: any }>(
   prismaModel: T,
   where: any,
-  options: RestoreOptions = {},
+  options: RestoreOptions = {}
 ): Promise<{ count: number }> {
   return prismaModel.updateMany({
     where,
@@ -363,7 +352,7 @@ export async function restoreMany<T extends { updateMany: any }>(
  */
 export async function findWithDeleted<T extends { findMany: any }>(
   prismaModel: T,
-  args: any = {},
+  args: any = {}
 ): Promise<any[]> {
   return prismaModel.findMany({
     ...args,
@@ -389,7 +378,7 @@ export async function findWithDeleted<T extends { findMany: any }>(
  */
 export async function findFirstWithDeleted<T extends { findFirst: any }>(
   prismaModel: T,
-  args: any = {},
+  args: any = {}
 ): Promise<any | null> {
   return prismaModel.findFirst({
     ...args,
@@ -438,7 +427,7 @@ export function isDeleted(record: any): boolean {
  */
 export async function hardDelete<T extends { delete: any }>(
   prismaModel: T,
-  where: any,
+  where: any
 ): Promise<any> {
   // Bypass the middleware by using a raw query or direct delete
   // Note: This will still go through middleware, so you might need
@@ -455,7 +444,7 @@ export async function hardDelete<T extends { delete: any }>(
  */
 export async function count<T extends { count: any }>(
   prismaModel: T,
-  where: any = {},
+  where: any = {}
 ): Promise<number> {
   return prismaModel.count({
     where: {
@@ -474,7 +463,7 @@ export async function count<T extends { count: any }>(
  */
 export async function countWithDeleted<T extends { count: any }>(
   prismaModel: T,
-  where: any = {},
+  where: any = {}
 ): Promise<number> {
   return prismaModel.count({
     where,
@@ -493,7 +482,7 @@ export async function countWithDeleted<T extends { count: any }>(
  * @returns Deletion metadata or null if not deleted
  */
 export function getDeletionMetadata(
-  record: any,
+  record: any
 ): { deletedAt: Date; deletedBy: string | null } | null {
   if (!isDeleted(record)) {
     return null;

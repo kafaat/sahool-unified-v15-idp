@@ -1,7 +1,7 @@
 /**
  * Rate Limiter for Admin Dashboard
  * Prevents brute-force attacks on authentication endpoints
- * 
+ *
  * معالج الحد من المحاولات لمنع هجمات القوة الغاشمة
  */
 
@@ -136,10 +136,10 @@ export function cleanupExpiredEntries(): void {
 
 // Clean up every 5 minutes - track handle for testability and cleanup
 let cleanupTimer: ReturnType<typeof setInterval> | null = null;
-if (typeof setInterval !== "undefined") {
+if (typeof setInterval !== 'undefined') {
   cleanupTimer = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
   // Allow process to exit without waiting for this timer
-  if (cleanupTimer && typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
+  if (cleanupTimer && typeof cleanupTimer === 'object' && 'unref' in cleanupTimer) {
     cleanupTimer.unref();
   }
 }

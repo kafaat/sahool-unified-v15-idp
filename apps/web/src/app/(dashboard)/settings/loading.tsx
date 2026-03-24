@@ -18,7 +18,7 @@ export default function Loading() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className={`flex-1 h-12 rounded-lg ${i === 0 ? "bg-gray-200" : "bg-gray-50"}`}
+              className={`flex-1 h-12 rounded-lg ${i === 0 ? 'bg-gray-200' : 'bg-gray-50'}`}
             />
           ))}
         </div>

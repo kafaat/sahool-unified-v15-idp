@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Dashboard Charts Components
@@ -22,19 +22,19 @@ import {
   Cell,
   AreaChart,
   Area,
-} from "recharts";
+} from 'recharts';
 
 // Chart colors
 const CHART_COLORS = {
-  primary: "#2E7D32",
-  secondary: "#4CAF50",
-  accent: "#81C784",
-  warning: "#FF9800",
-  danger: "#F44336",
-  info: "#2196F3",
+  primary: '#2E7D32',
+  secondary: '#4CAF50',
+  accent: '#81C784',
+  warning: '#FF9800',
+  danger: '#F44336',
+  info: '#2196F3',
 };
 
-const PIE_COLORS = ["#2E7D32", "#4CAF50", "#81C784", "#A5D6A7", "#C8E6C9"];
+const PIE_COLORS = ['#2E7D32', '#4CAF50', '#81C784', '#A5D6A7', '#C8E6C9'];
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Yield Trend Chart
@@ -58,16 +58,8 @@ export function YieldTrendChart({ data }: YieldTrendChartProps) {
       <AreaChart data={data}>
         <defs>
           <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="5%"
-              stopColor={CHART_COLORS.primary}
-              stopOpacity={0.3}
-            />
-            <stop
-              offset="95%"
-              stopColor={CHART_COLORS.primary}
-              stopOpacity={0}
-            />
+            <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3} />
+            <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -75,10 +67,10 @@ export function YieldTrendChart({ data }: YieldTrendChartProps) {
         <YAxis tick={{ fontSize: 12 }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#fff",
-            border: "1px solid #e0e0e0",
-            borderRadius: "8px",
-            direction: "rtl",
+            backgroundColor: '#fff',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            direction: 'rtl',
           }}
         />
         <Area
@@ -135,10 +127,10 @@ export function WeeklyActivityChart({ data }: WeeklyActivityChartProps) {
         <YAxis tick={{ fontSize: 12 }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#fff",
-            border: "1px solid #e0e0e0",
-            borderRadius: "8px",
-            direction: "rtl",
+            backgroundColor: '#fff',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            direction: 'rtl',
           }}
         />
         <Bar
@@ -202,10 +194,7 @@ export function CropDistributionChart({ data }: CropDistributionChartProps) {
           isAnimationActive={false}
         >
           {data.map((_entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={PIE_COLORS[index % PIE_COLORS.length] ?? "#2E7D32"}
-            />
+            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length] ?? '#2E7D32'} />
           ))}
         </Pie>
         <Tooltip />

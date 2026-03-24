@@ -45,6 +45,9 @@ paths = [
     '''/mocks/''',
     '''/mock-data/''',
 
+    # Gitleaks own ignore file (contains commit SHAs that trigger high-entropy-hex)
+    '''\.gitleaksignore$''',
+
     # Git and version control
     '''\.git/''',
     '''\.gitkeep$''',

@@ -3,24 +3,24 @@
  * خطافات React لميزة اللوجستيات
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { logisticsApi } from "../api";
-import type { ShipmentFilters, ShipmentFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { logisticsApi } from '../api';
+import type { ShipmentFilters, ShipmentFormData } from '../types';
 
 export const logisticsKeys = {
-  all: ["logistics"] as const,
+  all: ['logistics'] as const,
   shipments: {
-    all: ["shipments"] as const,
-    lists: () => [...logisticsKeys.shipments.all, "list"] as const,
+    all: ['shipments'] as const,
+    lists: () => [...logisticsKeys.shipments.all, 'list'] as const,
     list: (filters?: ShipmentFilters) => [...logisticsKeys.shipments.lists(), filters] as const,
-    detail: (id: string) => [...logisticsKeys.shipments.all, "detail", id] as const,
-    tracking: (id: string) => [...logisticsKeys.shipments.all, "tracking", id] as const,
+    detail: (id: string) => [...logisticsKeys.shipments.all, 'detail', id] as const,
+    tracking: (id: string) => [...logisticsKeys.shipments.all, 'tracking', id] as const,
   },
-  drivers: () => [...logisticsKeys.all, "drivers"] as const,
-  vehicles: () => [...logisticsKeys.all, "vehicles"] as const,
-  stats: () => [...logisticsKeys.all, "stats"] as const,
+  drivers: () => [...logisticsKeys.all, 'drivers'] as const,
+  vehicles: () => [...logisticsKeys.all, 'vehicles'] as const,
+  stats: () => [...logisticsKeys.all, 'stats'] as const,
 };
 
 export function useShipments(filters?: ShipmentFilters) {
@@ -108,7 +108,9 @@ export function useUpdateShipmentStatus() {
     onSuccess: (updatedShipment) => {
       queryClient.invalidateQueries({ queryKey: logisticsKeys.shipments.lists() });
       queryClient.setQueryData(logisticsKeys.shipments.detail(updatedShipment.id), updatedShipment);
-      queryClient.invalidateQueries({ queryKey: logisticsKeys.shipments.tracking(updatedShipment.id) });
+      queryClient.invalidateQueries({
+        queryKey: logisticsKeys.shipments.tracking(updatedShipment.id),
+      });
       queryClient.invalidateQueries({ queryKey: logisticsKeys.stats() });
     },
   });

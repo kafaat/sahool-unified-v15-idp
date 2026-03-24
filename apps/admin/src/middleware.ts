@@ -19,24 +19,21 @@
  * - CSP & CSRF modules are edge-native (Web Crypto API)
  */
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import {
   generateNonce,
   getCSPHeader,
   getCSPHeaderName,
   getCSPConfig,
-} from "@/lib/security/csp-config";
-import {
-  validateCsrfRequest,
-  generateCsrfToken,
-} from "@/lib/security/csrf-server";
+} from '@/lib/security/csp-config';
+import { validateCsrfRequest, generateCsrfToken } from '@/lib/security/csrf-server';
 // ---------------------------------------------------------------------------
 // Import jwt-verify directly — NOT through @/lib/auth barrel.
 // The barrel re-exports api-middleware.ts which imports @/lib/logger which
 // references @sentry/nextjs (~300KB). Importing the leaf module avoids this.
 // ---------------------------------------------------------------------------
-import { verifyToken, isTokenExpired } from "@/lib/auth/jwt-verify";
+import { verifyToken, isTokenExpired } from '@/lib/auth/jwt-verify';
 // ---------------------------------------------------------------------------
 // route-protection.ts is a pure module with no heavy transitive deps.
 // ---------------------------------------------------------------------------
@@ -45,7 +42,7 @@ import {
   getRequiredRoles,
   hasRouteAccess,
   getUnauthorizedRedirect,
-} from "@/lib/auth/route-protection";
+} from '@/lib/auth/route-protection';
 
 // ---------------------------------------------------------------------------
 // Edge-safe logger — avoids importing @/lib/logger which references
@@ -53,8 +50,8 @@ import {
 // ---------------------------------------------------------------------------
 const edgeLogger = {
   error: (...args: unknown[]) => {
-    if (process.env.NODE_ENV === "development") {
-      console.error("[admin-middleware]", ...args);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[admin-middleware]', ...args);
     }
   },
 };
@@ -64,16 +61,16 @@ const IDLE_TIMEOUT = 30 * 60 * 1000;
 
 // Development mode bypass - DISABLED by default for security
 // To enable: set ENABLE_AUTH_BYPASS=true explicitly (NEVER in production)
-const isDevelopment = process.env.NODE_ENV === "development";
-const ENABLE_DEV_BYPASS = isDevelopment && process.env.ENABLE_AUTH_BYPASS === "true";
+const isDevelopment = process.env.NODE_ENV === 'development';
+const ENABLE_DEV_BYPASS = isDevelopment && process.env.ENABLE_AUTH_BYPASS === 'true';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow static files and Next.js internals
   if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
     /\.\w{2,5}$/.test(pathname) // files with extensions (e.g. .js, .css, .png)
   ) {
     return NextResponse.next();
@@ -89,15 +86,15 @@ export async function middleware(request: NextRequest) {
     // Generate nonce for CSP
     const nonce = generateNonce();
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("X-Nonce", nonce);
+    requestHeaders.set('X-Nonce', nonce);
 
     const response = NextResponse.next({
       request: { headers: requestHeaders },
     });
 
     // Set mock user role for development
-    response.headers.set("X-Nonce", nonce);
-    response.headers.set("X-User-Role", "admin");
+    response.headers.set('X-Nonce', nonce);
+    response.headers.set('X-User-Role', 'admin');
 
     // Add CSP header
     const cspConfig = getCSPConfig(nonce);
@@ -111,26 +108,26 @@ export async function middleware(request: NextRequest) {
   // ============================================
   // AUTHENTICATION CHECK
   // ============================================
-  const token = request.cookies.get("sahool_admin_token")?.value;
+  const token = request.cookies.get('sahool_admin_token')?.value;
 
   if (!token) {
     // No token - redirect to login
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Quick check for expired token (without full verification)
   if (isTokenExpired(token)) {
     // Token expired - clear cookies and redirect
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
-    loginUrl.searchParams.set("reason", "token_expired");
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    loginUrl.searchParams.set('reason', 'token_expired');
 
     const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete("sahool_admin_token");
-    response.cookies.delete("sahool_admin_refresh_token");
-    response.cookies.delete("sahool_admin_last_activity");
+    response.cookies.delete('sahool_admin_token');
+    response.cookies.delete('sahool_admin_refresh_token');
+    response.cookies.delete('sahool_admin_last_activity');
 
     return response;
   }
@@ -138,7 +135,7 @@ export async function middleware(request: NextRequest) {
   // ============================================
   // JWT TOKEN VERIFICATION
   // ============================================
-  let userRole: "admin" | "supervisor" | "viewer";
+  let userRole: 'admin' | 'supervisor' | 'viewer';
 
   try {
     // Verify JWT signature and extract role
@@ -148,34 +145,34 @@ export async function middleware(request: NextRequest) {
     // Extract role from roles array or fallback to role field for backward compatibility
     let extractedRole: string;
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
-      extractedRole = payload.roles[0] ?? "viewer";
+      extractedRole = payload.roles[0] ?? 'viewer';
     } else if (payload.role) {
       extractedRole = payload.role;
     } else {
-      extractedRole = "viewer"; // Default fallback
+      extractedRole = 'viewer'; // Default fallback
     }
 
     // Normalize role to lowercase and map to admin panel roles
     const normalizedRole = extractedRole.toLowerCase();
-    if (normalizedRole === "admin" || normalizedRole === "administrator") {
-      userRole = "admin";
-    } else if (normalizedRole === "supervisor" || normalizedRole === "manager") {
-      userRole = "supervisor";
+    if (normalizedRole === 'admin' || normalizedRole === 'administrator') {
+      userRole = 'admin';
+    } else if (normalizedRole === 'supervisor' || normalizedRole === 'manager') {
+      userRole = 'supervisor';
     } else {
-      userRole = "viewer"; // Default for farmer, viewer, or any other role
+      userRole = 'viewer'; // Default for farmer, viewer, or any other role
     }
   } catch (error) {
     // Token verification failed (invalid signature, malformed, etc.)
-    edgeLogger.error("Token verification failed:", error);
+    edgeLogger.error('Token verification failed:', error);
 
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
-    loginUrl.searchParams.set("reason", "invalid_token");
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    loginUrl.searchParams.set('reason', 'invalid_token');
 
     const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete("sahool_admin_token");
-    response.cookies.delete("sahool_admin_refresh_token");
-    response.cookies.delete("sahool_admin_last_activity");
+    response.cookies.delete('sahool_admin_token');
+    response.cookies.delete('sahool_admin_refresh_token');
+    response.cookies.delete('sahool_admin_last_activity');
 
     return response;
   }
@@ -188,25 +185,22 @@ export async function middleware(request: NextRequest) {
   if (requiredRoles && !hasRouteAccess(pathname, userRole)) {
     // User doesn't have required role - return 403 Forbidden
     // For API routes, return JSON error
-    if (pathname.startsWith("/api/")) {
+    if (pathname.startsWith('/api/')) {
       return NextResponse.json(
         {
-          error: "Forbidden",
-          message: "You do not have permission to access this resource",
+          error: 'Forbidden',
+          message: 'You do not have permission to access this resource',
           required_roles: requiredRoles,
           your_role: userRole,
         },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
     // For page routes, redirect to dashboard with error
-    const unauthorizedUrl = new URL(
-      getUnauthorizedRedirect(userRole),
-      request.url,
-    );
-    unauthorizedUrl.searchParams.set("error", "unauthorized");
-    unauthorizedUrl.searchParams.set("attempted_route", pathname);
+    const unauthorizedUrl = new URL(getUnauthorizedRedirect(userRole), request.url);
+    unauthorizedUrl.searchParams.set('error', 'unauthorized');
+    unauthorizedUrl.searchParams.set('attempted_route', pathname);
 
     return NextResponse.redirect(unauthorizedUrl);
   }
@@ -217,54 +211,52 @@ export async function middleware(request: NextRequest) {
   const csrfValidation = validateCsrfRequest(request);
   if (!csrfValidation.valid) {
     // For API routes, return JSON error
-    if (pathname.startsWith("/api/")) {
+    if (pathname.startsWith('/api/')) {
       return NextResponse.json(
         {
-          error: "CSRF validation failed",
+          error: 'CSRF validation failed',
           message: csrfValidation.error,
         },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
     // For page routes, redirect to login with error
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("error", "csrf_failed");
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('error', 'csrf_failed');
     return NextResponse.redirect(loginUrl);
   }
 
   // ============================================
   // IDLE TIMEOUT CHECK
   // ============================================
-  const lastActivityStr = request.cookies.get(
-    "sahool_admin_last_activity",
-  )?.value;
+  const lastActivityStr = request.cookies.get('sahool_admin_last_activity')?.value;
   if (lastActivityStr) {
     const lastActivity = parseInt(lastActivityStr, 10);
     const now = Date.now();
     // Guard against NaN from corrupted/tampered cookies - treat as expired
     if (Number.isNaN(lastActivity)) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("returnTo", pathname);
-      loginUrl.searchParams.set("reason", "session_expired");
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      loginUrl.searchParams.set('reason', 'session_expired');
       const expiredResponse = NextResponse.redirect(loginUrl);
-      expiredResponse.cookies.delete("sahool_admin_token");
-      expiredResponse.cookies.delete("sahool_admin_refresh_token");
-      expiredResponse.cookies.delete("sahool_admin_last_activity");
+      expiredResponse.cookies.delete('sahool_admin_token');
+      expiredResponse.cookies.delete('sahool_admin_refresh_token');
+      expiredResponse.cookies.delete('sahool_admin_last_activity');
       return expiredResponse;
     }
     const timeSinceLastActivity = now - lastActivity;
 
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {
       // Session expired due to inactivity - clear cookies and redirect
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("returnTo", pathname);
-      loginUrl.searchParams.set("reason", "session_expired");
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      loginUrl.searchParams.set('reason', 'session_expired');
 
       const response = NextResponse.redirect(loginUrl);
-      response.cookies.delete("sahool_admin_token");
-      response.cookies.delete("sahool_admin_refresh_token");
-      response.cookies.delete("sahool_admin_last_activity");
+      response.cookies.delete('sahool_admin_token');
+      response.cookies.delete('sahool_admin_refresh_token');
+      response.cookies.delete('sahool_admin_last_activity');
 
       return response;
     }
@@ -279,8 +271,8 @@ export async function middleware(request: NextRequest) {
 
   // Create new request headers with nonce and role for server-side code
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("X-Nonce", nonce);
-  requestHeaders.set("X-User-Role", userRole);
+  requestHeaders.set('X-Nonce', nonce);
+  requestHeaders.set('X-User-Role', userRole);
 
   const response = NextResponse.next({
     request: {
@@ -291,42 +283,39 @@ export async function middleware(request: NextRequest) {
   // ============================================
   // CSRF TOKEN GENERATION
   // ============================================
-  let csrfToken = request.cookies.get("sahool_admin_csrf")?.value;
+  let csrfToken = request.cookies.get('sahool_admin_csrf')?.value;
   if (!csrfToken) {
     csrfToken = generateCsrfToken();
-    response.cookies.set("sahool_admin_csrf", csrfToken, {
+    response.cookies.set('sahool_admin_csrf', csrfToken, {
       httpOnly: false, // Must be readable by JavaScript for AJAX requests
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
   }
 
   // Update last activity timestamp for idle timeout (sliding session)
-  response.cookies.set("sahool_admin_last_activity", String(Date.now()), {
+  response.cookies.set('sahool_admin_last_activity', String(Date.now()), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
     maxAge: 60 * 60 * 24, // 24 hours
   });
 
   // Store nonce in response headers for use in HTML
-  response.headers.set("X-Nonce", nonce);
+  response.headers.set('X-Nonce', nonce);
 
   // Add security headers
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
 
   // HSTS - only in production with HTTPS
-  if (process.env.NODE_ENV === "production") {
-    response.headers.set(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains",
-    );
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
 
   // Content Security Policy with nonce-based security
@@ -348,6 +337,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 };

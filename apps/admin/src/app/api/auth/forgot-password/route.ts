@@ -5,11 +5,11 @@
  * مسار الخادم لطلب إعادة تعيين كلمة المرور
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS } from "@/config/api";
-import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { API_URL, TIMEOUT_TIERS } from '@/config/api';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
     const { email } = body;
 
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // Rate limiting: 3 attempts per 15 minutes
@@ -33,10 +30,10 @@ export async function POST(request: NextRequest) {
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: rateLimit.message || "Too many requests",
+          error: rateLimit.message || 'Too many requests',
           resetTime: rateLimit.resetTime,
         },
-        { status: 429 },
+        { status: 429 }
       );
     }
 
@@ -46,8 +43,8 @@ export async function POST(request: NextRequest) {
     let response: Response;
     try {
       response = await fetch(`${API_URL}${AUTH_ENDPOINTS.FORGOT_PASSWORD}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
         signal: controller.signal,
       });
@@ -55,29 +52,23 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Invalid response from backend" },
-        { status: 502 },
-      );
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.json({ error: 'Invalid response from backend' }, { status: 502 });
     }
 
     const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || data.detail || "Request failed" },
-        { status: response.status },
+        { error: data.message || data.detail || 'Request failed' },
+        { status: response.status }
       );
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    logger.production("Forgot password error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.production('Forgot password error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

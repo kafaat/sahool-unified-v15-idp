@@ -3,11 +3,11 @@
  * Automatically captures request context and enables audit logging
  */
 
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
-import { AuditLogger } from "./audit-logger";
-import { ActorType, AuditCategory, AuditSeverity } from "./audit-types";
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { AuditLogger } from './audit-logger';
+import { ActorType, AuditCategory, AuditSeverity } from './audit-types';
 
 /**
  * Audit context stored in request
@@ -40,27 +40,21 @@ export class AuditMiddleware implements NestMiddleware {
     // SECURITY: Only trust identity from verified JWT context (set by JWT guard).
     // Do not fall back to client-supplied headers to prevent audit log poisoning.
     const user = (req as any).user;
-    const tenantId =
-      user?.tenantId ||
-      (req as any).tenantId ||
-      "unknown";
-    const actorId =
-      user?.id ||
-      user?.sub ||
-      undefined;
-    const sessionId = req.headers["x-session-id"] as string;
+    const tenantId = user?.tenantId || (req as any).tenantId || 'unknown';
+    const actorId = user?.id || user?.sub || undefined;
+    const sessionId = req.headers['x-session-id'] as string;
 
     // Generate or extract correlation ID
     const correlationId =
-      (req.headers["x-correlation-id"] as string) ||
-      (req.headers["x-request-id"] as string) ||
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['x-request-id'] as string) ||
       uuidv4();
 
     // Get client IP (handle proxies)
     const ipAddress = this.getClientIp(req);
 
     // Get user agent
-    const userAgent = req.headers["user-agent"];
+    const userAgent = req.headers['user-agent'];
 
     // Determine actor type
     const actorType = this.determineActorType(req, actorId);
@@ -77,7 +71,7 @@ export class AuditMiddleware implements NestMiddleware {
     };
 
     // Add correlation ID to response headers
-    res.setHeader("X-Correlation-Id", correlationId);
+    res.setHeader('X-Correlation-Id', correlationId);
 
     // Log request if logger is available
     if (this.auditLogger) {
@@ -85,7 +79,7 @@ export class AuditMiddleware implements NestMiddleware {
     }
 
     // Log response on finish
-    res.on("finish", () => {
+    res.on('finish', () => {
       if (this.auditLogger && req.audit) {
         this.logResponse(req, res);
       }
@@ -99,14 +93,14 @@ export class AuditMiddleware implements NestMiddleware {
    */
   private getClientIp(req: Request): string | undefined {
     // Check X-Forwarded-For (proxies)
-    const forwardedFor = req.headers["x-forwarded-for"];
+    const forwardedFor = req.headers['x-forwarded-for'];
     if (forwardedFor) {
-      const ips = (forwardedFor as string).split(",");
+      const ips = (forwardedFor as string).split(',');
       return ips[0].trim();
     }
 
     // Check X-Real-IP
-    const realIp = req.headers["x-real-ip"];
+    const realIp = req.headers['x-real-ip'];
     if (realIp) {
       return realIp as string;
     }
@@ -121,7 +115,7 @@ export class AuditMiddleware implements NestMiddleware {
    */
   private determineActorType(req: Request, actorId?: string): ActorType {
     // Check for API key
-    const apiKey = req.headers["x-api-key"];
+    const apiKey = req.headers['x-api-key'];
     if (apiKey) {
       return ActorType.API_KEY;
     }
@@ -137,7 +131,7 @@ export class AuditMiddleware implements NestMiddleware {
       const user = (req as any).user;
       const roles: string[] = user?.roles || [];
       const isAdmin = roles.some(
-        (r: string) => r.toLowerCase() === "admin" || r.toLowerCase() === "super_admin",
+        (r: string) => r.toLowerCase() === 'admin' || r.toLowerCase() === 'super_admin'
       );
       return isAdmin ? ActorType.ADMIN : ActorType.USER;
     }
@@ -150,16 +144,16 @@ export class AuditMiddleware implements NestMiddleware {
    * SECURITY: Prevents credential leakage via audit trail.
    */
   private static readonly SENSITIVE_PARAMS: ReadonlySet<string> = new Set([
-    "token",
-    "api_key",
-    "secret",
-    "password",
-    "access_token",
-    "refresh_token",
-    "apikey",
-    "auth",
-    "credential",
-    "session_id",
+    'token',
+    'api_key',
+    'secret',
+    'password',
+    'access_token',
+    'refresh_token',
+    'apikey',
+    'auth',
+    'credential',
+    'session_id',
   ]);
 
   /**
@@ -173,18 +167,16 @@ export class AuditMiddleware implements NestMiddleware {
    * SECURITY: Prevents prototype pollution attacks.
    */
   private static readonly DANGEROUS_KEYS: ReadonlySet<string> = new Set([
-    "__proto__",
-    "constructor",
-    "prototype",
+    '__proto__',
+    'constructor',
+    'prototype',
   ]);
 
   /**
    * Sanitize query parameters by redacting sensitive values.
    * SECURITY: Prevents credential leakage in audit logs and prototype pollution.
    */
-  private sanitizeQuery(
-    query: Record<string, any>,
-  ): Record<string, any> {
+  private sanitizeQuery(query: Record<string, any>): Record<string, any> {
     const sanitized = Object.create(null) as Record<string, any>;
     for (const [key, value] of Object.entries(query)) {
       // SECURITY: Skip dangerous property names to prevent prototype pollution
@@ -196,7 +188,7 @@ export class AuditMiddleware implements NestMiddleware {
         continue;
       }
       if (AuditMiddleware.SENSITIVE_PARAMS.has(key.toLowerCase())) {
-        sanitized[key] = "[REDACTED]";
+        sanitized[key] = '[REDACTED]';
       } else {
         sanitized[key] = value;
       }
@@ -211,7 +203,7 @@ export class AuditMiddleware implements NestMiddleware {
     if (!req.audit) return;
 
     // Only log certain methods (avoid logging GET for performance)
-    const shouldLog = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
+    const shouldLog = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
     if (!shouldLog) return;
 
     this.auditLogger?.log({
@@ -221,7 +213,7 @@ export class AuditMiddleware implements NestMiddleware {
       action: `http.${req.method.toLowerCase()}.request`,
       category: AuditCategory.ACCESS,
       severity: AuditSeverity.DEBUG,
-      resourceType: "endpoint",
+      resourceType: 'endpoint',
       resourceId: req.path,
       correlationId: req.audit.correlationId,
       sessionId: req.audit.sessionId,
@@ -243,7 +235,7 @@ export class AuditMiddleware implements NestMiddleware {
     if (!req.audit) return;
 
     // Only log certain methods
-    const shouldLog = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
+    const shouldLog = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
     if (!shouldLog) return;
 
     const success = res.statusCode >= 200 && res.statusCode < 400;
@@ -256,7 +248,7 @@ export class AuditMiddleware implements NestMiddleware {
       action: `http.${req.method.toLowerCase()}.response`,
       category: AuditCategory.ACCESS,
       severity,
-      resourceType: "endpoint",
+      resourceType: 'endpoint',
       resourceId: req.path,
       correlationId: req.audit.correlationId,
       sessionId: req.audit.sessionId,
@@ -276,9 +268,7 @@ export class AuditMiddleware implements NestMiddleware {
 /**
  * Helper to get audit context from request
  */
-export function getAuditContext(
-  req: RequestWithAudit,
-): AuditContext | undefined {
+export function getAuditContext(req: RequestWithAudit): AuditContext | undefined {
   return req.audit;
 }
 
@@ -296,13 +286,13 @@ export class AuditGuard {
 /**
  * Decorator to extract audit context in NestJS controllers
  */
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Audit = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): AuditContext | undefined => {
     const request = ctx.switchToHttp().getRequest() as RequestWithAudit;
     return request.audit;
-  },
+  }
 );
 
 /**
@@ -312,7 +302,7 @@ export const TenantId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest() as RequestWithAudit;
     return request.audit?.tenantId;
-  },
+  }
 );
 
 /**
@@ -322,7 +312,7 @@ export const ActorId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest() as RequestWithAudit;
     return request.audit?.actorId;
-  },
+  }
 );
 
 /**
@@ -332,5 +322,5 @@ export const CorrelationId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest() as RequestWithAudit;
     return request.audit?.correlationId;
-  },
+  }
 );

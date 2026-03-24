@@ -1,0 +1,255 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Auto-Fix PR - Automatically fixes lint/format issues and pushes to PR branch
+# الإصلاح التلقائي - يصلح مشاكل التنسيق والجودة ويدفع التغييرات تلقائياً
+#
+# Flow:
+# 1. PR opened/updated → CI lint check fails
+# 2. This workflow detects fixable issues (ruff, eslint, prettier, dart)
+# 3. Applies fixes and commits back to the PR branch
+# 4. CI re-runs automatically on the new commit
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Auto-Fix PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, develop]
+    paths:
+      - "**/*.py"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.dart"
+      - "**/*.json"
+      - "**/*.yml"
+      - "**/*.yaml"
+
+concurrency:
+  group: auto-fix-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Detect which languages have changes
+  # ─────────────────────────────────────────────────────────────────────────────
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      python: ${{ steps.changes.outputs.python }}
+      node: ${{ steps.changes.outputs.node }}
+      config: ${{ steps.changes.outputs.config }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            python:
+              - '**/*.py'
+            node:
+              - '**/*.ts'
+              - '**/*.tsx'
+              - '**/*.js'
+              - '**/*.jsx'
+            config:
+              - '**/*.json'
+              - '**/*.yml'
+              - '**/*.yaml'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Auto-fix Python (Ruff)
+  # ─────────────────────────────────────────────────────────────────────────────
+  fix-python:
+    name: Fix Python
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.python == 'true'
+    timeout-minutes: 10
+    outputs:
+      fixed: ${{ steps.fix.outputs.fixed }}
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff auto-fix
+        id: fix
+        run: |
+          set +e
+
+          # Capture current state
+          BEFORE=$(git diff --stat)
+
+          # Fix linting issues (safe fixes only)
+          ruff check --fix --select E,F,I,UP,W,C4 \
+            --exclude archive/ \
+            --exclude .git \
+            --exclude .venv \
+            --exclude __pycache__ \
+            apps/ shared/ tools/ 2>/dev/null || true
+
+          # Fix formatting
+          ruff format \
+            --exclude archive/ \
+            apps/ shared/ tools/ 2>/dev/null || true
+
+          # Check if anything changed
+          AFTER=$(git diff --stat)
+          if [ "$BEFORE" != "$AFTER" ] || [ -n "$(git diff --name-only)" ]; then
+            echo "fixed=true" >> $GITHUB_OUTPUT
+            echo "📝 Python fixes applied:"
+            git diff --stat
+          else
+            echo "fixed=false" >> $GITHUB_OUTPUT
+            echo "✅ No Python fixes needed"
+          fi
+
+      - name: Commit Python fixes
+        if: steps.fix.outputs.fixed == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: auto-fix Python lint/format issues (ruff)
+
+          Applied by Auto-Fix PR workflow.
+          الإصلاح التلقائي لمشاكل التنسيق في Python."
+          git push
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Auto-fix TypeScript/JavaScript (ESLint + Prettier)
+  # ─────────────────────────────────────────────────────────────────────────────
+  fix-node:
+    name: Fix TypeScript/JavaScript
+    runs-on: ubuntu-latest
+    needs: [detect-changes, fix-python]
+    if: always() && needs.detect-changes.outputs.node == 'true'
+    timeout-minutes: 15
+    outputs:
+      fixed: ${{ steps.fix.outputs.fixed }}
+
+    steps:
+      - name: Checkout PR branch (latest)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest (in case Python fixes were pushed)
+        run: git pull origin ${{ github.head_ref }} --rebase || true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps 2>/dev/null || true
+
+      - name: Run ESLint auto-fix
+        id: fix
+        run: |
+          set +e
+
+          BEFORE=$(git diff --stat)
+
+          # ESLint fix on web app
+          if [ -f "apps/web/eslint.config.mjs" ]; then
+            npx eslint --fix "apps/web/src/**/*.{ts,tsx}" 2>/dev/null || true
+          fi
+
+          # ESLint fix on admin app
+          if [ -f "apps/admin/eslint.config.mjs" ]; then
+            npx eslint --fix "apps/admin/src/**/*.{ts,tsx}" 2>/dev/null || true
+          fi
+
+          # Prettier format
+          if [ -f ".prettierrc" ]; then
+            npx prettier --write "apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}" 2>/dev/null || true
+            npx prettier --write "packages/*/src/**/*.{ts,tsx}" 2>/dev/null || true
+          fi
+
+          # Check changes
+          AFTER=$(git diff --stat)
+          if [ "$BEFORE" != "$AFTER" ] || [ -n "$(git diff --name-only)" ]; then
+            echo "fixed=true" >> $GITHUB_OUTPUT
+            echo "📝 Node.js fixes applied:"
+            git diff --stat
+          else
+            echo "fixed=false" >> $GITHUB_OUTPUT
+            echo "✅ No Node.js fixes needed"
+          fi
+
+      - name: Commit Node.js fixes
+        if: steps.fix.outputs.fixed == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: auto-fix TypeScript/JavaScript lint/format issues
+
+          Applied by Auto-Fix PR workflow.
+          الإصلاح التلقائي لمشاكل التنسيق في TypeScript/JavaScript."
+          git push
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Summary
+  # ─────────────────────────────────────────────────────────────────────────────
+  summary:
+    name: Fix Summary
+    runs-on: ubuntu-latest
+    needs: [fix-python, fix-node]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🔧 Auto-Fix Summary | ملخص الإصلاح التلقائي" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Language | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          PYTHON_FIXED="${{ needs.fix-python.outputs.fixed }}"
+          NODE_FIXED="${{ needs.fix-node.outputs.fixed }}"
+
+          if [ "$PYTHON_FIXED" = "true" ]; then
+            echo "| Python (Ruff) | ✅ Fixed & committed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "$PYTHON_FIXED" = "false" ]; then
+            echo "| Python (Ruff) | ✨ No fixes needed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Python (Ruff) | ⏭️ Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$NODE_FIXED" = "true" ]; then
+            echo "| TypeScript/JS (ESLint+Prettier) | ✅ Fixed & committed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "$NODE_FIXED" = "false" ]; then
+            echo "| TypeScript/JS (ESLint+Prettier) | ✨ No fixes needed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| TypeScript/JS (ESLint+Prettier) | ⏭️ Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
+          fi

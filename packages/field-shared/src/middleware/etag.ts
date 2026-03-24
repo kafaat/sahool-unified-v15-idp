@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import crypto from "crypto";
+import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 
 /**
  * ETag Middleware for SAHOOL Field Core API
@@ -19,11 +19,7 @@ import crypto from "crypto";
  */
 export function generateETag(id: string, version: number): string {
   const data = `field:${id}:v${version}`;
-  const hash = crypto
-    .createHash("sha256")
-    .update(data)
-    .digest("hex")
-    .substring(0, 16);
+  const hash = crypto.createHash('sha256').update(data).digest('hex').substring(0, 16);
   return `"${hash}"`;
 }
 
@@ -35,9 +31,9 @@ function generateLegacyETag(id: string, version: number): string {
   const data = `field:${id}:v${version}`;
   const hash = crypto
     // nosemgrep: javascript.lang.security.audit.crypto-weak-hash (legacy backward compat, removal target v17.0.0)
-    .createHash("md5") // nosemgrep
+    .createHash('md5') // nosemgrep
     .update(data)
-    .digest("hex")
+    .digest('hex')
     .substring(0, 16);
   return `"${hash}"`;
 }
@@ -49,7 +45,7 @@ function generateLegacyETag(id: string, version: number): string {
 export function parseETag(etag: string | undefined): string | null {
   if (!etag) return null;
   // Remove quotes if present
-  return etag.replace(/^["']|["']$/g, "");
+  return etag.replace(/^["']|["']$/g, '');
 }
 
 /**
@@ -61,7 +57,7 @@ export function parseETag(etag: string | undefined): string | null {
 export function validateIfMatch(
   ifMatchHeader: string | undefined,
   currentId: string,
-  currentVersion: number,
+  currentVersion: number
 ): boolean {
   if (!ifMatchHeader) {
     // No If-Match header = allow update (first-write-wins scenario)
@@ -86,8 +82,8 @@ export function validateIfMatch(
  */
 export interface ConflictResponse {
   success: false;
-  error: "Conflict";
-  code: "CONFLICT_VERSION_MISMATCH";
+  error: 'Conflict';
+  code: 'CONFLICT_VERSION_MISMATCH';
   message: string;
   messageAr: string;
   serverData: object;
@@ -108,14 +104,14 @@ export interface ConflictResponse {
 export function createConflictResponse(
   serverEntity: object & { version?: number },
   serverETag: string,
-  entityType: string = "field",
+  entityType: string = 'field'
 ): ConflictResponse {
   return {
     success: false,
-    error: "Conflict",
-    code: "CONFLICT_VERSION_MISMATCH",
+    error: 'Conflict',
+    code: 'CONFLICT_VERSION_MISMATCH',
     message: `The ${entityType} has been modified by another user. Please refresh and try again.`,
-    messageAr: `تم تعديل ${entityType === "field" ? "الحقل" : entityType} بواسطة مستخدم آخر. يرجى التحديث والمحاولة مجدداً.`,
+    messageAr: `تم تعديل ${entityType === 'field' ? 'الحقل' : entityType} بواسطة مستخدم آخر. يرجى التحديث والمحاولة مجدداً.`,
     serverData: serverEntity,
     serverETag: serverETag,
     server_version: serverEntity.version || 0,
@@ -127,17 +123,13 @@ export function createConflictResponse(
  * Middleware to set ETag header on responses
  * Use with res.locals.etag to set the ETag value
  */
-export function setETagHeader(
-  _req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function setETagHeader(_req: Request, res: Response, next: NextFunction): void {
   const originalJson = res.json.bind(res);
 
   res.json = function (body: any): Response {
     // If etag is set in locals, add it to headers
     if (res.locals.etag) {
-      res.setHeader("ETag", res.locals.etag);
+      res.setHeader('ETag', res.locals.etag);
     }
     return originalJson(body);
   };
@@ -149,5 +141,5 @@ export function setETagHeader(
  * Extract If-Match header from request
  */
 export function getIfMatchHeader(req: Request): string | undefined {
-  return req.headers["if-match"] as string | undefined;
+  return req.headers['if-match'] as string | undefined;
 }

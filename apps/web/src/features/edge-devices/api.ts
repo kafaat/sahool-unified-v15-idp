@@ -3,29 +3,40 @@
  * طبقة API لميزة الأجهزة الطرفية
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { EDGE_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
-import type { EdgeDevice, EdgeDeployment, EdgeSyncStatus, EdgeFilters } from "./types";
+import { createApiClient, logger } from '@/lib/api/factory';
+import { EDGE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import type { EdgeDevice, EdgeDeployment, EdgeSyncStatus, EdgeFilters } from './types';
 
 const api = createApiClient();
 
 export const ERROR_MESSAGES = {
-  NETWORK_ERROR: { en: "Network error. Using offline data.", ar: "خطأ في الاتصال. استخدام البيانات المحفوظة." },
-  FETCH_DEVICES_FAILED: { en: "Failed to fetch edge devices.", ar: "فشل في جلب الأجهزة الطرفية." },
-  DEPLOY_FAILED: { en: "Failed to deploy model to edge device.", ar: "فشل في نشر النموذج على الجهاز الطرفي." },
-  SYNC_FAILED: { en: "Failed to sync edge device.", ar: "فشل في مزامنة الجهاز الطرفي." },
+  NETWORK_ERROR: {
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
+  },
+  FETCH_DEVICES_FAILED: { en: 'Failed to fetch edge devices.', ar: 'فشل في جلب الأجهزة الطرفية.' },
+  DEPLOY_FAILED: {
+    en: 'Failed to deploy model to edge device.',
+    ar: 'فشل في نشر النموذج على الجهاز الطرفي.',
+  },
+  SYNC_FAILED: { en: 'Failed to sync edge device.', ar: 'فشل في مزامنة الجهاز الطرفي.' },
 };
 
 const MOCK_DEVICES: EdgeDevice[] = [
   {
-    id: "edge-1",
-    name: "Jetson Orin - Field Station 1",
-    nameAr: "جيتسون أورين - محطة الحقل 1",
-    type: "jetson_orin",
-    status: "online",
-    ipAddress: "192.168.10.1",
-    location: { latitude: 15.3694, longitude: 44.191, fieldId: "field-1", fieldName: "North Field" },
-    models: ["yolo26-pest-m", "yolo26-disease-m"],
+    id: 'edge-1',
+    name: 'Jetson Orin - Field Station 1',
+    nameAr: 'جيتسون أورين - محطة الحقل 1',
+    type: 'jetson_orin',
+    status: 'online',
+    ipAddress: '192.168.10.1',
+    location: {
+      latitude: 15.3694,
+      longitude: 44.191,
+      fieldId: 'field-1',
+      fieldName: 'North Field',
+    },
+    models: ['yolo26-pest-m', 'yolo26-disease-m'],
     cpuUsage: 45,
     memoryUsage: 62,
     gpuUsage: 30,
@@ -39,14 +50,14 @@ export const edgeApi = {
   getDevices: async (filters?: EdgeFilters): Promise<EdgeDevice[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.type) params.set("type", filters.type);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.type) params.set('type', filters.type);
       const response = await api.get(`${EDGE_ENDPOINTS.DEVICES}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return MOCK_DEVICES;
     } catch (error) {
-      logger.warn("Failed to fetch edge devices, using mock data:", error);
+      logger.warn('Failed to fetch edge devices, using mock data:', error);
       return MOCK_DEVICES;
     }
   },
@@ -69,7 +80,7 @@ export const edgeApi = {
       const response = await api.post(EDGE_ENDPOINTS.DEVICE_CREATE, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create edge device:", error);
+      logger.error('Failed to create edge device:', error);
       throw error;
     }
   },
@@ -106,12 +117,20 @@ export const edgeApi = {
     }
   },
 
-  deployModel: async (deviceId: string, modelName: string, variant?: string): Promise<EdgeDeployment> => {
+  deployModel: async (
+    deviceId: string,
+    modelName: string,
+    variant?: string
+  ): Promise<EdgeDeployment> => {
     try {
-      const response = await api.post(EDGE_ENDPOINTS.DEPLOY_MODEL, { device_id: deviceId, model_name: modelName, variant });
+      const response = await api.post(EDGE_ENDPOINTS.DEPLOY_MODEL, {
+        device_id: deviceId,
+        model_name: modelName,
+        variant,
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to deploy model:", error);
+      logger.error('Failed to deploy model:', error);
       throw new Error(ERROR_MESSAGES.DEPLOY_FAILED.en);
     }
   },
@@ -121,7 +140,7 @@ export const edgeApi = {
       const response = await api.post(EDGE_ENDPOINTS.SYNC, { device_id: deviceId });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to sync edge device:", error);
+      logger.error('Failed to sync edge device:', error);
       throw new Error(ERROR_MESSAGES.SYNC_FAILED.en);
     }
   },

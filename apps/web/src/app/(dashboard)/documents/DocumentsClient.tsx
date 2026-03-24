@@ -1,40 +1,51 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
-  FileText, Plus, Search, AlertTriangle, Download, Trash2,
-  Shield, FileCheck, File, Clock,
-} from "lucide-react";
-import { useDocuments, useDocumentStats } from "@/features/documents";
-import type { DocumentCategory, DocumentStatus } from "@/features/documents";
+  FileText,
+  Plus,
+  Search,
+  AlertTriangle,
+  Download,
+  Trash2,
+  Shield,
+  FileCheck,
+  File,
+  Clock,
+} from 'lucide-react';
+import { useDocuments, useDocumentStats } from '@/features/documents';
+import type { DocumentCategory, DocumentStatus } from '@/features/documents';
 
-const categoryConfig: Record<DocumentCategory, { labelAr: string; icon: React.ElementType; color: string }> = {
-  compliance: { labelAr: "امتثال", icon: Shield, color: "text-blue-600" },
-  permits: { labelAr: "تصاريح", icon: FileCheck, color: "text-green-600" },
-  contracts: { labelAr: "عقود", icon: FileText, color: "text-purple-600" },
-  reports: { labelAr: "تقارير", icon: File, color: "text-orange-600" },
-  certificates: { labelAr: "شهادات", icon: FileCheck, color: "text-yellow-600" },
-  maps: { labelAr: "خرائط", icon: File, color: "text-cyan-600" },
-  invoices: { labelAr: "فواتير", icon: File, color: "text-pink-600" },
-  other: { labelAr: "أخرى", icon: File, color: "text-gray-600" },
+const categoryConfig: Record<
+  DocumentCategory,
+  { labelAr: string; icon: React.ElementType; color: string }
+> = {
+  compliance: { labelAr: 'امتثال', icon: Shield, color: 'text-blue-600' },
+  permits: { labelAr: 'تصاريح', icon: FileCheck, color: 'text-green-600' },
+  contracts: { labelAr: 'عقود', icon: FileText, color: 'text-purple-600' },
+  reports: { labelAr: 'تقارير', icon: File, color: 'text-orange-600' },
+  certificates: { labelAr: 'شهادات', icon: FileCheck, color: 'text-yellow-600' },
+  maps: { labelAr: 'خرائط', icon: File, color: 'text-cyan-600' },
+  invoices: { labelAr: 'فواتير', icon: File, color: 'text-pink-600' },
+  other: { labelAr: 'أخرى', icon: File, color: 'text-gray-600' },
 };
 
 const statusConfig: Record<DocumentStatus, { color: string; labelAr: string }> = {
-  draft: { color: "bg-gray-100 text-gray-800", labelAr: "مسودة" },
-  active: { color: "bg-green-100 text-green-800", labelAr: "نشط" },
-  expired: { color: "bg-red-100 text-red-800", labelAr: "منتهي" },
-  archived: { color: "bg-yellow-100 text-yellow-800", labelAr: "مؤرشف" },
+  draft: { color: 'bg-gray-100 text-gray-800', labelAr: 'مسودة' },
+  active: { color: 'bg-green-100 text-green-800', labelAr: 'نشط' },
+  expired: { color: 'bg-red-100 text-red-800', labelAr: 'منتهي' },
+  archived: { color: 'bg-yellow-100 text-yellow-800', labelAr: 'مؤرشف' },
 };
 
-const categoryOptions: Array<{ value: DocumentCategory | "all"; labelAr: string }> = [
-  { value: "all", labelAr: "جميع الفئات" },
-  { value: "compliance", labelAr: "امتثال" },
-  { value: "permits", labelAr: "تصاريح" },
-  { value: "contracts", labelAr: "عقود" },
-  { value: "reports", labelAr: "تقارير" },
-  { value: "certificates", labelAr: "شهادات" },
-  { value: "maps", labelAr: "خرائط" },
-  { value: "invoices", labelAr: "فواتير" },
+const categoryOptions: Array<{ value: DocumentCategory | 'all'; labelAr: string }> = [
+  { value: 'all', labelAr: 'جميع الفئات' },
+  { value: 'compliance', labelAr: 'امتثال' },
+  { value: 'permits', labelAr: 'تصاريح' },
+  { value: 'contracts', labelAr: 'عقود' },
+  { value: 'reports', labelAr: 'تقارير' },
+  { value: 'certificates', labelAr: 'شهادات' },
+  { value: 'maps', labelAr: 'خرائط' },
+  { value: 'invoices', labelAr: 'فواتير' },
 ];
 
 function formatFileSize(bytes: number): string {
@@ -44,12 +55,14 @@ function formatFileSize(bytes: number): string {
 }
 
 export default function DocumentsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
 
-  const { data: documents = [], isLoading, error } = useDocuments(
-    selectedCategory !== "all" ? { category: selectedCategory } : undefined
-  );
+  const {
+    data: documents = [],
+    isLoading,
+    error,
+  } = useDocuments(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useDocumentStats();
 
   const filteredDocs = useMemo(() => {
@@ -104,7 +117,9 @@ export default function DocumentsClient() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي الوثائق</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalDocuments ?? documents.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalDocuments ?? documents.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">نشطة</div>
@@ -148,11 +163,13 @@ export default function DocumentsClient() {
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as DocumentCategory | "all")}
+          onChange={(e) => setSelectedCategory(e.target.value as DocumentCategory | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {categoryOptions.map((c) => (
-            <option key={c.value} value={c.value}>{c.labelAr}</option>
+            <option key={c.value} value={c.value}>
+              {c.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -168,8 +185,12 @@ export default function DocumentsClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المزرعة</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحجم</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">تاريخ الانتهاء</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  تاريخ الانتهاء
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -196,8 +217,10 @@ export default function DocumentsClient() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{cat.labelAr}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{doc.farmNameAr || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500">{formatFileSize(doc.fileSize)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600">{doc.farmNameAr || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-500">
+                        {formatFileSize(doc.fileSize)}
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${st.color}`}>
                           {st.labelAr}
@@ -205,8 +228,8 @@ export default function DocumentsClient() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {doc.expiryDate
-                          ? new Date(doc.expiryDate).toLocaleDateString("ar-SA")
-                          : "—"}
+                          ? new Date(doc.expiryDate).toLocaleDateString('ar-SA')
+                          : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

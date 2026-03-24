@@ -3,15 +3,9 @@
  * واجهة برمجية لميزة السوق الزراعي
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
-import type {
-  Product,
-  ProductFilters,
-  Order,
-  OrderFilters,
-  CartItem,
-} from "./types";
+import { createApiClient, logger } from '@/lib/api/factory';
+import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
+import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -19,55 +13,52 @@ const api = createApiClient();
 // Error messages
 export const ERROR_MESSAGES = {
   FETCH_PRODUCTS: {
-    en: "Failed to fetch products",
-    ar: "فشل في جلب المنتجات",
+    en: 'Failed to fetch products',
+    ar: 'فشل في جلب المنتجات',
   },
   FETCH_PRODUCT: {
-    en: "Failed to fetch product details",
-    ar: "فشل في جلب تفاصيل المنتج",
+    en: 'Failed to fetch product details',
+    ar: 'فشل في جلب تفاصيل المنتج',
   },
   CREATE_PRODUCT: {
-    en: "Failed to create product",
-    ar: "فشل في إنشاء المنتج",
+    en: 'Failed to create product',
+    ar: 'فشل في إنشاء المنتج',
   },
   UPDATE_PRODUCT: {
-    en: "Failed to update product",
-    ar: "فشل في تحديث المنتج",
+    en: 'Failed to update product',
+    ar: 'فشل في تحديث المنتج',
   },
   DELETE_PRODUCT: {
-    en: "Failed to delete product",
-    ar: "فشل في حذف المنتج",
+    en: 'Failed to delete product',
+    ar: 'فشل في حذف المنتج',
   },
   FETCH_ORDERS: {
-    en: "Failed to fetch orders",
-    ar: "فشل في جلب الطلبات",
+    en: 'Failed to fetch orders',
+    ar: 'فشل في جلب الطلبات',
   },
   CREATE_ORDER: {
-    en: "Failed to create order",
-    ar: "فشل في إنشاء الطلب",
+    en: 'Failed to create order',
+    ar: 'فشل في إنشاء الطلب',
   },
   CANCEL_ORDER: {
-    en: "Failed to cancel order",
-    ar: "فشل في إلغاء الطلب",
+    en: 'Failed to cancel order',
+    ar: 'فشل في إلغاء الطلب',
   },
   ADD_TO_CART: {
-    en: "Failed to add item to cart",
-    ar: "فشل في إضافة المنتج للسلة",
+    en: 'Failed to add item to cart',
+    ar: 'فشل في إضافة المنتج للسلة',
   },
   FETCH_CATEGORIES: {
-    en: "Failed to fetch categories",
-    ar: "فشل في جلب الفئات",
+    en: 'Failed to fetch categories',
+    ar: 'فشل في جلب الفئات',
   },
 };
 
 // Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "./api.mock";
+import { MOCK_PRODUCTS, MOCK_CATEGORIES } from './api.mock';
 
 // Helper function to filter mock products
-function filterMockProducts(
-  products: Product[],
-  filters?: ProductFilters,
-): Product[] {
+function filterMockProducts(products: Product[], filters?: ProductFilters): Product[] {
   let result = [...products];
 
   if (filters?.category) {
@@ -80,7 +71,7 @@ function filterMockProducts(
       (p) =>
         p.name.toLowerCase().includes(search) ||
         p.nameAr.includes(search) ||
-        p.description.toLowerCase().includes(search),
+        p.description.toLowerCase().includes(search)
     );
   }
 
@@ -99,22 +90,19 @@ function filterMockProducts(
   // Sorting
   if (filters?.sortBy) {
     switch (filters.sortBy) {
-      case "price_asc":
+      case 'price_asc':
         result.sort((a, b) => a.price - b.price);
         break;
-      case "price_desc":
+      case 'price_desc':
         result.sort((a, b) => b.price - a.price);
         break;
-      case "name":
+      case 'name':
         result.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case "newest":
-        result.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
+      case 'newest':
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
-      case "rating":
+      case 'rating':
         result.sort((a, b) => (b.sellerRating || 0) - (a.sellerRating || 0));
         break;
     }
@@ -130,21 +118,17 @@ export const marketplaceApi = {
   async getProducts(filters?: ProductFilters): Promise<Product[]> {
     try {
       const params = new URLSearchParams();
-      if (filters?.category) params.append("category", filters.category);
-      if (filters?.search) params.append("search", filters.search);
-      if (filters?.minPrice)
-        params.append("minPrice", filters.minPrice.toString());
-      if (filters?.maxPrice)
-        params.append("maxPrice", filters.maxPrice.toString());
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+      if (filters?.category) params.append('category', filters.category);
+      if (filters?.search) params.append('search', filters.search);
+      if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
+      if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.sortBy) params.append('sortBy', filters.sortBy);
 
-      const response = await api.get(
-        `${MARKETPLACE_ENDPOINTS.PRODUCTS}?${params.toString()}`,
-      );
+      const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}?${params.toString()}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock products data:", error);
+      logger.warn('Using mock products data:', error);
       return filterMockProducts(MOCK_PRODUCTS, filters);
     }
   },
@@ -154,10 +138,12 @@ export const marketplaceApi = {
    */
   async getProductById(id: string): Promise<Product> {
     try {
-      const response = await api.get(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }));
+      const response = await api.get(
+        buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id })
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock product data:", error);
+      logger.warn('Using mock product data:', error);
       const product = MOCK_PRODUCTS.find((p) => p.id === id);
       if (!product) {
         throw new Error(ERROR_MESSAGES.FETCH_PRODUCT.en);
@@ -174,7 +160,7 @@ export const marketplaceApi = {
       const response = await api.post(MARKETPLACE_ENDPOINTS.PRODUCTS, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create product:", error);
+      logger.error('Failed to create product:', error);
       throw new Error(ERROR_MESSAGES.CREATE_PRODUCT.ar);
     }
   },
@@ -186,11 +172,11 @@ export const marketplaceApi = {
     try {
       const response = await api.patch(
         buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }),
-        data,
+        data
       );
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to update product:", error);
+      logger.error('Failed to update product:', error);
       throw new Error(ERROR_MESSAGES.UPDATE_PRODUCT.ar);
     }
   },
@@ -202,7 +188,7 @@ export const marketplaceApi = {
     try {
       await api.delete(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }));
     } catch (error) {
-      logger.error("Failed to delete product:", error);
+      logger.error('Failed to delete product:', error);
       throw new Error(ERROR_MESSAGES.DELETE_PRODUCT.ar);
     }
   },
@@ -215,7 +201,7 @@ export const marketplaceApi = {
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/categories`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock categories:", error);
+      logger.warn('Using mock categories:', error);
       return MOCK_CATEGORIES;
     }
   },
@@ -228,7 +214,7 @@ export const marketplaceApi = {
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/featured`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock featured products:", error);
+      logger.warn('Using mock featured products:', error);
       return MOCK_PRODUCTS.slice(0, 3);
     }
   },
@@ -238,12 +224,10 @@ export const marketplaceApi = {
    */
   async getSellerProducts(sellerId: string): Promise<Product[]> {
     try {
-      const response = await api.get(
-        `${API_PREFIX}/marketplace/sellers/${sellerId}/products`,
-      );
+      const response = await api.get(`${API_PREFIX}/marketplace/sellers/${sellerId}/products`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock seller products:", error);
+      logger.warn('Using mock seller products:', error);
       return MOCK_PRODUCTS.filter((p) => p.sellerId === sellerId);
     }
   },
@@ -254,16 +238,14 @@ export const marketplaceApi = {
   async getOrders(filters?: OrderFilters): Promise<Order[]> {
     try {
       const params = new URLSearchParams();
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.dateFrom) params.append("dateFrom", filters.dateFrom);
-      if (filters?.dateTo) params.append("dateTo", filters.dateTo);
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) params.append('dateTo', filters.dateTo);
 
-      const response = await api.get(
-        `${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`,
-      );
+      const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Orders API not available:", error);
+      logger.warn('Orders API not available:', error);
       return [];
     }
   },
@@ -276,7 +258,7 @@ export const marketplaceApi = {
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to fetch order:", error);
+      logger.error('Failed to fetch order:', error);
       return null;
     }
   },
@@ -286,27 +268,27 @@ export const marketplaceApi = {
    */
   async createOrder(data: {
     items: Array<{ productId: string; quantity: number }>;
-    shippingAddress: Order["shippingAddress"];
+    shippingAddress: Order['shippingAddress'];
     notes?: string;
   }): Promise<Order> {
     try {
       const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create order:", error);
+      logger.error('Failed to create order:', error);
       // Return mock order for development
       const order: Order = {
         id: Date.now().toString(),
         orderNumber: `ORD-${Date.now()}`,
-        userId: "current-user",
+        userId: 'current-user',
         items: [],
         subtotal: 0,
         tax: 0,
         shipping: 0,
         total: 0,
-        currency: "SAR",
-        status: "pending",
-        paymentStatus: "pending",
+        currency: 'SAR',
+        status: 'pending',
+        paymentStatus: 'pending',
         shippingAddress: data.shippingAddress,
         notes: data.notes,
         createdAt: new Date().toISOString(),
@@ -321,12 +303,10 @@ export const marketplaceApi = {
    */
   async cancelOrder(id: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await api.post(
-        `${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`,
-      );
+      const response = await api.post(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`);
       return { success: true, ...response.data };
     } catch (error) {
-      logger.error("Failed to cancel order:", error);
+      logger.error('Failed to cancel order:', error);
       return {
         success: false,
         error: ERROR_MESSAGES.CANCEL_ORDER.ar,
@@ -342,7 +322,7 @@ export const marketplaceApi = {
       const response = await api.get(`${API_PREFIX}/marketplace/cart`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Cart API not available:", error);
+      logger.warn('Cart API not available:', error);
       return [];
     }
   },
@@ -358,7 +338,7 @@ export const marketplaceApi = {
       });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to add to cart:", error);
+      logger.error('Failed to add to cart:', error);
       throw new Error(ERROR_MESSAGES.ADD_TO_CART.ar);
     }
   },
@@ -373,7 +353,7 @@ export const marketplaceApi = {
       });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to update cart item:", error);
+      logger.error('Failed to update cart item:', error);
       throw new Error(ERROR_MESSAGES.ADD_TO_CART.ar);
     }
   },
@@ -385,7 +365,7 @@ export const marketplaceApi = {
     try {
       await api.delete(`${API_PREFIX}/marketplace/cart/${itemId}`);
     } catch (error) {
-      logger.error("Failed to remove from cart:", error);
+      logger.error('Failed to remove from cart:', error);
       throw error;
     }
   },
@@ -397,7 +377,7 @@ export const marketplaceApi = {
     try {
       await api.delete(`${API_PREFIX}/marketplace/cart`);
     } catch (error) {
-      logger.error("Failed to clear cart:", error);
+      logger.error('Failed to clear cart:', error);
       throw error;
     }
   },
@@ -408,11 +388,11 @@ export const marketplaceApi = {
   async searchProducts(query: string): Promise<Product[]> {
     try {
       const response = await api.get(
-        `${MARKETPLACE_ENDPOINTS.PRODUCTS}/search?q=${encodeURIComponent(query)}`,
+        `${MARKETPLACE_ENDPOINTS.PRODUCTS}/search?q=${encodeURIComponent(query)}`
       );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Using mock search:", error);
+      logger.warn('Using mock search:', error);
       return filterMockProducts(MOCK_PRODUCTS, { search: query });
     }
   },
@@ -432,11 +412,11 @@ export const marketplaceApi = {
   > {
     try {
       const response = await api.get(
-        `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`,
+        `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`
       );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Reviews API not available:", error);
+      logger.warn('Reviews API not available:', error);
       return [];
     }
   },
@@ -446,12 +426,12 @@ export const marketplaceApi = {
    */
   async addProductReview(
     productId: string,
-    data: { rating: number; comment: string },
+    data: { rating: number; comment: string }
   ): Promise<void> {
     try {
       await api.post(`${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`, data);
     } catch (error) {
-      logger.error("Failed to add review:", error);
+      logger.error('Failed to add review:', error);
       throw error;
     }
   },

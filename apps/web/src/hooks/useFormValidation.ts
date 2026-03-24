@@ -1,22 +1,27 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from 'react';
 
 /**
  * Validation rule types for form fields
  */
 export type ValidationRule =
-  | { type: "required"; message?: string; messageAr?: string }
-  | { type: "email"; message?: string; messageAr?: string }
-  | { type: "minLength"; value: number; message?: string; messageAr?: string }
-  | { type: "maxLength"; value: number; message?: string; messageAr?: string }
-  | { type: "min"; value: number; message?: string; messageAr?: string }
-  | { type: "max"; value: number; message?: string; messageAr?: string }
-  | { type: "pattern"; value: RegExp; message?: string; messageAr?: string }
-  | { type: "match"; field: string; message?: string; messageAr?: string }
-  | { type: "phone"; message?: string; messageAr?: string }
-  | { type: "url"; message?: string; messageAr?: string }
-  | { type: "custom"; validate: (value: string, values: Record<string, string>) => boolean; message?: string; messageAr?: string };
+  | { type: 'required'; message?: string; messageAr?: string }
+  | { type: 'email'; message?: string; messageAr?: string }
+  | { type: 'minLength'; value: number; message?: string; messageAr?: string }
+  | { type: 'maxLength'; value: number; message?: string; messageAr?: string }
+  | { type: 'min'; value: number; message?: string; messageAr?: string }
+  | { type: 'max'; value: number; message?: string; messageAr?: string }
+  | { type: 'pattern'; value: RegExp; message?: string; messageAr?: string }
+  | { type: 'match'; field: string; message?: string; messageAr?: string }
+  | { type: 'phone'; message?: string; messageAr?: string }
+  | { type: 'url'; message?: string; messageAr?: string }
+  | {
+      type: 'custom';
+      validate: (value: string, values: Record<string, string>) => boolean;
+      message?: string;
+      messageAr?: string;
+    };
 
 /**
  * Field configuration with validation rules
@@ -52,17 +57,29 @@ export interface FormState {
  * Default validation messages (bilingual)
  */
 const defaultMessages = {
-  required: { en: "This field is required", ar: "هذا الحقل مطلوب" },
-  email: { en: "Please enter a valid email address", ar: "يرجى إدخال بريد إلكتروني صحيح" },
-  minLength: { en: (n: number) => `Minimum ${n} characters required`, ar: (n: number) => `الحد الأدنى ${n} حرف` },
-  maxLength: { en: (n: number) => `Maximum ${n} characters allowed`, ar: (n: number) => `الحد الأقصى ${n} حرف` },
-  min: { en: (n: number) => `Value must be at least ${n}`, ar: (n: number) => `القيمة يجب أن تكون ${n} على الأقل` },
-  max: { en: (n: number) => `Value must be at most ${n}`, ar: (n: number) => `القيمة يجب ألا تتجاوز ${n}` },
-  pattern: { en: "Please enter a valid format", ar: "يرجى إدخال صيغة صحيحة" },
-  match: { en: "Fields do not match", ar: "الحقول غير متطابقة" },
-  phone: { en: "Please enter a valid phone number", ar: "يرجى إدخال رقم هاتف صحيح" },
-  url: { en: "Please enter a valid URL", ar: "يرجى إدخال رابط صحيح" },
-  custom: { en: "Invalid value", ar: "قيمة غير صالحة" },
+  required: { en: 'This field is required', ar: 'هذا الحقل مطلوب' },
+  email: { en: 'Please enter a valid email address', ar: 'يرجى إدخال بريد إلكتروني صحيح' },
+  minLength: {
+    en: (n: number) => `Minimum ${n} characters required`,
+    ar: (n: number) => `الحد الأدنى ${n} حرف`,
+  },
+  maxLength: {
+    en: (n: number) => `Maximum ${n} characters allowed`,
+    ar: (n: number) => `الحد الأقصى ${n} حرف`,
+  },
+  min: {
+    en: (n: number) => `Value must be at least ${n}`,
+    ar: (n: number) => `القيمة يجب أن تكون ${n} على الأقل`,
+  },
+  max: {
+    en: (n: number) => `Value must be at most ${n}`,
+    ar: (n: number) => `القيمة يجب ألا تتجاوز ${n}`,
+  },
+  pattern: { en: 'Please enter a valid format', ar: 'يرجى إدخال صيغة صحيحة' },
+  match: { en: 'Fields do not match', ar: 'الحقول غير متطابقة' },
+  phone: { en: 'Please enter a valid phone number', ar: 'يرجى إدخال رقم هاتف صحيح' },
+  url: { en: 'Please enter a valid URL', ar: 'يرجى إدخال رابط صحيح' },
+  custom: { en: 'Invalid value', ar: 'قيمة غير صالحة' },
 };
 
 /**
@@ -87,12 +104,12 @@ export const validationPatterns = {
 function validateField(
   value: string,
   rules: ValidationRule[],
-  allValues: Record<string, string>,
+  allValues: Record<string, string>
 ): { error: string | null; errorAr: string | null } {
   for (const rule of rules) {
     switch (rule.type) {
-      case "required":
-        if (!value || value.trim() === "") {
+      case 'required':
+        if (!value || value.trim() === '') {
           return {
             error: rule.message || defaultMessages.required.en,
             errorAr: rule.messageAr || defaultMessages.required.ar,
@@ -100,7 +117,7 @@ function validateField(
         }
         break;
 
-      case "email":
+      case 'email':
         if (value && !validationPatterns.email.test(value)) {
           return {
             error: rule.message || defaultMessages.email.en,
@@ -109,7 +126,7 @@ function validateField(
         }
         break;
 
-      case "minLength":
+      case 'minLength':
         if (value && value.length < rule.value) {
           return {
             error: rule.message || defaultMessages.minLength.en(rule.value),
@@ -118,7 +135,7 @@ function validateField(
         }
         break;
 
-      case "maxLength":
+      case 'maxLength':
         if (value && value.length > rule.value) {
           return {
             error: rule.message || defaultMessages.maxLength.en(rule.value),
@@ -127,7 +144,7 @@ function validateField(
         }
         break;
 
-      case "min":
+      case 'min':
         if (value && Number(value) < rule.value) {
           return {
             error: rule.message || defaultMessages.min.en(rule.value),
@@ -136,7 +153,7 @@ function validateField(
         }
         break;
 
-      case "max":
+      case 'max':
         if (value && Number(value) > rule.value) {
           return {
             error: rule.message || defaultMessages.max.en(rule.value),
@@ -145,7 +162,7 @@ function validateField(
         }
         break;
 
-      case "pattern":
+      case 'pattern':
         if (value && !rule.value.test(value)) {
           return {
             error: rule.message || defaultMessages.pattern.en,
@@ -154,7 +171,7 @@ function validateField(
         }
         break;
 
-      case "match":
+      case 'match':
         if (value !== allValues[rule.field]) {
           return {
             error: rule.message || defaultMessages.match.en,
@@ -163,7 +180,7 @@ function validateField(
         }
         break;
 
-      case "phone":
+      case 'phone':
         if (value && !validationPatterns.phone.test(value)) {
           return {
             error: rule.message || defaultMessages.phone.en,
@@ -172,7 +189,7 @@ function validateField(
         }
         break;
 
-      case "url":
+      case 'url':
         if (value && !validationPatterns.url.test(value)) {
           return {
             error: rule.message || defaultMessages.url.en,
@@ -181,7 +198,7 @@ function validateField(
         }
         break;
 
-      case "custom":
+      case 'custom':
         if (!rule.validate(value, allValues)) {
           return {
             error: rule.message || defaultMessages.custom.en,
@@ -232,7 +249,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
     const result: Record<string, FieldState> = {};
     for (const [name, fieldConfig] of Object.entries(config)) {
       result[name] = {
-        value: fieldConfig.initialValue || "",
+        value: fieldConfig.initialValue || '',
         error: null,
         errorAr: null,
         touched: false,
@@ -256,24 +273,25 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
 
   // Handle field change
   const handleChange = useCallback(
-    (name: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      const value = e.target.value;
-      setFields((prev) => {
-        const prevField = prev[name];
-        if (!prevField) return prev;
-        return {
-          ...prev,
-          [name]: {
-            value,
-            error: prevField.error,
-            errorAr: prevField.errorAr,
-            touched: prevField.touched,
-            dirty: value !== (config[name]?.initialValue || ""),
-          },
-        };
-      });
-    },
-    [config],
+    (name: string) =>
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const value = e.target.value;
+        setFields((prev) => {
+          const prevField = prev[name];
+          if (!prevField) return prev;
+          return {
+            ...prev,
+            [name]: {
+              value,
+              error: prevField.error,
+              errorAr: prevField.errorAr,
+              touched: prevField.touched,
+              dirty: value !== (config[name]?.initialValue || ''),
+            },
+          };
+        });
+      },
+    [config]
   );
 
   // Set field value directly
@@ -289,12 +307,12 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
             error: prevField.error,
             errorAr: prevField.errorAr,
             touched: prevField.touched,
-            dirty: value !== (config[name]?.initialValue || ""),
+            dirty: value !== (config[name]?.initialValue || ''),
           },
         };
       });
     },
-    [config],
+    [config]
   );
 
   // Handle field blur (validate on blur)
@@ -310,7 +328,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
       const { error, errorAr } = validateField(
         currentField.value,
         fieldConfig.rules || [],
-        allValues,
+        allValues
       );
 
       setFields((prev) => {
@@ -328,7 +346,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
         };
       });
     },
-    [config, fields, getAllValues],
+    [config, fields, getAllValues]
   );
 
   // Validate single field
@@ -344,7 +362,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
       const { error, errorAr } = validateField(
         currentField.value,
         fieldConfig.rules || [],
-        allValues,
+        allValues
       );
 
       setFields((prev) => {
@@ -364,7 +382,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
 
       return error === null;
     },
-    [config, fields, getAllValues],
+    [config, fields, getAllValues]
   );
 
   // Validate all fields
@@ -380,7 +398,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
       const { error, errorAr } = validateField(
         currentField.value,
         fieldConfig.rules || [],
-        allValues,
+        allValues
       );
 
       newFields[name] = {
@@ -424,25 +442,22 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
   }, []);
 
   // Set field error manually
-  const setFieldError = useCallback(
-    (name: string, error: string, errorAr?: string) => {
-      setFields((prev) => {
-        const prevField = prev[name];
-        if (!prevField) return prev;
-        return {
-          ...prev,
-          [name]: {
-            value: prevField.value,
-            touched: prevField.touched,
-            dirty: prevField.dirty,
-            error,
-            errorAr: errorAr || error,
-          },
-        };
-      });
-    },
-    [],
-  );
+  const setFieldError = useCallback((name: string, error: string, errorAr?: string) => {
+    setFields((prev) => {
+      const prevField = prev[name];
+      if (!prevField) return prev;
+      return {
+        ...prev,
+        [name]: {
+          value: prevField.value,
+          touched: prevField.touched,
+          dirty: prevField.dirty,
+          error,
+          errorAr: errorAr || error,
+        },
+      };
+    });
+  }, []);
 
   // Compute form state
   const formState: FormState = useMemo(() => {
@@ -490,7 +505,7 @@ export function useFormValidation(config: Record<string, FieldConfig>) {
           setIsSubmitting(false);
         }
       },
-    [validateForm, getValues],
+    [validateForm, getValues]
   );
 
   return {

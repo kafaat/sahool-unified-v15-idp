@@ -3,18 +3,18 @@
  * خطافات React لميزة المزارع
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { farmsApi } from "../api";
-import type { FarmFilters, FarmFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { farmsApi } from '../api';
+import type { FarmFilters, FarmFormData } from '../types';
 
 export const farmKeys = {
-  all: ["farms"] as const,
-  lists: () => [...farmKeys.all, "list"] as const,
+  all: ['farms'] as const,
+  lists: () => [...farmKeys.all, 'list'] as const,
   list: (filters?: FarmFilters) => [...farmKeys.lists(), filters] as const,
-  detail: (id: string) => [...farmKeys.all, "detail", id] as const,
-  stats: () => [...farmKeys.all, "stats"] as const,
+  detail: (id: string) => [...farmKeys.all, 'detail', id] as const,
+  stats: () => [...farmKeys.all, 'stats'] as const,
 };
 
 export function useFarms(filters?: FarmFilters) {

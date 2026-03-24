@@ -26,14 +26,16 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install system dependencies (tini for proper PID 1 signal handling)
+# Install system dependencies and upgrade packages to patch CVEs (tini for proper PID 1 signal handling)
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
+    apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends \
         curl \
         ca-certificates \
         tini \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Configure npm registry mirror for network resilience
 RUN npm config set registry https://registry.npmmirror.com
@@ -50,6 +52,9 @@ COPY package*.json ./
 # Using --omit=dev instead of deprecated --only=production
 RUN npm ci --omit=dev || \
     (npm config set registry https://registry.npmjs.org && npm ci --omit=dev)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --ignore-scripts 2>/dev/null || true
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Build Stage (for TypeScript)

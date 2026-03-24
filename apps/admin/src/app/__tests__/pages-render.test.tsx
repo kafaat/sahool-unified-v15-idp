@@ -6,16 +6,16 @@
  * Covers dashboard, users, alerts, farms, and other core pages.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import React from "react";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Global Mocks
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Mock next/navigation
-vi.mock("next/navigation", () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -23,31 +23,31 @@ vi.mock("next/navigation", () => ({
     refresh: vi.fn(),
     prefetch: vi.fn(),
   }),
-  usePathname: () => "/dashboard",
+  usePathname: () => '/dashboard',
   useSearchParams: () => new URLSearchParams(),
   useParams: () => ({}),
 }));
 
 // Mock next/dynamic to render the component inline (skip SSR checks)
-vi.mock("next/dynamic", () => ({
+vi.mock('next/dynamic', () => ({
   default: (_loader: () => Promise<{ default: React.ComponentType }>, _opts?: unknown) => {
     // Return a simple placeholder since dynamic imports are complex in test
     const DynamicComponent = (props: Record<string, unknown>) => {
-      return React.createElement("div", { "data-testid": "dynamic-component", ...props });
+      return React.createElement('div', { 'data-testid': 'dynamic-component', ...props });
     };
-    DynamicComponent.displayName = "DynamicComponent";
+    DynamicComponent.displayName = 'DynamicComponent';
     return DynamicComponent;
   },
 }));
 
 // Mock next/link
-vi.mock("next/link", () => ({
+vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: { children: React.ReactNode; href: string }) =>
-    React.createElement("a", { href, ...props }, children),
+    React.createElement('a', { href, ...props }, children),
 }));
 
 // Mock all API functions from lib/api
-vi.mock("@/lib/api", () => ({
+vi.mock('@/lib/api', () => ({
   fetchDashboardStats: vi.fn().mockResolvedValue({
     totalFarms: 150,
     activeFarms: 120,
@@ -58,8 +58,20 @@ vi.mock("@/lib/api", () => ({
     waterUsage: 2500,
   }),
   fetchFarms: vi.fn().mockResolvedValue([
-    { id: "1", name: "مزرعة الرشيد", area: 50, status: "active", location: { lat: 24.7, lng: 46.7 } },
-    { id: "2", name: "مزرعة النخيل", area: 30, status: "active", location: { lat: 24.8, lng: 46.8 } },
+    {
+      id: '1',
+      name: 'مزرعة الرشيد',
+      area: 50,
+      status: 'active',
+      location: { lat: 24.7, lng: 46.7 },
+    },
+    {
+      id: '2',
+      name: 'مزرعة النخيل',
+      area: 30,
+      status: 'active',
+      location: { lat: 24.8, lng: 46.8 },
+    },
   ]),
   fetchDiagnoses: vi.fn().mockResolvedValue([]),
   fetchYieldTrends: vi.fn().mockResolvedValue([]),
@@ -91,12 +103,12 @@ vi.mock("@/lib/api", () => ({
 }));
 
 // Mock lib/api-client
-vi.mock("@/lib/api-client", () => ({
+vi.mock('@/lib/api-client', () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }));
 
 // Mock lib/logger
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     log: vi.fn(),
     info: vi.fn(),
@@ -109,57 +121,63 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 // Mock WebSocket hooks
-vi.mock("@/hooks/useWebSocket", () => ({
+vi.mock('@/hooks/useWebSocket', () => ({
   useWebSocket: () => ({ isConnected: false, messages: [] }),
   useWebSocketEvent: () => null,
 }));
 
-vi.mock("@/hooks/useRealTimeAlerts", () => ({
+vi.mock('@/hooks/useRealTimeAlerts', () => ({
   useRealTimeAlerts: () => ({ alerts: [], isConnected: false, unreadCount: 0, criticalAlerts: [] }),
 }));
 
 // Mock layout components
-vi.mock("@/components/layout/Header", () => ({
+vi.mock('@/components/layout/Header', () => ({
   default: ({ title }: { title?: string }) =>
-    React.createElement("header", { "data-testid": "header" }, title || "Header"),
+    React.createElement('header', { 'data-testid': 'header' }, title || 'Header'),
 }));
 
 // Mock chart components
-vi.mock("../../dashboard/DashboardCharts.dynamic", () => ({
-  YieldTrendChart: () => React.createElement("div", { "data-testid": "yield-chart" }),
-  WeeklyActivityChart: () => React.createElement("div", { "data-testid": "activity-chart" }),
-  CropDistributionChart: () => React.createElement("div", { "data-testid": "crop-chart" }),
+vi.mock('../../dashboard/DashboardCharts.dynamic', () => ({
+  YieldTrendChart: () => React.createElement('div', { 'data-testid': 'yield-chart' }),
+  WeeklyActivityChart: () => React.createElement('div', { 'data-testid': 'activity-chart' }),
+  CropDistributionChart: () => React.createElement('div', { 'data-testid': 'crop-chart' }),
 }));
 
 // Mock UI components that are tested separately
-vi.mock("@/components/ui/StatCard", () => ({
+vi.mock('@/components/ui/StatCard', () => ({
   default: ({ title, value }: { title: string; value: string | number }) =>
-    React.createElement("div", { "data-testid": `stat-${title}` }, `${title}: ${value}`),
+    React.createElement('div', { 'data-testid': `stat-${title}` }, `${title}: ${value}`),
 }));
 
-vi.mock("@/components/ui/AlertBadge", () => ({
+vi.mock('@/components/ui/AlertBadge', () => ({
   default: ({ count }: { count?: number }) =>
-    React.createElement("span", { "data-testid": "alert-badge" }, count),
+    React.createElement('span', { 'data-testid': 'alert-badge' }, count),
 }));
 
-vi.mock("@/components/ui/DataTable", () => ({
+vi.mock('@/components/ui/DataTable', () => ({
   default: ({ data, columns: _columns }: { data: unknown[]; columns: unknown[] }) =>
-    React.createElement("table", { "data-testid": "data-table" },
-      React.createElement("tbody", null,
-        React.createElement("tr", null,
-          React.createElement("td", null, `${data?.length || 0} rows`),
-        ),
-      ),
+    React.createElement(
+      'table',
+      { 'data-testid': 'data-table' },
+      React.createElement(
+        'tbody',
+        null,
+        React.createElement(
+          'tr',
+          null,
+          React.createElement('td', null, `${data?.length || 0} rows`)
+        )
+      )
     ),
 }));
 
-vi.mock("@/components/ui/StatusBadge", () => ({
+vi.mock('@/components/ui/StatusBadge', () => ({
   default: ({ status }: { status: string }) =>
-    React.createElement("span", { "data-testid": "status-badge" }, status),
+    React.createElement('span', { 'data-testid': 'status-badge' }, status),
 }));
 
 // Mock Toast context so pages using useToast don't crash
-vi.mock("@/components/ui/Toast", () => ({
+vi.mock('@/components/ui/Toast', () => ({
   useToast: () => ({
     toast: {
       success: vi.fn(),
@@ -169,13 +187,13 @@ vi.mock("@/components/ui/Toast", () => ({
     },
   }),
   ToastProvider: ({ children }: { children: React.ReactNode }) =>
-    React.createElement("div", null, children),
+    React.createElement('div', null, children),
 }));
 
 // Mock config/api
-vi.mock("@/config/api", () => ({
-  API_URL: "http://localhost:8000",
-  API_BASE_URL: "http://localhost:8000",
+vi.mock('@/config/api', () => ({
+  API_URL: 'http://localhost:8000',
+  API_BASE_URL: 'http://localhost:8000',
   API_URLS: {},
   API_CONFIG: { timeout: 30000 },
   TIMEOUT_TIERS: { default: 30000 },
@@ -183,9 +201,9 @@ vi.mock("@/config/api", () => ({
 }));
 
 // Mock auth store so auth pages don't need a real AuthProvider
-vi.mock("@/stores/auth.store", () => ({
+vi.mock('@/stores/auth.store', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) =>
-    React.createElement("div", { "data-testid": "auth-provider" }, children),
+    React.createElement('div', { 'data-testid': 'auth-provider' }, children),
   useAuth: () => ({
     user: null,
     isAuthenticated: false,
@@ -200,20 +218,20 @@ vi.mock("@/stores/auth.store", () => ({
 // Dashboard Page Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Dashboard Page", () => {
+describe('Dashboard Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", async () => {
-    const DashboardPage = (await import("@/app/dashboard/page")).default;
+  it('renders without crashing', async () => {
+    const DashboardPage = (await import('@/app/dashboard/page')).default;
     const { container } = render(React.createElement(DashboardPage));
     expect(container).toBeTruthy();
   });
 
-  it("calls fetchDashboardStats on mount", async () => {
-    const { fetchDashboardStats } = await import("@/lib/api");
-    const DashboardPage = (await import("@/app/dashboard/page")).default;
+  it('calls fetchDashboardStats on mount', async () => {
+    const { fetchDashboardStats } = await import('@/lib/api');
+    const DashboardPage = (await import('@/app/dashboard/page')).default;
 
     render(React.createElement(DashboardPage));
 
@@ -222,9 +240,9 @@ describe("Dashboard Page", () => {
     });
   });
 
-  it("calls fetchFarms on mount", async () => {
-    const { fetchFarms } = await import("@/lib/api");
-    const DashboardPage = (await import("@/app/dashboard/page")).default;
+  it('calls fetchFarms on mount', async () => {
+    const { fetchFarms } = await import('@/lib/api');
+    const DashboardPage = (await import('@/app/dashboard/page')).default;
 
     render(React.createElement(DashboardPage));
 
@@ -238,27 +256,27 @@ describe("Dashboard Page", () => {
 // Users Page Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Users Page", () => {
+describe('Users Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", async () => {
-    const UsersPage = (await import("@/app/users/page")).default;
+  it('renders without crashing', async () => {
+    const UsersPage = (await import('@/app/users/page')).default;
     const { container } = render(React.createElement(UsersPage));
     expect(container).toBeTruthy();
   });
 
-  it("renders header with users icon context", async () => {
-    const UsersPage = (await import("@/app/users/page")).default;
+  it('renders header with users icon context', async () => {
+    const UsersPage = (await import('@/app/users/page')).default;
     render(React.createElement(UsersPage));
 
-    expect(screen.getByTestId("header")).toBeInTheDocument();
+    expect(screen.getByTestId('header')).toBeInTheDocument();
   });
 
-  it("calls userService.getAll on mount", async () => {
-    const { userService } = await import("@/lib/api");
-    const UsersPage = (await import("@/app/users/page")).default;
+  it('calls userService.getAll on mount', async () => {
+    const { userService } = await import('@/lib/api');
+    const UsersPage = (await import('@/app/users/page')).default;
 
     render(React.createElement(UsersPage));
 
@@ -272,20 +290,20 @@ describe("Users Page", () => {
 // Alerts Page Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Alerts Page", () => {
+describe('Alerts Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", async () => {
-    const AlertsPage = (await import("@/app/alerts/page")).default;
+  it('renders without crashing', async () => {
+    const AlertsPage = (await import('@/app/alerts/page')).default;
     const { container } = render(React.createElement(AlertsPage));
     expect(container).toBeTruthy();
   });
 
-  it("calls alertService.getAll on mount", async () => {
-    const { alertService } = await import("@/lib/api");
-    const AlertsPage = (await import("@/app/alerts/page")).default;
+  it('calls alertService.getAll on mount', async () => {
+    const { alertService } = await import('@/lib/api');
+    const AlertsPage = (await import('@/app/alerts/page')).default;
 
     render(React.createElement(AlertsPage));
 
@@ -299,31 +317,29 @@ describe("Alerts Page", () => {
 // Auth Pages Tests (login, register, forgot-password)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Login Page", () => {
+describe('Login Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", async () => {
-    const LoginPage = (await import("@/app/(auth)/login/page")).default;
+  it('renders without crashing', async () => {
+    const LoginPage = (await import('@/app/(auth)/login/page')).default;
     const { container } = render(React.createElement(LoginPage));
     expect(container).toBeTruthy();
   });
 });
 
-describe("Register Page", () => {
-  it("renders without crashing", async () => {
-    const RegisterPage = (await import("@/app/(auth)/register/page")).default;
+describe('Register Page', () => {
+  it('renders without crashing', async () => {
+    const RegisterPage = (await import('@/app/(auth)/register/page')).default;
     const { container } = render(React.createElement(RegisterPage));
     expect(container).toBeTruthy();
   });
 });
 
-describe("Forgot Password Page", () => {
-  it("renders without crashing", async () => {
-    const ForgotPasswordPage = (
-      await import("@/app/(auth)/forgot-password/page")
-    ).default;
+describe('Forgot Password Page', () => {
+  it('renders without crashing', async () => {
+    const ForgotPasswordPage = (await import('@/app/(auth)/forgot-password/page')).default;
     const { container } = render(React.createElement(ForgotPasswordPage));
     expect(container).toBeTruthy();
   });

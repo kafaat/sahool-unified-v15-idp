@@ -76,10 +76,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -251,10 +251,10 @@ COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 # Upgrade pip with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)

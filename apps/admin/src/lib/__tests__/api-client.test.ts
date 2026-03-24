@@ -5,22 +5,22 @@
  * Tests lib/api.ts: apiClient setup, interceptors, and API functions
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock config/api before importing lib/api
-vi.mock("@/config/api", () => ({
-  API_URL: "http://localhost:8000",
-  API_BASE_URL: "http://localhost:8000",
-  API_BASE_HOST: "http://localhost",
+vi.mock('@/config/api', () => ({
+  API_URL: 'http://localhost:8000',
+  API_BASE_URL: 'http://localhost:8000',
+  API_BASE_HOST: 'http://localhost',
   API_URLS: {
     auth: {
-      login: "http://localhost:8000/api/v1/auth/login",
-      me: "http://localhost:8000/api/v1/auth/me",
+      login: 'http://localhost:8000/api/v1/auth/login',
+      me: 'http://localhost:8000/api/v1/auth/me',
     },
-    fieldCore: "http://localhost:3000",
-    weather: "http://localhost:8092",
-    satellite: "http://localhost:8090",
-    indicators: "http://localhost:8091",
+    fieldCore: 'http://localhost:3000',
+    weather: 'http://localhost:8092',
+    satellite: 'http://localhost:8090',
+    indicators: 'http://localhost:8091',
   },
   API_CONFIG: { timeout: 30000 },
   TIMEOUT_TIERS: {
@@ -36,7 +36,7 @@ vi.mock("@/config/api", () => ({
 }));
 
 // Mock logger
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     log: vi.fn(),
     info: vi.fn(),
@@ -49,7 +49,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 // Mock js-cookie
-vi.mock("js-cookie", () => ({
+vi.mock('js-cookie', () => ({
   default: {
     get: vi.fn(),
     set: vi.fn(),
@@ -58,7 +58,7 @@ vi.mock("js-cookie", () => ({
 }));
 
 // Mock api-client
-vi.mock("@/lib/api-client", () => ({
+vi.mock('@/lib/api-client', () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
@@ -71,41 +71,41 @@ vi.mock("@/lib/api-client", () => ({
   },
 }));
 
-describe("API Client Configuration", () => {
-  it("exports apiClient", async () => {
-    const api = await import("@/lib/api");
+describe('API Client Configuration', () => {
+  it('exports apiClient', async () => {
+    const api = await import('@/lib/api');
     expect(api.apiClient).toBeDefined();
   });
 
-  it("exports API_URLS", async () => {
-    const api = await import("@/lib/api");
+  it('exports API_URLS', async () => {
+    const api = await import('@/lib/api');
     expect(api.API_URLS).toBeDefined();
   });
 
-  it("apiClient has withCredentials for cookie auth", async () => {
-    const api = await import("@/lib/api");
+  it('apiClient has withCredentials for cookie auth', async () => {
+    const api = await import('@/lib/api');
     // The apiClient is an axios instance created with withCredentials: true
     expect(api.apiClient).toBeDefined();
   });
 });
 
-describe("API Functions Exist", () => {
-  it("exports dashboard functions", async () => {
-    const api = await import("@/lib/api");
-    expect(typeof api.fetchDashboardStats).toBe("function");
-    expect(typeof api.fetchDiagnoses).toBe("function");
+describe('API Functions Exist', () => {
+  it('exports dashboard functions', async () => {
+    const api = await import('@/lib/api');
+    expect(typeof api.fetchDashboardStats).toBe('function');
+    expect(typeof api.fetchDiagnoses).toBe('function');
   });
 
-  it("exports farm functions", async () => {
-    const api = await import("@/lib/api");
-    expect(typeof api.fetchFarms).toBe("function");
+  it('exports farm functions', async () => {
+    const api = await import('@/lib/api');
+    expect(typeof api.fetchFarms).toBe('function');
   });
 
-  it("exports weather functions if defined", async () => {
-    const api = await import("@/lib/api");
+  it('exports weather functions if defined', async () => {
+    const api = await import('@/lib/api');
     // These may be defined - check they are functions if they exist
     if (api.getWeatherCurrent) {
-      expect(typeof api.getWeatherCurrent).toBe("function");
+      expect(typeof api.getWeatherCurrent).toBe('function');
     }
   });
 });

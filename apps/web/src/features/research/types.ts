@@ -3,8 +3,8 @@
  * أنواع ميزة الأبحاث والتجارب
  */
 
-export type ResearchStatus = "planning" | "active" | "completed" | "on_hold" | "cancelled";
-export type ResearchType = "trial" | "experiment" | "study" | "survey";
+export type ResearchStatus = 'planning' | 'active' | 'completed' | 'on_hold' | 'cancelled';
+export type ResearchType = 'trial' | 'experiment' | 'study' | 'survey';
 
 export interface ResearchTrial {
   id: string;
@@ -73,7 +73,7 @@ export interface ResearchMilestone {
   description?: string;
   dueDate: string;
   completedDate?: string;
-  status: "pending" | "completed" | "overdue";
+  status: 'pending' | 'completed' | 'overdue';
 }
 
 export interface ResearchStats {

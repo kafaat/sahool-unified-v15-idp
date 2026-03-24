@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 /**
  * Breadcrumbs Component
  * مسار التنقل
  */
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { ChevronLeft, Home } from "lucide-react";
-import { useMemo } from "react";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { ChevronLeft, Home } from 'lucide-react';
+import { useMemo } from 'react';
 
 export interface BreadcrumbItem {
   label: string;
@@ -30,45 +30,45 @@ interface BreadcrumbsProps {
 
 // Default route labels (Arabic)
 const routeLabels: Record<string, { ar: string; en: string }> = {
-  dashboard: { ar: "لوحة التحكم", en: "Dashboard" },
-  farms: { ar: "المزارع", en: "Farms" },
-  fields: { ar: "الحقول", en: "Fields" },
-  diseases: { ar: "الأمراض", en: "Diseases" },
-  epidemic: { ar: "مركز الأوبئة", en: "Epidemic Center" },
-  yield: { ar: "الإنتاجية", en: "Yield" },
-  irrigation: { ar: "الري", en: "Irrigation" },
-  sensors: { ar: "المستشعرات", en: "Sensors" },
-  alerts: { ar: "التنبيهات", en: "Alerts" },
-  support: { ar: "الدعم", en: "Support" },
-  settings: { ar: "الإعدادات", en: "Settings" },
-  security: { ar: "الأمان", en: "Security" },
-  users: { ar: "المستخدمين", en: "Users" },
-  analytics: { ar: "التحليلات", en: "Analytics" },
-  profitability: { ar: "الربحية", en: "Profitability" },
-  satellite: { ar: "الأقمار الصناعية", en: "Satellite" },
-  "precision-agriculture": { ar: "الزراعة الدقيقة", en: "Precision Agriculture" },
-  vra: { ar: "التطبيق المتغير", en: "VRA" },
-  gdd: { ar: "درجات النمو", en: "GDD" },
-  spray: { ar: "الرش", en: "Spray" },
-  pivot: { ar: "الري المحوري", en: "Pivot" },
-  "crop-health": { ar: "صحة المحصول", en: "Crop Health" },
-  inventory: { ar: "المخزون", en: "Inventory" },
-  logistics: { ar: "اللوجستيات", en: "Logistics" },
-  marketplace: { ar: "السوق", en: "Marketplace" },
-  community: { ar: "المجتمع", en: "Community" },
-  research: { ar: "البحوث", en: "Research" },
-  compliance: { ar: "الامتثال", en: "Compliance" },
-  disasters: { ar: "الكوارث", en: "Disasters" },
-  lab: { ar: "المختبر", en: "Lab" },
+  dashboard: { ar: 'لوحة التحكم', en: 'Dashboard' },
+  farms: { ar: 'المزارع', en: 'Farms' },
+  fields: { ar: 'الحقول', en: 'Fields' },
+  diseases: { ar: 'الأمراض', en: 'Diseases' },
+  epidemic: { ar: 'مركز الأوبئة', en: 'Epidemic Center' },
+  yield: { ar: 'الإنتاجية', en: 'Yield' },
+  irrigation: { ar: 'الري', en: 'Irrigation' },
+  sensors: { ar: 'المستشعرات', en: 'Sensors' },
+  alerts: { ar: 'التنبيهات', en: 'Alerts' },
+  support: { ar: 'الدعم', en: 'Support' },
+  settings: { ar: 'الإعدادات', en: 'Settings' },
+  security: { ar: 'الأمان', en: 'Security' },
+  users: { ar: 'المستخدمين', en: 'Users' },
+  analytics: { ar: 'التحليلات', en: 'Analytics' },
+  profitability: { ar: 'الربحية', en: 'Profitability' },
+  satellite: { ar: 'الأقمار الصناعية', en: 'Satellite' },
+  'precision-agriculture': { ar: 'الزراعة الدقيقة', en: 'Precision Agriculture' },
+  vra: { ar: 'التطبيق المتغير', en: 'VRA' },
+  gdd: { ar: 'درجات النمو', en: 'GDD' },
+  spray: { ar: 'الرش', en: 'Spray' },
+  pivot: { ar: 'الري المحوري', en: 'Pivot' },
+  'crop-health': { ar: 'صحة المحصول', en: 'Crop Health' },
+  inventory: { ar: 'المخزون', en: 'Inventory' },
+  logistics: { ar: 'اللوجستيات', en: 'Logistics' },
+  marketplace: { ar: 'السوق', en: 'Marketplace' },
+  community: { ar: 'المجتمع', en: 'Community' },
+  research: { ar: 'البحوث', en: 'Research' },
+  compliance: { ar: 'الامتثال', en: 'Compliance' },
+  disasters: { ar: 'الكوارث', en: 'Disasters' },
+  lab: { ar: 'المختبر', en: 'Lab' },
 };
 
 export default function Breadcrumbs({
   items,
   showHome = true,
-  homeLabel = "Home",
-  homeLabelAr = "الرئيسية",
+  homeLabel = 'Home',
+  homeLabelAr = 'الرئيسية',
   separator,
-  className = "",
+  className = '',
   maxItems = 5,
 }: BreadcrumbsProps) {
   const pathname = usePathname();
@@ -77,7 +77,7 @@ export default function Breadcrumbs({
   const breadcrumbItems = useMemo((): BreadcrumbItem[] => {
     if (items) return items;
 
-    const pathSegments = pathname?.split("/").filter(Boolean) || [];
+    const pathSegments = pathname?.split('/').filter(Boolean) || [];
     const generatedItems: BreadcrumbItem[] = [];
 
     pathSegments.forEach((segment, index) => {
@@ -86,11 +86,11 @@ export default function Breadcrumbs({
         return;
       }
 
-      const href = "/" + pathSegments.slice(0, index + 1).join("/");
+      const href = '/' + pathSegments.slice(0, index + 1).join('/');
       const labels = routeLabels[segment];
 
       generatedItems.push({
-        label: labels?.en || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " "),
+        label: labels?.en || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
         labelAr: labels?.ar,
         href: index === pathSegments.length - 1 ? undefined : href,
       });
@@ -104,7 +104,7 @@ export default function Breadcrumbs({
     const homeItem: BreadcrumbItem = {
       label: homeLabel,
       labelAr: homeLabelAr,
-      href: "/dashboard",
+      href: '/dashboard',
       icon: Home,
     };
 
@@ -114,11 +114,7 @@ export default function Breadcrumbs({
     if (finalItems.length > maxItems) {
       const start = finalItems.slice(0, 1);
       const end = finalItems.slice(-(maxItems - 2));
-      return [
-        ...start,
-        { label: "...", labelAr: "..." },
-        ...end,
-      ];
+      return [...start, { label: '...', labelAr: '...' }, ...end];
     }
 
     return finalItems;
@@ -133,21 +129,16 @@ export default function Breadcrumbs({
   );
 
   return (
-    <nav
-      aria-label="مسار التنقل"
-      className={cn("flex items-center", className)}
-    >
+    <nav aria-label="مسار التنقل" className={cn('flex items-center', className)}>
       <ol className="flex items-center flex-wrap gap-1">
         {allItems.map((item, index) => {
           const isLast = index === allItems.length - 1;
-          const isEllipsis = item.label === "...";
+          const isEllipsis = item.label === '...';
           const Icon = item.icon;
 
           return (
             <li key={index} className="flex items-center">
-              {index > 0 && (
-                <span className="mx-2">{separator || defaultSeparator}</span>
-              )}
+              {index > 0 && <span className="mx-2">{separator || defaultSeparator}</span>}
 
               {isEllipsis ? (
                 <span className="text-sm text-gray-400 dark:text-gray-500 px-1">
@@ -157,8 +148,8 @@ export default function Breadcrumbs({
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-1.5 text-sm transition-colors",
-                    "text-gray-500 dark:text-gray-400 hover:text-sahool-600 dark:hover:text-sahool-400"
+                    'flex items-center gap-1.5 text-sm transition-colors',
+                    'text-gray-500 dark:text-gray-400 hover:text-sahool-600 dark:hover:text-sahool-400'
                   )}
                 >
                   {Icon && <Icon className="w-4 h-4" />}
@@ -167,12 +158,12 @@ export default function Breadcrumbs({
               ) : (
                 <span
                   className={cn(
-                    "flex items-center gap-1.5 text-sm",
+                    'flex items-center gap-1.5 text-sm',
                     isLast
-                      ? "text-gray-900 dark:text-gray-100 font-medium"
-                      : "text-gray-500 dark:text-gray-400"
+                      ? 'text-gray-900 dark:text-gray-100 font-medium'
+                      : 'text-gray-500 dark:text-gray-400'
                   )}
-                  aria-current={isLast ? "page" : undefined}
+                  aria-current={isLast ? 'page' : undefined}
                 >
                   {Icon && <Icon className="w-4 h-4" />}
                   <span>{item.labelAr || item.label}</span>
@@ -187,15 +178,11 @@ export default function Breadcrumbs({
 }
 
 // Compact breadcrumbs for mobile
-export function BreadcrumbsCompact({
-  className = "",
-}: {
-  className?: string;
-}) {
+export function BreadcrumbsCompact({ className = '' }: { className?: string }) {
   const pathname = usePathname();
 
   const parentItem = useMemo(() => {
-    const segments = pathname?.split("/").filter(Boolean) || [];
+    const segments = pathname?.split('/').filter(Boolean) || [];
     if (segments.length <= 1) return null;
 
     const parentSegment = segments[segments.length - 2];
@@ -204,7 +191,7 @@ export function BreadcrumbsCompact({
     const labels = routeLabels[parentSegment];
 
     return {
-      href: "/" + segments.slice(0, -1).join("/"),
+      href: '/' + segments.slice(0, -1).join('/'),
       label: labels?.ar || parentSegment,
     };
   }, [pathname]);
@@ -215,7 +202,7 @@ export function BreadcrumbsCompact({
     <Link
       href={parentItem.href}
       className={cn(
-        "inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-sahool-600 dark:hover:text-sahool-400 transition-colors",
+        'inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-sahool-600 dark:hover:text-sahool-400 transition-colors',
         className
       )}
     >

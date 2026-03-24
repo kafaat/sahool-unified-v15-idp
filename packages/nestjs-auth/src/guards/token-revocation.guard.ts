@@ -12,18 +12,18 @@ import {
   UnauthorizedException,
   Logger,
   SetMetadata,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { JwtService } from "@nestjs/jwt";
-import { Request } from "express";
-import { RedisTokenRevocationStore } from "../services/token-revocation";
-import { JwtPayload } from "../strategies/jwt.strategy";
-import { AuthErrors } from "../config/jwt.config";
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { RedisTokenRevocationStore } from '../services/token-revocation';
+import { JwtPayload } from '../strategies/jwt.strategy';
+import { AuthErrors } from '../config/jwt.config';
 
 /**
  * Metadata key for skipping revocation check
  */
-export const SKIP_REVOCATION_CHECK_KEY = "skipRevocationCheck";
+export const SKIP_REVOCATION_CHECK_KEY = 'skipRevocationCheck';
 
 /**
  * Decorator to skip token revocation check
@@ -43,8 +43,7 @@ export const SKIP_REVOCATION_CHECK_KEY = "skipRevocationCheck";
  * }
  * ```
  */
-export const SkipRevocationCheck = () =>
-  SetMetadata(SKIP_REVOCATION_CHECK_KEY, true);
+export const SkipRevocationCheck = () => SetMetadata(SKIP_REVOCATION_CHECK_KEY, true);
 
 /**
  * Guard to check if tokens are revoked
@@ -77,7 +76,7 @@ export class TokenRevocationGuard implements CanActivate {
   constructor(
     private readonly revocationStore: RedisTokenRevocationStore,
     private readonly jwtService: JwtService,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {}
 
   /**
@@ -87,7 +86,7 @@ export class TokenRevocationGuard implements CanActivate {
     // Check if revocation check should be skipped
     const skipRevocationCheck = this.reflector.getAllAndOverride<boolean>(
       SKIP_REVOCATION_CHECK_KEY,
-      [context.getHandler(), context.getClass()],
+      [context.getHandler(), context.getClass()]
     );
 
     if (skipRevocationCheck) {
@@ -122,7 +121,7 @@ export class TokenRevocationGuard implements CanActivate {
 
       if (result.isRevoked) {
         this.logger.warn(
-          `Revoked token access attempt: userId=${payload.sub}, reason=${result.reason}`,
+          `Revoked token access attempt: userId=${payload.sub}, reason=${result.reason}`
         );
 
         throw new UnauthorizedException({
@@ -140,8 +139,7 @@ export class TokenRevocationGuard implements CanActivate {
       }
 
       // Log error but allow access (fail open)
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error checking token revocation: ${errorMessage}`);
       return true;
     }
@@ -157,9 +155,9 @@ export class TokenRevocationGuard implements CanActivate {
       return null;
     }
 
-    const [scheme, token] = authorization.split(" ");
+    const [scheme, token] = authorization.split(' ');
 
-    if (scheme?.toLowerCase() !== "bearer" || !token) {
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
       return null;
     }
 
@@ -188,12 +186,8 @@ export class TokenRevocationGuard implements CanActivate {
  * }
  * ```
  */
-import {
-  Injectable as InjectableInterceptor,
-  NestInterceptor,
-  CallHandler,
-} from "@nestjs/common";
-import { Observable } from "rxjs";
+import { Injectable as InjectableInterceptor, NestInterceptor, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
 
 @InjectableInterceptor()
 export class TokenRevocationInterceptor implements NestInterceptor {
@@ -201,13 +195,10 @@ export class TokenRevocationInterceptor implements NestInterceptor {
 
   constructor(
     private readonly revocationStore: RedisTokenRevocationStore,
-    private readonly jwtService: JwtService,
+    private readonly jwtService: JwtService
   ) {}
 
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<any>> {
+  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest<Request>();
 
     // Extract token
@@ -228,7 +219,7 @@ export class TokenRevocationInterceptor implements NestInterceptor {
 
           if (result.isRevoked) {
             this.logger.warn(
-              `Revoked token access attempt: userId=${payload.sub}, reason=${result.reason}`,
+              `Revoked token access attempt: userId=${payload.sub}, reason=${result.reason}`
             );
 
             throw new UnauthorizedException({
@@ -245,8 +236,7 @@ export class TokenRevocationInterceptor implements NestInterceptor {
         }
 
         // Log error but continue (fail open)
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         this.logger.error(`Error checking token revocation: ${errorMessage}`);
       }
     }
@@ -261,9 +251,9 @@ export class TokenRevocationInterceptor implements NestInterceptor {
       return null;
     }
 
-    const [scheme, token] = authorization.split(" ");
+    const [scheme, token] = authorization.split(' ');
 
-    if (scheme?.toLowerCase() !== "bearer" || !token) {
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
       return null;
     }
 

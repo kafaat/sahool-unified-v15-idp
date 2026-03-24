@@ -5,11 +5,11 @@
  * مسار الخادم لإعادة إرسال رمز التحقق
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/lib/logger";
-import { API_URL, TIMEOUT_TIERS } from "@/config/api";
-import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { API_URL, TIMEOUT_TIERS } from '@/config/api';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
     const { identifier, purpose, channel } = body;
 
     if (!identifier || !channel) {
-      return NextResponse.json(
-        { error: "Identifier and channel are required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Identifier and channel are required' }, { status: 400 });
     }
 
     // Rate limiting: 3 attempts per 5 minutes (stricter for resend)
@@ -33,10 +30,10 @@ export async function POST(request: NextRequest) {
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: rateLimit.message || "Too many resend attempts",
+          error: rateLimit.message || 'Too many resend attempts',
           resetTime: rateLimit.resetTime,
         },
-        { status: 429 },
+        { status: 429 }
       );
     }
 
@@ -46,8 +43,8 @@ export async function POST(request: NextRequest) {
     let response: Response;
     try {
       response = await fetch(`${API_URL}${AUTH_ENDPOINTS.RESEND_OTP}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, purpose, channel }),
         signal: controller.signal,
       });
@@ -55,29 +52,23 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Invalid response from backend" },
-        { status: 502 },
-      );
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      return NextResponse.json({ error: 'Invalid response from backend' }, { status: 502 });
     }
 
     const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || data.detail || "Failed to resend OTP" },
-        { status: response.status },
+        { error: data.message || data.detail || 'Failed to resend OTP' },
+        { status: response.status }
       );
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    logger.production("Resend OTP error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.production('Resend OTP error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -46,10 +46,7 @@ export default function SensorsLoading() {
       {/* Table skeleton */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
-          >
+          <div key={i} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full" />
               <div className="flex-1 space-y-1">

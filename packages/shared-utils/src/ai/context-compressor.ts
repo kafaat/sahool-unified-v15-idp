@@ -40,13 +40,13 @@ export const DEFAULT_HISTORY_COMPRESSION_RATIO = 0.25;
 
 export enum CompressionStrategy {
   /** Extract key sentences / استخراج الجمل الرئيسية */
-  EXTRACTIVE = "extractive",
+  EXTRACTIVE = 'extractive',
   /** Generate summaries / إنشاء ملخصات */
-  ABSTRACTIVE = "abstractive",
+  ABSTRACTIVE = 'abstractive',
   /** Combine both approaches / دمج كلا النهجين */
-  HYBRID = "hybrid",
+  HYBRID = 'hybrid',
   /** Select most relevant fields / اختيار أكثر الحقول صلة */
-  SELECTIVE = "selective",
+  SELECTIVE = 'selective',
 }
 
 export interface CompressionResult {
@@ -81,12 +81,12 @@ export interface CompressionResult {
  * Note: This is an approximation. For exact counts, use a tokenizer like tiktoken.
  * هذا تقدير تقريبي. للحصول على عدد دقيق، استخدم مُرمِّز مثل tiktoken.
  */
-export function estimateTokens(text: string, language: string = "auto"): number {
+export function estimateTokens(text: string, language: string = 'auto'): number {
   if (!text) {
     return 0;
   }
 
-  const detectedLanguage = language === "auto" ? detectPrimaryLanguage(text) : language;
+  const detectedLanguage = language === 'auto' ? detectPrimaryLanguage(text) : language;
 
   const charsPerToken: Record<string, number> = {
     ar: CHARS_PER_TOKEN_ARABIC,
@@ -121,28 +121,27 @@ export function estimateTokens(text: string, language: string = "auto"): number 
  */
 export function detectPrimaryLanguage(text: string): string {
   if (!text) {
-    return "en";
+    return 'en';
   }
 
   // Count Arabic characters (Unicode range for Arabic)
-  const arabicChars = (text.match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/g) || [])
-    .length;
+  const arabicChars = (text.match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/g) || []).length;
   // Count Latin characters
   const latinChars = (text.match(/[a-zA-Z]/g) || []).length;
 
   const totalChars = arabicChars + latinChars;
   if (totalChars === 0) {
-    return "en";
+    return 'en';
   }
 
   const arabicRatio = arabicChars / totalChars;
 
   if (arabicRatio > 0.7) {
-    return "ar";
+    return 'ar';
   } else if (arabicRatio < 0.3) {
-    return "en";
+    return 'en';
   } else {
-    return "mixed";
+    return 'mixed';
   }
 }
 
@@ -170,7 +169,7 @@ export class ContextCompressor {
   constructor(
     defaultStrategy: CompressionStrategy = CompressionStrategy.HYBRID,
     maxTokens: number = 4000,
-    preserveArabicDiacritics: boolean = false,
+    preserveArabicDiacritics: boolean = false
   ) {
     /**
      * Initialize the context compressor.
@@ -187,36 +186,36 @@ export class ContextCompressor {
     // Key field names for prioritization (English and Arabic)
     this.priorityFieldKeys = new Set([
       // English
-      "field_id",
-      "name",
-      "area",
-      "crop_type",
-      "crop",
-      "status",
-      "health",
-      "ndvi",
-      "irrigation_status",
-      "soil_type",
-      "location",
+      'field_id',
+      'name',
+      'area',
+      'crop_type',
+      'crop',
+      'status',
+      'health',
+      'ndvi',
+      'irrigation_status',
+      'soil_type',
+      'location',
       // Arabic
-      "اسم_الحقل",
-      "المساحة",
-      "نوع_المحصول",
-      "الحالة",
-      "الصحة",
+      'اسم_الحقل',
+      'المساحة',
+      'نوع_المحصول',
+      'الحالة',
+      'الصحة',
     ]);
 
     // Key weather fields
     this.priorityWeatherKeys = new Set([
-      "temperature",
-      "humidity",
-      "precipitation",
-      "wind_speed",
-      "forecast",
-      "alert",
-      "درجة_الحرارة",
-      "الرطوبة",
-      "الأمطار",
+      'temperature',
+      'humidity',
+      'precipitation',
+      'wind_speed',
+      'forecast',
+      'alert',
+      'درجة_الحرارة',
+      'الرطوبة',
+      'الأمطار',
     ]);
   }
 
@@ -232,7 +231,7 @@ export class ContextCompressor {
   compressFieldData(
     fieldData: Record<string, unknown> | Array<Record<string, unknown>>,
     strategy?: CompressionStrategy,
-    targetRatio: number = DEFAULT_FIELD_COMPRESSION_RATIO,
+    targetRatio: number = DEFAULT_FIELD_COMPRESSION_RATIO
   ): CompressionResult {
     const selectedStrategy = strategy || this.defaultStrategy;
 
@@ -289,7 +288,7 @@ export class ContextCompressor {
   compressWeatherData(
     weatherData: Record<string, unknown> | Array<Record<string, unknown>>,
     strategy?: CompressionStrategy,
-    includeForecastDays: number = 3,
+    includeForecastDays: number = 3
   ): CompressionResult {
     const selectedStrategy = strategy || this.defaultStrategy;
 
@@ -300,7 +299,7 @@ export class ContextCompressor {
     const originalTokens = estimateTokens(originalText);
 
     const compressedWeather = weatherList.map((weather) =>
-      this._compressSingleWeather(weather, includeForecastDays),
+      this._compressSingleWeather(weather, includeForecastDays)
     );
 
     const compressedText = this._dictToText(compressedWeather);
@@ -317,7 +316,7 @@ export class ContextCompressor {
       strategy: selectedStrategy,
       metadata: {
         forecastDaysIncluded: includeForecastDays,
-        hasAlerts: weatherList.some((w) => "alert" in w || "alerts" in w),
+        hasAlerts: weatherList.some((w) => 'alert' in w || 'alerts' in w),
       },
     };
   }
@@ -342,14 +341,14 @@ export class ContextCompressor {
     history: Array<Record<string, unknown>>,
     maxEntries: number = 10,
     strategy?: CompressionStrategy,
-    preserveRecent: number = 3,
+    preserveRecent: number = 3
   ): CompressionResult {
     const selectedStrategy = strategy || this.defaultStrategy;
 
     if (!history || history.length === 0) {
       return {
-        originalText: "",
-        compressedText: "",
+        originalText: '',
+        compressedText: '',
         originalTokens: 0,
         compressedTokens: 0,
         compressionRatio: 1.0,
@@ -369,10 +368,7 @@ export class ContextCompressor {
     const olderEntries = sortedHistory.slice(preserveRecent);
 
     // Compress older entries
-    const compressedOlder = this._compressOlderHistory(
-      olderEntries,
-      maxEntries - preserveRecent,
-    );
+    const compressedOlder = this._compressOlderHistory(olderEntries, maxEntries - preserveRecent);
 
     // Combine
     const compressedHistory = [...recentEntries, ...compressedOlder];
@@ -414,9 +410,9 @@ export class ContextCompressor {
   compressArabicText(
     text: string,
     targetTokens?: number,
-    preserveMeaning: boolean = true,
+    preserveMeaning: boolean = true
   ): CompressionResult {
-    const originalTokens = estimateTokens(text, "ar");
+    const originalTokens = estimateTokens(text, 'ar');
     const target = targetTokens || Math.floor(originalTokens * 0.5);
 
     let compressedText = text;
@@ -438,12 +434,12 @@ export class ContextCompressor {
     compressedText = this._condenseRepetitions(compressedText);
 
     // Step 5: Trim to target if still over
-    let currentTokens = estimateTokens(compressedText, "ar");
+    let currentTokens = estimateTokens(compressedText, 'ar');
     if (currentTokens > target) {
-      compressedText = this._truncateToTokens(compressedText, target, "ar");
+      compressedText = this._truncateToTokens(compressedText, target, 'ar');
     }
 
-    const compressedTokens = estimateTokens(compressedText, "ar");
+    const compressedTokens = estimateTokens(compressedText, 'ar');
     const actualRatio = compressedTokens / Math.max(originalTokens, 1);
 
     return {
@@ -454,7 +450,7 @@ export class ContextCompressor {
       compressionRatio: actualRatio,
       strategy: CompressionStrategy.HYBRID,
       metadata: {
-        language: "ar",
+        language: 'ar',
         diacriticsRemoved: !this.preserveArabicDiacritics,
         meaningPreserved: preserveMeaning,
       },
@@ -466,20 +462,20 @@ export class ContextCompressor {
   // ─────────────────────────────────────────────────────────────────────────
 
   private _dictToText(data: unknown): string {
-    if (typeof data === "string") {
+    if (typeof data === 'string') {
       return data;
     }
     return JSON.stringify(data, null, 2);
   }
 
   private _selectiveCompressFields(
-    fields: Array<Record<string, unknown>>,
+    fields: Array<Record<string, unknown>>
   ): Array<Record<string, unknown>> {
     const compressed: Array<Record<string, unknown>> = [];
     for (const fieldData of fields) {
       const compressedField: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(fieldData)) {
-        const keyLower = key.toLowerCase().replace(/ /g, "_");
+        const keyLower = key.toLowerCase().replace(/ /g, '_');
         if (this.priorityFieldKeys.has(keyLower) || this.priorityFieldKeys.has(key)) {
           compressedField[key] = value;
         }
@@ -491,7 +487,7 @@ export class ContextCompressor {
 
   private _extractiveCompressFields(
     fields: Array<Record<string, unknown>>,
-    _targetRatio: number,
+    _targetRatio: number
   ): Array<Record<string, unknown>> {
     // Start with selective compression
     const compressed = this._selectiveCompressFields(fields);
@@ -512,7 +508,7 @@ export class ContextCompressor {
   }
 
   private _abstractiveCompressFields(
-    fields: Array<Record<string, unknown>>,
+    fields: Array<Record<string, unknown>>
   ): Array<Record<string, unknown>> {
     const compressed: Array<Record<string, unknown>> = [];
     for (const fieldData of fields) {
@@ -520,7 +516,7 @@ export class ContextCompressor {
         summary: this._createFieldSummary(fieldData),
       };
       // Include critical identifiers
-      for (const key of ["field_id", "id", "name"]) {
+      for (const key of ['field_id', 'id', 'name']) {
         if (key in fieldData) {
           summary[key] = fieldData[key];
         }
@@ -532,7 +528,7 @@ export class ContextCompressor {
 
   private _hybridCompressFields(
     fields: Array<Record<string, unknown>>,
-    _targetRatio: number,
+    _targetRatio: number
   ): Array<Record<string, unknown>> {
     const compressed: Array<Record<string, unknown>> = [];
     for (const fieldData of fields) {
@@ -540,7 +536,7 @@ export class ContextCompressor {
 
       // Keep priority fields
       for (const [key, value] of Object.entries(fieldData)) {
-        const keyLower = key.toLowerCase().replace(/ /g, "_");
+        const keyLower = key.toLowerCase().replace(/ /g, '_');
         if (this.priorityFieldKeys.has(keyLower) || this.priorityFieldKeys.has(key)) {
           compressedField[key] = value;
         }
@@ -548,10 +544,10 @@ export class ContextCompressor {
 
       // Add summary for complex nested data
       const nestedKeys = Object.entries(fieldData)
-        .filter(([, v]) => typeof v === "object" && v !== null)
+        .filter(([, v]) => typeof v === 'object' && v !== null)
         .map(([k]) => k);
       if (nestedKeys.length > 0) {
-        compressedField["_nested_summary"] = `Contains: ${nestedKeys.join(", ")}`;
+        compressedField['_nested_summary'] = `Contains: ${nestedKeys.join(', ')}`;
       }
 
       compressed.push(compressedField);
@@ -561,29 +557,29 @@ export class ContextCompressor {
 
   private _compressSingleWeather(
     weather: Record<string, unknown>,
-    forecastDays: number,
+    forecastDays: number
   ): Record<string, unknown> {
     const compressed: Record<string, unknown> = {};
 
     // Always include current conditions
-    if ("current" in weather && typeof weather.current === "object") {
-      compressed["current"] = this._extractKeyWeatherFields(
-        weather.current as Record<string, unknown>,
+    if ('current' in weather && typeof weather.current === 'object') {
+      compressed['current'] = this._extractKeyWeatherFields(
+        weather.current as Record<string, unknown>
       );
     }
 
     // Include limited forecast
-    if ("forecast" in weather && Array.isArray(weather.forecast)) {
-      compressed["forecast"] = weather.forecast
+    if ('forecast' in weather && Array.isArray(weather.forecast)) {
+      compressed['forecast'] = weather.forecast
         .slice(0, forecastDays)
         .map((day) => this._extractKeyWeatherFields(day as Record<string, unknown>));
     }
 
     // Always include alerts
-    if ("alerts" in weather) {
-      compressed["alerts"] = weather.alerts;
-    } else if ("alert" in weather) {
-      compressed["alert"] = weather.alert;
+    if ('alerts' in weather) {
+      compressed['alerts'] = weather.alerts;
+    } else if ('alert' in weather) {
+      compressed['alert'] = weather.alert;
     }
 
     // Include any other priority keys
@@ -596,10 +592,8 @@ export class ContextCompressor {
     return compressed;
   }
 
-  private _extractKeyWeatherFields(
-    data: Record<string, unknown>,
-  ): Record<string, unknown> {
-    if (!data || typeof data !== "object") {
+  private _extractKeyWeatherFields(data: Record<string, unknown>): Record<string, unknown> {
+    if (!data || typeof data !== 'object') {
       return data;
     }
 
@@ -607,7 +601,7 @@ export class ContextCompressor {
     for (const [key, value] of Object.entries(data)) {
       const keyLower = key.toLowerCase();
       const hasPriority = Array.from(this.priorityWeatherKeys).some((pk) =>
-        keyLower.includes(pk.toLowerCase()),
+        keyLower.includes(pk.toLowerCase())
       );
       if (hasPriority) {
         extracted[key] = value;
@@ -618,7 +612,7 @@ export class ContextCompressor {
   }
 
   private _sortByDate(history: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
-    const dateKeys = ["date", "timestamp", "created_at", "time", "التاريخ"];
+    const dateKeys = ['date', 'timestamp', 'created_at', 'time', 'التاريخ'];
 
     const getDate = (entry: Record<string, unknown>): Date => {
       for (const key of dateKeys) {
@@ -627,9 +621,9 @@ export class ContextCompressor {
           if (value instanceof Date) {
             return value;
           }
-          if (typeof value === "string") {
+          if (typeof value === 'string') {
             try {
-              return new Date(value.replace("Z", "+00:00"));
+              return new Date(value.replace('Z', '+00:00'));
             } catch {
               // Continue to next key
             }
@@ -644,7 +638,7 @@ export class ContextCompressor {
 
   private _compressOlderHistory(
     history: Array<Record<string, unknown>>,
-    maxEntries: number,
+    maxEntries: number
   ): Array<Record<string, unknown>> {
     if (!history || history.length === 0 || maxEntries <= 0) {
       return [];
@@ -658,7 +652,7 @@ export class ContextCompressor {
     // Group by action type and summarize
     const actionGroups: Record<string, Array<Record<string, unknown>>> = {};
     for (const entry of history) {
-      const action = (entry.action as string) || (entry.type as string) || "unknown";
+      const action = (entry.action as string) || (entry.type as string) || 'unknown';
       if (!(action in actionGroups)) {
         actionGroups[action] = [];
       }
@@ -685,15 +679,15 @@ export class ContextCompressor {
 
   private _compressHistoryEntry(entry: Record<string, unknown>): Record<string, unknown> {
     const importantKeys = new Set([
-      "date",
-      "timestamp",
-      "action",
-      "type",
-      "status",
-      "result",
-      "field_id",
-      "التاريخ",
-      "الإجراء",
+      'date',
+      'timestamp',
+      'action',
+      'type',
+      'status',
+      'result',
+      'field_id',
+      'التاريخ',
+      'الإجراء',
     ]);
 
     const result: Record<string, unknown> = {};
@@ -708,13 +702,13 @@ export class ContextCompressor {
   private _getDateRange(entries: Array<Record<string, unknown>>): string {
     const sortedEntries = this._sortByDate(entries);
     if (sortedEntries.length === 0) {
-      return "unknown";
+      return 'unknown';
     }
 
     const firstEntry = sortedEntries[sortedEntries.length - 1];
     const lastEntry = sortedEntries[0];
-    const first = firstEntry?.date || firstEntry?.timestamp || "?";
-    const last = lastEntry?.date || lastEntry?.timestamp || "?";
+    const first = firstEntry?.date || firstEntry?.timestamp || '?';
+    const last = lastEntry?.date || lastEntry?.timestamp || '?';
 
     return `${first} to ${last}`;
   }
@@ -723,13 +717,13 @@ export class ContextCompressor {
     if (value === null || value === undefined) {
       return false;
     }
-    if (typeof value === "boolean") {
+    if (typeof value === 'boolean') {
       return value; // True values are important
     }
-    if (typeof value === "number") {
+    if (typeof value === 'number') {
       return value !== 0;
     }
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       return value.length < 100 && value.length > 0;
     }
     return false;
@@ -738,39 +732,39 @@ export class ContextCompressor {
   private _createFieldSummary(field: Record<string, unknown>): string {
     const parts: string[] = [];
 
-    const name = (field.name as string) || (field.اسم_الحقل as string) || "Unknown";
+    const name = (field.name as string) || (field.اسم_الحقل as string) || 'Unknown';
     parts.push(`Field: ${name}`);
 
-    if ("area" in field || "المساحة" in field) {
+    if ('area' in field || 'المساحة' in field) {
       const area = field.area || field.المساحة;
       parts.push(`Area: ${area}`);
     }
 
-    if ("crop" in field || "crop_type" in field || "نوع_المحصول" in field) {
+    if ('crop' in field || 'crop_type' in field || 'نوع_المحصول' in field) {
       const crop = field.crop || field.crop_type || field.نوع_المحصول;
       parts.push(`Crop: ${crop}`);
     }
 
-    if ("status" in field || "الحالة" in field) {
+    if ('status' in field || 'الحالة' in field) {
       const status = field.status || field.الحالة;
       parts.push(`Status: ${status}`);
     }
 
-    return parts.join(" | ");
+    return parts.join(' | ');
   }
 
   private _removeArabicDiacritics(text: string): string {
     // Arabic diacritics Unicode range
-    return text.replace(/[\u064B-\u065F\u0670]/g, "");
+    return text.replace(/[\u064B-\u065F\u0670]/g, '');
   }
 
   private _normalizeArabic(text: string): string {
     // Normalize alef variations
-    let result = text.replace(/[إأآا]/g, "ا");
+    let result = text.replace(/[إأآا]/g, 'ا');
     // Normalize yaa
-    result = result.replace(/[ىي]/g, "ي");
+    result = result.replace(/[ىي]/g, 'ي');
     // Normalize taa marbouta
-    result = result.replace(/ة/g, "ه");
+    result = result.replace(/ة/g, 'ه');
     return result;
   }
 
@@ -791,7 +785,7 @@ export class ContextCompressor {
     let result = text;
     for (const filler of fillers) {
       // Only remove if not changing meaning significantly
-      const testRemoval = result.replace(filler, "");
+      const testRemoval = result.replace(filler, '');
       if (testRemoval.length > result.length * 0.5) {
         // Don't remove too much
         result = testRemoval;
@@ -803,13 +797,13 @@ export class ContextCompressor {
 
   private _condenseRepetitions(text: string): string {
     // Remove duplicate consecutive words
-    let result = text.replace(/\b(\w+)\s+\1\b/g, "$1");
+    let result = text.replace(/\b(\w+)\s+\1\b/g, '$1');
 
     // Remove multiple spaces
-    result = result.replace(/\s+/g, " ");
+    result = result.replace(/\s+/g, ' ');
 
     // Remove repeated punctuation
-    result = result.replace(/([.،,!?])\1+/g, "$1");
+    result = result.replace(/([.،,!?])\1+/g, '$1');
 
     return result.trim();
   }
@@ -833,11 +827,11 @@ export class ContextCompressor {
     // Truncate at word boundary
     if (text.length > targetChars) {
       let truncated = text.substring(0, targetChars);
-      const lastSpace = truncated.lastIndexOf(" ");
+      const lastSpace = truncated.lastIndexOf(' ');
       if (lastSpace > targetChars * 0.8) {
         truncated = truncated.substring(0, lastSpace);
       }
-      return truncated + "...";
+      return truncated + '...';
     }
 
     return text;

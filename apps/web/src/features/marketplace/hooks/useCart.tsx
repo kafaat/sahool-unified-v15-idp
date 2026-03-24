@@ -3,13 +3,13 @@
  * خطاف سلة التسوق
  */
 
-"use client";
+'use client';
 
-import * as React from "react";
-import type { Product, CartItem, Cart } from "../types";
-import { logger } from "@/lib/logger";
+import * as React from 'react';
+import type { Product, CartItem, Cart } from '../types';
+import { logger } from '@/lib/logger';
 
-const CART_STORAGE_KEY = "sahool-cart";
+const CART_STORAGE_KEY = 'sahool-cart';
 const CART_STORAGE_VERSION = 1;
 
 interface StoredCart {
@@ -44,28 +44,28 @@ function readCartFromStorage(): CartItem[] {
 
     // Validate storage version
     if (stored.version !== CART_STORAGE_VERSION) {
-      logger.warn("Cart storage version mismatch, clearing cart");
+      logger.warn('Cart storage version mismatch, clearing cart');
       localStorage.removeItem(CART_STORAGE_KEY);
       return [];
     }
 
     // Validate checksum
     if (!stored.items || !Array.isArray(stored.items)) {
-      logger.warn("Cart data invalid structure, clearing cart");
+      logger.warn('Cart data invalid structure, clearing cart');
       localStorage.removeItem(CART_STORAGE_KEY);
       return [];
     }
 
     const expectedChecksum = computeChecksum(stored.items);
     if (stored.checksum !== expectedChecksum) {
-      logger.warn("Cart data integrity check failed, clearing cart");
+      logger.warn('Cart data integrity check failed, clearing cart');
       localStorage.removeItem(CART_STORAGE_KEY);
       return [];
     }
 
     return stored.items;
   } catch (error) {
-    logger.error("Failed to load cart:", error);
+    logger.error('Failed to load cart:', error);
     localStorage.removeItem(CART_STORAGE_KEY);
     return [];
   }
@@ -83,7 +83,7 @@ function writeCartToStorage(items: CartItem[]): void {
     };
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(stored));
   } catch (error) {
-    logger.error("Failed to save cart:", error);
+    logger.error('Failed to save cart:', error);
   }
 }
 
@@ -101,10 +101,7 @@ const CartContext = React.createContext<CartContextType | null>(null);
  * Calculate cart totals
  */
 function calculateTotals(items: CartItem[]): Cart {
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0,
-  );
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const tax = subtotal * 0.15; // 15% VAT
   const shipping = subtotal > 500 ? 0 : 25; // Free shipping over 500 SAR
   const total = subtotal + tax + shipping;
@@ -115,7 +112,7 @@ function calculateTotals(items: CartItem[]): Cart {
     tax,
     shipping,
     total,
-    currency: "SAR",
+    currency: 'SAR',
   };
 }
 
@@ -140,16 +137,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = React.useCallback((product: Product, quantity = 1) => {
     setItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item.productId === product.id,
-      );
+      const existingItem = prevItems.find((item) => item.productId === product.id);
 
       if (existingItem) {
         // Update quantity of existing item
         return prevItems.map((item) =>
-          item.productId === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item,
+          item.productId === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
 
@@ -167,28 +160,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const removeItem = React.useCallback((productId: string) => {
-    setItems((prevItems) =>
-      prevItems.filter((item) => item.productId !== productId),
-    );
+    setItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
   }, []);
 
-  const updateQuantity = React.useCallback(
-    (productId: string, quantity: number) => {
-      if (quantity <= 0) {
-        setItems((prevItems) =>
-          prevItems.filter((item) => item.productId !== productId),
-        );
-        return;
-      }
+  const updateQuantity = React.useCallback((productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      setItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
+      return;
+    }
 
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.productId === productId ? { ...item, quantity } : item,
-        ),
-      );
-    },
-    [],
-  );
+    setItems((prevItems) =>
+      prevItems.map((item) => (item.productId === productId ? { ...item, quantity } : item))
+    );
+  }, []);
 
   const clearCart = React.useCallback(() => {
     setItems([]);
@@ -198,7 +182,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = React.useMemo(
     () => ({ cart, addItem, removeItem, updateQuantity, clearCart }),
-    [cart, addItem, removeItem, updateQuantity, clearCart],
+    [cart, addItem, removeItem, updateQuantity, clearCart]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
@@ -210,7 +194,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export const useCart = () => {
   const context = React.useContext(CartContext);
   if (!context) {
-    throw new Error("useCart must be used within CartProvider");
+    throw new Error('useCart must be used within CartProvider');
   }
   return context;
 };

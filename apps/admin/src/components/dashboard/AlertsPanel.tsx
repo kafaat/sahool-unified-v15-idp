@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
 // Alerts Panel Component
 // لوحة التنبيهات
 
-import React, { useState, useMemo } from "react";
-import { AlertTriangle, Bell, X, Eye, CheckCircle } from "lucide-react";
-import AlertBadge from "@/components/ui/AlertBadge";
-import { formatDate } from "@/lib/utils";
-import Link from "next/link";
+import React, { useState, useMemo } from 'react';
+import { AlertTriangle, Bell, X, Eye, CheckCircle } from 'lucide-react';
+import AlertBadge from '@/components/ui/AlertBadge';
+import { formatDate } from '@/lib/utils';
+import Link from 'next/link';
 
 export interface Alert {
   id: string;
-  type: "disease" | "weather" | "sensor" | "irrigation" | "pest" | "general";
-  severity: "low" | "medium" | "high" | "critical";
+  type: 'disease' | 'weather' | 'sensor' | 'irrigation' | 'pest' | 'general';
+  severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   titleAr: string;
   message: string;
@@ -39,16 +39,16 @@ function AlertsPanelInner({
   showFilters = true,
   onMarkAsRead,
   onDismiss,
-  className = "",
+  className = '',
 }: AlertsPanelProps) {
-  const [filter, setFilter] = useState<"all" | "critical" | "unread">("all");
+  const [filter, setFilter] = useState<'all' | 'critical' | 'unread'>('all');
 
   const filteredAlerts = useMemo(() => {
     let filtered = alerts;
 
-    if (filter === "critical") {
-      filtered = filtered.filter((a) => a.severity === "critical");
-    } else if (filter === "unread") {
+    if (filter === 'critical') {
+      filtered = filtered.filter((a) => a.severity === 'critical');
+    } else if (filter === 'unread') {
       filtered = filtered.filter((a) => !a.read);
     }
 
@@ -61,23 +61,21 @@ function AlertsPanelInner({
 
   const getAlertTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      disease: "مرض",
-      weather: "طقس",
-      sensor: "مستشعر",
-      irrigation: "ري",
-      pest: "آفة",
-      general: "عام",
+      disease: 'مرض',
+      weather: 'طقس',
+      sensor: 'مستشعر',
+      irrigation: 'ري',
+      pest: 'آفة',
+      general: 'عام',
     };
     return labels[type] || type;
   };
 
   const unreadCount = alerts.filter((a) => !a.read).length;
-  const criticalCount = alerts.filter((a) => a.severity === "critical").length;
+  const criticalCount = alerts.filter((a) => a.severity === 'critical').length;
 
   return (
-    <div
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}
-    >
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
@@ -91,43 +89,39 @@ function AlertsPanelInner({
             )}
           </div>
           {showFilters && (
-            <div
-              className="flex items-center gap-2"
-              role="group"
-              aria-label="فلترة التنبيهات"
-            >
+            <div className="flex items-center gap-2" role="group" aria-label="فلترة التنبيهات">
               <button
                 type="button"
-                onClick={() => setFilter("all")}
-                aria-pressed={filter === "all"}
+                onClick={() => setFilter('all')}
+                aria-pressed={filter === 'all'}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 ${
-                  filter === "all"
-                    ? "bg-sahool-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  filter === 'all'
+                    ? 'bg-sahool-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 الكل ({alerts.length})
               </button>
               <button
                 type="button"
-                onClick={() => setFilter("critical")}
-                aria-pressed={filter === "critical"}
+                onClick={() => setFilter('critical')}
+                aria-pressed={filter === 'critical'}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  filter === "critical"
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  filter === 'critical'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 حرجة ({criticalCount})
               </button>
               <button
                 type="button"
-                onClick={() => setFilter("unread")}
-                aria-pressed={filter === "unread"}
+                onClick={() => setFilter('unread')}
+                aria-pressed={filter === 'unread'}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  filter === "unread"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  filter === 'unread'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 غير مقروءة ({unreadCount})
@@ -150,29 +144,29 @@ function AlertsPanelInner({
             return (
               <div
                 key={alert.id}
-                className={`p-4 hover:bg-gray-50 transition-colors ${!alert.read ? "bg-blue-50/50" : ""}`}
+                className={`p-4 hover:bg-gray-50 transition-colors ${!alert.read ? 'bg-blue-50/50' : ''}`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`p-2 rounded-lg ${
-                      alert.severity === "critical"
-                        ? "bg-red-100"
-                        : alert.severity === "high"
-                          ? "bg-orange-100"
-                          : alert.severity === "medium"
-                            ? "bg-yellow-100"
-                            : "bg-blue-100"
+                      alert.severity === 'critical'
+                        ? 'bg-red-100'
+                        : alert.severity === 'high'
+                          ? 'bg-orange-100'
+                          : alert.severity === 'medium'
+                            ? 'bg-yellow-100'
+                            : 'bg-blue-100'
                     }`}
                   >
                     <Icon
                       className={`w-5 h-5 ${
-                        alert.severity === "critical"
-                          ? "text-red-600"
-                          : alert.severity === "high"
-                            ? "text-orange-600"
-                            : alert.severity === "medium"
-                              ? "text-yellow-600"
-                              : "text-blue-600"
+                        alert.severity === 'critical'
+                          ? 'text-red-600'
+                          : alert.severity === 'high'
+                            ? 'text-orange-600'
+                            : alert.severity === 'medium'
+                              ? 'text-yellow-600'
+                              : 'text-blue-600'
                       }`}
                     />
                   </div>
@@ -180,26 +174,18 @@ function AlertsPanelInner({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">
-                          {alert.titleAr}
-                        </h3>
+                        <h3 className="font-medium text-gray-900">{alert.titleAr}</h3>
                         {alert.farmName && (
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {alert.farmName}
-                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">{alert.farmName}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <AlertBadge severity={alert.severity} />
-                        {!alert.read && (
-                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                        )}
+                        {!alert.read && <span className="w-2 h-2 bg-blue-500 rounded-full"></span>}
                       </div>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-2">
-                      {alert.messageAr}
-                    </p>
+                    <p className="text-sm text-gray-600 mb-2">{alert.messageAr}</p>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -226,10 +212,7 @@ function AlertsPanelInner({
                             aria-label="وضع علامة كمقروء"
                             title="وضع علامة كمقروء"
                           >
-                            <CheckCircle
-                              className="w-3 h-3"
-                              aria-hidden="true"
-                            />
+                            <CheckCircle className="w-3 h-3" aria-hidden="true" />
                           </button>
                         )}
                         {onDismiss && (

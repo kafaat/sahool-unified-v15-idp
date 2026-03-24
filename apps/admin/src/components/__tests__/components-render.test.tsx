@@ -6,16 +6,16 @@
  * and display expected content.
  */
 
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
 // Mock logger
-vi.mock("../../lib/logger", () => ({
+vi.mock('../../lib/logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -26,103 +26,101 @@ vi.mock("../../lib/logger", () => ({
 }));
 
 // Mock Sentry (dynamically imported by ErrorBoundary)
-vi.mock("@sentry/nextjs", () => ({
-  captureException: vi.fn().mockReturnValue("mock-event-id"),
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn().mockReturnValue('mock-event-id'),
 }));
 
 // Mock theme store for ThemeToggle
-vi.mock("../../stores/theme.store", () => ({
+vi.mock('../../stores/theme.store', () => ({
   useTheme: () => ({
-    theme: "light",
-    resolvedTheme: "light",
+    theme: 'light',
+    resolvedTheme: 'light',
     setTheme: vi.fn(),
     toggleTheme: vi.fn(),
   }),
 }));
 
 // Mock lib/utils
-vi.mock("../../lib/utils", () => ({
-  cn: (...args: unknown[]) => args.filter(Boolean).join(" "),
+vi.mock('../../lib/utils', () => ({
+  cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
 }));
 
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
 
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import ThemeToggle from "../ui/ThemeToggle";
+import { ErrorBoundary } from '../common/ErrorBoundary';
+import ThemeToggle from '../ui/ThemeToggle';
 
 // ---------------------------------------------------------------------------
 // ErrorBoundary Tests
 // ---------------------------------------------------------------------------
 
-describe("Admin ErrorBoundary", () => {
-  it("renders children when no error occurs", () => {
+describe('Admin ErrorBoundary', () => {
+  it('renders children when no error occurs', () => {
     render(
       <ErrorBoundary>
         <div data-testid="child">Normal content</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
-    expect(screen.getByTestId("child")).toBeInTheDocument();
-    expect(screen.getByText("Normal content")).toBeInTheDocument();
+    expect(screen.getByTestId('child')).toBeInTheDocument();
+    expect(screen.getByText('Normal content')).toBeInTheDocument();
   });
 
-  it("renders custom fallback when provided and error occurs", () => {
+  it('renders custom fallback when provided and error occurs', () => {
     const ThrowingComponent = () => {
-      throw new Error("Test error");
+      throw new Error('Test error');
     };
 
     // Suppress React error boundary console error
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary fallback={<div>Custom fallback</div>}>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
-    expect(screen.getByText("Custom fallback")).toBeInTheDocument();
+    expect(screen.getByText('Custom fallback')).toBeInTheDocument();
     consoleSpy.mockRestore();
   });
 
-  it("renders default error UI when child component throws", () => {
+  it('renders default error UI when child component throws', () => {
     const ThrowingComponent = () => {
-      throw new Error("Something went wrong");
+      throw new Error('Something went wrong');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     // Default UI shows Arabic error heading
-    expect(screen.getByText("خطأ في لوحة التحكم")).toBeInTheDocument();
-    expect(
-      screen.getByText("حدث خطأ غير متوقع أثناء تحميل هذا المكون"),
-    ).toBeInTheDocument();
+    expect(screen.getByText('خطأ في لوحة التحكم')).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع أثناء تحميل هذا المكون')).toBeInTheDocument();
     // Retry button should be present
-    expect(screen.getByText("إعادة المحاولة")).toBeInTheDocument();
+    expect(screen.getByText('إعادة المحاولة')).toBeInTheDocument();
     // Refresh button should be present
-    expect(screen.getByText("تحديث الصفحة")).toBeInTheDocument();
+    expect(screen.getByText('تحديث الصفحة')).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
 
-  it("calls onError callback when error occurs", () => {
+  it('calls onError callback when error occurs', () => {
     const onErrorMock = vi.fn();
     const ThrowingComponent = () => {
-      throw new Error("Callback test");
+      throw new Error('Callback test');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary onError={onErrorMock}>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(onErrorMock).toHaveBeenCalledTimes(1);
@@ -130,27 +128,27 @@ describe("Admin ErrorBoundary", () => {
       expect.any(Error),
       expect.objectContaining({
         componentStack: expect.any(String),
-      }),
+      })
     );
 
     consoleSpy.mockRestore();
   });
 
-  it("displays error message in the error detail box", () => {
+  it('displays error message in the error detail box', () => {
     const ThrowingComponent = () => {
-      throw new Error("Specific error message");
+      throw new Error('Specific error message');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
-    expect(screen.getByText("رسالة الخطأ:")).toBeInTheDocument();
-    expect(screen.getByText("Specific error message")).toBeInTheDocument();
+    expect(screen.getByText('رسالة الخطأ:')).toBeInTheDocument();
+    expect(screen.getByText('Specific error message')).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -160,28 +158,28 @@ describe("Admin ErrorBoundary", () => {
 // ThemeToggle Tests
 // ---------------------------------------------------------------------------
 
-describe("Admin ThemeToggle", () => {
-  it("renders icon variant without crashing", () => {
+describe('Admin ThemeToggle', () => {
+  it('renders icon variant without crashing', () => {
     render(<ThemeToggle />);
     // Default variant is "icon", should render a button with aria-label
-    const button = screen.getByRole("button", {
+    const button = screen.getByRole('button', {
       name: /تبديل للوضع الداكن/i,
     });
     expect(button).toBeInTheDocument();
   });
 
-  it("renders button variant with text", () => {
+  it('renders button variant with text', () => {
     render(<ThemeToggle variant="button" />);
-    const button = screen.getByRole("button", {
+    const button = screen.getByRole('button', {
       name: /تبديل للوضع الداكن/i,
     });
     expect(button).toBeInTheDocument();
-    expect(screen.getByText("الوضع الداكن")).toBeInTheDocument();
+    expect(screen.getByText('الوضع الداكن')).toBeInTheDocument();
   });
 
-  it("renders dropdown variant", () => {
+  it('renders dropdown variant', () => {
     render(<ThemeToggle variant="dropdown" />);
-    const button = screen.getByRole("button", { name: /اختيار السمة/i });
+    const button = screen.getByRole('button', { name: /اختيار السمة/i });
     expect(button).toBeInTheDocument();
   });
 });

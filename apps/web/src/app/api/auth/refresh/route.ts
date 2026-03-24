@@ -10,76 +10,63 @@
  *       → sets new httpOnly access_token cookie → returns success/failure
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { logger } from "@/lib/logger";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { logger } from '@/lib/logger';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export async function POST(_request: NextRequest) {
   try {
     if (!API_BASE_URL) {
-      logger.error("[Auth Refresh API] NEXT_PUBLIC_API_URL is not configured");
+      logger.error('[Auth Refresh API] NEXT_PUBLIC_API_URL is not configured');
       return NextResponse.json(
-        { success: false, error: "Server configuration error" },
-        { status: 500 },
+        { success: false, error: 'Server configuration error' },
+        { status: 500 }
       );
     }
 
     const cookieStore = await cookies();
-    const refreshToken = cookieStore.get("refresh_token")?.value;
+    const refreshToken = cookieStore.get('refresh_token')?.value;
 
     if (!refreshToken) {
-      return NextResponse.json(
-        { success: false, error: "No refresh token" },
-        { status: 401 },
-      );
+      return NextResponse.json({ success: false, error: 'No refresh token' }, { status: 401 });
     }
 
     // Forward refresh request to the backend
-    const backendResponse = await fetch(
-      `${API_BASE_URL}/api/v1/auth/refresh`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      },
-    );
+    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
 
     if (!backendResponse.ok) {
       // Refresh failed — clear cookies
-      cookieStore.delete("access_token");
-      cookieStore.delete("refresh_token");
-      return NextResponse.json(
-        { success: false, error: "Token refresh failed" },
-        { status: 401 },
-      );
+      cookieStore.delete('access_token');
+      cookieStore.delete('refresh_token');
+      return NextResponse.json({ success: false, error: 'Token refresh failed' }, { status: 401 });
     }
 
     const data = await backendResponse.json();
-    const newAccessToken =
-      data?.access_token ?? data?.data?.access_token ?? null;
+    const newAccessToken = data?.access_token ?? data?.data?.access_token ?? null;
 
     if (!newAccessToken) {
       return NextResponse.json(
-        { success: false, error: "No access token in refresh response" },
-        { status: 401 },
+        { success: false, error: 'No access token in refresh response' },
+        { status: 401 }
       );
     }
 
     // Parse env var for cookie maxAge
-    const maxAge = parseInt(
-      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
-      10,
-    );
+    const maxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);
 
     // Set new httpOnly access_token cookie
-    cookieStore.set("access_token", newAccessToken, {
+    cookieStore.set('access_token', newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: Number.isFinite(maxAge) && maxAge > 0 ? maxAge : 1800,
-      path: "/",
+      path: '/',
     });
 
     return NextResponse.json({
@@ -87,10 +74,7 @@ export async function POST(_request: NextRequest) {
       access_token: newAccessToken,
     });
   } catch (error) {
-    logger.error("[Auth Refresh API] Error refreshing token:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error('[Auth Refresh API] Error refreshing token:', error);
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

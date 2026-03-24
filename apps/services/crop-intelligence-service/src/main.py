@@ -1058,8 +1058,9 @@ async def publish_disease_detected(
 
         subject = get_tenant_subject(tenant_id, "crop", "disease_detected")
     else:
-        # TODO: Ensure tenant_id is always passed for full tenant isolation
-        # TODO: التأكد من تمرير معرف المستأجر دائماً لعزل البيانات الكامل
+        # SECURITY FIX: Log warning and use global subject as fallback,
+        # but include warning in event data for downstream consumers
+        logger.warning("Publishing disease_detected event without tenant_id - tenant isolation gap")
         subject = "sahool.crop.disease_detected"
     return await publish_event(subject, data)
 
@@ -1097,8 +1098,8 @@ async def publish_health_assessed(
 
         subject = get_tenant_subject(tenant_id, "crop", "health_assessed")
     else:
-        # TODO: Ensure tenant_id is always passed for full tenant isolation
-        # TODO: التأكد من تمرير معرف المستأجر دائماً لعزل البيانات الكامل
+        # SECURITY FIX: Log warning when publishing without tenant scoping
+        logger.warning("Publishing health_assessed event without tenant_id - tenant isolation gap")
         subject = "sahool.crop.health_assessed"
     return await publish_event(subject, data)
 

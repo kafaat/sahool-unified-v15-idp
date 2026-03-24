@@ -3,25 +3,22 @@
  * خطافات React لمجموعات المجتمع
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Group, GroupFilters, ExpertQuestion } from "../types";
-import { communityApi } from "../api";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Group, GroupFilters, ExpertQuestion } from '../types';
+import { communityApi } from '../api';
 
 // Query Keys
 const GROUPS_KEYS = {
-  all: ["groups"] as const,
-  list: (filters?: GroupFilters) =>
-    [...GROUPS_KEYS.all, "list", filters] as const,
-  group: (id: string) => [...GROUPS_KEYS.all, "group", id] as const,
-  members: (groupId: string) =>
-    [...GROUPS_KEYS.all, "members", groupId] as const,
-  messages: (groupId: string) =>
-    [...GROUPS_KEYS.all, "messages", groupId] as const,
-  myGroups: () => [...GROUPS_KEYS.all, "my-groups"] as const,
-  experts: () => [...GROUPS_KEYS.all, "experts"] as const,
-  expertQuestions: () => [...GROUPS_KEYS.all, "expert-questions"] as const,
+  all: ['groups'] as const,
+  list: (filters?: GroupFilters) => [...GROUPS_KEYS.all, 'list', filters] as const,
+  group: (id: string) => [...GROUPS_KEYS.all, 'group', id] as const,
+  members: (groupId: string) => [...GROUPS_KEYS.all, 'members', groupId] as const,
+  messages: (groupId: string) => [...GROUPS_KEYS.all, 'messages', groupId] as const,
+  myGroups: () => [...GROUPS_KEYS.all, 'my-groups'] as const,
+  experts: () => [...GROUPS_KEYS.all, 'experts'] as const,
+  expertQuestions: () => [...GROUPS_KEYS.all, 'expert-questions'] as const,
 };
 
 /**
@@ -138,7 +135,7 @@ export function useSendMessage() {
     }: {
       groupId: string;
       content: string;
-      type?: "text" | "image" | "file" | "voice";
+      type?: 'text' | 'image' | 'file' | 'voice';
     }) => communityApi.sendMessage(groupId, content, type),
     onSuccess: (_, { groupId }) => {
       queryClient.invalidateQueries({
@@ -193,13 +190,8 @@ export function useRateExpertAnswer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      questionId,
-      helpful,
-    }: {
-      questionId: string;
-      helpful: boolean;
-    }) => communityApi.rateExpertAnswer(questionId, helpful),
+    mutationFn: ({ questionId, helpful }: { questionId: string; helpful: boolean }) =>
+      communityApi.rateExpertAnswer(questionId, helpful),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: GROUPS_KEYS.expertQuestions(),

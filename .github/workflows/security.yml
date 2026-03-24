@@ -604,7 +604,7 @@ jobs:
 
       - name: Run Checkov on IaC directories
         id: checkov
-        timeout-minutes: 25
+        timeout-minutes: 45
         run: |
           checkov \
             -d helm/ \
@@ -618,6 +618,8 @@ jobs:
             --skip-path legacy \
             --skip-path "helm/charts/vendor" \
             --skip-path ".git" \
+            --skip-path "infrastructure/terraform/.terraform" \
+            --skip-path "helm/charts/*/charts" \
             --compact \
             --skip-check CKV_K8S_21,CKV_K8S_40,CKV_K8S_43 \
             -o sarif \

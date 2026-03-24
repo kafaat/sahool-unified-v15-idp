@@ -131,7 +131,7 @@ jobs:
 
       # - name: Upload pre-deployment evaluation report
       #   if: always()
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: pre-deploy-evaluation-${{ github.sha }}
       #     path: pre-deploy-evaluation.json
@@ -580,7 +580,7 @@ jobs:
 
       # - name: Upload post-deployment evaluation report
       #   if: always()
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: post-deploy-evaluation-${{ github.sha }}
       #     path: post-deploy-evaluation.json

@@ -54,7 +54,10 @@
     "fix:frontend": "node scripts/diagnose-frontend.js --fix",
     "fix:web": "node scripts/diagnose-frontend.js --web --fix",
     "fix:mobile": "node scripts/diagnose-frontend.js --mobile --fix",
-    "dead-code": "npx knip"
+    "dead-code": "npx knip",
+    "format": "prettier --write \"apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}\"",
+    "format:check": "prettier --check \"apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

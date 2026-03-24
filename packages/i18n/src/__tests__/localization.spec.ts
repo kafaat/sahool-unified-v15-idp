@@ -16,8 +16,13 @@ interface TranslationNamespace {
 }
 
 // Type guard to check if value is a TranslationNamespace (not a TranslationEntry)
-function isTranslationNamespace(value: TranslationEntry | TranslationNamespace): value is TranslationNamespace {
-  return typeof value === 'object' && !('en' in value && 'ar' in value && Object.keys(value).length === 2);
+function isTranslationNamespace(
+  value: TranslationEntry | TranslationNamespace
+): value is TranslationNamespace {
+  return (
+    typeof value === 'object' &&
+    !('en' in value && 'ar' in value && Object.keys(value).length === 2)
+  );
 }
 
 class I18nManager {
@@ -390,7 +395,11 @@ describe('Arabic Text Validation', () => {
 
   it('should verify Arabic translations contain Arabic characters', () => {
     expect(containsArabic((commonTranslations.greeting as TranslationEntry).ar)).toBe(true);
-    expect(containsArabic(((commonTranslations.field as TranslationNamespace).name as TranslationEntry).ar)).toBe(true);
+    expect(
+      containsArabic(
+        ((commonTranslations.field as TranslationNamespace).name as TranslationEntry).ar
+      )
+    ).toBe(true);
   });
 
   it('should verify English translations do not contain Arabic', () => {

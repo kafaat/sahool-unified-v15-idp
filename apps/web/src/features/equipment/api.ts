@@ -3,15 +3,15 @@
  * طبقة API لميزة المعدات
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { EQUIPMENT_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+import { createApiClient, logger } from '@/lib/api/factory';
+import { EQUIPMENT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   Equipment,
   EquipmentFilters,
   EquipmentFormData,
   MaintenanceRecord,
   MaintenanceFormData,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -19,37 +19,33 @@ const api = createApiClient();
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch equipment data. Using cached data.",
-    ar: "فشل في جلب بيانات المعدات. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch equipment data. Using cached data.',
+    ar: 'فشل في جلب بيانات المعدات. استخدام البيانات المخزنة.',
   },
   CREATE_FAILED: {
-    en: "Failed to create equipment.",
-    ar: "فشل في إنشاء المعدات.",
+    en: 'Failed to create equipment.',
+    ar: 'فشل في إنشاء المعدات.',
   },
   UPDATE_FAILED: {
-    en: "Failed to update equipment.",
-    ar: "فشل في تحديث المعدات.",
+    en: 'Failed to update equipment.',
+    ar: 'فشل في تحديث المعدات.',
   },
   DELETE_FAILED: {
-    en: "Failed to delete equipment.",
-    ar: "فشل في حذف المعدات.",
+    en: 'Failed to delete equipment.',
+    ar: 'فشل في حذف المعدات.',
   },
   MAINTENANCE_FAILED: {
-    en: "Failed to fetch maintenance records.",
-    ar: "فشل في جلب سجلات الصيانة.",
+    en: 'Failed to fetch maintenance records.',
+    ar: 'فشل في جلب سجلات الصيانة.',
   },
 };
 
 // Mock data for fallback (extracted to separate file for bundle optimization)
-import {
-  MOCK_EQUIPMENT,
-  MOCK_MAINTENANCE_RECORDS,
-  MOCK_STATS,
-} from "./api.mock";
+import { MOCK_EQUIPMENT, MOCK_MAINTENANCE_RECORDS, MOCK_STATS } from './api.mock';
 
 // API Functions
 export const equipmentApi = {
@@ -60,10 +56,10 @@ export const equipmentApi = {
   getEquipment: async (filters?: EquipmentFilters): Promise<Equipment[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.type) params.set("type", filters.type);
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.fieldId) params.set("field_id", filters.fieldId);
-      if (filters?.search) params.set("search", filters.search);
+      if (filters?.type) params.set('type', filters.type);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.fieldId) params.set('field_id', filters.fieldId);
+      if (filters?.search) params.set('search', filters.search);
 
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
@@ -72,13 +68,10 @@ export const equipmentApi = {
         return data;
       }
 
-      logger.warn("API returned unexpected format, using mock data");
+      logger.warn('API returned unexpected format, using mock data');
       return MOCK_EQUIPMENT;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch equipment from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch equipment from API, using mock data:', error);
       return MOCK_EQUIPMENT;
     }
   },
@@ -93,10 +86,7 @@ export const equipmentApi = {
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
-      logger.warn(
-        `Failed to fetch equipment ${id} from API, using mock data:`,
-        error,
-      );
+      logger.warn(`Failed to fetch equipment ${id} from API, using mock data:`, error);
       const mockEquipment = MOCK_EQUIPMENT.find((eq) => eq.id === id);
       if (mockEquipment) {
         return mockEquipment;
@@ -114,7 +104,7 @@ export const equipmentApi = {
       const response = await api.post(EQUIPMENT_ENDPOINTS.LIST, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create equipment:", error);
+      logger.error('Failed to create equipment:', error);
       throw error;
     }
   },
@@ -123,10 +113,7 @@ export const equipmentApi = {
    * Update equipment
    * تحديث المعدات
    */
-  updateEquipment: async (
-    id: string,
-    data: Partial<EquipmentFormData>,
-  ): Promise<Equipment> => {
+  updateEquipment: async (id: string, data: Partial<EquipmentFormData>): Promise<Equipment> => {
     try {
       const response = await api.put(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), data);
       return response.data.data || response.data;
@@ -155,12 +142,12 @@ export const equipmentApi = {
    */
   updateLocation: async (
     id: string,
-    location: { latitude: number; longitude: number; fieldId?: string },
+    location: { latitude: number; longitude: number; fieldId?: string }
   ): Promise<Equipment> => {
     try {
       const response = await api.patch(
         `${buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id })}/location`,
-        location,
+        location
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -173,11 +160,9 @@ export const equipmentApi = {
    * Get maintenance records for equipment
    * جلب سجلات الصيانة للمعدات
    */
-  getMaintenanceRecords: async (
-    equipmentId?: string,
-  ): Promise<MaintenanceRecord[]> => {
+  getMaintenanceRecords: async (equipmentId?: string): Promise<MaintenanceRecord[]> => {
     try {
-      const params = equipmentId ? `?equipment_id=${equipmentId}` : "";
+      const params = equipmentId ? `?equipment_id=${equipmentId}` : '';
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}${params}`);
       const data = response.data.data || response.data;
 
@@ -185,17 +170,12 @@ export const equipmentApi = {
         return data;
       }
 
-      logger.warn(
-        "API returned unexpected format for maintenance, using mock data",
-      );
+      logger.warn('API returned unexpected format for maintenance, using mock data');
       return equipmentId
         ? MOCK_MAINTENANCE_RECORDS.filter((m) => m.equipmentId === equipmentId)
         : MOCK_MAINTENANCE_RECORDS;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch maintenance records from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch maintenance records from API, using mock data:', error);
       return equipmentId
         ? MOCK_MAINTENANCE_RECORDS.filter((m) => m.equipmentId === equipmentId)
         : MOCK_MAINTENANCE_RECORDS;
@@ -212,10 +192,7 @@ export const equipmentApi = {
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
-      logger.warn(
-        `Failed to fetch maintenance record ${id} from API, using mock data:`,
-        error,
-      );
+      logger.warn(`Failed to fetch maintenance record ${id} from API, using mock data:`, error);
       const mockRecord = MOCK_MAINTENANCE_RECORDS.find((m) => m.id === id);
       if (mockRecord) {
         return mockRecord;
@@ -228,14 +205,12 @@ export const equipmentApi = {
    * Create maintenance record
    * إنشاء سجل صيانة
    */
-  createMaintenance: async (
-    data: MaintenanceFormData,
-  ): Promise<MaintenanceRecord> => {
+  createMaintenance: async (data: MaintenanceFormData): Promise<MaintenanceRecord> => {
     try {
       const response = await api.post(EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create maintenance record:", error);
+      logger.error('Failed to create maintenance record:', error);
       throw error;
     }
   },
@@ -246,13 +221,10 @@ export const equipmentApi = {
    */
   updateMaintenance: async (
     id: string,
-    data: Partial<MaintenanceFormData>,
+    data: Partial<MaintenanceFormData>
   ): Promise<MaintenanceRecord> => {
     try {
-      const response = await api.put(
-        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`,
-        data,
-      );
+      const response = await api.put(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update maintenance record ${id}:`, error);
@@ -277,15 +249,11 @@ export const equipmentApi = {
    * Complete maintenance
    * إكمال الصيانة
    */
-  completeMaintenance: async (
-    id: string,
-    notes?: string,
-  ): Promise<MaintenanceRecord> => {
+  completeMaintenance: async (id: string, notes?: string): Promise<MaintenanceRecord> => {
     try {
-      const response = await api.post(
-        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`,
-        { notes },
-      );
+      const response = await api.post(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`, {
+        notes,
+      });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to complete maintenance ${id}:`, error);
@@ -308,10 +276,7 @@ export const equipmentApi = {
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch equipment stats from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch equipment stats from API, using mock data:', error);
       return MOCK_STATS;
     }
   },

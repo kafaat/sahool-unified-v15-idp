@@ -3,26 +3,26 @@
  * خطافات React لميزة الامتثال والجودة
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { complianceApi } from "../api";
-import type { ComplianceFilters, ComplianceItem, AuditReport } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { complianceApi } from '../api';
+import type { ComplianceFilters, ComplianceItem, AuditReport } from '../types';
 
 export const complianceKeys = {
-  all: ["compliance"] as const,
-  lists: () => [...complianceKeys.all, "list"] as const,
+  all: ['compliance'] as const,
+  lists: () => [...complianceKeys.all, 'list'] as const,
   list: (filters?: ComplianceFilters) => [...complianceKeys.lists(), filters] as const,
-  detail: (id: string) => [...complianceKeys.all, "detail", id] as const,
-  stats: () => [...complianceKeys.all, "stats"] as const,
+  detail: (id: string) => [...complianceKeys.all, 'detail', id] as const,
+  stats: () => [...complianceKeys.all, 'stats'] as const,
   certifications: {
-    all: ["certifications"] as const,
-    lists: () => [...complianceKeys.certifications.all, "list"] as const,
-    detail: (id: string) => [...complianceKeys.certifications.all, "detail", id] as const,
+    all: ['certifications'] as const,
+    lists: () => [...complianceKeys.certifications.all, 'list'] as const,
+    detail: (id: string) => [...complianceKeys.certifications.all, 'detail', id] as const,
   },
   audits: {
-    all: ["audits"] as const,
-    lists: () => [...complianceKeys.audits.all, "list"] as const,
+    all: ['audits'] as const,
+    lists: () => [...complianceKeys.audits.all, 'list'] as const,
   },
 };
 

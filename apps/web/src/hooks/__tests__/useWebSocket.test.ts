@@ -6,9 +6,9 @@
  * and message buffering for the useWebSocket hook.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useWebSocket } from "../useWebSocket";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useWebSocket } from '../useWebSocket';
 
 // Mock WebSocket
 class MockWebSocket {
@@ -19,7 +19,7 @@ class MockWebSocket {
 
   readyState = MockWebSocket.CONNECTING;
   url: string;
-  protocol: string = "";
+  protocol: string = '';
   protocols: string | string[] | undefined;
   onopen: ((ev: Event) => void) | null = null;
   onclose: ((ev: CloseEvent) => void) | null = null;
@@ -39,7 +39,7 @@ class MockWebSocket {
 
   simulateOpen() {
     this.readyState = MockWebSocket.OPEN;
-    this.onopen?.(new Event("open"));
+    this.onopen?.(new Event('open'));
   }
 
   simulateClose(code = 1000) {
@@ -48,18 +48,16 @@ class MockWebSocket {
   }
 
   simulateError() {
-    this.onerror?.(new Event("error"));
+    this.onerror?.(new Event('error'));
   }
 
   simulateMessage(data: unknown) {
-    this.onmessage?.(
-      new MessageEvent("message", { data: JSON.stringify(data) }),
-    );
+    this.onmessage?.(new MessageEvent('message', { data: JSON.stringify(data) }));
   }
 }
 
 // Mock logger
-vi.mock("../../lib/logger", () => ({
+vi.mock('../../lib/logger', () => ({
   logger: {
     log: vi.fn(),
     warn: vi.fn(),
@@ -69,14 +67,14 @@ vi.mock("../../lib/logger", () => ({
 
 const OriginalWebSocket = global.WebSocket;
 
-describe("useWebSocket", () => {
+describe('useWebSocket', () => {
   let wsInstances: MockWebSocket[];
 
   beforeEach(() => {
     wsInstances = [];
     vi.useFakeTimers({
       shouldAdvanceTime: true,
-      toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"],
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'],
     });
 
     // @ts-expect-error - MockWebSocket is test-only
@@ -94,7 +92,7 @@ describe("useWebSocket", () => {
     });
 
     // Mock document.hidden for tab visibility
-    Object.defineProperty(document, "hidden", {
+    Object.defineProperty(document, 'hidden', {
       configurable: true,
       get: () => false,
     });
@@ -106,27 +104,21 @@ describe("useWebSocket", () => {
     vi.resetAllMocks();
   });
 
-  describe("Connection", () => {
-    it("should connect when enabled", () => {
-      renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081", enabled: true }),
-      );
+  describe('Connection', () => {
+    it('should connect when enabled', () => {
+      renderHook(() => useWebSocket({ url: 'ws://localhost:8081', enabled: true }));
 
       expect(wsInstances.length).toBe(1);
     });
 
-    it("should not connect when disabled", () => {
-      renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081", enabled: false }),
-      );
+    it('should not connect when disabled', () => {
+      renderHook(() => useWebSocket({ url: 'ws://localhost:8081', enabled: false }));
 
       expect(wsInstances.length).toBe(0);
     });
 
-    it("should set isConnected to true on open", () => {
-      const { result } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081" }),
-      );
+    it('should set isConnected to true on open', () => {
+      const { result } = renderHook(() => useWebSocket({ url: 'ws://localhost:8081' }));
 
       expect(result.current.isConnected).toBe(false);
 
@@ -138,32 +130,32 @@ describe("useWebSocket", () => {
     });
   });
 
-  describe("Authentication", () => {
-    it("should pass token via query parameter", () => {
+  describe('Authentication', () => {
+    it('should pass token via query parameter', () => {
       renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
-          token: "my-jwt-token",
-        }),
+          url: 'ws://localhost:8081',
+          token: 'my-jwt-token',
+        })
       );
 
-      expect(wsInstances[0]?.url).toContain("token=my-jwt-token");
+      expect(wsInstances[0]?.url).toContain('token=my-jwt-token');
     });
 
-    it("should not include token param when token is null", () => {
+    it('should not include token param when token is null', () => {
       renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
+          url: 'ws://localhost:8081',
           token: null,
-        }),
+        })
       );
 
-      expect(wsInstances[0]?.url).not.toContain("token=");
+      expect(wsInstances[0]?.url).not.toContain('token=');
     });
 
-    it("should set error on auth failure close (code 4001)", () => {
+    it('should set error on auth failure close (code 4001)', () => {
       const { result } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081", token: "bad-token" }),
+        useWebSocket({ url: 'ws://localhost:8081', token: 'bad-token' })
       );
 
       act(() => {
@@ -174,17 +166,17 @@ describe("useWebSocket", () => {
         wsInstances[0]?.simulateClose(4001);
       });
 
-      expect(result.current.error).toBe("Authentication failed");
+      expect(result.current.error).toBe('Authentication failed');
       expect(result.current.isConnected).toBe(false);
     });
 
-    it("should not auto-reconnect on auth failure", async () => {
+    it('should not auto-reconnect on auth failure', async () => {
       renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
-          token: "expired-token",
+          url: 'ws://localhost:8081',
+          token: 'expired-token',
           reconnectInterval: 1000,
-        }),
+        })
       );
 
       act(() => {
@@ -203,28 +195,26 @@ describe("useWebSocket", () => {
     });
   });
 
-  describe("Error Handling", () => {
-    it("should set error state on WebSocket error", () => {
-      const { result } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081" }),
-      );
+  describe('Error Handling', () => {
+    it('should set error state on WebSocket error', () => {
+      const { result } = renderHook(() => useWebSocket({ url: 'ws://localhost:8081' }));
 
       act(() => {
         wsInstances[0]?.simulateError();
       });
 
-      expect(result.current.error).toBe("Connection unavailable");
+      expect(result.current.error).toBe('Connection unavailable');
     });
   });
 
-  describe("Message Handling", () => {
-    it("should call onMessage for incoming messages", () => {
+  describe('Message Handling', () => {
+    it('should call onMessage for incoming messages', () => {
       const onMessage = vi.fn();
       renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
+          url: 'ws://localhost:8081',
           onMessage,
-        }),
+        })
       );
 
       act(() => {
@@ -233,23 +223,21 @@ describe("useWebSocket", () => {
 
       act(() => {
         wsInstances[0]?.simulateMessage({
-          type: "event",
-          data: { event_id: "1" },
+          type: 'event',
+          data: { event_id: '1' },
         });
       });
 
-      expect(onMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "event" }),
-      );
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ type: 'event' }));
     });
 
-    it("should handle pong messages without calling onMessage", () => {
+    it('should handle pong messages without calling onMessage', () => {
       const onMessage = vi.fn();
       renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
+          url: 'ws://localhost:8081',
           onMessage,
-        }),
+        })
       );
 
       act(() => {
@@ -257,38 +245,32 @@ describe("useWebSocket", () => {
       });
 
       act(() => {
-        wsInstances[0]?.simulateMessage({ type: "pong" });
+        wsInstances[0]?.simulateMessage({ type: 'pong' });
       });
 
       expect(onMessage).not.toHaveBeenCalled();
     });
   });
 
-  describe("Send and Buffer", () => {
-    it("should send message when connected", () => {
-      const { result } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081" }),
-      );
+  describe('Send and Buffer', () => {
+    it('should send message when connected', () => {
+      const { result } = renderHook(() => useWebSocket({ url: 'ws://localhost:8081' }));
 
       act(() => {
         wsInstances[0]?.simulateOpen();
       });
 
       act(() => {
-        result.current.send({ type: "test" });
+        result.current.send({ type: 'test' });
       });
 
-      expect(wsInstances[0]?.send).toHaveBeenCalledWith(
-        JSON.stringify({ type: "test" }),
-      );
+      expect(wsInstances[0]?.send).toHaveBeenCalledWith(JSON.stringify({ type: 'test' }));
     });
   });
 
-  describe("Disconnect", () => {
-    it("should close WebSocket on disconnect", () => {
-      const { result } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081" }),
-      );
+  describe('Disconnect', () => {
+    it('should close WebSocket on disconnect', () => {
+      const { result } = renderHook(() => useWebSocket({ url: 'ws://localhost:8081' }));
 
       act(() => {
         wsInstances[0]?.simulateOpen();
@@ -301,12 +283,12 @@ describe("useWebSocket", () => {
       expect(wsInstances[0]?.close).toHaveBeenCalled();
     });
 
-    it("should not reconnect after manual disconnect", async () => {
+    it('should not reconnect after manual disconnect', async () => {
       const { result } = renderHook(() =>
         useWebSocket({
-          url: "ws://localhost:8081",
+          url: 'ws://localhost:8081',
           reconnectInterval: 1000,
-        }),
+        })
       );
 
       act(() => {
@@ -324,11 +306,9 @@ describe("useWebSocket", () => {
     });
   });
 
-  describe("Cleanup", () => {
-    it("should close WebSocket on unmount", () => {
-      const { unmount } = renderHook(() =>
-        useWebSocket({ url: "ws://localhost:8081" }),
-      );
+  describe('Cleanup', () => {
+    it('should close WebSocket on unmount', () => {
+      const { unmount } = renderHook(() => useWebSocket({ url: 'ws://localhost:8081' }));
 
       act(() => {
         wsInstances[0]?.simulateOpen();

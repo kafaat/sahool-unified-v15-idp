@@ -75,7 +75,7 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
             polygons: [
               Polygon(
                 points: points,
-                color: widget.polygonColor.withOpacity(0.3),
+                color: widget.polygonColor.withValues(alpha: 0.3),
                 borderColor: widget.polygonColor,
                 borderStrokeWidth: 3,
               ),
@@ -149,7 +149,7 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                       color: (isSelected
                               ? widget.selectedVertexColor
                               : widget.polygonColor)
-                          .withOpacity(0.4),
+                          .withValues(alpha: 0.4),
                       blurRadius: isSelected ? 12 : 6,
                       spreadRadius: isSelected ? 2 : 0,
                     ),
@@ -219,10 +219,10 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
           onTap: () => widget.editorState.insertPoint(j, midpoint),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               shape: BoxShape.circle,
               border: Border.all(
-                color: widget.polygonColor.withOpacity(0.5),
+                color: widget.polygonColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -372,7 +372,7 @@ class PolygonEditorToolbar extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: SahoolColors.success.withOpacity(0.1),
+                    color: SahoolColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -494,7 +494,7 @@ class _ToolbarButton extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color:
-                    isEnabled ? buttonColor.withOpacity(0.1) : Colors.grey[200],
+                    isEnabled ? buttonColor.withValues(alpha: 0.1) : Colors.grey[200],
                 shape: BoxShape.circle,
               ),
               child: Icon(

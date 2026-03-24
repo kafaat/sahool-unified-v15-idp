@@ -287,10 +287,11 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
         )
 
     if requested_tenant_id:
-        # Admin users can access any tenant
-        if "admin" in (user.roles or []):
+        # Only super_admin can access cross-tenant resources
+        # يمكن فقط للمسؤول الأعلى الوصول إلى موارد المستأجرين الآخرين
+        if "super_admin" in (user.roles or []):
             return requested_tenant_id
-        # Non-admin users must match their own tenant
+        # Non-super_admin users must match their own tenant
         if user_tenant and user_tenant != requested_tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

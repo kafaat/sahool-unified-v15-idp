@@ -1,8 +1,8 @@
-[tool.aerich]
-tortoise_orm = "apps.services.notification_service.src.database.TORTOISE_ORM"
-location = "./migrations"
-src_folder = "./."
-
-[tool.aerich.models]
-models = "models"
-default_connection = "default"
+# Tortoise ORM built-in migration configuration
+# Replaces the previous [tool.aerich] section (aerich is incompatible with tortoise-orm>=1.0.0)
+#
+# Usage (from the notification-service directory):
+#   python -m tortoise makemigrations --name "description"
+#   python -m tortoise migrate
+[tool.tortoise]
+config = "src.database.TORTOISE_ORM_LOCAL"

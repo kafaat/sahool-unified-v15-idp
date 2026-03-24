@@ -117,7 +117,7 @@ class FieldDashboard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: SahoolColors.warning.withOpacity(0.2),
+              color: SahoolColors.warning.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(greetingIcon, color: Colors.orange[700], size: 28),
@@ -148,7 +148,7 @@ class FieldDashboard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: SahoolColors.success.withOpacity(0.1),
+              color: SahoolColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -201,7 +201,7 @@ class FieldDashboard extends StatelessWidget {
                     Text(
                       'صحة المحصول',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.8), fontSize: 14),
+                          color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
                     ),
                   ],
                 ),
@@ -219,7 +219,7 @@ class FieldDashboard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
@@ -242,7 +242,7 @@ class FieldDashboard extends StatelessWidget {
                 Text(
                   'آخر تحديث: منذ ساعتين',
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.6), fontSize: 12),
+                      color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
                 ),
               ],
             ),
@@ -259,7 +259,7 @@ class FieldDashboard extends StatelessWidget {
                   width: 100,
                   child: CircularProgressIndicator(
                     value: 0.78,
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     valueColor: const AlwaysStoppedAnimation(Colors.white),
                     strokeWidth: 10,
                   ),
@@ -358,7 +358,7 @@ class FieldDashboard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -367,7 +367,7 @@ class FieldDashboard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: SahoolColors.warning.withOpacity(0.2),
+                    color: SahoolColors.warning.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -382,8 +382,8 @@ class FieldDashboard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: trend > 0
-                        ? SahoolColors.success.withOpacity(0.1)
-                        : SahoolColors.danger.withOpacity(0.1),
+                        ? SahoolColors.success.withValues(alpha: 0.1)
+                        : SahoolColors.danger.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -508,7 +508,7 @@ class FieldDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: SahoolRadius.mediumRadius,
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: SahoolShadows.small,
       ),
       child: Row(
@@ -516,7 +516,7 @@ class FieldDashboard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 24),
@@ -572,7 +572,7 @@ class FieldDashboard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color:
-            completed ? SahoolColors.success.withOpacity(0.05) : Colors.white,
+            completed ? SahoolColors.success.withValues(alpha: 0.05) : Colors.white,
         borderRadius: SahoolRadius.mediumRadius,
         boxShadow: SahoolShadows.small,
       ),

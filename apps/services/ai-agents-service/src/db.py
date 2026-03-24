@@ -157,23 +157,25 @@ async def create_execution(
 
 
 async def get_execution(execution_id: str, tenant_id: str | None = None) -> dict[str, Any] | None:
-    """Get an execution by ID, scoped to tenant for isolation."""
+    """Get an execution by ID, scoped to tenant for isolation.
+    الحصول على تنفيذ بواسطة المعرف، مع عزل المستأجر.
+    """
     if not _pool:
+        return None
+
+    # Tenant isolation: tenant_id is required to prevent cross-tenant data access
+    # عزل المستأجر: معرف المستأجر مطلوب لمنع الوصول عبر المستأجرين
+    if not tenant_id:
+        print("⚠️ get_execution called without tenant_id - denied for tenant isolation")
         return None
 
     try:
         async with _pool.acquire() as conn:
-            if tenant_id:
-                row = await conn.fetchrow(
-                    "SELECT * FROM agent_executions WHERE id = $1 AND tenant_id = $2",
-                    UUID(execution_id),
-                    tenant_id,
-                )
-            else:
-                row = await conn.fetchrow(
-                    "SELECT * FROM agent_executions WHERE id = $1",
-                    UUID(execution_id),
-                )
+            row = await conn.fetchrow(
+                "SELECT * FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                UUID(execution_id),
+                tenant_id,
+            )
             return _row_to_dict(row) if row else None
     except Exception as e:
         print(f"⚠️ Failed to get execution: {e}")

@@ -1,0 +1,450 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'pii_filter.dart';
+
+/// SAHOOL App Logger - Structured Logging System with PII Protection
+/// نظام تسجيل مهيكل للتطبيق مع حماية البيانات الشخصية
+///
+/// Features:
+/// - Automatic PII filtering for sensitive data
+/// - Structured logging with levels
+/// - Log buffering for crash reports
+/// - Environment-based configuration
+/// - Performance tracking
+///
+/// Usage:
+/// ```dart
+/// AppLogger.d('Debug message');
+/// AppLogger.i('Info message');
+/// AppLogger.w('Warning message');
+/// AppLogger.e('Error message', error: exception, stackTrace: stack);
+/// ```
+
+enum LogLevel { debug, info, warning, error, critical }
+
+class AppLogger {
+  static bool _enabled = true;
+  static LogLevel _minLevel = kDebugMode ? LogLevel.debug : LogLevel.info;
+  static final List<LogEntry> _logBuffer = [];
+  static const int _maxBufferSize = 1000;
+
+  /// PII filtering configuration
+  /// CRITICAL: Always enabled in production to prevent data leaks
+  static bool _piiFilteringEnabled = true;
+
+  /// PII stats for monitoring
+  static int _piiFilteredCount = 0;
+
+  /// Configure logger settings
+  static void configure({
+    bool? enabled,
+    LogLevel? minLevel,
+    bool? enablePiiFiltering,
+  }) {
+    if (enabled != null) _enabled = enabled;
+    if (minLevel != null) _minLevel = minLevel;
+    if (enablePiiFiltering != null) {
+      // Always enable PII filtering in release mode
+      _piiFilteringEnabled = kReleaseMode ? true : enablePiiFiltering;
+    }
+  }
+
+  /// Get PII filtering statistics
+  static Map<String, dynamic> getPiiStats() {
+    return {
+      'enabled': _piiFilteringEnabled,
+      'filtered_count': _piiFilteredCount,
+    };
+  }
+
+  /// Debug log - للتطوير فقط
+  static void d(String message, {String? tag, Map<String, dynamic>? data}) {
+    _log(LogLevel.debug, message, tag: tag, data: data);
+  }
+
+  /// Info log - معلومات عامة
+  static void i(String message, {String? tag, Map<String, dynamic>? data}) {
+    _log(LogLevel.info, message, tag: tag, data: data);
+  }
+
+  /// Warning log - تحذيرات
+  static void w(String message, {String? tag, Map<String, dynamic>? data}) {
+    _log(LogLevel.warning, message, tag: tag, data: data);
+  }
+
+  /// Error log - أخطاء
+  static void e(
+    String message, {
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+  }) {
+    _log(
+      LogLevel.error,
+      message,
+      tag: tag,
+      error: error,
+      stackTrace: stackTrace,
+      data: data,
+    );
+  }
+
+  /// Critical log - أخطاء حرجة
+  static void critical(
+    String message, {
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+  }) {
+    _log(
+      LogLevel.critical,
+      message,
+      tag: tag,
+      error: error,
+      stackTrace: stackTrace,
+      data: data,
+    );
+  }
+
+  /// Network request log with automatic PII sanitization
+  static void network(
+    String method,
+    String url, {
+    int? statusCode,
+    Duration? duration,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+    dynamic body,
+  }) {
+    final emoji = _getNetworkEmoji(statusCode);
+    final durationStr = duration != null ? ' (${duration.inMilliseconds}ms)' : '';
+
+    // Sanitize network data
+    final sanitizedData = _piiFilteringEnabled && data != null
+        ? PiiFilter.sanitize(data)
+        : data;
+
+    final sanitizedHeaders = _piiFilteringEnabled && headers != null
+        ? PiiFilter.sanitizeHeaders(headers)
+        : headers;
+
+    final sanitizedBody = _piiFilteringEnabled && body != null
+        ? PiiFilter.sanitizeRequestBody(body)
+        : body;
+
+    final networkData = <String, dynamic>{
+      if (sanitizedData != null) ...(sanitizedData as Map<String, dynamic>),
+      if (sanitizedHeaders != null) 'headers': sanitizedHeaders,
+      if (sanitizedBody != null) 'body': sanitizedBody,
+    };
+
+    _log(
+      statusCode != null && statusCode >= 400 ? LogLevel.error : LogLevel.info,
+      '$emoji $method $url ${statusCode ?? ""}$durationStr',
+      tag: 'NETWORK',
+      data: networkData.isNotEmpty ? networkData : null,
+    );
+  }
+
+  /// Sync operation log
+  static void sync(String operation, {bool success = true, String? details}) {
+    final emoji = success ? '🔄' : '❌';
+    _log(
+      success ? LogLevel.info : LogLevel.error,
+      '$emoji Sync: $operation${details != null ? " - $details" : ""}',
+      tag: 'SYNC',
+    );
+  }
+
+  /// User action log
+  static void userAction(String action, {Map<String, dynamic>? params}) {
+    _log(
+      LogLevel.info,
+      '👆 User: $action',
+      tag: 'USER',
+      data: params,
+    );
+  }
+
+  /// Performance log
+  static void performance(String operation, Duration duration) {
+    final emoji = duration.inMilliseconds > 1000 ? '🐢' : '⚡';
+    _log(
+      duration.inMilliseconds > 2000 ? LogLevel.warning : LogLevel.debug,
+      '$emoji $operation took ${duration.inMilliseconds}ms',
+      tag: 'PERF',
+    );
+  }
+
+  /// Get recent logs (for debugging/crash reports)
+  static List<LogEntry> getRecentLogs({int count = 50}) {
+    final start = _logBuffer.length > count ? _logBuffer.length - count : 0;
+    return _logBuffer.sublist(start);
+  }
+
+  /// Clear log buffer
+  static void clearBuffer() {
+    _logBuffer.clear();
+  }
+
+  /// Export logs as string (for crash reports)
+  /// Always applies PII filtering for safety
+  static String exportLogs({bool sanitize = true}) {
+    if (!sanitize) {
+      return _logBuffer.map((e) => e.toString()).join('\n');
+    }
+
+    // Apply additional PII filtering to exported logs
+    final logs = _logBuffer.map((e) => e.toString()).join('\n');
+    return PiiFilter.sanitize(logs) as String;
+  }
+
+  /// Export logs as JSON (for analytics/monitoring)
+  static String exportLogsAsJson({bool sanitize = true}) {
+    final logs = _logBuffer.map((e) => e.toJson()).toList();
+
+    if (sanitize) {
+      return PiiFilter.sanitize(logs).toString();
+    }
+
+    return logs.toString();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Private Methods
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static void _log(
+    LogLevel level,
+    String message, {
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+  }) {
+    if (!_enabled) return;
+    if (level.index < _minLevel.index) return;
+
+    // Apply PII filtering if enabled
+    String sanitizedMessage = message;
+    Map<String, dynamic>? sanitizedData = data;
+    Object? sanitizedError = error;
+
+    if (_piiFilteringEnabled) {
+      // Check if message contains PII
+      if (PiiFilter.containsPii(message)) {
+        sanitizedMessage = PiiFilter.sanitize(message) as String;
+        _piiFilteredCount++;
+      }
+
+      // Sanitize data map
+      if (data != null) {
+        sanitizedData = PiiFilter.sanitize(data) as Map<String, dynamic>?;
+      }
+
+      // Sanitize error message
+      if (error != null) {
+        final errorStr = error.toString();
+        if (PiiFilter.containsPii(errorStr)) {
+          sanitizedError = PiiFilter.sanitizeError(error);
+          _piiFilteredCount++;
+        }
+      }
+    }
+
+    final entry = LogEntry(
+      level: level,
+      message: sanitizedMessage,
+      tag: tag,
+      error: sanitizedError,
+      stackTrace: stackTrace,
+      data: sanitizedData,
+      timestamp: DateTime.now(),
+    );
+
+    // Add to buffer
+    _logBuffer.add(entry);
+    if (_logBuffer.length > _maxBufferSize) {
+      _logBuffer.removeAt(0);
+    }
+
+    // Print to console in debug mode
+    if (kDebugMode) {
+      _printToConsole(entry);
+    }
+
+    // Log to developer tools
+    developer.log(
+      entry.formattedMessage,
+      name: entry.tag ?? 'SAHOOL',
+      level: _getLevelValue(level),
+      error: sanitizedError,
+      stackTrace: stackTrace,
+    );
+  }
+
+  static void _printToConsole(LogEntry entry) {
+    final buffer = StringBuffer();
+
+    // Timestamp
+    buffer.write(_formatTime(entry.timestamp));
+    buffer.write(' ');
+
+    // Level emoji
+    buffer.write(_getLevelEmoji(entry.level));
+    buffer.write(' ');
+
+    // Tag
+    if (entry.tag != null) {
+      buffer.write('[${entry.tag}] ');
+    }
+
+    // Message
+    buffer.write(entry.message);
+
+    // Data
+    if (entry.data != null && entry.data!.isNotEmpty) {
+      buffer.write(' | ${entry.data}');
+    }
+
+    // Error
+    if (entry.error != null) {
+      buffer.write('\n   Error: ${entry.error}');
+    }
+
+    // Stack trace (first 5 lines)
+    if (entry.stackTrace != null) {
+      final lines = entry.stackTrace.toString().split('\n').take(5);
+      buffer.write('\n   ${lines.join('\n   ')}');
+    }
+
+    // Use appropriate print based on level
+    switch (entry.level) {
+      case LogLevel.error:
+      case LogLevel.critical:
+        debugPrint('\x1B[31m${buffer.toString()}\x1B[0m'); // Red
+        break;
+      case LogLevel.warning:
+        debugPrint('\x1B[33m${buffer.toString()}\x1B[0m'); // Yellow
+        break;
+      case LogLevel.info:
+        debugPrint('\x1B[32m${buffer.toString()}\x1B[0m'); // Green
+        break;
+      default:
+        debugPrint('\x1B[37m${buffer.toString()}\x1B[0m'); // White
+    }
+  }
+
+  static String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}:'
+        '${time.second.toString().padLeft(2, '0')}.'
+        '${time.millisecond.toString().padLeft(3, '0')}';
+  }
+
+  static String _getLevelEmoji(LogLevel level) {
+    switch (level) {
+      case LogLevel.debug:
+        return '🔍';
+      case LogLevel.info:
+        return 'ℹ️';
+      case LogLevel.warning:
+        return '⚠️';
+      case LogLevel.error:
+        return '❌';
+      case LogLevel.critical:
+        return '🔥';
+    }
+  }
+
+  static String _getNetworkEmoji(int? statusCode) {
+    if (statusCode == null) return '📤';
+    if (statusCode >= 200 && statusCode < 300) return '📥';
+    if (statusCode >= 400 && statusCode < 500) return '⚠️';
+    if (statusCode >= 500) return '❌';
+    return '📡';
+  }
+
+  static int _getLevelValue(LogLevel level) {
+    switch (level) {
+      case LogLevel.debug:
+        return 500;
+      case LogLevel.info:
+        return 800;
+      case LogLevel.warning:
+        return 900;
+      case LogLevel.error:
+        return 1000;
+      case LogLevel.critical:
+        return 1200;
+    }
+  }
+}
+
+/// Log entry model
+class LogEntry {
+  final LogLevel level;
+  final String message;
+  final String? tag;
+  final Object? error;
+  final StackTrace? stackTrace;
+  final Map<String, dynamic>? data;
+  final DateTime timestamp;
+
+  LogEntry({
+    required this.level,
+    required this.message,
+    this.tag,
+    this.error,
+    this.stackTrace,
+    this.data,
+    required this.timestamp,
+  });
+
+  String get formattedMessage {
+    final buffer = StringBuffer(message);
+    if (data != null) buffer.write(' | $data');
+    if (error != null) buffer.write(' | Error: $error');
+    return buffer.toString();
+  }
+
+  Map<String, dynamic> toJson() => {
+        'level': level.name,
+        'message': message,
+        'tag': tag,
+        'error': error?.toString(),
+        'data': data,
+        'timestamp': timestamp.toIso8601String(),
+      };
+
+  @override
+  String toString() {
+    return '${timestamp.toIso8601String()} [${level.name.toUpperCase()}] '
+        '${tag != null ? "[$tag] " : ""}'
+        '$message'
+        '${error != null ? " | Error: $error" : ""}';
+  }
+}
+
+/// Mixin for classes that need logging
+mixin LoggerMixin {
+  String get logTag => runtimeType.toString();
+
+  void logDebug(String message, {Map<String, dynamic>? data}) {
+    AppLogger.d(message, tag: logTag, data: data);
+  }
+
+  void logInfo(String message, {Map<String, dynamic>? data}) {
+    AppLogger.i(message, tag: logTag, data: data);
+  }
+
+  void logWarning(String message, {Map<String, dynamic>? data}) {
+    AppLogger.w(message, tag: logTag, data: data);
+  }
+
+  void logError(String message, {Object? error, StackTrace? stackTrace}) {
+    AppLogger.e(message, tag: logTag, error: error, stackTrace: stackTrace);
+  }
+}

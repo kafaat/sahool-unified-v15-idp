@@ -334,7 +334,7 @@ class NdviPolygonLayer extends StatelessWidget {
 
             return Polygon(
               points: field.boundary,
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
               label: showLabels ? field.name : null,

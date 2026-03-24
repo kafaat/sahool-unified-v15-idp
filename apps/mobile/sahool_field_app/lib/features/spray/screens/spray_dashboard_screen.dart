@@ -202,7 +202,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                       Icon(
                         Icons.calendar_today,
                         size: 48,
-                        color: theme.colorScheme.onSurface.withOpacity(0.3),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -210,7 +210,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                             ? 'لا توجد نوافذ رش متاحة'
                             : 'No spray windows available',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -317,7 +317,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                       Icon(
                         Icons.check_circle_outline,
                         size: 48,
-                        color: theme.colorScheme.onSurface.withOpacity(0.3),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -325,7 +325,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                             ? 'لا توجد توصيات نشطة'
                             : 'No active recommendations',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -408,7 +408,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getSprayTypeColor(recommendation.sprayType)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -436,7 +436,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               Text(
                 recommendation.getDescription(_locale),
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -569,7 +569,7 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 28),

@@ -176,8 +176,8 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: (trendUp ?? false)
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -266,7 +266,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF367C2B).withOpacity(0.1),
+              color: const Color(0xFF367C2B).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.grass, color: Color(0xFF367C2B)),
@@ -290,7 +290,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: healthColor.withOpacity(0.1),
+              color: healthColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -374,7 +374,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -434,7 +434,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -716,7 +716,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF367C2B).withOpacity(0.1),
+            color: const Color(0xFF367C2B).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFF367C2B)),

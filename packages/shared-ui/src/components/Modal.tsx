@@ -116,6 +116,7 @@ export function Modal({
         document.body.style.overflow = originalOverflow;
       };
     }
+    return undefined;
   }, [open]);
 
   // Handle overlay click

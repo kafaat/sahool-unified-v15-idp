@@ -8,7 +8,6 @@ targets:
       json_serializable:
         generate_for:
           - "lib/models/**/*.dart"
-          - "lib/services/**/*.dart"
           - "lib/core/models/**/*.dart"
           - "lib/core/storage/**/*.dart"
           - "lib/features/**/models/*.dart"

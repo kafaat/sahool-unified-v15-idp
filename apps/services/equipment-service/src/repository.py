@@ -348,18 +348,34 @@ def get_maintenance_alerts(
     return list(db.execute(query).scalars())
 
 
-def delete_maintenance_alert(db: Session, alert_id: str) -> bool:
+def delete_maintenance_alert(db: Session, alert_id: str, tenant_id: str | None = None) -> bool:
     """
-    Delete a maintenance alert.
+    Delete a maintenance alert with tenant isolation.
+    حذف تنبيه الصيانة مع عزل المستأجر.
 
     Args:
         db: SQLAlchemy session
         alert_id: Alert identifier
+        tenant_id: Tenant identifier for isolation (required)
+                   معرف المستأجر للعزل (مطلوب)
 
     Returns:
         True if deleted, False if not found
     """
-    alert = db.query(MaintenanceAlert).filter(MaintenanceAlert.alert_id == alert_id).first()
+    # Tenant isolation: tenant_id is required to prevent cross-tenant deletion
+    # عزل المستأجر: معرف المستأجر مطلوب لمنع الحذف عبر المستأجرين
+    if not tenant_id:
+        raise ValueError("tenant_id is required for delete_maintenance_alert")
+
+    # MaintenanceAlert does not have tenant_id directly; enforce tenant
+    # isolation by joining through Equipment which owns the tenant_id column.
+    # عزل المستأجر عبر الانضمام إلى جدول المعدات الذي يحتوي على معرف المستأجر
+    alert = (
+        db.query(MaintenanceAlert)
+        .join(Equipment, Equipment.equipment_id == MaintenanceAlert.equipment_id)
+        .filter(MaintenanceAlert.alert_id == alert_id, Equipment.tenant_id == tenant_id)
+        .first()
+    )
 
     if not alert:
         return False

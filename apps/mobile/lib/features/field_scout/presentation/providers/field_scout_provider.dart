@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/config/api_config.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/offline/offline_sync_engine.dart';
 import '../../domain/models/scout_session.dart';
@@ -20,6 +23,14 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   final _uuid = const Uuid();
   Timer? _trackingTimer;
   StreamSubscription? _locationSubscription;
+
+  /// Dio client for yolo26-vision-service (port 8150)
+  final Dio _visionDio = Dio(BaseOptions(
+    baseUrl: ApiConfig.effectiveBaseUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    receiveTimeout: ApiConfig.longOperationTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
 
   FieldScoutNotifier(this._ref) : super(const FieldScoutState());
 
@@ -306,25 +317,53 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// تحليل صورة بالذكاء الاصطناعي
-  /// TODO: Wire to yolo26-vision-service POST /api/v1/detect/disease
-  /// or crop-intelligence-service for real AI analysis.
+  /// يرسل الصورة إلى yolo26-vision-service (port 8150) POST /api/v1/detect/disease
+  /// ويرجع لتحليل محلي عند عدم الاتصال
   Future<AIAnalysis> analyzeImage(String imagePath) async {
     state = state.copyWith(isAnalyzing: true);
 
     try {
-      // TODO: Replace with actual API call to vision service:
-      // final response = await _apiClient.post(
-      //   '/api/v1/detect/disease',
-      //   data: FormData.fromMap({
-      //     'image': await MultipartFile.fromFile(imagePath),
-      //     'field_id': state.currentSession?.fieldId,
-      //   }),
-      // );
-      // final analysis = AIAnalysis.fromJson(response.data);
+      // Try vision service API first (offline-first: fall back on failure)
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split(Platform.pathSeparator).last,
+        ),
+        if (state.currentSession?.fieldId != null)
+          'field_id': state.currentSession!.fieldId,
+      });
 
-      // Placeholder: return a pending analysis indicating the service is not yet connected
+      final response = await _visionDio.post(
+        '/api/v1/detect/disease',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+          receiveTimeout: ApiConfig.longOperationTimeout,
+        ),
+      );
+
+      final responseData = response.data as Map<String, dynamic>;
+      final analysis = _parseVisionResponse(responseData);
+
+      state = state.copyWith(
+        isAnalyzing: false,
+        lastAnalysis: analysis,
+      );
+
+      AppLogger.i(
+        'Vision analysis completed: ${analysis.detectedIssue ?? "no issue"} '
+        '(confidence: ${(analysis.confidence * 100).toStringAsFixed(1)}%)',
+        tag: 'SCOUT_AI',
+      );
+      return analysis;
+    } on DioException catch (e) {
+      AppLogger.w(
+        'Vision API unavailable (${e.type.name}), using offline fallback',
+        tag: 'SCOUT_AI',
+      );
+      // Offline fallback: return a pending analysis for manual entry
       final analysis = AIAnalysis(
-        modelVersion: 'pending',
+        modelVersion: 'offline',
         confidence: 0.0,
         detectedIssue: 'تحليل غير متاح - خدمة الذكاء الاصطناعي غير متصلة',
         category: IssueCategory.other,
@@ -340,8 +379,6 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
         isAnalyzing: false,
         lastAnalysis: analysis,
       );
-
-      AppLogger.i('AI analysis pending - service not connected', tag: 'SCOUT_AI');
       return analysis;
     } catch (e) {
       state = state.copyWith(
@@ -350,6 +387,85 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
       );
       rethrow;
     }
+  }
+
+  /// تحويل استجابة vision API إلى نموذج AIAnalysis
+  AIAnalysis _parseVisionResponse(Map<String, dynamic> data) {
+    // yolo26-vision-service response structure:
+    // { detections: [{label, confidence, severity, ...}], model_version, ... }
+    final detections = data['detections'] as List? ?? [];
+    if (detections.isEmpty) {
+      return AIAnalysis(
+        modelVersion: data['model_version'] as String? ?? 'yolo26',
+        confidence: 0.0,
+        detectedIssue: null,
+        suggestions: const ['لم يتم اكتشاف أي مشاكل في الصورة'],
+        analyzedAt: DateTime.now(),
+      );
+    }
+
+    // Use the highest-confidence detection
+    final best = detections.reduce((a, b) {
+      final aConf = (a as Map<String, dynamic>)['confidence'] as num? ?? 0;
+      final bConf = (b as Map<String, dynamic>)['confidence'] as num? ?? 0;
+      return aConf >= bConf ? a : b;
+    }) as Map<String, dynamic>;
+
+    final label = best['label'] as String? ?? '';
+    final confidence = (best['confidence'] as num?)?.toDouble() ?? 0.0;
+    final severityStr = best['severity'] as String?;
+    final categoryStr = best['category'] as String?;
+
+    final severity = _parseSeverity(severityStr);
+    final category = _parseCategory(categoryStr ?? label);
+
+    final recommendations = (data['recommendations'] as List?)
+            ?.map((r) => r.toString())
+            .toList() ??
+        ['راجع المتخصص الزراعي لتأكيد التشخيص'];
+
+    return AIAnalysis(
+      modelVersion: data['model_version'] as String? ?? 'yolo26',
+      confidence: confidence,
+      detectedIssue: label,
+      category: category,
+      severity: severity,
+      suggestions: recommendations,
+      analyzedAt: DateTime.now(),
+    );
+  }
+
+  IssueSeverity _parseSeverity(String? value) {
+    switch (value?.toLowerCase()) {
+      case 'critical':
+        return IssueSeverity.critical;
+      case 'high':
+        return IssueSeverity.high;
+      case 'medium':
+        return IssueSeverity.medium;
+      default:
+        return IssueSeverity.low;
+    }
+  }
+
+  IssueCategory _parseCategory(String label) {
+    final lower = label.toLowerCase();
+    if (lower.contains('pest') || lower.contains('insect') || lower.contains('weevil')) {
+      return IssueCategory.pest;
+    }
+    if (lower.contains('disease') || lower.contains('blight') || lower.contains('rust')) {
+      return IssueCategory.disease;
+    }
+    if (lower.contains('weed')) {
+      return IssueCategory.weed;
+    }
+    if (lower.contains('water') || lower.contains('irrigation')) {
+      return IssueCategory.water;
+    }
+    if (lower.contains('nutrient') || lower.contains('nitrogen') || lower.contains('deficiency')) {
+      return IssueCategory.nutrient;
+    }
+    return IssueCategory.other;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

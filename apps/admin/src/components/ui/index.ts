@@ -10,7 +10,8 @@ export type { Column, EnhancedDataTableProps, SortDirection } from "./EnhancedDa
 
 // Status indicators
 export { default as StatCard } from "./StatCard";
-export { default as StatusBadge } from "./StatusBadge";
+export { StatusBadge } from "@sahool/shared-ui";
+export type { StatusBadgeProps } from "@sahool/shared-ui";
 export { default as AlertBadge } from "./AlertBadge";
 
 // Navigation

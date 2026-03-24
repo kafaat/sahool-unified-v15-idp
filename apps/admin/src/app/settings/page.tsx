@@ -4,6 +4,7 @@
 // صفحة الإعدادات - لوحة تحكم المدير
 
 import { useState } from "react";
+import { useToast } from "@/components/ui/Toast";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils";
@@ -67,6 +68,7 @@ const mockAdmins = [
 ];
 
 export default function SettingsPage() {
+  const { toast } = useToast();
   // Profile state
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -125,27 +127,27 @@ export default function SettingsPage() {
   // Save handlers
   const handleSaveProfile = () => {
     logger.log("Saving profile:", profileData);
-    alert("تم حفظ الملف الشخصي بنجاح");
+    toast.success("Profile saved successfully", "تم حفظ الملف الشخصي بنجاح");
   };
 
   const handleSavePassword = () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقين");
+      toast.warning("Passwords do not match", "كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقين");
       return;
     }
     logger.log("Changing password");
-    alert("تم تغيير كلمة المرور بنجاح");
+    toast.success("Password changed successfully", "تم تغيير كلمة المرور بنجاح");
     setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
   };
 
   const handleSavePreferences = () => {
     logger.log("Saving preferences:", preferences);
-    alert("تم حفظ التفضيلات بنجاح");
+    toast.success("Preferences saved successfully", "تم حفظ التفضيلات بنجاح");
   };
 
   const handleSaveSystemSettings = () => {
     logger.log("Saving system settings:", systemSettings);
-    alert("تم حفظ إعدادات النظام بنجاح");
+    toast.success("System settings saved successfully", "تم حفظ إعدادات النظام بنجاح");
   };
 
   // Admin table columns

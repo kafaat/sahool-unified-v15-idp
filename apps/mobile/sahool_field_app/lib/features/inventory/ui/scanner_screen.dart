@@ -127,7 +127,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
+                    color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Text(
@@ -144,7 +144,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           // مؤشر التحميل
           if (_isProcessing)
             ColoredBox(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: const Center(
                 child: CircularProgressIndicator(),
               ),

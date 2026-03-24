@@ -187,7 +187,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                 polygons: polygons
                     .map((points) => Polygon(
                           points: points,
-                          color: Colors.green.withOpacity(0.3),
+                          color: Colors.green.withValues(alpha: 0.3),
                           borderColor: Colors.green,
                           borderStrokeWidth: 2,
                         ))
@@ -200,7 +200,7 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                 polygons: [
                   Polygon(
                     points: _drawnPoints,
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     borderColor: Colors.blue,
                     borderStrokeWidth: 3,
                   ),

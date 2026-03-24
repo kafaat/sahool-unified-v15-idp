@@ -221,7 +221,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       onSelected: (_) {
         ref.read(actionFilterProvider.notifier).state = value;
       },
-      selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+      selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
       checkmarkColor: const Color(0xFF367C2B),
     );
   }
@@ -234,7 +234,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       onSelected: (_) {
         ref.read(priorityFilterProvider.notifier).state = value;
       },
-      selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+      selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
       checkmarkColor: const Color(0xFF367C2B),
     );
   }
@@ -473,7 +473,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.check_circle, color: Colors.green),
@@ -495,7 +495,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(

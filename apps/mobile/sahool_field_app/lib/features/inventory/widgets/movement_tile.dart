@@ -189,7 +189,7 @@ class MovementTile extends StatelessWidget {
     }
 
     return CircleAvatar(
-      backgroundColor: color.withOpacity(0.15),
+      backgroundColor: color.withValues(alpha: 0.15),
       child: Icon(
         icon,
         color: color,

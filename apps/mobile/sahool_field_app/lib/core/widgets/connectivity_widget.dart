@@ -282,7 +282,7 @@ class ConnectivityIndicator extends ConsumerWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: _getColor(connectivity.status).withOpacity(0.1),
+          color: _getColor(connectivity.status).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(

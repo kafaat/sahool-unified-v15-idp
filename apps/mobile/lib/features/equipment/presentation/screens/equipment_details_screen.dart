@@ -179,7 +179,7 @@ class _EquipmentDetailsScreenState
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -204,7 +204,7 @@ class _EquipmentDetailsScreenState
                         Text(
                           '${equipment.equipmentType.nameAr} ${equipment.brand != null ? "• ${equipment.brand}" : ""}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 13,
                           ),
                         ),
@@ -432,7 +432,7 @@ class _OverviewTab extends StatelessWidget {
         if (equipment.needsMaintenanceSoon || equipment.isLowFuel) ...[
           const SizedBox(height: 16),
           OrganicCard(
-            color: SahoolColors.harvestGold.withOpacity(0.1),
+            color: SahoolColors.harvestGold.withValues(alpha: 0.1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -160,7 +160,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       onSelected: (_) {
         ref.read(notificationFilterProvider.notifier).state = value;
       },
-      selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+      selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
       checkmarkColor: const Color(0xFF367C2B),
     );
   }
@@ -214,7 +214,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   decoration: BoxDecoration(
                     color: notification.isRead
                         ? Colors.grey[200]
-                        : const Color(0xFF367C2B).withOpacity(0.1),
+                        : const Color(0xFF367C2B).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(

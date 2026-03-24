@@ -38,8 +38,8 @@ class SprayWindowCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                _getStatusColor(window.status).withOpacity(0.1),
-                _getStatusColor(window.status).withOpacity(0.05),
+                _getStatusColor(window.status).withValues(alpha: 0.1),
+                _getStatusColor(window.status).withValues(alpha: 0.05),
               ],
             ),
             border: Border.all(
@@ -85,7 +85,7 @@ class SprayWindowCard extends StatelessWidget {
                 Text(
                   _formatDuration(isArabic),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -348,7 +348,7 @@ class SprayWindowTimelineItem extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 40,
-                    color: statusColor.withOpacity(0.3),
+                    color: statusColor.withValues(alpha: 0.3),
                   ),
               ],
             ),
@@ -358,10 +358,10 @@ class SprayWindowTimelineItem extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: statusColor.withOpacity(0.3),
+                    color: statusColor.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -392,7 +392,7 @@ class SprayWindowTimelineItem extends StatelessWidget {
                         Icon(Icons.thermostat,
                             size: 14,
                             color:
-                                theme.colorScheme.onSurface.withOpacity(0.6)),
+                                theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '${window.weatherCondition.temperature.toStringAsFixed(0)}°C',
@@ -402,7 +402,7 @@ class SprayWindowTimelineItem extends StatelessWidget {
                         Icon(Icons.air,
                             size: 14,
                             color:
-                                theme.colorScheme.onSurface.withOpacity(0.6)),
+                                theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '${window.weatherCondition.windSpeed.toStringAsFixed(0)} km/h',

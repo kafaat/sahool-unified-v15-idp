@@ -146,11 +146,11 @@ class User:
         """Check if user has a specific permission"""
         return any(p.id == permission_id for p in self.all_permissions)
 
-    def has_any_role(self, role_names: list[str]) -> bool:
+    def has_any_role(self, *role_names: str) -> bool:
         """Check if user has any of the specified roles"""
         return any(self.has_role(name) for name in role_names)
 
-    def has_all_roles(self, role_names: list[str]) -> bool:
+    def has_all_roles(self, *role_names: str) -> bool:
         """Check if user has all specified roles"""
         return all(self.has_role(name) for name in role_names)
 

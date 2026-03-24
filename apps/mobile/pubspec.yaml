@@ -30,7 +30,7 @@ dependencies:
   connectivity_plus: ^6.1.1
   socket_io_client: ^2.0.3+1
   web_socket_channel: ^3.0.1  # WebSocket communication
-  crypto: ^3.0.3  # For certificate pinning
+  crypto: ^3.0.6  # For certificate pinning
 
   # Background Tasks
   workmanager: ^0.6.0
@@ -44,10 +44,6 @@ dependencies:
   # The app will use local notifications as fallback when Firebase is not configured
   firebase_core: ^3.8.1
   firebase_messaging: ^15.1.6
-
-  # OTP & SMS
-  pinput: ^3.0.1
-  sms_autofill: ^2.4.0
 
   # Storage
   shared_preferences: ^2.3.3

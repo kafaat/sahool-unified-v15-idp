@@ -147,7 +147,7 @@ class SahoolErrorView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: SahoolColors.danger.withOpacity(0.1),
+                    color: SahoolColors.danger.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -294,10 +294,10 @@ class SahoolInlineError extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.danger.withOpacity(0.1),
+        color: SahoolColors.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.danger.withOpacity(0.3),
+          color: SahoolColors.danger.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

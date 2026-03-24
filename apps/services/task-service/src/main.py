@@ -297,8 +297,8 @@ async def readiness_check():
 
         # Don't block - just check if module is available
         redis_ok = True
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Redis availability check failed: %s", exc)
 
     return {
         "status": "ready" if db_ok else "not_ready",
@@ -336,4 +336,5 @@ async def combined_health():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
+    uvicorn.run(app, host=host, port=SERVICE_PORT)

@@ -216,7 +216,7 @@ class _ZonesMapExampleState extends State<ZonesMapExample> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -340,7 +340,7 @@ class _StatItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Center(

@@ -424,6 +424,62 @@ services:
               end
 
 # ==============================================================================
+# Tenant Isolation - Validation of X-Tenant-Id Header Against JWT tid Claim
+# عزل المستأجرين - التحقق من تطابق رأس X-Tenant-Id مع مطالبة tid في JWT
+# ==============================================================================
+# SECURITY: Ensures that the X-Tenant-Id header (sent by the client) matches
+# the tenant ID (tid) embedded in the authenticated JWT token. This prevents
+# a user authenticated for tenant A from accessing resources of tenant B by
+# spoofing the X-Tenant-Id header.
+#
+# الأمان: يضمن أن رأس X-Tenant-Id (المُرسل من العميل) يتطابق مع معرف
+# المستأجر (tid) المضمن في رمز JWT المصادق عليه. هذا يمنع مستخدمًا مصادقًا
+# للمستأجر أ من الوصول إلى موارد المستأجر ب عبر تزوير رأس X-Tenant-Id.
+# ==============================================================================
+
+  - name: tenant-validation
+    url: http://kong:8000
+    routes:
+      - name: tenant-validated-api
+        paths:
+          - /api/v1
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: pre-function
+        config:
+          access:
+            - |
+              -- Tenant ID Validation - التحقق من معرف المستأجر
+              -- Ensures X-Tenant-Id header matches JWT tid claim
+              -- يضمن تطابق رأس X-Tenant-Id مع مطالبة tid في JWT
+              local jwt = kong.ctx.shared.jwt
+              local header_tid = kong.request.get_header("X-Tenant-Id")
+
+              if jwt and jwt.claims and header_tid then
+                local jwt_tid = jwt.claims.tid
+
+                if jwt_tid and header_tid ~= "" and jwt_tid ~= header_tid then
+                  kong.log.warn(
+                    "Tenant ID mismatch: JWT tid=", tostring(jwt_tid),
+                    " header X-Tenant-Id=", tostring(header_tid),
+                    " sub=", tostring(jwt.claims.sub)
+                  )
+                  return kong.response.exit(403, {
+                    error = "Tenant ID mismatch: X-Tenant-Id header does not match authenticated tenant",
+                    error_ar = "عدم تطابق معرف المستأجر: رأس X-Tenant-Id لا يتطابق مع المستأجر المصادق عليه",
+                    code = "TENANT_ID_MISMATCH"
+                  })
+                end
+
+                -- If JWT has tid but no header was sent, inject it for downstream services
+                -- إذا كان JWT يحتوي على tid ولم يتم إرسال رأس، أضفه للخدمات اللاحقة
+                if jwt_tid and (not header_tid or header_tid == "") then
+                  kong.service.request.set_header("X-Tenant-Id", jwt_tid)
+                end
+              end
+
+# ==============================================================================
 # CORS Security Configuration
 # تكوين أمان CORS
 # ==============================================================================

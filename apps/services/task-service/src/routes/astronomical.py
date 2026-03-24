@@ -48,8 +48,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/tasks", tags=["Astronomical Tasks"])
 
 
-async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
-    """Extract tenant ID from request header"""
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+) -> str:
+    """Extract and validate tenant ID from request header.
+    استخراج والتحقق من معرّف المستأجر من ترويسة الطلب.
+    """
+    if not x_tenant_id or x_tenant_id == "default":
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id header is required | ترويسة معرّف المستأجر مطلوبة",
+        )
     return x_tenant_id
 
 
@@ -263,7 +272,11 @@ async def create_task_with_astronomical_recommendation(
                     "hijri_date": best_day.get("hijri_date"),
                 }
 
-                logger.info(f"Selected astronomical date: {due_date_str} with score {best_day.get('score')}")
+                logger.info(
+                    "Selected astronomical date: %s with score %s",
+                    sanitize_for_log(due_date_str),
+                    sanitize_for_log(best_day.get("score")),
+                )
             else:
                 logger.warning(
                     f"No suitable astronomical days found for {sanitize_for_log(data.activity)}, using default scheduling"
@@ -313,7 +326,11 @@ async def create_task_with_astronomical_recommendation(
     repo = TaskRepository(db)
     created_task = repo.create_task(db_task)
 
-    logger.info(f"Created astronomical task {task_id} with due date {due_date.isoformat() if due_date else 'None'}")
+    logger.info(
+        "Created astronomical task %s with due date %s",
+        sanitize_for_log(task_id),
+        sanitize_for_log(due_date.isoformat() if due_date else "None"),
+    )
 
     return db_task_to_dict(created_task)
 
@@ -390,8 +407,8 @@ async def validate_date_for_activity(
                 astro_data = await fetch_astronomical_best_days(data.activity, 30)
                 best_days = astro_data.get("best_days", [])[:3]
                 alternative_dates = [day["date"] for day in best_days]
-            except Exception:
-                pass  # Ignore errors when fetching alternatives
+            except Exception as exc:
+                logger.debug("Failed to fetch alternative dates: %s", exc)
 
         return DateValidationResponse(
             date=data.date,

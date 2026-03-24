@@ -79,7 +79,7 @@ class RotationTimelineWidget extends StatelessWidget {
                     height: 56,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? _getYearColor(year).withOpacity(0.2)
+                          ? _getYearColor(year).withValues(alpha: 0.2)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -135,7 +135,7 @@ class RotationTimelineWidget extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: _getSeasonColor(year.season).withOpacity(0.2),
+                        color: _getSeasonColor(year.season).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

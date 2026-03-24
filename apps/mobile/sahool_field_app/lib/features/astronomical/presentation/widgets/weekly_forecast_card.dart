@@ -137,9 +137,9 @@ class _DaysList extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: color.withOpacity(0.3)),
+                      border: Border.all(color: color.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       day,
@@ -173,7 +173,7 @@ class _DayCard extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: scoreColor.withOpacity(0.2),
+            color: scoreColor.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(

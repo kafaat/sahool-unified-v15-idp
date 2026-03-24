@@ -82,7 +82,7 @@ class OTPPurpose(StrEnum):
     """غرض OTP - OTP Purpose"""
 
     LOGIN = "login"
-    PASSWORD_RESET = "password_reset"
+    PASSWORD_RESET = "password_reset"  # nosec B105 - enum value, not a password
     VERIFY_PHONE = "verify_phone"
     VERIFY_EMAIL = "verify_email"
     TWO_FACTOR = "two_factor"

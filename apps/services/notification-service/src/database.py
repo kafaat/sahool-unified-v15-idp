@@ -52,9 +52,9 @@ TORTOISE_ORM = {
         "models": {
             "models": [
                 "src.models",
-                "aerich.models",
             ],
             "default_connection": "default",
+            "migrations": "migrations.models",
         },
     },
     "use_tz": True,
@@ -74,8 +74,9 @@ TORTOISE_ORM_LOCAL = {
     },
     "apps": {
         "models": {
-            "models": ["src.models", "aerich.models"],
+            "models": ["src.models"],
             "default_connection": "default",
+            "migrations": "migrations.models",
         },
     },
     "use_tz": True,
@@ -201,40 +202,44 @@ async def get_db_stats() -> dict:
         return {"error": str(e)}
 
 
-# Migration helpers (for Aerich)
-def get_aerich_config() -> dict:
+# Migration helpers (Tortoise ORM built-in migrations)
+# Aerich is incompatible with tortoise-orm>=1.0.0. Use the built-in CLI instead:
+#   python -m tortoise init        # Initialize migration packages
+#   python -m tortoise makemigrations --name "description"
+#   python -m tortoise migrate     # Apply pending migrations
+#   python -m tortoise downgrade   # Rollback last migration
+# Config is resolved from [tool.tortoise] in pyproject.toml or via -c flag.
+def get_tortoise_config() -> dict:
     """
-    الحصول على إعدادات Aerich للترحيلات
-    Get Aerich configuration for migrations
+    الحصول على إعدادات Tortoise ORM للترحيلات
+    Get Tortoise ORM configuration for migrations
     """
     return TORTOISE_ORM
+
+
+# Keep old name as alias for backward compatibility
+get_aerich_config = get_tortoise_config
 
 
 async def run_migrations() -> None:
     """
     تشغيل ترحيلات قاعدة البيانات
-    Run database migrations using Aerich
+    Run database migrations using Tortoise ORM built-in migration API
 
-    Note: This should be called from a migration script, not in production code
+    Note: This should be called from a migration script, not in production code.
+    For CLI usage, prefer: python -m tortoise migrate
     """
     logger.info("Running database migrations...")
 
     try:
-        from aerich import Command
+        from tortoise.migrations.api import migrate
 
-        command = Command(
-            tortoise_config=TORTOISE_ORM,
-            app="models",
-            location="./migrations",
-        )
+        await Tortoise.init(config=TORTOISE_ORM)
+        await migrate(app_label="models")
 
-        await command.init()
-        await command.migrate()
-        await command.upgrade()
-
-        logger.info("✅ Migrations completed successfully")
+        logger.info("Migrations completed successfully")
     except Exception as e:
-        logger.error("❌ Migration failed: %s", e)
+        logger.error("Migration failed: %s", e)
         raise
 
 

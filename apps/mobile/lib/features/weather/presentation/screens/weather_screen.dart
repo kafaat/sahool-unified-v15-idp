@@ -249,7 +249,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
       onSelected: (_) {
         ref.read(impactFilterProvider.notifier).state = value;
       },
-      selectedColor: (color ?? const Color(0xFF367C2B)).withOpacity(0.2),
+      selectedColor: (color ?? const Color(0xFF367C2B)).withValues(alpha: 0.2),
       checkmarkColor: color ?? const Color(0xFF367C2B),
     );
   }

@@ -231,7 +231,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: SahoolColors.warning.withOpacity(0.1),
+                  color: SahoolColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -334,7 +334,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 20),
@@ -428,16 +428,16 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.info.withOpacity(0.1),
+        color: SahoolColors.info.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SahoolColors.info.withOpacity(0.3)),
+        border: Border.all(color: SahoolColors.info.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: SahoolColors.info.withOpacity(0.2),
+              color: SahoolColors.info.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.sync, color: SahoolColors.info, size: 20),

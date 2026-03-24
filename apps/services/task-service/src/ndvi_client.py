@@ -353,27 +353,27 @@ class NDVIClient:
         إنشاء بيانات صحة محاكاة
         Generate simulated health data for testing/fallback
         """
-        import random
+        import random  # nosec B311 - non-cryptographic, used for mock/simulated data only
 
         # Create consistent random based on field_id
         random.seed(hash(field_id) % (2**32))
 
-        health_score = round(random.uniform(4.0, 9.0), 1)
+        health_score = round(random.uniform(4.0, 9.0), 1)  # nosec B311
         health_status = self._get_health_status(health_score)
 
         zones = {
-            "healthy": round(random.uniform(50, 85), 2),
-            "stressed": round(random.uniform(5, 25), 2),
-            "critical": round(random.uniform(0, 15), 2),
-            "bare_soil": round(random.uniform(0, 10), 2),
-            "water": round(random.uniform(0, 5), 2),
+            "healthy": round(random.uniform(50, 85), 2),  # nosec B311
+            "stressed": round(random.uniform(5, 25), 2),  # nosec B311
+            "critical": round(random.uniform(0, 15), 2),  # nosec B311
+            "bare_soil": round(random.uniform(0, 10), 2),  # nosec B311
+            "water": round(random.uniform(0, 5), 2),  # nosec B311
         }
 
         # Normalize to 100%
         total = sum(zones.values())
         zones = {k: round(v / total * 100, 2) for k, v in zones.items()}
 
-        ndvi_mean = round(random.uniform(0.3, 0.7), 4)
+        ndvi_mean = round(random.uniform(0.3, 0.7), 4)  # nosec B311
 
         alerts = []
         if health_score < 6:
@@ -396,7 +396,7 @@ class NDVIClient:
             ndvi_mean=ndvi_mean,
             ndvi_min=round(ndvi_mean - 0.2, 4),
             ndvi_max=round(ndvi_mean + 0.2, 4),
-            ndvi_std_dev=round(random.uniform(0.05, 0.15), 4),
+            ndvi_std_dev=round(random.uniform(0.05, 0.15), 4),  # nosec B311
             vegetation_coverage=zones["healthy"] + zones["stressed"],
             zones=zones,
             alerts=alerts,

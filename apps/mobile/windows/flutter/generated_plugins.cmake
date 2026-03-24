@@ -16,7 +16,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   secure_application
   sentry_flutter
   share_plus
-  smart_auth
   speech_to_text_windows
   sqlcipher_flutter_libs
   url_launcher_windows

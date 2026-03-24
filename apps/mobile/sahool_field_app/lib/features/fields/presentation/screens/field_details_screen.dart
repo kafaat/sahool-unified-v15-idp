@@ -99,7 +99,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                         width: 70,
                         height: 70,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
@@ -131,7 +131,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -150,7 +150,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: _getStatusColor(_field.status)
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -247,7 +247,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
+        Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
         const SizedBox(height: 4),
         Text(
           value,
@@ -260,7 +260,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 11,
           ),
         ),
@@ -548,7 +548,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 20),
@@ -732,7 +732,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 20),
@@ -743,7 +743,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.1),
+          color: Colors.orange.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -788,7 +788,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF367C2B).withOpacity(0.1),
+              backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
               child: const Icon(Icons.history, color: Color(0xFF367C2B)),
             ),
             title: Text('نشاط ${10 - index}'),

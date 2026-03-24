@@ -153,8 +153,28 @@ add_request_id_middleware(app)
 app.add_middleware(TenantContextMiddleware)
 
 
-async def publish_event(subject: str, data: dict):
-    """Publish event to NATS if connected."""
+async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
+    """Publish event to NATS if connected, using tenant-scoped subject when available.
+
+    Uses tenant-scoped subject when tenant_id is provided for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Args:
+        subject: Base NATS subject (e.g., "sahool.indicators.computed")
+        data: Event payload dictionary
+        tenant_id: Optional tenant ID; when provided, subject becomes
+                   sahool.tenant.{tenant_id}.indicators.{action}
+    """
+    # Resolve tenant-scoped subject | تحويل الموضوع إلى نطاق المستأجر
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+        # Extract domain and action from subject like "sahool.indicators.computed"
+        parts = subject.split(".", 2)  # ["sahool", "indicators", "computed"]
+        if len(parts) >= 3:
+            domain = parts[1]
+            action = parts[2]
+            subject = get_tenant_subject(tenant_id, domain, action)
+
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             await app.state.nc.publish(subject, json.dumps(data).encode())
@@ -881,7 +901,7 @@ async def get_field_indicators(
             }
             await save_indicator(field_id, ind_id, indicator_data, tenant_id)
 
-            # Publish event for newly computed indicator
+            # Publish event for newly computed indicator | نشر حدث المؤشر المحسوب مع عزل المستأجر
             await publish_event(
                 "sahool.indicators.computed",
                 {
@@ -892,6 +912,7 @@ async def get_field_indicators(
                     "trend": trend.value,
                     "timestamp": timestamp,
                 },
+                tenant_id=tenant_id,
             )
 
         indicator = Indicator(
@@ -921,7 +942,7 @@ async def get_field_indicators(
     optimal_count = sum(1 for ind in indicators if ind.status == "optimal")
     overall_score = (optimal_count / len(indicators)) * 100 if indicators else 0
 
-    # Publish field indicators summary event
+    # Publish field indicators summary event | نشر ملخص مؤشرات الحقل مع عزل المستأجر
     await publish_event(
         "sahool.indicators.field_summary",
         {
@@ -931,6 +952,7 @@ async def get_field_indicators(
             "alerts_count": len(alerts),
             "timestamp": timestamp,
         },
+        tenant_id=tenant_id,
     )
 
     return FieldIndicators(
@@ -998,7 +1020,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     if not success:
         raise HTTPException(status_code=503, detail="Failed to save indicator. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.stored",
@@ -1009,6 +1031,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
             "status": status,
             "timestamp": timestamp,
         },
+        tenant_id=indicator_input.tenant_id,
     )
 
     logger.info(
@@ -1076,7 +1099,9 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
     if not success:
         raise HTTPException(status_code=503, detail="Failed to delete indicators. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
+    # Extract tenant_id from authenticated user | استخراج معرف المستأجر من المستخدم المصادق
+    user_tenant_id = getattr(_user, "tenant_id", None) if _user else None
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.deleted",
@@ -1084,6 +1109,7 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
             "field_id": field_id,
             "timestamp": timestamp,
         },
+        tenant_id=user_tenant_id,
     )
 
     logger.info("Field indicators deleted", field_id=field_id)
@@ -1140,7 +1166,7 @@ async def get_dashboard_summary(
     critical_alerts = sum(1 for a in all_alerts if a.get("severity") == "critical")
     avg_health = round(total_health_score / num_fields, 1)
 
-    # Publish dashboard computed event
+    # Publish dashboard computed event with tenant isolation | نشر حدث لوحة المعلومات مع عزل المستأجر
     await publish_event(
         "sahool.indicators.dashboard_computed",
         {
@@ -1152,6 +1178,7 @@ async def get_dashboard_summary(
             "critical_alerts": critical_alerts,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return DashboardSummary(
@@ -1218,7 +1245,7 @@ async def get_tenant_alerts(
             }
         )
 
-    # Publish alerts retrieved event
+    # Publish alerts retrieved event with tenant isolation | نشر حدث التنبيهات مع عزل المستأجر
     critical_count = sum(1 for a in alerts if a["severity"] == "critical")
     warning_count = sum(1 for a in alerts if a["severity"] == "warning")
     await publish_event(
@@ -1230,6 +1257,7 @@ async def get_tenant_alerts(
             "warning_count": warning_count,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
@@ -1281,6 +1309,8 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
     )
 
     # Publish trend analysis event
+    # TODO: Add tenant_id parameter to this endpoint for full tenant isolation
+    # TODO: إضافة معرف المستأجر لهذه النقطة لعزل البيانات الكامل
     await publish_event(
         "sahool.indicators.trend_analyzed",
         {

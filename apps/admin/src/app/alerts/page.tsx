@@ -4,6 +4,7 @@
 // صفحة إدارة التنبيهات - ديناميكية مع جميع عمليات CRUD
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/api";
 
 export default function AlertsPage() {
+  const { toast } = useToast();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [_searchQuery] = useState(""); // Reserved for future search feature
@@ -81,7 +83,7 @@ export default function AlertsPage() {
       logger.info("Alert created successfully");
     } catch (error) {
       logger.error("Failed to create alert:", error);
-      alert("فشل إنشاء التنبيه. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to create alert", "فشل إنشاء التنبيه. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +96,7 @@ export default function AlertsPage() {
       logger.info("Alert acknowledged successfully");
     } catch (error) {
       logger.error("Failed to acknowledge alert:", error);
-      alert("فشل إقرار التنبيه. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to acknowledge alert", "فشل إقرار التنبيه. يرجى المحاولة مرة أخرى.");
     }
   }
 
@@ -107,7 +109,7 @@ export default function AlertsPage() {
       setSelectedAlert(null);
     } catch (error) {
       logger.error("Failed to resolve alert:", error);
-      alert("فشل حل التنبيه. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to resolve alert", "فشل حل التنبيه. يرجى المحاولة مرة أخرى.");
     }
   }
 
@@ -121,7 +123,7 @@ export default function AlertsPage() {
       logger.info("Alert deleted successfully");
     } catch (error) {
       logger.error("Failed to delete alert:", error);
-      alert("فشل حذف التنبيه. يرجى المحاولة مرة أخرى.");
+      toast.error("Failed to delete alert", "فشل حذف التنبيه. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }

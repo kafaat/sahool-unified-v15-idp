@@ -142,15 +142,39 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         roles = None
 
         # 1. Try JWT (from request.state if auth middleware ran first)
+        # SECURITY: JWT is the trusted source for tenant_id. The `tid` claim
+        # is set during authentication and cannot be forged by the caller.
         if hasattr(request.state, "principal"):
             principal = request.state.principal
             tenant_id = principal.get("tenant_id") or principal.get("tid")
             user_id = principal.get("sub")
             roles = principal.get("roles", [])
 
-        # 2. Try X-Tenant-ID header
-        if not tenant_id:
-            tenant_id = request.headers.get("X-Tenant-ID")
+        # 2. Try X-Tenant-ID header (fallback, with deprecation warning)
+        # SECURITY: The header can be set by any caller and is NOT validated
+        # against JWT claims. This fallback exists only for backward
+        # compatibility and should be removed once all clients migrate to
+        # JWT-based tenant identification.
+        header_tenant_id = request.headers.get("X-Tenant-ID")
+
+        if tenant_id:
+            # JWT tenant takes precedence; warn if header differs
+            if header_tenant_id and header_tenant_id != tenant_id:
+                logger.warning(
+                    "X-Tenant-ID header (%s) differs from JWT tenant (%s); "
+                    "using JWT value. This may indicate a misconfigured client.",
+                    header_tenant_id,
+                    tenant_id,
+                )
+        elif header_tenant_id:
+            # No JWT tenant -- accept header with deprecation warning
+            logger.warning(
+                "Tenant resolved from X-Tenant-ID header (deprecated); "
+                "migrate to JWT-based tenant. header_tenant_id=%s path=%s",
+                header_tenant_id,
+                request.url.path,
+            )
+            tenant_id = header_tenant_id
 
         # 3. Try query parameter (if allowed)
         if not tenant_id and self.allow_query_param:

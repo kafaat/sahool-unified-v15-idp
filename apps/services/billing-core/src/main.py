@@ -580,7 +580,7 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
         return env in ("development", "dev", "test", "testing")
 
     # Super admins can access any tenant
-    if hasattr(current_user, "has_any_role") and current_user.has_any_role(["super_admin"]):
+    if hasattr(current_user, "has_any_role") and current_user.has_any_role("super_admin"):
         return True
 
     # Users can only access their own tenant

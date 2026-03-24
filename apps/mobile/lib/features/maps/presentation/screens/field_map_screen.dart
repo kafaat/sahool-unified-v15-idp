@@ -502,8 +502,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      context.push('/satellite', extra: {
-                        'fieldId': widget.fieldId,
+                      context.push('/satellite/${widget.fieldId}', extra: {
                         'fieldName': widget.fieldName,
                       });
                     },

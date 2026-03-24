@@ -325,8 +325,8 @@ export function generateImprovements(
 export class RecommendationEvaluator {
   private criteriaWeights: Record<EvaluationCriteria, number>;
   private passingThreshold: number;
-  private useHeuristicsFallback: boolean;
-  private stats: Record<string, number>;
+  readonly useHeuristicsFallback: boolean;
+  private stats: { evaluations: number; approved: number; rejected: number; heuristicEvaluations: number };
 
   constructor(
     criteriaWeights?: Record<EvaluationCriteria, number>,
@@ -488,7 +488,7 @@ export class RecommendationEvaluator {
   private _evaluateAccuracyHeuristic(
     recommendation: string,
     context: Record<string, unknown>,
-    recommendationType: RecommendationType,
+    _recommendationType: RecommendationType,
   ): CriteriaScore {
     let score = 0.7; // Base score
     const evidence: string[] = [];
@@ -598,7 +598,7 @@ export class RecommendationEvaluator {
 
   private _evaluateSafetyHeuristic(
     recommendation: string,
-    recommendationType: RecommendationType,
+    _recommendationType: RecommendationType,
   ): CriteriaScore {
     let score = 0.8; // Start optimistic
     const evidence: string[] = [];
@@ -661,7 +661,7 @@ export class RecommendationEvaluator {
     const quantities = recommendation.match(/(\d+)\s*(kg|liter|كجم|لتر)/gi) || [];
     for (const qty of quantities) {
       const match = qty.match(/(\d+)/);
-      if (match && parseInt(match[1]) > 100) {
+      if (match && match[1] && parseInt(match[1]) > 100) {
         score -= 0.1;
         evidence.push(`Large quantity mentioned: ${qty}`);
         break;

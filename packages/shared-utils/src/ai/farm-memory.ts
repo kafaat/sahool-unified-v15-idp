@@ -209,7 +209,7 @@ export class FarmMemory {
   private config: Required<MemoryConfig>;
   private memory: Map<string, MemoryEntry[]>;
   private fieldIndex: Map<string, Set<string>>;
-  private stats: Record<string, number>;
+  private stats: { stores: number; recalls: number; forgets: number; expirations: number };
 
   constructor(config?: MemoryConfig) {
     /**
@@ -378,7 +378,6 @@ export class FarmMemory {
     }
 
     const entries = this.memory.get(tenantId)!;
-    const originalCount = entries.length;
     let forgottenCount = 0;
 
     const entriesToKeep: MemoryEntry[] = [];

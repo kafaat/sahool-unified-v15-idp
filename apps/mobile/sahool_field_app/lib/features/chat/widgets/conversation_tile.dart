@@ -94,7 +94,7 @@ class ConversationTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: SahoolTheme.primary.withOpacity(0.1),
+                          color: SahoolTheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -189,7 +189,7 @@ class ConversationTile extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 28,
-          backgroundColor: SahoolTheme.primary.withOpacity(0.1),
+          backgroundColor: SahoolTheme.primary.withValues(alpha: 0.1),
           backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
           child: avatarUrl == null
               ? const Icon(

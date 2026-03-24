@@ -60,7 +60,7 @@ class WeatherCardWidget extends StatelessWidget {
                             _formatTime(weather.timestamp, isArabic),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.6),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -150,7 +150,7 @@ class WeatherCardWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color, width: 2),
       ),
@@ -199,7 +199,7 @@ class WeatherCardWidget extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 2),
@@ -215,7 +215,7 @@ class WeatherCardWidget extends StatelessWidget {
             subtitle,
             style: theme.textTheme.bodySmall?.copyWith(
               fontSize: 10,
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -280,7 +280,7 @@ class CompactWeatherCard extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Row(

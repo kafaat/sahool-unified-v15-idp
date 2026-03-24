@@ -9,7 +9,6 @@ import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart'
 /// even from the superclass constructor.
 class _TestableMarketplaceNotifier extends MarketplaceNotifier {
   _TestableMarketplaceNotifier({
-    required super.baseUrl,
     required super.userId,
   });
 
@@ -409,7 +408,6 @@ void main() {
       // Create notifier - loadProducts will fail (no real server)
       // but we can still test cart operations
       notifier = _TestableMarketplaceNotifier(
-        baseUrl: 'http://localhost:9999',
         userId: 'test-user',
       );
     });

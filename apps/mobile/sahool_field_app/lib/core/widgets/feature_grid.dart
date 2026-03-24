@@ -63,7 +63,7 @@ class FeatureGrid extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       child: InkWell(
         onTap: () => context.push(feature.route),
         borderRadius: BorderRadius.circular(16),
@@ -76,7 +76,7 @@ class FeatureGrid extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: feature.color.withOpacity(0.1),
+                  color: feature.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -128,7 +128,7 @@ class FeatureGrid extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       child: InkWell(
         onTap: () => context.push(feature.route),
         borderRadius: BorderRadius.circular(16),
@@ -142,7 +142,7 @@ class FeatureGrid extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: feature.color.withOpacity(0.1),
+                  color: feature.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -321,7 +321,7 @@ class FeatureSection extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       child: InkWell(
         onTap: () => context.push(feature.route),
         borderRadius: BorderRadius.circular(16),
@@ -335,7 +335,7 @@ class FeatureSection extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: feature.color.withOpacity(0.1),
+                  color: feature.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -409,7 +409,7 @@ class QuickActionCard extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -421,7 +421,7 @@ class QuickActionCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, color: color, size: 28),

@@ -6,7 +6,8 @@ WORKDIR /app
 
 # Python environment settings
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
 
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \

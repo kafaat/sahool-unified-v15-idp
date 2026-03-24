@@ -25,7 +25,8 @@ WORKDIR /app
 
 # Create virtual environment
 RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH" \
+    PIP_NO_CACHE_DIR=1
 
 # Upgrade pip and install build tools with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \

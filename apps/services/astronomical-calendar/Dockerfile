@@ -10,6 +10,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /build
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \

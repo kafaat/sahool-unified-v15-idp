@@ -4,6 +4,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Install system dependencies
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \

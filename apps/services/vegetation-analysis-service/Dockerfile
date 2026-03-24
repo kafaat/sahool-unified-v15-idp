@@ -13,6 +13,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool

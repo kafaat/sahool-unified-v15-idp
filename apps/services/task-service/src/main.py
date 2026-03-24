@@ -336,4 +336,5 @@ async def combined_health():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
+    uvicorn.run(app, host=host, port=SERVICE_PORT)

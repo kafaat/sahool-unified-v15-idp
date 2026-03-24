@@ -39,6 +39,8 @@ for _mod in [
     "shared.auth",
     "shared.auth.dependencies",
     "shared.auth.models",
+    "shared.events",
+    "shared.events.subjects",
     "nats",
     "asyncpg",
     "structlog",
@@ -49,6 +51,9 @@ for _mod in [
 sys.modules["shared.errors_py"].setup_exception_handlers = lambda app: None
 sys.modules["shared.errors_py"].add_request_id_middleware = lambda app: None
 sys.modules["shared.middleware.tenant_context"].TenantContextMiddleware = _NoopMiddleware
+sys.modules["shared.events.subjects"].get_tenant_subject = (
+    lambda tenant_id, domain, action: f"sahool.tenant.{tenant_id}.{domain}.{action}"
+)
 
 # Provide a mock User class and get_current_user callable
 _mock_user = MagicMock()

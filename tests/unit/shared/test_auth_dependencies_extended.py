@@ -154,7 +154,7 @@ class TestGetCurrentUserCachedPaths:
         mock_repo.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 403
         assert exc_info.value.detail == AuthErrors.ACCOUNT_NOT_VERIFIED.en
@@ -177,7 +177,7 @@ class TestGetCurrentUserCachedPaths:
         mock_cache.return_value = cache
         mock_repo.return_value = None
 
-        user = await get_current_user(credentials=valid_credentials, request=mock_request)
+        user = await get_current_user(valid_credentials, mock_request)
 
         assert user.id == "user123"
         assert user.email == "cached@example.com"
@@ -200,7 +200,7 @@ class TestGetCurrentUserCachedPaths:
         mock_cache.return_value = cache
         mock_repo.return_value = None
 
-        user = await get_current_user(credentials=valid_credentials, request=None)
+        user = await get_current_user(valid_credentials, None)
 
         assert user.id == "user123"
 
@@ -224,7 +224,7 @@ class TestGetCurrentUserDBPaths:
         mock_repo.return_value = repo
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 401
 
@@ -246,7 +246,7 @@ class TestGetCurrentUserDBPaths:
         mock_repo.return_value = repo
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 403
 
@@ -268,7 +268,7 @@ class TestGetCurrentUserDBPaths:
         mock_repo.return_value = repo
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 403
 
@@ -289,7 +289,7 @@ class TestGetCurrentUserDBPaths:
         mock_repo.return_value = repo
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 403
 
@@ -310,7 +310,7 @@ class TestGetCurrentUserDBPaths:
         mock_repo.return_value = repo
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=valid_credentials, request=None)
+            await get_current_user(valid_credentials, None)
 
         assert exc_info.value.status_code == 403
         assert exc_info.value.detail == AuthErrors.ACCOUNT_NOT_VERIFIED.en
@@ -337,7 +337,7 @@ class TestGetCurrentUserDBPaths:
         )
         mock_repo.return_value = repo
 
-        user = await get_current_user(credentials=valid_credentials, request=mock_request)
+        user = await get_current_user(valid_credentials, mock_request)
 
         assert user.id == "user123"
         assert user.email == "valid@example.com"
@@ -367,7 +367,7 @@ class TestGetCurrentUserDBPaths:
         )
         mock_repo.return_value = repo
 
-        user = await get_current_user(credentials=valid_credentials, request=mock_request)
+        user = await get_current_user(valid_credentials, mock_request)
 
         assert user.id == "user123"
 
@@ -389,7 +389,7 @@ class TestGetCurrentUserAuthException:
         credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials="expired-token")
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=credentials, request=None)
+            await get_current_user(credentials, None)
 
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == AuthErrors.EXPIRED_TOKEN.en
@@ -403,7 +403,7 @@ class TestGetCurrentUserAuthException:
         credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials="bad-token")
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(credentials=credentials, request=None)
+            await get_current_user(credentials, None)
 
         assert exc_info.value.status_code == 401
 
@@ -432,7 +432,7 @@ class TestRequireFarmAccessExtended:
         checker = require_farm_access()
 
         with pytest.raises(HTTPException) as exc_info:
-            await checker(request=request, user=user)
+            await checker(request, user)
 
         assert exc_info.value.status_code == 403
 
@@ -450,7 +450,7 @@ class TestRequireFarmAccessExtended:
         request.path_params = {"farm_id": "farm123"}
 
         checker = require_farm_access()
-        result = await checker(request=request, user=user)
+        result = await checker(request, user)
         assert result == user
 
     @pytest.mark.asyncio
@@ -467,7 +467,7 @@ class TestRequireFarmAccessExtended:
         request.path_params = {"my_farm_id": "my_farm"}
 
         checker = require_farm_access(farm_id_param="my_farm_id")
-        result = await checker(request=request, user=user)
+        result = await checker(request, user)
         assert result == user
 
 
@@ -490,7 +490,7 @@ class TestRequirePermissionsExtended:
             is_active=True,
         )
         checker = require_permissions("farm:read", "farm:delete")
-        result = await checker(user=user)
+        result = await checker(user)
         assert result == user
 
     @pytest.mark.asyncio
@@ -505,7 +505,7 @@ class TestRequirePermissionsExtended:
         )
         checker = require_permissions("admin:access", "admin:settings")
         with pytest.raises(HTTPException) as exc_info:
-            await checker(user=user)
+            await checker(user)
         assert exc_info.value.status_code == 403
 
 
@@ -555,7 +555,7 @@ class TestRateLimitDependency:
         user = User(id="u1", email="a@b.com", roles=["farmer"])
         request = MagicMock()
 
-        result = await rate_limit_dependency(request=request, user=user)
+        result = await rate_limit_dependency(request, user)
 
         assert result == user
 
@@ -574,7 +574,7 @@ class TestRateLimitDependency:
         request = MagicMock()
 
         with pytest.raises(HTTPException) as exc_info:
-            await rate_limit_dependency(request=request, user=user)
+            await rate_limit_dependency(request, user)
 
         assert exc_info.value.status_code == 429
 
@@ -589,7 +589,7 @@ class TestRateLimitDependency:
         user = User(id="u1", email="a@b.com", roles=["farmer"])
         request = MagicMock()
 
-        result = await rate_limit_dependency(request=request, user=user)
+        result = await rate_limit_dependency(request, user)
 
         assert result == user
         assert request.state.rate_limit_remaining == 42

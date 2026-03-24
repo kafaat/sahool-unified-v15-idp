@@ -46,9 +46,14 @@ def get_subject(event_type: str, tenant_id: str | None = None) -> str:
     """
     # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
     if tenant_id:
-        from shared.events.subjects import get_tenant_subject
-        action = SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}").removeprefix(f"{SUBJECT_PREFIX}.")
-        return get_tenant_subject(tenant_id, "advisory", action)
+        try:
+            from shared.events.subjects import get_tenant_subject
+            action = SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}").removeprefix(f"{SUBJECT_PREFIX}.")
+            return get_tenant_subject(tenant_id, "advisory", action)
+        except (ImportError, ModuleNotFoundError):
+            # Fallback when shared.events is not available (e.g., test environments)
+            action = SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}").removeprefix(f"{SUBJECT_PREFIX}.")
+            return f"sahool.tenant.{tenant_id}.advisory.{action}"
     return SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}")
 
 

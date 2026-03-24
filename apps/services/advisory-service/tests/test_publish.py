@@ -154,7 +154,7 @@ class TestAdvisorPublisher:
         assert event_id  # returns UUID string
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
-        assert call_args[0][0] == "sahool.advisory.recommendation_issued"
+        assert call_args[0][0] == "sahool.tenant.t1.advisory.recommendation_issued"
 
     @pytest.mark.asyncio
     async def test_publish_message_format(self, publisher):

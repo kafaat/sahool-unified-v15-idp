@@ -19,6 +19,8 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field
 
+from .security_utils import sanitize_for_log
+
 logger = logging.getLogger(__name__)
 
 # NATS client - lazy import for optional dependency

@@ -2,7 +2,6 @@
 /// مستودع الملف الشخصي - يتصل بـ user-service (port 3025)
 ///
 /// يوفر بيانات المستخدم الحالي مع دعم التحديث ورفع الصورة
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

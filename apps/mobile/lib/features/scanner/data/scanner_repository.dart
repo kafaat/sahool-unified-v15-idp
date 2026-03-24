@@ -3,7 +3,6 @@
 ///
 /// Sends images to yolo26-vision-service (port 8150) using multipart upload.
 /// POST /api/v1/detect/disease
-library;
 
 import 'dart:io';
 import 'package:dio/dio.dart';

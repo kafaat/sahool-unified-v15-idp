@@ -2,7 +2,6 @@
 /// مستودع التنبيهات - تتصل بـ alert-service (port 8113)
 ///
 /// يوفر قائمة التنبيهات مع دعم التصفية والتحديث
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

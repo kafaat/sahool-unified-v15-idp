@@ -136,9 +136,7 @@ class _ExperimentsListScreenState extends ConsumerState<ExperimentsListScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        ref.invalidate(experimentsProvider);
-      },
+      onRefresh: () => ref.refresh(experimentsProvider.future),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: experiments.length,

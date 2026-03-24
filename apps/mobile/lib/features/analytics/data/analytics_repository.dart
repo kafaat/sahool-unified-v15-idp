@@ -2,7 +2,6 @@
 /// مستودع التحليلات - يتصل بـ indicators-service (port 8091)
 ///
 /// يوفر بيانات لوحة التحليلات مع مؤشرات الحقول والاتجاهات الموسمية
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

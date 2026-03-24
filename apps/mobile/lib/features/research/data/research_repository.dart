@@ -2,7 +2,6 @@
 /// مستودع التجارب البحثية
 ///
 /// يتصل بـ research-core service (port 3015)
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

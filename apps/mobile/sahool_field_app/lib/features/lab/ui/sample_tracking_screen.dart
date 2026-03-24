@@ -49,9 +49,7 @@ class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
                 child: filtered.isEmpty
                     ? _buildEmptyState()
                     : RefreshIndicator(
-                        onRefresh: () async {
-                          ref.invalidate(samplesProvider);
-                        },
+                        onRefresh: () => ref.refresh(samplesProvider.future),
                         child: ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: filtered.length,

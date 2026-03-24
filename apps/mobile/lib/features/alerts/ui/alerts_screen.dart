@@ -174,7 +174,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen>
     }
 
     return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(alertsProvider),
+      onRefresh: () => ref.refresh(alertsProvider.future),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: alerts.length,

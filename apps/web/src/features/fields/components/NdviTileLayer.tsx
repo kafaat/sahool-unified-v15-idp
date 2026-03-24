@@ -154,7 +154,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   // Skip fetching when a non-NDVI index is selected to avoid unnecessary API calls.
   const isNdviIndex = indexType === "ndvi";
   const { data: ndviMapData, error } = useNDVIMap(
-    isNdviIndex ? fieldId : null,
+    isNdviIndex ? fieldId : "",
     isNdviIndex ? dateString : undefined,
   );
 

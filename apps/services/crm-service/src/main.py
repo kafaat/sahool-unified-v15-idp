@@ -1153,14 +1153,10 @@ async def get_farmer(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        data = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database with mandatory tenant isolation
+        data = await crm_repo.farmers.get_by_id(farmer_id, tenant_id)
         if not data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-
-        # Verify farmer belongs to requested tenant
-        if data["tenant_id"] != tenant_id:
-            raise TenantAccessDeniedError(tenant_id=tenant_id)
 
         response = FarmerResponse(
             id=data["id"],
@@ -1227,13 +1223,10 @@ async def update_farmer(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        existing = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database with mandatory tenant isolation
+        existing = await crm_repo.farmers.get_by_id(farmer_id, user.tenant_id)
         if not existing:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-
-        # Validate tenant access
-        validate_tenant_access(user, existing["tenant_id"])
 
         # Track old status for status change event
         old_status = existing["status"]
@@ -1413,13 +1406,10 @@ async def create_deal(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data.farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(deal_data.farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data.farmer_id)
-
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         data = await crm_repo.deals.create(
             farmer_id=deal_data.farmer_id,
@@ -1630,16 +1620,10 @@ async def update_deal_stage(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        deal_data = await crm_repo.deals.get_by_id(deal_id)
+        # Use database with mandatory tenant isolation
+        deal_data = await crm_repo.deals.get_by_id(deal_id, user.tenant_id)
         if not deal_data:
             raise ResourceNotFoundError(resource_type="Deal", resource_id=deal_id)
-
-        # Get farmer for tenant validation
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data["farmer_id"])
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data["farmer_id"])
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         # Track old stage for event
         old_stage = deal_data["stage"]
@@ -1839,13 +1823,10 @@ async def log_interaction(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
-
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         data = await crm_repo.interactions.create(
             farmer_id=interaction_data.farmer_id,
@@ -1967,11 +1948,10 @@ async def list_interactions(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         interactions_data = await crm_repo.interactions.list(
             farmer_id=farmer_id,

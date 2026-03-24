@@ -134,9 +134,10 @@ class FarmerRepository:
     async def update(
         self,
         farmer_id: str | UUID,
+        tenant_id: str,
         **kwargs: Any,
     ) -> dict[str, Any] | None:
-        """Update farmer fields."""
+        """Update farmer fields with mandatory tenant isolation."""
         # Map of allowed fields to their column names
         allowed_fields = {
             "name": "name",
@@ -171,14 +172,15 @@ class FarmerRepository:
 
         if not set_clauses:
             # No fields to update, just return current record
-            return await self.get_by_id(farmer_id)
+            return await self.get_by_id(farmer_id, tenant_id)
 
         params.append(UUID(str(farmer_id)))
+        params.append(tenant_id)
 
         query = f"""
             UPDATE farmers
             SET {", ".join(set_clauses)}
-            WHERE id = ${param_idx}
+            WHERE id = ${param_idx} AND tenant_id = ${param_idx + 1}
             RETURNING
                 id, tenant_id, name, name_ar, phone, email, national_id,
                 farm_size_hectares, location, location_ar, crops, status,
@@ -298,32 +300,19 @@ class DealRepository:
             )
             return self._row_to_dict(row)
 
-    async def get_by_id(self, deal_id: str | UUID, tenant_id: str | None = None) -> dict[str, Any] | None:
-        """Get deal by ID, optionally scoped to tenant for isolation."""
-        if tenant_id:
-            query = """
-                SELECT
-                    id, tenant_id, farmer_id, crop_type, crop_type_ar, quantity_tons,
-                    price_per_ton, total_value, actual_quantity_tons, actual_harvest_date,
-                    expected_harvest_date, stage, probability, notes, notes_ar,
-                    created_at, updated_at, closed_at
-                FROM harvest_deals
-                WHERE id = $1 AND tenant_id = $2
-            """
-            async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(query, UUID(str(deal_id)), tenant_id)
-        else:
-            query = """
-                SELECT
-                    id, tenant_id, farmer_id, crop_type, crop_type_ar, quantity_tons,
-                    price_per_ton, total_value, actual_quantity_tons, actual_harvest_date,
-                    expected_harvest_date, stage, probability, notes, notes_ar,
-                    created_at, updated_at, closed_at
-                FROM harvest_deals
-                WHERE id = $1
-            """
-            async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(query, UUID(str(deal_id)))
+    async def get_by_id(self, deal_id: str | UUID, tenant_id: str) -> dict[str, Any] | None:
+        """Get deal by ID with mandatory tenant isolation."""
+        query = """
+            SELECT
+                id, tenant_id, farmer_id, crop_type, crop_type_ar, quantity_tons,
+                price_per_ton, total_value, actual_quantity_tons, actual_harvest_date,
+                expected_harvest_date, stage, probability, notes, notes_ar,
+                created_at, updated_at, closed_at
+            FROM harvest_deals
+            WHERE id = $1 AND tenant_id = $2
+        """
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(query, UUID(str(deal_id)), tenant_id)
         return self._row_to_dict(row) if row else None
 
     async def list(
@@ -394,9 +383,10 @@ class DealRepository:
     async def update(
         self,
         deal_id: str | UUID,
+        tenant_id: str,
         **kwargs: Any,
     ) -> dict[str, Any] | None:
-        """Update deal fields."""
+        """Update deal fields with mandatory tenant isolation."""
         allowed_fields = {
             "crop_type": "crop_type",
             "crop_type_ar": "crop_type_ar",
@@ -421,14 +411,15 @@ class DealRepository:
                 param_idx += 1
 
         if not set_clauses:
-            return await self.get_by_id(deal_id)
+            return await self.get_by_id(deal_id, tenant_id)
 
         params.append(UUID(str(deal_id)))
+        params.append(tenant_id)
 
         query = f"""
             UPDATE harvest_deals
             SET {", ".join(set_clauses)}
-            WHERE id = ${param_idx}
+            WHERE id = ${param_idx} AND tenant_id = ${param_idx + 1}
             RETURNING
                 id, tenant_id, farmer_id, crop_type, crop_type_ar, quantity_tons,
                 price_per_ton, total_value, actual_quantity_tons, actual_harvest_date,

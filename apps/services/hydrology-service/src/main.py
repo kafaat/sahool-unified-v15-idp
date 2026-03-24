@@ -345,7 +345,7 @@ async def save_analysis(
     field_id: str,
     analysis_type: str,
     result: dict,
-    tenant_id: str | None = None,
+    tenant_id: str,
     dem_source: str | None = None,
     resolution_m: float | None = None,
 ) -> bool:
@@ -388,35 +388,24 @@ async def save_analysis(
     return False
 
 
-async def get_analysis(field_id: str, analysis_type: str, tenant_id: str | None = None) -> dict | None:
+async def get_analysis(field_id: str, analysis_type: str, tenant_id: str) -> dict | None:
     """
-    Retrieve analysis result from database.
-    استرجاع نتيجة التحليل من قاعدة البيانات
+    Retrieve analysis result from database with mandatory tenant isolation.
+    استرجاع نتيجة التحليل من قاعدة البيانات مع عزل إلزامي للمستأجر
     """
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                if tenant_id:
-                    row = await conn.fetchrow(
-                        """
-                        SELECT result, analyzed_at, dem_source, resolution_m
-                        FROM hydrology_analyses
-                        WHERE field_id = $1 AND analysis_type = $2 AND tenant_id = $3
-                    """,
-                        field_id,
-                        analysis_type,
-                        tenant_id,
-                    )
-                else:
-                    row = await conn.fetchrow(
-                        """
-                        SELECT result, analyzed_at, dem_source, resolution_m
-                        FROM hydrology_analyses
-                        WHERE field_id = $1 AND analysis_type = $2
-                    """,
-                        field_id,
-                        analysis_type,
-                    )
+                row = await conn.fetchrow(
+                    """
+                    SELECT result, analyzed_at, dem_source, resolution_m
+                    FROM hydrology_analyses
+                    WHERE field_id = $1 AND analysis_type = $2 AND tenant_id = $3
+                """,
+                    field_id,
+                    analysis_type,
+                    tenant_id,
+                )
 
                 if row:
                     data = json.loads(row["result"])

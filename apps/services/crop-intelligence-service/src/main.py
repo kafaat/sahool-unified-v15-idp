@@ -292,11 +292,11 @@ async def db_store_observation(
     field_id: str,
     zone_id: str,
     obs_data: dict[str, Any],
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> str | None:
     """
-    Store observation in database
-    تخزين الرصد في قاعدة البيانات
+    Store observation in database with mandatory tenant isolation.
+    تخزين الرصد في قاعدة البيانات مع عزل إلزامي للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -440,11 +440,11 @@ async def db_store_zone(
     field_id: str,
     zone_id: str,
     zone_data: dict[str, Any],
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> bool:
     """
-    Store zone in database
-    تخزين المنطقة في قاعدة البيانات
+    Store zone in database with mandatory tenant isolation.
+    تخزين المنطقة في قاعدة البيانات مع عزل إلزامي للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -523,10 +523,10 @@ async def db_store_disease_detection(
     disease_name_ar: str | None,
     confidence: float,
     severity: str | None,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> bool:
     """
-    Store disease detection in database
+    Store disease detection in database with mandatory tenant isolation.
     تخزين كشف المرض في قاعدة البيانات
     """
     pool = get_db_pool()
@@ -1090,8 +1090,9 @@ async def create_zone(
         "created_at": datetime.now(UTC).isoformat(),
     }
 
-    # Try to store in database first
-    stored_in_db = await db_store_zone(field_id, zone_id, zone_data)
+    # Try to store in database first with tenant isolation
+    tenant_id = user.tenant_id if user else ""
+    stored_in_db = await db_store_zone(field_id, zone_id, zone_data, tenant_id)
 
     # Always store in memory as fallback
     if field_id not in ZONES:
@@ -1184,7 +1185,8 @@ async def ingest_observation(
     obs["captured_at"] = body.captured_at.isoformat()
     obs["indices"] = body.indices.model_dump()
 
-    # Try to store in database
+    # Try to store in database with tenant isolation
+    tenant_id = user.tenant_id if user else ""
     db_obs_id = await db_store_observation(
         field_id,
         zone_id,
@@ -1196,6 +1198,7 @@ async def ingest_observation(
             "cloud_pct": body.cloud_pct,
             "notes": body.notes,
         },
+        tenant_id,
     )
 
     # Always store in memory as fallback
@@ -1558,6 +1561,7 @@ class DiseaseDetectionRequest(BaseModel):
 async def detect_crop_diseases(
     body: DiseaseDetectionRequest,
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    user: User | None = Depends(get_current_user),
 ):
     """
     كشف الأمراض المحتملة من المؤشرات النباتية
@@ -1581,6 +1585,7 @@ async def detect_crop_diseases(
     health_en, health_ar = get_overall_health_status(detections)
 
     # Publish disease detection events to NATS and store in database
+    tenant_id = user.tenant_id if user else ""
     if field_id and detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1589,13 +1594,14 @@ async def detect_crop_diseases(
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
             )
-            # Store in database
+            # Store in database with tenant isolation
             await db_store_disease_detection(
                 field_id=field_id,
                 disease_name=detection.disease_type.value,
                 disease_name_ar=getattr(detection, "disease_type_ar", None),
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
+                tenant_id=tenant_id,
             )
 
         # Publish health assessment event

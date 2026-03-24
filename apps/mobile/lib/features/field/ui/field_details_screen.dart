@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
 import '../../../core/logging/logging.dart';
@@ -50,8 +51,8 @@ class FieldDetailsScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: () {
-                Navigator.pushNamed(context, '/field-form',
-                    arguments: {'fieldId': fieldId});
+                context.push('/field-form',
+                    extra: {'fieldId': fieldId});
               },
             ),
             IconButton(

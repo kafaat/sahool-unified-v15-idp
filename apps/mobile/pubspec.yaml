@@ -100,6 +100,9 @@ dependencies:
   # Barcode/QR Scanner
   mobile_scanner: ^6.0.2
 
+  # Collections
+  collection: ^1.18.0  # DeepCollectionEquality for sync conflict resolution
+
   # Utils
   uuid: ^4.5.1
   intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility

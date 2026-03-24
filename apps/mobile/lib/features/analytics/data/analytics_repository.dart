@@ -89,12 +89,12 @@ class AnalyticsRepository {
 
     return AnalyticsDashboardData(
       totalAreaHectares:
-          (data['totalAreaHectares'] ?? data['totalArea'] ?? 0).toDouble(),
-      avgNdvi: (data['avgNdvi'] ?? data['averageNdvi'] ?? 0).toDouble(),
+          ((data['totalAreaHectares'] ?? data['totalArea'] ?? 0) as num).toDouble(),
+      avgNdvi: ((data['avgNdvi'] ?? data['averageNdvi'] ?? 0) as num).toDouble(),
       totalYield:
-          (data['totalYield'] ?? data['yieldTotal'] ?? 0).toDouble(),
+          ((data['totalYield'] ?? data['yieldTotal'] ?? 0) as num).toDouble(),
       totalWaterUsage:
-          (data['totalWaterUsage'] ?? data['waterUsage'] ?? 0).toDouble(),
+          ((data['totalWaterUsage'] ?? data['waterUsage'] ?? 0) as num).toDouble(),
       fieldPerformances: fieldPerformances,
       ndviTrends: ndviTrends,
       seasonSummaries: seasonSummaries,
@@ -107,12 +107,12 @@ class AnalyticsRepository {
       fieldName: (e['fieldName'] ?? e['name'] ?? '').toString(),
       fieldNameAr: (e['fieldNameAr'] ?? e['nameAr'] ?? e['fieldName'] ?? '').toString(),
       cropType: (e['cropType'] ?? e['crop'] ?? '').toString(),
-      areaHectares: (e['areaHectares'] ?? e['area'] ?? 0).toDouble(),
-      ndviScore: (e['ndviScore'] ?? e['ndvi'] ?? 0).toDouble(),
+      areaHectares: ((e['areaHectares'] ?? e['area'] ?? 0) as num).toDouble(),
+      ndviScore: ((e['ndviScore'] ?? e['ndvi'] ?? 0) as num).toDouble(),
       yieldTonsPerHa:
-          (e['yieldTonsPerHa'] ?? e['yield'] ?? 0).toDouble(),
+          ((e['yieldTonsPerHa'] ?? e['yield'] ?? 0) as num).toDouble(),
       waterUsageM3:
-          (e['waterUsageM3'] ?? e['waterUsage'] ?? 0).toDouble(),
+          ((e['waterUsageM3'] ?? e['waterUsage'] ?? 0) as num).toDouble(),
       healthStatus:
           (e['healthStatus'] ?? e['health'] ?? 'unknown').toString(),
       healthStatusAr:
@@ -125,7 +125,7 @@ class AnalyticsRepository {
       date: e['date'] != null
           ? DateTime.tryParse(e['date'].toString()) ?? DateTime.now()
           : DateTime.now(),
-      value: (e['value'] ?? e['ndvi'] ?? 0).toDouble(),
+      value: ((e['value'] ?? e['ndvi'] ?? 0) as num).toDouble(),
       fieldId: (e['fieldId'] ?? e['field_id'] ?? '').toString(),
     );
   }
@@ -134,12 +134,12 @@ class AnalyticsRepository {
     return SeasonSummary(
       season: (e['season'] ?? e['name'] ?? '').toString(),
       seasonAr: (e['seasonAr'] ?? e['nameAr'] ?? e['season'] ?? '').toString(),
-      totalYield: (e['totalYield'] ?? e['yield'] ?? 0).toDouble(),
+      totalYield: ((e['totalYield'] ?? e['yield'] ?? 0) as num).toDouble(),
       totalWaterUsage:
-          (e['totalWaterUsage'] ?? e['waterUsage'] ?? 0).toDouble(),
-      avgNdvi: (e['avgNdvi'] ?? e['ndvi'] ?? 0).toDouble(),
+          ((e['totalWaterUsage'] ?? e['waterUsage'] ?? 0) as num).toDouble(),
+      avgNdvi: ((e['avgNdvi'] ?? e['ndvi'] ?? 0) as num).toDouble(),
       fieldsCount: (e['fieldsCount'] ?? e['fields'] ?? 0) as int,
-      revenue: (e['revenue'] ?? 0).toDouble(),
+      revenue: ((e['revenue'] ?? 0) as num).toDouble(),
     );
   }
 

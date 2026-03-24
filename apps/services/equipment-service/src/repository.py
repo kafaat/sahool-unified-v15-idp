@@ -367,9 +367,13 @@ def delete_maintenance_alert(db: Session, alert_id: str, tenant_id: str | None =
     if not tenant_id:
         raise ValueError("tenant_id is required for delete_maintenance_alert")
 
+    # MaintenanceAlert does not have tenant_id directly; enforce tenant
+    # isolation by joining through Equipment which owns the tenant_id column.
+    # عزل المستأجر عبر الانضمام إلى جدول المعدات الذي يحتوي على معرف المستأجر
     alert = (
         db.query(MaintenanceAlert)
-        .filter(MaintenanceAlert.alert_id == alert_id, MaintenanceAlert.tenant_id == tenant_id)
+        .join(Equipment, Equipment.equipment_id == MaintenanceAlert.equipment_id)
+        .filter(MaintenanceAlert.alert_id == alert_id, Equipment.tenant_id == tenant_id)
         .first()
     )
 

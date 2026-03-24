@@ -602,7 +602,8 @@ class TestRepositoryMaintenanceAlerts:
 
         mock_alert = MagicMock()
         db = MagicMock()
-        db.query.return_value.filter.return_value.first.return_value = mock_alert
+        # Chain: db.query().join().filter().first()
+        db.query.return_value.join.return_value.filter.return_value.first.return_value = mock_alert
 
         result = delete_maintenance_alert(db, "alert_001", tenant_id="t1")
         assert result is True
@@ -612,7 +613,8 @@ class TestRepositoryMaintenanceAlerts:
         from src.repository import delete_maintenance_alert
 
         db = MagicMock()
-        db.query.return_value.filter.return_value.first.return_value = None
+        # Chain: db.query().join().filter().first()
+        db.query.return_value.join.return_value.filter.return_value.first.return_value = None
 
         result = delete_maintenance_alert(db, "nonexistent", tenant_id="t1")
         assert result is False

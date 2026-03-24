@@ -88,8 +88,8 @@ def _get_nats_credentials() -> tuple[str | None, str | None]:
         parsed = urlparse(nats_url)
         if parsed.username and parsed.password:
             return parsed.username, parsed.password
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Failed to parse NATS credentials from URL: %s", exc)
     return None, None
 
 

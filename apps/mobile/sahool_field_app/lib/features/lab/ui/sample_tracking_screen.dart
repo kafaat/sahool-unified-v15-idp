@@ -221,7 +221,7 @@ class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
     );
   }
 
-  Future<void> _scanBarcode() async {
+  Future<void> _scanBarcode(List<LabSample> samples) async {
     final result = await BarcodeScannerScreen.scan(
       context,
       title: 'مسح باركود العينة',

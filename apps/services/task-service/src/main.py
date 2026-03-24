@@ -297,8 +297,8 @@ async def readiness_check():
 
         # Don't block - just check if module is available
         redis_ok = True
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Redis availability check failed: %s", exc)
 
     return {
         "status": "ready" if db_ok else "not_ready",

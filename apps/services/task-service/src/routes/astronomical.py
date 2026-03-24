@@ -407,8 +407,8 @@ async def validate_date_for_activity(
                 astro_data = await fetch_astronomical_best_days(data.activity, 30)
                 best_days = astro_data.get("best_days", [])[:3]
                 alternative_dates = [day["date"] for day in best_days]
-            except Exception:
-                pass  # Ignore errors when fetching alternatives
+            except Exception as exc:
+                logger.debug("Failed to fetch alternative dates: %s", exc)
 
         return DateValidationResponse(
             date=data.date,

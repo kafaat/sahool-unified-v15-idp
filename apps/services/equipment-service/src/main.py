@@ -456,8 +456,8 @@ async def health_check(db: Session = Depends(get_db)):
     # Seed demo data if needed
     try:
         seed_demo_data(db)
-    except Exception:
-        pass  # Ignore seeding errors during health check
+    except Exception as exc:
+        logger.debug("Demo data seeding skipped during health check: %s", exc)
 
     return {
         "status": "ok",

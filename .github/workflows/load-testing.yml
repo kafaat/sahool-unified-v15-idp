@@ -52,7 +52,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create k6 test scripts directory
         run: mkdir -p tests/load
@@ -240,7 +240,7 @@ jobs:
             tests/load/${TEST_TYPE}-test.js || true
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: k6-results-${{ github.event.inputs.test_type || 'smoke' }}
@@ -273,7 +273,7 @@ jobs:
 
     steps:
       - name: Download results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: k6-results-${{ github.event.inputs.test_type || 'smoke' }}
           path: results/

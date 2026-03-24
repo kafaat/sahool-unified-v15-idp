@@ -69,7 +69,7 @@ jobs:
       wait_time_stage3: ${{ steps.config.outputs.wait_time_stage3 }}
       services: ${{ steps.services.outputs.services }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
@@ -139,12 +139,12 @@ jobs:
     needs: [validate]
     if: github.event.inputs.skip-evaluation != 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -158,7 +158,7 @@ jobs:
           generate-report: 'true'
 
       - name: Upload evaluation report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: canary-evaluation-report
           path: evaluation-report.json
@@ -176,7 +176,7 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}-canary
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
@@ -314,7 +314,7 @@ jobs:
     timeout-minutes: 30
     needs: [validate, health-check-stage-1]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v4
@@ -385,7 +385,7 @@ jobs:
     timeout-minutes: 30
     needs: [validate, health-check-stage-2]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v4
@@ -453,7 +453,7 @@ jobs:
     timeout-minutes: 30
     needs: [validate, health-check-stage-3]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v4

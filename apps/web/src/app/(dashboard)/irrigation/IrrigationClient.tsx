@@ -140,14 +140,16 @@ export default function IrrigationClient() {
   const [fields, setFields] = useState<Field[]>([]);
   const { showToast } = useToast();
   const { user } = useAuth();
-  const tenantId = user?.tenant_id ?? "default";
+  const tenantId = user?.tenant_id;
 
-  // Load available fields for the field selector
+  // Load available fields for the field selector (skip until tenant is known)
   useEffect(() => {
+    if (!tenantId) return;
+    const tid = tenantId;
     let cancelled = false;
     async function loadFields() {
       try {
-        const response = await apiClient.getFields(tenantId, { limit: 200 });
+        const response = await apiClient.getFields(tid, { limit: 200 });
         if (!cancelled && response.success && response.data) {
           setFields(response.data);
         }
@@ -334,10 +336,19 @@ export default function IrrigationClient() {
     );
     try {
       const response = await apiClient.startIrrigationSchedule(id);
-      if (response.success && response.data) {
-        setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+      if (response.success) {
+        if (response.data) {
+          setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+        }
+        showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
+      } else {
+        if (previous) {
+          setSchedules((prev) =>
+            prev.map((s) => (s.id === id ? { ...s, status: previous.status } : s))
+          );
+        }
+        showToast({ type: "error", message: "Failed to start irrigation", messageAr: "فشل بدء الري" });
       }
-      showToast({ type: "info", message: "Irrigation started", messageAr: "بدأ الري" });
     } catch {
       if (previous) {
         setSchedules((prev) =>
@@ -359,10 +370,19 @@ export default function IrrigationClient() {
     );
     try {
       const response = await apiClient.stopIrrigationSchedule(id);
-      if (response.success && response.data) {
-        setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+      if (response.success) {
+        if (response.data) {
+          setSchedules((prev) => prev.map((s) => (s.id === id ? response.data! : s)));
+        }
+        showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
+      } else {
+        if (previous) {
+          setSchedules((prev) =>
+            prev.map((s) => (s.id === id ? { ...s, status: previous.status } : s))
+          );
+        }
+        showToast({ type: "error", message: "Failed to pause irrigation", messageAr: "فشل إيقاف الري" });
       }
-      showToast({ type: "success", message: "Irrigation paused", messageAr: "تم إيقاف الري مؤقتاً" });
     } catch {
       if (previous) {
         setSchedules((prev) =>

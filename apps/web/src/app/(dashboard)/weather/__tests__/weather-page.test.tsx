@@ -359,57 +359,6 @@ describe("Weather Types & Contracts", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Agricultural Temperature Alert Logic Tests
-// ═══════════════════════════════════════════════════════════════════════════
-
-describe("Agricultural Temperature Alerts", () => {
-  // These test the real agricultural logic used by the platform
-  function getAgriculturalAlert(tempC: number): { level: string; action: string; actionAr: string } {
-    if (tempC <= 0) return { level: "frost_warning", action: "Cover crops immediately", actionAr: "تغطية المحاصيل فوراً" };
-    if (tempC <= 5) return { level: "cold_alert", action: "Monitor frost-sensitive crops", actionAr: "مراقبة المحاصيل الحساسة للصقيع" };
-    if (tempC >= 45) return { level: "extreme_heat", action: "Emergency irrigation required", actionAr: "ري طوارئ مطلوب" };
-    if (tempC >= 38) return { level: "heat_warning", action: "Increase irrigation frequency", actionAr: "زيادة وتيرة الري" };
-    return { level: "normal", action: "No action needed", actionAr: "لا يلزم إجراء" };
-  }
-
-  it("should trigger frost warning at 0°C and below", () => {
-    expect(getAgriculturalAlert(-5).level).toBe("frost_warning");
-    expect(getAgriculturalAlert(0).level).toBe("frost_warning");
-  });
-
-  it("should trigger cold alert between 1-5°C", () => {
-    expect(getAgriculturalAlert(1).level).toBe("cold_alert");
-    expect(getAgriculturalAlert(5).level).toBe("cold_alert");
-  });
-
-  it("should return normal for safe range 6-37°C", () => {
-    expect(getAgriculturalAlert(6).level).toBe("normal");
-    expect(getAgriculturalAlert(25).level).toBe("normal");
-    expect(getAgriculturalAlert(37).level).toBe("normal");
-  });
-
-  it("should trigger heat warning at 38-44°C", () => {
-    expect(getAgriculturalAlert(38).level).toBe("heat_warning");
-    expect(getAgriculturalAlert(44).level).toBe("heat_warning");
-  });
-
-  it("should trigger extreme heat at 45°C and above", () => {
-    expect(getAgriculturalAlert(45).level).toBe("extreme_heat");
-    expect(getAgriculturalAlert(55).level).toBe("extreme_heat");
-  });
-
-  it("should provide bilingual action recommendations", () => {
-    const frost = getAgriculturalAlert(-2);
-    expect(frost.action).toBeTruthy();
-    expect(frost.actionAr).toBeTruthy();
-    expect(frost.actionAr).not.toBe(frost.action); // Different languages
-
-    const heat = getAgriculturalAlert(40);
-    expect(heat.actionAr).toContain("الري");
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
 // Page Module Export Test
 // ═══════════════════════════════════════════════════════════════════════════
 

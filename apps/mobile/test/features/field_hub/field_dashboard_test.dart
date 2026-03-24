@@ -67,32 +67,4 @@ void main() {
       expect(find.text('مهمة جديدة'), findsOneWidget);
     });
   });
-
-  group('FieldDashboard - Health Status', () {
-    test('health label calculation', () {
-      double getHealthLabel(double ndvi) {
-        if (ndvi >= 0.7) return 4; // ممتازة
-        if (ndvi >= 0.5) return 3; // جيدة
-        if (ndvi >= 0.3) return 2; // متوسطة
-        return 1; // ضعيفة
-      }
-
-      expect(getHealthLabel(0.8), 4);
-      expect(getHealthLabel(0.6), 3);
-      expect(getHealthLabel(0.4), 2);
-      expect(getHealthLabel(0.1), 1);
-    });
-
-    test('nitrogen status calculation', () {
-      String getNitrogenStatus(double avgNdvi) {
-        if (avgNdvi >= 0.6) return 'جيد';
-        if (avgNdvi >= 0.4) return 'متوسط';
-        return 'منخفض';
-      }
-
-      expect(getNitrogenStatus(0.7), 'جيد');
-      expect(getNitrogenStatus(0.5), 'متوسط');
-      expect(getNitrogenStatus(0.3), 'منخفض');
-    });
-  });
 }

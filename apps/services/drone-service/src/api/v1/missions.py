@@ -132,6 +132,8 @@ async def list_missions(
     req: Request,
     status: str | None = None,
     drone_id: str | None = None,
+    limit: int = 500,
+    offset: int = 0,
     user=Depends(get_current_user),
 ):
     """List all missions - قائمة بجميع المهام"""
@@ -139,7 +141,9 @@ async def list_missions(
     repo = _get_repo(req)
 
     if repo:
-        rows = await repo.list_missions(tenant_id, status=status, drone_id=drone_id)
+        rows = await repo.list_missions(
+            tenant_id, status=status, drone_id=drone_id, limit=min(limit, 1000), offset=offset
+        )
         return [MissionResponse(**_mission_to_response(r)) for r in rows]
 
     missions = [m for m in _missions.values() if m.get("tenant_id") == tenant_id]

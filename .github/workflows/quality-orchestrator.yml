@@ -26,6 +26,7 @@ jobs:
   lint-format:
     name: "Layer 1 – Lint & Format"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +80,7 @@ jobs:
   type-check:
     name: "Layer 2 – Type Check"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -135,6 +137,7 @@ jobs:
   security-sast:
     name: "Layer 3 – Security SAST"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -189,6 +192,7 @@ jobs:
   dependency-security:
     name: "Layer 4 – Dependency Security"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -238,6 +242,7 @@ jobs:
   architecture:
     name: "Layer 5 – Architecture"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -276,6 +281,7 @@ jobs:
   dead-code-complexity:
     name: "Layer 6 – Dead Code & Complexity"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -318,6 +324,7 @@ jobs:
   tests:
     name: "Layer 7 – Tests"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -374,6 +381,7 @@ jobs:
   container-infra:
     name: "Layer 8 – Container & Infra"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -382,7 +390,7 @@ jobs:
         run: mkdir -p reports
 
       - name: Trivy – Scan Dockerfiles (config)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           scan-type: config
           scan-ref: .
@@ -392,7 +400,7 @@ jobs:
         continue-on-error: true
 
       - name: Trivy – Scan filesystem for vulnerabilities
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           scan-type: fs
           scan-ref: .
@@ -414,6 +422,7 @@ jobs:
   quality-report:
     name: "Quality Report"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always()
     needs:
       - lint-format

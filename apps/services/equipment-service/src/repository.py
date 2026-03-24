@@ -217,17 +217,27 @@ def get_equipment_stats(
     Returns:
         Dictionary with statistics
     """
-    equipment_list = db.query(Equipment).filter(Equipment.tenant_id == tenant_id).all()
+    # Use GROUP BY instead of loading all records into memory
+    type_rows = (
+        db.query(Equipment.equipment_type, func.count())
+        .filter(Equipment.tenant_id == tenant_id)
+        .group_by(Equipment.equipment_type)
+        .all()
+    )
+    by_type = {row[0]: row[1] for row in type_rows}
 
-    by_type = {}
-    by_status = {}
+    status_rows = (
+        db.query(Equipment.status, func.count())
+        .filter(Equipment.tenant_id == tenant_id)
+        .group_by(Equipment.status)
+        .all()
+    )
+    by_status = {row[0]: row[1] for row in status_rows}
 
-    for eq in equipment_list:
-        by_type[eq.equipment_type] = by_type.get(eq.equipment_type, 0) + 1
-        by_status[eq.status] = by_status.get(eq.status, 0) + 1
+    total = sum(by_status.values())
 
     return {
-        "total": len(equipment_list),
+        "total": total,
         "by_type": by_type,
         "by_status": by_status,
         "operational": by_status.get("operational", 0),
@@ -324,14 +334,12 @@ def get_maintenance_alerts(
     Returns:
         List of maintenance alerts
     """
-    # Get equipment IDs for this tenant
-    equipment_ids = db.query(Equipment.equipment_id).filter(Equipment.tenant_id == tenant_id).all()
-    equipment_id_list = [eq[0] for eq in equipment_ids]
-
-    if not equipment_id_list:
-        return []
-
-    query = select(MaintenanceAlert).where(MaintenanceAlert.equipment_id.in_(equipment_id_list))
+    # Use JOIN to filter alerts by tenant instead of fetching IDs first
+    query = (
+        select(MaintenanceAlert)
+        .join(Equipment, Equipment.equipment_id == MaintenanceAlert.equipment_id)
+        .where(Equipment.tenant_id == tenant_id)
+    )
 
     if priority:
         query = query.where(MaintenanceAlert.priority == priority)

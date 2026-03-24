@@ -99,6 +99,8 @@ model Message {
   @@index([createdAt])
   @@index([conversationId, senderId, isRead]) // Optimize unread count queries
   @@index([conversationId, createdAt]) // Optimize message pagination
+  @@index([tenantId, createdAt]) // Tenant-scoped message time queries
+  @@index([tenantId, isRead, createdAt]) // Tenant-scoped unread filtering
 }
 
 enum MessageType {

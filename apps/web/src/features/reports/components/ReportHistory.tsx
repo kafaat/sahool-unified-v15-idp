@@ -30,6 +30,7 @@ import {
 } from "../hooks/useReports";
 import type {
   ReportHistoryFilters,
+  ReportHistoryItem,
   ReportType,
   ReportStatus,
 } from "../types/reports";
@@ -524,6 +525,9 @@ const ReportCardComponent: React.FC<ReportCardProps> = ({
       )}
     </div>
   );
-});
+};
+
+const ReportCard = React.memo(ReportCardComponent);
+ReportCard.displayName = "ReportCard";
 
 export default ReportHistory;

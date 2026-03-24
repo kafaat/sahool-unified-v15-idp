@@ -178,7 +178,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         child: Row(
           children: suggestions.map((suggestion) {
             return Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsetsDirectional.only(start: 8),
               child: ActionChip(
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),

@@ -150,7 +150,7 @@ const NotificationsTab: React.FC = () => {
   const updatePrefs = useUpdateNotificationPreferences();
 
   if (isLoading || !prefs) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   const handleUpdate = async (
@@ -235,7 +235,7 @@ const SecurityTab: React.FC = () => {
   });
 
   if (isLoading || !security) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
@@ -365,7 +365,7 @@ const PrivacyTab: React.FC = () => {
   // const updatePrivacy = useUpdatePrivacySettings();
 
   if (isLoading || !privacy) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (
@@ -382,7 +382,7 @@ const DisplayTab: React.FC = () => {
   // const updateDisplay = useUpdateDisplayPreferences();
 
   if (isLoading || !display) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (
@@ -408,7 +408,7 @@ const SubscriptionTab: React.FC = () => {
   const { data: subscription, isLoading } = useSubscriptionInfo();
 
   if (isLoading || !subscription) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-8 text-gray-500">جاري التحميل...</div>;
   }
 
   return (

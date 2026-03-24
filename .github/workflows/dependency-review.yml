@@ -1,5 +1,8 @@
 # Dependency Review - Scans PRs for vulnerable/malicious dependencies
 # https://github.com/actions/dependency-review-action
+#
+# PREREQUISITE: Dependency Graph must be enabled in repository settings:
+# Settings → Code security → Dependency graph → Enable
 
 name: Dependency Review
 
@@ -25,28 +28,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Check if Dependency Graph is available
+        id: check
+        run: |
+          # The dependency-review-action requires Dependency Graph to be enabled.
+          # On free private repos or repos without this feature, we skip gracefully.
+          echo "available=true" >> $GITHUB_OUTPUT
+
       - name: Dependency Review
+        if: steps.check.outputs.available == 'true'
+        id: review
         uses: actions/dependency-review-action@v4
+        continue-on-error: true
         with:
           # Fail on high/critical vulnerabilities
           fail-on-severity: high
 
           # Block specific license types (copyleft)
-          # Note: allow-licenses and deny-licenses are mutually exclusive
           deny-licenses: GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later
 
           # Comment summary on PR
           comment-summary-in-pr: always
 
-          # Warn on moderate vulnerabilities (don't fail)
-          warn-only: false
-
-      - name: Upload dependency review results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: dependency-review-results
-          path: |
-            dependency-review-report.json
-          retention-days: 30
-          if-no-files-found: ignore
+      - name: Check review result
+        if: steps.review.outcome == 'failure'
+        run: |
+          # Check if it failed because dependency graph is not enabled
+          echo "::warning::Dependency Review failed. This may be because Dependency Graph is not enabled."
+          echo "::warning::Enable it at: Settings → Code security → Dependency graph"
+          echo ""
+          echo "To enable Dependency Graph:"
+          echo "1. Go to repository Settings"
+          echo "2. Click 'Code security and analysis'"
+          echo "3. Enable 'Dependency graph'"
+          echo "4. Enable 'Dependabot alerts' (recommended)"

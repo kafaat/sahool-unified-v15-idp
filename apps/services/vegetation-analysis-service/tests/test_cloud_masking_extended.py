@@ -4,8 +4,8 @@ Tests cover CloudMasker, SCLClass, CloudMaskResult, ClearObservation,
 quality scoring, interpolation methods, and all helper methods.
 """
 
-import sys
 import os
+import sys
 from datetime import datetime, timedelta
 
 import pytest
@@ -13,13 +13,12 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.cloud_masking import (
+    ClearObservation,
     CloudMasker,
     CloudMaskResult,
-    ClearObservation,
     SCLClass,
     get_cloud_masker,
 )
-
 
 # =============================================================================
 # SCLClass Tests

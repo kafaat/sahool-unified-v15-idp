@@ -14,10 +14,11 @@ from __future__ import annotations
 import asyncio
 import time
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 import structlog
 from fastapi import HTTPException, Request, status

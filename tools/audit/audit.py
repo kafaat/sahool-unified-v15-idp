@@ -12,7 +12,7 @@ Usage:
 import argparse
 import io
 import sys
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -28,6 +28,7 @@ if sys.platform == "win32":
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+from reporters import json_report, markdown_report
 from rules import (
     build_rules,
     connectivity_rules,
@@ -37,7 +38,6 @@ from rules import (
     runtime_rules,
     security_rules,
 )
-from reporters import json_report, markdown_report
 
 
 def load_config(config_path: Path) -> dict:

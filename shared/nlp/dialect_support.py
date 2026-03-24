@@ -10,8 +10,8 @@ This is a SAHOOL-exclusive feature - no competitor offers Arabic dialect NLP.
 from __future__ import annotations
 
 import logging
-from enum import StrEnum
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 logger = logging.getLogger(__name__)
 

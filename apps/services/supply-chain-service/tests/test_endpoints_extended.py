@@ -1,7 +1,7 @@
 """Extended tests for API endpoints - order lifecycle, auto-purchase, edge cases."""
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -11,8 +11,9 @@ os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 try:
     from fastapi.testclient import TestClient

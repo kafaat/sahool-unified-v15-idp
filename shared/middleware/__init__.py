@@ -24,6 +24,12 @@ from .api_versioning import (
     version_router,
 )
 from .cors import DEFAULT_ORIGINS, get_cors_config, get_cors_origins, setup_cors
+from .input_sanitizer import (
+    InputSanitizationMiddleware,
+    sanitize_string,
+    sanitize_value,
+    setup_input_sanitization,
+)
 from .rate_limit import (
     RateLimitConfig,
     RateLimiter,
@@ -49,12 +55,6 @@ from .security_headers import (
     SecurityHeadersMiddleware,
     get_security_headers_config,
     setup_security_headers,
-)
-from .input_sanitizer import (
-    InputSanitizationMiddleware,
-    sanitize_string,
-    sanitize_value,
-    setup_input_sanitization,
 )
 from .tenant_context import TenantContextMiddleware
 

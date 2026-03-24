@@ -4,9 +4,10 @@ Shared fixtures for lowcode-engine tests.
 
 import os
 import sys
+from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 

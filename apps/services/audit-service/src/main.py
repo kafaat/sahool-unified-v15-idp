@@ -238,27 +238,30 @@ async def lifespan(app: FastAPI):
 
     # Subscribe to platform events for audit logging
     if app.state.nc:
+
         async def handle_event(msg):
             data = json.loads(msg.data.decode())
             tenant_id = data.get("tenant_id", "system")
             if tenant_id not in _audit_logs:
                 _audit_logs[tenant_id] = []
-            _audit_logs[tenant_id].append({
-                "id": str(uuid.uuid4()),
-                "subject": msg.subject,
-                "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
-                "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
-                "severity": data.get("severity", "info"),
-                "user_id": data.get("user_id", "system"),
-                "resource_type": data.get("resource_type"),
-                "resource_id": data.get("resource_id"),
-                "tenant_id": tenant_id,
-                "success": data.get("success", True),
-                "details": data,
-                "data": data,
-                "timestamp": datetime.now(UTC).isoformat(),
-                "created_at": datetime.now(UTC).isoformat(),
-            })
+            _audit_logs[tenant_id].append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "subject": msg.subject,
+                    "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
+                    "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
+                    "severity": data.get("severity", "info"),
+                    "user_id": data.get("user_id", "system"),
+                    "resource_type": data.get("resource_type"),
+                    "resource_id": data.get("resource_id"),
+                    "tenant_id": tenant_id,
+                    "success": data.get("success", True),
+                    "details": data,
+                    "data": data,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
+                }
+            )
             logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
 
         audit_subjects = [

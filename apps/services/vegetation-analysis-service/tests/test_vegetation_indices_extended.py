@@ -4,9 +4,9 @@ Tests cover VegetationIndicesCalculator with all 40+ indices,
 BandData, AllIndices, IndexInterpretation, and edge cases.
 """
 
-import sys
-import os
 import math
+import os
+import sys
 
 import pytest
 
@@ -23,7 +23,6 @@ from src.vegetation_indices import (
     VegetationIndex,
     VegetationIndicesCalculator,
 )
-
 
 # =============================================================================
 # Fixtures

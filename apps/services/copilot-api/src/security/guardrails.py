@@ -15,9 +15,10 @@ import fnmatch
 import json
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 import structlog
 

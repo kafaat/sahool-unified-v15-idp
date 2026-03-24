@@ -4,8 +4,8 @@ Tests cover GDDTracker calculation methods, growth stage determination,
 milestones, data models, and crop requirements.
 """
 
-import sys
 import os
+import sys
 from datetime import date, timedelta
 
 import pytest
@@ -20,7 +20,6 @@ from src.gdd_tracker import (
     GDDTracker,
     GrowthMilestone,
 )
-
 
 # =============================================================================
 # Enum Tests

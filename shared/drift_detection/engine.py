@@ -31,15 +31,15 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
-from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.api_drift import APIDriftDetector
-from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
 from shared.drift_detection.detectors.data_drift import DataDriftDetector
+from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.security_drift import SecurityDriftDetector
 from shared.drift_detection.models import (
     DriftCategory,

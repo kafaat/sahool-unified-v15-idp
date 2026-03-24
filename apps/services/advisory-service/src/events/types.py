@@ -48,6 +48,7 @@ def get_subject(event_type: str, tenant_id: str | None = None) -> str:
     if tenant_id:
         try:
             from shared.events.subjects import get_tenant_subject
+
             action = SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}").removeprefix(f"{SUBJECT_PREFIX}.")
             return get_tenant_subject(tenant_id, "advisory", action)
         except (ImportError, ModuleNotFoundError):

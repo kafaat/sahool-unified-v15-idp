@@ -11,9 +11,10 @@ Covers:
 - API endpoint integration tests via TestClient
 """
 
-import pytest
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 try:
     from src.main import (
@@ -21,8 +22,8 @@ try:
         GOVERNORATE_AR,
         NOTIFICATION_TYPE_AR,
         PRIORITY_AR,
-        CropType,
         CreateNotificationRequest,
+        CropType,
         FarmerProfile,
         Governorate,
         IrrigationReminderRequest,

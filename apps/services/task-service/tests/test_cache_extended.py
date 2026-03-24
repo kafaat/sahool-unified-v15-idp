@@ -6,7 +6,6 @@ import time
 from unittest.mock import AsyncMock
 
 import pytest
-
 from src.cache import (
     AstronomicalCache,
     CacheAdapter,

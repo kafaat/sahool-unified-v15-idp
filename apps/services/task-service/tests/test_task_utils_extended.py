@@ -9,7 +9,6 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from src.task_utils import (
     TaskCreateData,
     TaskPriority,
@@ -25,7 +24,6 @@ from src.task_utils import (
     get_due_date_for_priority,
     get_task_type_activity,
 )
-
 
 # ── Enum tests ─────────────────────────────────────────────────────────
 

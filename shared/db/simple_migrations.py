@@ -244,10 +244,7 @@ class SimpleMigrationRunner:
                     result.skipped.append(migration.version)
                     continue
                 if migration.down is None:
-                    raise ValueError(
-                        f"Migration v{migration.version} ({migration.description}) "
-                        "has no rollback SQL"
-                    )
+                    raise ValueError(f"Migration v{migration.version} ({migration.description}) has no rollback SQL")
 
                 if dry_run:
                     self._log.info(
@@ -314,14 +311,10 @@ class SimpleMigrationRunner:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    async def _get_applied_versions(
-        self, conn: asyncpg.Connection, *, dry_run: bool = False
-    ) -> set[int]:
+    async def _get_applied_versions(self, conn: asyncpg.Connection, *, dry_run: bool = False) -> set[int]:
         """Return set of already-applied version numbers."""
         try:
-            rows = await conn.fetch(
-                f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version"
-            )
+            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")
             return {row["version"] for row in rows}
         except Exception:
             # Table may not exist yet (first run or dry_run before real run).

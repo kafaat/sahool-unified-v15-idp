@@ -4,7 +4,6 @@ Tests all exception classes, error codes, bilingual messages, and to_dict serial
 """
 
 import pytest
-
 from src.exceptions import (
     AstronomicalServiceError,
     AstronomicalServiceTimeoutError,
@@ -18,8 +17,8 @@ from src.exceptions import (
     ForbiddenError,
     InvalidDateFormatError,
     InvalidFieldIdError,
-    InvalidTimeFormatError,
     InvalidTenantError,
+    InvalidTimeFormatError,
     MetadataTooLargeError,
     NdviServiceError,
     NotificationServiceError,
@@ -32,7 +31,6 @@ from src.exceptions import (
     UnauthorizedError,
     ValidationError,
 )
-
 
 # ── ErrorCode enum ──────────────────────────────────────────────────────
 

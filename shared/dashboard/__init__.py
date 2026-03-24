@@ -5,11 +5,11 @@ Provides unified farm overview data from multiple services.
 
 from __future__ import annotations
 
-import os
 import logging
+import os
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,8 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
+    from src.main import _enforce_tenant, app
 
-    from src.main import app, _enforce_tenant
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:

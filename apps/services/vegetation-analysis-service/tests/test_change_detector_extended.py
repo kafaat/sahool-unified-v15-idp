@@ -4,8 +4,8 @@ Tests cover ChangeDetector, ChangeEvent, ChangeReport, NDVIDataPoint,
 classify_change, anomaly detection, severity, recommendations, and helper methods.
 """
 
-import sys
 import os
+import sys
 from datetime import date
 
 import pytest
@@ -21,7 +21,6 @@ from src.change_detector import (
     SeverityLevel,
     TrendDirection,
 )
-
 
 # =============================================================================
 # Enum Tests

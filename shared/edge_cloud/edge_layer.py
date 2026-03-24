@@ -22,8 +22,9 @@ from __future__ import annotations
 
 import statistics
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
 import structlog

@@ -291,8 +291,8 @@ class BaseScraper(ABC):
             ValueError: If URL scheme is not http/https.
         """
         # SECURITY: Validate URL scheme to prevent SSRF
-        from urllib.parse import urlparse
         import ipaddress
+        from urllib.parse import urlparse
 
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):

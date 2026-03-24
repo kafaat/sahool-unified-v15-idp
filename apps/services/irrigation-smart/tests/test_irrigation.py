@@ -12,8 +12,8 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-import sys
 import os
+import sys
 
 # Ensure the service src is importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))

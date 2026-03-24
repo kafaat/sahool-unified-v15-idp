@@ -20,6 +20,7 @@ try:
         app,
         get_db_session,
     )
+
     from shared.auth.dependencies import get_current_user
 except ImportError:
     pytest.skip("provider-config dependencies not installed", allow_module_level=True)

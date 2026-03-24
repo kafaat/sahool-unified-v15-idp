@@ -13,7 +13,8 @@ import uuid
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
-from urllib.parse import quote as url_quote, urlparse
+from urllib.parse import quote as url_quote
+from urllib.parse import urlparse
 
 import httpx
 
@@ -77,10 +78,7 @@ def _validate_internal_url(url: str) -> str:
 
     # Reject non-http(s) schemes (e.g. file://, ftp://, gopher://)
     if parsed.scheme not in _ALLOWED_SCHEMES:
-        raise ValueError(
-            f"Disallowed URL scheme '{parsed.scheme}'. "
-            f"Only {_ALLOWED_SCHEMES} are permitted."
-        )
+        raise ValueError(f"Disallowed URL scheme '{parsed.scheme}'. Only {_ALLOWED_SCHEMES} are permitted.")
 
     # Reject URLs containing embedded credentials
     if parsed.username or parsed.password:
@@ -92,9 +90,7 @@ def _validate_internal_url(url: str) -> str:
             "SSRF protection: blocked request to disallowed host %s",
             sanitize_for_log(parsed.netloc),
         )
-        raise ValueError(
-            f"Host '{parsed.netloc}' is not in the allowed internal services list."
-        )
+        raise ValueError(f"Host '{parsed.netloc}' is not in the allowed internal services list.")
 
     return url
 

@@ -4,16 +4,15 @@ Tests cover YieldPredictor methods: NDVI integral, GDD, water stress,
 yield predictions, growth stage, confidence, and recommendations.
 """
 
-import sys
 import os
-from datetime import datetime, timezone, timedelta, UTC
+import sys
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.yield_predictor import YieldPredictor, YieldPrediction
-
+from src.yield_predictor import YieldPrediction, YieldPredictor
 
 # =============================================================================
 # Fixtures

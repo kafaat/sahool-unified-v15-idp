@@ -12,15 +12,15 @@ import pytest
 from fastapi import HTTPException
 
 try:
+    from src.analytics_controller import router as analytics_router
+    from src.channels_controller import router
+    from src.history_controller import router as history_router
     from src.preferences_controller import (
         BulkUpdatePreferencesRequest,
         SetQuietHoursRequest,
         UpdateEventPreferenceRequest,
         get_tenant_id,
     )
-    from src.channels_controller import router
-    from src.history_controller import router as history_router
-    from src.analytics_controller import router as analytics_router
 except (ImportError, Exception):
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 

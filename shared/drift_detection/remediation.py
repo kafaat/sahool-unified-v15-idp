@@ -18,7 +18,7 @@ import logging
 import shlex
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from shared.drift_detection.models import (

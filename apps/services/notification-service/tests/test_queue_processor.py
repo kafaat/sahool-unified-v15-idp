@@ -7,17 +7,16 @@ Covers:
 - NotificationQueueProcessor init, connect, handlers
 """
 
-import pytest
 from datetime import UTC, datetime
 
+import pytest
 from src.queue_processor import (
     NotificationQueueProcessor,
     NotificationStatus,
-    QueuePriority,
     QueuedNotification,
+    QueuePriority,
     get_queue_processor,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums

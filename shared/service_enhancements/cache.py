@@ -39,9 +39,10 @@ import logging
 import os
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
 

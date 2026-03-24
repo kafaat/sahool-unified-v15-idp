@@ -102,14 +102,18 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
                 ),
           ),
           const SizedBox(height: 12),
-          ...ref.watch(availablePlansProvider).map((plan) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: PlanCard(
-                  plan: plan,
-                  isCurrent: plan.id == state.currentPlan?.id,
-                  onUpgrade: () => _handlePlanChange(plan),
-                ),
-              )),
+          ...ref.watch(availablePlansProvider).when(
+                data: (plans) => plans.map((plan) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: PlanCard(
+                        plan: plan,
+                        isCurrent: plan.id == state.currentPlan?.id,
+                        onUpgrade: () => _handlePlanChange(plan),
+                      ),
+                    )),
+                loading: () => [const Center(child: CircularProgressIndicator())],
+                error: (e, _) => [Text('خطأ في تحميل الخطط: $e')],
+              ),
         ],
       ),
     );

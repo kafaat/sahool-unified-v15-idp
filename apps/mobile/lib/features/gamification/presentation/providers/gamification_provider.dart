@@ -93,15 +93,15 @@ class GamificationRepository {
     return Achievement(
       id: json['id'] as String,
       title: json['title'] as String? ?? '',
-      titleEn: json['titleEn'] as String?,
+      titleEn: json['titleEn'] as String? ?? '',
       description: json['description'] as String? ?? '',
       category: _parseCategory(json['category'] as String?),
       tier: _parseTier(json['tier'] as String?),
       iconName: json['iconName'] as String? ?? 'star',
       pointsValue: (json['pointsValue'] as num?)?.toInt() ?? 0,
       progress: json['progress'] != null
-          ? _parseProgress(json['progress'] as Map<String, dynamic>)
-          : null,
+          ? _parseProgress(json['progress'] as Map<String, dynamic>)!
+          : const AchievementProgress(current: 0, target: 100),
       unlockedAt: json['unlockedAt'] != null
           ? DateTime.tryParse(json['unlockedAt'] as String)
           : null,

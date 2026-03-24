@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/farmer_profile.dart';
 import '../../state/crm_providers.dart';
 import '../widgets/farmer_card.dart';
+import 'farmer_profile_screen.dart';
 
 /// Farmers List Screen
 /// شاشة عرض جميع المزارعين
@@ -598,18 +599,3 @@ class _FilterSheetState extends State<_FilterSheet> {
   }
 }
 
-/// Placeholder for FarmerProfileScreen
-/// Will be implemented in farmer_profile_screen.dart
-class FarmerProfileScreen extends ConsumerWidget {
-  final String farmerId;
-
-  const FarmerProfileScreen({super.key, required this.farmerId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('ملف المزارع')),
-      body: Center(child: Text('Farmer ID: $farmerId')),
-    );
-  }
-}

@@ -1,0 +1,176 @@
+# SBOM Generation - Creates Software Bill of Materials for supply chain security
+# Generates SBOM on releases and weekly schedule
+
+name: SBOM Generation
+
+on:
+  release:
+    types: [published]
+  schedule:
+    # Run every Sunday at 4:00 AM UTC
+    - cron: "0 4 * * 0"
+  workflow_dispatch:
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  packages: read
+  actions: read
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+jobs:
+  sbom-python:
+    name: Generate Python SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install CycloneDX
+        run: pip install cyclonedx-bom
+
+      - name: Generate Python SBOM (CycloneDX)
+        run: |
+          # Generate SBOM from all requirements files
+          REQUIREMENTS_FILES=$(find . -name "requirements*.txt" -not -path "./.git/*" -not -path "./archive/*" | head -50)
+
+          # Merge all requirements into a temporary file
+          MERGED_REQS=$(mktemp)
+          for f in $REQUIREMENTS_FILES; do
+            cat "$f" >> "$MERGED_REQS"
+          done
+
+          # Remove duplicates and generate SBOM
+          sort -u "$MERGED_REQS" > /tmp/all-requirements.txt
+          cyclonedx-py requirements \
+            --input /tmp/all-requirements.txt \
+            --output sbom-python.json \
+            --schema-version 1.5 \
+            --format json || true
+
+          rm -f "$MERGED_REQS"
+
+      - name: Upload Python SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-python
+          path: sbom-python.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  sbom-node:
+    name: Generate Node.js SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps || true
+
+      - name: Generate Node.js SBOM (CycloneDX)
+        run: |
+          npx @cyclonedx/cyclonedx-npm \
+            --output-format json \
+            --output-file sbom-node.json \
+            --spec-version 1.5 || true
+
+      - name: Upload Node.js SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-node
+          path: sbom-node.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  sbom-container:
+    name: Generate Container SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generate repository SBOM with Syft
+        run: |
+          syft dir:. \
+            --output cyclonedx-json=sbom-repository.json \
+            --exclude ./archive \
+            --exclude ./.git \
+            --exclude ./node_modules || true
+
+      - name: Upload Repository SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-repository
+          path: sbom-repository.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  sbom-merge:
+    name: Merge & Publish SBOMs
+    needs: [sbom-python, sbom-node, sbom-container]
+    runs-on: ubuntu-latest
+    if: always()
+    timeout-minutes: 10
+
+    steps:
+      - name: Download all SBOMs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sbom-*
+          merge-multiple: true
+          path: sboms/
+
+      - name: List generated SBOMs
+        run: |
+          echo "## SBOM Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| SBOM | Size | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|--------|" >> $GITHUB_STEP_SUMMARY
+          for f in sboms/*.json; do
+            if [ -f "$f" ]; then
+              SIZE=$(du -h "$f" | cut -f1)
+              echo "| $(basename "$f") | $SIZE | ✅ Generated |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Upload merged SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-all-${{ github.sha }}
+          path: sboms/
+          retention-days: 365
+          if-no-files-found: warn
+
+      - name: Attach SBOMs to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sboms/*.json
+          tag_name: ${{ github.event.release.tag_name }}

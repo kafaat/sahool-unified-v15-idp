@@ -1,0 +1,176 @@
+# PR Auto-Labeling Configuration
+# Maps file patterns to labels for automatic PR classification
+# Docs: https://github.com/actions/labeler
+
+# === Area Labels ===
+
+"area: backend-python":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/services/**/*.py"
+          - "shared/**/*.py"
+          - "apps/kernel/**/*.py"
+
+"area: backend-node":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/services/**/*.ts"
+          - "apps/services/**/*.js"
+          - "packages/**/*.ts"
+
+"area: frontend-web":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/web/**"
+          - "apps/admin/**"
+
+"area: mobile":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/mobile/**"
+          - "apps/mobile/**/*.dart"
+
+"area: infrastructure":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "infrastructure/**"
+          - "helm/**"
+          - "gitops/**"
+          - "docker/**"
+          - "config/**"
+
+"area: ci-cd":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".github/**"
+          - "Makefile"
+
+"area: documentation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "**/*.md"
+          - "apps/services-docs/**"
+
+"area: tests":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+          - "**/*test*"
+          - "**/*spec*"
+
+# === Domain Labels ===
+
+"domain: ai":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "shared/ai/**"
+          - "shared/agents/**"
+          - "shared/llm/**"
+          - "shared/nlp/**"
+          - "shared/ml/**"
+          - "apps/services/copilot-api/**"
+          - "apps/services/ai-*/**"
+          - "apps/services/llm-*/**"
+          - "apps/services/yolo26-vision-service/**"
+
+"domain: irrigation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "shared/irrigation/**"
+          - "shared/water_management/**"
+          - "shared/ml_irrigation/**"
+          - "apps/services/irrigation-smart/**"
+          - "apps/services/irrigation-cycle-engine/**"
+
+"domain: field-ops":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/services/field-management-service/**"
+          - "shared/field_boundaries/**"
+          - "shared/terrain/**"
+          - "apps/services/terrain-core-service/**"
+
+"domain: iot":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "shared/soil_sensors/**"
+          - "shared/drone_integration/**"
+          - "apps/services/iot-*/**"
+          - "apps/services/edge-orchestrator-service/**"
+
+"domain: security":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "shared/auth/**"
+          - "shared/security/**"
+          - "shared/secrets/**"
+          - "shared/guardrails/**"
+          - "governance/policies/**"
+
+"domain: vision":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/services/yolo26-vision-service/**"
+          - "apps/services/ground-vision-service/**"
+          - "shared/ai/crop_vision.py"
+
+"domain: advisory":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "apps/services/advisory-service/**"
+          - "apps/services/ai-advisor/**"
+          - "shared/fertilizer_management/**"
+          - "shared/pest_scouting/**"
+
+# === Type Labels ===
+
+"type: dependencies":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/requirements*.txt"
+          - "**/package.json"
+          - "**/package-lock.json"
+          - "**/pubspec.yaml"
+          - "**/pubspec.lock"
+          - "constraints.txt"
+          - "docker/constraints-ai.txt"
+
+"type: docker":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/Dockerfile*"
+          - "docker-compose*.yml"
+          - "docker/**"
+
+"type: database":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/prisma/**"
+          - "**/migrations/**"
+          - "database/**"
+          - "shared/db/**"
+
+"type: config":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "config/**"
+          - "**/.env*"
+          - "**/pyproject.toml"
+          - "**/tsconfig*.json"
+
+"type: governance":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "governance/**"
+          - "api/**"
+
+# === Size Labels (based on changed lines - handled by labeler v5) ===
+
+"size: XS":
+  - changed-files:
+      - any-glob-to-any-file: ["**"]
+    all:
+      - changed-files:
+          - all-globs-to-all-files: ["!**"]

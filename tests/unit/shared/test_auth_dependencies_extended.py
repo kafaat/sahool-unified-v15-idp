@@ -97,11 +97,18 @@ class TestEnforceTenant:
             enforce_tenant(user, requested_tenant_id=None)
         assert exc_info.value.status_code == 400
 
-    def test_admin_can_access_any_tenant(self):
-        """Admin users can access any requested tenant."""
-        user = User(id="u1", email="a@b.com", roles=["admin"], tenant_id="t1")
+    def test_super_admin_can_access_any_tenant(self):
+        """Super admin users can access any requested tenant."""
+        user = User(id="u1", email="a@b.com", roles=["super_admin"], tenant_id="t1")
         result = enforce_tenant(user, requested_tenant_id="t2")
         assert result == "t2"
+
+    def test_admin_cannot_access_other_tenant(self):
+        """Regular admin users cannot access other tenants (only super_admin can)."""
+        user = User(id="u1", email="a@b.com", roles=["admin"], tenant_id="t1")
+        with pytest.raises(HTTPException) as exc_info:
+            enforce_tenant(user, requested_tenant_id="t2")
+        assert exc_info.value.status_code == 403
 
     def test_non_admin_same_tenant_succeeds(self):
         """Non-admin user accessing own tenant succeeds."""

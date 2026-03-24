@@ -8,7 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
-import '../ui/sample_tracking_screen.dart';
+import '../domain/lab_models.dart';
 
 // =============================================================================
 // Providers

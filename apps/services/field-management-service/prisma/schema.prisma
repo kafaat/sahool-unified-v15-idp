@@ -131,6 +131,8 @@ model Field {
   @@index([ownerId], name: "idx_field_owner")
   @@index([plantingDate], name: "idx_field_planting")
   @@index([expectedHarvest], name: "idx_field_harvest")
+  @@index([tenantId, cropType, createdAt], name: "idx_field_tenant_crop_date")
+  @@index([tenantId, plantingDate, status], name: "idx_field_tenant_planting_status")
   @@map("fields")
 }
 

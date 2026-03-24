@@ -86,6 +86,8 @@ model DisasterReport {
   @@index([tenantId, status], name: "idx_disaster_tenant_status")
   @@index([type, severity], name: "idx_disaster_type_severity")
   @@index([startDate, endDate], name: "idx_disaster_dates")
+  @@index([tenantId, type, severity], name: "idx_disaster_tenant_type_severity")
+  @@index([tenantId, startDate, status], name: "idx_disaster_tenant_date_status")
   @@map("disaster_reports")
 }
 

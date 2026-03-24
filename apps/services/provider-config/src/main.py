@@ -1614,7 +1614,7 @@ async def rollback_config(
         raise HTTPException(status_code=503, detail="Service not initialized")
 
     try:
-        config = config_service.rollback_to_version(session, config_id, version)
+        config = config_service.rollback_to_version(session, config_id, version, tenant_id=tenant_id)
         if not config:
             raise HTTPException(status_code=404, detail="Configuration or version not found")
 

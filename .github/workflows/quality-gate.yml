@@ -22,6 +22,7 @@ jobs:
   static-analysis:
     name: "Stage 1 - Static Analysis"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       python_issues: ${{ steps.ruff.outputs.issues }}
       sql_issues: ${{ steps.sqlfluff.outputs.issues }}
@@ -75,6 +76,7 @@ jobs:
     name: "Stage 2 - Contract Testing"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       contract_pass: ${{ steps.schemathesis.outputs.pass }}
       newman_pass: ${{ steps.newman.outputs.pass }}
@@ -144,6 +146,7 @@ jobs:
     name: "Stage 3 - Security Scan"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       bandit_issues: ${{ steps.bandit.outputs.issues }}
       semgrep_issues: ${{ steps.semgrep.outputs.issues }}
@@ -194,6 +197,7 @@ jobs:
     name: "Stage 4 - Tests"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       python_pass: ${{ steps.pytest.outputs.pass }}
       coverage: ${{ steps.pytest.outputs.coverage }}
@@ -248,6 +252,7 @@ jobs:
     needs: [static-analysis, contract-testing, security-scan, tests]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 

@@ -183,9 +183,9 @@ async def _ensure_session(
     Uses the client-provided session_id as a deterministic UUID seed so that
     repeated calls with the same session_id always resolve to the same row.
     """
-    # Deterministic UUID from the client session_id string
-    # معرف UUID حتمي من سلسلة معرف الجلسة
-    session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
+    # Deterministic UUID from tenant_id + session_id to prevent cross-tenant collisions
+    # معرف UUID حتمي من معرف المستأجر + معرف الجلسة لمنع التضارب بين المستأجرين
+    session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{tenant_id}:{session_id}")
 
     row = await conn.fetchrow(
         "SELECT id FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",

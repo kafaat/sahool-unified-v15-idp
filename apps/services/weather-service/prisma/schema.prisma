@@ -64,6 +64,7 @@ model WeatherObservation {
   @@index([tenantId, timestamp(sort: Desc)])   // للاستعلام عن بيانات مستأجر معين
   @@index([timestamp(sort: Desc)])             // للاستعلامات الزمنية
   @@index([latitude, longitude, timestamp])    // للاستعلام المكاني
+  @@index([tenantId, locationId, timestamp(sort: Desc)]) // Tenant-scoped location time-series
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

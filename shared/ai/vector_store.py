@@ -666,12 +666,13 @@ class SQLiteBackend(VectorStoreBackendBase):
         """Search for similar vectors"""
         cursor = self._conn.cursor()
 
-        # Get all documents in collection (brute force for FLAT index)
+        # Get documents in collection (brute force for FLAT index, capped at 50000 for safety)
+        max_scan = 50000
         cursor.execute(
             """
-            SELECT * FROM documents WHERE collection = ?
+            SELECT * FROM documents WHERE collection = ? LIMIT ?
         """,
-            (collection,),
+            (collection, max_scan),
         )
 
         results = []

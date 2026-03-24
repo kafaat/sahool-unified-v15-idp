@@ -29,7 +29,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/forecast")
     async def get_weather_forecast(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
@@ -64,7 +63,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/historical")
     async def get_historical_weather(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -110,7 +108,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/gdd")
     async def get_gdd(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -173,7 +170,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/water-balance")
     async def get_water_balance(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -235,7 +231,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/irrigation-advice")
     async def get_irrigation_advice(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         crop_type: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
@@ -308,7 +303,6 @@ def register_weather_endpoints(app):
 
     @app.get("/v1/weather/frost-risk")
     async def get_frost_risk(
-        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),

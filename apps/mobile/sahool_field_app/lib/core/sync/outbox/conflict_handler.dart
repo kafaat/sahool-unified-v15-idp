@@ -479,22 +479,6 @@ class ConflictHandler {
     }
   }
 
-  String _getStrategyEn(ConflictStrategy strategy) {
-    switch (strategy) {
-      case ConflictStrategy.localWins:
-        return 'Local changes kept.';
-      case ConflictStrategy.serverWins:
-        return 'Server version applied.';
-      case ConflictStrategy.lastWriteWins:
-        return 'Latest update applied.';
-      case ConflictStrategy.merge:
-        return 'Changes merged.';
-      case ConflictStrategy.fieldLevel:
-        return 'Field-level merge applied.';
-      case ConflictStrategy.custom:
-        return 'Custom rule applied.';
-    }
-  }
 }
 
 /// Conflict detection result

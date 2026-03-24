@@ -16,7 +16,10 @@ Similar to OneSoil's GDD tracking feature.
 import logging
 from datetime import date as date_class
 
-from fastapi import HTTPException, Query
+from fastapi import Depends, HTTPException, Query
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .gdd_tracker import get_gdd_tracker
 
@@ -28,6 +31,7 @@ def register_gdd_endpoints(app):
 
     @app.get("/v1/gdd/chart/{field_id}")
     async def get_gdd_chart(
+        _user: User = Depends(get_current_user),
         field_id: str,
         crop_code: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
         planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
@@ -157,10 +161,11 @@ def register_gdd_endpoints(app):
             raise HTTPException(status_code=400, detail=str(e)) from e
         except Exception as e:
             logger.error(f"Failed to generate GDD chart: {e}")
-            raise HTTPException(status_code=500, detail=f"GDD calculation error: {str(e)}") from e
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/forecast")
     async def get_gdd_forecast(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         current_gdd: float = Query(..., description="Current accumulated GDD", ge=0),
@@ -250,10 +255,11 @@ def register_gdd_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to generate GDD forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}") from e
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/requirements/{crop_code}")
     async def get_crop_gdd_requirements(
+        _user: User = Depends(get_current_user),
         crop_code: str,
     ):
         """
@@ -333,10 +339,11 @@ def register_gdd_endpoints(app):
             ) from ve
         except Exception as e:
             logger.error(f"Failed to get crop requirements: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/stage/{crop_code}")
     async def get_growth_stage_from_gdd(
+        _user: User = Depends(get_current_user),
         crop_code: str,
         gdd: float = Query(..., description="Accumulated GDD", ge=0),
     ):
@@ -454,10 +461,10 @@ def register_gdd_endpoints(app):
             ) from ve
         except Exception as e:
             logger.error(f"Failed to get growth stage: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/gdd/crops")
-    async def list_supported_crops():
+    async def list_supported_crops(_user: User = Depends(get_current_user)):
         """
         قائمة المحاصيل | List All Supported Crops
 
@@ -507,6 +514,6 @@ def register_gdd_endpoints(app):
             return {"total_crops": len(crops), "crops": crops}
         except Exception as e:
             logger.error(f"Failed to list crops: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("GDD API endpoints registered successfully")

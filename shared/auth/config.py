@@ -43,7 +43,8 @@ class JWTConfig:
     # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
     # Note: Use get_signing_key()/get_verification_key() methods instead of reading
     # this attribute directly, as they re-read from env at call time.
-    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or ""
+    # SECURITY: Never default to empty string - an empty secret allows token forgery.
+    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or "dev-only-insecure-key-must-not-use-in-prod-32ch"
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
     JWT_ALGORITHM: str = "HS256"

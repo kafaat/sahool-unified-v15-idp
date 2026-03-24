@@ -11,7 +11,10 @@ Spray time recommendation endpoints:
 import logging
 from datetime import datetime
 
-from fastapi import HTTPException, Query
+from fastapi import Depends, HTTPException, Query
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .spray_advisor import (
     SprayCondition,
@@ -27,6 +30,7 @@ def register_spray_endpoints(app):
 
     @app.get("/v1/spray/forecast")
     async def get_spray_forecast(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
@@ -131,10 +135,11 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to get spray forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         product_type: str = Query(..., description="Product type (herbicide, insecticide, etc.)"),
@@ -208,10 +213,11 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to find best spray time: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
+        _user: User = Depends(get_current_user),
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         target_datetime: str = Query(..., description="Target spray time (ISO 8601 format)"),
@@ -307,10 +313,10 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to evaluate spray time: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.get("/v1/spray/conditions")
-    async def get_spray_conditions_info():
+    async def get_spray_conditions_info(_user: User = Depends(get_current_user)):
         """
         معلومات ظروف الرش | Get Spray Conditions Information
 

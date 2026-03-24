@@ -308,21 +308,18 @@ export function createInlineScript(
     ? sanitizeScriptCode(code)
     : code;
 
-  // Validate unless explicitly skipped
+  // Validate script code (fail closed in ALL environments)
   if (!options?.skipValidation) {
     const validation = validateScriptCode(codeToValidate);
 
     if (!validation.isValid) {
       const errorMessage = `[Security] Inline script validation failed:\n${validation.errors.join("\n")}`;
 
-      // In production, we should fail closed (reject the script)
-      if (process.env.NODE_ENV === "production") {
-        throw new Error(errorMessage);
-      }
-
-      // In development, log the error but allow it (for debugging)
+      // SECURITY FIX: Fail closed in all environments, not just production.
+      // Allowing invalid scripts in development creates a false sense of security
+      // and can mask XSS vulnerabilities that only surface in production.
       logger.error(errorMessage);
-      logger.error("Script code:", code);
+      throw new Error(errorMessage);
     }
   }
 

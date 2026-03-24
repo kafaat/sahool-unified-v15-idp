@@ -353,7 +353,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildInfoBanner(conversation) {
+  Widget _buildInfoBanner(Conversation conversation) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

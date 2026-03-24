@@ -75,7 +75,7 @@ export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
     setFilters((prev) => ({ ...prev, search }));
   };
 
-  const handleFilterChange = (key: keyof ReportHistoryFilters, value: any) => {
+  const handleFilterChange = (key: keyof ReportHistoryFilters, value: string | undefined) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 

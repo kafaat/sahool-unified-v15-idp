@@ -27,10 +27,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
+        role="presentation"
       />
 
       {/* Cart Sidebar */}
-      <div className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform animate-slide-in-right">
+      <div
+        className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform animate-slide-in-right"
+        role="dialog"
+        aria-modal="true"
+        aria-label="سلة التسوق"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
@@ -42,6 +48,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
           </div>
           <button
             onClick={onClose}
+            aria-label="إغلاق سلة التسوق"
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
@@ -244,6 +251,7 @@ const CartItem: React.FC<CartItemProps> = ({
       {/* Remove Button */}
       <button
         onClick={onRemove}
+        aria-label={`إزالة ${product.nameAr} من السلة`}
         className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors self-start"
       >
         <Trash2 className="w-5 h-5" />

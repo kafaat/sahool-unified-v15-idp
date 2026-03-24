@@ -336,17 +336,17 @@ const SecurityTab: React.FC = () => {
                     </p>
                     <p className="text-sm text-gray-600">{session.location}</p>
                     <p className="text-xs text-gray-500">
-                      Last active:{" "}
+                      آخر نشاط:{" "}
                       {new Date(session.lastActive).toLocaleString("ar-SA")}
                     </p>
                   </div>
                   {session.isCurrent ? (
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                      Current
+                      الحالية
                     </span>
                   ) : (
                     <button className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">
-                      Terminate
+                      إنهاء الجلسة
                     </button>
                   )}
                 </div>

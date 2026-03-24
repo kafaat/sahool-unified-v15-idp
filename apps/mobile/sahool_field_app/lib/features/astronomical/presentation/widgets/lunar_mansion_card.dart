@@ -209,9 +209,9 @@ class LunarMansionCard extends StatelessWidget {
   }
 
   Color _getScoreColor(int score) {
-    if (score >= 80) return Colors.green;
-    if (score >= 60) return Colors.lightGreen;
-    if (score >= 40) return Colors.orange;
+    if (score >= 8) return Colors.green;
+    if (score >= 6) return Colors.lightGreen;
+    if (score >= 4) return Colors.orange;
     return Colors.red;
   }
 }

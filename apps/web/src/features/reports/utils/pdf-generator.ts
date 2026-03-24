@@ -292,7 +292,7 @@ export function orderSections(
 
   const orderArray = type === "field" ? fieldOrder : seasonOrder;
 
-  return sections.sort((a, b) => {
+  return [...sections].sort((a, b) => {
     const indexA = orderArray.indexOf(a);
     const indexB = orderArray.indexOf(b);
     return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);

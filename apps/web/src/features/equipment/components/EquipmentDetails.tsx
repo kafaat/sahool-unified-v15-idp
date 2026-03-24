@@ -89,7 +89,10 @@ export function EquipmentDetails({ equipmentId }: EquipmentDetailsProps) {
             >
               <Edit className="w-5 h-5" />
             </Link>
-            <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+            <button
+              aria-label="حذف المعدة"
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
               <Trash2 className="w-5 h-5" />
             </button>
           </div>

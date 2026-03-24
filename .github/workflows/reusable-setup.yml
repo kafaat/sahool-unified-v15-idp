@@ -138,7 +138,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       # ─────────────────────────────────────────────────────────────────────────
       # Python Setup
@@ -146,14 +146,14 @@ jobs:
       - name: Set up Python ${{ inputs.python-version }}
         id: python
         if: inputs.setup-python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
 
       - name: Cache pip dependencies
         id: pip-cache
         if: inputs.setup-python && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
@@ -189,7 +189,7 @@ jobs:
       - name: Set up Node.js ${{ inputs.node-version }}
         id: node
         if: inputs.setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
@@ -197,7 +197,7 @@ jobs:
       - name: Cache npm dependencies
         id: npm-cache
         if: inputs.setup-node && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.npm
@@ -236,7 +236,7 @@ jobs:
       - name: Cache Flutter dependencies
         id: flutter-cache
         if: inputs.setup-flutter && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.pub-cache

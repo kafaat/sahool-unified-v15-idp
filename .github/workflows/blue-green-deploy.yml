@@ -68,7 +68,7 @@ jobs:
       current_slot: ${{ steps.current.outputs.current_slot }}
       target_slot: ${{ steps.current.outputs.target_slot }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
@@ -140,12 +140,12 @@ jobs:
     needs: [validate]
     if: github.event.inputs.skip-evaluation != 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -159,7 +159,7 @@ jobs:
           generate-report: 'true'
 
       - name: Upload evaluation report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: blue-green-evaluation-report
           path: evaluation-report.json
@@ -202,7 +202,7 @@ jobs:
           echo "✅ Backup complete"
 
       - name: Upload backup artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: blue-green-backup-${{ github.run_id }}
           path: backups/
@@ -219,7 +219,7 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}-green
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version }}
 
@@ -296,7 +296,7 @@ jobs:
     timeout-minutes: 30
     needs: [validate, deploy-green]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v4
@@ -386,7 +386,7 @@ jobs:
     needs: [validate, test-green, approval]
     if: always() && needs.test-green.result == 'success' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v4

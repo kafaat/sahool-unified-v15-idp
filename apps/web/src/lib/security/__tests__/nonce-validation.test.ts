@@ -177,14 +177,15 @@ describe("createInlineScript", () => {
       process.env.NODE_ENV = originalEnv;
     });
 
-    it("should allow dangerous code in development without throwing", () => {
+    it("should also throw in development mode for dangerous code (fail closed)", () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = "development";
 
-      // In development, dangerous code is allowed (for debugging) but logged
+      // SECURITY: Fail closed in ALL environments - dangerous code must be rejected
+      // even in development to prevent false sense of security
       expect(() => {
         createInlineScript('eval("dangerous")', mockNonce);
-      }).not.toThrow();
+      }).toThrow("Inline script validation failed");
 
       process.env.NODE_ENV = originalEnv;
     });

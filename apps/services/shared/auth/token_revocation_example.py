@@ -364,7 +364,7 @@ async def admin_revoke_user_tokens(
     - Force password reset
     """
     # Check if current user has admin role
-    if not current_user.has_any_role(["admin", "super_admin"]):
+    if not current_user.has_any_role("admin", "super_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
@@ -439,7 +439,7 @@ async def get_revocation_stats(
 
     Requires admin role.
     """
-    if not current_user.has_any_role(["admin", "super_admin"]):
+    if not current_user.has_any_role("admin", "super_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
@@ -471,7 +471,7 @@ async def check_revocation_health(
 
     Requires admin role.
     """
-    if not current_user.has_any_role(["admin", "super_admin"]):
+    if not current_user.has_any_role("admin", "super_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",

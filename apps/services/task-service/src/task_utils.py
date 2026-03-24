@@ -733,7 +733,11 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
                 await astronomical_cache.set_daily_data(date_str, data)
                 return data
             else:
-                logger.error(f"Astronomical service returned {response.status_code}: {response.text}")
+                logger.error(
+                    "Astronomical service returned %s: %s",
+                    response.status_code,
+                    sanitize_for_log(response.text),
+                )
                 raise AstronomicalServiceError(f"Service returned {response.status_code}")
 
     except httpx.TimeoutException:

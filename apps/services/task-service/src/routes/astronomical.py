@@ -272,7 +272,11 @@ async def create_task_with_astronomical_recommendation(
                     "hijri_date": best_day.get("hijri_date"),
                 }
 
-                logger.info(f"Selected astronomical date: {due_date_str} with score {best_day.get('score')}")
+                logger.info(
+                    "Selected astronomical date: %s with score %s",
+                    sanitize_for_log(due_date_str),
+                    sanitize_for_log(best_day.get("score")),
+                )
             else:
                 logger.warning(
                     f"No suitable astronomical days found for {sanitize_for_log(data.activity)}, using default scheduling"
@@ -322,7 +326,11 @@ async def create_task_with_astronomical_recommendation(
     repo = TaskRepository(db)
     created_task = repo.create_task(db_task)
 
-    logger.info(f"Created astronomical task {task_id} with due date {due_date.isoformat() if due_date else 'None'}")
+    logger.info(
+        "Created astronomical task %s with due date %s",
+        sanitize_for_log(task_id),
+        sanitize_for_log(due_date.isoformat() if due_date else "None"),
+    )
 
     return db_task_to_dict(created_task)
 

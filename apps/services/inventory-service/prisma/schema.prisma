@@ -70,6 +70,7 @@ model InventoryItem {
   // Relations
   movements       InventoryMovement[]
   alerts          InventoryAlert[]
+  transfers       StockTransfer[]
 
   @@index([tenantId])
   @@index([category])
@@ -295,6 +296,7 @@ model Warehouse {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  @@unique([tenantId, name], name: "uq_warehouse_tenant_name")
   @@index([tenantId])
   @@index([isActive], name: "idx_warehouse_active")
   @@index([warehouseType], name: "idx_warehouse_type")
@@ -336,6 +338,7 @@ model Zone {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
+  @@unique([warehouseId, name], name: "uq_zone_warehouse_name")
   @@map("zones")
   @@index([tenantId])
   @@index([warehouseId])
@@ -371,6 +374,7 @@ model StockTransfer {
   id              String    @id @default(uuid())
   tenantId        String    @map("tenant_id")
   itemId          String    @map("item_id")
+  item            InventoryItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
   fromWarehouseId String?   @map("from_warehouse_id")
   fromWarehouse   Warehouse? @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
   toWarehouseId   String    @map("to_warehouse_id")

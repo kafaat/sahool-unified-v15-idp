@@ -391,7 +391,7 @@ model Treatment {
   updatedAt            DateTime      @updatedAt @map("updated_at")
 
   experiment Experiment         @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: SetNull)
+  plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: Cascade)
   logs       ResearchDailyLog[]
 
   @@index([tenantId], name: "idx_treatment_tenant")
@@ -428,8 +428,8 @@ model ResearchDailyLog {
   updatedAt         DateTime    @updatedAt @map("updated_at")
 
   experiment Experiment    @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  plot       ResearchPlot? @relation(fields: [plotId], references: [id], onDelete: SetNull)
-  treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+  plot       ResearchPlot? @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: Cascade)
   samples    LabSample[]
 
   @@unique([tenantId, offlineId], name: "uq_daily_log_tenant_offline")
@@ -471,8 +471,8 @@ model LabSample {
   updatedAt          DateTime   @updatedAt @map("updated_at")
 
   experiment Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
-  log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
+  plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, sampleCode], name: "uq_lab_sample_tenant_code")
   @@index([tenantId], name: "idx_lab_sample_tenant")
@@ -544,7 +544,7 @@ model ExperimentAuditLog {
   ipAddress    String?   @map("ip_address") @db.VarChar(45)
   userAgent    String?   @map("user_agent") @db.Text
 
-  experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
   @@index([tenantId], name: "idx_audit_log_tenant")
   @@index([experimentId], name: "idx_audit_log_experiment")

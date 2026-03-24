@@ -113,13 +113,15 @@ def _drone_to_response(d: dict) -> dict:
 async def list_drones(
     req: Request,
     status: str | None = None,
+    limit: int = 500,
+    offset: int = 0,
     user=Depends(get_current_user),
 ):
     """List all registered drones - قائمة بجميع الطائرات المسجلة"""
     tenant_id = _get_tenant_id(user)
     repo = _get_repo(req)
     if repo:
-        rows = await repo.list_drones(tenant_id, status=status)
+        rows = await repo.list_drones(tenant_id, status=status, limit=min(limit, 1000), offset=offset)
         return [DroneResponse(**_drone_to_response(r)) for r in rows]
 
     # In-memory fallback

@@ -21,8 +21,6 @@ import {
 import type { LatLngTuple, LatLngExpression } from "leaflet";
 import type { Field, GeoPolygon } from "../types";
 import {
-  NDVI_COLORS,
-  CROP_HEALTH_COLORS,
   INTERACTION_COLORS,
 } from "@/lib/chart-colors";
 
@@ -38,15 +36,15 @@ const YEMEN_CENTER: LatLngTuple = [15.5527, 48.5164];
 
 /**
  * Get NDVI-based color for field display
- * Uses design system agricultural tokens
+ * Uses the same color scale as HealthZonesLayer for cross-component consistency
  */
 export const getNDVIColor = (ndvi?: number): string => {
-  if (ndvi === undefined || ndvi === null) return NDVI_COLORS.noData;
-  if (ndvi >= 0.7) return NDVI_COLORS.high;
-  if (ndvi >= 0.5) return NDVI_COLORS.mediumHigh;
-  if (ndvi >= 0.3) return NDVI_COLORS.medium;
-  if (ndvi >= 0.15) return NDVI_COLORS.low;
-  return CROP_HEALTH_COLORS.critical;
+  if (ndvi === undefined || ndvi === null) return "#9ca3af"; // Gray - no data
+  if (ndvi >= 0.7) return "#1B5E20"; // Dark green - excellent
+  if (ndvi >= 0.5) return "#4CAF50"; // Green - good
+  if (ndvi >= 0.3) return "#FDD835"; // Yellow - moderate
+  if (ndvi >= 0.15) return "#FF9800"; // Orange - poor
+  return "#F44336"; // Red - critical
 };
 
 /**

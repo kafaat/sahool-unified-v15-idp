@@ -185,13 +185,15 @@ describe("RedisTokenRevocationStore", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false on Redis error (fail open)", async () => {
+    it("should return true on Redis error (fail closed)", async () => {
       await store.initialize();
       mockRedis.exists.mockRejectedValueOnce(new Error("Redis error"));
 
       const result = await store.isTokenRevoked("jti-123");
 
-      expect(result).toBe(false);
+      // Fail closed: treat token as revoked when Redis is unavailable
+      // to prevent revoked tokens from being accepted during outages
+      expect(result).toBe(true);
     });
   });
 

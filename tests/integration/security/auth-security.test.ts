@@ -389,22 +389,17 @@ describe("TenantGuard enforcement", () => {
 
   describe("unauthenticated requests with x-tenant-id header", () => {
     it("should reject when user is undefined but header provides tenant", () => {
-      // When no user is set (unauthenticated), the TenantGuard still
-      // processes because JwtAuthGuard should have already rejected.
-      // But if it reaches TenantGuard, headerTenantId is used as fallback.
-      // The guard itself does not enforce authentication -- it allows
-      // if a tenantId is derivable. Real rejection happens via JwtAuthGuard.
+      // When no user is set (unauthenticated), the TenantGuard now
+      // explicitly rejects with UnauthorizedException, enforcing that
+      // authentication must happen before tenant validation.
       const context = createMockContext({
         user: null,
         headers: { "x-tenant-id": "00000000-0000-0000-0000-000000000001" },
       });
 
-      // TenantGuard allows it because it finds a tenantId from the header.
-      // Authentication enforcement is the responsibility of JwtAuthGuard.
-      // This test documents that TenantGuard alone does not reject
-      // unauthenticated requests -- it relies on guard ordering.
-      const result = guard.canActivate(context);
-      expect(result).toBe(true);
+      // TenantGuard now requires an authenticated user and throws
+      // UnauthorizedException when user is undefined.
+      expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
     });
 
     it("should reject when no user and no header (no tenant derivable)", () => {
@@ -413,7 +408,10 @@ describe("TenantGuard enforcement", () => {
         headers: {},
       });
 
-      expect(() => guard.canActivate(context)).toThrow(BadRequestException);
+      // TenantGuard now rejects unauthenticated requests before checking
+      // for tenant ID, so this throws UnauthorizedException instead of
+      // BadRequestException.
+      expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
     });
   });
 

@@ -10,6 +10,11 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import date
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -75,7 +80,10 @@ from .models.inventory import (
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Security: Require DATABASE_URL from environment, no hardcoded defaults
 DATABASE_URL = os.getenv("DATABASE_URL")

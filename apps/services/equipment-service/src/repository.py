@@ -39,23 +39,23 @@ def get_equipment(
     db: Session,
     *,
     equipment_id: str,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> Equipment | None:
     """
-    Get a specific equipment by ID.
+    Get a specific equipment by ID with mandatory tenant isolation.
 
     Args:
         db: SQLAlchemy session
         equipment_id: Equipment identifier
-        tenant_id: Optional tenant ID for isolation
+        tenant_id: Tenant ID for isolation
 
     Returns:
         Equipment or None if not found
     """
-    query = select(Equipment).where(Equipment.equipment_id == equipment_id)
-
-    if tenant_id:
-        query = query.where(Equipment.tenant_id == tenant_id)
+    query = select(Equipment).where(
+        Equipment.equipment_id == equipment_id,
+        Equipment.tenant_id == tenant_id,
+    )
 
     return db.execute(query).scalar_one_or_none()
 
@@ -64,23 +64,23 @@ def get_equipment_by_qr(
     db: Session,
     *,
     qr_code: str,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> Equipment | None:
     """
-    Get equipment by QR code.
+    Get equipment by QR code with mandatory tenant isolation.
 
     Args:
         db: SQLAlchemy session
         qr_code: QR code
-        tenant_id: Optional tenant ID for isolation
+        tenant_id: Tenant ID for isolation
 
     Returns:
         Equipment or None if not found
     """
-    query = select(Equipment).where(Equipment.qr_code == qr_code)
-
-    if tenant_id:
-        query = query.where(Equipment.tenant_id == tenant_id)
+    query = select(Equipment).where(
+        Equipment.qr_code == qr_code,
+        Equipment.tenant_id == tenant_id,
+    )
 
     return db.execute(query).scalar_one_or_none()
 

@@ -379,19 +379,19 @@ async def db_get_page(page_id: str, tenant_id: str) -> InternalPage | None:
 
 
 async def db_list_pages(
-    tenant_id: str | None = None,
+    tenant_id: str,
     is_published: bool | None = None,
     limit: int = 50,
 ) -> list[InternalPage]:
-    """List pages from the database using safe parameterized queries."""
+    """List pages from the database using safe parameterized queries with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
             # Build query with explicit parameter handling to avoid SQL injection
-            # Use conditional query selection based on filter combinations
-            if tenant_id and is_published is not None:
+            # tenant_id is always required for tenant isolation
+            if is_published is not None:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1 AND is_published = $2
@@ -400,26 +400,12 @@ async def db_list_pages(
                     is_published,
                     limit,
                 )
-            elif tenant_id:
+            else:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1
                        ORDER BY created_at DESC LIMIT $2""",
                     tenant_id,
-                    limit,
-                )
-            elif is_published is not None:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       WHERE is_published = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    is_published,
-                    limit,
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       ORDER BY created_at DESC LIMIT $1""",
                     limit,
                 )
             return [_row_to_page(row) for row in rows]
@@ -568,31 +554,22 @@ async def db_get_model(model_id: str, tenant_id: str) -> InternalDataModel | Non
 
 
 async def db_list_models(
-    tenant_id: str | None = None,
+    tenant_id: str,
     limit: int = 50,
 ) -> list[InternalDataModel]:
-    """List data models from the database using safe parameterized queries."""
+    """List data models from the database using safe parameterized queries with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
-            # Use explicit queries based on filter combinations
-            # This avoids dynamic SQL construction and SQL injection risks
-            if tenant_id:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       WHERE tenant_id = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id,
-                    limit,
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       ORDER BY created_at DESC LIMIT $1""",
-                    limit,
-                )
+            rows = await conn.fetch(
+                """SELECT * FROM lowcode_models
+                   WHERE tenant_id = $1
+                   ORDER BY created_at DESC LIMIT $2""",
+                tenant_id,
+                limit,
+            )
             return [_row_to_model(row) for row in rows]
     except Exception as e:
         logger.error("db_list_models_error", error=str(e))

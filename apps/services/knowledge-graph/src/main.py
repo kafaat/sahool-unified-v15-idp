@@ -15,11 +15,19 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 # Configure logger early
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -46,7 +54,10 @@ SERVICE_PORT = 8140
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("knowledge-graph")
+if structlog is not None:
+    logger = structlog.get_logger("knowledge-graph")
+else:
+    logger = logging.getLogger("knowledge-graph")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

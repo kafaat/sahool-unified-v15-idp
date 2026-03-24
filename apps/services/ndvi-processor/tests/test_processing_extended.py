@@ -133,13 +133,13 @@ class TestJobEdgeCases:
 
     def test_list_jobs_empty(self):
         """list_jobs returns empty list when no jobs exist."""
-        assert list_jobs() == []
+        assert list_jobs(tenant_id="t1") == []
 
     def test_list_jobs_sorted_by_created_at_desc(self):
         """list_jobs returns jobs sorted by created_at descending."""
         j1 = create_job("t1", "f1", "ndvi", {})
         j2 = create_job("t1", "f2", "ndvi", {})
-        jobs = list_jobs()
+        jobs = list_jobs(tenant_id="t1")
         # j2 was created after j1, so it should appear first
         assert jobs[0]["job_id"] == j2
         assert jobs[1]["job_id"] == j1

@@ -12,7 +12,8 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
 
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/

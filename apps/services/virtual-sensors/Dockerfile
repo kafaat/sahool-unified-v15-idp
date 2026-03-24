@@ -23,7 +23,8 @@ WORKDIR /app
 
 # Create virtual environment
 RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH" \
+    PIP_NO_CACHE_DIR=1
 
 # Install Python dependencies with multi-mirror fallback
 COPY constraints.txt .

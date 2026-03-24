@@ -24,6 +24,11 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -45,7 +50,10 @@ logging.basicConfig(
 )
 # Suppress duplicate uvicorn access/error logs
 logging.getLogger("uvicorn.access").propagate = False
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Shared Middleware Imports - استيراد البرامج الوسيطة المشتركة

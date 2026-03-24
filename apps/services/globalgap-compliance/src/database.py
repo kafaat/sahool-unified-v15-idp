@@ -382,13 +382,13 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         row = await self._fetchrow(query, registration_id, status, valid_from, valid_to)
         return dict(row) if row else None
 
-    async def delete(self, registration_id: UUID) -> bool:
+    async def delete(self, registration_id: UUID, tenant_id: UUID) -> bool:
         """
-        Delete a registration (and cascade to related records)
-        حذف تسجيل (والتتالي إلى السجلات ذات الصلة)
+        Delete a registration (and cascade to related records), scoped to tenant
+        حذف تسجيل (والتتالي إلى السجلات ذات الصلة)، مع عزل المستأجر
         """
-        query = "DELETE FROM globalgap_registrations WHERE id = $1"
-        result = await self._execute(query, registration_id)
+        query = "DELETE FROM globalgap_registrations WHERE id = $1 AND tenant_id = $2"
+        result = await self._execute(query, registration_id, tenant_id)
         return result == "DELETE 1"
 
 
@@ -523,10 +523,11 @@ class ComplianceRecordRepository(BaseRepository):
         row = await self._fetchrow(query, record_id, major_must_score, minor_must_score, overall_compliance)
         return dict(row) if row else None
 
-    async def delete(self, record_id: UUID) -> bool:
-        """Delete a compliance record"""
-        query = "DELETE FROM compliance_records WHERE id = $1"
-        result = await self._execute(query, record_id)
+    async def delete(self, record_id: UUID, tenant_id: UUID) -> bool:
+        """Delete a compliance record, scoped to tenant for isolation
+        حذف سجل امتثال، مع عزل المستأجر"""
+        query = "DELETE FROM compliance_records WHERE id = $1 AND tenant_id = $2"
+        result = await self._execute(query, record_id, tenant_id)
         return result == "DELETE 1"
 
 

@@ -14,7 +14,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/

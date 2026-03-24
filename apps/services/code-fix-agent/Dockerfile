@@ -17,7 +17,8 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 
 # Create virtual environment to avoid pip root user warning
 # إنشاء بيئة افتراضية لتجنب تحذير المستخدم الجذر
-ENV VIRTUAL_ENV=/opt/venv
+ENV VIRTUAL_ENV=/opt/venv \
+    PIP_NO_CACHE_DIR=1
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 

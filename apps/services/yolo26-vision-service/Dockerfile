@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONFAULTHANDLER=1
+ENV PIP_NO_CACHE_DIR=1
 
 # Install system dependencies
 COPY docker/apt-update.sh /usr/local/bin/
@@ -215,6 +216,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONFAULTHANDLER=1
+ENV PIP_NO_CACHE_DIR=1
 
 # Install system dependencies
 # Note: libgl1-mesa-glx replaced by libgl1 in Debian Trixie

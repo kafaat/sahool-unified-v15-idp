@@ -6,6 +6,11 @@ AI Chat Assistant - Main FastAPI application.
 import logging
 from contextlib import asynccontextmanager
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -26,7 +31,10 @@ logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager

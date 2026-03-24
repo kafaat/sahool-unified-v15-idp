@@ -882,11 +882,12 @@ async def check_map_provider_health(
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
+        logger.error(f"Satellite provider health check failed: {e}", exc_info=True)
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.now(UTC),
-            error_message=str(e),
+            error_message="Provider health check failed",
         )
 
 
@@ -953,11 +954,12 @@ async def check_weather_provider_health(
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
+        logger.error(f"Weather provider health check failed: {e}", exc_info=True)
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.now(UTC),
-            error_message=str(e),
+            error_message="Provider health check failed",
         )
 
 

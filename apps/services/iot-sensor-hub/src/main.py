@@ -44,9 +44,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+import logging
+
 VERSION = "16.0.0"
 SERVICE_NAME = "iot-sensor-hub"
 PORT = int(os.getenv("PORT", "8251"))
+
+logger = logging.getLogger(SERVICE_NAME)
 
 # ---------------------------------------------------------------------------
 # Enums & Constants
@@ -667,8 +671,8 @@ async def ingest_reading(reading: SensorReading):
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to publish NATS reading event for node %s", reading.node_id, exc_info=True)
 
     return result
 
@@ -737,8 +741,8 @@ async def calculate_wdi(req: WDIRequest):
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to publish NATS WDI event for field %s", req.field_id, exc_info=True)
 
     return result
 

@@ -134,7 +134,7 @@ def register_spray_endpoints(app):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to get spray forecast: {e}")
+            logger.error(f"Failed to get spray forecast: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.get("/v1/spray/best-time")
@@ -212,7 +212,7 @@ def register_spray_endpoints(app):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to find best spray time: {e}")
+            logger.error(f"Failed to find best spray time: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.post("/v1/spray/evaluate")
@@ -312,7 +312,7 @@ def register_spray_endpoints(app):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Failed to evaluate spray time: {e}")
+            logger.error(f"Failed to evaluate spray time: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error")
 
     @app.get("/v1/spray/conditions")

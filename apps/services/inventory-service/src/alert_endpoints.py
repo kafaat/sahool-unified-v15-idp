@@ -113,6 +113,7 @@ async def get_alerts(
     alert_type: str | None = Query(None, description="Filter by type"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    _user: User = Depends(get_current_user),
 ):
     """Get all active alerts"""
     try:
@@ -148,7 +149,7 @@ async def get_alerts(
         raise
     except ValueError as e:
         logger.error(f"Validation error getting alerts: {e}")
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        raise HTTPException(status_code=400, detail="Invalid filter parameter value") from e
     except RuntimeError as e:
         logger.error(f"Runtime error getting alerts: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -158,7 +159,7 @@ async def get_alerts(
 
 
 @router.get("/{alert_id}", response_model=InventoryAlertResponse)
-async def get_alert(alert_id: str):
+async def get_alert(alert_id: str, _user: User = Depends(get_current_user)):
     """Get specific alert by ID"""
     try:
         manager = get_alert_manager()
@@ -177,7 +178,7 @@ async def get_alert(alert_id: str):
 
 
 @router.get("/summary")
-async def get_alerts_summary():
+async def get_alerts_summary(_user: User = Depends(get_current_user)):
     """Get alert summary statistics"""
     try:
         manager = get_alert_manager()

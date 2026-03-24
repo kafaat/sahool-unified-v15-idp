@@ -100,7 +100,8 @@ def register_weather_endpoints(app):
             historical = await weather_service.get_historical(lat, lon, start, end)
             return historical.to_dict()
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+            logger.warning(f"Invalid date format: {e}")
+            raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
             logger.error(f"Failed to get historical weather: {e}")
             raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -161,7 +162,8 @@ def register_weather_endpoints(app):
                 "gdd_per_day": round(gdd / ((end - start).days + 1), 2),
             }
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+            logger.warning(f"Invalid date format: {e}")
+            raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
             logger.error(f"Failed to calculate GDD: {e}")
             raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -221,7 +223,8 @@ def register_weather_endpoints(app):
             balance = await weather_service.get_water_balance(lat, lon, start, end, kc)
             return balance
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+            logger.warning(f"Invalid date format: {e}")
+            raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 (YYYY-MM-DD)") from e
         except Exception as e:
             logger.error(f"Failed to calculate water balance: {e}")
             raise HTTPException(status_code=500, detail="Internal server error") from e

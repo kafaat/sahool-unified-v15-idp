@@ -266,6 +266,7 @@ async def analyze_crop_health(request: NDVIRequest, _user=Depends(get_current_us
 async def list_datasets(
     dataset_type: str | None = None,
     crop_type: str | None = None,
+    _user=Depends(get_current_user),
 ) -> dict[str, Any]:
     """
     List available agricultural ML datasets (AgML).
@@ -282,7 +283,7 @@ async def list_datasets(
 
 
 @router.get("/ml/diseases/{crop}")
-async def get_disease_classes(crop: str) -> dict[str, Any]:
+async def get_disease_classes(crop: str, _user=Depends(get_current_user)) -> dict[str, Any]:
     """
     Get disease classes for a crop type.
     الحصول على فئات الأمراض لنوع محصول
@@ -296,7 +297,7 @@ async def get_disease_classes(crop: str) -> dict[str, Any]:
 
 
 @router.get("/ml/yield-features")
-async def get_yield_features() -> dict[str, Any]:
+async def get_yield_features(_user=Depends(get_current_user)) -> dict[str, Any]:
     """
     Get features used for yield prediction.
     الحصول على الميزات المستخدمة للتنبؤ بالإنتاجية
@@ -310,7 +311,7 @@ async def get_yield_features() -> dict[str, Any]:
 
 
 @router.get("/ml/recommended-datasets")
-async def get_recommended_datasets(region: str = "middle_east") -> dict[str, Any]:
+async def get_recommended_datasets(region: str = "middle_east", _user=Depends(get_current_user)) -> dict[str, Any]:
     """
     Get recommended datasets for a region.
     الحصول على مجموعات البيانات الموصى بها لمنطقة
@@ -347,7 +348,7 @@ async def query_crew(request: CrewQueryRequest, _user=Depends(get_current_user))
 
 
 @router.get("/crew/agents")
-async def list_agents() -> dict[str, Any]:
+async def list_agents(_user=Depends(get_current_user)) -> dict[str, Any]:
     """
     List available agent roles.
     عرض أدوار الوكلاء المتاحة

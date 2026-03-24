@@ -73,13 +73,21 @@ COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Strip build tools from production image (reduces attack surface and CVE footprint)
-RUN rm -rf /home/sahool/.local/lib/python*/site-packages/pip* \
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /home/sahool/.local/lib/python*/site-packages/pip* \
            /home/sahool/.local/lib/python*/site-packages/setuptools* \
            /home/sahool/.local/lib/python*/site-packages/wheel* \
            /home/sahool/.local/lib/python*/site-packages/_distutils_hack* \
            /home/sahool/.local/lib/python*/site-packages/pkg_resources* \
            /home/sahool/.local/bin/pip* \
-           /home/sahool/.local/bin/wheel* 2>/dev/null || true && \
+           /home/sahool/.local/bin/wheel* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/bin/pip* \
+           /usr/local/bin/wheel* 2>/dev/null || true && \
     if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy root shared modules (shared.ai, shared.events, etc.)

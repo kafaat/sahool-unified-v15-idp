@@ -158,7 +158,8 @@ def register_gdd_endpoints(app):
                     status_code=400,
                     detail=f"Unknown crop: {crop_code}. Available crops: {', '.join(crop_codes[:10])}...",
                 ) from e
-            raise HTTPException(status_code=400, detail=str(e)) from e
+            logger.warning(f"Invalid GDD request: {e}")
+            raise HTTPException(status_code=400, detail="Invalid crop code or GDD configuration") from e
         except Exception as e:
             logger.error(f"Failed to generate GDD chart: {e}")
             raise HTTPException(status_code=500, detail="Internal server error") from e

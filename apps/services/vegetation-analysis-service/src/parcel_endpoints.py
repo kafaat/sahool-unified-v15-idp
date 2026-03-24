@@ -215,12 +215,12 @@ def register_parcel_endpoints(app, land_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Parcel auto-generation failed: {e}")
+            logger.error(f"Parcel auto-generation failed: {e}", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail={
-                    "en": f"Parcel detection failed: {str(e)}",
-                    "ar": f"فشل كشف القطع: {str(e)}",
+                    "en": "Parcel detection failed. Please try again or adjust parameters.",
+                    "ar": "فشل كشف القطع. يرجى المحاولة مرة أخرى أو تعديل المعلمات.",
                 },
             ) from e
 

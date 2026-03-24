@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: ZAP API Scan
         uses: zaproxy/action-api-scan@v0.9.0
         with:

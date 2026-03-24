@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -173,7 +173,7 @@ jobs:
 
       - name: Comment on PR with warnings
         if: steps.check-refs.outputs.has_warnings == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -211,7 +211,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check sunset dates
         id: sunset
@@ -287,7 +287,7 @@ jobs:
 
       - name: Create issue for overdue migrations
         if: steps.sunset.outputs.overdue > 0
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const overdue = '${{ steps.sunset.outputs.overdue }}';
@@ -335,7 +335,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Verify replacement services exist and have required files
         run: |

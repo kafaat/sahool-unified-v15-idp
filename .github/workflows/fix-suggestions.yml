@@ -35,17 +35,17 @@ jobs:
 
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
@@ -147,7 +147,7 @@ jobs:
           echo "eslint_fixable=$ESLINT_FIXABLE" >> $GITHUB_OUTPUT
 
       - name: Post fix suggestions comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pythonCount = parseInt('${{ steps.changed.outputs.python_count }}') || 0;

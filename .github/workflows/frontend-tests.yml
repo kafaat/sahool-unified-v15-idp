@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -63,7 +63,7 @@ jobs:
 
       - name: Restore packages build cache
         id: packages-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/*/dist
@@ -125,16 +125,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -192,16 +192,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -240,7 +240,7 @@ jobs:
 
       - name: Upload Coverage Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: apps/web/coverage/
@@ -259,16 +259,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -321,7 +321,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-web.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: apps/web/.next
@@ -345,16 +345,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -412,16 +412,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -467,7 +467,7 @@ jobs:
 
       - name: Upload Admin Coverage Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: admin-coverage
           path: apps/admin/coverage/
@@ -486,16 +486,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -548,7 +548,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-admin.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: admin-build
           path: apps/admin/.next
@@ -570,7 +570,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -584,7 +584,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -639,7 +639,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -653,7 +653,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -689,7 +689,7 @@ jobs:
 
       - name: Upload Test Coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-coverage
           path: apps/mobile/coverage/
@@ -731,7 +731,7 @@ jobs:
         working-directory: .
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -762,7 +762,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -775,7 +775,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -815,7 +815,7 @@ jobs:
           flutter build apk --debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-android-apk
           path: apps/mobile/build/app/outputs/flutter-apk/*.apk
@@ -837,7 +837,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -847,7 +847,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -860,7 +860,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -917,16 +917,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -950,7 +950,7 @@ jobs:
 
       - name: Download Web Build
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-build
           path: apps/web/.next
@@ -1027,7 +1027,7 @@ jobs:
 
       - name: Upload E2E Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results
           path: |
@@ -1037,7 +1037,7 @@ jobs:
 
       - name: Upload Server Logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-server-logs
           path: apps/web/server.log
@@ -1076,7 +1076,7 @@ jobs:
         working-directory: .
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -1107,7 +1107,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -1224,7 +1224,7 @@ jobs:
 
       - name: Upload Integration Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mobile-integration-results
           path: |
@@ -1262,10 +1262,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
         continue-on-error: true
@@ -1340,7 +1340,7 @@ jobs:
 
       - name: Comment PR with Test Results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -1402,10 +1402,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -1450,7 +1450,7 @@ jobs:
           NODE_ENV: production
 
       - name: Upload Bundle Analysis
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-analysis
           path: |
@@ -1460,7 +1460,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comment Bundle Size
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const comment = '## 📦 Bundle Size Analysis\n\n' +

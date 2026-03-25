@@ -302,6 +302,7 @@ class EventPublisher:
     def _record_rejection(self, subject: str, reason: str, event_id: str | None = None) -> None:
         """Record a rejected event for debugging/DLQ inspection."""
         import time
+
         entry = {
             "subject": subject,
             "reason": reason,
@@ -311,7 +312,7 @@ class EventPublisher:
         }
         self._rejected_events.append(entry)
         if len(self._rejected_events) > self._rejected_events_max:
-            self._rejected_events = self._rejected_events[-self._rejected_events_max:]
+            self._rejected_events = self._rejected_events[-self._rejected_events_max :]
 
     async def connect(self) -> bool:
         """
@@ -543,9 +544,7 @@ class EventPublisher:
             return False
 
         if isinstance(data, dict) and not data.get("tenant_id"):
-            logger.error(
-                "publish_json rejected without tenant_id: subject=%s", subject
-            )
+            logger.error("publish_json rejected without tenant_id: subject=%s", subject)
             self._error_count += 1
             self._record_rejection(subject, "missing_tenant_id")
             return False

@@ -767,9 +767,10 @@ async def close_publisher():
     """Close the singleton publisher instance."""
     global _publisher_instance
 
-    if _publisher_instance:
-        await _publisher_instance.close()
-        _publisher_instance = None
+    async with _publisher_lock:
+        if _publisher_instance is not None:
+            await _publisher_instance.close()
+            _publisher_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

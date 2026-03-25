@@ -3,9 +3,12 @@ Relationship API endpoints
 نقاط نهاية API العلاقات
 """
 
+import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
+
+logger = logging.getLogger(__name__)
 
 from models import RelationshipType
 
@@ -49,7 +52,8 @@ async def get_affected_crops(
             "data": crops,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get affected crops for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/disease-treatments/{disease_id}")

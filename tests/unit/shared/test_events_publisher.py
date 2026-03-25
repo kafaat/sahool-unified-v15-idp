@@ -350,7 +350,7 @@ class TestEventPublisherPublish:
         publisher._nc = mock_nc
         publisher._connected = True
 
-        data = {"field_id": "123", "action": "update"}
+        data = {"field_id": "123", "action": "update", "tenant_id": "test-tenant"}
 
         result = await publisher.publish_json("test.subject", data)
 

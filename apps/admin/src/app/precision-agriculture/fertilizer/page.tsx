@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { apiClient } from '@/lib/api-client';
+import { adminApiClient as apiClient } from '@/lib/api';
 import { API_PATHS } from '@/config/api';
 import {
   FlaskConical,

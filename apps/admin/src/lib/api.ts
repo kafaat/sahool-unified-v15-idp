@@ -6,6 +6,8 @@
 
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
 import { apiClient as authApiClient } from './api-client';
+export { apiClient as adminApiClient, extractErrorMessageAr } from './api-client';
+export type { AdminRole, Permission, AuditLogEntry } from './api-client';
 import { logger } from './logger';
 
 // Import API configuration from centralized config

@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/stores/auth.store';
-import { apiClient } from '@/lib/api-client';
+import { adminApiClient as apiClient } from '@/lib/api';
 import { validators, validationErrors } from '@/lib/validation';
 import { logger } from '@/lib/logger';
 import {

@@ -46,6 +46,7 @@ try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:
+    from fastapi import HTTPException
     from fastapi.security import HTTPBearer
 
     _bearer = HTTPBearer(auto_error=False)
@@ -55,7 +56,11 @@ except ImportError:
         tenant_id: str | None = None
 
     async def get_current_user():
-        return User()
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
 
 
 from .database import SessionLocal, check_db_connection, get_db
@@ -683,7 +688,9 @@ async def create_alert_endpoint(
     إنشاء تنبيه جديد
     Create a new alert
     """
-    # Validate tenant matches request
+    # Enforce tenant from JWT - reject header/body mismatch
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID from JWT does not match request")
     if alert_data.tenant_id is not None and alert_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id

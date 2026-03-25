@@ -1919,6 +1919,7 @@ async def create_plan(
 @app.post("/api/v1/tenants")
 async def create_tenant(
     request: CreateTenantRequest,
+    current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل مستأجر جديد مع اشتراك"""

@@ -41,6 +41,21 @@ except ImportError:
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi.security import HTTPBearer
+    _bearer = HTTPBearer(auto_error=False)
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        return User()
+
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
 from .db_models import AlertRule as DBAlertRule
@@ -553,6 +568,7 @@ async def create_rule(
     rule_data: AlertRuleCreate,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إنشاء قاعدة تنبيه
@@ -615,6 +631,7 @@ async def delete_rule(
     rule_id: str = Path(..., description="معرف القاعدة"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف قاعدة تنبيه
@@ -657,7 +674,7 @@ async def delete_rule(
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)):
+async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
     """
     إنشاء تنبيه جديد
     Create a new alert
@@ -737,6 +754,7 @@ async def update_alert_endpoint(
     update_data: AlertUpdate = None,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحديث حالة تنبيه
@@ -800,6 +818,7 @@ async def delete_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف تنبيه
@@ -887,6 +906,7 @@ async def resolve_alert(
     note: str | None = Query(None, description="ملاحظة الحل"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حل تنبيه
@@ -933,6 +953,7 @@ async def dismiss_alert(
     user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     رفض تنبيه

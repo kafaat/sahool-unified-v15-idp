@@ -181,15 +181,18 @@ class AuthApiClient {
       const response = await this.refreshToken(refreshTokenValue);
 
       if (response.success && response.data?.access_token) {
-        // Clear any legacy path-scoped cookie before setting the root one
-        Cookies.remove('access_token');
-
-        Cookies.set('access_token', response.data.access_token, {
-          expires: 7,
-          secure: window.location.protocol === 'https:',
-          sameSite: 'strict',
-          path: '/',
-        });
+        // Set token via server-side route for httpOnly cookie protection
+        try {
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: response.data.access_token }),
+            credentials: 'include',
+          });
+        } catch {
+          // Fallback: set in-memory only (no cookie exposure)
+          logger.warn('Failed to set httpOnly cookie via server route');
+        }
         this.setToken(response.data.access_token);
         return true;
       } else {

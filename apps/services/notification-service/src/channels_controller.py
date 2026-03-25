@@ -13,6 +13,20 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .channels_service import ChannelsService
 
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from pydantic import BaseModel as _BaseModel
+
+    class User(_BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
+        return None
+
 logger = logging.getLogger("sahool-notifications.channels-controller")
 
 # Create router
@@ -97,7 +111,7 @@ class UpdateChannelStatusRequest(BaseModel):
 
 
 @router.post("/add", summary="إضافة قناة إشعار - Add Notification Channel")
-async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_tenant_id)):
+async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
     """
     إضافة قناة إشعار جديدة للمستخدم
     Add a new notification channel for a user
@@ -132,7 +146,7 @@ async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_t
 
 
 @router.post("/verify", summary="تحقق من قناة - Verify Channel")
-async def verify_channel(request: VerifyChannelRequest):
+async def verify_channel(request: VerifyChannelRequest, current_user: User | None = Depends(get_current_user)):
     """
     تحقق من قناة إشعار باستخدام رمز التحقق
     Verify a notification channel using verification code
@@ -168,6 +182,7 @@ async def verify_channel(request: VerifyChannelRequest):
 async def remove_channel(
     channel_id: str = Query(..., description="Channel ID"),
     user_id: str = Query(..., description="User ID"),
+    current_user: User | None = Depends(get_current_user),
 ):
     """
     حذف قناة إشعار
@@ -243,7 +258,7 @@ async def list_channels(
 
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
-async def update_channel_status(request: UpdateChannelStatusRequest):
+async def update_channel_status(request: UpdateChannelStatusRequest, current_user: User | None = Depends(get_current_user)):
     """
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)

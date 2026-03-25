@@ -7,14 +7,14 @@
 - **farmer2.png** - مزارع افتراضي 2 | Default farmer avatar 2
 - **الاستخدام | Usage:** Community posts, user profiles
 - **الأبعاد | Dimensions:** 128x128 px
-- **الحالة | Status:** ❌ مفقود | Missing
+- **الحالة | Status:** ✅ موجود | Present
 
 ### أفاتار الخبراء | Expert Avatars
 - **expert1.png** - خبير افتراضي 1 | Default expert avatar 1
 - **expert2.png** - خبير افتراضي 2 | Default expert avatar 2
 - **الاستخدام | Usage:** Expert replies, advisor screen
 - **الأبعاد | Dimensions:** 128x128 px
-- **الحالة | Status:** ❌ مفقود | Missing
+- **الحالة | Status:** ✅ موجود | Present
 
 ## إرشادات التصميم | Design Guidelines
 
@@ -76,10 +76,10 @@ admin: Color(0xFFFF9800)
 
 | الملف | File | الحالة | Status | الأولوية | Priority |
 |-------|------|--------|--------|----------|----------|
-| farmer1.png | Farmer avatar 1 | ❌ مفقود | Missing | P1 عالي | P1 High |
-| farmer2.png | Farmer avatar 2 | ❌ مفقود | Missing | P1 عالي | P1 High |
-| expert1.png | Expert avatar 1 | ❌ مفقود | Missing | P1 عالي | P1 High |
-| expert2.png | Expert avatar 2 | ❌ مفقود | Missing | P1 عالي | P1 High |
+| farmer1.png | Farmer avatar 1 | ✅ موجود | Present | - | - |
+| farmer2.png | Farmer avatar 2 | ✅ موجود | Present | - | - |
+| expert1.png | Expert avatar 1 | ✅ موجود | Present | - | - |
+| expert2.png | Expert avatar 2 | ✅ موجود | Present | - | - |
 
 ## الحل المؤقت | Temporary Solution
 

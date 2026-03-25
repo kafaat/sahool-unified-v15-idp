@@ -4,7 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/theme/sahool_pro_theme.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../shared/widgets/sahool_metrics_card.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 import '../../field/ui/logic/drawing_provider.dart';
 import '../../polygon_editor/polygon_editor.dart';
 import '../logic/sync_provider.dart';
@@ -26,9 +28,6 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
   int _selectedLayerIndex = 0;
   final bool _isDrawingMode = false;
 
-  // Tenant ID (في التطبيق الحقيقي يأتي من Auth)
-  static const String _tenantId = 'tenant_001';
-
   final List<_MapLayer> _layers = [
     _MapLayer('القمر الصناعي', Icons.satellite_alt,
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -45,7 +44,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fieldsAsync = ref.watch(fieldsStreamProvider(_tenantId));
+    final tenant = ref.watch(currentTenantProvider);
+    final tenantId = tenant?.id ?? 'default';
+    final fieldsAsync = ref.watch(fieldsStreamProvider(tenantId));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
     final drawingState = ref.watch(drawingProvider);
@@ -283,12 +284,17 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 children: [
                   const Icon(Icons.wb_sunny, size: 18, color: Colors.orange),
                   const SizedBox(width: 4),
-                  Text(
-                    '32°C',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+                  Builder(builder: (context) {
+                    final weatherState = ref.watch(weatherProvider);
+                    final temp = weatherState.data?.current.temperature;
+                    final tempText = temp != null ? '${temp.round()}°C' : '--°C';
+                    return Text(
+                      tempText,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    );
+                  }),
                 ],
               ),
               Text(
@@ -685,8 +691,10 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
     try {
       final repo = ref.read(fieldsRepoProvider);
+      final saveTenant = ref.read(currentTenantProvider);
+      final saveTenantId = saveTenant?.id ?? 'default';
       await repo.createField(
-        tenantId: _tenantId,
+        tenantId: saveTenantId,
         name: fieldName,
         boundary: points,
       );

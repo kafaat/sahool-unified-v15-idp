@@ -31,6 +31,7 @@ class OfflineSyncEngine {
   final _uuid = const Uuid();
 
   Timer? _syncTimer;
+  Timer? _retryTimer;
   bool _isSyncing = false;
   int _retryCount = 0;
   static const int _maxRetries = 5;
@@ -61,6 +62,7 @@ class OfflineSyncEngine {
   /// إيقاف المحرك
   void dispose() {
     _syncTimer?.cancel();
+    _retryTimer?.cancel();
     _syncStatusController.close();
   }
 
@@ -346,7 +348,8 @@ class OfflineSyncEngine {
     final jitterMs = Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
     final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
-    Timer(delay, _checkAndSync);
+    _retryTimer?.cancel();
+    _retryTimer = Timer(delay, _checkAndSync);
     AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)', tag: 'SYNC');
   }
 

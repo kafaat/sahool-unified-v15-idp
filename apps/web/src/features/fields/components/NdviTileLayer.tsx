@@ -22,7 +22,7 @@ export type VegetationIndexType = 'ndvi' | 'ndwi' | 'evi' | 'savi' | 'ndre' | 'l
  */
 export interface NdviTileLayerProps {
   /** معرف الحقل - Field ID */
-  fieldId: string;
+  fieldId: string | null;
 
   /** نوع المؤشر النباتي - Vegetation index type (default: ndvi) */
   indexType?: VegetationIndexType;
@@ -147,10 +147,14 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   const dateString = date ? date.toISOString().split('T')[0] : undefined;
 
   // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
-  // TODO: useNDVIMap always fetches NDVI data regardless of indexType.
-  // When the backend satellite API supports multi-index endpoints, replace with
-  // a generic useVegetationIndexMap(fieldId, indexType, dateString) hook.
-  const { data: ndviMapData, error } = useNDVIMap(fieldId, dateString);
+  // Note: useNDVIMap fetches NDVI data only. When the backend satellite API
+  // supports multi-index endpoints, replace with useVegetationIndexMap().
+  // Skip fetching when a non-NDVI index is selected or no fieldId to avoid unnecessary API calls.
+  const isNdviIndex = indexType === 'ndvi';
+  const { data: ndviMapData, error } = useNDVIMap(
+    isNdviIndex && fieldId ? fieldId : '',
+    isNdviIndex ? dateString : undefined
+  );
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);

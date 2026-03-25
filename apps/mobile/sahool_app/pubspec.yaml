@@ -36,6 +36,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.2
   flutter_native_splash: ^2.4.3
 
+# Pin record_platform_interface to avoid incompatibility between
+# sahool_mobile_core and flutter_test transitive dependencies.
 dependency_overrides:
   record_platform_interface: 1.2.0
 

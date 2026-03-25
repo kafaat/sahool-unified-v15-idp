@@ -350,6 +350,8 @@ class OfflineDataManager {
       final List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((json) => LocalDataItem.fromJson(json)).toList();
     } catch (_) {
+      // Corrupted JSON — remove the bad entry to prevent repeated parse overhead
+      await _prefs.remove(_storageKey);
       return [];
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../providers/daily_brief_provider.dart';
 
@@ -236,7 +237,7 @@ class _DailyBriefContent extends StatelessWidget {
               icon: Icons.water_drop_rounded,
               label: 'الري',
               onTap: () {
-                Navigator.pushNamed(context, '/irrigation');
+                context.push('/irrigation');
               },
             ),
           ),
@@ -247,7 +248,7 @@ class _DailyBriefContent extends StatelessWidget {
               label: 'المهام',
               badge: brief.pendingTasksCount > 0 ? '${brief.pendingTasksCount}' : null,
               onTap: () {
-                Navigator.pushNamed(context, '/tasks');
+                context.push('/tasks');
               },
             ),
           ),
@@ -257,7 +258,7 @@ class _DailyBriefContent extends StatelessWidget {
               icon: Icons.camera_alt_rounded,
               label: 'فحص',
               onTap: () {
-                Navigator.pushNamed(context, '/scanner');
+                context.push('/scanner');
               },
             ),
           ),

@@ -32,6 +32,9 @@ import 'app.dart';
 // مثيل تقارير الأعطال العالمي (قديم - محفوظ للتوافقية)
 final crashReporting = legacy_crash.CrashReportingService();
 
+/// Guard against infinite recursion when user bypasses security warning.
+bool _securityBypassRestart = false;
+
 void main() async {
   // Ensure Flutter bindings are initialized first
   // تأكد من تهيئة ارتباطات Flutter أولاً
@@ -127,11 +130,13 @@ void main() async {
 
     // Device Integrity Check - Security Feature
     // فحص سلامة الجهاز - ميزة أمنية
+    // Skip if restarting after user bypassed security warning
     final securityConfig = SecurityConfig.fromBuildMode();
     AppLogger.d('Security config: $securityConfig', tag: 'Security');
 
-    // Perform device integrity check if enabled
-    if (securityConfig.deviceIntegrityPolicy !=
+    // Perform device integrity check if enabled (skip on security bypass restart)
+    if (!_securityBypassRestart &&
+        securityConfig.deviceIntegrityPolicy !=
         DeviceIntegrityPolicy.disabled) {
       try {
         // Record breadcrumbs in both systems
@@ -187,6 +192,8 @@ void main() async {
                 onContinueAnyway: shouldBlock
                     ? null
                     : () {
+                        // Guard against double-tap triggering multiple initializations
+                        if (_securityBypassRestart) return;
                         // User chose to continue anyway
                         AppLogger.w('User bypassed security warning',
                             tag: 'Security');
@@ -195,8 +202,22 @@ void main() async {
                           category: 'security',
                           level: legacy_crash.BreadcrumbLevel.warning,
                         );
-                        // Restart app initialization
-                        main();
+                        // Continue app initialization safely (skip security re-check).
+                        // Wrapped in runZonedGuarded to maintain error handling.
+                        _securityBypassRestart = true;
+                        runZonedGuarded(() async {
+                          await _initializeAndRunApp();
+                        }, (error, stackTrace) {
+                          AppLogger.critical('Uncaught error after security bypass: $error',
+                              tag: 'Main', error: error, stackTrace: stackTrace);
+                          crashReporter.reportError(
+                            error,
+                            stackTrace,
+                            severity: CrashSeverity.fatal,
+                            reason: 'Uncaught zone error (security bypass)',
+                            fatal: true,
+                          );
+                        });
                       },
               ),
             ),
@@ -231,6 +252,27 @@ void main() async {
       );
     }
 
+    await _initializeAndRunApp();
+  }, (error, stackTrace) {
+    // Global zone error handler - catches all uncaught async errors
+    // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
+    AppLogger.critical('Uncaught error: $error',
+        tag: 'Main', error: error, stackTrace: stackTrace);
+
+    crashReporter.reportError(
+      error,
+      stackTrace,
+      severity: CrashSeverity.fatal,
+      reason: 'Uncaught zone error',
+      fatal: true,
+    );
+  });
+}
+
+/// Initialize database, sync, persistence and run the app.
+/// Extracted to avoid duplicating initialization when user bypasses security.
+/// تهيئة قاعدة البيانات والمزامنة وتشغيل التطبيق.
+Future<void> _initializeAndRunApp() async {
     // Initialize database
     // تهيئة قاعدة البيانات
     late AppDatabase database;
@@ -407,20 +449,6 @@ void main() async {
         fatal: false,
       );
     }
-  }, (error, stackTrace) {
-    // Global zone error handler - catches all uncaught async errors
-    // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
-    AppLogger.critical('Uncaught error: $error',
-        tag: 'Main', error: error, stackTrace: stackTrace);
-
-    crashReporter.reportError(
-      error,
-      stackTrace,
-      severity: CrashSeverity.fatal,
-      reason: 'Uncaught zone error',
-      fatal: true,
-    );
-  });
 }
 
 // ============================================================

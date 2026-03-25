@@ -1,12 +1,16 @@
+import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/widgets/connectivity_widget.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
@@ -29,9 +33,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
-  // حالة الاتصال (للتجربة)
-  final bool _isOnline = true;
-  final int _pendingSync = 3;
+  // حالة الاتصال والمزامنة - تُقرأ تفاعلياً من connectivityProvider في build
 
   late final MapController _mapController;
   String _searchQuery = '';
@@ -40,8 +42,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
 
-  /// Active spectral index for overlay coloring
-  SpectralIndex _activeSpectralIndex = SpectralIndex.ndvi;
+  /// Compute the active spectral index from the selected layer
+  SpectralIndex get _activeSpectralIndex {
+    switch (_selectedLayerIndex) {
+      case 3:
+        return SpectralIndex.ndwi;
+      case 4:
+        return SpectralIndex.evi;
+      case 5:
+        return SpectralIndex.savi;
+      default:
+        return SpectralIndex.ndvi;
+    }
+  }
 
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
@@ -173,23 +186,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  /// Field center locations derived from field data or default Sanaa region.
-  /// TODO: Use actual field polygon centroids from field.centerLatitude/centerLongitude
-  /// when the Field entity exposes geospatial coordinates.
+  /// Field center locations derived from actual field centroids or boundary centers.
+  /// Falls back to Sanaa region default when no geospatial data is available.
   List<LatLng> get _fieldLocations {
-    // Generate locations around default center for fields that lack coordinates.
-    // Once Field entity includes lat/lng, use those directly.
     const defaultCenter = LatLng(15.3694, 44.1910);
     if (_repoFields.isEmpty) return [defaultCenter];
-    return List.generate(_repoFields.length, (i) {
-      // Spread fields around the center with slight offsets
-      final latOffset = (i ~/ 2) * 0.015 * (i.isEven ? 1 : -1);
-      final lngOffset = (i % 3 - 1) * 0.015;
-      return LatLng(
-        defaultCenter.latitude + latOffset,
-        defaultCenter.longitude + lngOffset,
-      );
-    });
+    return _repoFields.map((field) {
+      // Use centroid if available
+      if (field.centroid != null) return field.centroid!;
+      // Fall back to boundary center if available
+      if (field.boundary.isNotEmpty) {
+        final avgLat = field.boundary.map((p) => p.latitude).reduce((a, b) => a + b) / field.boundary.length;
+        final avgLng = field.boundary.map((p) => p.longitude).reduce((a, b) => a + b) / field.boundary.length;
+        return LatLng(avgLat, avgLng);
+      }
+      // Last resort: default center
+      return defaultCenter;
+    }).toList();
   }
 
   /// الخريطة الحقيقية - FlutterMap
@@ -208,14 +221,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       case 5: // SAVI
         // Use satellite imagery as base for spectral overlays
         tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        _activeSpectralIndex = const [
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndwi,
-          SpectralIndex.evi,
-          SpectralIndex.savi,
-        ][_selectedLayerIndex];
         break;
       default: // Map
         tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -323,11 +328,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 80,
       right: 70,
-      child: SyncIndicator(
-        isOnline: _isOnline,
-        pendingCount: _pendingSync,
-        onTap: () => context.push('/sync'),
-      ),
+      child: Builder(builder: (context) {
+        final connectivity = ref.watch(connectivityProvider);
+        return SyncIndicator(
+          isOnline: connectivity.isOnline,
+          pendingCount: connectivity.pendingSyncCount,
+          onTap: () => context.push('/sync'),
+        );
+      }),
     );
   }
 
@@ -429,12 +437,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           }),
           const SizedBox(height: 16),
           _buildMapControlButton(Icons.my_location, 'موقعي', () {
-            // TODO: Use geolocator package to get actual GPS position
-            // For now, center on the first field location or default
-            final center = _fieldLocations.isNotEmpty
-                ? _fieldLocations.first
-                : const LatLng(15.3694, 44.1910);
-            _mapController.move(center, 14);
+            unawaited(_centerOnUserLocation());
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {
@@ -453,6 +456,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _centerOnUserLocation() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        14,
+      );
+    } catch (_) {
+      // Fall back to first field location or default
+      final center = _fieldLocations.isNotEmpty
+          ? _fieldLocations.first
+          : const LatLng(15.3694, 44.1910);
+      _mapController.move(center, 14);
+    }
   }
 
   Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {
@@ -593,6 +621,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Widget _buildWeatherBadge() {
+    final weatherState = ref.watch(weatherProvider);
+    final temp = weatherState.data?.current.temperature;
+    final tempText = temp != null ? '${temp.round()}°C' : '--°C';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -606,7 +638,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Icon(Icons.wb_sunny, size: 18, color: Colors.orange[900]),
           const SizedBox(width: 6),
           Text(
-            '32°C',
+            tempText,
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange[900]),
           ),
         ],

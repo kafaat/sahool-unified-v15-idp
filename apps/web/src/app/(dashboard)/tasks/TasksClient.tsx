@@ -20,14 +20,12 @@ export default function TasksClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<TaskFiltersType>({});
-  const [, setSelectedTaskId] = useState<string | null>(null);
 
   // Task creation mutation
   const createTaskMutation = useCreateTask();
   const { showToast } = useToast();
 
   const handleTaskClick = (taskId: string) => {
-    setSelectedTaskId(taskId);
     ErrorTracking.addBreadcrumb({
       type: 'click',
       category: 'ui',

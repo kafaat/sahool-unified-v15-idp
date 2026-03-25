@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   Bell,
   AlertTriangle,
@@ -61,7 +61,7 @@ export default function AlertsClient() {
     if (statusFilter !== 'all') filters.status = statusFilter;
     if (searchTerm.trim()) filters.search = searchTerm.trim();
     return filters;
-  }, [severityFilter, statusFilter, searchTerm]);
+  }, [severityFilter, statusFilter, debouncedSearch]);
 
   // Query hooks
   const { data: alerts = [], isLoading, isError, refetch } = useAlerts(apiFilters);
@@ -309,7 +309,8 @@ export default function AlertsClient() {
             type="text"
             placeholder="بحث في التنبيهات..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
+            aria-label="Search alerts"
             className="w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
           />
         </div>

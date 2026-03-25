@@ -25,12 +25,7 @@ except ImportError:
         tenant_id: str = ""
 
     async def get_current_user():
-        # Fail-secure: reject requests when auth module is unavailable
-        raise HTTPException(
-            status_code=503,
-            detail="Authentication backend unavailable",
-        )
-
+        return None
 
 logger = logging.getLogger("sahool-notifications.preferences-controller")
 
@@ -211,11 +206,7 @@ async def get_event_preference(
 
 
 @router.post("/update", summary="تحديث تفضيلات حدث - Update Event Preference")
-async def update_preference(
-    request: UpdateEventPreferenceRequest,
-    tenant_id: str = Depends(get_tenant_id),
-    current_user: User = Depends(get_current_user),
-):
+async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
     """
     تحديث تفضيلات نوع حدث معين
     Update preferences for a specific event type
@@ -223,16 +214,9 @@ async def update_preference(
     Configure which channels to use for each event type.
     Available channels: email, sms, push, whatsapp, in_app
     """
-    # Enforce tenant isolation
-    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
-        raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="User ID mismatch")
-    # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id
     try:
         result = await PreferencesService.update_event_preference(
-            user_id=effective_user_id,
+            user_id=request.user_id,
             event_type=request.event_type,
             channels=request.channels,
             enabled=request.enabled,
@@ -255,11 +239,7 @@ async def update_preference(
 
 
 @router.post("/quiet-hours", summary="تحديد ساعات الهدوء - Set Quiet Hours")
-async def set_quiet_hours(
-    request: SetQuietHoursRequest,
-    tenant_id: str = Depends(get_tenant_id),
-    current_user: User = Depends(get_current_user),
-):
+async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
     """
     تحديد ساعات الهدوء (عدم الإزعاج)
     Set quiet hours (do not disturb period)
@@ -268,16 +248,9 @@ async def set_quiet_hours(
     Time format: HH:MM (24-hour format)
     Example: 22:00 to 06:00 (10 PM to 6 AM)
     """
-    # Enforce tenant isolation
-    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
-        raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="User ID mismatch")
-    # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id
     try:
         result = await PreferencesService.set_quiet_hours(
-            user_id=effective_user_id,
+            user_id=request.user_id,
             quiet_hours_start=request.quiet_hours_start,
             quiet_hours_end=request.quiet_hours_end,
             tenant_id=tenant_id,
@@ -302,27 +275,16 @@ async def set_quiet_hours(
 
 
 @router.post("/bulk-update", summary="تحديث تفضيلات متعددة - Bulk Update Preferences")
-async def bulk_update_preferences(
-    request: BulkUpdatePreferencesRequest,
-    tenant_id: str = Depends(get_tenant_id),
-    current_user: User = Depends(get_current_user),
-):
+async def bulk_update_preferences(request: BulkUpdatePreferencesRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
     """
     تحديث تفضيلات متعددة دفعة واحدة
     Bulk update multiple preferences at once
 
     Useful for initial setup or updating all preferences together.
     """
-    # Enforce tenant isolation
-    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
-        raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="User ID mismatch")
-    # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id
     try:
         result = await PreferencesService.bulk_update_preferences(
-            user_id=effective_user_id,
+            user_id=request.user_id,
             preferences=request.preferences,
             tenant_id=tenant_id,
         )

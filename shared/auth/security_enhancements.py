@@ -116,6 +116,7 @@ class TokenFingerprint:
 
         # Get client IP considering proxies (with validation)
         import ipaddress as _ipaddress
+
         forwarded = headers.get("x-forwarded-for", "")
         ip_address = "unknown"
         if forwarded:

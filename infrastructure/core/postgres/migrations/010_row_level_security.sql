@@ -73,39 +73,39 @@ DROP POLICY IF EXISTS fields_delete_policy ON fields;
 
 -- SELECT: Users can only see fields from their tenant
 CREATE POLICY fields_tenant_isolation ON fields
-    FOR SELECT
-    USING (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR SELECT
+USING (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 -- INSERT: Users can only create fields in their tenant
 CREATE POLICY fields_insert_policy ON fields
-    FOR INSERT
-    WITH CHECK (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR INSERT
+WITH CHECK (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 -- UPDATE: Users can only update fields in their tenant
 CREATE POLICY fields_update_policy ON fields
-    FOR UPDATE
-    USING (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    )
-    WITH CHECK (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR UPDATE
+USING (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+)
+WITH CHECK (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 -- DELETE: Users can only delete fields in their tenant
 CREATE POLICY fields_delete_policy ON fields
-    FOR DELETE
-    USING (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR DELETE
+USING (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for USERS table
@@ -117,25 +117,25 @@ DROP POLICY IF EXISTS users_insert_policy ON users;
 DROP POLICY IF EXISTS users_update_policy ON users;
 
 CREATE POLICY users_tenant_isolation ON users
-    FOR SELECT
-    USING (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR SELECT
+USING (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 CREATE POLICY users_insert_policy ON users
-    FOR INSERT
-    WITH CHECK (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR INSERT
+WITH CHECK (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 CREATE POLICY users_update_policy ON users
-    FOR UPDATE
-    USING (
-        tenant_id = current_tenant_id()
-        OR is_super_admin()
-    );
+FOR UPDATE
+USING (
+    tenant_id = current_tenant_id()
+    OR is_super_admin()
+);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for TASKS table
@@ -147,20 +147,20 @@ DROP POLICY IF EXISTS tasks_update_policy ON tasks;
 DROP POLICY IF EXISTS tasks_delete_policy ON tasks;
 
 CREATE POLICY tasks_tenant_isolation ON tasks
-    FOR SELECT
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR SELECT
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY tasks_insert_policy ON tasks
-    FOR INSERT
-    WITH CHECK (tenant_id = current_tenant_id() OR is_super_admin());
+FOR INSERT
+WITH CHECK (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY tasks_update_policy ON tasks
-    FOR UPDATE
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR UPDATE
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY tasks_delete_policy ON tasks
-    FOR DELETE
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR DELETE
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for ORDERS table
@@ -170,12 +170,12 @@ DROP POLICY IF EXISTS orders_tenant_isolation ON orders;
 DROP POLICY IF EXISTS orders_insert_policy ON orders;
 
 CREATE POLICY orders_tenant_isolation ON orders
-    FOR SELECT
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR SELECT
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY orders_insert_policy ON orders
-    FOR INSERT
-    WITH CHECK (tenant_id = current_tenant_id() OR is_super_admin());
+FOR INSERT
+WITH CHECK (tenant_id = current_tenant_id() OR is_super_admin());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for IoT tables
@@ -185,12 +185,12 @@ DROP POLICY IF EXISTS iot_devices_tenant_isolation ON iot_devices;
 DROP POLICY IF EXISTS sensor_readings_tenant_isolation ON sensor_readings;
 
 CREATE POLICY iot_devices_tenant_isolation ON iot_devices
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY sensor_readings_tenant_isolation ON sensor_readings
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for Research tables
@@ -202,20 +202,20 @@ DROP POLICY IF EXISTS treatments_tenant_isolation ON treatments;
 DROP POLICY IF EXISTS lab_samples_tenant_isolation ON lab_samples;
 
 CREATE POLICY experiments_tenant_isolation ON experiments
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY research_plots_tenant_isolation ON research_plots
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY treatments_tenant_isolation ON treatments
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY lab_samples_tenant_isolation ON lab_samples
-    FOR ALL
-    USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL
+USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- RLS Policies for remaining tables
@@ -231,30 +231,31 @@ DROP POLICY IF EXISTS alerts_tenant_isolation ON alerts;
 DROP POLICY IF EXISTS notifications_tenant_isolation ON notifications;
 
 CREATE POLICY products_tenant_isolation ON products
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY invoices_tenant_isolation ON invoices
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY equipment_tenant_isolation ON equipment
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY weather_data_tenant_isolation ON weather_data
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY crop_seasons_tenant_isolation ON crop_seasons
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY field_zones_tenant_isolation ON field_zones
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY alerts_tenant_isolation ON alerts
-    FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
 CREATE POLICY notifications_tenant_isolation ON notifications
-    FOR ALL USING (user_id IN (
-        SELECT id FROM users WHERE tenant_id = current_tenant_id()
-    ) OR is_super_admin());
+FOR ALL USING (user_id IN (
+    SELECT id FROM users
+    WHERE tenant_id = current_tenant_id()
+) OR is_super_admin());
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Grant necessary permissions to application role

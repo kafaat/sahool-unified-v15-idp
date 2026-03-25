@@ -212,8 +212,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis schemathesis --quiet
-          pip install numpy pillow aiofiles pyotp qrcode nats-py --quiet
+          pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis schemathesis tenacity --quiet
+          pip install numpy pillow aiofiles pyotp qrcode nats-py aiohttp cffi --quiet
           pip install tortoise-orm --quiet || true
 
       - name: Run tests with coverage

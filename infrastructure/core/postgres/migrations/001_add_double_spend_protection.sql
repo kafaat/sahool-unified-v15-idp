@@ -15,55 +15,55 @@ ADD COLUMN IF NOT EXISTS version INTEGER DEFAULT 1 NOT NULL;
 -- 2. Add daily withdrawal tracking columns
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE wallets
-ADD COLUMN IF NOT EXISTS daily_withdraw_limit DECIMAL(14,2) DEFAULT 10000.00,
-ADD COLUMN IF NOT EXISTS single_transaction_limit DECIMAL(14,2) DEFAULT 50000.00,
-ADD COLUMN IF NOT EXISTS daily_withdrawn_today DECIMAL(14,2) DEFAULT 0.00,
+ADD COLUMN IF NOT EXISTS daily_withdraw_limit DECIMAL(14, 2) DEFAULT 10000.00,
+ADD COLUMN IF NOT EXISTS single_transaction_limit DECIMAL(14, 2) DEFAULT 50000.00,
+ADD COLUMN IF NOT EXISTS daily_withdrawn_today DECIMAL(14, 2) DEFAULT 0.00,
 ADD COLUMN IF NOT EXISTS last_withdraw_reset TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS requires_pin_for_amount DECIMAL(14,2) DEFAULT 5000.00,
-ADD COLUMN IF NOT EXISTS escrow_balance DECIMAL(14,2) DEFAULT 0.00;
+ADD COLUMN IF NOT EXISTS requires_pin_for_amount DECIMAL(14, 2) DEFAULT 5000.00,
+ADD COLUMN IF NOT EXISTS escrow_balance DECIMAL(14, 2) DEFAULT 0.00;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3. Add idempotency_key to transactions table
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE transactions
 ADD COLUMN IF NOT EXISTS idempotency_key VARCHAR(255) UNIQUE,
-ADD COLUMN IF NOT EXISTS balance_before DECIMAL(14,2),
-ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id),
+ADD COLUMN IF NOT EXISTS balance_before DECIMAL(14, 2),
+ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users (id),
 ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45),
 ADD COLUMN IF NOT EXISTS user_agent TEXT;
 
 -- Create index on idempotency_key for fast lookups
 CREATE INDEX IF NOT EXISTS idx_transactions_idempotency_key
-ON transactions(idempotency_key) WHERE idempotency_key IS NOT NULL;
+ON transactions (idempotency_key) WHERE idempotency_key IS NOT NULL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4. Create wallet_audit_log table for complete audit trail
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS wallet_audit_log (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    transaction_id UUID REFERENCES transactions(id) ON DELETE SET NULL,
-    user_id UUID REFERENCES users(id),
+    wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
+    transaction_id UUID REFERENCES transactions (id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users (id),
     operation VARCHAR(50) NOT NULL,
-    balance_before DECIMAL(14,2) NOT NULL,
-    balance_after DECIMAL(14,2) NOT NULL,
-    amount DECIMAL(14,2) NOT NULL,
-    escrow_balance_before DECIMAL(14,2) DEFAULT 0,
-    escrow_balance_after DECIMAL(14,2) DEFAULT 0,
+    balance_before DECIMAL(14, 2) NOT NULL,
+    balance_after DECIMAL(14, 2) NOT NULL,
+    amount DECIMAL(14, 2) NOT NULL,
+    escrow_balance_before DECIMAL(14, 2) DEFAULT 0,
+    escrow_balance_after DECIMAL(14, 2) DEFAULT 0,
     version_before INTEGER NOT NULL,
     version_after INTEGER NOT NULL,
     idempotency_key VARCHAR(255),
     ip_address VARCHAR(45),
     user_agent TEXT,
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_wallet_audit_wallet ON wallet_audit_log(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_wallet_audit_transaction ON wallet_audit_log(transaction_id);
-CREATE INDEX IF NOT EXISTS idx_wallet_audit_user ON wallet_audit_log(user_id);
-CREATE INDEX IF NOT EXISTS idx_wallet_audit_created ON wallet_audit_log(created_at);
-CREATE INDEX IF NOT EXISTS idx_wallet_audit_operation ON wallet_audit_log(operation);
+CREATE INDEX IF NOT EXISTS idx_wallet_audit_wallet ON wallet_audit_log (wallet_id);
+CREATE INDEX IF NOT EXISTS idx_wallet_audit_transaction ON wallet_audit_log (transaction_id);
+CREATE INDEX IF NOT EXISTS idx_wallet_audit_user ON wallet_audit_log (user_id);
+CREATE INDEX IF NOT EXISTS idx_wallet_audit_created ON wallet_audit_log (created_at);
+CREATE INDEX IF NOT EXISTS idx_wallet_audit_operation ON wallet_audit_log (operation);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5. Create credit_events table (if not exists)
@@ -84,18 +84,18 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE IF NOT EXISTS credit_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    event_type credit_event_type NOT NULL,
-    amount DECIMAL(14,2),
+    wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
+    event_type CREDIT_EVENT_TYPE NOT NULL,
+    amount DECIMAL(14, 2),
     impact INTEGER DEFAULT 0,
     description TEXT,
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_credit_events_wallet ON credit_events(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_credit_events_type ON credit_events(event_type);
-CREATE INDEX IF NOT EXISTS idx_credit_events_created ON credit_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_credit_events_wallet ON credit_events (wallet_id);
+CREATE INDEX IF NOT EXISTS idx_credit_events_type ON credit_events (event_type);
+CREATE INDEX IF NOT EXISTS idx_credit_events_created ON credit_events (created_at);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6. Create escrow table (if not exists)
@@ -107,21 +107,21 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 CREATE TABLE IF NOT EXISTS escrow (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_id VARCHAR(255) UNIQUE NOT NULL,
-    buyer_wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    seller_wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    amount DECIMAL(14,2) NOT NULL,
-    status escrow_status DEFAULT 'HELD',
+    buyer_wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
+    seller_wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
+    amount DECIMAL(14, 2) NOT NULL,
+    status ESCROW_STATUS DEFAULT 'HELD',
     notes TEXT,
     dispute_reason TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT now(),
     released_at TIMESTAMPTZ,
     refunded_at TIMESTAMPTZ
 );
 
-CREATE INDEX IF NOT EXISTS idx_escrow_order ON escrow(order_id);
-CREATE INDEX IF NOT EXISTS idx_escrow_buyer ON escrow(buyer_wallet_id);
-CREATE INDEX IF NOT EXISTS idx_escrow_seller ON escrow(seller_wallet_id);
-CREATE INDEX IF NOT EXISTS idx_escrow_status ON escrow(status);
+CREATE INDEX IF NOT EXISTS idx_escrow_order ON escrow (order_id);
+CREATE INDEX IF NOT EXISTS idx_escrow_buyer ON escrow (buyer_wallet_id);
+CREATE INDEX IF NOT EXISTS idx_escrow_seller ON escrow (seller_wallet_id);
+CREATE INDEX IF NOT EXISTS idx_escrow_status ON escrow (status);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7. Create scheduled_payments table (if not exists)
@@ -132,24 +132,25 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE IF NOT EXISTS scheduled_payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    loan_id UUID REFERENCES loans(id) ON DELETE SET NULL,
-    amount DECIMAL(14,2) NOT NULL,
-    frequency payment_frequency NOT NULL,
+    wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
+    loan_id UUID REFERENCES loans (id) ON DELETE SET NULL,
+    amount DECIMAL(14, 2) NOT NULL,
+    frequency PAYMENT_FREQUENCY NOT NULL,
     next_payment_date DATE NOT NULL,
     last_payment_date DATE,
     description TEXT,
     description_ar TEXT,
-    is_active BOOLEAN DEFAULT true,
+    is_active BOOLEAN DEFAULT TRUE,
     failed_attempts INTEGER DEFAULT 0,
     last_failure_reason TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_scheduled_payments_wallet ON scheduled_payments(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_scheduled_payments_next_date ON scheduled_payments(next_payment_date) WHERE is_active = true;
-CREATE INDEX IF NOT EXISTS idx_scheduled_payments_loan ON scheduled_payments(loan_id);
+CREATE INDEX IF NOT EXISTS idx_scheduled_payments_wallet ON scheduled_payments (wallet_id);
+CREATE INDEX IF NOT EXISTS idx_scheduled_payments_next_date ON scheduled_payments (next_payment_date) WHERE is_active
+= TRUE;
+CREATE INDEX IF NOT EXISTS idx_scheduled_payments_loan ON scheduled_payments (loan_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8. Create function to auto-increment wallet version
@@ -170,9 +171,9 @@ $$ LANGUAGE plpgsql;
 -- Create trigger to auto-increment version
 DROP TRIGGER IF EXISTS wallet_version_trigger ON wallets;
 CREATE TRIGGER wallet_version_trigger
-    BEFORE UPDATE ON wallets
-    FOR EACH ROW
-    EXECUTE FUNCTION increment_wallet_version();
+BEFORE UPDATE ON wallets
+FOR EACH ROW
+EXECUTE FUNCTION increment_wallet_version();
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 9. Create function to prevent negative balances
@@ -193,9 +194,9 @@ $$ LANGUAGE plpgsql;
 -- Create trigger to check balance
 DROP TRIGGER IF EXISTS wallet_balance_check_trigger ON wallets;
 CREATE TRIGGER wallet_balance_check_trigger
-    BEFORE INSERT OR UPDATE ON wallets
-    FOR EACH ROW
-    EXECUTE FUNCTION check_wallet_balance();
+BEFORE INSERT OR UPDATE ON wallets
+FOR EACH ROW
+EXECUTE FUNCTION check_wallet_balance();
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 10. Add constraints
@@ -211,13 +212,13 @@ ALTER TABLE wallets VALIDATE CONSTRAINT check_wallet_escrow_non_negative;
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION safe_wallet_debit(
     p_wallet_id UUID,
-    p_amount DECIMAL(14,2),
+    p_amount DECIMAL(14, 2),
     p_expected_version INTEGER,
     p_operation VARCHAR(50)
 )
-RETURNS TABLE(
+RETURNS TABLE (
     success BOOLEAN,
-    new_balance DECIMAL(14,2),
+    new_balance DECIMAL(14, 2),
     new_version INTEGER,
     error_message TEXT
 ) AS $$

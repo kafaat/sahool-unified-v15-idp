@@ -27,7 +27,6 @@ Run:
 
 from __future__ import annotations
 
-import os
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -318,7 +317,7 @@ class TestHealthEndpointConsistency:
                     try:
                         all_src += extra.read_text("utf-8", errors="ignore")
                     except OSError:
-                        pass
+                        continue  # Skip unreadable files
 
             if hc_path not in all_src:
                 mismatches.append(f"{svc_dir.name}: HEALTHCHECK→{hc_path} not in source")

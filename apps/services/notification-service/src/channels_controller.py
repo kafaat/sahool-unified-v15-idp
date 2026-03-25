@@ -132,7 +132,7 @@ async def add_channel(
     - **in_app**: No verification needed
     """
     # Enforce tenant isolation: header/JWT tenant_id must match
-    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant mismatch between header and token")
     # Enforce ownership: use authenticated user's ID instead of body user_id
     effective_user_id = current_user.id
@@ -169,7 +169,7 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User = Dep
     """
     try:
         # Enforce ownership: use authenticated user's ID
-        if hasattr(request, 'user_id') and request.user_id and request.user_id != current_user.id:
+        if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="User ID mismatch")
         effective_user_id = current_user.id
         result = await ChannelsService.verify_channel(

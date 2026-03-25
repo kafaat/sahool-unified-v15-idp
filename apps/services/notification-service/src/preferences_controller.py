@@ -214,7 +214,7 @@ async def get_event_preference(
 async def update_preference(
     request: UpdateEventPreferenceRequest,
     tenant_id: str = Depends(get_tenant_id),
-    current_user: User | None = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحديث تفضيلات نوع حدث معين
@@ -223,8 +223,11 @@ async def update_preference(
     Configure which channels to use for each event type.
     Available channels: email, sms, push, whatsapp, in_app
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.update_event_preference(
             user_id=effective_user_id,
@@ -253,7 +256,7 @@ async def update_preference(
 async def set_quiet_hours(
     request: SetQuietHoursRequest,
     tenant_id: str = Depends(get_tenant_id),
-    current_user: User | None = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحديد ساعات الهدوء (عدم الإزعاج)
@@ -263,8 +266,11 @@ async def set_quiet_hours(
     Time format: HH:MM (24-hour format)
     Example: 22:00 to 06:00 (10 PM to 6 AM)
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.set_quiet_hours(
             user_id=effective_user_id,
@@ -295,7 +301,7 @@ async def set_quiet_hours(
 async def bulk_update_preferences(
     request: BulkUpdatePreferencesRequest,
     tenant_id: str = Depends(get_tenant_id),
-    current_user: User | None = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحديث تفضيلات متعددة دفعة واحدة
@@ -303,8 +309,11 @@ async def bulk_update_preferences(
 
     Useful for initial setup or updating all preferences together.
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.bulk_update_preferences(
             user_id=effective_user_id,

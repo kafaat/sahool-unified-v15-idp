@@ -119,7 +119,7 @@ class UpdateChannelStatusRequest(BaseModel):
 async def add_channel(
     request: AddChannelRequest,
     tenant_id: str = Depends(get_tenant_id),
-    current_user: User | None = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إضافة قناة إشعار جديدة للمستخدم
@@ -132,7 +132,7 @@ async def add_channel(
     - **in_app**: No verification needed
     """
     # Enforce ownership: use authenticated user's ID instead of body user_id
-    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+    effective_user_id = current_user.id
     try:
         result = await ChannelsService.add_channel(
             user_id=effective_user_id,
@@ -157,7 +157,7 @@ async def add_channel(
 
 
 @router.post("/verify", summary="تحقق من قناة - Verify Channel")
-async def verify_channel(request: VerifyChannelRequest, current_user: User | None = Depends(get_current_user)):
+async def verify_channel(request: VerifyChannelRequest, current_user: User = Depends(get_current_user)):
     """
     تحقق من قناة إشعار باستخدام رمز التحقق
     Verify a notification channel using verification code
@@ -166,7 +166,7 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User | Non
     """
     try:
         # Enforce ownership: use authenticated user's ID
-        effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+        effective_user_id = current_user.id
         result = await ChannelsService.verify_channel(
             channel_id=request.channel_id,
             verification_code=request.verification_code,
@@ -195,14 +195,14 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User | Non
 async def remove_channel(
     channel_id: str = Query(..., description="Channel ID"),
     user_id: str = Query(..., description="User ID"),
-    current_user: User | None = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف قناة إشعار
     Remove a notification channel
     """
     # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id if current_user and current_user.id else user_id
+    effective_user_id = current_user.id
     try:
         result = await ChannelsService.remove_channel(
             channel_id=channel_id,
@@ -274,14 +274,14 @@ async def list_channels(
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
 async def update_channel_status(
-    request: UpdateChannelStatusRequest, current_user: User | None = Depends(get_current_user)
+    request: UpdateChannelStatusRequest, current_user: User = Depends(get_current_user)
 ):
     """
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)
     """
     # Enforce ownership: use authenticated user's ID
-    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
+    effective_user_id = current_user.id
     try:
         result = await ChannelsService.update_channel_status(
             channel_id=request.channel_id,

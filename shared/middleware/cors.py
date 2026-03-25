@@ -100,7 +100,7 @@ def setup_cors(
         )
         origins = DEFAULT_ORIGINS["production"]
 
-    # Default allowed methods (no DELETE for safety by default)
+    # Default allowed methods (includes DELETE; override allowed_methods for stricter policies)
     methods = allowed_methods or ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
     # Default allowed headers

@@ -364,6 +364,7 @@ export default function IrrigationClient() {
           <option value="scheduled">مجدول</option>
           <option value="in_progress">جاري</option>
           <option value="completed">مكتمل</option>
+          <option value="cancelled">ملغي</option>
           <option value="overdue">متأخر</option>
         </select>
       </div>

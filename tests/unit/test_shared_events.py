@@ -7,8 +7,11 @@ import asyncio
 import os
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import pytest
+
+TEST_TENANT_ID = str(uuid4())
 
 from shared.events.contracts import BaseEvent
 from shared.events.models import EventMetadata, EventPriority, EventStatus
@@ -93,7 +96,7 @@ class TestBaseEvent:
 
     def test_create_base_event(self):
         """Test creating base event"""
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
 
         assert event.test_field == "value"
         assert event.test_number == 42
@@ -115,7 +118,7 @@ class TestBaseEvent:
 
     def test_event_serialization(self):
         """Test event can be serialized to JSON"""
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
         json_str = event.model_dump_json()
 
         assert isinstance(json_str, str)
@@ -238,7 +241,7 @@ class TestEventPublisher:
         await publisher.connect()
         publisher._js = mock_js
 
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
         result = await publisher.publish_event("test.subject", event)
 
         assert result is True
@@ -247,7 +250,7 @@ class TestEventPublisher:
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, publisher):
         """Test publishing when not connected buffers the message"""
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
         result = await publisher.publish_event("test.subject", event)
 
         # When not connected, messages are buffered for retry (returns True if buffered)
@@ -285,9 +288,9 @@ class TestEventPublisher:
         publisher._js = mock_js
 
         events = [
-            ("subject1", SampleTestEvent(test_field="value1", test_number=1)),
-            ("subject2", SampleTestEvent(test_field="value2", test_number=2)),
-            ("subject3", SampleTestEvent(test_field="value3", test_number=3)),
+            ("subject1", SampleTestEvent(test_field="value1", test_number=1, tenant_id=TEST_TENANT_ID)),
+            ("subject2", SampleTestEvent(test_field="value2", test_number=2, tenant_id=TEST_TENANT_ID)),
+            ("subject3", SampleTestEvent(test_field="value3", test_number=3, tenant_id=TEST_TENANT_ID)),
         ]
 
         success_count = await publisher.publish_events(events)
@@ -433,7 +436,7 @@ class TestEventSerialization:
 
     def test_event_round_trip(self):
         """Test serializing and deserializing event"""
-        original = SampleTestEvent(test_field="value", test_number=42)
+        original = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
 
         # Serialize
         json_str = original.model_dump_json()
@@ -477,7 +480,7 @@ class TestRetryLogic:
         await publisher.connect()
         publisher._js = mock_js
 
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
         result = await publisher.publish_event("test.subject", event, use_jetstream=True)
 
         assert result is True
@@ -503,7 +506,7 @@ class TestRetryLogic:
         await publisher.connect()
         publisher._js = mock_js
 
-        event = SampleTestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42, tenant_id=TEST_TENANT_ID)
         result = await publisher.publish_event("test.subject", event, use_jetstream=True)
 
         assert result is False
@@ -534,13 +537,14 @@ class TestEventSystemIntegration:
         publisher._js = mock_js
 
         # Publish different event types
-        field_event = FieldCreatedEvent(field_id="field-1", farm_id="farm-1", name="Field 1", area_hectares=50.0)
+        field_event = FieldCreatedEvent(field_id="field-1", farm_id="farm-1", name="Field 1", area_hectares=50.0, tenant_id=TEST_TENANT_ID)
 
         crop_event = CropPlantedEvent(
             field_id="field-1",
             crop_type="wheat",
             planting_date="2024-01-01",
             expected_harvest_date="2024-06-01",
+            tenant_id=TEST_TENANT_ID,
         )
 
         result1 = await publisher.publish_event("sahool.field.created", field_event)

@@ -54,10 +54,17 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+
+      - name: Restore npm cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-frontend-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-frontend-
 
       - name: Install dependencies
         run: |
+          node --version && npm --version
           npm install --legacy-peer-deps --prefer-online || \
           npm install --legacy-peer-deps || \
           (npm cache clean --force && npm install --legacy-peer-deps)

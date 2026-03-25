@@ -3,9 +3,9 @@ SAHOOL Cross-Group Container Consistency Tests
 ================================================
 اختبارات اتساق الحاويات عبر المجموعات
 
-Validates shared conventions and detects drift **between** service groups.
-Ensures that AI, Vision, IoT, Terrain, and Irrigation clusters follow
-the same platform-wide conventions.  All tests are **static analysis**.
+Validates shared conventions and detects drift **between** all 11 service groups.
+Ensures that all service clusters follow the same platform-wide conventions.
+All tests are **static analysis**.
 
 Coverage:
  1.  Universal base image pattern (Python 3.11 slim-bookworm)
@@ -88,17 +88,76 @@ IRRIGATION_SERVICES: dict[str, int] = {
     "advisory-service": 8093,
 }
 
-# Union of all tested services (deduped)
+BUSINESS_SERVICES: dict[str, int] = {
+    "billing-core": 8089,
+    "notification-service": 8110,
+    "task-service": 8103,
+    "alert-service": 8113,
+    "audit-service": 8114,
+    "equipment-service": 8101,
+    "inventory-service": 8116,
+}
+
+COMMUNITY_SERVICES: dict[str, int] = {
+    "chat-service": 8115,
+    "marketplace-service": 3010,
+    "crm-service": 8131,
+    "cooperative-service": 8127,
+    "traceability-service": 8123,
+    "supply-chain-service": 8230,
+    "community-service": 8133,
+}
+
+NODE_ANALYTICS_SERVICES: dict[str, int] = {
+    "user-service": 3025,
+    "crop-growth-model": 3023,
+    "lai-estimation": 3022,
+    "yield-prediction": 3021,
+    "yield-prediction-service": 8152,
+    "research-core": 3015,
+    "disaster-assessment": 3020,
+}
+
+PLATFORM_SERVICES: dict[str, int] = {
+    "ws-gateway": 8081,
+    "mcp-server": 8201,
+    "ussd-gateway": 8183,
+    "provider-config": 8104,
+    "code-review-service": 8102,
+    "agent-registry": 8160,
+    "skills-service": 8121,
+}
+
+COMPLIANCE_SERVICES: dict[str, int] = {
+    "globalgap-compliance": 8128,
+    "whatsapp-bot-service": 8240,
+    "lowcode-engine": 8132,
+    "astronomical-calendar": 8111,
+    "logistics-service": 8167,
+    "digital-twin-engine": 8253,
+}
+
+# Union of all tested HTTP services (deduped)
 ALL_GROUP_SERVICES: dict[str, int] = {
     **AI_SERVICES,
     **VISION_SERVICES,
     **IOT_SERVICES,
     **TERRAIN_SERVICES,
     **IRRIGATION_SERVICES,
+    **BUSINESS_SERVICES,
+    **COMMUNITY_SERVICES,
+    **NODE_ANALYTICS_SERVICES,
+    **PLATFORM_SERVICES,
+    **COMPLIANCE_SERVICES,
 }
 
 # Node.js services within the tested groups
-NODE_GROUP = {"iot-service", "field-management-service"}
+NODE_GROUP = {
+    "iot-service", "field-management-service", "chat-service",
+    "marketplace-service", "user-service", "crop-growth-model",
+    "lai-estimation", "yield-prediction", "yield-prediction-service",
+    "research-core", "disaster-assessment",
+}
 PYTHON_GROUP = set(ALL_GROUP_SERVICES) - NODE_GROUP
 
 # ---------------------------------------------------------------------------
@@ -140,6 +199,11 @@ class TestCrossGroupPortUniqueness:
             "IoT": IOT_SERVICES,
             "Terrain": TERRAIN_SERVICES,
             "Irrigation": IRRIGATION_SERVICES,
+            "Business": BUSINESS_SERVICES,
+            "Community": COMMUNITY_SERVICES,
+            "NodeAnalytics": NODE_ANALYTICS_SERVICES,
+            "Platform": PLATFORM_SERVICES,
+            "Compliance": COMPLIANCE_SERVICES,
         }
         seen: dict[int, tuple[str, str]] = {}
         collisions: list[str] = []
@@ -202,15 +266,21 @@ class TestUniversalHealthCheck:
 
 
 class TestUniversalNATS:
-    """جميع الخدمات يجب أن تكون متصلة بـ NATS."""
+    """معظم الخدمات يجب أن تكون متصلة بـ NATS."""
 
-    @pytest.mark.parametrize("svc", sorted(ALL_GROUP_SERVICES))
+    # Services that communicate via HTTP only (no NATS event bus)
+    NATS_EXEMPT = {
+        "mcp-server", "code-review-service", "skills-service",
+        "astronomical-calendar", "user-service",
+    }
+
+    @pytest.mark.parametrize("svc", sorted(set(ALL_GROUP_SERVICES) - NATS_EXEMPT))
     def test_nats_env_in_compose(self, services: dict, svc: str) -> None:
         """Service declares NATS_URL in compose environment."""
         svc_def = services.get(svc, {})
         env_str = str(svc_def.get("environment", {}))
         assert "NATS_URL" in env_str, (
-            f"{svc} missing NATS_URL – all services need event bus connectivity"
+            f"{svc} missing NATS_URL – event-driven services need NATS connectivity"
         )
 
 
@@ -351,29 +421,37 @@ class TestGroupSizes:
     """التحقق من عدد الخدمات في كل مجموعة."""
 
     def test_ai_group_minimum(self) -> None:
-        """AI group has at least 6 services."""
-        assert len(AI_SERVICES) >= 6, (
-            f"AI group has {len(AI_SERVICES)} services, expected ≥6"
-        )
+        assert len(AI_SERVICES) >= 6
 
     def test_vision_group_minimum(self) -> None:
-        """Vision group has at least 5 services."""
         assert len(VISION_SERVICES) >= 5
 
     def test_iot_group_minimum(self) -> None:
-        """IoT group has at least 4 services."""
         assert len(IOT_SERVICES) >= 4
 
     def test_terrain_group_minimum(self) -> None:
-        """Terrain group has at least 4 services."""
         assert len(TERRAIN_SERVICES) >= 4
 
     def test_irrigation_group_minimum(self) -> None:
-        """Irrigation group has at least 4 services."""
         assert len(IRRIGATION_SERVICES) >= 4
 
+    def test_business_group_minimum(self) -> None:
+        assert len(BUSINESS_SERVICES) >= 5
+
+    def test_community_group_minimum(self) -> None:
+        assert len(COMMUNITY_SERVICES) >= 5
+
+    def test_node_analytics_group_minimum(self) -> None:
+        assert len(NODE_ANALYTICS_SERVICES) >= 5
+
+    def test_platform_group_minimum(self) -> None:
+        assert len(PLATFORM_SERVICES) >= 5
+
+    def test_compliance_group_minimum(self) -> None:
+        assert len(COMPLIANCE_SERVICES) >= 4
+
     def test_total_services_covered(self) -> None:
-        """Total unique services covered across all groups."""
-        assert len(ALL_GROUP_SERVICES) >= 25, (
-            f"Only {len(ALL_GROUP_SERVICES)} unique services covered, expected ≥25"
+        """Total unique services covered across all 11 groups."""
+        assert len(ALL_GROUP_SERVICES) >= 60, (
+            f"Only {len(ALL_GROUP_SERVICES)} unique services covered, expected ≥60"
         )

@@ -226,7 +226,7 @@ async def update_preference(
     # Enforce tenant isolation
     if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, 'user_id') and request.user_id and request.user_id != current_user.id:
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="User ID mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id
@@ -271,7 +271,7 @@ async def set_quiet_hours(
     # Enforce tenant isolation
     if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, 'user_id') and request.user_id and request.user_id != current_user.id:
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="User ID mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id
@@ -316,7 +316,7 @@ async def bulk_update_preferences(
     # Enforce tenant isolation
     if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
-    if hasattr(request, 'user_id') and request.user_id and request.user_id != current_user.id:
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="User ID mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id

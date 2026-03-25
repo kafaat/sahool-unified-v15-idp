@@ -413,7 +413,9 @@ class EventPublisher:
         if not event.tenant_id:
             logger.error(
                 "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
-                subject, event.event_id, event.source_service,
+                subject,
+                event.event_id,
+                event.source_service,
             )
             raise ValueError(
                 f"Event missing required tenant_id: subject={subject}, "

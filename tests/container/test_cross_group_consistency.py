@@ -394,8 +394,8 @@ class TestPythonBaseImage:
         content = _read_dockerfile(svc)
         if not content:
             pytest.skip(f"No Dockerfile for {svc}")
-        assert re.search(r"FROM\s+python:", content, re.IGNORECASE), (
-            f"{svc} does not use python base image"
+        assert re.search(r"FROM\s+python:[^\s]*-slim-bookworm", content, re.IGNORECASE), (
+            f"{svc} does not use python:*-slim-bookworm base image"
         )
 
 

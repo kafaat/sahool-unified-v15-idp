@@ -133,8 +133,14 @@ class TestImageProcessingDeps:
     @pytest.mark.parametrize("svc", sorted(CV_SERVICES))
     def test_opencv_headless_variant(self, svc: str) -> None:
         """CV service uses opencv-python-headless (no GUI deps in containers)."""
-        text = _read_requirements(svc)
-        assert "headless" in text.lower() or "opencv" not in text.lower() or True, (
+        text_lower = _read_requirements(svc).lower()
+        if "opencv" not in text_lower:
+            pytest.skip(f"{svc} does not declare OpenCV")
+        uses_headless = "opencv-python-headless" in text_lower
+        uses_non_headless = (
+            "opencv-python" in text_lower and "opencv-python-headless" not in text_lower
+        )
+        assert uses_headless and not uses_non_headless, (
             f"{svc} should use opencv-python-headless (not opencv-python)"
         )
 

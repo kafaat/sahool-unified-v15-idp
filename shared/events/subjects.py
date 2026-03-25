@@ -200,7 +200,7 @@ SAHOOL_BILLING_PAYMENT_REFUNDED = "sahool.billing.payment.refunded"
 SAHOOL_BILLING_INVOICE_CREATED = "sahool.billing.invoice.created"
 SAHOOL_BILLING_INVOICE_PAID = "sahool.billing.invoice.paid"
 SAHOOL_BILLING_INVOICE_OVERDUE = "sahool.billing.invoice.overdue"
-SAHOOL_BILLING_INVOICE_GENERATED = "sahool.billing.invoice_generated"
+SAHOOL_BILLING_INVOICE_GENERATED = "sahool.billing.invoice.generated"
 
 # Payment extended events
 SAHOOL_BILLING_PAYMENT_CREATED = "sahool.billing.payment.created"

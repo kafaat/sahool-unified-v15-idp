@@ -492,8 +492,11 @@ class TestPostgresSpecific:
         cmd = str(svc.get("command", ""))
         env_str = str(svc.get("environment", {}))
         has_max_conn = "max_connections" in cmd or "MAX_CONNECTIONS" in env_str
-        # Accept if configured via command, env, or config file
-        assert has_max_conn or True  # May be in postgresql.conf
+        if not has_max_conn:
+            pytest.xfail(
+                "PostgreSQL max_connections not configured via compose command/env; "
+                "may be set in postgresql.conf and is not directly verifiable here."
+            )
 
     def test_postgres_stop_grace_period(self, services: dict) -> None:
         """PostgreSQL has stop_grace_period for clean WAL checkpoint."""

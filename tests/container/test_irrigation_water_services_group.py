@@ -136,13 +136,17 @@ class TestScientificDeps:
 
     @pytest.mark.parametrize("svc", sorted(WATER_DELIVERY))
     def test_has_numeric_library(self, svc: str) -> None:
-        """Water delivery service has numeric computing library."""
+        """Water delivery service has numeric computing library or shared/ access."""
         pkgs = _req_packages(svc)
-        numeric = {"numpy", "scipy", "pandas", "math"}
+        numeric = {"numpy", "scipy", "pandas"}
         has_numeric = pkgs & numeric
-        # Also accept if no explicit numpy but uses built-in math
-        assert has_numeric or True, (
-            f"{svc} may benefit from numeric computing libraries"
+        if not has_numeric:
+            # May access numeric libs via shared/ modules
+            content = _read_dockerfile(svc)
+            has_numeric = bool(re.search(r"COPY.*shared", content, re.IGNORECASE))
+        assert has_numeric, (
+            f"{svc} missing numeric computing library (expected one of {sorted(numeric)} "
+            f"or shared/ module copy)"
         )
 
     @pytest.mark.parametrize("svc", sorted(IRRIGATION_SERVICES))

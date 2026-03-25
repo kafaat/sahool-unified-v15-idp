@@ -85,6 +85,15 @@ class TestWorkerDockerfiles:
         has_cmd = bool(re.search(r"^(CMD|ENTRYPOINT)\s+", content, re.MULTILINE | re.IGNORECASE))
         assert has_cmd, f"{svc} missing CMD or ENTRYPOINT"
 
+    @pytest.mark.parametrize("svc", sorted(WORKER_SERVICES))
+    def test_no_expose_directive(self, svc: str) -> None:
+        """Portless worker Dockerfile must not contain EXPOSE directives."""
+        content = _read_dockerfile(svc)
+        if not content:
+            pytest.skip(f"No Dockerfile for {svc}")
+        has_expose = re.search(r"^EXPOSE\b", content, re.MULTILINE | re.IGNORECASE)
+        assert not has_expose, f"{svc} Dockerfile must not contain EXPOSE directives"
+
 
 # ===========================================================================
 # 2. Non-Root User

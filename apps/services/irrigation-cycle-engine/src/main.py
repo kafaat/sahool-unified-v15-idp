@@ -645,7 +645,7 @@ def readiness():
 
 
 @app.post("/api/v1/irrigation/et0", response_model=list[ET0Response])
-async def calculate_et0(req: ET0Request):
+async def calculate_et0(req: ET0Request, current_user: User = Depends(get_current_user)):
     """Calculate reference evapotranspiration (ET0) using FAO-56 Penman-Monteith."""
     results = []
     for w in req.weather:
@@ -671,7 +671,7 @@ async def calculate_et0(req: ET0Request):
 
 
 @app.post("/api/v1/irrigation/cycle", response_model=IrrigationCycleResponse)
-async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
+async def calculate_irrigation_cycle(req: IrrigationCycleRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate irrigation cycle period and water requirements.
 
@@ -707,7 +707,7 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
 
 
 @app.post("/api/v1/irrigation/schedule", response_model=ScheduleResponse)
-async def generate_irrigation_schedule(req: ScheduleRequest):
+async def generate_irrigation_schedule(req: ScheduleRequest, current_user: User = Depends(get_current_user)):
     """
     Generate multi-day irrigation schedule using Yemen crop/climate/soil data.
 
@@ -840,6 +840,7 @@ async def assess_salinity(
     na: float = Query(default=0.0, description="Sodium (meq/L)"),
     ca: float = Query(default=0.0, description="Calcium (meq/L)"),
     mg: float = Query(default=0.0, description="Magnesium (meq/L)"),
+    current_user: User = Depends(get_current_user),
 ):
     """Assess salinity impact on irrigation and crop yield."""
     if not engine._salinity_module:

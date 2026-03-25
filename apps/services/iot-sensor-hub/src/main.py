@@ -792,6 +792,7 @@ async def cache_status():
 async def sync_cache(
     limit: int = Query(default=1000, le=10000),
     confirm_clear: bool = Query(default=False, description="Set true to clear synced entries"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve cached entries and optionally clear them.

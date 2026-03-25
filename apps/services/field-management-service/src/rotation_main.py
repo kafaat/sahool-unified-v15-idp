@@ -131,7 +131,7 @@ async def create_rotation_plan(
 
 
 @app.post("/v1/rotation/plan")
-async def create_rotation_plan_post(req: dict):
+async def create_rotation_plan_post(req: dict, current_user: User = Depends(get_current_user)):
     """
     POST endpoint to create rotation plan with custom history
     Create optimal crop rotation plan with provided field history
@@ -185,7 +185,7 @@ async def suggest_next_crop(field_id: str, season: str = "winter"):
 
 
 @app.post("/v1/rotation/evaluate")
-async def evaluate_rotation(req: dict):
+async def evaluate_rotation(req: dict, current_user: User = Depends(get_current_user)):
     """
     Evaluate a rotation plan for soil health and disease risk
 

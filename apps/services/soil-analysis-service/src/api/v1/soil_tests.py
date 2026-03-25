@@ -287,7 +287,9 @@ async def interpret_soil_test(request: InterpretRequest, req: Request, current_u
 
 
 @router.post("/recommendations/amendment-plan")
-async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request, current_user: User = Depends(get_current_user)):
+async def generate_amendment_plan(
+    request: AmendmentPlanRequest, req: Request, current_user: User = Depends(get_current_user)
+):
     """Generate soil amendment plan - إنشاء خطة تعديل التربة"""
     if request.test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -357,7 +359,12 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request, c
 
 
 @router.post("/trends")
-async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
+async def analyze_soil_trends(
+    request: TrendRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
@@ -517,7 +524,11 @@ async def calculate_rate(request: FertilizerRateRequest, current_user: User = De
 
 
 @router.post("/trends/nutrient")
-async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
+async def get_single_nutrient_trend(
+    request: NutrientTrendRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
@@ -553,7 +564,11 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: st
 
 
 @router.post("/trends/compare-periods")
-async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
+async def compare_periods(
+    request: PeriodCompareRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 

@@ -29,6 +29,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 from src.models.versioning import (
     ModelMetrics,
     ModelStage,

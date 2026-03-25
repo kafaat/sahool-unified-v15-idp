@@ -291,7 +291,8 @@ class DeviceIntegrityService {
       }
       return false;
     } catch (e) {
-      // Fail-secure: assume compromised on error
+      // Fail-secure: assume compromised on error; log for debugging
+      AppLogger.e('Frida detection error: $e', tag: 'Security');
       return true;
     }
   }

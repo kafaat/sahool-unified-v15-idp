@@ -747,7 +747,7 @@ def readiness():
 
 # Fertigation endpoints
 @app.post("/api/v1/fertigation/plan", response_model=FertigationPlan)
-async def create_fertigation_plan(req: FertigationRequest):
+async def create_fertigation_plan(req: FertigationRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate fertigation plan with NPK requirements, fertilizer selection,
     EC management, and environmental risk assessment.
@@ -780,7 +780,7 @@ async def create_fertigation_plan(req: FertigationRequest):
 
 
 @app.post("/api/v1/fertigation/nutrient-balance", response_model=NutrientBalance)
-async def calculate_balance(req: NutrientBalanceRequest):
+async def calculate_balance(req: NutrientBalanceRequest, current_user: User = Depends(get_current_user)):
     """Track and analyze nutrient balance for a field."""
     return fert_engine.calculate_nutrient_balance(req)
 

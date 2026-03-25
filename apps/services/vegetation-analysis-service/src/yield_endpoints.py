@@ -38,8 +38,22 @@ import logging
 import uuid
 from datetime import UTC, date, timedelta, timezone
 
-from fastapi import HTTPException, Path, Query
+from fastapi import Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
+
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 logger = logging.getLogger(__name__)
 

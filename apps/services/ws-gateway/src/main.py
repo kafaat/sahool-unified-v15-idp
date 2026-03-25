@@ -34,6 +34,20 @@ from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Import authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 def sanitize_log_input(value: str) -> str:
     """Sanitize user input for safe logging to prevent log injection attacks."""

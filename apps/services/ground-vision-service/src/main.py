@@ -319,7 +319,7 @@ class CameraResponse(BaseModel):
 
 
 @app.post("/api/v1/cameras", response_model=CameraResponse, tags=["Cameras"])
-async def register_camera(request: CameraRegistration):
+async def register_camera(request: CameraRegistration, current_user: User = Depends(get_current_user)):
     """
     Register a new tower camera.
 
@@ -467,7 +467,7 @@ class FrameProcessResponse(BaseModel):
 
 
 @app.post("/api/v1/frames/process", response_model=FrameProcessResponse, tags=["Frames"])
-async def process_frame(request: FrameProcessRequest):
+async def process_frame(request: FrameProcessRequest, current_user: User = Depends(get_current_user)):
     """
     Process a captured frame.
 
@@ -668,7 +668,7 @@ class TimelineAnalysisResponse(BaseModel):
 
 
 @app.post("/api/v1/timeline/analyze", response_model=TimelineAnalysisResponse, tags=["Timeline"])
-async def analyze_timeline(request: TimelineAnalysisRequest):
+async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User = Depends(get_current_user)):
     """
     Analyze crop timeline from frames.
 
@@ -900,7 +900,7 @@ class AnomalyAcknowledgeRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/acknowledge", tags=["Anomalies"])
-async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeRequest):
+async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeRequest, current_user: User = Depends(get_current_user)):
     """
     Acknowledge an anomaly.
 
@@ -943,7 +943,7 @@ class AnomalyResolveRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/resolve", tags=["Anomalies"])
-async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
+async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest, current_user: User = Depends(get_current_user)):
     """
     Resolve an anomaly.
 

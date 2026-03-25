@@ -637,7 +637,7 @@ def readiness():
 
 # Node management
 @app.post("/api/v1/iot/nodes", status_code=201)
-async def register_node(reg: NodeRegistration):
+async def register_node(reg: NodeRegistration, current_user: User = Depends(get_current_user)):
     """Register a new IoT sensor node."""
     node = iot_engine.register_node(reg)
     return {"status": "registered", "node": node}
@@ -664,7 +664,7 @@ async def get_node(node_id: str):
 
 # Sensor data ingestion
 @app.post("/api/v1/iot/readings")
-async def ingest_reading(reading: SensorReading):
+async def ingest_reading(reading: SensorReading, current_user: User = Depends(get_current_user)):
     """Ingest a single sensor reading with Kalman filtering and alert checking."""
     result = iot_engine.process_reading(reading)
 
@@ -691,7 +691,7 @@ async def ingest_reading(reading: SensorReading):
 
 
 @app.post("/api/v1/iot/readings/batch")
-async def ingest_batch(batch: SensorReadingBatch):
+async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(get_current_user)):
     """Ingest a batch of sensor readings."""
     results = []
     nc = getattr(app.state, "nc", None)
@@ -730,7 +730,7 @@ async def ingest_batch(batch: SensorReadingBatch):
 
 # WDI calculation
 @app.post("/api/v1/iot/wdi", response_model=WDIResponse)
-async def calculate_wdi(req: WDIRequest):
+async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate Weighted Decision Index (WDI) for irrigation decision.
 

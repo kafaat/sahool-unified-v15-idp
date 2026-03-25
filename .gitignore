@@ -22,16 +22,16 @@ pgbouncer_logs.txt
 sahool.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Environment & Secrets (CRITICAL - Never commit!)
+# Environment & Secrets (CRITICAL - Never commit real credentials!)
+# Only templates/examples are tracked. Real .env files with credentials are excluded.
 # ─────────────────────────────────────────────────────────────────────────────
 .env
 .env.*
 !.env.example
 !.env.test
-!.env.development
-!.env.staging
-!.env.production
 !.env.development.template
+# NOTE: .env.development, .env.staging, .env.production are NOT tracked.
+# Use .env.development.template as starting point: cp .env.development.template .env.development
 *.pem
 *.key
 *.crt

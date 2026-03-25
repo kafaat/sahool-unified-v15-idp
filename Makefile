@@ -568,6 +568,21 @@ docstring-coverage: ## تغطية التوثيق - Check docstring coverage
 	@echo "$(BLUE)📝 تغطية التوثيق - Docstring coverage...$(RESET)"
 	@interrogate apps/services/ shared/ -v --fail-under 0 2>/dev/null | tail -30
 
+validate-env: ## التحقق من متغيرات البيئة - Validate .env for placeholder secrets
+	@echo "$(BLUE)🔒 التحقق من بيانات الاعتماد - Validating environment secrets...$(RESET)"
+	@if [ -f .env ]; then \
+		WEAK=$$(grep -cE "change_this_|changeme_|<REPLACE_|<your_" .env 2>/dev/null || echo 0); \
+		if [ "$$WEAK" -gt 0 ]; then \
+			echo "$(RED)❌ Found $$WEAK placeholder secrets in .env!$(RESET)"; \
+			echo "Replace all change_this_* values with: openssl rand -base64 32"; \
+			exit 1; \
+		else \
+			echo "$(GREEN)✅ No placeholder secrets detected$(RESET)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️ No .env file found. Copy from template: cp .env.development.template .env$(RESET)"; \
+	fi
+
 secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
 	@echo "$(BLUE)🔐 فحص الأسرار - Scanning for secrets...$(RESET)"
 	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | $(PYTHON) -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"

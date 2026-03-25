@@ -104,6 +104,7 @@ const DANGEROUS_PATTERNS = [
   // Direct code execution
   /\beval\s*\(/gi,
   /\bnew\s+Function\s*\(/gi,
+  /\bFunction\s*\(/g,
 
   // Script injection attempts
   /<script[\s>]/gi,

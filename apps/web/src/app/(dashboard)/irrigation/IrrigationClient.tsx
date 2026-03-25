@@ -161,9 +161,6 @@ export default function IrrigationClient() {
 
   const overdueCount = schedules.filter((s) => s.status === 'overdue').length;
   const inProgressCount = schedules.filter((s) => s.status === 'in_progress').length;
-  const scheduledCount = schedules.filter((s) => s.status === 'scheduled').length;
-  void scheduledCount; // Will be used when API integration is wired up
-
   // CRUD handlers
   const openCreate = useCallback(() => {
     setFormData(EMPTY_FORM);

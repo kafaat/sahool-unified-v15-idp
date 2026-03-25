@@ -281,7 +281,7 @@ describe('WebSocket Service Active', () => {
       'task',
     ];
     eventTypes.forEach((type) => {
-      expect(content).toContain(`'${type}'`);
+      expect(content).toMatch(new RegExp(`['"]${type}['"]`));
     });
   });
 

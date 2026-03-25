@@ -3,7 +3,7 @@ SAHOOL Infrastructure Providers – Comprehensive Container Function Tests
 =========================================================================
 اختبارات وظائف شاملة لمزودي البنية التحتية
 
-Validates ALL 14 infrastructure provider services: database, cache,
+Validates ALL 15 infrastructure provider services: database, cache,
 message queue, API gateway, secrets, vector DBs, object storage,
 IoT broker, ML tracking, LLM hosting, and monitoring exporters.
 
@@ -201,9 +201,18 @@ class TestProviderPortSecurity:
         ports = svc.get("ports", [])
         if not ports:
             pytest.skip(f"{provider} has no port mappings (internal only)")
-        port_str = " ".join(str(p) for p in ports)
-        assert str(expected_port) in port_str, (
-            f"Provider '{provider}' should expose port {expected_port} (ports: {ports})"
+        # Parse port mappings to extract container-side ports accurately
+        container_ports: list[int] = []
+        for p in ports:
+            p_str = str(p)
+            parts = p_str.split(":")
+            # Format: "host:container" or "ip:host:container"
+            cport_str = parts[-1].split("/")[0].strip()
+            if cport_str.isdigit():
+                container_ports.append(int(cport_str))
+        assert expected_port in container_ports, (
+            f"Provider '{provider}' should expose port {expected_port} "
+            f"(container ports: {container_ports})"
         )
 
     @pytest.mark.parametrize("provider", sorted(

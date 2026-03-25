@@ -18,11 +18,12 @@ SERVICES_DIR = REPO_ROOT / "apps" / "services"
 MAIN_COMPOSE = REPO_ROOT / "docker-compose.yml"
 
 # ---------------------------------------------------------------------------
-# Caches
+# Caches (separate per content type to avoid key collisions)
 # ---------------------------------------------------------------------------
 
 _dockerfile_cache: dict[str, str] = {}
 _requirements_cache: dict[str, str] = {}
+_source_cache: dict[str, str] = {}
 _compose_cache: dict[str, Any] | None = None
 
 
@@ -63,11 +64,10 @@ def req_packages(svc: str) -> set[str]:
 
 def read_all_source(svc: str, max_files: int = 25) -> str:
     """Read all Python source files from a service's src/ directory (cached)."""
-    cache_key = f"_src_{svc}"
-    if cache_key not in _dockerfile_cache:
+    if svc not in _source_cache:
         src_dir = SERVICES_DIR / svc / "src"
         if not src_dir.exists():
-            _dockerfile_cache[cache_key] = ""
+            _source_cache[svc] = ""
             return ""
         combined = ""
         for f in sorted(src_dir.rglob("*.py"))[:max_files]:
@@ -75,12 +75,16 @@ def read_all_source(svc: str, max_files: int = 25) -> str:
                 combined += f.read_text("utf-8", errors="ignore") + "\n"
             except OSError:
                 continue
-        _dockerfile_cache[cache_key] = combined
-    return _dockerfile_cache[cache_key]
+        _source_cache[svc] = combined
+    return _source_cache[svc]
 
 
 def load_compose() -> dict[str, Any]:
-    """Load and cache the main docker-compose.yml (with sanitized env vars)."""
+    """Load and cache the main docker-compose.yml.
+
+    Note: yaml.safe_load coerces YAML 1.1 booleans (no/off/on → False/True).
+    Tests comparing restart policies should accept both string and boolean forms.
+    """
     global _compose_cache
     if _compose_cache is None:
         content = MAIN_COMPOSE.read_text("utf-8")

@@ -149,7 +149,8 @@ class TestWorkerComposeConfig:
     def test_cli_agent_restart_no(self, services: dict, svc: str) -> None:
         """CLI agents run once and should not auto-restart."""
         svc_def = services.get(svc, {})
-        assert svc_def.get("restart") in ("no", "\"no\""), (
+        # yaml.safe_load coerces unquoted `no` to boolean False
+        assert svc_def.get("restart") in ("no", False), (
             f"CLI agent '{svc}' should have restart: no (got: {svc_def.get('restart')!r})"
         )
 

@@ -67,30 +67,30 @@ def _load_subjects() -> str:
     return _subjects_cache
 
 
-def _find_hardcoded_subjects(svc_name: str) -> set[str]:
-    """Find NATS subjects hardcoded as string literals in service source."""
+_subject_cache: dict[str, set[str]] = {}
+
+
+def _find_hardcoded_subjects(svc_name: str, max_files: int = 30) -> set[str]:
+    """Find NATS subjects hardcoded as string literals in service source (cached)."""
+    if svc_name in _subject_cache:
+        return _subject_cache[svc_name]
     src_dir = SERVICES_DIR / svc_name / "src"
     if not src_dir.exists():
+        _subject_cache[svc_name] = set()
         return set()
     subjects: set[str] = set()
-    for py_file in src_dir.rglob("*.py"):
+    pattern = re.compile(r'"(sahool\.[a-z][a-z0-9_.]+)"')
+    files = sorted(src_dir.rglob("*.py"))[:max_files] + sorted(src_dir.rglob("*.ts"))[:max_files]
+    for src_file in files:
         try:
-            content = py_file.read_text("utf-8", errors="ignore")
+            content = src_file.read_text("utf-8", errors="ignore")
         except OSError:
             continue
-        for m in re.finditer(r'"(sahool\.[a-z][a-z0-9_.]+)"', content):
+        for m in pattern.finditer(content):
             subj = m.group(1)
             if not subj.endswith(".") and "*" not in subj and ">" not in subj:
                 subjects.add(subj)
-    for ts_file in src_dir.rglob("*.ts"):
-        try:
-            content = ts_file.read_text("utf-8", errors="ignore")
-        except OSError:
-            continue
-        for m in re.finditer(r'"(sahool\.[a-z][a-z0-9_.]+)"', content):
-            subj = m.group(1)
-            if not subj.endswith(".") and "*" not in subj and ">" not in subj:
-                subjects.add(subj)
+    _subject_cache[svc_name] = subjects
     return subjects
 
 

@@ -209,9 +209,11 @@ class TestNodeBuildConfig:
         content = _read_dockerfile(svc)
         if not content:
             pytest.skip(f"No Dockerfile for {svc}")
+        # Check for npm mirror/registry configuration in Dockerfile
+        npm_registry_official = "registry.npmjs.org"  # noqa: S105
         has_mirror = (
             "npmmirror" in content.lower()
-            or "registry.npmjs.org" in content.lower()
+            or npm_registry_official in content.lower()
             or "npm config" in content.lower()
         )
         assert has_mirror, f"{svc} missing NPM mirror fallback"

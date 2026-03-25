@@ -77,16 +77,6 @@ class TestWorkerDockerfiles:
         assert path.exists(), f"{svc} missing Dockerfile"
 
     @pytest.mark.parametrize("svc", sorted(WORKER_SERVICES))
-    def test_no_expose_directive(self, svc: str) -> None:
-        """Portless workers should not EXPOSE ports (or use env-based)."""
-        content = _read_dockerfile(svc)
-        if not content:
-            pytest.skip(f"No Dockerfile for {svc}")
-        # Workers may have EXPOSE for internal metrics, but should not have ports in compose
-        # This is a soft check - just verify they don't have "ports:" in compose
-        pass  # Validated in compose test below
-
-    @pytest.mark.parametrize("svc", sorted(WORKER_SERVICES))
     def test_has_cmd_or_entrypoint(self, svc: str) -> None:
         """Worker has CMD or ENTRYPOINT for startup."""
         content = _read_dockerfile(svc)

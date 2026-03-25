@@ -118,7 +118,9 @@ def _load_compose() -> dict[str, Any]:
     global _compose_cache
     if _compose_cache is None:
         content = MAIN_COMPOSE.read_text("utf-8")
-        sanitized = re.sub(r"\$\{[^}]+\}", "placeholder", content)
+        # Preserve numeric defaults like ${PORT:-4222} → 4222
+        sanitized = re.sub(r"\$\{[^}:]+:-([0-9]+)\}", r"\1", content)
+        sanitized = re.sub(r"\$\{[^}]+\}", "placeholder", sanitized)
         _compose_cache = yaml.safe_load(sanitized) or {}
     return _compose_cache
 
@@ -224,14 +226,13 @@ class TestProviderPortSecurity:
         ports = svc.get("ports", [])
         for p in ports:
             p_str = str(p)
-            if ":" in p_str:
-                # Check host binding
-                host_part = p_str.split(":")[0]
-                if host_part.replace(".", "").isdigit():
-                    assert host_part == "127.0.0.1", (
-                        f"Provider '{provider}' port '{p}' not bound to 127.0.0.1 "
-                        f"(security: prevents external access)"
-                    )
+            parts = p_str.split(":")
+            # Only check "ip:host:container" form (3 parts with IP)
+            if len(parts) == 3 and re.match(r"^\d{1,3}(?:\.\d{1,3}){3}$", parts[0]):
+                assert parts[0] == "127.0.0.1", (
+                    f"Provider '{provider}' port '{p}' not bound to 127.0.0.1 "
+                    f"(security: prevents external access)"
+                )
 
 
 # ===========================================================================
@@ -561,23 +562,25 @@ class TestKongSpecific:
         svc = services.get("kong", {})
         env = svc.get("environment", {})
         env_str = str(env)
-        if "NGINX_WORKER_PROCESSES" in env_str:
-            if isinstance(env, dict):
-                workers = str(env.get("KONG_NGINX_WORKER_PROCESSES", ""))
-            elif isinstance(env, list):
-                for e in env:
-                    if "NGINX_WORKER_PROCESSES" in str(e):
-                        workers = str(e).split("=")[-1]
-                        break
-                else:
-                    workers = ""
-            else:
-                workers = ""
-            if workers and workers != "placeholder":
-                assert workers != "auto", (
-                    "Kong NGINX_WORKER_PROCESSES must be a number, not 'auto' "
-                    "(causes excessive CPU on multi-core nodes)"
-                )
+        if "NGINX_WORKER_PROCESSES" not in env_str:
+            pytest.skip("Kong NGINX_WORKER_PROCESSES not configured")
+        workers = ""
+        if isinstance(env, dict):
+            workers = str(
+                env.get("KONG_NGINX_WORKER_PROCESSES")
+                or env.get("NGINX_WORKER_PROCESSES", "")
+            )
+        elif isinstance(env, list):
+            for e in env:
+                e_str = str(e)
+                if "NGINX_WORKER_PROCESSES=" in e_str:
+                    workers = e_str.split("=", 1)[-1]
+                    break
+        if workers and workers != "placeholder":
+            assert workers != "auto", (
+                "Kong NGINX_WORKER_PROCESSES must be a number, not 'auto' "
+                "(causes excessive CPU on multi-core nodes)"
+            )
 
 
 class TestOllamaSpecific:

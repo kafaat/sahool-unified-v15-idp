@@ -123,7 +123,10 @@ def _read_all_source(svc: str, max_files: int = 25) -> str:
             return ""
         combined = ""
         for f in sorted(src_dir.rglob("*.py"))[:max_files]:
-            combined += f.read_text("utf-8", errors="ignore") + "\n"
+            try:
+                combined += f.read_text("utf-8", errors="ignore") + "\n"
+            except OSError:
+                continue
         _source_cache[svc] = combined
     return _source_cache[svc]
 

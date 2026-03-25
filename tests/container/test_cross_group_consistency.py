@@ -137,6 +137,9 @@ COMPLIANCE_SERVICES: dict[str, int] = {
     "digital-twin-engine": 8253,
 }
 
+# Portless worker services (no HTTP port, NATS/CLI-based)
+WORKER_SERVICES: set[str] = {"agro-rules", "code-review-agent", "demo-data"}
+
 # Union of all tested HTTP services (deduped)
 ALL_GROUP_SERVICES: dict[str, int] = {
     **AI_SERVICES,
@@ -150,6 +153,9 @@ ALL_GROUP_SERVICES: dict[str, int] = {
     **PLATFORM_SERVICES,
     **COMPLIANCE_SERVICES,
 }
+
+# All services including portless workers
+ALL_SERVICES_WITH_WORKERS: set[str] = set(ALL_GROUP_SERVICES) | WORKER_SERVICES
 
 # Node.js services within the tested groups
 NODE_GROUP = {
@@ -450,8 +456,22 @@ class TestGroupSizes:
     def test_compliance_group_minimum(self) -> None:
         assert len(COMPLIANCE_SERVICES) >= 4
 
-    def test_total_services_covered(self) -> None:
-        """Total unique services covered across all 11 groups."""
+    def test_worker_group_minimum(self) -> None:
+        assert len(WORKER_SERVICES) >= 3
+
+    def test_total_http_services_covered(self) -> None:
+        """Total unique HTTP services covered across all 11 groups."""
         assert len(ALL_GROUP_SERVICES) >= 60, (
-            f"Only {len(ALL_GROUP_SERVICES)} unique services covered, expected ≥60"
+            f"Only {len(ALL_GROUP_SERVICES)} unique HTTP services covered, expected ≥60"
         )
+
+    def test_total_with_workers_covered(self) -> None:
+        """Total services including portless workers."""
+        assert len(ALL_SERVICES_WITH_WORKERS) >= 63, (
+            f"Only {len(ALL_SERVICES_WITH_WORKERS)} total services covered, expected ≥63"
+        )
+
+    def test_workers_in_compose(self, services: dict) -> None:
+        """All portless workers are in docker-compose.yml."""
+        missing = [w for w in WORKER_SERVICES if w not in services]
+        assert not missing, f"Workers missing from compose: {missing}"

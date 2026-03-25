@@ -435,3 +435,92 @@ class TestRemoteSensingCompose:
         user_lines = re.findall(r"^USER\s+(\S+)", content, re.MULTILINE)
         non_root = [u for u in user_lines if u.lower() not in ("root", "0")]
         assert non_root, f"{svc} must run as non-root user"
+
+
+# ===========================================================================
+# 8. NDVI Health Thresholds (Domain Logic)
+# ===========================================================================
+
+
+class TestNDVIHealthThresholds:
+    """عتبات تصنيف صحة النبات بمؤشر NDVI."""
+
+    def test_shared_satellite_has_ndvi_thresholds(self) -> None:
+        """shared/satellite/ defines NDVI thresholds (0.6, 0.4, 0.2)."""
+        sentinel_path = REPO_ROOT / "shared" / "satellite" / "sentinel_ndvi.py"
+        if not sentinel_path.exists():
+            pytest.skip("No sentinel_ndvi.py")
+        content = sentinel_path.read_text("utf-8")
+        # NDVI thresholds: healthy ≥0.6, moderate 0.4-0.6, stressed 0.2-0.4, critical <0.2
+        has_thresholds = ("0.6" in content and "0.4" in content and "0.2" in content)
+        assert has_thresholds, (
+            "shared/satellite/sentinel_ndvi.py must define NDVI health thresholds "
+            "(0.6 healthy, 0.4 moderate, 0.2 stressed)"
+        )
+
+    def test_shared_satellite_has_vegetation_indices(self) -> None:
+        """shared/satellite/ defines VegetationIndex enum (NDVI, LAI, EVI, SAVI)."""
+        sentinel_path = REPO_ROOT / "shared" / "satellite" / "sentinel_ndvi.py"
+        if not sentinel_path.exists():
+            pytest.skip("No sentinel_ndvi.py")
+        content = sentinel_path.read_text("utf-8")
+        indices = ["NDVI", "LAI", "EVI", "SAVI"]
+        found = [i for i in indices if i in content]
+        assert len(found) >= 3, (
+            f"shared/satellite/ should define vegetation indices (found: {found})"
+        )
+
+    def test_shared_satellite_bilingual_health_labels(self) -> None:
+        """shared/satellite/ has Arabic health status labels."""
+        for py_file in (REPO_ROOT / "shared" / "satellite").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            arabic_labels = ["صحي", "معتدل", "مجهد", "حرج"]
+            found = [a for a in arabic_labels if a in content]
+            if len(found) >= 3:
+                return  # Found bilingual labels
+        pytest.fail(
+            "shared/satellite/ must have Arabic health labels: "
+            "صحي (healthy), معتدل (moderate), مجهد (stressed), حرج (critical)"
+        )
+
+
+# ===========================================================================
+# 9. Satellite Image Comparison & Change Detection
+# ===========================================================================
+
+
+class TestSatelliteComparison:
+    """مقارنة صور الأقمار الصناعية وكشف التغيير."""
+
+    def test_vegetation_analysis_change_detection(self) -> None:
+        """vegetation-analysis-service supports NDVI change detection."""
+        source = _read_all_source("vegetation-analysis-service")
+        if not source:
+            pytest.skip("No source")
+        change_terms = ["change", "temporal", "timeseries", "time_series",
+                         "comparison", "anomaly", "trend", "difference"]
+        found = [t for t in change_terms if t in source.lower()]
+        assert len(found) >= 2, (
+            f"vegetation-analysis should support change detection "
+            f"(found: {found}, expected ≥2)"
+        )
+
+    def test_shared_satellite_timeseries(self) -> None:
+        """shared/satellite/ has TimeSeriesNDVI model."""
+        sentinel_path = REPO_ROOT / "shared" / "satellite" / "sentinel_ndvi.py"
+        if not sentinel_path.exists():
+            pytest.skip("No sentinel_ndvi.py")
+        content = sentinel_path.read_text("utf-8")
+        assert "TimeSeries" in content or "time_series" in content, (
+            "shared/satellite/ should support time-series NDVI for map comparison"
+        )
+
+    def test_nats_subjects_has_ndvi_anomaly_event(self) -> None:
+        """NATS subjects define sahool.satellite.ndvi.anomaly for detected changes."""
+        subjects_path = REPO_ROOT / "shared" / "events" / "subjects.py"
+        if not subjects_path.exists():
+            pytest.skip("No subjects.py")
+        content = subjects_path.read_text("utf-8")
+        assert "SAHOOL_NDVI_ANOMALY" in content, (
+            "subjects.py must define SAHOOL_NDVI_ANOMALY for change detection"
+        )

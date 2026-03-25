@@ -492,3 +492,232 @@ class TestCropMgmtCompose:
         """No two crop management services share the same port."""
         ports = list(CROP_MGMT_SERVICES.values())
         assert len(ports) == len(set(ports))
+
+
+# ===========================================================================
+# 9. Crop Growth Stages (Zadoks/BBCH)
+# ===========================================================================
+
+
+class TestCropGrowthStages:
+    """مراحل نمو المحاصيل (مقياس Zadoks)."""
+
+    def test_shared_agri_calendar_growth_stages(self) -> None:
+        """shared/agri_calendar/ references crop growth stages/planting windows."""
+        for py_file in (REPO_ROOT / "shared" / "agri_calendar").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            stage_terms = ["planting", "harvest", "stage", "season", "window",
+                            "seedling", "vegetative", "flowering", "maturity"]
+            found = [t for t in stage_terms if t in content.lower()]
+            if len(found) >= 3:
+                return
+        pytest.fail(
+            "shared/agri_calendar/ must reference crop growth stages "
+            "(planting, harvest, seedling, vegetative, flowering, maturity)"
+        )
+
+    def test_crop_intelligence_growth_assessment(self) -> None:
+        """crop-intelligence-service references growth stage assessment."""
+        source = _read_all_source("crop-intelligence-service")
+        if not source:
+            pytest.skip("No source")
+        growth_terms = ["growth", "stage", "health", "phenology", "maturity"]
+        found = [t for t in growth_terms if t in source.lower()]
+        assert len(found) >= 2, (
+            f"crop-intelligence should assess growth stages (found: {found})"
+        )
+
+    def test_shared_ml_irrigation_has_crop_stages(self) -> None:
+        """shared/ml_irrigation/ uses crop stage for irrigation prediction."""
+        for py_file in (REPO_ROOT / "shared" / "ml_irrigation").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "CropStage" in content or "crop_stage" in content or "Kc" in content:
+                return
+        pytest.fail(
+            "shared/ml_irrigation/ must use crop growth stage (CropStage/Kc coefficient)"
+        )
+
+
+# ===========================================================================
+# 10. Pesticide Compliance (PHI/REI)
+# ===========================================================================
+
+
+class TestPesticideCompliance:
+    """امتثال المبيدات - فترات ما قبل الحصاد وإعادة الدخول."""
+
+    def test_shared_pesticide_compliance_exists(self) -> None:
+        """shared/pesticide_compliance/ module exists."""
+        path = REPO_ROOT / "shared" / "pesticide_compliance" / "__init__.py"
+        assert path.exists(), "shared/pesticide_compliance/ missing"
+
+    def test_pesticide_compliance_has_phi(self) -> None:
+        """shared/pesticide_compliance/ implements PHI (Pre-Harvest Interval)."""
+        for py_file in (REPO_ROOT / "shared" / "pesticide_compliance").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "PHI" in content or "pre_harvest" in content.lower() or "preharvest" in content.lower():
+                return
+        pytest.fail("shared/pesticide_compliance/ must implement PHI (Pre-Harvest Interval)")
+
+    def test_pesticide_compliance_has_rei(self) -> None:
+        """shared/pesticide_compliance/ implements REI (Re-Entry Interval)."""
+        for py_file in (REPO_ROOT / "shared" / "pesticide_compliance").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "REI" in content or "re_entry" in content.lower() or "reentry" in content.lower():
+                return
+        pytest.fail("shared/pesticide_compliance/ must implement REI (Re-Entry Interval)")
+
+    def test_pesticide_compliance_has_ppe(self) -> None:
+        """shared/pesticide_compliance/ defines PPE requirements."""
+        for py_file in (REPO_ROOT / "shared" / "pesticide_compliance").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "PPE" in content or "protective" in content.lower():
+                return
+        pytest.fail("shared/pesticide_compliance/ must define PPE requirements")
+
+
+# ===========================================================================
+# 11. Salinity Management
+# ===========================================================================
+
+
+class TestSalinityManagement:
+    """إدارة الملوحة."""
+
+    def test_shared_salinity_module_exists(self) -> None:
+        """shared/salinity/ module exists."""
+        path = REPO_ROOT / "shared" / "salinity" / "__init__.py"
+        assert path.exists(), "shared/salinity/ module missing"
+
+    def test_shared_salinity_has_monitoring(self) -> None:
+        """shared/salinity/ implements salinity monitoring."""
+        for py_file in (REPO_ROOT / "shared" / "salinity").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            sal_terms = ["salinity", "ec", "conductivity", "leaching", "salt"]
+            found = [t for t in sal_terms if t in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail("shared/salinity/ must implement salinity monitoring (EC/leaching)")
+
+
+# ===========================================================================
+# 12. Water Management Efficiency
+# ===========================================================================
+
+
+class TestWaterManagementEfficiency:
+    """كفاءة إدارة المياه."""
+
+    def test_shared_water_management_exists(self) -> None:
+        """shared/water_management/ module exists."""
+        path = REPO_ROOT / "shared" / "water_management" / "__init__.py"
+        assert path.exists(), "shared/water_management/ missing"
+
+    def test_water_management_has_efficiency_metrics(self) -> None:
+        """shared/water_management/ calculates irrigation efficiency."""
+        for py_file in (REPO_ROOT / "shared" / "water_management").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            eff_terms = ["efficiency", "application_efficiency", "conveyance",
+                          "distribution", "water_use"]
+            found = [t for t in eff_terms if t in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail("shared/water_management/ must calculate irrigation efficiency metrics")
+
+
+# ===========================================================================
+# 13. Crop Rotation Planning
+# ===========================================================================
+
+
+class TestCropRotationPlanning:
+    """تخطيط تناوب المحاصيل."""
+
+    def test_shared_crop_rotation_exists(self) -> None:
+        """shared/crop_rotation/ module exists."""
+        path = REPO_ROOT / "shared" / "crop_rotation" / "__init__.py"
+        assert path.exists(), "shared/crop_rotation/ missing"
+
+    def test_crop_rotation_has_planner(self) -> None:
+        """shared/crop_rotation/ implements rotation planning."""
+        for py_file in (REPO_ROOT / "shared" / "crop_rotation").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "CropRotationPlanner" in content or "RotationPlan" in content:
+                return
+        pytest.fail("shared/crop_rotation/ must implement CropRotationPlanner")
+
+    def test_crop_rotation_has_soil_health(self) -> None:
+        """shared/crop_rotation/ tracks soil health improvement."""
+        for py_file in (REPO_ROOT / "shared" / "crop_rotation").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "SoilHealth" in content or "nitrogen_credit" in content.lower():
+                return
+        pytest.fail("shared/crop_rotation/ must track soil health (nitrogen credits)")
+
+
+# ===========================================================================
+# 14. Agricultural Calendar (Hijri + Anwa'a)
+# ===========================================================================
+
+
+class TestAgriculturalCalendar:
+    """التقويم الزراعي (الهجري والأنواء)."""
+
+    def test_shared_agri_calendar_exists(self) -> None:
+        """shared/agri_calendar/ module exists."""
+        path = REPO_ROOT / "shared" / "agri_calendar" / "__init__.py"
+        assert path.exists(), "shared/agri_calendar/ missing"
+
+    def test_agri_calendar_has_hijri(self) -> None:
+        """shared/agri_calendar/ integrates Hijri (Islamic) calendar."""
+        for py_file in (REPO_ROOT / "shared" / "agri_calendar").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "hijri" in content.lower() or "islamic" in content.lower():
+                return
+        pytest.fail("shared/agri_calendar/ must integrate Hijri calendar")
+
+    def test_agri_calendar_has_planting_windows(self) -> None:
+        """shared/agri_calendar/ defines crop planting windows by region."""
+        for py_file in (REPO_ROOT / "shared" / "agri_calendar").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "PlantingWindow" in content or "PLANTING_WINDOWS" in content:
+                return
+            if "planting_start" in content.lower() and "planting_end" in content.lower():
+                return
+        pytest.fail("shared/agri_calendar/ must define crop planting windows")
+
+    def test_agri_calendar_middle_east_regions(self) -> None:
+        """shared/agri_calendar/ covers Middle East agricultural regions."""
+        for py_file in (REPO_ROOT / "shared" / "agri_calendar").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            regions = ["riyadh", "qassim", "hail", "tabuk", "jazan", "yemen"]
+            found = [r for r in regions if r in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail("shared/agri_calendar/ must cover Middle East regions")
+
+
+# ===========================================================================
+# 15. Harvest Quality
+# ===========================================================================
+
+
+class TestHarvestQuality:
+    """جودة المحصول بعد الحصاد."""
+
+    def test_shared_harvest_quality_exists(self) -> None:
+        """shared/harvest_quality/ module exists."""
+        path = REPO_ROOT / "shared" / "harvest_quality" / "__init__.py"
+        assert path.exists(), "shared/harvest_quality/ missing"
+
+    def test_harvest_quality_has_grading(self) -> None:
+        """shared/harvest_quality/ implements grading engine."""
+        for py_file in (REPO_ROOT / "shared" / "harvest_quality").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if "QualityGrading" in content or "GradingEngine" in content:
+                return
+            grade_terms = ["grade", "quality", "grading", "standard"]
+            found = [t for t in grade_terms if t in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail("shared/harvest_quality/ must implement quality grading")

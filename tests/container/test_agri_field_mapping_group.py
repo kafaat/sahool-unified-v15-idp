@@ -327,3 +327,106 @@ class TestFieldMappingCompose:
     def test_no_port_collisions(self) -> None:
         ports = list(FIELD_MAPPING_SERVICES.values())
         assert len(ports) == len(set(ports))
+
+
+# ===========================================================================
+# 9. Field Boundary Domain Logic
+# ===========================================================================
+
+
+class TestFieldBoundaryDomainLogic:
+    """المنطق المجالي لحدود الحقول."""
+
+    def test_field_boundaries_has_postgis_queries(self) -> None:
+        """shared/field_boundaries/ generates PostGIS spatial queries."""
+        for py_file in (REPO_ROOT / "shared" / "field_boundaries").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            postgis_terms = ["ST_Area", "ST_Intersects", "ST_AsGeoJSON",
+                              "ST_DWithin", "postgis"]
+            found = [t for t in postgis_terms if t in content]
+            if len(found) >= 2:
+                return
+        pytest.fail(
+            "shared/field_boundaries/ must generate PostGIS queries "
+            "(ST_Area, ST_Intersects, ST_AsGeoJSON)"
+        )
+
+    def test_field_boundaries_has_area_calculation(self) -> None:
+        """shared/field_boundaries/ calculates field area (hectares/dunams)."""
+        for py_file in (REPO_ROOT / "shared" / "field_boundaries").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            if ("hectare" in content.lower() or "dunam" in content.lower()
+                    or "area" in content.lower()):
+                if "calculate" in content.lower() or "compute" in content.lower():
+                    return
+        pytest.fail(
+            "shared/field_boundaries/ must calculate field area (hectares/dunams)"
+        )
+
+    def test_field_boundaries_has_conflict_detection(self) -> None:
+        """shared/field_boundaries/ detects boundary conflicts (overlap/encroachment)."""
+        for py_file in (REPO_ROOT / "shared" / "field_boundaries").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            conflict_terms = ["conflict", "overlap", "encroachment", "intersect"]
+            found = [t for t in conflict_terms if t in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail(
+            "shared/field_boundaries/ must detect boundary conflicts "
+            "(overlap, encroachment)"
+        )
+
+
+# ===========================================================================
+# 10. VRA Maps (Variable Rate Application)
+# ===========================================================================
+
+
+class TestVRAMaps:
+    """خرائط التطبيق متغير المعدل."""
+
+    def test_shared_vra_has_zone_management(self) -> None:
+        """shared/vra_maps/ implements zone-based application."""
+        for py_file in (REPO_ROOT / "shared" / "vra_maps").rglob("*.py"):
+            content = py_file.read_text("utf-8", errors="ignore")
+            vra_terms = ["zone", "rate", "application", "variable", "prescription"]
+            found = [t for t in vra_terms if t in content.lower()]
+            if len(found) >= 2:
+                return
+        pytest.fail("shared/vra_maps/ must implement zone-based VRA")
+
+
+# ===========================================================================
+# 11. Terrain NATS Events
+# ===========================================================================
+
+
+class TestTerrainNATSEvents:
+    """أحداث NATS للتضاريس."""
+
+    def test_terrain_service_publishes_events(self) -> None:
+        """terrain-core-service source references event publishing."""
+        source = _read_all_source("terrain-core-service")
+        if not source:
+            pytest.skip("No source")
+        event_terms = ["publish", "nats", "event", "sahool.terrain"]
+        found = [t for t in event_terms if t in source.lower()]
+        assert len(found) >= 2, (
+            f"terrain-core should publish NATS events (found: {found})"
+        )
+
+    def test_nats_subjects_has_terrain_events(self) -> None:
+        """shared/events/subjects.py defines terrain analysis events."""
+        subjects_path = REPO_ROOT / "shared" / "events" / "subjects.py"
+        if not subjects_path.exists():
+            pytest.skip("No subjects.py")
+        content = subjects_path.read_text("utf-8")
+        # Check for terrain-related event subjects or field state events
+        terrain_indicators = [
+            "terrain", "field.state", "field.observation",
+            "leveling", "erosion", "drainage",
+        ]
+        found = [t for t in terrain_indicators if t in content.lower()]
+        assert found, (
+            "subjects.py should define terrain/field state event subjects"
+        )

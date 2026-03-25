@@ -198,11 +198,6 @@ class TestPipConstraintsUsage:
                 svcs.append(svc_dir.name)
         return sorted(svcs)
 
-    @pytest.mark.parametrize("svc", [])  # Populated dynamically
-    def test_constraints_in_pip_install(self, svc: str) -> None:
-        """Dockerfile uses -c constraints.txt when installing packages."""
-        pass  # Implemented below as single test
-
     def test_all_python_services_use_constraints(self) -> None:
         """All Python services should use constraints.txt for version pinning."""
         missing_constraints: list[str] = []

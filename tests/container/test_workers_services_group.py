@@ -134,10 +134,24 @@ class TestWorkerComposeConfig:
             f"Portless worker '{svc}' should not have ports mapping (found: {ports})"
         )
 
-    @pytest.mark.parametrize("svc", sorted(WORKER_SERVICES))
-    def test_restart_policy(self, services: dict, svc: str) -> None:
+    # Long-running NATS workers need unless-stopped; CLI agents use "no"
+    LONG_RUNNING_WORKERS = sorted({"agro-rules", "demo-data"})
+    CLI_AGENTS = sorted({"code-review-agent"})
+
+    @pytest.mark.parametrize("svc", LONG_RUNNING_WORKERS)
+    def test_restart_unless_stopped(self, services: dict, svc: str) -> None:
         svc_def = services.get(svc, {})
-        assert "restart" in svc_def, f"{svc} missing restart policy"
+        assert svc_def.get("restart") == "unless-stopped", (
+            f"{svc} restart policy must be 'unless-stopped' (got: {svc_def.get('restart')!r})"
+        )
+
+    @pytest.mark.parametrize("svc", CLI_AGENTS)
+    def test_cli_agent_restart_no(self, services: dict, svc: str) -> None:
+        """CLI agents run once and should not auto-restart."""
+        svc_def = services.get(svc, {})
+        assert svc_def.get("restart") in ("no", "\"no\""), (
+            f"CLI agent '{svc}' should have restart: no (got: {svc_def.get('restart')!r})"
+        )
 
     @pytest.mark.parametrize("svc", sorted(WORKER_SERVICES))
     def test_on_sahool_network(self, services: dict, svc: str) -> None:
@@ -159,7 +173,9 @@ class TestWorkerComposeConfig:
             else set(depends.keys()) if isinstance(depends, dict)
             else set()
         )
-        assert dep_names, f"Worker '{svc}' has no dependencies (deps: {dep_names})"
+        assert "nats" in dep_names, (
+            f"NATS worker '{svc}' must depend on nats (deps: {dep_names})"
+        )
 
 
 # ===========================================================================

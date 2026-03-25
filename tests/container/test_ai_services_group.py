@@ -117,7 +117,7 @@ def services(compose: dict) -> dict[str, Any]:
 # ===========================================================================
 
 
-class TestAICoreDepencies:
+class TestAICoreDependencies:
     """كل خدمة ذكاء اصطناعي يجب أن تحتوي على المكتبات الأساسية."""
 
     @pytest.mark.parametrize("svc", sorted(AI_SERVICES))
@@ -151,10 +151,16 @@ class TestAICoreDepencies:
 
     @pytest.mark.parametrize("svc", sorted(AI_SERVICES))
     def test_structured_logging_declared(self, svc: str) -> None:
-        """AI service declares structlog or standard logging library."""
+        """AI service declares structlog or accesses it via shared/ modules."""
         pkgs = _req_packages(svc)
-        has_logging = "structlog" in pkgs or "python_dotenv" in pkgs
-        assert has_logging, f"{svc} missing structlog in requirements.txt"
+        has_logging = any(dep in pkgs for dep in ("structlog", "loguru"))
+        if not has_logging:
+            # May access structlog via shared/ module copy
+            content = _read_dockerfile(svc)
+            has_logging = bool(re.search(r"COPY.*shared", content, re.IGNORECASE))
+        assert has_logging, (
+            f"{svc} missing structured logging dependency (structlog/loguru or shared/ copy)"
+        )
 
 
 # ===========================================================================

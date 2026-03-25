@@ -474,8 +474,8 @@ services:
 
   # Qdrant Vector Database - RAG & Semantic Search
   qdrant:
-    # Using v1.7.4 - stable release with improved vector search performance
-    # استخدام الإصدار v1.7.4 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
+    # Using v1.10.1 - stable release with improved vector search performance
+    # استخدام الإصدار v1.10.1 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
     image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant
     volumes:

@@ -68,9 +68,7 @@ except ImportError:
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
-import logging
-
-_logger = logging.getLogger(__name__)
+_logger = logger  # reuse module logger for EH1/EH3 fixes
 
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"

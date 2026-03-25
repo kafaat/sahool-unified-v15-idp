@@ -1243,7 +1243,7 @@ class LLMProviderManager:
         cache = _get_response_cache()
         return cache.stats()
 
-    def clear_cache(self) -> int:
+    async def clear_cache(self) -> int:
         """
         Clear the LLM response cache.
 
@@ -1253,7 +1253,7 @@ class LLMProviderManager:
             Number of entries cleared
         """
         cache = _get_response_cache()
-        return cache.clear()
+        return await cache.clear()
 
     # ─────────────────────────────────────────────────────────────────────────
     # G-22: Streaming Support
@@ -2092,11 +2092,12 @@ class _LRUResponseCache:
                     self._cache.popitem(last=False)  # Remove LRU entry
                 self._cache[key] = (response, time.time())
 
-    def clear(self) -> int:
+    async def clear(self) -> int:
         """Clear all cached entries. Returns number of entries cleared."""
-        count = len(self._cache)
-        self._cache.clear()
-        return count
+        async with self._lock:
+            count = len(self._cache)
+            self._cache.clear()
+            return count
 
     def stats(self) -> dict[str, Any]:
         """

@@ -133,6 +133,16 @@ def app_client(mock_db):
 
                 # Use FastAPI dependency_overrides so Depends(get_db) returns mock_db
                 app.dependency_overrides[get_db] = lambda: mock_db
+
+                # Override auth to return a test user
+                from src.main import get_current_user
+
+                class _MockUser:
+                    id = "test-user-123"
+                    tenant_id = "11111111-1111-1111-1111-111111111111"
+
+                app.dependency_overrides[get_current_user] = lambda: _MockUser()
+
                 client = TestClient(app, raise_server_exceptions=False)
                 yield client
                 app.dependency_overrides.clear()

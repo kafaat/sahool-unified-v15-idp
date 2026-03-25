@@ -13,6 +13,25 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .channels_service import ChannelsService
 
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from pydantic import BaseModel as _BaseModel
+
+    class User(_BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
+
+
 logger = logging.getLogger("sahool-notifications.channels-controller")
 
 # Create router
@@ -97,7 +116,11 @@ class UpdateChannelStatusRequest(BaseModel):
 
 
 @router.post("/add", summary="إضافة قناة إشعار - Add Notification Channel")
-async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_tenant_id)):
+async def add_channel(
+    request: AddChannelRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """
     إضافة قناة إشعار جديدة للمستخدم
     Add a new notification channel for a user
@@ -108,9 +131,14 @@ async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_t
     - **push**: No verification needed (FCM token)
     - **in_app**: No verification needed
     """
+    # Enforce tenant isolation: header/JWT tenant_id must match
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant mismatch between header and token")
+    # Enforce ownership: use authenticated user's ID instead of body user_id
+    effective_user_id = current_user.id
     try:
         result = await ChannelsService.add_channel(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             channel_type=request.channel_type,
             address=request.address,
             tenant_id=tenant_id,
@@ -132,7 +160,7 @@ async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_t
 
 
 @router.post("/verify", summary="تحقق من قناة - Verify Channel")
-async def verify_channel(request: VerifyChannelRequest):
+async def verify_channel(request: VerifyChannelRequest, current_user: User = Depends(get_current_user)):
     """
     تحقق من قناة إشعار باستخدام رمز التحقق
     Verify a notification channel using verification code
@@ -140,10 +168,14 @@ async def verify_channel(request: VerifyChannelRequest):
     Required for: email, sms, whatsapp channels
     """
     try:
+        # Enforce ownership: use authenticated user's ID
+        if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="User ID mismatch")
+        effective_user_id = current_user.id
         result = await ChannelsService.verify_channel(
             channel_id=request.channel_id,
             verification_code=request.verification_code,
-            user_id=request.user_id,
+            user_id=effective_user_id,
         )
 
         return {
@@ -167,16 +199,21 @@ async def verify_channel(request: VerifyChannelRequest):
 @router.delete("/remove", summary="حذف قناة - Remove Channel")
 async def remove_channel(
     channel_id: str = Query(..., description="Channel ID"),
-    user_id: str = Query(..., description="User ID"),
+    user_id: str | None = Query(None, description="User ID (deprecated, derived from auth)"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف قناة إشعار
     Remove a notification channel
     """
+    # Enforce ownership: use authenticated user's ID, reject mismatches
+    effective_user_id = current_user.id
+    if user_id is not None and user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="User ID mismatch")
     try:
         result = await ChannelsService.remove_channel(
             channel_id=channel_id,
-            user_id=user_id,
+            user_id=effective_user_id,
         )
 
         return {
@@ -243,15 +280,17 @@ async def list_channels(
 
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
-async def update_channel_status(request: UpdateChannelStatusRequest):
+async def update_channel_status(request: UpdateChannelStatusRequest, current_user: User = Depends(get_current_user)):
     """
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id
     try:
         result = await ChannelsService.update_channel_status(
             channel_id=request.channel_id,
-            user_id=request.user_id,
+            user_id=effective_user_id,
             enabled=request.enabled,
         )
 

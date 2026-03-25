@@ -21,6 +21,8 @@ class SecureStorage {
             encryptedSharedPreferences: true,
             sharedPreferencesName: 'sahool_secure_prefs',
             preferencesKeyPrefix: 'sahool_',
+            keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
+            storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
           ),
           iOptions: IOSOptions(
             accessibility: KeychainAccessibility.first_unlock_this_device,

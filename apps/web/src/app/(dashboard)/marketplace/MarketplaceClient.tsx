@@ -44,7 +44,8 @@ function MarketplaceContent() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderSuccess, setIsOrderSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
-  const [, _setSelectedProductId] = useState<string | null>(null);
+
+
   const [shippingAddress, setShippingAddress] =
     useState<Order['shippingAddress']>(initialShippingAddress);
   const [orderNotes, setOrderNotes] = useState('');

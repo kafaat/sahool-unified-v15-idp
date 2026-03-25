@@ -64,13 +64,12 @@ except ImportError:
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    class User(BaseModel):  # type: ignore[no-redef]
-        id: str = ""
-        tenant_id: str = ""
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
     async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -766,6 +765,7 @@ async def create_equipment(
 async def update_equipment(
     equipment_id: str,
     data: EquipmentUpdate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -819,6 +819,7 @@ async def update_equipment(
 async def update_equipment_status(
     equipment_id: str,
     status: EquipmentStatus,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -866,6 +867,7 @@ async def update_equipment_location(
     lat: float = Query(...),
     lon: float = Query(...),
     location_name: str | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -918,6 +920,7 @@ async def update_equipment_telemetry(
     hours: float | None = None,
     lat: float | None = None,
     lon: float | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1023,6 +1026,7 @@ async def add_maintenance_record(
     cost: float | None = None,
     notes: str | None = None,
     parts_replaced: list[str] | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1069,6 +1073,7 @@ async def add_maintenance_record(
 @app.delete("/api/v1/equipment/{equipment_id}", status_code=204)
 async def delete_equipment(
     equipment_id: str,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):

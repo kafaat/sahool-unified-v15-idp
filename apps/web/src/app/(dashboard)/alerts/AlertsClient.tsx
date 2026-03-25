@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   Bell,
   AlertTriangle,
@@ -51,17 +51,33 @@ const statusFilters: Array<{
 export default function AlertsClient() {
   const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [severityFilter, setSeverityFilter] = useState<AlertSeverity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AlertStatus | 'all'>('all');
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => setDebouncedSearch(value), 300);
+  }, []);
+
+  // Clean up debounce timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
 
   // Build API filters
   const apiFilters: AlertFilters = useMemo(() => {
     const filters: AlertFilters = {};
     if (severityFilter !== 'all') filters.severity = severityFilter;
     if (statusFilter !== 'all') filters.status = statusFilter;
-    if (searchTerm.trim()) filters.search = searchTerm.trim();
+    if (debouncedSearch.trim()) filters.search = debouncedSearch.trim();
     return filters;
-  }, [severityFilter, statusFilter, searchTerm]);
+  }, [severityFilter, statusFilter, debouncedSearch]);
 
   // Query hooks
   const { data: alerts = [], isLoading, isError, refetch } = useAlerts(apiFilters);
@@ -309,7 +325,7 @@ export default function AlertsClient() {
             type="text"
             placeholder="بحث في التنبيهات..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             aria-label="Search alerts"
             className="w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
           />

@@ -41,6 +41,10 @@ on:
         default: 'false'
         type: boolean
 
+permissions:
+  contents: write
+  actions: read
+
 # Prevent concurrent release builds
 concurrency:
   group: mobile-release-${{ github.ref }}

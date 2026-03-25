@@ -372,27 +372,30 @@ describe('AuthApiClient', () => {
 
       vi.mocked(Cookies.get).mockReturnValue('existing-refresh-token');
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        headers: new Headers({ 'content-type': 'application/json' }),
-        json: () =>
-          Promise.resolve({
-            success: true,
-            data: { access_token: 'new-access-token' },
-          }),
-      });
+      // Mock both API calls: refresh token + set session cookie
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: { access_token: 'new-access-token' },
+            }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+        });
 
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(true);
-      // Legacy path-scoped cookie is removed before setting the new root cookie
-      expect(Cookies.remove).toHaveBeenCalledWith('access_token');
-      expect(Cookies.set).toHaveBeenCalledWith('access_token', 'new-access-token', {
-        expires: 7,
-        secure: false, // jsdom runs on http:
-        sameSite: 'strict',
-        path: '/',
-      });
+      // Token refresh uses server-side httpOnly cookie route
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenNthCalledWith(2, '/api/auth/session', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ access_token: 'new-access-token' }),
+      }));
     });
 
     it('should clear tokens when refresh fails', async () => {

@@ -57,7 +57,7 @@
     "dead-code": "npx knip",
     "format": "prettier --write \"apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}\"",
     "format:check": "prettier --check \"apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}\"",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -824,6 +824,48 @@ scrape_configs:
     metrics_path: /metrics
     scrape_interval: 15s
 
+  # Drone Service - خدمة الطائرات بدون طيار
+  - job_name: 'drone-service'
+    static_configs:
+      - targets: ['drone-service:8126']
+        labels:
+          tier: 'application'
+          component: 'drone-management'
+          service: 'drone-service'
+          language: 'python'
+          description: 'Drone Fleet & VRA Management'
+          description_ar: 'إدارة أسطول الطائرات بدون طيار'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Cooperative Service - خدمة التعاونيات
+  - job_name: 'cooperative-service'
+    static_configs:
+      - targets: ['cooperative-service:8127']
+        labels:
+          tier: 'application'
+          component: 'cooperative-management'
+          service: 'cooperative-service'
+          language: 'python'
+          description: 'Multi-Farm Cooperative Management'
+          description_ar: 'إدارة التعاونيات الزراعية متعددة المزارع'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # CRM Service - خدمة إدارة علاقات المزارعين
+  - job_name: 'crm-service'
+    static_configs:
+      - targets: ['crm-service:8131']
+        labels:
+          tier: 'application'
+          component: 'farmer-crm'
+          service: 'crm-service'
+          language: 'python'
+          description: 'Farmer CRM Service'
+          description_ar: 'خدمة إدارة علاقات المزارعين'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
   # vLLM DeepSeek Inference Server - خادم استدلال vLLM ديب سيك
   - job_name: 'vllm-deepseek'
     static_configs:

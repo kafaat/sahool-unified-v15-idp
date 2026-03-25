@@ -37,7 +37,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .contracts import BaseEvent
 from .dlq_config import (
@@ -107,6 +107,21 @@ class SubscriberConfig(BaseModel):
     # Dead Letter Queue
     enable_dlq: bool = Field(default=True, description="Enable Dead Letter Queue for failed messages")
     dlq_config: DLQConfig | None = Field(None, description="DLQ configuration (uses defaults if None)")
+
+    # TLS Configuration
+    tls_enabled: bool = Field(default=False, description="Enable TLS for NATS connection")
+    tls_ca_path: str | None = Field(default=None, description="Path to CA certificate")
+    tls_cert_path: str | None = Field(default=None, description="Path to client certificate")
+    tls_key_path: str | None = Field(default=None, description="Path to client key")
+
+    @model_validator(mode="after")
+    def _load_tls_from_env(self) -> SubscriberConfig:
+        if os.getenv("NATS_TLS_ENABLED", "").lower() in ("true", "1", "yes"):
+            self.tls_enabled = True
+            self.tls_ca_path = self.tls_ca_path or os.getenv("NATS_TLS_CA")
+            self.tls_cert_path = self.tls_cert_path or os.getenv("NATS_TLS_CERT")
+            self.tls_key_path = self.tls_key_path or os.getenv("NATS_TLS_KEY")
+        return self
 
 
 class Subscription(BaseModel):
@@ -309,6 +324,17 @@ class EventSubscriber:
                 _safe_servers = self.config.servers
             logger.info(f"Connecting to NATS: {_safe_servers}")
 
+            connect_opts = {}
+            if self.config.tls_enabled:
+                import ssl
+
+                tls_context = ssl.create_default_context()
+                if self.config.tls_ca_path:
+                    tls_context.load_verify_locations(self.config.tls_ca_path)
+                if self.config.tls_cert_path and self.config.tls_key_path:
+                    tls_context.load_cert_chain(self.config.tls_cert_path, self.config.tls_key_path)
+                connect_opts["tls"] = tls_context
+
             self._nc = await nats.connect(
                 servers=self.config.servers,
                 name=self.config.name,
@@ -319,6 +345,7 @@ class EventSubscriber:
                 reconnected_cb=self._reconnected_callback,
                 closed_cb=self._closed_callback,
                 pending_size=self.config.pending_messages_limit,
+                **connect_opts,
             )
 
             # Enable JetStream if configured

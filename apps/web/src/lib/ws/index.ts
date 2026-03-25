@@ -76,12 +76,9 @@ class WebSocketClient {
     this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
-    // Resolve authentication token: use explicit parameter, or fall back to
-    // sessionStorage / localStorage (JWT stored by the auth layer).
-    const authToken =
-      token ??
-      (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('sahool_token') : null) ??
-      (typeof localStorage !== 'undefined' ? localStorage.getItem('sahool_token') : null);
+    // Use explicit token param if provided; otherwise rely on httpOnly cookies
+    // (WebSocket handshakes send cookies automatically when same-origin).
+    const authToken = token ?? null;
     this.authToken = authToken;
 
     try {
@@ -90,6 +87,7 @@ class WebSocketClient {
         const separator = wsUrl.includes('?') ? '&' : '?';
         wsUrl = `${wsUrl}${separator}token=${encodeURIComponent(authToken)}`;
       }
+      // When no explicit token, cookies are sent automatically by the browser
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {

@@ -31,6 +31,20 @@ from src.api.schemas import (
 from src.core.config import settings
 from src.utils.device_manager import DeviceManager, get_device_manager
 
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/edge/devices", tags=["devices", "edge"])
@@ -248,6 +262,7 @@ async def create_device(
     device_data: EdgeDeviceCreate,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeDevice:
     """
     Register a new edge device (e.g., Jetson Orin Nano).
@@ -344,6 +359,7 @@ async def update_device(
     update_data: EdgeDeviceUpdate,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeDevice:
     """
     Update an existing edge device.
@@ -407,6 +423,7 @@ async def delete_device(
     device_id: UUID,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> None:
     """
     Remove an edge device from the system.
@@ -452,6 +469,7 @@ async def reconnect_device(
     device_id: UUID,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeDevice:
     """
     Attempt to reconnect to an edge device.

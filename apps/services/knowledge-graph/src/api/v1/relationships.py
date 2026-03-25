@@ -12,18 +12,16 @@ from models import RelationshipType
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 router = APIRouter(prefix="/api/v1/relationships", tags=["relationships"])
@@ -227,6 +225,7 @@ async def validate_relationship(
     target_type: str = Query(..., description="Target entity type"),
     target_id: str = Query(..., description="Target entity ID"),
     relationship_type: RelationshipType = Query(..., description="Relationship type"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Validate if a specific relationship exists
@@ -260,6 +259,7 @@ async def add_relationship(
     target_id: str = Query(..., description="Target entity ID"),
     relationship_type: RelationshipType = Query(..., description="Relationship type"),
     confidence: float = Query(1.0, ge=0.0, le=1.0, description="Confidence score"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new relationship between two entities

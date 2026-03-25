@@ -28,7 +28,7 @@ import logging
 import os
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .contracts import BaseEvent
 
@@ -205,6 +205,21 @@ class PublisherConfig(BaseModel):
     max_retry_attempts: int = Field(default=3, description="Maximum retry attempts")
     retry_delay: float = Field(default=0.5, description="Delay between retries in seconds")
 
+    # TLS Configuration
+    tls_enabled: bool = Field(default=False, description="Enable TLS for NATS connection")
+    tls_ca_path: str | None = Field(default=None, description="Path to CA certificate")
+    tls_cert_path: str | None = Field(default=None, description="Path to client certificate")
+    tls_key_path: str | None = Field(default=None, description="Path to client key")
+
+    @model_validator(mode="after")
+    def _load_tls_from_env(self) -> PublisherConfig:
+        if os.getenv("NATS_TLS_ENABLED", "").lower() in ("true", "1", "yes"):
+            self.tls_enabled = True
+            self.tls_ca_path = self.tls_ca_path or os.getenv("NATS_TLS_CA")
+            self.tls_cert_path = self.tls_cert_path or os.getenv("NATS_TLS_CERT")
+            self.tls_key_path = self.tls_key_path or os.getenv("NATS_TLS_KEY")
+        return self
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Publisher
@@ -296,6 +311,17 @@ class EventPublisher:
             _safe_servers = sanitize_urls(self.config.servers)
             logger.info(f"Connecting to NATS: {_safe_servers}")
 
+            connect_opts = {}
+            if self.config.tls_enabled:
+                import ssl
+
+                tls_context = ssl.create_default_context()
+                if self.config.tls_ca_path:
+                    tls_context.load_verify_locations(self.config.tls_ca_path)
+                if self.config.tls_cert_path and self.config.tls_key_path:
+                    tls_context.load_cert_chain(self.config.tls_cert_path, self.config.tls_key_path)
+                connect_opts["tls"] = tls_context
+
             self._nc = await nats.connect(
                 servers=self.config.servers,
                 name=self.config.name,
@@ -305,6 +331,7 @@ class EventPublisher:
                 disconnected_cb=self._disconnected_callback,
                 reconnected_cb=self._reconnected_callback,
                 closed_cb=self._closed_callback,
+                **connect_opts,
             )
 
             # Enable JetStream if configured
@@ -382,14 +409,16 @@ class EventPublisher:
             if ctx_tenant:
                 event.tenant_id = ctx_tenant
 
-        # Warn if tenant_id is still missing (critical for multi-tenant isolation)
+        # Reject if tenant_id is still missing (critical for multi-tenant isolation)
         if not event.tenant_id:
-            logger.warning(
-                "event_missing_tenant_id: subject=%s event_id=%s service=%s",
+            logger.error(
+                "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
                 subject,
                 event.event_id,
                 event.source_service,
             )
+            self._stats["errors"] += 1
+            return False
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:
@@ -485,6 +514,9 @@ class EventPublisher:
         if not self.is_connected:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
+
+        if isinstance(data, dict) and not data.get("tenant_id"):
+            logger.warning("publish_json called without tenant_id: subject=%s", subject)
 
         try:
             payload = json.dumps(data, default=str).encode("utf-8")

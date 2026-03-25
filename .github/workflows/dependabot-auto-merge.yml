@@ -161,13 +161,14 @@ jobs:
 
       - name: Enable auto-merge (squash)
         if: steps.eligibility.outputs.eligible == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           gh pr merge "${{ github.event.pull_request.number }}" \
             --auto \
             --squash \
-            --subject "chore(deps): ${{ github.event.pull_request.title }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            --subject "chore(deps): $PR_TITLE"
 
       - name: Add label
         if: steps.eligibility.outputs.eligible == 'true'

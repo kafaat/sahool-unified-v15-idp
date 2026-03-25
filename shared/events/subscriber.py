@@ -867,6 +867,7 @@ class EventSubscriber:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _subscriber_instance: EventSubscriber | None = None
+_subscriber_lock = asyncio.Lock()
 
 
 async def get_subscriber(
@@ -876,6 +877,7 @@ async def get_subscriber(
     """
     Get or create the singleton subscriber instance.
     الحصول على أو إنشاء مشترك الأحداث الوحيد
+    Async-safe with double-check locking.
 
     Args:
         service_name: Service name
@@ -886,12 +888,18 @@ async def get_subscriber(
     """
     global _subscriber_instance
 
-    if _subscriber_instance is None:
-        _subscriber_instance = EventSubscriber(
-            service_name=service_name,
-            service_version=service_version,
-        )
-        await _subscriber_instance.connect()
+    if _subscriber_instance is not None:
+        return _subscriber_instance
+
+    async with _subscriber_lock:
+        # Double-check after acquiring lock
+        if _subscriber_instance is None:
+            instance = EventSubscriber(
+                service_name=service_name,
+                service_version=service_version,
+            )
+            await instance.connect()
+            _subscriber_instance = instance
 
     return _subscriber_instance
 
@@ -900,9 +908,10 @@ async def close_subscriber():
     """Close the singleton subscriber instance."""
     global _subscriber_instance
 
-    if _subscriber_instance:
-        await _subscriber_instance.close()
-        _subscriber_instance = None
+    async with _subscriber_lock:
+        if _subscriber_instance is not None:
+            await _subscriber_instance.close()
+            _subscriber_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -428,8 +428,14 @@ async def identify_pest_from_image(
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
-    # Read image
+    # Read image and validate size
+    MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50 MB
     image_data = await file.read()
+    if len(image_data) > MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="File too large. Maximum size is 50 MB",
+        )
 
     # Call vision service
     try:

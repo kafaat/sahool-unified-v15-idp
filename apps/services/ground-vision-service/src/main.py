@@ -570,7 +570,7 @@ async def process_frame(request: FrameProcessRequest, current_user: User = Depen
 
 @app.get("/api/v1/detections", tags=["Detections"])
 async def list_detections(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     field_id: str = Query(None, description="Filter by field"),
     operation_type: str = Query(None, description="Filter by operation type"),
     from_date: str = Query(None, description="Start date (ISO format)"),
@@ -627,7 +627,7 @@ async def list_detections(
 
 
 @app.get("/api/v1/detections/{detection_id}", tags=["Detections"])
-async def get_detection(detection_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
+async def get_detection(detection_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get detection details.
 
@@ -781,7 +781,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User 
 @app.get("/api/v1/timeline/{field_id}", tags=["Timeline"])
 async def get_field_timeline(
     field_id: str,
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     from_date: str = Query(None, description="Start date"),
     to_date: str = Query(None, description="End date"),
 ):
@@ -826,7 +826,7 @@ async def get_field_timeline(
 
 @app.get("/api/v1/anomalies", tags=["Anomalies"])
 async def list_anomalies(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     field_id: str = Query(None, description="Filter by field"),
     severity: str = Query(None, description="Filter by severity"),
     status: str = Query(None, description="Filter by status"),
@@ -878,7 +878,7 @@ async def list_anomalies(
 
 
 @app.get("/api/v1/anomalies/{anomaly_id}", tags=["Anomalies"])
-async def get_anomaly(anomaly_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
+async def get_anomaly(anomaly_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get anomaly details.
 

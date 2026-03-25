@@ -44,7 +44,6 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
-
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/edge/devices", tags=["devices", "edge"])

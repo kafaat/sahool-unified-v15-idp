@@ -159,12 +159,7 @@ class RevenueDistributionRequest(BaseModel):
 
 
 @router.post("/", status_code=201)
-async def create_cooperative(
-    request: CooperativeCreateRequest,
-    req: Request,
-    current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
-):
+async def create_cooperative(request: CooperativeCreateRequest, req: Request, current_user: User = Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)):
     """Create a new cooperative - إنشاء تعاونية جديدة"""
     pool = await _get_db(req)
 
@@ -280,13 +275,7 @@ async def delete_cooperative(
 
 
 @router.post("/{coop_id}/members", status_code=201)
-async def add_member(
-    coop_id: str,
-    request: MemberCreateRequest,
-    req: Request,
-    current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
-):
+async def add_member(coop_id: str, request: MemberCreateRequest, req: Request, current_user: User = Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)):
     """Add member to cooperative - إضافة عضو للتعاونية"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)
@@ -386,11 +375,7 @@ async def remove_member(
 
 @router.post("/{coop_id}/resources", status_code=201)
 async def register_resource(
-    coop_id: str,
-    request: ResourceCreateRequest,
-    req: Request,
-    current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    coop_id: str, request: ResourceCreateRequest, req: Request, current_user: User = Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)
 ):
     """Register shared resource - تسجيل مورد مشترك"""
     pool = await _get_db(req)
@@ -429,13 +414,7 @@ async def list_resources(coop_id: str, req: Request, tenant_id: str = Depends(ge
 
 
 @router.post("/{coop_id}/resources/{resource_id}/book", status_code=201)
-async def book_resource(
-    coop_id: str,
-    resource_id: str,
-    request: BookingCreateRequest,
-    req: Request,
-    current_user: User = Depends(get_current_user),
-):
+async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRequest, req: Request, current_user: User = Depends(get_current_user)):
     """Book a shared resource - حجز مورد مشترك"""
     pool = await _get_db(req)
 
@@ -488,11 +467,7 @@ async def book_resource(
 
 @router.post("/{coop_id}/revenue/distribute")
 async def distribute_revenue(
-    coop_id: str,
-    request: RevenueDistributionRequest,
-    req: Request,
-    current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    coop_id: str, request: RevenueDistributionRequest, req: Request, current_user: User = Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)
 ):
     """Distribute revenue among members - توزيع الإيرادات بين الأعضاء"""
     pool = await _get_db(req)

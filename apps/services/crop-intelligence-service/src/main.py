@@ -1566,9 +1566,7 @@ async def export_vrt(
 
 
 @app.post("/api/v1/diagnose")
-def quick_diagnose(
-    body: ObservationIn, zone_id: str = Query(default="zone_temp"), current_user: User = Depends(get_current_user)
-):
+def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"), current_user: User = Depends(get_current_user)):
     """
     تشخيص سريع بدون حفظ
 

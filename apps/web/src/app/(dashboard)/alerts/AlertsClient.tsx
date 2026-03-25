@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import {
   Bell,
   AlertTriangle,
@@ -51,15 +51,24 @@ const statusFilters: Array<{
 export default function AlertsClient() {
   const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [severityFilter, setSeverityFilter] = useState<AlertSeverity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AlertStatus | 'all'>('all');
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => setDebouncedSearch(value), 300);
+  }, []);
 
   // Build API filters
   const apiFilters: AlertFilters = useMemo(() => {
     const filters: AlertFilters = {};
     if (severityFilter !== 'all') filters.severity = severityFilter;
     if (statusFilter !== 'all') filters.status = statusFilter;
-    if (searchTerm.trim()) filters.search = searchTerm.trim();
+    if (debouncedSearch.trim()) filters.search = debouncedSearch.trim();
     return filters;
   }, [severityFilter, statusFilter, debouncedSearch]);
 

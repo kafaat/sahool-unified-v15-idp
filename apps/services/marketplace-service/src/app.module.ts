@@ -66,6 +66,11 @@ import { CacheModule } from "./cache/cache.module";
     FintechService,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
+    // Global JWT authentication guard (security fix: all endpoints require auth by default)
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
     // Global rate limiting guard
     {
       provide: APP_GUARD,

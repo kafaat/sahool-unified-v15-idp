@@ -172,6 +172,7 @@ class AuthApiClient {
     try {
       if (typeof window === 'undefined') return false;
 
+      // TODO: migrate to server-side /api/auth/refresh route that reads httpOnly refresh_token cookie
       const refreshTokenValue = Cookies.get('refresh_token');
       if (!refreshTokenValue) {
         logger.warn('No refresh token available');
@@ -181,15 +182,25 @@ class AuthApiClient {
       const response = await this.refreshToken(refreshTokenValue);
 
       if (response.success && response.data?.access_token) {
-        // Clear any legacy path-scoped cookie before setting the root one
-        Cookies.remove('access_token');
+        // Set token via server-side route for httpOnly cookie protection
+        try {
+          const sessionResponse = await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: response.data.access_token }),
+            credentials: 'include',
+          });
 
-        Cookies.set('access_token', response.data.access_token, {
-          expires: 7,
-          secure: window.location.protocol === 'https:',
-          sameSite: 'strict',
-          path: '/',
-        });
+          if (!sessionResponse.ok) {
+            logger.warn(
+              `Failed to set httpOnly cookie via server route: ${sessionResponse.status} ${sessionResponse.statusText}`
+            );
+            return false;
+          }
+        } catch (error) {
+          logger.warn('Failed to set httpOnly cookie via server route', error);
+          return false;
+        }
         this.setToken(response.data.access_token);
         return true;
       } else {

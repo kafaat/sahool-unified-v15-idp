@@ -16,10 +16,12 @@ from datetime import UTC, datetime, timezone
 
 import asyncpg
 import nats
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.logging import get_logger
@@ -442,7 +444,7 @@ async def ussd_simulate(body: USSDSimulateRequest):
 
 
 @app.post("/sms/send")
-async def send_sms(body: SendSMSRequest):
+async def send_sms(body: SendSMSRequest, current_user: User = Depends(get_current_user)):
     """
     Send SMS to farmer
     إرسال رسالة نصية للمزارع
@@ -514,7 +516,7 @@ async def receive_sms(request: Request):
 
 
 @app.post("/sms/bulk")
-async def send_bulk_sms(body: BulkSMSRequest):
+async def send_bulk_sms(body: BulkSMSRequest, current_user: User = Depends(get_current_user)):
     """
     Send bulk SMS to multiple farmers
     إرسال رسائل جماعية للمزارعين
@@ -595,7 +597,7 @@ async def whatsapp_webhook(request: Request):
 
 
 @app.post("/whatsapp/send")
-async def send_whatsapp(body: WhatsAppSendRequest):
+async def send_whatsapp(body: WhatsAppSendRequest, current_user: User = Depends(get_current_user)):
     """
     Send WhatsApp message to farmer
     إرسال رسالة واتساب للمزارع

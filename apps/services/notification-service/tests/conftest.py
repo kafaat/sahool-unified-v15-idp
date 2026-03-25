@@ -155,7 +155,7 @@ def _mock_user():
     """Create a mock authenticated user for testing"""
     user = MagicMock()
     user.id = "test-user-123"
-    user.tenant_id = "test-tenant-1"
+    user.tenant_id = "11111111-1111-1111-1111-111111111111"
     user.email = "test@sahool.app"
     user.role = "admin"
     user.is_active = True
@@ -183,7 +183,7 @@ async def async_client():
         async with httpx.AsyncClient(
             transport=transport,
             base_url="http://test",
-            headers={"X-Tenant-ID": "test-tenant-1"},
+            headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"},
         ) as client:
             yield client
 
@@ -207,7 +207,7 @@ def client():
         except ImportError:
             pass
 
-        client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+        client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
         yield client
 
         app.dependency_overrides.clear()

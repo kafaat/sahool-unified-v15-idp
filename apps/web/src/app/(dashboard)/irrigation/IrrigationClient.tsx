@@ -3,7 +3,7 @@
 // TODO: All CRUD operations (handleSave, handleDelete, handleStart, handleStop) only
 // modify local state with mock data. Wire up to irrigation API when backend is ready.
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Droplets,
   Search,
@@ -34,7 +34,24 @@ interface IrrigationSchedule {
   waterAmount: number;
   completedAt?: string;
   progress?: number;
+  schedule?: Record<string, unknown>;
+  nextRun?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  name?: string;
+  startDate?: string;
+  frequency?: string;
 }
+
+// Stub types until API integration is wired up
+type Field = { id: string; name: string; name_ar?: string };
+const useAuth = () => ({ user: null as { tenant_id?: string } | null });
+const apiClient = {
+  getFields: async (..._a: unknown[]) => ({ success: false as const, data: [] as Field[] }),
+  getIrrigationSchedules: async () => ({ success: false as const, data: [] as IrrigationSchedule[] }),
+  createIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
+  deleteIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
+};
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {
@@ -111,10 +128,24 @@ const irrigationTypes: Record<IrrigationType, { label: string; labelAr: string }
   manual: { label: 'Manual', labelAr: 'يدوي' },
 };
 
+// Aliases used by the template
+const scheduleTypes = irrigationTypes;
+type IrrigationFrequency = 'daily' | 'weekly' | 'biweekly' | 'custom';
+const frequencies: Record<string, { label: string; labelAr: string }> = {
+  daily: { label: 'Daily', labelAr: 'يومي' },
+  weekly: { label: 'Weekly', labelAr: 'أسبوعي' },
+  biweekly: { label: 'Bi-weekly', labelAr: 'كل أسبوعين' },
+  custom: { label: 'Custom', labelAr: 'مخصص' },
+};
+
 const EMPTY_FORM = {
   fieldName: '',
+  fieldId: '',
+  name: '',
   type: 'drip' as IrrigationType,
   scheduledAt: '',
+  startDate: '',
+  frequency: 'daily' as IrrigationFrequency,
   duration: 60,
   waterAmount: 100,
 };
@@ -215,9 +246,8 @@ export default function IrrigationClient() {
     .filter((s) => s.status !== 'cancelled')
     .reduce((sum, s) => sum + s.waterAmount, 0);
 
-  const overdueCount = schedules.filter((s) => s.status === 'overdue').length;
-  const inProgressCount = schedules.filter((s) => s.status === 'in_progress').length;
-  const scheduledCount = schedules.filter((s) => s.status === 'scheduled').length;
+  const activeCount = schedules.filter((s) => s.status === 'in_progress').length;
+  const cancelledCount = schedules.filter((s) => s.status === 'cancelled').length;
 
   // CRUD handlers
   const openCreate = useCallback(() => {
@@ -228,11 +258,13 @@ export default function IrrigationClient() {
 
   const openEdit = useCallback((schedule: IrrigationSchedule) => {
     setFormData({
-      name: schedule.name,
-      fieldId: schedule.fieldId,
+      fieldName: schedule.fieldName || '',
+      fieldId: schedule.fieldId || '',
+      name: schedule.name || '',
       type: schedule.type,
-      startDate: schedule.startDate.slice(0, 16),
-      frequency: schedule.frequency,
+      scheduledAt: schedule.scheduledAt || '',
+      startDate: (schedule.startDate || '').slice(0, 16),
+      frequency: (schedule.frequency || 'daily') as IrrigationFrequency,
       duration: schedule.duration,
       waterAmount: schedule.waterAmount,
     });
@@ -352,12 +384,12 @@ export default function IrrigationClient() {
       </div>
 
       {/* Paused Alert */}
-      {pausedCount > 0 && (
+      {cancelledCount > 0 && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-shake">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
             <span className="font-medium text-orange-800">
-              تنبيه: {pausedCount} جدول ري متوقف يتطلب اهتماماً
+              تنبيه: {cancelledCount} جدول ري متوقف يتطلب اهتماماً
             </span>
           </div>
         </div>
@@ -381,7 +413,7 @@ export default function IrrigationClient() {
         <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
           <div className="flex items-center gap-3">
             <div
-              className={`w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center ${inProgressCount > 0 ? 'animate-pulse-dot' : ''}`}
+              className={`w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center ${activeCount > 0 ? 'animate-pulse-dot' : ''}`}
             >
               <Clock className="w-5 h-5 text-yellow-600" />
             </div>
@@ -398,7 +430,7 @@ export default function IrrigationClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">متوقف</div>
-              <div className="text-xl font-bold text-orange-600">{pausedCount}</div>
+              <div className="text-xl font-bold text-orange-600">{cancelledCount}</div>
             </div>
           </div>
         </div>
@@ -487,10 +519,10 @@ export default function IrrigationClient() {
                     {scheduleTypes[schedule.type].labelAr}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {frequencies[schedule.frequency].labelAr}
+                    {schedule.frequency ? frequencies[schedule.frequency]?.labelAr ?? schedule.frequency : '-'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatDate(schedule.startDate)}
+                    {schedule.startDate ? formatDate(schedule.startDate) : formatDate(schedule.scheduledAt)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.duration} دقيقة</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.waterAmount} م³</td>

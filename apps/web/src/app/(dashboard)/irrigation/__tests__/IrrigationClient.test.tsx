@@ -7,24 +7,22 @@ vi.mock('@/lib/api/client', () => ({
   apiClient: {
     getFields: vi.fn().mockResolvedValue({ success: true, data: [] }),
     getIrrigationSchedules: vi.fn().mockResolvedValue({ success: false }),
-    createIrrigationSchedule: vi
-      .fn()
-      .mockResolvedValue({
-        success: true,
-        data: {
-          id: 'new-1',
-          fieldId: 'field-new',
-          name: 'ري جديد',
-          type: 'scheduled',
-          status: 'active',
-          startDate: new Date().toISOString(),
-          frequency: 'daily',
-          duration: 60,
-          waterAmount: 100,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      }),
+    createIrrigationSchedule: vi.fn().mockResolvedValue({
+      success: true,
+      data: {
+        id: 'new-1',
+        fieldId: 'field-new',
+        name: 'ري جديد',
+        type: 'scheduled',
+        status: 'active',
+        startDate: new Date().toISOString(),
+        frequency: 'daily',
+        duration: 60,
+        waterAmount: 100,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    }),
     updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
     deleteIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
     startIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),

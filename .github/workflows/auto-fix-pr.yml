@@ -188,11 +188,13 @@ jobs:
             npx eslint --fix "apps/admin/src/**/*.{ts,tsx}" 2>/dev/null || true
           fi
 
-          # Prettier format
-          if [ -f ".prettierrc" ]; then
-            npx prettier --write "apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}" 2>/dev/null || true
-            npx prettier --write "packages/*/src/**/*.{ts,tsx}" 2>/dev/null || true
-          fi
+          # Prettier format - DISABLED to prevent mass quote-style changes
+          # that cause merge conflicts and break regex-based tests.
+          # Re-enable only after agreeing on a project-wide style convention.
+          # if [ -f ".prettierrc" ]; then
+          #   npx prettier --write "apps/{web,admin}/src/**/*.{ts,tsx,js,jsx}" 2>/dev/null || true
+          #   npx prettier --write "packages/*/src/**/*.{ts,tsx}" 2>/dev/null || true
+          # fi
 
           # Check changes
           AFTER=$(git diff --stat)

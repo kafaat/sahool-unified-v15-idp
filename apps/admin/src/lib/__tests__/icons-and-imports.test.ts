@@ -212,7 +212,7 @@ describe('Client Component Directives', () => {
   clientComponents.forEach((file) => {
     it(`${file} has "use client" directive`, () => {
       const content = fs.readFileSync(path.join(SRC_DIR, file), 'utf-8');
-      expect(content).toContain('"use client"');
+      expect(content).toMatch(/['"]use client['"]/);
     });
   });
 });

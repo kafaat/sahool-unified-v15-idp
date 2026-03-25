@@ -119,7 +119,7 @@ describe('Root Layout SEO', () => {
   });
 
   it('uses force-dynamic rendering', () => {
-    expect(layoutContent).toContain('export const dynamic = "force-dynamic"');
+    expect(layoutContent).toMatch(/export const dynamic = ['"]force-dynamic['"]/);
   });
 
   it('wraps children with Providers', () => {

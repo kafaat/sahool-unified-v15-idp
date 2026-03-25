@@ -1,11 +1,11 @@
+'use client';
+
 /**
  * Sahool Admin Dashboard - WebSocket React Hook
  * خطاف React لـ WebSocket - للاتصالات في الوقت الفعلي
  *
  * Provides React integration for WebSocket client
  */
-
-'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import {

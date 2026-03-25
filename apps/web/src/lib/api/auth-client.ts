@@ -192,7 +192,7 @@ class AuthApiClient {
 
           if (!sessionResponse.ok) {
             logger.warn(
-              `Failed to set httpOnly cookie via server route: ${sessionResponse.status} ${sessionResponse.statusText}`,
+              `Failed to set httpOnly cookie via server route: ${sessionResponse.status} ${sessionResponse.statusText}`
             );
             return false;
           }

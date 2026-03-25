@@ -27,6 +27,7 @@ sahool.txt
 # ─────────────────────────────────────────────────────────────────────────────
 .env
 .env.*
+.envclear
 !.env.example
 !.env.test
 !.env.development.template

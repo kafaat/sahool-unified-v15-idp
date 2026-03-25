@@ -54,7 +54,6 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
-
 logger = structlog.get_logger(__name__)
 
 
@@ -941,7 +940,6 @@ async def track_objects(
     frame_number: Annotated[int, Query(ge=0)] = 0,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
-    current_user: User = Depends(get_current_user),
 ) -> ObjectTrackingResponse:
     """
     Track objects across video frames with persistent IDs.
@@ -1126,7 +1124,6 @@ async def track_objects(
 async def reset_tracker(
     tracker_id: str,
     manager: YOLO26ModelManager = Depends(get_manager),
-    current_user: User = Depends(get_current_user),
 ) -> dict:
     """Reset tracker state for a given session."""
     manager.reset_tracker(tracker_id)

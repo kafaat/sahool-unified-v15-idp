@@ -445,6 +445,7 @@ async def update_task(
     data: TaskUpdateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Update a task
@@ -497,6 +498,7 @@ async def delete_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Delete a task
@@ -528,6 +530,7 @@ async def start_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as in progress
@@ -569,6 +572,7 @@ async def complete_task(
     data: TaskCompleteRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as completed with evidence
@@ -620,6 +624,7 @@ async def cancel_task(
     reason: str | None = Query(None, description="Cancellation reason"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Cancel a task
@@ -659,6 +664,7 @@ async def add_evidence(
     lon: float | None = Query(None, description="Longitude"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Add evidence to a task

@@ -63,6 +63,7 @@ async function fetchCurrentWeather(lat?: number, lon?: number): Promise<WeatherD
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -113,6 +114,7 @@ async function fetchWeatherForecast(
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+        credentials: 'include',
       }
     );
 
@@ -156,6 +158,7 @@ async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAl
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {

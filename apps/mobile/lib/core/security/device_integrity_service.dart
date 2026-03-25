@@ -201,8 +201,8 @@ class DeviceIntegrityService {
           isJailbroken = await SafeDevice.isJailBroken.timeout(
             const Duration(seconds: 5),
             onTimeout: () {
-              AppLogger.w('Jailbreak detection timed out', tag: 'Security');
-              return false;
+              AppLogger.w('Jailbreak detection timed out - assuming jailbroken (fail-secure)', tag: 'Security');
+              return true;
             },
           );
           if (isJailbroken) {
@@ -210,7 +210,9 @@ class DeviceIntegrityService {
             AppLogger.w('Jailbreak detected', tag: 'Security');
           }
         } catch (e) {
+          // Fail-secure: assume compromised on timeout (matches Android behavior)
           AppLogger.w('Jailbreak detection failed: $e', tag: 'Security');
+          isJailbroken = true;
         }
       }
 
@@ -269,26 +271,29 @@ class DeviceIntegrityService {
   /// Detect Frida and other hooking frameworks
   /// كشف Frida وأطر العمل الأخرى للاختراق
   Future<bool> _detectFrida() async {
+    // Skip network-based detection in debug/test mode (Socket unavailable in test runner)
+    if (kDebugMode) return false;
+    if (!Platform.isAndroid && !Platform.isIOS) return false;
     try {
-      // Check for common Frida artifacts
+      // Check for common Frida artifacts by probing default ports
       if (Platform.isAndroid) {
-        // Check for Frida server listening on default port
-        // Note: This is a simple check and may not detect all cases
-        // For production, consider using native code checks
-
-        // Check for common Frida libraries in memory
-        // This would require platform channels to native code
-        // For now, we'll return false as basic implementation
-        return false;
-      } else if (Platform.isIOS) {
-        // Check for Frida libraries on iOS
-        // This would require platform channels to native code
-        return false;
+        final fridaPorts = [27042, 27043];
+        for (final port in fridaPorts) {
+          try {
+            final socket = await Socket.connect('127.0.0.1', port,
+                timeout: const Duration(milliseconds: 500));
+            await socket.close();
+            return true; // Frida server detected
+          } catch (_) {
+            // Port not open, continue
+          }
+        }
       }
       return false;
     } catch (e) {
-      AppLogger.w('Frida detection failed: $e', tag: 'Security');
-      return false;
+      // Fail-secure: assume compromised on error; log for debugging
+      AppLogger.e('Frida detection error: $e', tag: 'Security');
+      return true;
     }
   }
 

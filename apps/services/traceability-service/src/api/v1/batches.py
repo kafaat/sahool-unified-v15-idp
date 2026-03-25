@@ -28,18 +28,16 @@ logger = structlog.get_logger()
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(  # type: ignore[misc]
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 router = APIRouter(prefix="/api/v1/traceability", tags=["traceability"])
@@ -187,7 +185,10 @@ def _generate_batch_code(product_code: str, year: int | None, sequence: int, far
 
 @router.post("/batches", status_code=201)
 async def create_batch(
-    request: BatchCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+    request: BatchCreateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Create a new produce batch - إنشاء دفعة منتج جديدة"""
     pool = await _get_db(req)
@@ -261,7 +262,11 @@ async def list_batches(req: Request, tenant_id: str = Depends(get_tenant_id), fa
 
 @router.put("/batches/{batch_id}")
 async def update_batch(
-    batch_id: str, request: BatchUpdateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+    batch_id: str,
+    request: BatchUpdateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Update batch details - تحديث تفاصيل الدفعة"""
     pool = await _get_db(req)
@@ -295,7 +300,11 @@ async def update_batch(
 
 @router.post("/batches/{batch_id}/events/harvest")
 async def record_harvest_event(
-    batch_id: str, request: HarvestEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+    batch_id: str,
+    request: HarvestEventRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Record harvest event - تسجيل حدث الحصاد"""
     pool = await _get_db(req)
@@ -333,7 +342,11 @@ async def record_harvest_event(
 
 @router.post("/batches/{batch_id}/events/processing")
 async def record_processing_event(
-    batch_id: str, request: ProcessingEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+    batch_id: str,
+    request: ProcessingEventRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Record processing event - تسجيل حدث المعالجة"""
     pool = await _get_db(req)
@@ -368,7 +381,11 @@ async def record_processing_event(
 
 @router.post("/batches/{batch_id}/events/storage")
 async def record_storage_event(
-    batch_id: str, request: StorageEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+    batch_id: str,
+    request: StorageEventRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Record storage event - تسجيل حدث التخزين"""
     pool = await _get_db(req)
@@ -403,7 +420,11 @@ async def record_storage_event(
 
 @router.post("/batches/{batch_id}/events/transport")
 async def record_transport_event(
-    batch_id: str, request: TransportEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+    batch_id: str,
+    request: TransportEventRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Record transport event - تسجيل حدث النقل"""
     pool = await _get_db(req)
@@ -552,7 +573,7 @@ async def get_product_journey(batch_code: str, req: Request):
 
 
 @router.post("/batches/generate-code")
-async def generate_code(request: GenerateCodeRequest):
+async def generate_code(request: GenerateCodeRequest, current_user: User = Depends(get_current_user)):
     """Generate a batch code - إنشاء رمز دفعة"""
     code = _generate_batch_code(request.product_code, request.year, request.sequence, request.farm_code)
     return {"batch_code": code}
@@ -570,7 +591,13 @@ async def verify_code(code: str, req: Request):
 
 
 @router.post("/batches/{batch_id}/split")
-async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def split_batch(
+    batch_id: str,
+    request: BatchSplitRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """Split a batch into sub-batches - تقسيم الدفعة إلى دفعات فرعية"""
     pool = await _get_db(req)
     parent = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))
@@ -688,7 +715,7 @@ async def initiate_recall(
     request: RecallInitiateRequest,
     req: Request,
     tenant_id: str = Depends(get_tenant_id),
-    _user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Initiate product recall - بدء استرجاع المنتج (GS1 EPCIS compliant)"""
     pool = await _get_db(req)

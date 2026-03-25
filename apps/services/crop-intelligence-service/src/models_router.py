@@ -50,8 +50,8 @@ try:
 except ImportError:
 
     async def get_current_user() -> dict:  # type: ignore[misc]
-        """Fallback for dev/test when shared.auth is not importable."""
-        return {"id": "anonymous", "tenant_id": "default"}
+        """Fail-secure fallback when shared.auth is not importable."""
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = logging.getLogger(__name__)

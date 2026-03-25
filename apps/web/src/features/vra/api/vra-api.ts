@@ -119,6 +119,7 @@ export async function generatePrescription(
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
 
@@ -218,6 +219,7 @@ export async function getPrescriptionHistory(
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       }
     );
 
@@ -294,6 +296,7 @@ export async function getPrescriptionDetails(
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       }
     );
 
@@ -406,6 +409,7 @@ export async function exportPrescription(
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       }
     );
 
@@ -463,6 +467,7 @@ export async function deletePrescription(
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       }
     );
 

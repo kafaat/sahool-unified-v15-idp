@@ -52,6 +52,20 @@ from src.models.yolo26_manager import (
     get_model_manager,
 )
 
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/batch", tags=["batch"])
@@ -215,6 +229,7 @@ async def batch_detect_pests(
     manager: YOLO26ModelManager = Depends(get_manager),
     cache: ResultCache = Depends(get_cache),
     processor: BatchProcessor = Depends(get_processor),
+    current_user: User = Depends(get_current_user),
 ) -> BatchDetectionResponse:
     """
     Batch detect pests in multiple agricultural images.
@@ -429,6 +444,7 @@ async def batch_detect_diseases(
     use_cache: bool = True,
     manager: YOLO26ModelManager = Depends(get_manager),
     cache: ResultCache = Depends(get_cache),
+    current_user: User = Depends(get_current_user),
 ) -> BatchDetectionResponse:
     """
     Batch detect plant diseases in multiple agricultural images.
@@ -647,6 +663,7 @@ async def get_cache_stats(
 )
 async def clear_cache(
     cache: ResultCache = Depends(get_cache),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """Clear the result cache."""
     await cache.invalidate()

@@ -21,6 +21,20 @@ from typing import Any
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 # ==============================================================================
 # Security: Input Validation
 # ==============================================================================

@@ -22,6 +22,20 @@ from pydantic import BaseModel, Field
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 # Import unified error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers

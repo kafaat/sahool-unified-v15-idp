@@ -54,13 +54,15 @@ try:
 except ImportError:
     _AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = "anonymous"
-        tenant_id: str = "default"
+        tenant_id: str | None = None
 
     async def get_current_user() -> User:  # type: ignore[misc]
         """Fallback when shared.auth is not importable (dev/test)."""
-        return User()
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 VERSION = "16.0.0"

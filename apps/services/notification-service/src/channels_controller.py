@@ -131,6 +131,9 @@ async def add_channel(
     - **push**: No verification needed (FCM token)
     - **in_app**: No verification needed
     """
+    # Enforce tenant isolation: header/JWT tenant_id must match
+    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant mismatch between header and token")
     # Enforce ownership: use authenticated user's ID instead of body user_id
     effective_user_id = current_user.id
     try:
@@ -166,6 +169,8 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User = Dep
     """
     try:
         # Enforce ownership: use authenticated user's ID
+        if hasattr(request, 'user_id') and request.user_id and request.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="User ID mismatch")
         effective_user_id = current_user.id
         result = await ChannelsService.verify_channel(
             channel_id=request.channel_id,
@@ -194,15 +199,17 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User = Dep
 @router.delete("/remove", summary="حذف قناة - Remove Channel")
 async def remove_channel(
     channel_id: str = Query(..., description="Channel ID"),
-    user_id: str = Query(..., description="User ID"),
+    user_id: str | None = Query(None, description="User ID (deprecated, derived from auth)"),
     current_user: User = Depends(get_current_user),
 ):
     """
     حذف قناة إشعار
     Remove a notification channel
     """
-    # Enforce ownership: use authenticated user's ID
+    # Enforce ownership: use authenticated user's ID, reject mismatches
     effective_user_id = current_user.id
+    if user_id is not None and user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="User ID mismatch")
     try:
         result = await ChannelsService.remove_channel(
             channel_id=channel_id,

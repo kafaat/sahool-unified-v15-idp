@@ -313,15 +313,16 @@ SELECT
         WHEN f.location_updated_at < NOW() - INTERVAL '7 days' THEN 'WARNING'
         ELSE 'OK'
     END AS staleness_level
-FROM fields f
-WHERE f.latitude IS NOT NULL
-  AND f.longitude IS NOT NULL
-  AND f.location_updated_at IS NOT NULL;
+FROM fields AS f
+WHERE
+    f.latitude IS NOT NULL
+    AND f.longitude IS NOT NULL
+    AND f.location_updated_at IS NOT NULL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Step 9: Create deadlock prevention advisory lock wrapper
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE OR REPLACE FUNCTION safe_delete_with_lock(
+CREATE OR REPLACE FUNCTION SAFE_DELETE_WITH_LOCK(
     p_table_name TEXT,
     p_id UUID,
     p_lock_timeout_ms INTEGER DEFAULT 5000
@@ -348,7 +349,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION safe_delete_with_lock IS
+COMMENT ON FUNCTION SAFE_DELETE_WITH_LOCK IS
 'Safely deletes a row with advisory locking to prevent deadlocks during migrations.
 Usage: SELECT safe_delete_with_lock(''fields'', ''uuid-here'');
 Returns TRUE if deleted, FALSE if lock could not be acquired.';

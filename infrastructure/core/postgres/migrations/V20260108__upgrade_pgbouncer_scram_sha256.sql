@@ -203,7 +203,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ALTER FUNCTION pgbouncer.reset_user_password_to_scram(TEXT, TEXT) SET search_path = pg_catalog;
 
 -- Grant execute to postgres superuser only
-REVOKE ALL ON FUNCTION pgbouncer.reset_user_password_to_scram(TEXT, TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION pgbouncer.reset_user_password_to_scram(TEXT, TEXT) FROM public;
 GRANT EXECUTE ON FUNCTION pgbouncer.reset_user_password_to_scram(TEXT, TEXT) TO postgres;
 
 -- ─────────────────────────────────────────────────────────────────────────────

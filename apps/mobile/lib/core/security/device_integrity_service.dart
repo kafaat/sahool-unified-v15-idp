@@ -271,11 +271,9 @@ class DeviceIntegrityService {
   /// Detect Frida and other hooking frameworks
   /// كشف Frida وأطر العمل الأخرى للاختراق
   Future<bool> _detectFrida() async {
-    // Skip network-based detection in debug/test mode (Socket unavailable in test runner)
-    if (kDebugMode) return false;
     if (!Platform.isAndroid && !Platform.isIOS) return false;
     try {
-      // Check for common Frida artifacts by probing default ports
+      // Check for common Frida artifacts
       if (Platform.isAndroid) {
         final fridaPorts = [27042, 27043];
         for (final port in fridaPorts) {
@@ -291,8 +289,7 @@ class DeviceIntegrityService {
       }
       return false;
     } catch (e) {
-      // Fail-secure: assume compromised on error; log for debugging
-      AppLogger.e('Frida detection error: $e', tag: 'Security');
+      // Fail-secure: assume compromised on error
       return true;
     }
   }

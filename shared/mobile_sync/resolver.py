@@ -13,9 +13,10 @@ Updated: January 2026
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 from .models import (
     SYNC_ERRORS,

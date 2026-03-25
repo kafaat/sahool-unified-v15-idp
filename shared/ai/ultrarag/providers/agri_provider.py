@@ -14,6 +14,19 @@ from typing import Any
 
 import structlog
 
+# Knowledge base integration
+from ...knowledge.collections import (
+    DIGITAL_TWIN_KNOWLEDGE,
+    FERTILIZER_KNOWLEDGE,
+    GENERAL_AGRICULTURE,
+    PRECISION_FARMING_KNOWLEDGE,
+    REMOTE_SENSING_KNOWLEDGE,
+    SOIL_KNOWLEDGE,
+    WEATHER_KNOWLEDGE,
+)
+from ...knowledge.corrective_retrieval import CorrectiveRetrievalEngine
+from ...knowledge.graph_builder import build_agricultural_knowledge_graph
+from ...knowledge.verification.region_filter import CLIMATE_ZONES
 from ..mcp_tools import RAGMCPTools
 from ..models import (
     EntityType,
@@ -28,20 +41,6 @@ from ..retriever import (
     SparseRetriever,
     TriRAGRetriever,
 )
-
-# Knowledge base integration
-from ...knowledge.collections import (
-    DIGITAL_TWIN_KNOWLEDGE,
-    FERTILIZER_KNOWLEDGE,
-    GENERAL_AGRICULTURE,
-    PRECISION_FARMING_KNOWLEDGE,
-    REMOTE_SENSING_KNOWLEDGE,
-    SOIL_KNOWLEDGE,
-    WEATHER_KNOWLEDGE,
-)
-from ...knowledge.corrective_retrieval import CorrectiveRetrievalEngine
-from ...knowledge.graph_builder import build_agricultural_knowledge_graph
-from ...knowledge.verification.region_filter import CLIMATE_ZONES
 
 logger = structlog.get_logger(__name__)
 

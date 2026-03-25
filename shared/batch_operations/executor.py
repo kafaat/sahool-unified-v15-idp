@@ -16,8 +16,9 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Coroutine
 from datetime import UTC, datetime
-from typing import Any, Callable, Coroutine, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from .models import (
     BATCH_MESSAGES,

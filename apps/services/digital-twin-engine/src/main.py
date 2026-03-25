@@ -708,9 +708,11 @@ dt_engine = DigitalTwinEngine()
 async def lifespan(app: FastAPI):
     try:
         import structlog
+
         logger = structlog.get_logger(SERVICE_NAME)
     except ImportError:
         import logging
+
         logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 

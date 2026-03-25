@@ -9,11 +9,10 @@ Covers:
 """
 
 import pytest
-
 from src.sms_providers import (
+    MultiProviderSMSClient,
     SMSProvider,
     SMSResult,
-    MultiProviderSMSClient,
     get_multi_sms_client,
 )
 

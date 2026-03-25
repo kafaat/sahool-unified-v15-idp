@@ -17,7 +17,6 @@ from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from src.nats_subscriber import (
     NATSSubscriber,
     ReceivedEvent,
@@ -25,7 +24,6 @@ from src.nats_subscriber import (
     _get_nats_credentials,
     _get_nats_servers,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SubscriberConfig

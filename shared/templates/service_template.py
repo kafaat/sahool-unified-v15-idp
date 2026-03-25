@@ -24,16 +24,6 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.middleware.rate_limit import RateLimiter, TierConfig
-
-# Security imports
-from shared.security.config import (
-    get_config,
-    get_cors_origins,
-    get_environment,
-    get_log_level,
-    is_production,
-)
-
 from shared.observability import (
     HealthChecker,
     MetricsCollector,
@@ -45,6 +35,15 @@ from shared.observability import (
     set_request_context,
     setup_logging,
     setup_opentelemetry,
+)
+
+# Security imports
+from shared.security.config import (
+    get_config,
+    get_cors_origins,
+    get_environment,
+    get_log_level,
+    is_production,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════

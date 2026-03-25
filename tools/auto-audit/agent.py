@@ -19,16 +19,16 @@ from uuid import uuid4
 
 import structlog
 
+# Import A2A Protocol components
+from shared.a2a.agent import A2AAgent, AgentCapability
+from shared.a2a.protocol import TaskMessage
+
 # Import Auto Audit Tools
 from tools.auto_audit.analyzer import AuditLogAnalyzer
 from tools.auto_audit.anomaly_detector import AuditAnomalyDetector
 from tools.auto_audit.compliance_reporter import ComplianceFramework, ComplianceReporter
 from tools.auto_audit.exporter import AuditDataExporter, ExportConfig, ExportFormat
 from tools.auto_audit.hashchain_validator import HashChainValidator
-
-# Import A2A Protocol components
-from shared.a2a.agent import A2AAgent, AgentCapability
-from shared.a2a.protocol import TaskMessage
 
 logger = structlog.get_logger()
 

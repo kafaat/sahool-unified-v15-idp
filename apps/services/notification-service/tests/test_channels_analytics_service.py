@@ -7,12 +7,13 @@ Covers:
 - NotificationAnalytics TimeRange enum
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 try:
-    from src.channels_service import ChannelsService
     from src.analytics_service import TimeRange
+    from src.channels_service import ChannelsService
     from src.models import ChannelType
 except (ImportError, Exception):
     pytest.skip("notification-service dependencies not available", allow_module_level=True)

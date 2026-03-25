@@ -13,7 +13,6 @@ Covers:
 """
 
 import pytest
-
 from src.templates.notification_templates import (
     NotificationChannel,
     NotificationTemplate,
@@ -22,7 +21,6 @@ from src.templates.notification_templates import (
     get_template_manager,
     render_notification,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TemplateCategory and NotificationChannel Enums

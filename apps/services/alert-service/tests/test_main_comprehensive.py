@@ -261,7 +261,12 @@ class TestHandleWeatherAlert:
     async def test_minor_severity(self):
         from src.main import handle_weather_alert
 
-        data = {"event_id": "e1", "field_id": "field-1", "tenant_id": "11111111-1111-1111-1111-111111111111", "severity": "minor"}
+        data = {
+            "event_id": "e1",
+            "field_id": "field-1",
+            "tenant_id": "11111111-1111-1111-1111-111111111111",
+            "severity": "minor",
+        }
 
         mock_internal = AsyncMock(return_value={"id": "alert-1"})
         with patch("src.main.create_alert_internal", mock_internal):
@@ -274,7 +279,12 @@ class TestHandleWeatherAlert:
     async def test_unknown_severity_defaults_to_medium(self):
         from src.main import handle_weather_alert
 
-        data = {"event_id": "e1", "field_id": "field-1", "tenant_id": "11111111-1111-1111-1111-111111111111", "severity": "unknown_level"}
+        data = {
+            "event_id": "e1",
+            "field_id": "field-1",
+            "tenant_id": "11111111-1111-1111-1111-111111111111",
+            "severity": "unknown_level",
+        }
 
         mock_internal = AsyncMock(return_value={"id": "alert-1"})
         with patch("src.main.create_alert_internal", mock_internal):

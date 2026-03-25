@@ -7,7 +7,6 @@ Pydantic validator decorators.
 import json
 
 import pytest
-
 from src.exceptions import (
     InvalidDateFormatError,
     InvalidFieldIdError,
@@ -33,7 +32,6 @@ from src.validators import (
     validate_scheduled_time,
     validate_task_create_data,
 )
-
 
 # ── validate_field_id ──────────────────────────────────────────────────
 

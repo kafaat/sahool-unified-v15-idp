@@ -4,8 +4,8 @@ Tests cover request/response models, endpoint registration, helper functions,
 and the strategies listing endpoint.
 """
 
-import sys
 import os
+import sys
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -21,10 +21,9 @@ from src.parcel_endpoints import (
     ParcelMergeRequest,
     ParcelSplitRequest,
     RegionDetectionRequest,
-    register_parcel_endpoints,
     _geojson_to_parcels,
+    register_parcel_endpoints,
 )
-
 
 # =============================================================================
 # Request Model Tests

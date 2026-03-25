@@ -23,10 +23,11 @@ from __future__ import annotations
 import hashlib
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 

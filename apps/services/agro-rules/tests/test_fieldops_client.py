@@ -8,7 +8,6 @@ try:
     from unittest.mock import AsyncMock, MagicMock, patch
 
     import httpx
-
     from src.fieldops_client import FieldOpsClient, get_fieldops_client
 except ImportError:
     pytest.skip("agro-rules dependencies not installed", allow_module_level=True)

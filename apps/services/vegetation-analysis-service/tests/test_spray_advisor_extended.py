@@ -4,8 +4,8 @@ Tests cover SprayAdvisor scoring, risk identification, recommendations,
 Delta-T calculation, data models, and helper methods.
 """
 
-import sys
 import os
+import sys
 from datetime import date, datetime, timedelta
 
 import pytest
@@ -20,7 +20,6 @@ from src.spray_advisor import (
     SprayWindow,
     get_spray_advisor,
 )
-
 
 # =============================================================================
 # Enum Tests

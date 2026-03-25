@@ -86,13 +86,6 @@ from .contracts import (
     WorkflowExecutedEvent,
 )
 
-# Outbox Pattern (transactional event publishing)
-from .outbox import (
-    OutboxRelay,
-    ensure_outbox_table,
-    write_outbox_event,
-)
-
 # DLQ Support
 from .dlq_config import (
     DLQConfig,
@@ -104,6 +97,13 @@ from .dlq_config import (
 from .dlq_monitoring import (
     DLQAlert,
     DLQMonitor,
+)
+
+# Outbox Pattern (transactional event publishing)
+from .outbox import (
+    OutboxRelay,
+    ensure_outbox_table,
+    write_outbox_event,
 )
 
 try:
@@ -171,13 +171,19 @@ from .edge_events import (
 from .models import (
     AdvisorRecommendationEvent,
     AlertCreatedEvent,
-    BaseEvent as LegacyBaseEvent,
     CropPlantedEvent,
     FarmCreatedEvent,
-    FieldCreatedEvent as LegacyFieldCreatedEvent,
-    FieldUpdatedEvent as LegacyFieldUpdatedEvent,
     TaskCompletedEvent,
     TaskCreatedEvent,
+)
+from .models import (
+    BaseEvent as LegacyBaseEvent,
+)
+from .models import (
+    FieldCreatedEvent as LegacyFieldCreatedEvent,
+)
+from .models import (
+    FieldUpdatedEvent as LegacyFieldUpdatedEvent,
 )
 
 # Publisher and Subscriber

@@ -10,10 +10,10 @@ Competitive reference: Agworld, FarmLogs
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

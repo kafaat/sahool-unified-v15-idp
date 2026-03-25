@@ -33,12 +33,13 @@ import os
 import sys
 import time
 import uuid
+from collections.abc import Callable
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 # Context variables for request tracking
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)

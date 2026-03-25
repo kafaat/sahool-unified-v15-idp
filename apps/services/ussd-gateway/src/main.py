@@ -53,6 +53,7 @@ except ImportError:
 
 class USSDCallbackRequest(BaseModel):
     """USSD callback from telecom provider"""
+
     sessionId: str = Field(default="", alias="session_id", max_length=256)
     phoneNumber: str = Field(default="", alias="msisdn", max_length=20)
     text: str = Field(default="", max_length=500)
@@ -62,6 +63,7 @@ class USSDCallbackRequest(BaseModel):
 
 class USSDSimulateRequest(BaseModel):
     """USSD simulation request"""
+
     phone_number: str = Field(default="+966500000000", max_length=20)
     text: str = Field(default="", max_length=500)
     language: str = Field(default="ar", pattern=r"^(ar|en)$")
@@ -69,6 +71,7 @@ class USSDSimulateRequest(BaseModel):
 
 class SendSMSRequest(BaseModel):
     """Send SMS request"""
+
     phone_number: str = Field(max_length=20)
     message: str | None = Field(default=None, max_length=1600)
     message_ar: str | None = Field(default=None, max_length=1600)
@@ -84,6 +87,7 @@ class SendSMSRequest(BaseModel):
 
 class BulkSMSRequest(BaseModel):
     """Bulk SMS request"""
+
     phone_numbers: list[str] = Field(min_length=1, max_length=5000)
     message: str | None = Field(default=None, max_length=1600)
     message_ar: str | None = Field(default=None, max_length=1600)
@@ -92,6 +96,7 @@ class BulkSMSRequest(BaseModel):
 
 class WhatsAppSendRequest(BaseModel):
     """WhatsApp send request"""
+
     phone_number: str = Field(max_length=20)
     message: str | None = Field(default=None, max_length=4096)
     message_ar: str | None = Field(default=None, max_length=4096)
@@ -417,7 +422,11 @@ async def ussd_simulate(body: USSDSimulateRequest):
     محاكاة جلسة USSD للاختبار
     """
     response_text, end_session = await process_ussd_input(
-        app, "test-session", body.phone_number, body.text, body.language,
+        app,
+        "test-session",
+        body.phone_number,
+        body.text,
+        body.language,
     )
 
     return {

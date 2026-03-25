@@ -12,9 +12,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 try:
     from fastapi.testclient import TestClient
+    from src.main import app
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-    from src.main import app
 except ImportError:
     pytest.skip("equipment-service dependencies not installed", allow_module_level=True)
 

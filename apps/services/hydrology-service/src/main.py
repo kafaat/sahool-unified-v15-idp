@@ -146,9 +146,7 @@ async def lifespan(app: FastAPI):
             logger.info("Connected to database")
 
             # Run versioned migrations
-            migration_runner = SimpleMigrationRunner(
-                app.state.db_pool, service_name="hydrology-service"
-            )
+            migration_runner = SimpleMigrationRunner(app.state.db_pool, service_name="hydrology-service")
             await migration_runner.run(MIGRATIONS)
             logger.info("Database migrations applied")
 

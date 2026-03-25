@@ -1,7 +1,7 @@
 """Tests for supplier integrations in Supply Chain Service."""
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -11,8 +11,9 @@ os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 
+from uuid import UUID, uuid4
+
 import pytest
-from uuid import uuid4, UUID
 
 
 class TestSupplierIntegrationBase:
@@ -184,25 +185,25 @@ class TestGetSupplierIntegration:
     """Tests for get_supplier_integration factory."""
 
     def test_al_rashid(self):
-        from src.suppliers.integrations import get_supplier_integration, AlRashidIntegration
+        from src.suppliers.integrations import AlRashidIntegration, get_supplier_integration
 
         result = get_supplier_integration(UUID("11111111-1111-1111-1111-111111111111"))
         assert isinstance(result, AlRashidIntegration)
 
     def test_green_fields(self):
-        from src.suppliers.integrations import get_supplier_integration, GreenFieldsIntegration
+        from src.suppliers.integrations import GreenFieldsIntegration, get_supplier_integration
 
         result = get_supplier_integration(UUID("22222222-2222-2222-2222-222222222222"))
         assert isinstance(result, GreenFieldsIntegration)
 
     def test_sahara_agro(self):
-        from src.suppliers.integrations import get_supplier_integration, SaharaAgroIntegration
+        from src.suppliers.integrations import SaharaAgroIntegration, get_supplier_integration
 
         result = get_supplier_integration(UUID("33333333-3333-3333-3333-333333333333"))
         assert isinstance(result, SaharaAgroIntegration)
 
     def test_unknown_supplier_returns_generic(self):
-        from src.suppliers.integrations import get_supplier_integration, SupplierIntegration
+        from src.suppliers.integrations import SupplierIntegration, get_supplier_integration
 
         result = get_supplier_integration(uuid4())
         assert isinstance(result, SupplierIntegration)

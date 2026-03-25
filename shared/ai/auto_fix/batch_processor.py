@@ -22,11 +22,12 @@ import json
 import os
 import time
 import uuid
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, AsyncIterator, Callable
+from typing import Any
 
 import structlog
 

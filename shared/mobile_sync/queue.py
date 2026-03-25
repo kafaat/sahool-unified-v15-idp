@@ -15,9 +15,10 @@ from __future__ import annotations
 import asyncio
 import heapq
 from collections import defaultdict
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 from .models import (
     SYNC_ERRORS,

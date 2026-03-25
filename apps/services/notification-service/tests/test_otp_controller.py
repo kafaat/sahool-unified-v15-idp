@@ -10,7 +10,6 @@ Covers:
 
 import pytest
 from fastapi import HTTPException
-
 from src.otp_controller import (
     Language,
     OTPChannel,
@@ -124,10 +123,10 @@ class TestSendOTPResponse:
 
 
 from src.otp_controller import (
-    VerifyOTPRequest,
-    VerifyOTPResponse,
     OTPStatusResponse,
     OTPStorage,
+    VerifyOTPRequest,
+    VerifyOTPResponse,
 )
 
 

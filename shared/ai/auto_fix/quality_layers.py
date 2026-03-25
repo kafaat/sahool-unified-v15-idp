@@ -728,8 +728,8 @@ def _aggregate_reports_from_dir(reports_dir: str) -> QualityReport:
     Returns:
         QualityReport aggregated from individual reports
     """
-    from pathlib import Path
     import uuid
+    from pathlib import Path
 
     report = QualityReport(
         id=str(uuid.uuid4()),

@@ -7,17 +7,16 @@ Covers:
 - NotificationScheduler (schedule, batch, cancel, quiet hours, rate limiting)
 """
 
-import pytest
 from datetime import UTC, datetime, time, timedelta
 from unittest.mock import MagicMock
 
-from src.notification_types import NotificationPayload, NotificationPriority, NotificationType
+import pytest
 from src.notification_scheduler import (
     NotificationScheduler,
     ScheduledNotification,
     ScheduleFrequency,
 )
-
+from src.notification_types import NotificationPayload, NotificationPriority, NotificationType
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ScheduleFrequency
@@ -615,8 +614,8 @@ class TestSchedulerStats:
 
 class TestGetScheduler:
     def test_singleton(self):
-        from src.notification_scheduler import get_scheduler
         import src.notification_scheduler as mod
+        from src.notification_scheduler import get_scheduler
 
         old = mod._scheduler
         mod._scheduler = None

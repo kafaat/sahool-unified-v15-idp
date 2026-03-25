@@ -258,6 +258,7 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 def health():
     """فحص الصحة - Health check with metrics"""
     from .processing import _jobs
+
     all_jobs = list(_jobs.values())
     active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {
@@ -273,6 +274,7 @@ def health():
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
     from .processing import _jobs
+
     all_jobs = list(_jobs.values())
     active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {

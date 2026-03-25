@@ -29,8 +29,9 @@ from __future__ import annotations
 import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 import structlog
 

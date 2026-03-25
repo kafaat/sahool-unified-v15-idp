@@ -4,8 +4,8 @@ Tests cover all export formats (GeoJSON, CSV, JSON, KML) and all export methods.
 """
 
 import json
-import sys
 import os
+import sys
 
 import pytest
 

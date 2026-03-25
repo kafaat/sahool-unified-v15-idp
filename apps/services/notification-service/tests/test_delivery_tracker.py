@@ -7,9 +7,10 @@ Covers:
 - DeliveryTracker (start, stop, register, callbacks)
 """
 
-import pytest
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 try:
     from src.delivery_tracker import (

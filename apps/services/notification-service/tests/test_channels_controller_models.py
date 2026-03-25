@@ -14,8 +14,8 @@ from fastapi import HTTPException
 try:
     from src.channels_controller import (
         AddChannelRequest,
-        VerifyChannelRequest,
         UpdateChannelStatusRequest,
+        VerifyChannelRequest,
         get_tenant_id,
     )
 except (ImportError, Exception):

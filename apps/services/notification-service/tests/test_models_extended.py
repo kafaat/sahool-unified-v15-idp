@@ -9,15 +9,15 @@ Covers:
 import pytest
 
 try:
+    from src.database import TORTOISE_ORM
     from src.models import (
         ChannelType,
+        FarmerProfile,
         Notification,
         NotificationChannel,
         NotificationLog,
         NotificationPreference,
-        FarmerProfile,
     )
-    from src.database import TORTOISE_ORM
 except (ImportError, Exception):
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 

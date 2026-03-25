@@ -21,7 +21,6 @@ from .repository import (
     NotificationRepository,
 )
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Tenant Isolation - عزل المستأجرين
 # SECURITY: Tenant ID must come from a validated source (JWT or verified header).
@@ -64,6 +63,7 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
             },
         )
     return x_tenant_id
+
 
 logger = logging.getLogger("sahool-notifications.history")
 

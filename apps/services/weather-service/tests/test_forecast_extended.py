@@ -18,8 +18,8 @@ try:
         calculate_spray_window,
         disease_risk,
         frost_risk,
-        heavy_rain_risk,
         heat_stress_risk,
+        heavy_rain_risk,
         wind_risk,
     )
 except ImportError:
@@ -33,13 +33,19 @@ try:
         AlertSeverity,
         WeatherForecastService,
         calculate_agricultural_indices,
-        calculate_chill_hours as fi_calculate_chill_hours,
-        calculate_evapotranspiration as fi_calculate_et,
         calculate_gdd,
         detect_drought_conditions,
-        detect_frost_risk as fi_detect_frost_risk,
         detect_heat_wave,
         detect_heavy_rain,
+    )
+    from src.forecast_integration import (
+        calculate_chill_hours as fi_calculate_chill_hours,
+    )
+    from src.forecast_integration import (
+        calculate_evapotranspiration as fi_calculate_et,
+    )
+    from src.forecast_integration import (
+        detect_frost_risk as fi_detect_frost_risk,
     )
 
     # Use multi_provider dataclasses (sunrise/sunset optional)

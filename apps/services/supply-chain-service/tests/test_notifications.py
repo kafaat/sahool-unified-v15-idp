@@ -1,7 +1,7 @@
 """Tests for notification utilities in Supply Chain Service."""
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -11,9 +11,10 @@ os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
+
+import pytest
 
 
 @pytest.fixture
@@ -79,8 +80,9 @@ class TestSendOrderConfirmation:
 
     @pytest.mark.asyncio
     async def test_sms_disabled(self):
-        from src.utils.notifications import NotificationService
         from unittest.mock import patch
+
+        from src.utils.notifications import NotificationService
 
         with patch.object(NotificationService, "__init__", lambda self: None):
             ns = NotificationService()
@@ -203,8 +205,9 @@ class TestSendPriceAlert:
 
     @pytest.mark.asyncio
     async def test_price_alert_push_disabled(self):
-        from src.utils.notifications import NotificationService
         from unittest.mock import patch
+
+        from src.utils.notifications import NotificationService
 
         with patch.object(NotificationService, "__init__", lambda self: None):
             ns = NotificationService()

@@ -14,10 +14,10 @@ import logging
 from datetime import datetime
 
 from fastapi import Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

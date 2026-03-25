@@ -10,10 +10,11 @@ Covers:
 - PreferencesService.check_if_should_send
 """
 
-import pytest
 from datetime import datetime, time
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
 
 try:
     from src.preferences_service import PreferencesService

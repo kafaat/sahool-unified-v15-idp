@@ -25,11 +25,11 @@ try:
     from unittest.mock import AsyncMock, MagicMock, patch
 
     from src.store import (
-        _StoreConfig,
         _cfg,
         _composites,
         _jobs,
         _results,
+        _StoreConfig,
         configure,
         ensure_tables,
         save_composite,

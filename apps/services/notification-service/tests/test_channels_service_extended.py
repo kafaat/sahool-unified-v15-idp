@@ -8,9 +8,10 @@ Covers:
 - ChannelsService.update_channel_status
 """
 
-import pytest
-from uuid import uuid4
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
+
+import pytest
 
 try:
     from src.channels_service import ChannelsService

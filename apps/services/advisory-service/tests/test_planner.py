@@ -16,6 +16,7 @@ try:
         get_stage_timeline,
     )
     from src.main import app
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:

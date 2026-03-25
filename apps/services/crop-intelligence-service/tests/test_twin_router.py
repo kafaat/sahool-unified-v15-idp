@@ -187,6 +187,8 @@ for mod_name, mod_mock in _modules_to_mock.items():
 
 # Now import twin_router
 try:
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
     from src.twin_router import (
         _enforce_tenant,
         _get_nats,
@@ -194,9 +196,6 @@ try:
         _publish_observation_ingested,
         router,
     )
-
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient
 except (ImportError, Exception):
     pytest.skip("crop-intelligence-service dependencies not available", allow_module_level=True)
 

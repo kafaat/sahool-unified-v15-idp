@@ -89,8 +89,7 @@ class RedisTokenRevocationStore:
 
         if not REDIS_AVAILABLE:
             raise ImportError(
-                "redis.asyncio is required for token revocation. "
-                "Install it with: pip install redis[asyncio]"
+                "redis.asyncio is required for token revocation. Install it with: pip install redis[asyncio]"
             )
 
         try:

@@ -9,8 +9,9 @@ Covers Pydantic model creation and validation for:
 - DeliveryLogResponse
 """
 
-import pytest
 from datetime import UTC, datetime
+
+import pytest
 
 try:
     from src.analytics_controller import (

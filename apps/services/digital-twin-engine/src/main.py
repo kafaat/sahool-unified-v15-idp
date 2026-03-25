@@ -826,7 +826,8 @@ async def compare_scenarios(req: ScenarioRequest, user: User = Depends(get_curre
     try:
         return dt_engine.compare_scenarios(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Scenario comparison failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Scenario comparison failed | فشلت مقارنة السيناريوهات")
 
 
 @app.post("/api/v1/digital-twin/optimize", response_model=OptimizationResult)
@@ -838,7 +839,8 @@ async def optimize_irrigation(req: OptimizationRequest, user: User = Depends(get
     try:
         return dt_engine.optimize(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Optimization failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Optimization failed | فشل التحسين")
 
 
 # State management

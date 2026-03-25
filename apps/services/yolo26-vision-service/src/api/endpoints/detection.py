@@ -44,6 +44,19 @@ from src.models.yolo26_manager import (
     get_model_manager,
 )
 
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 logger = structlog.get_logger(__name__)
 
 
@@ -475,6 +488,7 @@ async def detect_pests(
     return_visualization: bool = False,
     include_recommendations: bool = True,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> PestDetectionResponse:
     """
     Detect pests in agricultural images.
@@ -650,6 +664,7 @@ async def detect_diseases(
     include_treatments: bool = True,
     calculate_affected_area: bool = True,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> DiseaseDetectionResponse:
     """
     Detect plant diseases in agricultural images.
@@ -865,6 +880,7 @@ async def detect_weeds(
     return_visualization: bool = False,
     calculate_coverage: bool = True,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> WeedDetectionResponse:
     """
     Detect weeds in agricultural images.

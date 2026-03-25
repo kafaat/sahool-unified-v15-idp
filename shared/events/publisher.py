@@ -409,13 +409,15 @@ class EventPublisher:
             if ctx_tenant:
                 event.tenant_id = ctx_tenant
 
-        # Warn if tenant_id is still missing (critical for multi-tenant isolation)
+        # Reject if tenant_id is still missing (critical for multi-tenant isolation)
         if not event.tenant_id:
-            logger.warning(
-                "event_missing_tenant_id: subject=%s event_id=%s service=%s",
-                subject,
-                event.event_id,
-                event.source_service,
+            logger.error(
+                "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
+                subject, event.event_id, event.source_service,
+            )
+            raise ValueError(
+                f"Event missing required tenant_id: subject={subject}, "
+                f"event_id={event.event_id}, service={event.source_service}"
             )
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
@@ -512,6 +514,9 @@ class EventPublisher:
         if not self.is_connected:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
+
+        if isinstance(data, dict) and not data.get("tenant_id"):
+            logger.warning("publish_json called without tenant_id: subject=%s", subject)
 
         try:
             payload = json.dumps(data, default=str).encode("utf-8")

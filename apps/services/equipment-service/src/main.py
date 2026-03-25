@@ -64,13 +64,12 @@ except ImportError:
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    class User(BaseModel):  # type: ignore[no-redef]
-        id: str = ""
-        tenant_id: str = ""
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
     async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration

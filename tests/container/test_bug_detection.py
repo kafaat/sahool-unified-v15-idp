@@ -610,3 +610,124 @@ class TestBrokenDependencies:
             f"Duplicate host port mappings:\n"
             + "\n".join(f"  port {p}: {svcs}" for p, svcs in duplicates.items())
         )
+
+
+# ===========================================================================
+# 10. Hybrid Service Detection (Python+Node.js Mix)
+# ===========================================================================
+
+
+class TestHybridServiceDetection:
+    """كشف الخدمات الهجينة (Python+Node.js في نفس الخدمة).
+
+    A service should be either Python OR Node.js, not both.
+    Having both main.py and main.ts causes build confusion.
+    """
+
+    # Known Node.js services
+    NODE_SERVICES = {
+        "field-management-service", "iot-service", "chat-service",
+        "marketplace-service", "user-service", "crop-growth-model",
+        "lai-estimation", "yield-prediction", "yield-prediction-service",
+        "research-core", "disaster-assessment", "code-review-agent",
+    }
+
+    def test_node_services_no_python_main(self) -> None:
+        """Node.js services should not have a conflicting Python main.py."""
+        hybrids: list[str] = []
+        for svc in self.NODE_SERVICES:
+            svc_dir = SERVICES_DIR / svc
+            has_ts = (svc_dir / "src" / "main.ts").exists() or (
+                svc_dir / "src" / "index.ts"
+            ).exists()
+            has_py = (svc_dir / "src" / "main.py").exists()
+            if has_ts and has_py:
+                # Check if Dockerfile is Node.js based
+                dockerfile = svc_dir / "Dockerfile"
+                if dockerfile.exists():
+                    df = dockerfile.read_text("utf-8")
+                    is_node_build = "node:" in df.lower()
+                    if is_node_build:
+                        hybrids.append(
+                            f"{svc}: has both main.ts AND main.py "
+                            f"but Dockerfile is Node.js (Python code won't run)"
+                        )
+        if hybrids:
+            pytest.fail(
+                f"Hybrid services detected (Python code in Node.js service):\n"
+                + "\n".join(f"  - {h}" for h in hybrids)
+            )
+
+
+# ===========================================================================
+# 11. Service Registry Completeness
+# ===========================================================================
+
+
+class TestServiceRegistryCompleteness:
+    """اكتمال سجل الخدمات.
+
+    All buildable services in docker-compose.yml should be registered
+    in tests/container/service_registry.py.
+    """
+
+    def test_buildable_services_registered(self, services: dict) -> None:
+        """All services with build: directive are in the service registry."""
+        from tests.container.service_registry import (
+            ALL_HTTP_SERVICES,
+            PORTLESS_SERVICES,
+            DEPRECATED_SERVICES,
+        )
+
+        registered = set(ALL_HTTP_SERVICES.keys()) | PORTLESS_SERVICES | set(DEPRECATED_SERVICES.keys())
+
+        buildable_in_compose: set[str] = set()
+        for svc_name, svc_def in services.items():
+            if "build" in svc_def:
+                buildable_in_compose.add(svc_name)
+
+        unregistered = buildable_in_compose - registered
+        # Exclude known special services (init containers, GPU-only services)
+        known_unregistered = {"vllm-deepseek", "etcd-perms-init", "etcd-init"}
+        unregistered -= known_unregistered
+
+        if unregistered:
+            pytest.fail(
+                f"Buildable services in compose but NOT in service_registry.py:\n"
+                + "\n".join(f"  - {s}" for s in sorted(unregistered))
+                + "\nAdd them to PYTHON_SERVICES, NODE_SERVICES, or PORTLESS_SERVICES"
+            )
+
+
+# ===========================================================================
+# 12. Deprecated Service Isolation
+# ===========================================================================
+
+
+class TestDeprecatedServiceIsolation:
+    """عزل الخدمات المهملة.
+
+    Deprecated services should not start by default. They must require
+    --profile deprecated to launch.
+    """
+
+    def test_deprecated_services_have_profiles(self, services: dict) -> None:
+        """Deprecated services must have 'profiles' to prevent default startup."""
+        from tests.container.service_registry import DEPRECATED_SERVICES
+
+        no_profile: list[str] = []
+        for svc_name in DEPRECATED_SERVICES:
+            svc_def = services.get(svc_name, {})
+            if not svc_def:
+                continue  # Not in compose at all — OK
+            profiles = svc_def.get("profiles", [])
+            if not profiles:
+                no_profile.append(svc_name)
+
+        if no_profile:
+            pytest.fail(
+                f"Deprecated services without 'profiles' annotation "
+                f"(will start by default):\n"
+                + "\n".join(f"  - {s}" for s in no_profile)
+                + "\nAdd: profiles: [deprecated] to prevent accidental startup"
+            )

@@ -289,8 +289,11 @@ export default function IrrigationClient() {
             ? {
                 ...s,
                 fieldName: formData.fieldName,
+                name: formData.name,
                 type: formData.type,
-                scheduledAt: formData.scheduledAt || s.scheduledAt,
+                scheduledAt: formData.startDate || formData.scheduledAt || s.scheduledAt,
+                startDate: formData.startDate || formData.scheduledAt,
+                frequency: formData.frequency,
                 duration: formData.duration,
                 waterAmount: formData.waterAmount,
               }
@@ -508,7 +511,7 @@ export default function IrrigationClient() {
                         <Droplets className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{schedule.name}</div>
+                        <div className="font-medium text-gray-900">{schedule.name || schedule.fieldName}</div>
                         {schedule.fieldName && (
                           <div className="text-xs text-gray-500">{schedule.fieldName}</div>
                         )}
@@ -551,7 +554,7 @@ export default function IrrigationClient() {
                           onClick={() => handleStart(schedule.id)}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                           title="استئناف الري"
-                          aria-label={`استئناف ري ${schedule.name}`}
+                          aria-label={`استئناف ري ${schedule.name || schedule.fieldName}`}
                         >
                           <Play className="w-4 h-4" />
                         </button>
@@ -561,7 +564,7 @@ export default function IrrigationClient() {
                           onClick={() => handleStop(schedule.id)}
                           className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                           title="إيقاف الري مؤقتاً"
-                          aria-label={`إيقاف ري ${schedule.name}`}
+                          aria-label={`إيقاف ري ${schedule.name || schedule.fieldName}`}
                         >
                           <Pause className="w-4 h-4" />
                         </button>
@@ -570,7 +573,7 @@ export default function IrrigationClient() {
                         onClick={() => openEdit(schedule)}
                         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="تعديل"
-                        aria-label={`تعديل جدول ${schedule.name}`}
+                        aria-label={`تعديل جدول ${schedule.name || schedule.fieldName}`}
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -578,7 +581,7 @@ export default function IrrigationClient() {
                         onClick={() => setDeleteTarget(schedule)}
                         className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="حذف"
-                        aria-label={`حذف جدول ${schedule.name}`}
+                        aria-label={`حذف جدول ${schedule.name || schedule.fieldName}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -417,7 +417,7 @@ class EventPublisher:
                 event.event_id,
                 event.source_service,
             )
-            self._stats["errors"] += 1
+            self._stats["errors"] = self._stats.get("errors", 0) + 1
             return False
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)

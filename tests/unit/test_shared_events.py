@@ -15,7 +15,7 @@ from shared.events.contracts import BaseEvent
 from shared.events.models import EventMetadata, EventPriority, EventStatus
 from shared.events.publisher import EventPublisher, PublisherConfig
 
-TEST_TENANT_ID = str(uuid4())
+TEST_TENANT_ID = "test-tenant-00000000-0000-0000-0000-000000000001"
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Mock Event Classes

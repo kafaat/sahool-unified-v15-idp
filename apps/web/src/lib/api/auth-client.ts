@@ -172,6 +172,7 @@ class AuthApiClient {
     try {
       if (typeof window === 'undefined') return false;
 
+      // TODO: migrate to server-side /api/auth/refresh route that reads httpOnly refresh_token cookie
       const refreshTokenValue = Cookies.get('refresh_token');
       if (!refreshTokenValue) {
         logger.warn('No refresh token available');

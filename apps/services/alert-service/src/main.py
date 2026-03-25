@@ -47,9 +47,6 @@ try:
     from shared.auth.models import User
 except ImportError:
     from fastapi import HTTPException
-    from fastapi.security import HTTPBearer
-
-    _bearer = HTTPBearer(auto_error=False)
 
     class User:
         id: str = "anonymous"

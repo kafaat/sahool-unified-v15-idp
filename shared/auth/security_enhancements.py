@@ -114,10 +114,17 @@ class TokenFingerprint:
         """
         headers = getattr(request, "headers", {})
 
-        # Get client IP considering proxies
+        # Get client IP considering proxies (with validation)
+        import ipaddress as _ipaddress
         forwarded = headers.get("x-forwarded-for", "")
+        ip_address = "unknown"
         if forwarded:
-            ip_address = forwarded.split(",")[0].strip()
+            candidate = forwarded.split(",")[0].strip()
+            try:
+                _ipaddress.ip_address(candidate)
+                ip_address = candidate
+            except ValueError:
+                ip_address = "unknown"
         else:
             client = getattr(request, "client", None)
             ip_address = client.host if client else "unknown"

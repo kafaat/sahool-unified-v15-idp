@@ -173,6 +173,7 @@ class TestNDVIBounds:
                 field_id=uuid.uuid4(),
                 ndvi_value=1.5,  # Out of range
                 updated_at=datetime.now(UTC),
+                tenant_id="test-tenant",
             )
 
     def test_ndvi_update_event_negative_valid(self):
@@ -183,6 +184,7 @@ class TestNDVIBounds:
             field_id=uuid.uuid4(),
             ndvi_value=-0.99,  # Valid
             updated_at=datetime.now(UTC),
+            tenant_id="test-tenant",
         )
         assert event.ndvi_value == -0.99
 
@@ -195,6 +197,7 @@ class TestNDVIBounds:
                 field_id=uuid.uuid4(),
                 ndvi_value=-1.01,
                 updated_at=datetime.now(UTC),
+                tenant_id="test-tenant",
             )
 
 

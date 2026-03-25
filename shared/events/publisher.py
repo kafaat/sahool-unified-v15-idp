@@ -390,6 +390,8 @@ class EventPublisher:
             True if published successfully, False otherwise
         """
         # ── Metadata enrichment (runs before buffering/publishing) ────────
+        # All enrichment happens here so both buffered and direct-published
+        # events carry identical metadata (source, tenant, correlation, trace).
         if not event.source_service:
             event.source_service = self.service_name
 
@@ -400,8 +402,6 @@ class EventPublisher:
                 event.tenant_id = ctx_tenant
 
         # Reject if tenant_id is still missing (critical for multi-tenant isolation)
-        # This check runs BEFORE buffering to prevent tenantless events from
-        # being queued and later flushed without X-Tenant-ID headers.
         if not event.tenant_id:
             logger.error(
                 "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
@@ -411,10 +411,6 @@ class EventPublisher:
             )
             self._error_count += 1
             return False
-
-        if not self.is_connected:
-            # Buffer the message for retry when reconnected instead of dropping
-            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # H4: Auto-propagate correlation_id from HTTP entrypoint context.
         # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
@@ -432,6 +428,10 @@ class EventPublisher:
             if tracestate:
                 # Store tracestate transiently (not serialized in JSON, only in headers)
                 event._tracestate = tracestate  # type: ignore[attr-defined]
+
+        if not self.is_connected:
+            # Buffer the fully-enriched message for retry when reconnected
+            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # Serialize event
         try:

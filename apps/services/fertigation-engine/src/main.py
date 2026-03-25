@@ -62,6 +62,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 VERSION = "16.0.0"
 SERVICE_NAME = "fertigation-engine"
 PORT = int(os.getenv("PORT", "8252"))

@@ -55,6 +55,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 logger = logging.getLogger(__name__)
 
 # Dummy variables to prevent NameError

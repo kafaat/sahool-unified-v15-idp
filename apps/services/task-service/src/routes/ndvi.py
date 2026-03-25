@@ -32,6 +32,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 # Add parent path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 

@@ -29,7 +29,6 @@ try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:
-
     from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]

@@ -33,6 +33,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 from ...algorithms.dem_processor import DEMBounds, DEMProcessor, DEMSource
 from ...algorithms.terrain_indicators import (
     CurvatureType as CalcCurvatureType,

@@ -36,6 +36,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 # Import unified error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -908,7 +909,9 @@ class AnomalyAcknowledgeRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/acknowledge", tags=["Anomalies"])
-async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeRequest, current_user: User = Depends(get_current_user)):
+async def acknowledge_anomaly(
+    anomaly_id: str, request: AnomalyAcknowledgeRequest, current_user: User = Depends(get_current_user)
+):
     """
     Acknowledge an anomaly.
 
@@ -951,7 +954,9 @@ class AnomalyResolveRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/resolve", tags=["Anomalies"])
-async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest, current_user: User = Depends(get_current_user)):
+async def resolve_anomaly(
+    anomaly_id: str, request: AnomalyResolveRequest, current_user: User = Depends(get_current_user)
+):
     """
     Resolve an anomaly.
 

@@ -26,6 +26,7 @@ except ImportError:
     async def get_current_user():
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
 # Import rotation API endpoints
 from .rotation_api import (
     check_rotation_compatibility_endpoint,

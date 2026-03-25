@@ -21,8 +21,8 @@ from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
-import pytest
 import jwt
+import pytest
 
 
 @pytest.fixture

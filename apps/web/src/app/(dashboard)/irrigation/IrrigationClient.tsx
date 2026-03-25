@@ -46,8 +46,12 @@ interface IrrigationSchedule {
 // Stub types until API integration is wired up
 type Field = { id: string; name: string; name_ar?: string };
 const useAuth = () => ({ user: null as { tenant_id?: string } | null });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const apiClient = { getFields: async (..._a: any[]) => ({ success: false, data: [] }), getIrrigationSchedules: async () => ({ success: false, data: [] }), createIrrigationSchedule: async (..._a: any[]) => ({ success: false }), deleteIrrigationSchedule: async (..._a: any[]) => ({ success: false }) };
+const apiClient = {
+  getFields: async (..._a: unknown[]) => ({ success: false as const, data: [] as Field[] }),
+  getIrrigationSchedules: async () => ({ success: false as const, data: [] as IrrigationSchedule[] }),
+  createIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
+  deleteIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
+};
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {

@@ -5,7 +5,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Header from '@/components/layout/Header';
-import { apiClient } from '@/lib/api-client';
+import { adminApiClient as apiClient } from '@/lib/api';
 import { API_PATHS } from '@/config/api';
 import {
   ArrowLeftRight,

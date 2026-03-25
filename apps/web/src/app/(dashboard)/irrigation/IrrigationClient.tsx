@@ -20,6 +20,20 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
+/** Convert datetime-local input value back to ISO 8601 string */
+const toISO = (localDateStr: string): string => {
+  if (!localDateStr) return '';
+  return new Date(localDateStr).toISOString();
+};
+
+/** Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) */
+const toLocalInput = (isoStr: string): string => {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
 
@@ -155,8 +169,15 @@ export default function IrrigationClient() {
     });
   };
 
+  const now = new Date();
+  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const totalWaterToday = schedules
-    .filter((s) => s.status !== 'cancelled')
+    .filter((s) => {
+      if (s.status === 'cancelled') return false;
+      const d = new Date(s.scheduledAt);
+      const schedLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return schedLocal === todayLocal;
+    })
     .reduce((sum, s) => sum + s.waterAmount, 0);
 
   const overdueCount = schedules.filter((s) => s.status === 'overdue').length;
@@ -172,7 +193,7 @@ export default function IrrigationClient() {
     setFormData({
       fieldName: schedule.fieldName,
       type: schedule.type,
-      scheduledAt: schedule.scheduledAt.slice(0, 16),
+      scheduledAt: toLocalInput(schedule.scheduledAt),
       duration: schedule.duration,
       waterAmount: schedule.waterAmount,
     });
@@ -198,7 +219,7 @@ export default function IrrigationClient() {
                 ...s,
                 fieldName: formData.fieldName,
                 type: formData.type,
-                scheduledAt: formData.scheduledAt || s.scheduledAt,
+                scheduledAt: toISO(formData.scheduledAt) || s.scheduledAt,
                 duration: formData.duration,
                 waterAmount: formData.waterAmount,
               }
@@ -213,7 +234,7 @@ export default function IrrigationClient() {
         fieldName: formData.fieldName,
         type: formData.type,
         status: 'scheduled',
-        scheduledAt: formData.scheduledAt || new Date().toISOString(),
+        scheduledAt: toISO(formData.scheduledAt) || new Date().toISOString(),
         duration: formData.duration,
         waterAmount: formData.waterAmount,
       };

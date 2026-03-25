@@ -34,7 +34,15 @@ interface IrrigationSchedule {
   waterAmount: number;
   completedAt?: string;
   progress?: number;
+  schedule?: Record<string, unknown>;
+  nextRun?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+// Stub types for Field and useAuth until proper imports are available
+type Field = { id: string; name: string };
+const useAuth = () => ({ user: null as { tenant_id?: string } | null });
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {

@@ -318,7 +318,7 @@ async def add_observation(report_id: str, obs_data: ObservationCreate, current_u
 
 
 @router.post("/scouts/reports/{report_id}/submit")
-async def submit_report(report_id: str):
+async def submit_report(report_id: str, current_user: User = Depends(get_current_user)):
     """
     Submit report for review.
     تقديم التقرير للمراجعة.

@@ -96,8 +96,7 @@ def setup_cors(
         import logging
 
         logging.error(
-            "SECURITY: Blocking wildcard (*) CORS origins in production; "
-            "falling back to DEFAULT_ORIGINS['production']."
+            "SECURITY: Blocking wildcard (*) CORS origins in production; falling back to DEFAULT_ORIGINS['production']."
         )
         origins = DEFAULT_ORIGINS["production"]
 

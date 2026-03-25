@@ -14,7 +14,11 @@ const API_DIR = path.resolve(__dirname, '..');
 
 function readRoute(routePath: string): string {
   const fullPath = path.join(API_DIR, routePath, 'route.ts');
-  return fs.readFileSync(fullPath, 'utf-8');
+  try {
+    return fs.readFileSync(fullPath, 'utf-8');
+  } catch {
+    return ''; // Missing files produce empty content; "file exists" test catches this
+  }
 }
 
 function routeExists(routePath: string): boolean {

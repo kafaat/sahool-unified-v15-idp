@@ -6,7 +6,7 @@
  * and production-safe structured logging.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
@@ -227,9 +227,7 @@ describe('Sentry Shim', () => {
   });
 
   it('can be imported without errors', async () => {
-    expect(async () => {
-      await import('../sentry-shim');
-    }).not.toThrow();
+    await expect(import('../sentry-shim')).resolves.toBeDefined();
   });
 
   it('is a minimal file (under 20 lines)', () => {

@@ -191,7 +191,7 @@ class VonageSMSProvider(BaseSMSProvider):
             return SMSResult(success=False, error="Provider not initialized")
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     "https://rest.nexmo.com/sms/json",
                     data={
@@ -291,7 +291,7 @@ class MsegatSMSProvider(BaseSMSProvider):
             # Msegat expects numbers without + prefix
             phone = to.lstrip("+")
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     self._base_url,
                     json={
@@ -376,7 +376,7 @@ class LocalYemenSMSProvider(BaseSMSProvider):
             return SMSResult(success=False, error="Provider not initialized")
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     self._api_url,
                     headers={"Authorization": f"Bearer {self._api_key}"},

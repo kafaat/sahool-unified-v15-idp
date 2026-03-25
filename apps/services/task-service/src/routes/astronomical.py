@@ -16,6 +16,21 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 # Add parent path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -225,6 +240,7 @@ async def create_task_with_astronomical_recommendation(
     data: AstronomicalTaskCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create task with astronomical recommendation
@@ -339,6 +355,7 @@ async def create_task_with_astronomical_recommendation(
 async def validate_date_for_activity(
     data: DateValidationRequest,
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Validate date suitability for agricultural activity

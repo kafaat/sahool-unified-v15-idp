@@ -3,9 +3,12 @@ Entity API endpoints
 نقاط نهاية API الكيانات
 """
 
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+logger = logging.getLogger(__name__)
 
 from models import Crop, Disease, Treatment
 
@@ -52,7 +55,8 @@ async def list_crops(
             "data": crops,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list crops: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/crops/{crop_id}")
@@ -78,7 +82,8 @@ async def get_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/crops")
@@ -106,7 +111,8 @@ async def create_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create crop: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -133,7 +139,8 @@ async def list_diseases(
             "data": diseases,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list diseases: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/diseases/{disease_id}")
@@ -159,7 +166,8 @@ async def get_disease(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/diseases")
@@ -187,7 +195,8 @@ async def create_disease(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create disease: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -214,7 +223,8 @@ async def list_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list treatments: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/treatments/{treatment_id}")
@@ -240,7 +250,8 @@ async def get_treatment(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get treatment %s: %s", treatment_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/treatments")
@@ -268,7 +279,8 @@ async def create_treatment(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create treatment: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -300,4 +312,5 @@ async def search_entities(
             "data": results,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to search entities: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")

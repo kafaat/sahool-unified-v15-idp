@@ -70,13 +70,15 @@ except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
 
     async def get_current_user():
         """Placeholder when auth not available"""
-        return None
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Database imports

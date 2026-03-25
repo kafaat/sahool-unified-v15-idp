@@ -7,9 +7,16 @@ Tests the notification service API endpoints with PostgreSQL backend.
 """
 
 import asyncio
+import os
 from datetime import date
 
 import httpx
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    os.getenv("NOTIFICATION_SERVICE_URL") is None,
+    reason="Requires running notification-service (set NOTIFICATION_SERVICE_URL)",
+)
 
 BASE_URL = "http://localhost:8110"
 

@@ -29,13 +29,14 @@ try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         tenant_id: str | None = None
         roles: list[str] = []
 
     async def get_current_user():
-        return None
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 def _enforce_tenant(user: Any, requested_tenant_id: str) -> None:

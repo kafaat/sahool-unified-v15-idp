@@ -270,11 +270,6 @@ class EventPublisher:
         self._buffered_count = 0
         self._buffer_overflow_count = 0
 
-        # Rejected events buffer for debugging/DLQ inspection
-        self._rejected_events: list[dict[str, Any]] = []
-        self._rejected_events_max: int = 100
-        self._rejected_total: int = 0
-
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS."""
@@ -292,30 +287,7 @@ class EventPublisher:
             "buffer_overflow_count": self._buffer_overflow_count,
             "service_name": self.service_name,
             "service_version": self.service_version,
-            "rejected_count": self._rejected_total,
-            "rejected_buffer_size": len(self._rejected_events),
         }
-
-    @property
-    def rejected_events(self) -> list[dict[str, Any]]:
-        """Get a copy of rejected events for debugging/DLQ inspection."""
-        return list(self._rejected_events)
-
-    def _record_rejection(self, subject: str, reason: str, event_id: str | None = None) -> None:
-        """Record a rejected event for debugging/DLQ inspection."""
-        import time
-
-        self._rejected_total += 1
-        entry = {
-            "subject": subject,
-            "reason": reason,
-            "event_id": event_id,
-            "timestamp": time.time(),
-            "service": self.service_name,
-        }
-        self._rejected_events.append(entry)
-        if len(self._rejected_events) > self._rejected_events_max:
-            del self._rejected_events[: -self._rejected_events_max]
 
     async def connect(self) -> bool:
         """
@@ -417,11 +389,19 @@ class EventPublisher:
         Returns:
             True if published successfully, False otherwise
         """
-        # ── Metadata enrichment (runs before buffering/publishing) ────────
-        # All enrichment happens here so both buffered and direct-published
-        # events carry identical metadata (source, tenant, correlation, trace).
+        if not self.is_connected:
+            # Buffer the message for retry when reconnected instead of dropping
+            return self._buffer_message(subject, event, timeout, use_jetstream)
+
+        # ── Metadata enrichment ──────────────────────────────────────────
         if not event.source_service:
             event.source_service = self.service_name
+
+        # H4: Auto-propagate correlation_id from HTTP entrypoint context.
+        # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
+        #        never inside workers.  Workers inherit it from the inbound message.
+        if not event.correlation_id:
+            event.correlation_id = _get_current_correlation_id()
 
         # Tenant propagation: pull from request context if not set on event
         if not event.tenant_id:
@@ -437,15 +417,8 @@ class EventPublisher:
                 event.event_id,
                 event.source_service,
             )
-            self._error_count += 1
-            self._record_rejection(subject, "missing_tenant_id", event.event_id)
+            self._stats["errors"] = self._stats.get("errors", 0) + 1
             return False
-
-        # H4: Auto-propagate correlation_id from HTTP entrypoint context.
-        # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
-        #        never inside workers.  Workers inherit it from the inbound message.
-        if not event.correlation_id:
-            event.correlation_id = _get_current_correlation_id()
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:
@@ -457,10 +430,6 @@ class EventPublisher:
             if tracestate:
                 # Store tracestate transiently (not serialized in JSON, only in headers)
                 event._tracestate = tracestate  # type: ignore[attr-defined]
-
-        if not self.is_connected:
-            # Buffer the fully-enriched message for retry when reconnected
-            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # Serialize event
         try:
@@ -546,22 +515,8 @@ class EventPublisher:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
 
-        # Tenant propagation: mirror publish_event() behavior
-        if isinstance(data, dict):
-            # Normalize camelCase tenantId → tenant_id for compatibility
-            if not data.get("tenant_id") and data.get("tenantId"):
-                data["tenant_id"] = data["tenantId"]
-            # Pull from request context if still missing
-            if not data.get("tenant_id"):
-                ctx_tenant = _get_current_tenant_id()
-                if ctx_tenant:
-                    data["tenant_id"] = ctx_tenant
-
         if isinstance(data, dict) and not data.get("tenant_id"):
-            logger.error("publish_json rejected without tenant_id: subject=%s", subject)
-            self._error_count += 1
-            self._record_rejection(subject, "missing_tenant_id")
-            return False
+            logger.warning("publish_json called without tenant_id: subject=%s", subject)
 
         try:
             payload = json.dumps(data, default=str).encode("utf-8")
@@ -812,9 +767,10 @@ async def close_publisher():
     """Close the singleton publisher instance."""
     global _publisher_instance
 
-    if _publisher_instance:
-        await _publisher_instance.close()
-        _publisher_instance = None
+    async with _publisher_lock:
+        if _publisher_instance is not None:
+            await _publisher_instance.close()
+            _publisher_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

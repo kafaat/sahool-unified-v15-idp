@@ -25,6 +25,7 @@ References:
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import sys
@@ -43,6 +44,8 @@ from pydantic import BaseModel, Field
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+logger = logging.getLogger(__name__)
+
 # ---------------------------------------------------------------------------
 # Authentication dependency
 # ---------------------------------------------------------------------------
@@ -54,14 +57,18 @@ try:
 except ImportError:
     _AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = "anonymous"
-        tenant_id: str = "default"
+        tenant_id: str | None = None
 
     async def get_current_user() -> User:  # type: ignore[misc]
         """Fallback when shared.auth is not importable (dev/test)."""
-        return User()
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+
+_logger = logger  # reuse module logger for EH1/EH3 fixes
 
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"
@@ -781,7 +788,8 @@ async def simulate_field(req: SimulationRequest, user: User = Depends(get_curren
     try:
         result = dt_engine.simulate(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Simulation failed for field %s: %s", req.field_state.field_id, e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Simulation failed | فشلت المحاكاة")
 
     nc = getattr(app.state, "nc", None)
     if nc:
@@ -799,8 +807,8 @@ async def simulate_field(req: SimulationRequest, user: User = Depends(get_curren
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 
@@ -816,7 +824,8 @@ async def compare_scenarios(req: ScenarioRequest, user: User = Depends(get_curre
     try:
         return dt_engine.compare_scenarios(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Scenario comparison failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Scenario comparison failed | فشلت مقارنة السيناريوهات")
 
 
 @app.post("/api/v1/digital-twin/optimize", response_model=OptimizationResult)
@@ -828,7 +837,8 @@ async def optimize_irrigation(req: OptimizationRequest, user: User = Depends(get
     try:
         return dt_engine.optimize(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Optimization failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Optimization failed | فشل التحسين")
 
 
 # State management

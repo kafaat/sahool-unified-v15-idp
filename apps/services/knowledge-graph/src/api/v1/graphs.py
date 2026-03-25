@@ -3,9 +3,12 @@ Graph API endpoints
 نقاط نهاية API الرسم البياني
 """
 
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+logger = logging.getLogger(__name__)
 
 from models import RelationshipType
 
@@ -42,7 +45,8 @@ async def get_graph_statistics(request, _user=Depends(get_current_user)):
             "data": stats,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get graph statistics: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/path")
@@ -81,7 +85,8 @@ async def find_relationship_path(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to find relationship path: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/search")
@@ -111,4 +116,5 @@ async def search_graph(
             "data": results,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to search graph: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")

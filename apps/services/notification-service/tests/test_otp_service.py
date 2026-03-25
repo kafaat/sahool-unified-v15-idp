@@ -383,8 +383,13 @@ class TestOTPService:
     @pytest.mark.asyncio
     async def test_initialize_redis_not_available(self):
         service = OTPService()
-        # Redis import will fail in test environment
-        result = await service.initialize(use_redis=True)
+        # Mock shared.cache.get_redis_client to raise ConnectionError so we
+        # don't attempt a real Redis Sentinel connection (causes timeouts in CI)
+        with patch.dict(
+            "sys.modules",
+            {"shared.cache": MagicMock(get_redis_client=MagicMock(side_effect=ConnectionError("mocked")))},
+        ):
+            result = await service.initialize(use_redis=True)
         # Should fallback to in-memory
         assert result is True
         assert service._initialized is True

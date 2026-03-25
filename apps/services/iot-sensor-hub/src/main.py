@@ -43,8 +43,22 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 
 import logging
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "iot-sensor-hub"
@@ -624,7 +638,7 @@ def readiness():
 
 # Node management
 @app.post("/api/v1/iot/nodes", status_code=201)
-async def register_node(reg: NodeRegistration):
+async def register_node(reg: NodeRegistration, current_user: User = Depends(get_current_user)):
     """Register a new IoT sensor node."""
     node = iot_engine.register_node(reg)
     return {"status": "registered", "node": node}
@@ -651,7 +665,7 @@ async def get_node(node_id: str):
 
 # Sensor data ingestion
 @app.post("/api/v1/iot/readings")
-async def ingest_reading(reading: SensorReading):
+async def ingest_reading(reading: SensorReading, current_user: User = Depends(get_current_user)):
     """Ingest a single sensor reading with Kalman filtering and alert checking."""
     result = iot_engine.process_reading(reading)
 
@@ -678,7 +692,7 @@ async def ingest_reading(reading: SensorReading):
 
 
 @app.post("/api/v1/iot/readings/batch")
-async def ingest_batch(batch: SensorReadingBatch):
+async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(get_current_user)):
     """Ingest a batch of sensor readings."""
     results = []
     nc = getattr(app.state, "nc", None)
@@ -717,7 +731,7 @@ async def ingest_batch(batch: SensorReadingBatch):
 
 # WDI calculation
 @app.post("/api/v1/iot/wdi", response_model=WDIResponse)
-async def calculate_wdi(req: WDIRequest):
+async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate Weighted Decision Index (WDI) for irrigation decision.
 
@@ -779,6 +793,7 @@ async def cache_status():
 async def sync_cache(
     limit: int = Query(default=1000, le=10000),
     confirm_clear: bool = Query(default=False, description="Set true to clear synced entries"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve cached entries and optionally clear them.

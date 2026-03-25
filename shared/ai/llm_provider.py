@@ -22,6 +22,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -1198,7 +1199,7 @@ class LLMProviderManager:
         cache_key = _build_cache_key(prompt, system_prompt, provider_key, str(temp_key))
 
         # Check cache
-        cached = cache.get(cache_key, cache_ttl_seconds)
+        cached = await cache.get(cache_key, cache_ttl_seconds)
         if cached is not None:
             logger.debug(f"LLM cache hit for key {cache_key[:16]}...")
             if self._metrics:
@@ -1225,7 +1226,7 @@ class LLMProviderManager:
         )
 
         # Store in cache
-        cache.put(cache_key, response)
+        await cache.put(cache_key, response)
         logger.debug(f"LLM response cached with key {cache_key[:16]}...")
 
         return response
@@ -1242,7 +1243,7 @@ class LLMProviderManager:
         cache = _get_response_cache()
         return cache.stats()
 
-    def clear_cache(self) -> int:
+    async def clear_cache(self) -> int:
         """
         Clear the LLM response cache.
 
@@ -1252,7 +1253,7 @@ class LLMProviderManager:
             Number of entries cleared
         """
         cache = _get_response_cache()
-        return cache.clear()
+        return await cache.clear()
 
     # ─────────────────────────────────────────────────────────────────────────
     # G-22: Streaming Support
@@ -2031,7 +2032,7 @@ def _build_cache_key(prompt: str, system_prompt: str | None, provider: str, temp
 
 class _LRUResponseCache:
     """
-    Thread-safe in-memory LRU cache for LLM responses with TTL support.
+    Async-safe in-memory LRU cache for LLM responses with TTL support.
 
     ذاكرة تخزين مؤقت LRU آمنة للخيوط في الذاكرة لاستجابات LLM مع دعم TTL
 
@@ -2050,49 +2051,53 @@ class _LRUResponseCache:
         self._cache: OrderedDict[str, tuple[LLMResponse, float]] = OrderedDict()
         self._hits = 0
         self._misses = 0
+        self._lock = asyncio.Lock()
 
-    def get(self, key: str, ttl_seconds: float = 300.0) -> LLMResponse | None:
+    async def get(self, key: str, ttl_seconds: float = 300.0) -> LLMResponse | None:
         """
         Get a cached response if it exists and hasn't expired.
 
         الحصول على استجابة مخزنة مؤقتاً إذا كانت موجودة ولم تنتهِ صلاحيتها
         """
-        if key not in self._cache:
-            self._misses += 1
-            return None
+        async with self._lock:
+            if key not in self._cache:
+                self._misses += 1
+                return None
 
-        response, cached_at = self._cache[key]
+            response, cached_at = self._cache[key]
 
-        # Check TTL
-        if (time.time() - cached_at) > ttl_seconds:
-            del self._cache[key]
-            self._misses += 1
-            return None
+            # Check TTL
+            if (time.time() - cached_at) > ttl_seconds:
+                del self._cache[key]
+                self._misses += 1
+                return None
 
-        # Move to end (most recently used)
-        self._cache.move_to_end(key)
-        self._hits += 1
-        return response
+            # Move to end (most recently used)
+            self._cache.move_to_end(key)
+            self._hits += 1
+            return response
 
-    def put(self, key: str, response: LLMResponse) -> None:
+    async def put(self, key: str, response: LLMResponse) -> None:
         """
         Store a response in the cache.
 
         تخزين استجابة في الذاكرة المؤقتة
         """
-        if key in self._cache:
-            self._cache.move_to_end(key)
-            self._cache[key] = (response, time.time())
-        else:
-            if len(self._cache) >= self._max_size:
-                self._cache.popitem(last=False)  # Remove LRU entry
-            self._cache[key] = (response, time.time())
+        async with self._lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+                self._cache[key] = (response, time.time())
+            else:
+                if len(self._cache) >= self._max_size:
+                    self._cache.popitem(last=False)  # Remove LRU entry
+                self._cache[key] = (response, time.time())
 
-    def clear(self) -> int:
+    async def clear(self) -> int:
         """Clear all cached entries. Returns number of entries cleared."""
-        count = len(self._cache)
-        self._cache.clear()
-        return count
+        async with self._lock:
+            count = len(self._cache)
+            self._cache.clear()
+            return count
 
     def stats(self) -> dict[str, Any]:
         """

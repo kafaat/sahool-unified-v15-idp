@@ -18,6 +18,21 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 # Add parent path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -116,6 +131,7 @@ async def create_task_from_ndvi_alert(
     data: NdviAlertTaskRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create task from NDVI alert
@@ -356,6 +372,7 @@ async def auto_create_tasks(
     data: TaskAutoCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Batch create tasks from recommendations

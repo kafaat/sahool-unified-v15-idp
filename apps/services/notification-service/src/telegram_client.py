@@ -102,7 +102,7 @@ class TelegramClient:
     async def _verify_bot(self):
         """التحقق من صحة رمز البوت"""
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.get(f"{self._base_url}/getMe")
                 if response.status_code == 200:
                     data = response.json()
@@ -165,7 +165,7 @@ class TelegramClient:
             if reply_markup:
                 payload["reply_markup"] = reply_markup
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     f"{self._base_url}/sendMessage",
                     json=payload,

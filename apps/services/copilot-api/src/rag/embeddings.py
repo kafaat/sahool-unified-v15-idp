@@ -141,7 +141,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get(f"{self.config.ollama_base_url}/api/tags", timeout=5.0)
                 if response.status_code == 200:
                     self._initialized = True
@@ -269,7 +269,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.config.ollama_base_url}/api/embeddings",
                     json={
@@ -291,7 +291,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     "https://api.openai.com/v1/embeddings",
                     headers={

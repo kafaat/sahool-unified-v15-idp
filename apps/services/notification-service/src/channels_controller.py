@@ -25,7 +25,11 @@ except ImportError:
         tenant_id: str = ""
 
     async def get_current_user():
-        return None
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
 
 
 logger = logging.getLogger("sahool-notifications.channels-controller")
@@ -127,9 +131,11 @@ async def add_channel(
     - **push**: No verification needed (FCM token)
     - **in_app**: No verification needed
     """
+    # Enforce ownership: use authenticated user's ID instead of body user_id
+    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
     try:
         result = await ChannelsService.add_channel(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             channel_type=request.channel_type,
             address=request.address,
             tenant_id=tenant_id,
@@ -159,10 +165,12 @@ async def verify_channel(request: VerifyChannelRequest, current_user: User | Non
     Required for: email, sms, whatsapp channels
     """
     try:
+        # Enforce ownership: use authenticated user's ID
+        effective_user_id = current_user.id if current_user and current_user.id else request.user_id
         result = await ChannelsService.verify_channel(
             channel_id=request.channel_id,
             verification_code=request.verification_code,
-            user_id=request.user_id,
+            user_id=effective_user_id,
         )
 
         return {
@@ -193,10 +201,12 @@ async def remove_channel(
     حذف قناة إشعار
     Remove a notification channel
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id if current_user and current_user.id else user_id
     try:
         result = await ChannelsService.remove_channel(
             channel_id=channel_id,
-            user_id=user_id,
+            user_id=effective_user_id,
         )
 
         return {
@@ -270,10 +280,12 @@ async def update_channel_status(
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
     try:
         result = await ChannelsService.update_channel_status(
             channel_id=request.channel_id,
-            user_id=request.user_id,
+            user_id=effective_user_id,
             enabled=request.enabled,
         )
 

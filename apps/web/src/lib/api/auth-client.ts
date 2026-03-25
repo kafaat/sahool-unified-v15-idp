@@ -183,15 +183,22 @@ class AuthApiClient {
       if (response.success && response.data?.access_token) {
         // Set token via server-side route for httpOnly cookie protection
         try {
-          await fetch('/api/auth/session', {
+          const sessionResponse = await fetch('/api/auth/session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ access_token: response.data.access_token }),
             credentials: 'include',
           });
-        } catch {
-          // Fallback: set in-memory only (no cookie exposure)
-          logger.warn('Failed to set httpOnly cookie via server route');
+
+          if (!sessionResponse.ok) {
+            logger.warn(
+              `Failed to set httpOnly cookie via server route: ${sessionResponse.status} ${sessionResponse.statusText}`,
+            );
+            return false;
+          }
+        } catch (error) {
+          logger.warn('Failed to set httpOnly cookie via server route', error);
+          return false;
         }
         this.setToken(response.data.access_token);
         return true;

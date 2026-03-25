@@ -476,7 +476,7 @@ services:
   qdrant:
     # Using v1.7.4 - stable release with improved vector search performance
     # استخدام الإصدار v1.7.4 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
-    image: qdrant/qdrant:v1.7.4
+    image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant
     volumes:
       - qdrant_data:/qdrant/storage
@@ -1169,7 +1169,7 @@ services:
 
   # API Gateway (Kong)
   kong:
-    image: kong:3.4.2
+    image: kong:3.9.0
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"

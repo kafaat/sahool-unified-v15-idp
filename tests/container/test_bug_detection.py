@@ -731,3 +731,128 @@ class TestDeprecatedServiceIsolation:
                 + "\n".join(f"  - {s}" for s in no_profile)
                 + "\nAdd: profiles: [deprecated] to prevent accidental startup"
             )
+
+
+# ===========================================================================
+# 13. Container Image Version Pinning (CVE Prevention)
+# ===========================================================================
+
+
+class TestImageVersionPinning:
+    """تثبيت إصدارات صور Docker لمنع ثغرات CVE.
+
+    Using :latest tags causes non-reproducible builds and may pull
+    images with known CVEs. All images must use pinned version tags.
+    """
+
+    # Compose files to scan for :latest tags
+    COMPOSE_FILES = [
+        "docker-compose.yml",
+        "docker-compose.test.yml",
+        "docker-compose.prod.yml",
+        "docker/docker-compose.infra.yml",
+    ]
+
+    def test_no_latest_tags_in_main_compose(self, services: dict) -> None:
+        """Main docker-compose.yml has no :latest image tags."""
+        latest_images: list[str] = []
+        for svc_name, svc_def in services.items():
+            image = svc_def.get("image", "")
+            if ":latest" in image:
+                latest_images.append(f"{svc_name}: {image}")
+        assert not latest_images, (
+            f"Services using :latest tag (non-reproducible, CVE risk):\n"
+            + "\n".join(f"  - {i}" for i in latest_images)
+        )
+
+    def test_compose_files_no_latest(self) -> None:
+        """Scan compose files for :latest tags."""
+        latest_found: list[str] = []
+        for compose_file in self.COMPOSE_FILES:
+            path = REPO_ROOT / compose_file
+            if not path.exists():
+                continue
+            content = path.read_text("utf-8")
+            for i, line in enumerate(content.splitlines(), 1):
+                if ":latest" in line and "image:" in line and not line.strip().startswith("#"):
+                    latest_found.append(f"{compose_file}:{i}: {line.strip()}")
+        assert not latest_found, (
+            f"Compose files with :latest tags:\n"
+            + "\n".join(f"  - {f}" for f in latest_found)
+        )
+
+    def test_infrastructure_images_version_pinned(self, services: dict) -> None:
+        """All infrastructure images have specific version tags (not just major)."""
+        infra_services = [
+            "postgres", "pgbouncer", "redis", "nats", "kong",
+            "vault", "qdrant", "milvus", "minio", "mqtt",
+        ]
+        unpinned: list[str] = []
+        for svc_name in infra_services:
+            svc_def = services.get(svc_name, {})
+            image = svc_def.get("image", "")
+            if not image:
+                continue
+            # Check that image has a version tag with at least one digit
+            parts = image.split(":")
+            if len(parts) < 2:
+                unpinned.append(f"{svc_name}: {image} (no tag)")
+            elif parts[1] == "latest":
+                unpinned.append(f"{svc_name}: {image} (:latest)")
+        assert not unpinned, (
+            f"Infrastructure images without version pin:\n"
+            + "\n".join(f"  - {u}" for u in unpinned)
+        )
+
+
+# ===========================================================================
+# 14. Image Version Consistency Across Compose Files
+# ===========================================================================
+
+
+class TestImageVersionConsistency:
+    """اتساق إصدارات الصور عبر ملفات compose المختلفة."""
+
+    def test_kong_version_consistent(self) -> None:
+        """Kong image version is consistent across all compose files."""
+        versions: dict[str, str] = {}
+        for compose_file in REPO_ROOT.rglob("docker-compose*.yml"):
+            try:
+                content = compose_file.read_text("utf-8")
+            except OSError:
+                continue
+            for line in content.splitlines():
+                if "image:" in line and "kong:" in line.lower() and not line.strip().startswith("#"):
+                    m = re.search(r"kong:([^\s\"']+)", line)
+                    if m:
+                        rel_path = str(compose_file.relative_to(REPO_ROOT))
+                        versions[rel_path] = m.group(1)
+
+        unique_versions = set(versions.values())
+        if len(unique_versions) > 1:
+            details = "\n".join(f"  - {f}: kong:{v}" for f, v in sorted(versions.items()))
+            pytest.fail(
+                f"Kong image has {len(unique_versions)} different versions:\n{details}"
+            )
+
+    def test_qdrant_version_consistent(self) -> None:
+        """Qdrant image version is consistent across all compose files."""
+        versions: dict[str, str] = {}
+        for compose_file in REPO_ROOT.rglob("docker-compose*.yml"):
+            try:
+                content = compose_file.read_text("utf-8")
+            except OSError:
+                continue
+            for line in content.splitlines():
+                if "image:" in line and "qdrant" in line.lower() and not line.strip().startswith("#"):
+                    m = re.search(r"qdrant:([^\s\"']+)", line)
+                    if m:
+                        rel_path = str(compose_file.relative_to(REPO_ROOT))
+                        versions[rel_path] = m.group(1)
+
+        unique_versions = set(versions.values())
+        if len(unique_versions) > 1:
+            details = "\n".join(f"  - {f}: qdrant:{v}" for f, v in sorted(versions.items()))
+            pytest.fail(
+                f"Qdrant image has {len(unique_versions)} different versions:\n{details}"
+            )

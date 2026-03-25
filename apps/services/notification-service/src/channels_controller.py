@@ -273,9 +273,7 @@ async def list_channels(
 
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
-async def update_channel_status(
-    request: UpdateChannelStatusRequest, current_user: User = Depends(get_current_user)
-):
+async def update_channel_status(request: UpdateChannelStatusRequest, current_user: User = Depends(get_current_user)):
     """
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)

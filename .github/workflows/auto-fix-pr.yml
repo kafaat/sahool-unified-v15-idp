@@ -160,7 +160,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull latest (in case Python fixes were pushed)
-        run: git pull origin ${{ github.head_ref }} --rebase || true
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: git pull origin "$BRANCH" --rebase || true
 
       - name: Set up Node.js
         uses: actions/setup-node@v6

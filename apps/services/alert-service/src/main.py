@@ -47,6 +47,7 @@ try:
     from shared.auth.models import User
 except ImportError:
     from fastapi.security import HTTPBearer
+
     _bearer = HTTPBearer(auto_error=False)
 
     class User:
@@ -55,6 +56,7 @@ except ImportError:
 
     async def get_current_user():
         return User()
+
 
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
@@ -674,7 +676,9 @@ async def delete_rule(
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
+async def create_alert_endpoint(
+    alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)
+):
     """
     إنشاء تنبيه جديد
     Create a new alert

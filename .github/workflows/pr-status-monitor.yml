@@ -85,8 +85,8 @@ jobs:
           CONFLICTED=$(echo "$PR_DATA" | jq '[.[] | select(.mergeable == "CONFLICTING")] | length')
           echo "conflicted_prs=$CONFLICTED" >> $GITHUB_OUTPUT
           
-          # Count PRs with failing CI
-          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(.statusCheckRollup[]?.conclusion == "FAILURE")] | length')
+          # Count PRs with failing CI (handle null statusCheckRollup)
+          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select((.statusCheckRollup // [])[] | .conclusion == "FAILURE")] | length')
           echo "failing_ci_prs=$FAILING_CI" >> $GITHUB_OUTPUT
           
           # Count stale PRs (not updated in 7+ days)

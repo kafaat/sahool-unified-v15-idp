@@ -12,6 +12,18 @@
 # ======================================================================
 
 # ======================================================================
+# العلامات الإلزامية (Mandatory Tags)
+# ======================================================================
+locals {
+  mandatory_tags = {
+    Project     = "Sahool"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Owner       = "KAFAAT"
+  }
+}
+
+# ======================================================================
 # الشبكة الافتراضية الخاصة (VPC - Virtual Private Cloud)
 # ======================================================================
 # إنشاء VPC للمنطقة مع دعم DNS
@@ -55,7 +67,8 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
   availability_zone       = var.availability_zones[count.index]
-  map_public_ip_on_launch = true
+  # Public IPs assigned explicitly via ELB/NAT, not automatically
+  map_public_ip_on_launch = false
 
   tags = merge(
     var.tags,

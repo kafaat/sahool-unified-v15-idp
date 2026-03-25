@@ -24,6 +24,7 @@ References:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 import uuid
@@ -38,6 +39,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
@@ -773,8 +776,8 @@ async def create_fertigation_plan(req: FertigationRequest, current_user: User = 
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 

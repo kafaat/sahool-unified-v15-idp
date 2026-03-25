@@ -77,7 +77,8 @@ async def get_disease_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get treatments for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/crop-compatible-treatments/{crop_id}")
@@ -101,7 +102,8 @@ async def get_compatible_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get compatible treatments for crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/diseases-by-crop/{crop_id}")
@@ -125,7 +127,8 @@ async def get_diseases_by_crop(
             "data": diseases,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get diseases for crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/preventive-treatments/{disease_id}")
@@ -149,7 +152,8 @@ async def get_preventive_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get preventive treatments for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/related/{entity_type}/{entity_id}")
@@ -179,7 +183,8 @@ async def get_all_related(
             "data": related,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get related entities for %s/%s: %s", entity_type, entity_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/path/{source_type}/{source_id}/{target_type}/{target_id}")
@@ -218,7 +223,8 @@ async def find_path(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to find relationship path: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/validate")

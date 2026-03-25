@@ -25,6 +25,7 @@ References:
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import sys
@@ -42,6 +43,8 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Authentication dependency
@@ -801,8 +804,8 @@ async def simulate_field(req: SimulationRequest, user: User = Depends(get_curren
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 

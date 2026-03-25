@@ -202,5 +202,224 @@
     "comparisonDesc": "Field and season comparisons",
     "recommendations": "Recommendations",
     "recommendationsDesc": "AI-powered recommendations"
+  },
+  "irrigation": {
+    "title": "Irrigation Management",
+    "schedule": "Schedule Irrigation",
+    "newSchedule": "New Irrigation Schedule",
+    "editSchedule": "Edit Irrigation Schedule",
+    "deleteSchedule": "Delete Irrigation Schedule",
+    "deleteConfirm": "Are you sure you want to delete this irrigation schedule?",
+    "fieldName": "Field Name",
+    "scheduleName": "Schedule Name",
+    "scheduleType": "Schedule Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "frequency": "Frequency",
+    "duration": "Duration",
+    "durationUnit": "minutes",
+    "waterAmount": "Water Amount",
+    "waterUnit": "m³",
+    "status": "Status",
+    "actions": "Actions",
+    "start": "Start Irrigation",
+    "stop": "Stop Irrigation",
+    "todayUsage": "Today's Usage",
+    "activeCount": "Active",
+    "scheduledToday": "Scheduled Today",
+    "efficiency": "Irrigation Efficiency",
+    "statuses": {
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed"
+    },
+    "scheduleTypes": {
+      "manual": "Manual",
+      "automatic": "Automatic",
+      "scheduled": "Scheduled"
+    },
+    "frequencies": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "custom": "Custom"
+    },
+    "methods": {
+      "drip": "Drip",
+      "sprinkler": "Sprinkler",
+      "pivot": "Pivot",
+      "flood": "Flood",
+      "manual": "Manual"
+    }
+  },
+  "equipment": {
+    "title": "Equipment",
+    "management": "Equipment Management",
+    "addEquipment": "Add Equipment",
+    "name": "Equipment Name",
+    "type": "Type",
+    "status": "Status",
+    "lastMaintenance": "Last Maintenance",
+    "nextMaintenance": "Next Maintenance",
+    "operational": "Operational",
+    "maintenance": "In Maintenance",
+    "outOfService": "Out of Service",
+    "maintenanceHistory": "Maintenance History",
+    "scheduleService": "Schedule Service"
+  },
+  "inventory": {
+    "title": "Inventory",
+    "management": "Inventory Management",
+    "addItem": "Add Item",
+    "itemName": "Item Name",
+    "category": "Category",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "minStock": "Minimum Stock",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock",
+    "usage": "Usage",
+    "reorder": "Reorder"
+  },
+  "marketplace": {
+    "title": "Agricultural Market",
+    "browse": "Browse Products",
+    "sell": "Sell Product",
+    "myListings": "My Listings",
+    "price": "Price",
+    "quantity": "Quantity",
+    "seller": "Seller",
+    "buyer": "Buyer",
+    "category": "Category",
+    "location": "Location",
+    "contactSeller": "Contact Seller"
+  },
+  "weather": {
+    "title": "Weather",
+    "current": "Current Weather",
+    "forecast": "Forecast",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "precipitation": "Precipitation",
+    "uvIndex": "UV Index",
+    "feelsLike": "Feels Like",
+    "conditions": {
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rainy": "Rainy",
+      "stormy": "Stormy",
+      "windy": "Windy",
+      "foggy": "Foggy"
+    },
+    "alerts": {
+      "frostWarning": "Frost Warning",
+      "heatWarning": "Heat Warning",
+      "stormWarning": "Storm Warning",
+      "noSprayWindow": "Spray Window Not Suitable"
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addTask": "Add Task",
+    "newTask": "New Task",
+    "taskName": "Task Title",
+    "description": "Description",
+    "assignTo": "Assign To",
+    "dueDate": "Due Date",
+    "priority": "Priority",
+    "statuses": {
+      "open": "Open",
+      "inProgress": "In Progress",
+      "done": "Done",
+      "cancelled": "Cancelled"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    }
+  },
+  "iot": {
+    "title": "Internet of Things",
+    "devices": "Devices",
+    "sensors": "Sensors",
+    "addDevice": "Add Device",
+    "deviceName": "Device Name",
+    "deviceType": "Device Type",
+    "online": "Online",
+    "offline": "Offline",
+    "lastReading": "Last Reading",
+    "batteryLevel": "Battery Level",
+    "signalStrength": "Signal Strength",
+    "soilMoisture": "Soil Moisture",
+    "soilTemperature": "Soil Temperature",
+    "airTemperature": "Air Temperature",
+    "airHumidity": "Air Humidity"
+  },
+  "community": {
+    "title": "Community",
+    "discussions": "Discussions",
+    "newPost": "New Post",
+    "comments": "Comments",
+    "likes": "Likes",
+    "share": "Share",
+    "trending": "Trending",
+    "expertAdvice": "Expert Advice",
+    "askQuestion": "Ask a Question"
+  },
+  "copilot": {
+    "title": "AI Copilot",
+    "askAnything": "Ask anything about agriculture",
+    "suggestions": "Suggestions",
+    "history": "History",
+    "newChat": "New Chat",
+    "thinking": "Thinking...",
+    "retry": "Retry",
+    "offlineMessage": "Copilot is currently unavailable"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "balance": "Balance",
+    "transactions": "Transactions",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "transfer": "Transfer",
+    "paymentHistory": "Payment History",
+    "addFunds": "Add Funds"
+  },
+  "cropHealth": {
+    "title": "Crop Health",
+    "ndviIndex": "NDVI Index",
+    "scanField": "Scan Field",
+    "diseaseDetection": "Disease Detection",
+    "pestDetection": "Pest Detection",
+    "healthHistory": "Health History",
+    "statuses": {
+      "healthy": "Healthy",
+      "moderate": "Moderate",
+      "stressed": "Stressed",
+      "critical": "Critical"
+    }
+  },
+  "yield": {
+    "title": "Yield Prediction",
+    "prediction": "Prediction",
+    "actual": "Actual",
+    "historical": "Historical",
+    "comparison": "Comparison",
+    "perHectare": "per hectare"
+  },
+  "compliance": {
+    "title": "Compliance & Quality",
+    "globalGap": "GlobalGAP",
+    "checklistProgress": "Checklist Progress",
+    "certificates": "Certificates",
+    "audits": "Audits",
+    "documentRequired": "Document Required",
+    "compliant": "Compliant",
+    "nonCompliant": "Non-Compliant",
+    "pending": "Pending Review"
   }
 }

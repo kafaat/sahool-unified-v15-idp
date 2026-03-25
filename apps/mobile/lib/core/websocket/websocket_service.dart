@@ -373,7 +373,12 @@ class WebSocketService {
 
     _pingTimer = Timer.periodic(_pingInterval, (timer) {
       if (isConnected) {
-        _sendMessage({'type': 'ping'});
+        try {
+          _sendMessage({'type': 'ping'});
+        } catch (e) {
+          AppLogger.w('Ping failed, channel may have closed', error: e);
+          timer.cancel();
+        }
       } else {
         timer.cancel();
       }

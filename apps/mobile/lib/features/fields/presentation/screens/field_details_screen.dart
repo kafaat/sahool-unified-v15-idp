@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
@@ -862,10 +863,9 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void _handleMenuAction(String action) {
     switch (action) {
       case 'edit':
-        Navigator.pushNamed(
-          context,
+        context.push(
           '/field-form',
-          arguments: {'fieldId': widget.field.id},
+          extra: {'fieldId': widget.field.id},
         );
         break;
       case 'share':

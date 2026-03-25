@@ -303,7 +303,7 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
         results = await rag_service.search(query=user_query, top_k=5)
         if results:
             rag_context_text = rag_service.format_context_for_prompt(results, language=_detect_language(user_query))
-    except Exception:
+    except Exception as e:
         logger.warning("RAG context retrieval failed, proceeding without context", exc_info=True)
 
     agent_router = get_agent_router()

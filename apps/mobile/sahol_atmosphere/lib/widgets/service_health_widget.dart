@@ -93,10 +93,10 @@ class _ServiceHealthWidgetState extends State<ServiceHealthWidget> {
 
   void _initDio() {
     _dio = Dio(BaseOptions(
-      // Use environment variable or default
+      // Use environment variable; falls back to SAHOOL gateway default
       baseUrl: const String.fromEnvironment(
         'API_URL',
-        defaultValue: 'http://localhost:8000',
+        defaultValue: 'https://api.sahool.app',
       ),
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 5),

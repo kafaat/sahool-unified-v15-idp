@@ -308,6 +308,52 @@ export interface MaintenanceSchedule {
 // Irrigation Types
 // ═══════════════════════════════════════════════════════════════════════════
 
+/** Schedule lifecycle states (matches admin contract) */
+export type IrrigationStatus = 'active' | 'paused' | 'completed';
+
+/** Schedule execution mode (matches admin contract) */
+export type IrrigationScheduleType = 'manual' | 'automatic' | 'scheduled';
+
+/** Recurrence frequency (matches admin contract) */
+export type IrrigationFrequency = 'daily' | 'weekly' | 'custom';
+
+/** Physical irrigation method applied to the field (UI-only, not part of schedule API) */
+export type IrrigationMethod = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
+
+export interface IrrigationSchedule {
+  id: string;
+  fieldId: string;
+  fieldName?: string;
+  name: string;
+  type: IrrigationScheduleType;
+  status: IrrigationStatus;
+  startDate: string;
+  endDate?: string;
+  frequency: IrrigationFrequency;
+  duration: number; // minutes
+  waterAmount: number; // liters or cubic meters
+  schedule?: {
+    daysOfWeek?: number[];
+    timeOfDay?: string;
+    interval?: number;
+  };
+  nextRun?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IrrigationScheduleCreate {
+  fieldId: string;
+  name: string;
+  type: IrrigationScheduleType;
+  startDate: string;
+  endDate?: string;
+  frequency: IrrigationFrequency;
+  duration: number;
+  waterAmount: number;
+  schedule?: IrrigationSchedule['schedule'];
+}
+
 export interface IrrigationRecommendation {
   fieldId: string;
   recommendedAmount: number; // mm

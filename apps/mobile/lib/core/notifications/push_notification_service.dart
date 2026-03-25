@@ -40,6 +40,10 @@ class PushNotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageOpenedAppSubscription;
+
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
@@ -69,7 +73,7 @@ class PushNotificationService {
       await _getToken();
 
       // Listen for token refresh
-      _fcm.onTokenRefresh.listen((token) {
+      _tokenRefreshSubscription = _fcm.onTokenRefresh.listen((token) {
         _fcmToken = token;
         _tokenController.add(token);
         AppLogger.i('FCM token refreshed', tag: 'FCM');
@@ -185,10 +189,10 @@ class PushNotificationService {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // Foreground handler
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    _onMessageSubscription = FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
     // Message opened app
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
 
     // Check for initial message (app opened from terminated state)
     _checkInitialMessage();
@@ -315,7 +319,7 @@ class PushNotificationService {
         id: response.id?.toString() ?? '',
         title: '',
         body: '',
-        data: data.cast<String, String>(),
+        data: data.map((k, v) => MapEntry(k.toString(), v.toString())),
         tapped: true,
         receivedAt: DateTime.now(),
       );
@@ -389,8 +393,15 @@ class PushNotificationService {
 
   /// إغلاق الخدمة
   void dispose() {
-    _notificationController.close();
-    _tokenController.close();
+    _tokenRefreshSubscription?.cancel();
+    _onMessageSubscription?.cancel();
+    _onMessageOpenedAppSubscription?.cancel();
+    if (!_notificationController.isClosed) {
+      _notificationController.close();
+    }
+    if (!_tokenController.isClosed) {
+      _tokenController.close();
+    }
   }
 }
 

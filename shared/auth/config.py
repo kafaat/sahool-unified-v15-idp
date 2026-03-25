@@ -55,8 +55,7 @@ def _resolve_jwt_secret() -> str:
         # with actionable details. Crashing at import time prevents diagnostics.
         logger.error(  # nosemgrep: python-logger-credential-disclosure
             "SECURITY: Required auth env var is not set in %s environment. "
-            "Service will reject all auth until configured.",
-            env,
+            "Service will reject all auth until configured.", env
         )
         return ""
 

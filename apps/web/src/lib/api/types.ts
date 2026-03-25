@@ -309,16 +309,16 @@ export interface MaintenanceSchedule {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Schedule lifecycle states (matches admin contract) */
-export type IrrigationStatus = "active" | "paused" | "completed";
+export type IrrigationStatus = 'active' | 'paused' | 'completed';
 
 /** Schedule execution mode (matches admin contract) */
-export type IrrigationScheduleType = "manual" | "automatic" | "scheduled";
+export type IrrigationScheduleType = 'manual' | 'automatic' | 'scheduled';
 
 /** Recurrence frequency (matches admin contract) */
-export type IrrigationFrequency = "daily" | "weekly" | "custom";
+export type IrrigationFrequency = 'daily' | 'weekly' | 'custom';
 
 /** Physical irrigation method applied to the field (UI-only, not part of schedule API) */
-export type IrrigationMethod = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+export type IrrigationMethod = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
 
 export interface IrrigationSchedule {
   id: string;
@@ -351,7 +351,7 @@ export interface IrrigationScheduleCreate {
   frequency: IrrigationFrequency;
   duration: number;
   waterAmount: number;
-  schedule?: IrrigationSchedule["schedule"];
+  schedule?: IrrigationSchedule['schedule'];
 }
 
 export interface IrrigationRecommendation {

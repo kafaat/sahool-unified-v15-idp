@@ -46,10 +46,10 @@ const initialMockSchedules: IrrigationSchedule[] = [
     scheduledAt: '2025-01-25T06:00:00Z',
     duration: 120,
     waterAmount: 500,
-    schedule: { timeOfDay: "06:00" },
-    nextRun: "2025-01-26T06:00:00Z",
-    createdAt: "2025-01-20T00:00:00Z",
-    updatedAt: "2025-01-25T06:00:00Z",
+    schedule: { timeOfDay: '06:00' },
+    nextRun: '2025-01-26T06:00:00Z',
+    createdAt: '2025-01-20T00:00:00Z',
+    updatedAt: '2025-01-25T06:00:00Z',
   },
   {
     id: '2',
@@ -60,8 +60,8 @@ const initialMockSchedules: IrrigationSchedule[] = [
     scheduledAt: '2025-01-25T04:00:00Z',
     duration: 180,
     waterAmount: 1200,
-    createdAt: "2025-01-18T00:00:00Z",
-    updatedAt: "2025-01-25T04:00:00Z",
+    createdAt: '2025-01-18T00:00:00Z',
+    updatedAt: '2025-01-25T04:00:00Z',
   },
   {
     id: '3',
@@ -84,8 +84,8 @@ const initialMockSchedules: IrrigationSchedule[] = [
     duration: 240,
     waterAmount: 2000,
     schedule: { interval: 3 },
-    createdAt: "2025-01-10T00:00:00Z",
-    updatedAt: "2025-01-24T08:00:00Z",
+    createdAt: '2025-01-10T00:00:00Z',
+    updatedAt: '2025-01-24T08:00:00Z',
   },
   {
     id: '5',
@@ -96,10 +96,10 @@ const initialMockSchedules: IrrigationSchedule[] = [
     scheduledAt: '2025-01-25T16:00:00Z',
     duration: 60,
     waterAmount: 200,
-    schedule: { timeOfDay: "16:00" },
-    nextRun: "2025-01-26T16:00:00Z",
-    createdAt: "2025-01-22T00:00:00Z",
-    updatedAt: "2025-01-25T16:00:00Z",
+    schedule: { timeOfDay: '16:00' },
+    nextRun: '2025-01-26T16:00:00Z',
+    createdAt: '2025-01-22T00:00:00Z',
+    updatedAt: '2025-01-25T16:00:00Z',
   },
 ];
 
@@ -148,7 +148,9 @@ export default function IrrigationClient() {
       }
     }
     loadFields();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tenantId]);
 
   // Load schedules from API on mount
@@ -165,7 +167,9 @@ export default function IrrigationClient() {
       }
     }
     loadSchedules();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredSchedules = useMemo(() => {
@@ -284,7 +288,11 @@ export default function IrrigationClient() {
     try {
       const response = await apiClient.deleteIrrigationSchedule(deleteTarget.id);
       if (!response.success) {
-        showToast({ type: "error", message: "Failed to delete schedule", messageAr: "فشل حذف الجدول" });
+        showToast({
+          type: 'error',
+          message: 'Failed to delete schedule',
+          messageAr: 'فشل حذف الجدول',
+        });
         setDeleteTarget(null);
         return;
       }
@@ -442,7 +450,9 @@ export default function IrrigationClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الاسم</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">النوع</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">التكرار</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">تاريخ البدء</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  تاريخ البدء
+                </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المدة</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
                   كمية المياه
@@ -596,14 +606,18 @@ export default function IrrigationClient() {
                   >
                     <option value="">اختر الحقل...</option>
                     {fields.map((f) => (
-                      <option key={f.id} value={f.id}>{f.name_ar || f.name}</option>
+                      <option key={f.id} value={f.id}>
+                        {f.name_ar || f.name}
+                      </option>
                     ))}
                   </select>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">نوع الجدولة</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    نوع الجدولة
+                  </label>
                   <select
                     value={formData.type}
                     onChange={(e) =>
@@ -622,11 +636,18 @@ export default function IrrigationClient() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">التكرار</label>
                   <select
                     value={formData.frequency}
-                    onChange={(e) => setFormData((p) => ({ ...p, frequency: e.target.value as IrrigationFrequency }))}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        frequency: e.target.value as IrrigationFrequency,
+                      }))
+                    }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
                   >
                     {Object.entries(frequencies).map(([key, val]) => (
-                      <option key={key} value={key}>{val.labelAr}</option>
+                      <option key={key} value={key}>
+                        {val.labelAr}
+                      </option>
                     ))}
                   </select>
                 </div>

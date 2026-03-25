@@ -150,10 +150,10 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   // Note: useNDVIMap fetches NDVI data only. When the backend satellite API
   // supports multi-index endpoints, replace with useVegetationIndexMap().
   // Skip fetching when a non-NDVI index is selected or no fieldId to avoid unnecessary API calls.
-  const isNdviIndex = indexType === "ndvi";
+  const isNdviIndex = indexType === 'ndvi';
   const { data: ndviMapData, error } = useNDVIMap(
-    isNdviIndex && fieldId ? fieldId : "",
-    isNdviIndex ? dateString : undefined,
+    isNdviIndex && fieldId ? fieldId : '',
+    isNdviIndex ? dateString : undefined
   );
 
   // تتبع حالة التحميل - Track loading state

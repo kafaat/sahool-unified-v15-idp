@@ -343,40 +343,40 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getIrrigationSchedules() {
-    return this.request<IrrigationSchedule[]>("/api/v1/irrigation/schedules");
+    return this.request<IrrigationSchedule[]>('/api/v1/irrigation/schedules');
   }
 
   async createIrrigationSchedule(data: IrrigationScheduleCreate) {
-    return this.request<IrrigationSchedule>("/api/v1/irrigation/schedules", {
-      method: "POST",
+    return this.request<IrrigationSchedule>('/api/v1/irrigation/schedules', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateIrrigationSchedule(id: string, data: Partial<IrrigationScheduleCreate>) {
     return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteIrrigationSchedule(id: string) {
     return this.request<void>(`/api/v1/irrigation/schedules/${id}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   }
 
   async startIrrigationSchedule(id: string) {
     return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ status: "active" }),
+      method: 'PUT',
+      body: JSON.stringify({ status: 'active' }),
     });
   }
 
   async stopIrrigationSchedule(id: string) {
     return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ status: "paused" }),
+      method: 'PUT',
+      body: JSON.stringify({ status: 'paused' }),
     });
   }
 

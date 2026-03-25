@@ -40,6 +40,10 @@ securityContext:
     drop:
       - ALL
 
+# Network Policy
+networkPolicy:
+  enabled: false
+
 autoscaling:
   enabled: false
   minReplicas: 2

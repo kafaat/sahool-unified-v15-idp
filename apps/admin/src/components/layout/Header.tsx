@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Admin Header
@@ -8,29 +8,26 @@
  * are lazy-loaded via next/dynamic since they are hidden by default.
  */
 
-import { useState, useEffect, useRef, useMemo, Suspense } from "react";
-import { Bell, Search, X } from "lucide-react";
-import { useAuth } from "@/stores/auth.store";
-import { useNotifications } from "@/hooks/api/use-notifications";
-import ThemeToggle from "@/components/ui/ThemeToggle";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import dynamic from "next/dynamic";
+import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import { Bell, Search, X } from 'lucide-react';
+import { useAuth } from '@/stores/auth.store';
+import { useNotifications } from '@/hooks/api/use-notifications';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import dynamic from 'next/dynamic';
 
 // Lazy-load dropdown panels -- they are only visible after user interaction
-const NotificationsDropdown = dynamic(
-  () => import("@/components/layout/NotificationsDropdown"),
-  { ssr: false },
-);
+const NotificationsDropdown = dynamic(() => import('@/components/layout/NotificationsDropdown'), {
+  ssr: false,
+});
 
-const UserMenuDropdown = dynamic(
-  () => import("@/components/layout/UserMenuDropdown"),
-  { ssr: false },
-);
+const UserMenuDropdown = dynamic(() => import('@/components/layout/UserMenuDropdown'), {
+  ssr: false,
+});
 
-const MobileSearchOverlay = dynamic(
-  () => import("@/components/layout/MobileSearchOverlay"),
-  { ssr: false },
-);
+const MobileSearchOverlay = dynamic(() => import('@/components/layout/MobileSearchOverlay'), {
+  ssr: false,
+});
 
 interface HeaderProps {
   title: string;
@@ -50,7 +47,7 @@ export default function Header({
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -62,22 +59,16 @@ export default function Header({
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
-      ) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(event.target as Node)
-      ) {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Fetch real notifications from API (auto-refreshes every 30s)
@@ -93,7 +84,7 @@ export default function Header({
         time: n.createdAt,
         unread: !n.read,
       })),
-    [apiNotifications],
+    [apiNotifications]
   );
 
   const unreadCount = notifications.filter((n) => n.unread).length;
@@ -110,9 +101,7 @@ export default function Header({
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {subtitle}
-                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{subtitle}</p>
               )}
             </div>
           </div>
@@ -143,7 +132,7 @@ export default function Header({
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label="مسح البحث"
                   >
@@ -188,10 +177,7 @@ export default function Header({
             {/* Notifications dropdown - lazy loaded */}
             {showNotifications && (
               <Suspense fallback={null}>
-                <NotificationsDropdown
-                  notifications={notifications}
-                  unreadCount={unreadCount}
-                />
+                <NotificationsDropdown notifications={notifications} unreadCount={unreadCount} />
               </Suspense>
             )}
           </div>
@@ -209,11 +195,11 @@ export default function Header({
             >
               <div className="w-8 h-8 bg-sahool-100 dark:bg-sahool-900/50 rounded-lg flex items-center justify-center">
                 <span className="text-sahool-700 dark:text-sahool-300 font-bold text-sm">
-                  {user?.name_ar?.charAt(0) || user?.name?.charAt(0) || "م"}
+                  {user?.name_ar?.charAt(0) || user?.name?.charAt(0) || 'م'}
                 </span>
               </div>
               <span className="hidden sm:block text-sm font-medium max-w-[120px] truncate">
-                {user?.name_ar || user?.name || "مستخدم"}
+                {user?.name_ar || user?.name || 'مستخدم'}
               </span>
             </button>
 

@@ -3,8 +3,21 @@
  * أنواع ميزة المحاصيل
  */
 
-export type CropStage = "germination" | "seedling" | "vegetative" | "flowering" | "fruiting" | "maturity" | "harvest";
-export type CropCategory = "cereals" | "vegetables" | "fruits" | "legumes" | "forage" | "industrial";
+export type CropStage =
+  | 'germination'
+  | 'seedling'
+  | 'vegetative'
+  | 'flowering'
+  | 'fruiting'
+  | 'maturity'
+  | 'harvest';
+export type CropCategory =
+  | 'cereals'
+  | 'vegetables'
+  | 'fruits'
+  | 'legumes'
+  | 'forage'
+  | 'industrial';
 
 export interface Crop {
   id: string;

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Field Card Component
@@ -12,9 +12,9 @@
  * - RTL support
  */
 
-import React from "react";
-import { MapPin, Sprout, Maximize2, Calendar } from "lucide-react";
-import type { Field } from "../types";
+import React from 'react';
+import { MapPin, Sprout, Maximize2, Calendar } from 'lucide-react';
+import type { Field } from '../types';
 
 interface FieldCardProps {
   field: Field;
@@ -24,7 +24,7 @@ interface FieldCardProps {
 const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
   // Handle keyboard navigation for accessibility
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (onClick && (event.key === "Enter" || event.key === " ")) {
+    if (onClick && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       onClick();
     }
@@ -32,7 +32,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
 
   // Construct descriptive ARIA label
   const ariaLabel = `${field.nameAr || field.name}, المساحة ${field.area} هكتار${
-    field.crop ? `, المحصول ${field.cropAr || field.crop}` : ""
+    field.crop ? `, المحصول ${field.cropAr || field.crop}` : ''
   }`;
 
   // Check if card is interactive
@@ -42,7 +42,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
     <div
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      role={isInteractive ? "button" : undefined}
+      role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       aria-label={isInteractive ? ariaLabel : undefined}
       dir="auto"
@@ -56,16 +56,14 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
                hover:shadow-lg hover:border-blue-300 hover:scale-[1.02]
                focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                active:scale-[0.98]`
-            : ""
+            : ''
         }
       `}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4 gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-bold text-gray-900 truncate">
-            {field.nameAr || field.name}
-          </h3>
+          <h3 className="text-lg font-bold text-gray-900 truncate">{field.nameAr || field.name}</h3>
           <p className="text-sm text-gray-500 truncate">{field.name}</p>
         </div>
         <div
@@ -79,38 +77,25 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
       {/* Stats */}
       <div className="space-y-3" role="list" aria-label="معلومات الحقل">
         <div className="flex items-center gap-2 text-sm" role="listitem">
-          <Maximize2
-            className="w-4 h-4 text-gray-400 flex-shrink-0"
-            aria-hidden="true"
-          />
+          <Maximize2 className="w-4 h-4 text-gray-400 flex-shrink-0" aria-hidden="true" />
           <span className="text-gray-600">المساحة:</span>
-          <span className="font-semibold text-gray-900">
-            {field.area} هكتار
-          </span>
+          <span className="font-semibold text-gray-900">{field.area} هكتار</span>
         </div>
 
         {field.crop && (
           <div className="flex items-center gap-2 text-sm" role="listitem">
-            <Sprout
-              className="w-4 h-4 text-gray-400 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <Sprout className="w-4 h-4 text-gray-400 flex-shrink-0" aria-hidden="true" />
             <span className="text-gray-600">المحصول:</span>
-            <span className="font-semibold text-gray-900">
-              {field.cropAr || field.crop}
-            </span>
+            <span className="font-semibold text-gray-900">{field.cropAr || field.crop}</span>
           </div>
         )}
 
         {field.createdAt && (
           <div className="flex items-center gap-2 text-sm" role="listitem">
-            <Calendar
-              className="w-4 h-4 text-gray-400 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" aria-hidden="true" />
             <span className="text-gray-600">تاريخ الإضافة:</span>
             <span className="text-gray-500">
-              {new Date(field.createdAt).toLocaleDateString("ar-EG")}
+              {new Date(field.createdAt).toLocaleDateString('ar-EG')}
             </span>
           </div>
         )}

@@ -10,9 +10,9 @@
  * - Error standardization
  */
 
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
-import { SERVICE_PORTS } from "@sahool/shared-types/contracts";
-import { logger } from "../logger";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { SERVICE_PORTS } from '@sahool/shared-types/contracts';
+import { logger } from '../logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -24,61 +24,61 @@ import { logger } from "../logger";
 //   - weather-advanced → weather (consolidated)
 export type ServiceName =
   // Core Services
-  | "field-core" // @deprecated use "field-management"
-  | "field-management"
-  | "auth"
-  | "users"
+  | 'field-core' // @deprecated use "field-management"
+  | 'field-management'
+  | 'auth'
+  | 'users'
   // Satellite & Remote Sensing
-  | "satellite" // @deprecated use "vegetation-analysis"
-  | "vegetation-analysis"
-  | "ndvi-processor"
+  | 'satellite' // @deprecated use "vegetation-analysis"
+  | 'vegetation-analysis'
+  | 'ndvi-processor'
   // Weather
-  | "weather"
+  | 'weather'
   // AI & Analytics
-  | "crop-health" // @deprecated use "crop-intelligence"
-  | "crop-intelligence"
-  | "indicators"
-  | "advisory"
-  | "yield-prediction"
-  | "analytics"
-  | "copilot"
-  | "ai-advisor"
-  | "knowledge-graph"
+  | 'crop-health' // @deprecated use "crop-intelligence"
+  | 'crop-intelligence'
+  | 'indicators'
+  | 'advisory'
+  | 'yield-prediction'
+  | 'analytics'
+  | 'copilot'
+  | 'ai-advisor'
+  | 'knowledge-graph'
   // IoT & Sensors
-  | "virtual-sensors"
-  | "iot-gateway"
+  | 'virtual-sensors'
+  | 'iot-gateway'
   // Operations
-  | "irrigation"
-  | "tasks"
-  | "equipment"
-  | "inventory"
-  | "logistics"
+  | 'irrigation'
+  | 'tasks'
+  | 'equipment'
+  | 'inventory'
+  | 'logistics'
   // Communication
-  | "notifications"
-  | "chat-service"
+  | 'notifications'
+  | 'chat-service'
   // Configuration & Misc
-  | "provider-config"
-  | "alerts"
-  | "reports"
+  | 'provider-config'
+  | 'alerts'
+  | 'reports'
   // Billing & Audit
-  | "billing"
-  | "audit"
+  | 'billing'
+  | 'audit'
   // Agriculture Domain
-  | "drone"
-  | "soil-analysis"
-  | "pest-detection"
-  | "traceability"
-  | "globalgap"
-  | "crm"
+  | 'drone'
+  | 'soil-analysis'
+  | 'pest-detection'
+  | 'traceability'
+  | 'globalgap'
+  | 'crm'
   // Supply Chain & Cooperative
-  | "supply-chain"
-  | "cooperative"
+  | 'supply-chain'
+  | 'cooperative'
   // Vision & Terrain
-  | "yolo-vision"
-  | "terrain-core"
-  | "hydrology"
-  | "leveling-optimizer"
-  | "edge-orchestrator";
+  | 'yolo-vision'
+  | 'terrain-core'
+  | 'hydrology'
+  | 'leveling-optimizer'
+  | 'edge-orchestrator';
 
 export interface ServiceConfig {
   name: ServiceName;
@@ -91,7 +91,7 @@ export interface ServiceConfig {
 
 export interface ServiceHealth {
   name: ServiceName;
-  status: "healthy" | "degraded" | "unhealthy" | "unknown";
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
   latency?: number;
   lastCheck: Date;
   error?: string;
@@ -100,7 +100,7 @@ export interface ServiceHealth {
 export interface CircuitBreakerState {
   failures: number;
   lastFailure: Date | null;
-  state: "closed" | "open" | "half-open";
+  state: 'closed' | 'open' | 'half-open';
   nextRetry: Date | null;
 }
 
@@ -123,41 +123,41 @@ export interface ApiResponse<T = unknown> {
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost';
 
 const SERVICES: Record<ServiceName, ServiceConfig> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // Core Services
   // ═══════════════════════════════════════════════════════════════════════════
-  "field-core": {
-    name: "field-core",
+  'field-core': {
+    name: 'field-core',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.FIELD_MANAGEMENT}`,
     port: SERVICE_PORTS.FIELD_MANAGEMENT,
-    healthEndpoint: "/health",
+    healthEndpoint: '/health',
     timeout: 10000,
     retries: 3,
   },
-  "field-management": {
-    name: "field-management",
+  'field-management': {
+    name: 'field-management',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.FIELD_MANAGEMENT}`,
     port: SERVICE_PORTS.FIELD_MANAGEMENT,
-    healthEndpoint: "/health",
+    healthEndpoint: '/health',
     timeout: 10000,
     retries: 3,
   },
   auth: {
-    name: "auth",
+    name: 'auth',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.USER_SERVICE}`,
     port: SERVICE_PORTS.USER_SERVICE,
-    healthEndpoint: "/api/v1/health",
+    healthEndpoint: '/api/v1/health',
     timeout: 5000,
     retries: 2,
   },
   users: {
-    name: "users",
+    name: 'users',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.USER_SERVICE}`,
     port: SERVICE_PORTS.USER_SERVICE,
-    healthEndpoint: "/api/v1/health",
+    healthEndpoint: '/api/v1/health',
     timeout: 10000,
     retries: 3,
   },
@@ -166,26 +166,26 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Satellite & Remote Sensing
   // ═══════════════════════════════════════════════════════════════════════════
   satellite: {
-    name: "satellite",
+    name: 'satellite',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.VEGETATION_ANALYSIS}`,
     port: SERVICE_PORTS.VEGETATION_ANALYSIS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
-  "vegetation-analysis": {
-    name: "vegetation-analysis",
+  'vegetation-analysis': {
+    name: 'vegetation-analysis',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.VEGETATION_ANALYSIS}`,
     port: SERVICE_PORTS.VEGETATION_ANALYSIS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
-  "ndvi-processor": {
-    name: "ndvi-processor",
+  'ndvi-processor': {
+    name: 'ndvi-processor',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.NDVI_PROCESSOR}`,
     port: SERVICE_PORTS.NDVI_PROCESSOR,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
@@ -194,10 +194,10 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Weather
   // ═══════════════════════════════════════════════════════════════════════════
   weather: {
-    name: "weather",
+    name: 'weather',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.WEATHER}`,
     port: SERVICE_PORTS.WEATHER,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 3,
   },
@@ -205,76 +205,76 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // AI & Analytics
   // ═══════════════════════════════════════════════════════════════════════════
-  "crop-health": {
-    name: "crop-health",
+  'crop-health': {
+    name: 'crop-health',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.CROP_INTELLIGENCE}`,
     port: SERVICE_PORTS.CROP_INTELLIGENCE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
-  "crop-intelligence": {
-    name: "crop-intelligence",
+  'crop-intelligence': {
+    name: 'crop-intelligence',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.CROP_INTELLIGENCE}`,
     port: SERVICE_PORTS.CROP_INTELLIGENCE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
   indicators: {
-    name: "indicators",
+    name: 'indicators',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.INDICATORS}`,
     port: SERVICE_PORTS.INDICATORS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
   advisory: {
-    name: "advisory",
+    name: 'advisory',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.ADVISORY}`,
     port: SERVICE_PORTS.ADVISORY,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
-  "yield-prediction": {
-    name: "yield-prediction",
+  'yield-prediction': {
+    name: 'yield-prediction',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.YIELD_PREDICTION}`,
     port: SERVICE_PORTS.YIELD_PREDICTION,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
   analytics: {
-    name: "analytics",
+    name: 'analytics',
     // Analytics port (8100) - not registered in SERVICE_PORTS
     baseUrl: `${API_BASE}:8100`,
     port: 8100,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
   copilot: {
-    name: "copilot",
+    name: 'copilot',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.COPILOT_API}`,
     port: SERVICE_PORTS.COPILOT_API,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 60000,
     retries: 1,
   },
-  "ai-advisor": {
-    name: "ai-advisor",
+  'ai-advisor': {
+    name: 'ai-advisor',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.AI_ADVISOR}`,
     port: SERVICE_PORTS.AI_ADVISOR,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
-  "knowledge-graph": {
-    name: "knowledge-graph",
+  'knowledge-graph': {
+    name: 'knowledge-graph',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.KNOWLEDGE_GRAPH}`,
     port: SERVICE_PORTS.KNOWLEDGE_GRAPH,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
@@ -282,19 +282,19 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // IoT & Sensors
   // ═══════════════════════════════════════════════════════════════════════════
-  "virtual-sensors": {
-    name: "virtual-sensors",
+  'virtual-sensors': {
+    name: 'virtual-sensors',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.VIRTUAL_SENSORS}`,
     port: SERVICE_PORTS.VIRTUAL_SENSORS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 3,
   },
-  "iot-gateway": {
-    name: "iot-gateway",
+  'iot-gateway': {
+    name: 'iot-gateway',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.IOT_GATEWAY}`,
     port: SERVICE_PORTS.IOT_GATEWAY,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 2,
   },
@@ -303,50 +303,50 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Operations
   // ═══════════════════════════════════════════════════════════════════════════
   irrigation: {
-    name: "irrigation",
+    name: 'irrigation',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.IRRIGATION_SMART}`,
     port: SERVICE_PORTS.IRRIGATION_SMART,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 3,
   },
   tasks: {
-    name: "tasks",
+    name: 'tasks',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.TASK_SERVICE}`,
     port: SERVICE_PORTS.TASK_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 3,
   },
   equipment: {
-    name: "equipment",
+    name: 'equipment',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.EQUIPMENT}`,
     port: SERVICE_PORTS.EQUIPMENT,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 3,
   },
   inventory: {
-    name: "inventory",
+    name: 'inventory',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.INVENTORY}`,
     port: SERVICE_PORTS.INVENTORY,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 3,
   },
   logistics: {
-    name: "logistics",
+    name: 'logistics',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.LOGISTICS}`,
     port: SERVICE_PORTS.LOGISTICS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
-  "supply-chain": {
-    name: "supply-chain",
+  'supply-chain': {
+    name: 'supply-chain',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.SUPPLY_CHAIN}`,
     port: SERVICE_PORTS.SUPPLY_CHAIN,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
@@ -355,18 +355,18 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Communication
   // ═══════════════════════════════════════════════════════════════════════════
   notifications: {
-    name: "notifications",
+    name: 'notifications',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.NOTIFICATIONS}`,
     port: SERVICE_PORTS.NOTIFICATIONS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 5000,
     retries: 2,
   },
-  "chat-service": {
-    name: "chat-service",
+  'chat-service': {
+    name: 'chat-service',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.CHAT_SERVICE}`,
     port: SERVICE_PORTS.CHAT_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 2,
   },
@@ -374,28 +374,28 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // Configuration & Misc
   // ═══════════════════════════════════════════════════════════════════════════
-  "provider-config": {
-    name: "provider-config",
+  'provider-config': {
+    name: 'provider-config',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.PROVIDER_CONFIG}`,
     port: SERVICE_PORTS.PROVIDER_CONFIG,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 2,
   },
   alerts: {
-    name: "alerts",
+    name: 'alerts',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.ALERT_SERVICE}`,
     port: SERVICE_PORTS.ALERT_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 5000,
     retries: 2,
   },
   reports: {
-    name: "reports",
+    name: 'reports',
     // Reports port (8084) - not registered in SERVICE_PORTS
     baseUrl: `${API_BASE}:8084`,
     port: 8084,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
@@ -404,18 +404,18 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Billing & Audit
   // ═══════════════════════════════════════════════════════════════════════════
   billing: {
-    name: "billing",
+    name: 'billing',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.BILLING_CORE}`,
     port: SERVICE_PORTS.BILLING_CORE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
   audit: {
-    name: "audit",
+    name: 'audit',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.AUDIT_SERVICE}`,
     port: SERVICE_PORTS.AUDIT_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 2,
   },
@@ -424,58 +424,58 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // Agriculture Domain
   // ═══════════════════════════════════════════════════════════════════════════
   drone: {
-    name: "drone",
+    name: 'drone',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.DRONE_SERVICE}`,
     port: SERVICE_PORTS.DRONE_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
-  "soil-analysis": {
-    name: "soil-analysis",
+  'soil-analysis': {
+    name: 'soil-analysis',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.SOIL_ANALYSIS}`,
     port: SERVICE_PORTS.SOIL_ANALYSIS,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
-  "pest-detection": {
-    name: "pest-detection",
+  'pest-detection': {
+    name: 'pest-detection',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.PEST_DETECTION}`,
     port: SERVICE_PORTS.PEST_DETECTION,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
   traceability: {
-    name: "traceability",
+    name: 'traceability',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.TRACEABILITY}`,
     port: SERVICE_PORTS.TRACEABILITY,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
   globalgap: {
-    name: "globalgap",
+    name: 'globalgap',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.GLOBALGAP}`,
     port: SERVICE_PORTS.GLOBALGAP,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
   crm: {
-    name: "crm",
+    name: 'crm',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.CRM_SERVICE}`,
     port: SERVICE_PORTS.CRM_SERVICE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 10000,
     retries: 2,
   },
   cooperative: {
-    name: "cooperative",
+    name: 'cooperative',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.COOPERATIVE}`,
     port: SERVICE_PORTS.COOPERATIVE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 15000,
     retries: 2,
   },
@@ -483,43 +483,43 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // Vision & Terrain
   // ═══════════════════════════════════════════════════════════════════════════
-  "yolo-vision": {
-    name: "yolo-vision",
+  'yolo-vision': {
+    name: 'yolo-vision',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.YOLO_VISION}`,
     port: SERVICE_PORTS.YOLO_VISION,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 60000,
     retries: 1,
   },
-  "terrain-core": {
-    name: "terrain-core",
+  'terrain-core': {
+    name: 'terrain-core',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.TERRAIN_CORE}`,
     port: SERVICE_PORTS.TERRAIN_CORE,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
   hydrology: {
-    name: "hydrology",
+    name: 'hydrology',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.HYDROLOGY}`,
     port: SERVICE_PORTS.HYDROLOGY,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
-  "leveling-optimizer": {
-    name: "leveling-optimizer",
+  'leveling-optimizer': {
+    name: 'leveling-optimizer',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.LEVELING_OPTIMIZER}`,
     port: SERVICE_PORTS.LEVELING_OPTIMIZER,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,
   },
-  "edge-orchestrator": {
-    name: "edge-orchestrator",
+  'edge-orchestrator': {
+    name: 'edge-orchestrator',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.EDGE_ORCHESTRATOR}`,
     port: SERVICE_PORTS.EDGE_ORCHESTRATOR,
-    healthEndpoint: "/healthz",
+    healthEndpoint: '/healthz',
     timeout: 20000,
     retries: 2,
   },
@@ -539,7 +539,7 @@ function getCircuitBreaker(service: ServiceName): CircuitBreakerState {
     circuitBreakers.set(service, {
       failures: 0,
       lastFailure: null,
-      state: "closed",
+      state: 'closed',
       nextRetry: null,
     });
   }
@@ -552,7 +552,7 @@ function recordFailure(service: ServiceName): void {
   breaker.lastFailure = new Date();
 
   if (breaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
-    breaker.state = "open";
+    breaker.state = 'open';
     breaker.nextRetry = new Date(Date.now() + CIRCUIT_BREAKER_TIMEOUT);
     logger.warn(`🔴 Circuit breaker OPEN for ${service}`);
   }
@@ -561,25 +561,25 @@ function recordFailure(service: ServiceName): void {
 function recordSuccess(service: ServiceName): void {
   const breaker = getCircuitBreaker(service);
   breaker.failures = 0;
-  breaker.state = "closed";
+  breaker.state = 'closed';
   breaker.nextRetry = null;
 }
 
 function canRequest(service: ServiceName): boolean {
   const breaker = getCircuitBreaker(service);
 
-  if (breaker.state === "closed") return true;
+  if (breaker.state === 'closed') return true;
 
-  if (breaker.state === "open" && breaker.nextRetry) {
+  if (breaker.state === 'open' && breaker.nextRetry) {
     if (new Date() >= breaker.nextRetry) {
-      breaker.state = "half-open";
+      breaker.state = 'half-open';
       logger.log(`🟡 Circuit breaker HALF-OPEN for ${service}`);
       return true;
     }
     return false;
   }
 
-  return breaker.state === "half-open";
+  return breaker.state === 'half-open';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -596,7 +596,7 @@ function getServiceClient(service: ServiceName): AxiosInstance {
       baseURL: config.baseUrl,
       timeout: config.timeout || 10000,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
@@ -626,7 +626,7 @@ function getServiceClient(service: ServiceName): AxiosInstance {
           recordFailure(service);
         }
         throw error;
-      },
+      }
     );
 
     serviceClients.set(service, client);
@@ -640,15 +640,15 @@ function getServiceClient(service: ServiceName): AxiosInstance {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function getAuthToken(): string | null {
-  if (typeof document === "undefined") return null;
+  if (typeof document === 'undefined') return null;
   // nosemgrep: javascript.browser.security.insecure-document-method (read-only cookie access for auth token retrieval)
   const match = document.cookie.match(/(?:^|; )sahool_admin_token=([^;]*)/);
   return match && match[1] ? decodeURIComponent(match[1]) : null;
 }
 
 function handleAuthError(): void {
-  if (typeof window !== "undefined") {
-    window.location.href = "/login";
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
   }
 }
 
@@ -663,7 +663,7 @@ function handleAuthError(): void {
 export async function request<T>(
   service: ServiceName,
   endpoint: string,
-  options: AxiosRequestConfig = {},
+  options: AxiosRequestConfig = {}
 ): Promise<ApiResponse<T>> {
   const startTime = Date.now();
 
@@ -672,7 +672,7 @@ export async function request<T>(
     return {
       success: false,
       error: {
-        code: "CIRCUIT_OPEN",
+        code: 'CIRCUIT_OPEN',
         message: `Service ${service} is temporarily unavailable`,
       },
       meta: {
@@ -685,7 +685,7 @@ export async function request<T>(
 
   const config = SERVICES[service];
   const client = getServiceClient(service);
-  const retries = options.method === "GET" ? config.retries || 3 : 1;
+  const retries = options.method === 'GET' ? config.retries || 3 : 1;
 
   let lastError: Error | null = null;
 
@@ -709,11 +709,7 @@ export async function request<T>(
       lastError = error as Error;
 
       // Don't retry on client errors (4xx)
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status &&
-        error.response.status < 500
-      ) {
+      if (axios.isAxiosError(error) && error.response?.status && error.response.status < 500) {
         break;
       }
 
@@ -729,7 +725,7 @@ export async function request<T>(
   return {
     success: false,
     error: {
-      code: axiosError.code || "REQUEST_FAILED",
+      code: axiosError.code || 'REQUEST_FAILED',
       message: axiosError.message,
       details: axiosError.response?.data,
     },
@@ -747,9 +743,9 @@ export async function request<T>(
 export function get<T>(
   service: ServiceName,
   endpoint: string,
-  params?: Record<string, unknown>,
+  params?: Record<string, unknown>
 ): Promise<ApiResponse<T>> {
-  return request<T>(service, endpoint, { method: "GET", params });
+  return request<T>(service, endpoint, { method: 'GET', params });
 }
 
 /**
@@ -758,9 +754,9 @@ export function get<T>(
 export function post<T>(
   service: ServiceName,
   endpoint: string,
-  data?: unknown,
+  data?: unknown
 ): Promise<ApiResponse<T>> {
-  return request<T>(service, endpoint, { method: "POST", data });
+  return request<T>(service, endpoint, { method: 'POST', data });
 }
 
 /**
@@ -769,19 +765,16 @@ export function post<T>(
 export function put<T>(
   service: ServiceName,
   endpoint: string,
-  data?: unknown,
+  data?: unknown
 ): Promise<ApiResponse<T>> {
-  return request<T>(service, endpoint, { method: "PUT", data });
+  return request<T>(service, endpoint, { method: 'PUT', data });
 }
 
 /**
  * DELETE request
  */
-export function del<T>(
-  service: ServiceName,
-  endpoint: string,
-): Promise<ApiResponse<T>> {
-  return request<T>(service, endpoint, { method: "DELETE" });
+export function del<T>(service: ServiceName, endpoint: string): Promise<ApiResponse<T>> {
+  return request<T>(service, endpoint, { method: 'DELETE' });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -794,20 +787,18 @@ const healthCache = new Map<ServiceName, ServiceHealth>();
  * Check health of a service
  * فحص صحة خدمة
  */
-export async function checkServiceHealth(
-  service: ServiceName,
-): Promise<ServiceHealth> {
+export async function checkServiceHealth(service: ServiceName): Promise<ServiceHealth> {
   const config = SERVICES[service];
   const startTime = Date.now();
 
   try {
-    await axios.get(`${config.baseUrl}${config.healthEndpoint || "/health"}`, {
+    await axios.get(`${config.baseUrl}${config.healthEndpoint || '/health'}`, {
       timeout: 5000,
     });
 
     const health: ServiceHealth = {
       name: service,
-      status: "healthy",
+      status: 'healthy',
       latency: Date.now() - startTime,
       lastCheck: new Date(),
     };
@@ -817,7 +808,7 @@ export async function checkServiceHealth(
   } catch (error) {
     const health: ServiceHealth = {
       name: service,
-      status: "unhealthy",
+      status: 'unhealthy',
       latency: Date.now() - startTime,
       lastCheck: new Date(),
       error: (error as Error).message,
@@ -871,10 +862,7 @@ export function getAllServices(): ServiceName[] {
 /**
  * Get circuit breaker status
  */
-export function getCircuitBreakerStatus(): Map<
-  ServiceName,
-  CircuitBreakerState
-> {
+export function getCircuitBreakerStatus(): Map<ServiceName, CircuitBreakerState> {
   return new Map(circuitBreakers);
 }
 

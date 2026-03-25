@@ -12,14 +12,11 @@
  *   const api = createApiClient();
  */
 
-import axios, { AxiosInstance, AxiosError } from "axios";
-import Cookies from "js-cookie";
-import { logger } from "@/lib/logger";
-import {
-  ERROR_CODES,
-  getErrorMessage,
-} from "@sahool/shared-types/contracts";
-import { unifiedApiClient } from "./unified-client";
+import axios, { AxiosInstance, AxiosError } from 'axios';
+import Cookies from 'js-cookie';
+import { logger } from '@/lib/logger';
+import { ERROR_CODES, getErrorMessage } from '@sahool/shared-types/contracts';
+import { unifiedApiClient } from './unified-client';
 
 const DEFAULT_TIMEOUT = 15000;
 
@@ -31,10 +28,7 @@ const DEFAULT_TIMEOUT = 15000;
  * instance — giving all features token refresh, retry, CSRF, and HTTPS
  * enforcement from @sahool/api-client for free.
  */
-export function createApiClient(options?: {
-  baseURL?: string;
-  timeout?: number;
-}): AxiosInstance {
+export function createApiClient(options?: { baseURL?: string; timeout?: number }): AxiosInstance {
   // Default case: return the shared unified client (covers 40/42 features)
   if (!options?.baseURL && !options?.timeout) {
     return unifiedApiClient;
@@ -58,10 +52,10 @@ export function createApiClient(options?: {
     });
     // CSRF interceptor (same as unified-client.ts)
     instance.interceptors.request.use((config) => {
-      if (typeof window !== "undefined" && config.method?.toLowerCase() !== "get") {
-        const csrf = Cookies.get("_csrf");
+      if (typeof window !== 'undefined' && config.method?.toLowerCase() !== 'get') {
+        const csrf = Cookies.get('_csrf');
         if (csrf) {
-          config.headers.set("X-CSRF-Token", csrf);
+          config.headers.set('X-CSRF-Token', csrf);
         }
       }
       return config;
@@ -70,11 +64,11 @@ export function createApiClient(options?: {
     instance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        if (error.response?.status === 401 && typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("auth:session-expired"));
+        if (error.response?.status === 401 && typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:session-expired'));
         }
         return Promise.reject(error);
-      },
+      }
     );
     return instance;
   }
@@ -83,22 +77,22 @@ export function createApiClient(options?: {
   const client = axios.create({
     baseURL: options.baseURL,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     timeout: options.timeout ?? DEFAULT_TIMEOUT,
   });
 
   // Request interceptor: attach JWT token
   client.interceptors.request.use((config) => {
-    if (typeof window !== "undefined") {
-      const token = Cookies.get("access_token");
+    if (typeof window !== 'undefined') {
+      const token = Cookies.get('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       // CSRF token (read from client-readable _csrf cookie)
-      const csrf = Cookies.get("_csrf");
-      if (csrf && config.method !== "get") {
-        config.headers["X-CSRF-Token"] = csrf;
+      const csrf = Cookies.get('_csrf');
+      if (csrf && config.method !== 'get') {
+        config.headers['X-CSRF-Token'] = csrf;
       }
     }
     return config;
@@ -108,9 +102,9 @@ export function createApiClient(options?: {
   client.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-      if (error.response?.status === 401 && typeof window !== "undefined") {
+      if (error.response?.status === 401 && typeof window !== 'undefined') {
         // Dispatch session expired event for auth provider to handle
-        window.dispatchEvent(new CustomEvent("auth:session-expired"));
+        window.dispatchEvent(new CustomEvent('auth:session-expired'));
       }
       return Promise.reject(error);
     }
@@ -188,7 +182,7 @@ export function handleApiError(error: unknown): ApiErrorInfo {
  */
 export function extractData<T>(response: { data: T | { data: T } }): T {
   const body = response.data;
-  if (body && typeof body === "object" && "data" in body) {
+  if (body && typeof body === 'object' && 'data' in body) {
     return (body as { data: T }).data;
   }
   return body as T;

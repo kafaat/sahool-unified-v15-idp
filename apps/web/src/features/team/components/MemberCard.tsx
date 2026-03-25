@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Member Card Component
  * مكون بطاقة العضو
  */
 
-import React from "react";
-import Image from "next/image";
-import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { TeamMember, ROLE_CONFIGS } from "../types/team";
+import React from 'react';
+import Image from 'next/image';
+import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { TeamMember, ROLE_CONFIGS } from '../types/team';
 
 interface MemberCardProps {
   member: TeamMember;
@@ -17,22 +17,16 @@ interface MemberCardProps {
   onRemove?: (member: TeamMember) => void;
 }
 
-export const MemberCard: React.FC<MemberCardProps> = ({
-  member,
-  onEditRole,
-  onRemove,
-}) => {
+export const MemberCard: React.FC<MemberCardProps> = ({ member, onEditRole, onRemove }) => {
   const [showActions, setShowActions] = React.useState(false);
   const roleConfig = ROLE_CONFIGS[member.role];
 
   const formatLastActive = (date?: string) => {
-    if (!date) return "لم يسجل دخول بعد";
+    if (!date) return 'لم يسجل دخول بعد';
 
     const now = new Date();
     const lastActive = new Date(date);
-    const diffMinutes = Math.floor(
-      (now.getTime() - lastActive.getTime()) / (1000 * 60),
-    );
+    const diffMinutes = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60));
 
     if (diffMinutes < 60) {
       return `منذ ${diffMinutes} دقيقة`;
@@ -137,26 +131,24 @@ export const MemberCard: React.FC<MemberCardProps> = ({
       <div className="flex items-center justify-between pt-3 border-t border-gray-200">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-400" />
-          <span className="text-xs text-gray-500">
-            {formatLastActive(member.lastLoginAt)}
-          </span>
+          <span className="text-xs text-gray-500">{formatLastActive(member.lastLoginAt)}</span>
         </div>
 
         <Badge
           variant={
-            member.status === "ACTIVE"
-              ? "success"
-              : member.status === "PENDING"
-                ? "warning"
-                : "default"
+            member.status === 'ACTIVE'
+              ? 'success'
+              : member.status === 'PENDING'
+                ? 'warning'
+                : 'default'
           }
           size="sm"
         >
-          {member.status === "ACTIVE"
-            ? "نشط"
-            : member.status === "PENDING"
-              ? "قيد الانتظار"
-              : "غير نشط"}
+          {member.status === 'ACTIVE'
+            ? 'نشط'
+            : member.status === 'PENDING'
+              ? 'قيد الانتظار'
+              : 'غير نشط'}
         </Badge>
       </div>
     </div>

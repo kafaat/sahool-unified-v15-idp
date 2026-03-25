@@ -46,10 +46,10 @@ export const SLOW_QUERY_THRESHOLD = 1000;
  * Transaction isolation levels
  */
 export type TransactionIsolationLevel =
-  | "ReadUncommitted"
-  | "ReadCommitted"
-  | "RepeatableRead"
-  | "Serializable";
+  | 'ReadUncommitted'
+  | 'ReadCommitted'
+  | 'RepeatableRead'
+  | 'Serializable';
 
 /**
  * Configuration for financial transactions requiring SERIALIZABLE isolation
@@ -59,7 +59,7 @@ export const FINANCIAL_TRANSACTION_CONFIG: {
   maxWait: number;
   timeout: number;
 } = {
-  isolationLevel: "Serializable",
+  isolationLevel: 'Serializable',
   maxWait: 5000,
   timeout: 10000,
 };
@@ -72,7 +72,7 @@ export const GENERAL_TRANSACTION_CONFIG: {
   maxWait: number;
   timeout: number;
 } = {
-  isolationLevel: "ReadCommitted",
+  isolationLevel: 'ReadCommitted',
   maxWait: 3000,
   timeout: 5000,
 };
@@ -85,7 +85,7 @@ export const READ_TRANSACTION_CONFIG: {
   maxWait: number;
   timeout: number;
 } = {
-  isolationLevel: "ReadCommitted",
+  isolationLevel: 'ReadCommitted',
   maxWait: 2000,
   timeout: 3000,
 };
@@ -143,10 +143,7 @@ export function calculatePagination(params?: PaginationParams): {
 } {
   // Support both page/limit and skip/take patterns
   const page = params?.page || 1;
-  const limit = Math.min(
-    params?.limit || params?.take || DEFAULT_PAGE_SIZE,
-    MAX_PAGE_SIZE,
-  );
+  const limit = Math.min(params?.limit || params?.take || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
   const skip = params?.skip !== undefined ? params.skip : (page - 1) * limit;
 
   return {
@@ -173,11 +170,7 @@ export function calculatePagination(params?: PaginationParams): {
  * return { data, meta: buildPaginationMeta(total, page, limit) };
  * ```
  */
-export function buildPaginationMeta(
-  total: number,
-  page: number,
-  limit: number,
-): PaginationMeta {
+export function buildPaginationMeta(total: number, page: number, limit: number): PaginationMeta {
   const totalPages = Math.ceil(total / limit);
   return {
     total,
@@ -200,7 +193,7 @@ export function buildPaginationMeta(
 export function createPaginatedResponse<T>(
   data: T[],
   total: number,
-  params?: PaginationParams,
+  params?: PaginationParams
 ): PaginatedResponse<T> {
   const { page, take } = calculatePagination(params);
   return {
@@ -280,13 +273,12 @@ export function buildCursorPagination(params?: CursorPaginationParams): {
  */
 export function processCursorResults<T extends { id: string }>(
   results: T[],
-  limit?: number,
+  limit?: number
 ): CursorPaginatedResponse<T> {
   const effectiveLimit = Math.min(limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
   const hasMore = results.length > effectiveLimit;
   const data = hasMore ? results.slice(0, effectiveLimit) : results;
-  const nextCursor =
-    hasMore && data.length > 0 ? data[data.length - 1].id : null;
+  const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
   return {
     data,
@@ -349,10 +341,7 @@ export interface PrismaQueryEvent {
  * prisma.$on('query', createQueryLogger(logger));
  * ```
  */
-export function createQueryLogger(
-  logger?: QueryLogger,
-  threshold: number = SLOW_QUERY_THRESHOLD,
-) {
+export function createQueryLogger(logger?: QueryLogger, threshold: number = SLOW_QUERY_THRESHOLD) {
   return (e: PrismaQueryEvent) => {
     if (e.duration >= threshold) {
       const logEntry: QueryLog = {
@@ -363,11 +352,11 @@ export function createQueryLogger(
       };
 
       if (logger?.warn) {
-        logger.warn("Slow query detected", logEntry);
+        logger.warn('Slow query detected', logEntry);
       } else {
-        console.warn("⚠️  Slow query detected:", {
+        console.warn('⚠️  Slow query detected:', {
           duration: `${e.duration}ms`,
-          query: e.query.substring(0, 100) + "...",
+          query: e.query.substring(0, 100) + '...',
           params: e.params,
         });
       }
@@ -395,7 +384,7 @@ export function createQueryLogger(
 export async function measureQueryTime<T>(
   queryFn: () => Promise<T>,
   queryName: string,
-  logger?: QueryLogger,
+  logger?: QueryLogger
 ): Promise<T> {
   const startTime = Date.now();
   try {
@@ -415,7 +404,7 @@ export async function measureQueryTime<T>(
     if (logger?.warn) {
       logger.warn(`Query failed: ${queryName}`, {
         duration: `${duration}ms`,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
     throw error;
@@ -448,7 +437,7 @@ export function createSelect<T extends string>(fields: T[]): Record<T, true> {
       acc[field] = true;
       return acc;
     },
-    {} as Record<T, true>,
+    {} as Record<T, true>
   );
 }
 
@@ -460,47 +449,47 @@ export const CommonSelects = {
    * Basic user fields (excluding sensitive data)
    */
   userBasic: createSelect([
-    "id",
-    "email",
-    "firstName",
-    "lastName",
-    "role",
-    "status",
-    "createdAt",
-    "updatedAt",
+    'id',
+    'email',
+    'firstName',
+    'lastName',
+    'role',
+    'status',
+    'createdAt',
+    'updatedAt',
   ]),
 
   /**
    * User fields for listing (minimal)
    */
-  userMinimal: createSelect(["id", "email", "firstName", "lastName"]),
+  userMinimal: createSelect(['id', 'email', 'firstName', 'lastName']),
 
   /**
    * Product fields for listing
    */
   productListing: createSelect([
-    "id",
-    "name",
-    "nameAr",
-    "category",
-    "price",
-    "stock",
-    "unit",
-    "imageUrl",
-    "featured",
-    "createdAt",
+    'id',
+    'name',
+    'nameAr',
+    'category',
+    'price',
+    'stock',
+    'unit',
+    'imageUrl',
+    'featured',
+    'createdAt',
   ]),
 
   /**
    * Order summary fields
    */
   orderSummary: createSelect([
-    "id",
-    "orderNumber",
-    "status",
-    "totalAmount",
-    "createdAt",
-    "updatedAt",
+    'id',
+    'orderNumber',
+    'status',
+    'totalAmount',
+    'createdAt',
+    'updatedAt',
   ]),
 };
 
@@ -529,7 +518,7 @@ export const CommonSelects = {
 export async function batchOperation<T, R>(
   items: T[],
   batchSize: number,
-  operation: (batch: T[]) => Promise<R>,
+  operation: (batch: T[]) => Promise<R>
 ): Promise<R[]> {
   const results: R[] = [];
 
@@ -563,7 +552,7 @@ export async function batchOperation<T, R>(
 export async function parallelLimit<T, R>(
   items: T[],
   concurrency: number,
-  operation: (item: T) => Promise<R>,
+  operation: (item: T) => Promise<R>
 ): Promise<R[]> {
   const results: R[] = [];
   const executing: Promise<void>[] = [];

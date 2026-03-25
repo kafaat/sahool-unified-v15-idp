@@ -12,7 +12,8 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
 
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
@@ -38,12 +39,13 @@ RUN mkdir -p ~/.pip && \
     printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
 
 # Upgrade pip with multi-mirror fallback
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/crop-intelligence-service/requirements.txt /tmp/requirements.txt
@@ -84,6 +86,15 @@ RUN groupadd --system --gid 1000 sahool && \
 
 # Copy virtual environment
 COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
+
+# Strip build tools from production venv (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /home/sahool/venv/lib/python*/site-packages/pip* \
+           /home/sahool/venv/lib/python*/site-packages/setuptools* \
+           /home/sahool/venv/lib/python*/site-packages/wheel* \
+           /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Set environment
 ENV VIRTUAL_ENV=/home/sahool/venv \

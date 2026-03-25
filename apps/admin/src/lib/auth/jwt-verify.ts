@@ -3,7 +3,7 @@
  * Server-side JWT validation and role extraction
  */
 
-import { jwtVerify, decodeJwt, JWTPayload } from "jose";
+import { jwtVerify, decodeJwt, JWTPayload } from 'jose';
 
 /** Validate UUID format for tenant_id injection prevention */
 function isValidUUID(str: string): boolean {
@@ -20,7 +20,7 @@ export interface User {
   email: string;
   name: string;
   name_ar?: string;
-  role: "admin" | "supervisor" | "viewer";
+  role: 'admin' | 'supervisor' | 'viewer';
   tenant_id?: string;
 }
 
@@ -30,7 +30,7 @@ export interface User {
 export interface TokenPayload extends JWTPayload {
   sub: string; // user ID
   email: string;
-  role?: "admin" | "supervisor" | "viewer"; // Singular role (legacy/optional)
+  role?: 'admin' | 'supervisor' | 'viewer'; // Singular role (legacy/optional)
   roles?: string[]; // Roles array (backend user-service format)
   name?: string;
   tenant_id?: string;
@@ -51,37 +51,33 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 
     if (!secret) {
       throw new Error(
-        "JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable."
+        'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
       );
     }
 
     // Verify token signature, expiry, issuer, and audience
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(secret),
-      {
-        issuer: "sahool-platform",
-        audience: "sahool-api",
-      }
-    );
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+      issuer: 'sahool-platform',
+      audience: 'sahool-api',
+    });
 
     // Validate required fields
     if (!payload.sub || !payload.email) {
-      throw new Error("Invalid token payload: missing required fields");
+      throw new Error('Invalid token payload: missing required fields');
     }
 
     return payload as TokenPayload;
   } catch (error) {
     if (error instanceof Error) {
       // Handle specific JWT errors
-      if (error.message.includes("expired")) {
-        throw new Error("Token has expired");
+      if (error.message.includes('expired')) {
+        throw new Error('Token has expired');
       }
-      if (error.message.includes("signature")) {
-        throw new Error("Invalid token signature");
+      if (error.message.includes('signature')) {
+        throw new Error('Invalid token signature');
       }
     }
-    throw new Error("Token verification failed");
+    throw new Error('Token verification failed');
   }
 }
 
@@ -110,8 +106,8 @@ export function decodeTokenUnsafe(token: string): TokenPayload | null {
  */
 export async function getUserRole(
   token: string,
-  verified: boolean = true,
-): Promise<"admin" | "supervisor" | "viewer" | null> {
+  verified: boolean = true
+): Promise<'admin' | 'supervisor' | 'viewer' | null> {
   try {
     let payload: TokenPayload | null;
 
@@ -126,13 +122,13 @@ export async function getUserRole(
     // Extract role from roles array or fallback to role field
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
       const firstRole = payload.roles[0];
-      const extractedRole = firstRole ? firstRole.toLowerCase() : "viewer";
-      if (extractedRole === "admin" || extractedRole === "administrator") {
-        return "admin";
-      } else if (extractedRole === "supervisor" || extractedRole === "manager") {
-        return "supervisor";
+      const extractedRole = firstRole ? firstRole.toLowerCase() : 'viewer';
+      if (extractedRole === 'admin' || extractedRole === 'administrator') {
+        return 'admin';
+      } else if (extractedRole === 'supervisor' || extractedRole === 'manager') {
+        return 'supervisor';
       } else {
-        return "viewer";
+        return 'viewer';
       }
     } else if (payload.role) {
       return payload.role;
@@ -154,14 +150,14 @@ export async function getUserFromToken(token: string): Promise<User | null> {
     const payload = await verifyToken(token);
 
     // Extract role from roles array or fallback to role field
-    let userRole: "admin" | "supervisor" | "viewer" = "viewer";
+    let userRole: 'admin' | 'supervisor' | 'viewer' = 'viewer';
     if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
       const firstRole = payload.roles[0];
-      const extractedRole = firstRole ? firstRole.toLowerCase() : "viewer";
-      if (extractedRole === "admin" || extractedRole === "administrator") {
-        userRole = "admin";
-      } else if (extractedRole === "supervisor" || extractedRole === "manager") {
-        userRole = "supervisor";
+      const extractedRole = firstRole ? firstRole.toLowerCase() : 'viewer';
+      if (extractedRole === 'admin' || extractedRole === 'administrator') {
+        userRole = 'admin';
+      } else if (extractedRole === 'supervisor' || extractedRole === 'manager') {
+        userRole = 'supervisor';
       }
     } else if (payload.role) {
       userRole = payload.role;
@@ -174,7 +170,7 @@ export async function getUserFromToken(token: string): Promise<User | null> {
       role: userRole,
       tenant_id: (() => {
         const tid = payload.tenant_id || payload.tid;
-        return typeof tid === "string" && isValidUUID(tid) ? tid : undefined;
+        return typeof tid === 'string' && isValidUUID(tid) ? tid : undefined;
       })(),
     };
   } catch {
@@ -209,10 +205,10 @@ export function isTokenExpired(token: string): boolean {
  * @returns true if user has sufficient permissions
  */
 export function hasRequiredRole(
-  userRole: "admin" | "supervisor" | "viewer",
-  requiredRole: "admin" | "supervisor" | "viewer",
+  userRole: 'admin' | 'supervisor' | 'viewer',
+  requiredRole: 'admin' | 'supervisor' | 'viewer'
 ): boolean {
-  const roleHierarchy: Record<"admin" | "supervisor" | "viewer", number> = {
+  const roleHierarchy: Record<'admin' | 'supervisor' | 'viewer', number> = {
     admin: 3,
     supervisor: 2,
     viewer: 1,
@@ -228,8 +224,8 @@ export function hasRequiredRole(
  * @returns true if user has one of the allowed roles
  */
 export function hasAnyRole(
-  userRole: "admin" | "supervisor" | "viewer",
-  allowedRoles: Array<"admin" | "supervisor" | "viewer">,
+  userRole: 'admin' | 'supervisor' | 'viewer',
+  allowedRoles: Array<'admin' | 'supervisor' | 'viewer'>
 ): boolean {
   return allowedRoles.some((role) => hasRequiredRole(userRole, role));
 }

@@ -13,22 +13,22 @@
  * Token refresh uses a same-origin proxy that can read the httpOnly cookie.
  */
 
-import { SahoolApiClient } from "@sahool/api-client";
-import Cookies from "js-cookie";
+import { SahoolApiClient } from '@sahool/api-client';
+import Cookies from 'js-cookie';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // ─── Shared Client Instance ─────────────────────────────────────────────────
 
 export const sahoolClient = new SahoolApiClient({
   baseUrl: API_BASE_URL,
   timeout: 15000,
-  locale: "ar",
+  locale: 'ar',
   withCredentials: true,
   enforceHttps: IS_PRODUCTION,
-  errorHandling: "throw",
-  logLevel: IS_PRODUCTION ? "error" : "info",
+  errorHandling: 'throw',
+  logLevel: IS_PRODUCTION ? 'error' : 'info',
 
   // getToken returns null for httpOnly cookies — auth is handled by the
   // browser automatically sending cookies with withCredentials: true.
@@ -36,8 +36,8 @@ export const sahoolClient = new SahoolApiClient({
   getToken: () => null,
 
   onUnauthorized: async () => {
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("auth:session-expired"));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth:session-expired'));
     }
   },
 
@@ -46,11 +46,11 @@ export const sahoolClient = new SahoolApiClient({
     // refresh_token cookie server-side and forward it to the backend.
     refreshToken: async () => {
       try {
-        if (typeof window === "undefined") return null;
+        if (typeof window === 'undefined') return null;
 
-        const res = await fetch("/api/auth/refresh", {
-          method: "POST",
-          credentials: "same-origin",
+        const res = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'same-origin',
         });
         if (!res.ok) return null;
 
@@ -80,10 +80,10 @@ export const sahoolClient = new SahoolApiClient({
 
 sahoolClient.axiosInstance.interceptors.request.use((config) => {
   const method = config.method?.toLowerCase();
-  if (typeof window !== "undefined" && method && method !== "get") {
-    const csrfToken = Cookies.get("_csrf");
+  if (typeof window !== 'undefined' && method && method !== 'get') {
+    const csrfToken = Cookies.get('_csrf');
     if (csrfToken) {
-      config.headers.set("X-CSRF-Token", csrfToken);
+      config.headers.set('X-CSRF-Token', csrfToken);
     }
   }
   return config;

@@ -42,20 +42,27 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 // Common Enums - التعدادات المشتركة
 // ---------------------------------------------------------------------------
 
-export type Locale = "ar" | "en";
-export type Severity = "low" | "medium" | "high" | "critical";
-export type Priority = "urgent" | "high" | "medium" | "low";
-export type TrendDirection = "up" | "down" | "stable";
-export type HealthStatus = "healthy" | "moderate" | "stressed" | "critical";
+export type Locale = 'ar' | 'en';
+export type Severity = 'low' | 'medium' | 'high' | 'critical';
+export type Priority = 'urgent' | 'high' | 'medium' | 'low';
+export type TrendDirection = 'up' | 'down' | 'stable';
+export type HealthStatus = 'healthy' | 'moderate' | 'stressed' | 'critical';
 
-export type FieldStatus = "active" | "inactive" | "fallow" | "preparing" | "harvested" | "deleted";
-export type TaskStatus = "open" | "pending" | "in_progress" | "completed" | "cancelled";
-export type AlertSeverity = "info" | "warning" | "critical" | "emergency";
-export type AlertStatus = "active" | "unread" | "read" | "acknowledged" | "resolved" | "dismissed";
-export type DeviceStatus = "online" | "offline" | "warning" | "error" | "maintenance";
-export type EquipmentStatus = "available" | "in_use" | "maintenance" | "broken" | "retired";
-export type SubscriptionPlan = "free" | "basic" | "starter" | "professional" | "enterprise";
-export type SyncStatus = "idle" | "syncing" | "conflict" | "error" | "pending" | "synced" | "failed";
+export type FieldStatus = 'active' | 'inactive' | 'fallow' | 'preparing' | 'harvested' | 'deleted';
+export type TaskStatus = 'open' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency';
+export type AlertStatus = 'active' | 'unread' | 'read' | 'acknowledged' | 'resolved' | 'dismissed';
+export type DeviceStatus = 'online' | 'offline' | 'warning' | 'error' | 'maintenance';
+export type EquipmentStatus = 'available' | 'in_use' | 'maintenance' | 'broken' | 'retired';
+export type SubscriptionPlan = 'free' | 'basic' | 'starter' | 'professional' | 'enterprise';
+export type SyncStatus =
+  | 'idle'
+  | 'syncing'
+  | 'conflict'
+  | 'error'
+  | 'pending'
+  | 'synced'
+  | 'failed';
 
 // ---------------------------------------------------------------------------
 // GeoJSON Types - أنواع الجغرافيا
@@ -67,17 +74,17 @@ export interface Coordinates {
 }
 
 export interface GeoPoint {
-  type: "Point";
+  type: 'Point';
   coordinates: [number, number]; // [lng, lat]
 }
 
 export interface GeoPolygon {
-  type: "Polygon";
+  type: 'Polygon';
   coordinates: number[][][];
 }
 
 export interface GeoMultiPolygon {
-  type: "MultiPolygon";
+  type: 'MultiPolygon';
   coordinates: number[][][][];
 }
 
@@ -370,7 +377,7 @@ export interface SensorReadingResponse {
   value: number;
   unit: string;
   timestamp: string;
-  quality?: "good" | "fair" | "poor";
+  quality?: 'good' | 'fair' | 'poor';
 }
 
 // ---------------------------------------------------------------------------
@@ -381,7 +388,7 @@ export interface IrrigationRecommendationResponse {
   fieldId: string;
   recommendedAmount: number;
   recommendedDuration: number;
-  urgency: "none" | "low" | "medium" | "high";
+  urgency: 'none' | 'low' | 'medium' | 'high';
   reasoning: string;
   reasoningAr?: string;
   et0: number;
@@ -397,7 +404,7 @@ export interface SubscriptionResponse {
   id: string;
   tenantId: string;
   plan: SubscriptionPlan;
-  status: "active" | "cancelled" | "expired" | "past_due";
+  status: 'active' | 'cancelled' | 'expired' | 'past_due';
   currentPeriodStart: string;
   currentPeriodEnd: string;
   features: string[];
@@ -414,7 +421,7 @@ export interface InvoiceResponse {
   tenantId: string;
   amount: number;
   currency: string;
-  status: "pending" | "paid" | "overdue" | "cancelled";
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled';
   dueDate: string;
   paidAt?: string;
   items: Array<{
@@ -481,7 +488,7 @@ export interface FieldIndicatorsResponse {
 export interface SyncResultResponse {
   clientId: string;
   serverId?: string;
-  status: "created" | "updated" | "conflict" | "error";
+  status: 'created' | 'updated' | 'conflict' | 'error';
   serverVersion?: number;
   etag?: string;
   serverData?: unknown;
@@ -493,7 +500,7 @@ export interface SyncResultResponse {
 // ---------------------------------------------------------------------------
 
 export interface ServiceHealthResponse {
-  status: "ok" | "degraded" | "error";
+  status: 'ok' | 'degraded' | 'error';
   service: string;
   version?: string;
   checks?: Record<string, boolean>;
@@ -515,9 +522,9 @@ export interface RateLimitHeaders {
 }
 
 export const RATE_LIMIT_HEADER_NAMES = {
-  REMAINING: "X-RateLimit-Remaining-Minute",
-  LIMIT: "X-RateLimit-Limit-Minute",
-  RESET: "X-RateLimit-Reset",
+  REMAINING: 'X-RateLimit-Remaining-Minute',
+  LIMIT: 'X-RateLimit-Limit-Minute',
+  RESET: 'X-RateLimit-Reset',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -525,17 +532,17 @@ export const RATE_LIMIT_HEADER_NAMES = {
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_HEADERS = {
-  CONTENT_TYPE: "application/json",
-  ACCEPT: "application/json",
-  ACCEPT_LANGUAGE: "ar,en",
+  CONTENT_TYPE: 'application/json',
+  ACCEPT: 'application/json',
+  ACCEPT_LANGUAGE: 'ar,en',
 } as const;
 
 export const CUSTOM_HEADERS = {
-  REQUEST_ID: "X-Request-Id",
-  TENANT_ID: "X-Tenant-Id",
-  CLIENT_PLATFORM: "X-Client-Platform",
-  CLIENT_VERSION: "X-Client-Version",
-  IF_MATCH: "If-Match",
+  REQUEST_ID: 'X-Request-Id',
+  TENANT_ID: 'X-Tenant-Id',
+  CLIENT_PLATFORM: 'X-Client-Platform',
+  CLIENT_VERSION: 'X-Client-Version',
+  IF_MATCH: 'If-Match',
 } as const;
 
 // ---------------------------------------------------------------------------

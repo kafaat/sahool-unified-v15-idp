@@ -7,7 +7,11 @@
 
 export default function FarmsLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل المزارع - Loading farms">
+    <div
+      className="p-6 space-y-6 animate-pulse"
+      role="status"
+      aria-label="جاري تحميل المزارع - Loading farms"
+    >
       <span className="sr-only">جاري تحميل المزارع - Loading farms</span>
       {/* Header skeleton */}
       <div className="flex items-center justify-between">

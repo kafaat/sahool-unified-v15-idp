@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Theme Store - Dark Mode Support
@@ -12,40 +12,38 @@ import React, {
   useEffect,
   useCallback,
   ReactNode,
-} from "react";
+} from 'react';
 
-type Theme = "light" | "dark" | "system";
+type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
-  resolvedTheme: "light" | "dark";
+  resolvedTheme: 'light' | 'dark';
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = "sahool-admin-theme";
+const THEME_STORAGE_KEY = 'sahool-admin-theme';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const [theme, setThemeState] = useState<Theme>('system');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
   // Get system preference
-  const getSystemTheme = useCallback((): "light" | "dark" => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+  const getSystemTheme = useCallback((): 'light' | 'dark' => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-    return "light";
+    return 'light';
   }, []);
 
   // Resolve theme based on current setting
   const resolveTheme = useCallback(
-    (themeValue: Theme): "light" | "dark" => {
-      if (themeValue === "system") {
+    (themeValue: Theme): 'light' | 'dark' => {
+      if (themeValue === 'system') {
         return getSystemTheme();
       }
       return themeValue;
@@ -54,18 +52,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   // Apply theme to document
-  const applyTheme = useCallback((resolved: "light" | "dark") => {
+  const applyTheme = useCallback((resolved: 'light' | 'dark') => {
     const root = document.documentElement;
-    root.classList.remove("light", "dark");
+    root.classList.remove('light', 'dark');
     root.classList.add(resolved);
 
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute(
-        "content",
-        resolved === "dark" ? "#1f2937" : "#ffffff"
-      );
+      metaThemeColor.setAttribute('content', resolved === 'dark' ? '#1f2937' : '#ffffff');
     }
   }, []);
 
@@ -77,7 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // localStorage not available (e.g. private browsing)
     }
-    const initialTheme = stored || "system";
+    const initialTheme = stored || 'system';
     setThemeState(initialTheme);
     const resolved = resolveTheme(initialTheme);
     setResolvedTheme(resolved);
@@ -89,18 +84,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mounted) return;
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const handleChange = () => {
-      if (theme === "system") {
+      if (theme === 'system') {
         const resolved = getSystemTheme();
         setResolvedTheme(resolved);
         applyTheme(resolved);
       }
     };
 
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme, mounted, getSystemTheme, applyTheme]);
 
   const setTheme = useCallback(
@@ -119,14 +114,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleTheme = useCallback(() => {
-    const newTheme = resolvedTheme === "light" ? "dark" : "light";
+    const newTheme = resolvedTheme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
   }, [resolvedTheme, setTheme]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const value = React.useMemo(
     () => ({ theme, resolvedTheme, setTheme, toggleTheme }),
-    [theme, resolvedTheme, setTheme, toggleTheme],
+    [theme, resolvedTheme, setTheme, toggleTheme]
   );
 
   // Render children immediately to avoid blocking the entire app tree.
@@ -134,17 +129,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // invisible content (FOIC). Theme-dependent styling is handled by the
   // CSS class on <html>, which is set synchronously in the useEffect above,
   // so consumers will re-render once with the correct resolved theme.
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }

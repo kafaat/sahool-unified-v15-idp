@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Center Pivot Irrigation Management - الري المحوري
 // Valley-style pivot management with VRI zones
 
-import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import { cn } from '@/lib/utils';
 import {
   Droplets,
   Play,
@@ -18,7 +18,7 @@ import {
   Grid3X3,
   RefreshCw,
   Calendar,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Types
 interface PivotSystem {
@@ -27,10 +27,10 @@ interface PivotSystem {
   name_ar: string;
   field_id: string;
   field_name_ar: string;
-  status: "running" | "stopped" | "maintenance" | "scheduled";
+  status: 'running' | 'stopped' | 'maintenance' | 'scheduled';
   current_angle: number;
   speed_percent: number;
-  direction: "clockwise" | "counterclockwise";
+  direction: 'clockwise' | 'counterclockwise';
   area_hectares: number;
   length_meters: number;
   spans_count: number;
@@ -53,32 +53,32 @@ interface PivotStatistics {
 }
 
 const STATUS_COLORS = {
-  running: "bg-green-100 text-green-700 border-green-200",
-  stopped: "bg-gray-100 text-gray-700 border-gray-200",
-  maintenance: "bg-orange-100 text-orange-700 border-orange-200",
-  scheduled: "bg-blue-100 text-blue-700 border-blue-200",
+  running: 'bg-green-100 text-green-700 border-green-200',
+  stopped: 'bg-gray-100 text-gray-700 border-gray-200',
+  maintenance: 'bg-orange-100 text-orange-700 border-orange-200',
+  scheduled: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
 const STATUS_LABELS = {
-  running: "يعمل",
-  stopped: "متوقف",
-  maintenance: "صيانة",
-  scheduled: "مجدول",
+  running: 'يعمل',
+  stopped: 'متوقف',
+  maintenance: 'صيانة',
+  scheduled: 'مجدول',
 };
 
 // Mock data generators
 function generateMockPivots(): PivotSystem[] {
   return [
     {
-      id: "pivot-001",
-      name: "Main Pivot - North",
-      name_ar: "المحوري الرئيسي - الشمال",
-      field_id: "field-001",
-      field_name_ar: "حقل القمح الشمالي",
-      status: "running",
+      id: 'pivot-001',
+      name: 'Main Pivot - North',
+      name_ar: 'المحوري الرئيسي - الشمال',
+      field_id: 'field-001',
+      field_name_ar: 'حقل القمح الشمالي',
+      status: 'running',
       current_angle: 127,
       speed_percent: 75,
-      direction: "clockwise",
+      direction: 'clockwise',
       area_hectares: 52.5,
       length_meters: 410,
       spans_count: 7,
@@ -91,15 +91,15 @@ function generateMockPivots(): PivotSystem[] {
       efficiency_percent: 92,
     },
     {
-      id: "pivot-002",
-      name: "East Field Pivot",
-      name_ar: "محوري الحقل الشرقي",
-      field_id: "field-002",
-      field_name_ar: "حقل الذرة الشرقي",
-      status: "stopped",
+      id: 'pivot-002',
+      name: 'East Field Pivot',
+      name_ar: 'محوري الحقل الشرقي',
+      field_id: 'field-002',
+      field_name_ar: 'حقل الذرة الشرقي',
+      status: 'stopped',
       current_angle: 0,
       speed_percent: 0,
-      direction: "clockwise",
+      direction: 'clockwise',
       area_hectares: 35.2,
       length_meters: 335,
       spans_count: 6,
@@ -112,15 +112,15 @@ function generateMockPivots(): PivotSystem[] {
       efficiency_percent: 88,
     },
     {
-      id: "pivot-003",
-      name: "South Quarter Pivot",
-      name_ar: "محوري الربع الجنوبي",
-      field_id: "field-003",
-      field_name_ar: "حقل البرسيم الجنوبي",
-      status: "scheduled",
+      id: 'pivot-003',
+      name: 'South Quarter Pivot',
+      name_ar: 'محوري الربع الجنوبي',
+      field_id: 'field-003',
+      field_name_ar: 'حقل البرسيم الجنوبي',
+      status: 'scheduled',
       current_angle: 45,
       speed_percent: 0,
-      direction: "counterclockwise",
+      direction: 'counterclockwise',
       area_hectares: 42.8,
       length_meters: 370,
       spans_count: 7,
@@ -136,12 +136,13 @@ function generateMockPivots(): PivotSystem[] {
 }
 
 function generateMockStatistics(pivots: PivotSystem[]): PivotStatistics {
-  const activePivots = pivots.filter((p) => p.status === "running").length;
+  const activePivots = pivots.filter((p) => p.status === 'running').length;
   const totalArea = pivots.reduce((sum, p) => sum + p.area_hectares, 0);
   const waterUsage = pivots.reduce((sum, p) => sum + p.water_usage_m3, 0);
-  const avgEfficiency = pivots.length > 0
-    ? pivots.reduce((sum, p) => sum + p.efficiency_percent, 0) / pivots.length
-    : 0;
+  const avgEfficiency =
+    pivots.length > 0
+      ? pivots.reduce((sum, p) => sum + p.efficiency_percent, 0) / pivots.length
+      : 0;
 
   return {
     total_pivots: pivots.length,
@@ -165,14 +166,7 @@ function PivotVisualization({ pivot }: { pivot: PivotSystem }) {
     <div className="relative aspect-square max-w-[180px] mx-auto">
       <svg viewBox="0 0 200 200" className="w-full h-full">
         {/* Background circle */}
-        <circle
-          cx="100"
-          cy="100"
-          r="90"
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth="2"
-        />
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" strokeWidth="2" />
 
         {/* Sectors */}
         {sectors.map((sector) => {
@@ -200,19 +194,13 @@ function PivotVisualization({ pivot }: { pivot: PivotSystem }) {
         <circle cx="100" cy="100" r="8" fill="#1e40af" />
 
         {/* Pivot arm */}
-        {pivot.status === "running" && (
+        {pivot.status === 'running' && (
           <g>
             <line
               x1="100"
               y1="100"
-              x2={
-                100 +
-                80 * Math.cos(((pivot.current_angle - 90) * Math.PI) / 180)
-              }
-              y2={
-                100 +
-                80 * Math.sin(((pivot.current_angle - 90) * Math.PI) / 180)
-              }
+              x2={100 + 80 * Math.cos(((pivot.current_angle - 90) * Math.PI) / 180)}
+              y2={100 + 80 * Math.sin(((pivot.current_angle - 90) * Math.PI) / 180)}
               stroke="#1e40af"
               strokeWidth="4"
               strokeLinecap="round"
@@ -230,20 +218,10 @@ function PivotVisualization({ pivot }: { pivot: PivotSystem }) {
         )}
 
         {/* Status indicator */}
-        <circle
-          cx="100"
-          cy="100"
-          r="4"
-          fill={pivot.status === "running" ? "#22c55e" : "#9ca3af"}
-        />
+        <circle cx="100" cy="100" r="4" fill={pivot.status === 'running' ? '#22c55e' : '#9ca3af'} />
 
         {/* Angle indicator */}
-        <text
-          x="100"
-          y="170"
-          textAnchor="middle"
-          className="text-xs fill-gray-500"
-        >
+        <text x="100" y="170" textAnchor="middle" className="text-xs fill-gray-500">
           {pivot.current_angle}°
         </text>
       </svg>
@@ -298,7 +276,7 @@ export default function PivotIrrigationPage() {
         />
         <StatCard
           title="استهلاك اليوم"
-          value={statistics?.water_usage_today_m3?.toLocaleString() || "0"}
+          value={statistics?.water_usage_today_m3?.toLocaleString() || '0'}
           suffix="م³"
           icon={Droplets}
           iconColor="text-cyan-600"
@@ -326,7 +304,7 @@ export default function PivotIrrigationPage() {
           onClick={loadData}
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
-          <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+          <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
           تحديث
         </button>
       </div>
@@ -351,10 +329,10 @@ export default function PivotIrrigationPage() {
                 key={pivot.id}
                 onClick={() => setSelectedPivot(pivot)}
                 className={cn(
-                  "bg-white dark:bg-gray-800 rounded-xl border-2 p-4 cursor-pointer transition-all",
+                  'bg-white dark:bg-gray-800 rounded-xl border-2 p-4 cursor-pointer transition-all',
                   selectedPivot?.id === pivot.id
-                    ? "border-sahool-500 ring-2 ring-sahool-100"
-                    : "border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600"
+                    ? 'border-sahool-500 ring-2 ring-sahool-100'
+                    : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600'
                 )}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -366,7 +344,7 @@ export default function PivotIrrigationPage() {
                   </div>
                   <span
                     className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium",
+                      'px-2 py-1 rounded-full text-xs font-medium',
                       STATUS_COLORS[pivot.status]
                     )}
                   >
@@ -379,15 +357,11 @@ export default function PivotIrrigationPage() {
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">المساحة:</span>
-                    <span className="font-medium mr-1">
-                      {pivot.area_hectares} هـ
-                    </span>
+                    <span className="font-medium mr-1">{pivot.area_hectares} هـ</span>
                   </div>
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">الكفاءة:</span>
-                    <span className="font-medium mr-1">
-                      {pivot.efficiency_percent}%
-                    </span>
+                    <span className="font-medium mr-1">{pivot.efficiency_percent}%</span>
                   </div>
                 </div>
               </div>
@@ -405,7 +379,7 @@ export default function PivotIrrigationPage() {
                   <h3 className="font-bold text-gray-900 dark:text-gray-100">لوحة التحكم</h3>
                   <span
                     className={cn(
-                      "px-3 py-1 rounded-full text-sm font-medium",
+                      'px-3 py-1 rounded-full text-sm font-medium',
                       STATUS_COLORS[selectedPivot.status]
                     )}
                   >
@@ -417,14 +391,14 @@ export default function PivotIrrigationPage() {
                   <button
                     disabled
                     className={cn(
-                      "flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                      selectedPivot.status === "running"
-                        ? "bg-red-100 text-red-700 hover:bg-red-200"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                      'flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+                      selectedPivot.status === 'running'
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
                     )}
                     title="قريبًا"
                   >
-                    {selectedPivot.status === "running" ? (
+                    {selectedPivot.status === 'running' ? (
                       <>
                         <Pause className="w-4 h-4" />
                         إيقاف
@@ -506,27 +480,24 @@ export default function PivotIrrigationPage() {
                   القطاعات ومناطق VRI
                 </h3>
                 <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-                  {Array.from(
-                    { length: selectedPivot.sectors_count },
-                    (_, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "p-3 rounded-lg text-center border transition-colors cursor-pointer",
-                          i < 3
-                            ? "bg-green-50 border-green-200 hover:bg-green-100"
-                            : "bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        )}
-                      >
-                        <p className="font-bold text-sm">Q{i + 1}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {(i * 360) / selectedPivot.sectors_count}°-
-                          {((i + 1) * 360) / selectedPivot.sectors_count}°
-                        </p>
-                        <p className="text-xs text-green-600 mt-1">100%</p>
-                      </div>
-                    )
-                  )}
+                  {Array.from({ length: selectedPivot.sectors_count }, (_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'p-3 rounded-lg text-center border transition-colors cursor-pointer',
+                        i < 3
+                          ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                          : 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      )}
+                    >
+                      <p className="font-bold text-sm">Q{i + 1}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {(i * 360) / selectedPivot.sectors_count}°-
+                        {((i + 1) * 360) / selectedPivot.sectors_count}°
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">100%</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -541,9 +512,7 @@ export default function PivotIrrigationPage() {
                     <div className="flex-1">
                       <p className="font-medium text-sm">بدأ دورة الري</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(
-                          selectedPivot.last_irrigation
-                        ).toLocaleString("ar-SA")}
+                        {new Date(selectedPivot.last_irrigation).toLocaleString('ar-SA')}
                       </p>
                     </div>
                   </div>
@@ -556,9 +525,7 @@ export default function PivotIrrigationPage() {
                       <div className="flex-1">
                         <p className="font-medium text-sm">الري القادم مجدول</p>
                         <p className="text-xs text-blue-600">
-                          {new Date(
-                            selectedPivot.next_scheduled
-                          ).toLocaleString("ar-SA")}
+                          {new Date(selectedPivot.next_scheduled).toLocaleString('ar-SA')}
                         </p>
                       </div>
                     </div>

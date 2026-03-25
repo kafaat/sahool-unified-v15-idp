@@ -24,6 +24,11 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -45,7 +50,10 @@ logging.basicConfig(
 )
 # Suppress duplicate uvicorn access/error logs
 logging.getLogger("uvicorn.access").propagate = False
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Shared Middleware Imports - استيراد البرامج الوسيطة المشتركة
@@ -280,28 +288,38 @@ async def readiness_check():
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
         nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
 
-    # Check database connection
-    db_ok = True
+    # Check database connection with actual query
+    db_ok = False
     try:
         from .database import engine
 
         if engine:
+            from sqlalchemy import text
+
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
             db_ok = True
-    except Exception:
+    except Exception as exc:
+        logger.warning("Database readiness check failed: %s", type(exc).__name__)
         db_ok = False
 
-    # Check Redis connection
+    # Check Redis connection with actual ping
     redis_ok = False
     try:
         from .cache import get_redis_client
 
-        # Don't block - just check if module is available
-        redis_ok = True
+        redis_client = await get_redis_client()
+        if redis_client:
+            await redis_client.ping()
+            redis_ok = True
     except Exception as exc:
         logger.debug("Redis availability check failed: %s", exc)
 
-    return {
-        "status": "ready" if db_ok else "not_ready",
+    is_ready = db_ok  # Database is required for readiness
+    status_code = 200 if is_ready else 503
+
+    payload = {
+        "status": "ready" if is_ready else "not_ready",
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
         "checks": {
@@ -311,12 +329,26 @@ async def readiness_check():
         },
     }
 
+    from fastapi.responses import JSONResponse as _JSONResponse
+
+    return _JSONResponse(status_code=status_code, content=payload)
+
+
+def _readiness_payload(readiness_response) -> dict:
+    """Extract payload dict from readiness response (JSONResponse or dict)."""
+    if hasattr(readiness_response, "body"):
+        import json
+
+        return json.loads(readiness_response.body)
+    return readiness_response
+
 
 @app.get("/health")
 async def combined_health():
     """Combined health status"""
     liveness = await health_check()
-    readiness = await readiness_check()
+    readiness_resp = await readiness_check()
+    readiness = _readiness_payload(readiness_resp)
     return {
         **liveness,
         "ready": readiness["status"] == "ready",

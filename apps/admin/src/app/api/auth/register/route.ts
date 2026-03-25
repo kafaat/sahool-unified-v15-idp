@@ -5,11 +5,11 @@
  * مسار API التسجيل من جانب الخادم
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/lib/logger";
-import { API_URL } from "@/config/api";
-import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { API_URL } from '@/config/api';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       logger.warn(`Registration rate limit exceeded for email: ${email}`);
       return NextResponse.json(
         {
-          error: rateLimit.message || "تم تجاوز الحد الأقصى لمحاولات التسجيل",
+          error: rateLimit.message || 'تم تجاوز الحد الأقصى لمحاولات التسجيل',
           resetTime: rateLimit.resetTime,
         },
         { status: 429 }
@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
     let response: Response;
     try {
       response = await fetch(`${API_URL}${AUTH_ENDPOINTS.REGISTER}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
@@ -57,11 +57,10 @@ export async function POST(request: NextRequest) {
     } catch (fetchError) {
       clearTimeout(timeoutId);
       // Network error - backend not reachable
-      logger.error("Register fetch error:", fetchError);
+      logger.error('Register fetch error:', fetchError);
       return NextResponse.json(
         {
-          error:
-            "تعذر الاتصال بخادم المصادقة. تأكد من تشغيل خدمات البنية التحتية",
+          error: 'تعذر الاتصال بخادم المصادقة. تأكد من تشغيل خدمات البنية التحتية',
         },
         { status: 503 }
       );
@@ -70,17 +69,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate response content-type before parsing JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
       logger.error(
         `Register upstream returned non-JSON response: ${response.status} ${contentType}`
       );
       return NextResponse.json(
         {
-          error:
-            "An invalid response was received from the upstream server",
-          errorAr:
-            "تم استلام استجابة غير صالحة من خادم المصادقة",
+          error: 'An invalid response was received from the upstream server',
+          errorAr: 'تم استلام استجابة غير صالحة من خادم المصادقة',
         },
         { status: 502 }
       );
@@ -90,11 +87,11 @@ export async function POST(request: NextRequest) {
     try {
       data = await response.json();
     } catch {
-      logger.error("Register upstream returned invalid JSON");
+      logger.error('Register upstream returned invalid JSON');
       return NextResponse.json(
         {
-          error: "Invalid response from authentication server",
-          errorAr: "استجابة غير صالحة من خادم المصادقة",
+          error: 'Invalid response from authentication server',
+          errorAr: 'استجابة غير صالحة من خادم المصادقة',
         },
         { status: 502 }
       );
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || data.detail || "فشل التسجيل" },
+        { error: data.message || data.detail || 'فشل التسجيل' },
         { status: response.status }
       );
     }
@@ -112,10 +109,7 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
   } catch (error) {
-    logger.error("Register error:", error);
-    return NextResponse.json(
-      { error: "حدث خطأ في الخادم" },
-      { status: 500 }
-    );
+    logger.error('Register error:', error);
+    return NextResponse.json({ error: 'حدث خطأ في الخادم' }, { status: 500 });
   }
 }

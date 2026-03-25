@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
   Droplet,
   Search,
@@ -10,10 +10,10 @@ import {
   AlertTriangle,
   CheckCircle,
   Wind,
-} from "lucide-react";
+} from 'lucide-react';
 
-type SprayStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "weather_hold";
-type SprayType = "pesticide" | "herbicide" | "fungicide" | "fertilizer" | "growth_regulator";
+type SprayStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'weather_hold';
+type SprayType = 'pesticide' | 'herbicide' | 'fungicide' | 'fertilizer' | 'growth_regulator';
 
 interface SprayRecord {
   id: string;
@@ -33,82 +33,86 @@ interface SprayRecord {
 
 const mockSprayRecords: SprayRecord[] = [
   {
-    id: "1",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    type: "fungicide",
-    productName: "Propiconazole",
-    productNameAr: "بروبيكونازول",
-    dosage: "0.5 لتر/هكتار",
-    status: "scheduled",
-    scheduledAt: "2025-01-26T06:00:00Z",
+    id: '1',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    type: 'fungicide',
+    productName: 'Propiconazole',
+    productNameAr: 'بروبيكونازول',
+    dosage: '0.5 لتر/هكتار',
+    status: 'scheduled',
+    scheduledAt: '2025-01-26T06:00:00Z',
     windSpeed: 8,
     humidity: 65,
   },
   {
-    id: "2",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    type: "herbicide",
-    productName: "2,4-D Amine",
-    productNameAr: "2,4-D أمين",
-    dosage: "1.5 لتر/هكتار",
-    status: "weather_hold",
-    scheduledAt: "2025-01-25T07:00:00Z",
+    id: '2',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    type: 'herbicide',
+    productName: '2,4-D Amine',
+    productNameAr: '2,4-D أمين',
+    dosage: '1.5 لتر/هكتار',
+    status: 'weather_hold',
+    scheduledAt: '2025-01-25T07:00:00Z',
     windSpeed: 25,
     humidity: 45,
   },
   {
-    id: "3",
-    fieldId: "field-3",
-    fieldName: "حقل القمح",
-    type: "pesticide",
-    productName: "Cypermethrin",
-    productNameAr: "سايبرمثرين",
-    dosage: "0.3 لتر/هكتار",
-    status: "completed",
-    scheduledAt: "2025-01-24T06:00:00Z",
-    completedAt: "2025-01-24T08:30:00Z",
-    applicator: "أحمد محمد",
+    id: '3',
+    fieldId: 'field-3',
+    fieldName: 'حقل القمح',
+    type: 'pesticide',
+    productName: 'Cypermethrin',
+    productNameAr: 'سايبرمثرين',
+    dosage: '0.3 لتر/هكتار',
+    status: 'completed',
+    scheduledAt: '2025-01-24T06:00:00Z',
+    completedAt: '2025-01-24T08:30:00Z',
+    applicator: 'أحمد محمد',
   },
   {
-    id: "4",
-    fieldId: "field-4",
-    fieldName: "بستان النخيل",
-    type: "fertilizer",
-    productName: "Foliar NPK",
-    productNameAr: "سماد ورقي NPK",
-    dosage: "3 كجم/هكتار",
-    status: "in_progress",
-    scheduledAt: "2025-01-25T05:00:00Z",
-    applicator: "محمد علي",
+    id: '4',
+    fieldId: 'field-4',
+    fieldName: 'بستان النخيل',
+    type: 'fertilizer',
+    productName: 'Foliar NPK',
+    productNameAr: 'سماد ورقي NPK',
+    dosage: '3 كجم/هكتار',
+    status: 'in_progress',
+    scheduledAt: '2025-01-25T05:00:00Z',
+    applicator: 'محمد علي',
   },
   {
-    id: "5",
-    fieldId: "field-5",
-    fieldName: "الصوب الزراعية",
-    type: "growth_regulator",
-    productName: "Gibberellic Acid",
-    productNameAr: "حمض الجبريليك",
-    dosage: "10 جم/هكتار",
-    status: "scheduled",
-    scheduledAt: "2025-01-27T06:00:00Z",
+    id: '5',
+    fieldId: 'field-5',
+    fieldName: 'الصوب الزراعية',
+    type: 'growth_regulator',
+    productName: 'Gibberellic Acid',
+    productNameAr: 'حمض الجبريليك',
+    dosage: '10 جم/هكتار',
+    status: 'scheduled',
+    scheduledAt: '2025-01-27T06:00:00Z',
     windSpeed: 5,
     humidity: 70,
   },
 ];
 
 const sprayTypes: Record<SprayType, { label: string; labelAr: string; color: string }> = {
-  pesticide: { label: "Pesticide", labelAr: "مبيد حشري", color: "bg-red-100 text-red-800" },
-  herbicide: { label: "Herbicide", labelAr: "مبيد أعشاب", color: "bg-orange-100 text-orange-800" },
-  fungicide: { label: "Fungicide", labelAr: "مبيد فطري", color: "bg-purple-100 text-purple-800" },
-  fertilizer: { label: "Fertilizer", labelAr: "سماد ورقي", color: "bg-green-100 text-green-800" },
-  growth_regulator: { label: "Growth Regulator", labelAr: "منظم نمو", color: "bg-blue-100 text-blue-800" },
+  pesticide: { label: 'Pesticide', labelAr: 'مبيد حشري', color: 'bg-red-100 text-red-800' },
+  herbicide: { label: 'Herbicide', labelAr: 'مبيد أعشاب', color: 'bg-orange-100 text-orange-800' },
+  fungicide: { label: 'Fungicide', labelAr: 'مبيد فطري', color: 'bg-purple-100 text-purple-800' },
+  fertilizer: { label: 'Fertilizer', labelAr: 'سماد ورقي', color: 'bg-green-100 text-green-800' },
+  growth_regulator: {
+    label: 'Growth Regulator',
+    labelAr: 'منظم نمو',
+    color: 'bg-blue-100 text-blue-800',
+  },
 };
 
 export default function SprayClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<SprayStatus | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<SprayStatus | 'all'>('all');
 
   const filteredRecords = useMemo(() => {
     return mockSprayRecords.filter((record) => {
@@ -116,25 +120,25 @@ export default function SprayClient() {
         !searchTerm ||
         record.fieldName.includes(searchTerm) ||
         record.productNameAr.includes(searchTerm);
-      const matchesStatus = statusFilter === "all" || record.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || record.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [searchTerm, statusFilter]);
 
   const getStatusBadge = (status: SprayStatus) => {
     const styles = {
-      scheduled: "bg-blue-100 text-blue-800",
-      in_progress: "bg-yellow-100 text-yellow-800",
-      completed: "bg-green-100 text-green-800",
-      cancelled: "bg-gray-100 text-gray-800",
-      weather_hold: "bg-red-100 text-red-800",
+      scheduled: 'bg-blue-100 text-blue-800',
+      in_progress: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-green-100 text-green-800',
+      cancelled: 'bg-gray-100 text-gray-800',
+      weather_hold: 'bg-red-100 text-red-800',
     };
     const labels = {
-      scheduled: "مجدول",
-      in_progress: "جاري",
-      completed: "مكتمل",
-      cancelled: "ملغي",
-      weather_hold: "تأجيل (طقس)",
+      scheduled: 'مجدول',
+      in_progress: 'جاري',
+      completed: 'مكتمل',
+      cancelled: 'ملغي',
+      weather_hold: 'تأجيل (طقس)',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -143,8 +147,8 @@ export default function SprayClient() {
     );
   };
 
-  const scheduledCount = mockSprayRecords.filter((r) => r.status === "scheduled").length;
-  const weatherHoldCount = mockSprayRecords.filter((r) => r.status === "weather_hold").length;
+  const scheduledCount = mockSprayRecords.filter((r) => r.status === 'scheduled').length;
+  const weatherHoldCount = mockSprayRecords.filter((r) => r.status === 'weather_hold').length;
 
   return (
     <div className="space-y-6">
@@ -193,7 +197,7 @@ export default function SprayClient() {
             <div>
               <div className="text-sm text-gray-500">جاري</div>
               <div className="text-xl font-bold text-yellow-600">
-                {mockSprayRecords.filter((r) => r.status === "in_progress").length}
+                {mockSprayRecords.filter((r) => r.status === 'in_progress').length}
               </div>
             </div>
           </div>
@@ -206,7 +210,7 @@ export default function SprayClient() {
             <div>
               <div className="text-sm text-gray-500">مكتمل</div>
               <div className="text-xl font-bold text-green-600">
-                {mockSprayRecords.filter((r) => r.status === "completed").length}
+                {mockSprayRecords.filter((r) => r.status === 'completed').length}
               </div>
             </div>
           </div>
@@ -238,7 +242,7 @@ export default function SprayClient() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as SprayStatus | "all")}
+          onChange={(e) => setStatusFilter(e.target.value as SprayStatus | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الحالات</option>
@@ -262,7 +266,9 @@ export default function SprayClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الجرعة</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الموعد</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -277,18 +283,20 @@ export default function SprayClient() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${sprayTypes[record.type].color}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${sprayTypes[record.type].color}`}
+                    >
                       {sprayTypes[record.type].labelAr}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{record.productNameAr}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">{record.dosage}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {new Date(record.scheduledAt).toLocaleDateString("ar-SA", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(record.scheduledAt).toLocaleDateString('ar-SA', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </td>
                   <td className="px-4 py-3">{getStatusBadge(record.status)}</td>

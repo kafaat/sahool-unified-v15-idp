@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 /**
  * Organization Schema for SAHOOL platform
@@ -87,7 +87,7 @@ export interface ProductSchema {
   offers?: {
     price: string;
     priceCurrency: string;
-    availability?: "InStock" | "OutOfStock" | "PreOrder";
+    availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
   };
 }
 
@@ -117,14 +117,10 @@ function JsonLdScript({ data }: { data: Record<string, unknown> }) {
 /**
  * Organization JSON-LD for SAHOOL platform
  */
-export function OrganizationJsonLd({
-  organization,
-}: {
-  organization: OrganizationSchema;
-}) {
+export function OrganizationJsonLd({ organization }: { organization: OrganizationSchema }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
     name: organization.name,
     alternateName: organization.nameAr,
     url: organization.url,
@@ -134,7 +130,7 @@ export function OrganizationJsonLd({
     telephone: organization.telephone,
     address: organization.address
       ? {
-          "@type": "PostalAddress",
+          '@type': 'PostalAddress',
           ...organization.address,
         }
       : undefined,
@@ -149,10 +145,10 @@ export function OrganizationJsonLd({
  */
 export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
+      '@type': 'ListItem',
       position: index + 1,
       name: item.name,
       item: item.url,
@@ -165,14 +161,10 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
 /**
  * Software Application JSON-LD for SAHOOL platform
  */
-export function SoftwareApplicationJsonLd({
-  app,
-}: {
-  app: SoftwareApplicationSchema;
-}) {
+export function SoftwareApplicationJsonLd({ app }: { app: SoftwareApplicationSchema }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
     name: app.name,
     alternateName: app.nameAr,
     description: app.description,
@@ -180,7 +172,7 @@ export function SoftwareApplicationJsonLd({
     operatingSystem: app.operatingSystem,
     offers: app.offers
       ? {
-          "@type": "Offer",
+          '@type': 'Offer',
           price: app.offers.price,
           priceCurrency: app.offers.priceCurrency,
         }
@@ -195,13 +187,13 @@ export function SoftwareApplicationJsonLd({
  */
 export function FAQJsonLd({ items }: { items: FAQItem[] }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
     mainEntity: items.map((item) => ({
-      "@type": "Question",
+      '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
-        "@type": "Answer",
+        '@type': 'Answer',
         text: item.answer,
       },
     })),
@@ -215,14 +207,14 @@ export function FAQJsonLd({ items }: { items: FAQItem[] }) {
  */
 export function ArticleJsonLd({ article }: { article: ArticleSchema }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "Article",
+    '@context': 'https://schema.org',
+    '@type': 'Article',
     headline: article.headline,
     description: article.description,
     image: article.image,
     author: article.author
       ? {
-          "@type": "Person",
+          '@type': 'Person',
           name: article.author.name,
           url: article.author.url,
         }
@@ -230,11 +222,11 @@ export function ArticleJsonLd({ article }: { article: ArticleSchema }) {
     datePublished: article.datePublished,
     dateModified: article.dateModified,
     publisher: {
-      "@type": "Organization",
-      name: "SAHOOL",
+      '@type': 'Organization',
+      name: 'SAHOOL',
       logo: {
-        "@type": "ImageObject",
-        url: "https://sahool.com/icon-512.png",
+        '@type': 'ImageObject',
+        url: 'https://sahool.com/icon-512.png',
       },
     },
   };
@@ -247,24 +239,24 @@ export function ArticleJsonLd({ article }: { article: ArticleSchema }) {
  */
 export function ProductJsonLd({ product }: { product: ProductSchema }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "Product",
+    '@context': 'https://schema.org',
+    '@type': 'Product',
     name: product.name,
     alternateName: product.nameAr,
     description: product.description,
     image: product.image,
     brand: product.brand
       ? {
-          "@type": "Brand",
+          '@type': 'Brand',
           name: product.brand,
         }
       : undefined,
     offers: product.offers
       ? {
-          "@type": "Offer",
+          '@type': 'Offer',
           price: product.offers.price,
           priceCurrency: product.offers.priceCurrency,
-          availability: `https://schema.org/${product.offers.availability || "InStock"}`,
+          availability: `https://schema.org/${product.offers.availability || 'InStock'}`,
         }
       : undefined,
   };
@@ -291,28 +283,29 @@ export function WebSiteJsonLd({
   searchUrl?: string;
 }) {
   // Combine descriptions for multilingual support
-  const fullDescription = descriptionAr && description
-    ? `${descriptionAr} - ${description}`
-    : description || descriptionAr;
+  const fullDescription =
+    descriptionAr && description
+      ? `${descriptionAr} - ${description}`
+      : description || descriptionAr;
 
   const data: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
     name,
     alternateName: nameAr,
     url,
     description: fullDescription,
-    inLanguage: ["ar", "en"],
+    inLanguage: ['ar', 'en'],
   };
 
   if (searchUrl) {
     data.potentialAction = {
-      "@type": "SearchAction",
+      '@type': 'SearchAction',
       target: {
-        "@type": "EntryPoint",
+        '@type': 'EntryPoint',
         urlTemplate: searchUrl,
       },
-      "query-input": "required name=search_term_string",
+      'query-input': 'required name=search_term_string',
     };
   }
 
@@ -351,9 +344,9 @@ export function LocalBusinessJsonLd({
   openingHours?: string[];
 }) {
   const data = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": "#local-business",
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': '#local-business',
     name,
     alternateName: nameAr,
     description,
@@ -361,13 +354,13 @@ export function LocalBusinessJsonLd({
     telephone,
     address: address
       ? {
-          "@type": "PostalAddress",
+          '@type': 'PostalAddress',
           ...address,
         }
       : undefined,
     geo: geo
       ? {
-          "@type": "GeoCoordinates",
+          '@type': 'GeoCoordinates',
           latitude: geo.latitude,
           longitude: geo.longitude,
         }
@@ -394,32 +387,29 @@ export function SAHOOLDefaultJsonLd() {
       />
       <OrganizationJsonLd
         organization={{
-          name: "SAHOOL",
-          nameAr: "سهول",
-          url: "https://sahool.com",
-          logo: "https://sahool.com/icon-512.png",
-          description: "Smart Agricultural Intelligence Platform",
-          descriptionAr: "منصة الذكاء الزراعي",
+          name: 'SAHOOL',
+          nameAr: 'سهول',
+          url: 'https://sahool.com',
+          logo: 'https://sahool.com/icon-512.png',
+          description: 'Smart Agricultural Intelligence Platform',
+          descriptionAr: 'منصة الذكاء الزراعي',
           address: {
-            addressCountry: "YE",
+            addressCountry: 'YE',
           },
-          sameAs: [
-            "https://twitter.com/sahoolplatform",
-            "https://facebook.com/sahoolplatform",
-          ],
+          sameAs: ['https://twitter.com/sahoolplatform', 'https://facebook.com/sahoolplatform'],
         }}
       />
       <SoftwareApplicationJsonLd
         app={{
-          name: "SAHOOL",
-          nameAr: "سهول",
-          description: "Agricultural management and advisory platform",
-          descriptionAr: "منصة إدارة واستشارات زراعية",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Web, iOS, Android",
+          name: 'SAHOOL',
+          nameAr: 'سهول',
+          description: 'Agricultural management and advisory platform',
+          descriptionAr: 'منصة إدارة واستشارات زراعية',
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'Web, iOS, Android',
           offers: {
-            price: "0",
-            priceCurrency: "USD",
+            price: '0',
+            priceCurrency: 'USD',
           },
         }}
       />

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Code Review Operator Dashboard
  * لوحة تشغيل مراجعات الكود
  */
 
-import { useEffect, useState, useMemo, useCallback, Suspense } from "react";
-import Header from "@/components/layout/Header";
+import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
+import Header from '@/components/layout/Header';
 import {
   FileCode2,
   Shield,
@@ -23,7 +23,7 @@ import {
   ChevronUp,
   Trash2,
   Leaf,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ interface ModelInfo {
 }
 
 interface HealthStatus {
-  status: "healthy" | "degraded";
+  status: 'healthy' | 'degraded';
   service: string;
   ollama_connected: boolean;
   available_models: string[];
@@ -65,47 +65,47 @@ interface CacheStats {
 
 // ─── API Helpers ─────────────────────────────────────────────────────────────
 
-const CODE_REVIEW_API = "/api/code-review";
+const CODE_REVIEW_API = '/api/code-review';
 
 async function fetchHealth(): Promise<HealthStatus> {
   const res = await fetch(`${CODE_REVIEW_API}?action=health`);
-  if (!res.ok) throw new Error("Service unavailable");
+  if (!res.ok) throw new Error('Service unavailable');
   return res.json();
 }
 
 async function fetchModels(): Promise<ModelInfo[]> {
   const res = await fetch(`${CODE_REVIEW_API}?action=models`);
-  if (!res.ok) throw new Error("Failed to fetch models");
+  if (!res.ok) throw new Error('Failed to fetch models');
   return res.json();
 }
 
 async function fetchCacheStats(): Promise<CacheStats> {
   const res = await fetch(`${CODE_REVIEW_API}?action=cache`);
-  if (!res.ok) throw new Error("Failed to fetch cache stats");
+  if (!res.ok) throw new Error('Failed to fetch cache stats');
   return res.json();
 }
 
 async function clearCache(): Promise<void> {
   const res = await fetch(CODE_REVIEW_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "clear_cache" }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'clear_cache' }),
   });
-  if (!res.ok) throw new Error("Failed to clear cache");
+  if (!res.ok) throw new Error('Failed to clear cache');
 }
 
 async function submitReview(
   code: string,
   language?: string,
   filename?: string,
-  model?: string,
+  model?: string
 ): Promise<ReviewResponse> {
   const res = await fetch(CODE_REVIEW_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "review", code, language, filename, model, use_cache: true }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'review', code, language, filename, model, use_cache: true }),
   });
-  if (!res.ok) throw new Error("Review failed");
+  if (!res.ok) throw new Error('Review failed');
   return res.json();
 }
 
@@ -114,13 +114,15 @@ async function submitReview(
 function ScoreBadge({ score }: { score: number }) {
   const color =
     score >= 80
-      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
       : score >= 60
-        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${color}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${color}`}
+    >
       {score}/100
     </span>
   );
@@ -149,7 +151,9 @@ function StatCard({
         </div>
         <div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400" title={label}>{labelAr}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400" title={label}>
+            {labelAr}
+          </p>
         </div>
       </div>
     </div>
@@ -181,7 +185,10 @@ function IssueList({
       </h4>
       <ul className="space-y-1">
         {items.map((item, i) => (
-          <li key={i} className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded px-3 py-1.5">
+          <li
+            key={i}
+            className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded px-3 py-1.5"
+          >
             {item}
           </li>
         ))}
@@ -193,14 +200,14 @@ function IssueList({
 // ─── Main Content ────────────────────────────────────────────────────────────
 
 const LANGUAGES = [
-  { value: "python", label: "Python" },
-  { value: "typescript", label: "TypeScript" },
-  { value: "javascript", label: "JavaScript" },
-  { value: "dart", label: "Dart" },
-  { value: "go", label: "Go" },
-  { value: "rust", label: "Rust" },
-  { value: "yaml", label: "YAML" },
-  { value: "sql", label: "SQL" },
+  { value: 'python', label: 'Python' },
+  { value: 'typescript', label: 'TypeScript' },
+  { value: 'javascript', label: 'JavaScript' },
+  { value: 'dart', label: 'Dart' },
+  { value: 'go', label: 'Go' },
+  { value: 'rust', label: 'Rust' },
+  { value: 'yaml', label: 'YAML' },
+  { value: 'sql', label: 'SQL' },
 ];
 
 function CodeReviewContent() {
@@ -211,14 +218,16 @@ function CodeReviewContent() {
   const [serviceError, setServiceError] = useState<string | null>(null);
 
   // Review form
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("python");
-  const [filename, setFilename] = useState("");
-  const [selectedModel, setSelectedModel] = useState("");
+  const [code, setCode] = useState('');
+  const [language, setLanguage] = useState('python');
+  const [filename, setFilename] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Review results
-  const [reviews, setReviews] = useState<(ReviewResponse & { filename: string; language: string; timestamp: Date })[]>([]);
+  const [reviews, setReviews] = useState<
+    (ReviewResponse & { filename: string; language: string; timestamp: Date })[]
+  >([]);
   const [expandedReview, setExpandedReview] = useState<number | null>(null);
 
   // Load service info
@@ -230,7 +239,7 @@ function CodeReviewContent() {
       setModels(m);
       setCacheStats(c);
     } catch {
-      setServiceError("تعذر الاتصال بخدمة مراجعة الكود — Service unavailable");
+      setServiceError('تعذر الاتصال بخدمة مراجعة الكود — Service unavailable');
     }
   }, []);
 
@@ -243,14 +252,19 @@ function CodeReviewContent() {
     if (!code.trim()) return;
     setIsSubmitting(true);
     try {
-      const result = await submitReview(code, language, filename || undefined, selectedModel || undefined);
+      const result = await submitReview(
+        code,
+        language,
+        filename || undefined,
+        selectedModel || undefined
+      );
       setReviews((prev) => [
-        { ...result, filename: filename || "untitled", language, timestamp: new Date() },
+        { ...result, filename: filename || 'untitled', language, timestamp: new Date() },
         ...prev,
       ]);
       setExpandedReview(0);
     } catch {
-      setServiceError("فشل في إرسال المراجعة — Review submission failed");
+      setServiceError('فشل في إرسال المراجعة — Review submission failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -275,8 +289,13 @@ function CodeReviewContent() {
 
   const totalIssues = useMemo(() => {
     return reviews.reduce(
-      (s, r) => s + r.critical_issues.length + r.suggestions.length + r.security_concerns.length + r.agricultural_issues.length,
-      0,
+      (s, r) =>
+        s +
+        r.critical_issues.length +
+        r.suggestions.length +
+        r.security_concerns.length +
+        r.agricultural_issues.length,
+      0
     );
   }, [reviews]);
 
@@ -308,7 +327,7 @@ function CodeReviewContent() {
         />
         <StatCard
           icon={Gauge}
-          value={avgScore ? `${avgScore}%` : "—"}
+          value={avgScore ? `${avgScore}%` : '—'}
           label="Avg Score"
           labelAr="متوسط التقييم"
           color="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
@@ -333,22 +352,31 @@ function CodeReviewContent() {
       {health && (
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${health.status === "healthy" ? "bg-green-500" : "bg-amber-500"}`} />
-            {health.status === "healthy" ? "متصل" : "متدهور"} — v{health.version}
+            <span
+              className={`w-2 h-2 rounded-full ${health.status === 'healthy' ? 'bg-green-500' : 'bg-amber-500'}`}
+            />
+            {health.status === 'healthy' ? 'متصل' : 'متدهور'} — v{health.version}
           </span>
-          <span>Ollama: {health.ollama_connected ? "✓" : "✗"}</span>
-          <span>Cache: {health.cache_enabled ? "✓" : "✗"}</span>
-          <span>GitHub: {health.github_enabled ? "✓" : "✗"}</span>
+          <span>Ollama: {health.ollama_connected ? '✓' : '✗'}</span>
+          <span>Cache: {health.cache_enabled ? '✓' : '✗'}</span>
+          <span>GitHub: {health.github_enabled ? '✓' : '✗'}</span>
           {cacheStats && (
             <span className="flex items-center gap-1">
               <Database className="w-3 h-3" />
               Hit rate: {cacheStats.hit_rate} ({cacheStats.backend})
-              <button onClick={handleClearCache} title="مسح الكاش" className="text-gray-400 hover:text-red-500">
+              <button
+                onClick={handleClearCache}
+                title="مسح الكاش"
+                className="text-gray-400 hover:text-red-500"
+              >
                 <Trash2 className="w-3 h-3" />
               </button>
             </span>
           )}
-          <button onClick={loadServiceInfo} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <button
+            onClick={loadServiceInfo}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
             <RefreshCw className="w-3 h-3" />
           </button>
         </div>
@@ -461,26 +489,36 @@ function CodeReviewContent() {
                           <span className="text-gray-400 mx-1">·</span>
                           <span className="text-gray-500">{review.language}</span>
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{review.summary}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                          {review.summary}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {review.cached && (
-                        <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">cached</span>
+                        <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                          cached
+                        </span>
                       )}
                       {review.model_used && (
                         <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded">
                           {review.model_used}
                         </span>
                       )}
-                      {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      )}
                     </div>
                   </button>
 
                   {/* Expanded content */}
                   {isExpanded && (
                     <div className="border-t border-gray-100 dark:border-gray-700 px-4 pb-4">
-                      <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">{review.summary}</p>
+                      <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
+                        {review.summary}
+                      </p>
 
                       <IssueList
                         title="Critical Issues"

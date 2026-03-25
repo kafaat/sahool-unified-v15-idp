@@ -2,18 +2,18 @@
  * Seasons Feature - React Hooks
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { seasonsApi } from "../api";
-import type { SeasonFilters, SeasonFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { seasonsApi } from '../api';
+import type { SeasonFilters, SeasonFormData } from '../types';
 
 export const seasonKeys = {
-  all: ["seasons"] as const,
-  lists: () => [...seasonKeys.all, "list"] as const,
+  all: ['seasons'] as const,
+  lists: () => [...seasonKeys.all, 'list'] as const,
   list: (filters?: SeasonFilters) => [...seasonKeys.lists(), filters] as const,
-  detail: (id: string) => [...seasonKeys.all, "detail", id] as const,
-  stats: () => [...seasonKeys.all, "stats"] as const,
+  detail: (id: string) => [...seasonKeys.all, 'detail', id] as const,
+  stats: () => [...seasonKeys.all, 'stats'] as const,
 };
 
 export function useSeasons(filters?: SeasonFilters) {

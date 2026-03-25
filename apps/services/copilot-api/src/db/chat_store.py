@@ -183,13 +183,14 @@ async def _ensure_session(
     Uses the client-provided session_id as a deterministic UUID seed so that
     repeated calls with the same session_id always resolve to the same row.
     """
-    # Deterministic UUID from the client session_id string
-    # معرف UUID حتمي من سلسلة معرف الجلسة
-    session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
+    # Deterministic UUID from tenant_id + session_id to prevent cross-tenant collisions
+    # معرف UUID حتمي من معرف المستأجر + معرف الجلسة لمنع التضارب بين المستأجرين
+    session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{tenant_id}:{session_id}")
 
     row = await conn.fetchrow(
-        "SELECT id FROM copilot_sessions WHERE id = $1",
+        "SELECT id FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",
         session_uuid,
+        tenant_id,
     )
 
     if row is None:
@@ -207,8 +208,9 @@ async def _ensure_session(
         # Update the updated_at timestamp
         # تحديث الطابع الزمني
         await conn.execute(
-            "UPDATE copilot_sessions SET updated_at = NOW() WHERE id = $1",
+            "UPDATE copilot_sessions SET updated_at = NOW() WHERE id = $1 AND tenant_id = $2",
             session_uuid,
+            tenant_id,
         )
 
     return str(session_uuid)
@@ -412,8 +414,8 @@ async def list_sessions(
 
 async def delete_session(
     session_id: str,
+    tenant_id: str,
     user_id: str | None = None,
-    tenant_id: str | None = None,
 ) -> bool:
     """
     Delete a chat session and all its messages (cascade).
@@ -421,8 +423,8 @@ async def delete_session(
 
     Args:
         session_id: Client-provided session identifier.
+        tenant_id: Tenant ID for isolation (required).
         user_id: If provided, validates session ownership before deletion.
-        tenant_id: If provided, validates tenant isolation before deletion.
 
     Returns:
         True if the session was deleted, False otherwise.
@@ -434,24 +436,19 @@ async def delete_session(
         session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
 
         async with _pool.acquire() as conn:
-            # Build query with optional ownership validation
-            if user_id and tenant_id:
+            # Build query with ownership validation and tenant isolation
+            if user_id:
                 result = await conn.execute(
                     "DELETE FROM copilot_sessions WHERE id = $1 AND user_id = $2 AND tenant_id = $3",
                     session_uuid,
                     user_id,
                     tenant_id,
                 )
-            elif tenant_id:
+            else:
                 result = await conn.execute(
                     "DELETE FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",
                     session_uuid,
                     tenant_id,
-                )
-            else:
-                result = await conn.execute(
-                    "DELETE FROM copilot_sessions WHERE id = $1",
-                    session_uuid,
                 )
 
             deleted = result == "DELETE 1"

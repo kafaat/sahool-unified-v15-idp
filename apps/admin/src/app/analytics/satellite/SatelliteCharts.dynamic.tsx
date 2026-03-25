@@ -1,8 +1,8 @@
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
 export const NDVITrendChart = dynamic(
   () =>
-    import("./SatelliteCharts").then((mod) => ({
+    import('./SatelliteCharts').then((mod) => ({
       default: mod.NDVITrendChart,
     })),
   {
@@ -12,5 +12,5 @@ export const NDVITrendChart = dynamic(
         <p className="text-gray-500 text-sm">جاري تحميل المخطط...</p>
       </div>
     ),
-  },
+  }
 );

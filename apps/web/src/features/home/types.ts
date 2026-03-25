@@ -8,13 +8,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type ActivityType =
-  | "task"
-  | "alert"
-  | "field"
-  | "weather"
-  | "irrigation"
-  | "harvest"
-  | "maintenance";
+  | 'task'
+  | 'alert'
+  | 'field'
+  | 'weather'
+  | 'irrigation'
+  | 'harvest'
+  | 'maintenance';
 
 export interface ActivityItem {
   id: string;
@@ -32,8 +32,8 @@ export interface ActivityItem {
 // Task Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type TaskPriority = "high" | "medium" | "low";
-export type TaskStatus = "pending" | "in_progress" | "completed" | "cancelled";
+export type TaskPriority = 'high' | 'medium' | 'low';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
 export interface DashboardTask {
   id: string;
@@ -94,9 +94,9 @@ export interface DashboardStats {
 
 export interface StatTrend {
   value: number;
-  direction: "up" | "down" | "stable";
+  direction: 'up' | 'down' | 'stable';
   percentage: number;
-  period: "day" | "week" | "month";
+  period: 'day' | 'week' | 'month';
 }
 
 export interface EnhancedStats extends DashboardStats {
@@ -112,13 +112,8 @@ export interface EnhancedStats extends DashboardStats {
 // Alert Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type AlertSeverity = "critical" | "warning" | "info";
-export type AlertCategory =
-  | "weather"
-  | "pest"
-  | "irrigation"
-  | "health"
-  | "system";
+export type AlertSeverity = 'critical' | 'warning' | 'info';
+export type AlertCategory = 'weather' | 'pest' | 'irrigation' | 'health' | 'system';
 
 export interface DashboardAlert {
   id: string;
@@ -209,7 +204,7 @@ export interface MarkActivityReadPayload {
 
 export interface RefreshDashboardPayload {
   force?: boolean;
-  sections?: ("stats" | "weather" | "activity" | "tasks" | "alerts")[];
+  sections?: ('stats' | 'weather' | 'activity' | 'tasks' | 'alerts')[];
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

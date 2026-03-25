@@ -3,34 +3,34 @@
  * مكون المجموعات
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { Users, Search, Plus, Lock, Globe } from "lucide-react";
-import { useGroups, useJoinGroup } from "../hooks/useGroups";
-import type { GroupFilters, GroupCategory } from "../types";
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { Users, Search, Plus, Lock, Globe } from 'lucide-react';
+import { useGroups, useJoinGroup } from '../hooks/useGroups';
+import type { GroupFilters, GroupCategory } from '../types';
 
 export const Groups: React.FC = () => {
   const [filters, setFilters] = useState<GroupFilters>({
-    sortBy: "popular",
+    sortBy: 'popular',
   });
 
   const { data: groups, isLoading } = useGroups(filters);
   const joinMutation = useJoinGroup();
 
   const categories: Array<{
-    value: GroupCategory | "all";
+    value: GroupCategory | 'all';
     label: string;
     labelAr: string;
   }> = [
-    { value: "all", label: "All", labelAr: "الكل" },
-    { value: "crops", label: "Crops", labelAr: "المحاصيل" },
-    { value: "livestock", label: "Livestock", labelAr: "الثروة الحيوانية" },
-    { value: "irrigation", label: "Irrigation", labelAr: "الري" },
-    { value: "pests", label: "Pests", labelAr: "الآفات" },
-    { value: "organic", label: "Organic", labelAr: "الزراعة العضوية" },
-    { value: "technology", label: "Technology", labelAr: "التقنية" },
+    { value: 'all', label: 'All', labelAr: 'الكل' },
+    { value: 'crops', label: 'Crops', labelAr: 'المحاصيل' },
+    { value: 'livestock', label: 'Livestock', labelAr: 'الثروة الحيوانية' },
+    { value: 'irrigation', label: 'Irrigation', labelAr: 'الري' },
+    { value: 'pests', label: 'Pests', labelAr: 'الآفات' },
+    { value: 'organic', label: 'Organic', labelAr: 'الزراعة العضوية' },
+    { value: 'technology', label: 'Technology', labelAr: 'التقنية' },
   ];
 
   const handleJoinGroup = (groupId: string) => {
@@ -64,10 +64,8 @@ export const Groups: React.FC = () => {
                 <input
                   type="text"
                   placeholder="ابحث عن مجموعة..."
-                  value={filters.search || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, search: e.target.value })
-                  }
+                  value={filters.search || ''}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                   className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
@@ -75,14 +73,12 @@ export const Groups: React.FC = () => {
 
             {/* Category Filter */}
             <select
-              value={filters.category || "all"}
+              value={filters.category || 'all'}
               onChange={(e) =>
                 setFilters({
                   ...filters,
                   category:
-                    e.target.value === "all"
-                      ? undefined
-                      : (e.target.value as GroupCategory),
+                    e.target.value === 'all' ? undefined : (e.target.value as GroupCategory),
                 })
               }
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -99,14 +95,10 @@ export const Groups: React.FC = () => {
               <input
                 type="checkbox"
                 checked={filters.joined || false}
-                onChange={(e) =>
-                  setFilters({ ...filters, joined: e.target.checked })
-                }
+                onChange={(e) => setFilters({ ...filters, joined: e.target.checked })}
                 className="w-5 h-5 text-green-500 rounded focus:ring-green-500"
               />
-              <span className="text-sm font-medium text-gray-700">
-                المجموعات المنضمة
-              </span>
+              <span className="text-sm font-medium text-gray-700">المجموعات المنضمة</span>
             </label>
           </div>
         </div>
@@ -138,7 +130,7 @@ export const Groups: React.FC = () => {
                     />
                   )}
                   <div className="absolute top-3 right-3">
-                    {group.privacy === "private" ? (
+                    {group.privacy === 'private' ? (
                       <div className="bg-white bg-opacity-90 px-2 py-1 rounded-full flex items-center gap-1">
                         <Lock className="w-4 h-4 text-gray-700" />
                         <span className="text-xs text-gray-700">خاصة</span>
@@ -154,20 +146,16 @@ export const Groups: React.FC = () => {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    {group.nameAr}
-                  </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {group.descriptionAr}
-                  </p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{group.nameAr}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{group.descriptionAr}</p>
 
                   <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      <span>{group.memberCount.toLocaleString("ar-SA")}</span>
+                      <span>{group.memberCount.toLocaleString('ar-SA')}</span>
                     </div>
                     <span>•</span>
-                    <span>{group.postCount.toLocaleString("ar-SA")} منشور</span>
+                    <span>{group.postCount.toLocaleString('ar-SA')} منشور</span>
                   </div>
 
                   {group.isJoined ? (

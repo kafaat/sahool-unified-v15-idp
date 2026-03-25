@@ -3,8 +3,8 @@
  * طبقة API لميزة الرؤية الحاسوبية
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { VISION_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+import { createApiClient, logger } from '@/lib/api/factory';
+import { VISION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   PestDetection,
   DiseaseDetection,
@@ -13,27 +13,35 @@ import type {
   RipenessResult,
   LeafSegmentation,
   ModelInfo,
-} from "./types";
+} from './types';
 
 const api = createApiClient({ timeout: 60000 });
 
 export const ERROR_MESSAGES = {
-  NETWORK_ERROR: { en: "Network error. Vision service unavailable.", ar: "خطأ في الاتصال. خدمة الرؤية غير متاحة." },
-  DETECTION_FAILED: { en: "Failed to process image for detection.", ar: "فشل في معالجة الصورة للكشف." },
-  UPLOAD_FAILED: { en: "Failed to upload image.", ar: "فشل في رفع الصورة." },
-  MODEL_FAILED: { en: "Failed to fetch model information.", ar: "فشل في جلب معلومات النموذج." },
+  NETWORK_ERROR: {
+    en: 'Network error. Vision service unavailable.',
+    ar: 'خطأ في الاتصال. خدمة الرؤية غير متاحة.',
+  },
+  DETECTION_FAILED: {
+    en: 'Failed to process image for detection.',
+    ar: 'فشل في معالجة الصورة للكشف.',
+  },
+  UPLOAD_FAILED: { en: 'Failed to upload image.', ar: 'فشل في رفع الصورة.' },
+  MODEL_FAILED: { en: 'Failed to fetch model information.', ar: 'فشل في جلب معلومات النموذج.' },
 };
 
 export const visionApi = {
   detectPest: async (image: File, confidence?: number): Promise<PestDetection> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      if (confidence) formData.append("confidence", confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_PEST, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      if (confidence) formData.append('confidence', confidence.toString());
+      const response = await api.post(VISION_ENDPOINTS.DETECT_PEST, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Pest detection failed:", error);
+      logger.error('Pest detection failed:', error);
       throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
     }
   },
@@ -41,12 +49,14 @@ export const visionApi = {
   detectDisease: async (image: File, confidence?: number): Promise<DiseaseDetection> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      if (confidence) formData.append("confidence", confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_DISEASE, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      if (confidence) formData.append('confidence', confidence.toString());
+      const response = await api.post(VISION_ENDPOINTS.DETECT_DISEASE, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Disease detection failed:", error);
+      logger.error('Disease detection failed:', error);
       throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
     }
   },
@@ -54,12 +64,14 @@ export const visionApi = {
   detectWeed: async (image: File, confidence?: number): Promise<WeedDetection> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      if (confidence) formData.append("confidence", confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_WEED, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      if (confidence) formData.append('confidence', confidence.toString());
+      const response = await api.post(VISION_ENDPOINTS.DETECT_WEED, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Weed detection failed:", error);
+      logger.error('Weed detection failed:', error);
       throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
     }
   },
@@ -67,11 +79,13 @@ export const visionApi = {
   countPlants: async (image: File): Promise<PlantCount> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      const response = await api.post(VISION_ENDPOINTS.COUNT_PLANTS, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      const response = await api.post(VISION_ENDPOINTS.COUNT_PLANTS, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Plant counting failed:", error);
+      logger.error('Plant counting failed:', error);
       throw error;
     }
   },
@@ -79,11 +93,13 @@ export const visionApi = {
   classifyRipeness: async (image: File): Promise<RipenessResult> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      const response = await api.post(VISION_ENDPOINTS.CLASSIFY_RIPENESS, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      const response = await api.post(VISION_ENDPOINTS.CLASSIFY_RIPENESS, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Ripeness classification failed:", error);
+      logger.error('Ripeness classification failed:', error);
       throw error;
     }
   },
@@ -91,11 +107,13 @@ export const visionApi = {
   segmentLeaf: async (image: File): Promise<LeafSegmentation> => {
     try {
       const formData = new FormData();
-      formData.append("image", image);
-      const response = await api.post(VISION_ENDPOINTS.SEGMENT_LEAF, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      formData.append('image', image);
+      const response = await api.post(VISION_ENDPOINTS.SEGMENT_LEAF, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Leaf segmentation failed:", error);
+      logger.error('Leaf segmentation failed:', error);
       throw error;
     }
   },
@@ -103,11 +121,13 @@ export const visionApi = {
   batchDetectPest: async (images: File[]): Promise<PestDetection[]> => {
     try {
       const formData = new FormData();
-      images.forEach((img) => formData.append("images", img));
-      const response = await api.post(VISION_ENDPOINTS.BATCH_PEST, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      images.forEach((img) => formData.append('images', img));
+      const response = await api.post(VISION_ENDPOINTS.BATCH_PEST, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Batch pest detection failed:", error);
+      logger.error('Batch pest detection failed:', error);
       throw error;
     }
   },
@@ -115,11 +135,13 @@ export const visionApi = {
   batchDetectDisease: async (images: File[]): Promise<DiseaseDetection[]> => {
     try {
       const formData = new FormData();
-      images.forEach((img) => formData.append("images", img));
-      const response = await api.post(VISION_ENDPOINTS.BATCH_DISEASE, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      images.forEach((img) => formData.append('images', img));
+      const response = await api.post(VISION_ENDPOINTS.BATCH_DISEASE, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Batch disease detection failed:", error);
+      logger.error('Batch disease detection failed:', error);
       throw error;
     }
   },
@@ -131,7 +153,7 @@ export const visionApi = {
       if (Array.isArray(data)) return data;
       return [];
     } catch (error) {
-      logger.warn("Failed to fetch vision models:", error);
+      logger.warn('Failed to fetch vision models:', error);
       return [];
     }
   },
@@ -151,7 +173,7 @@ export const visionApi = {
     try {
       await api.post(VISION_ENDPOINTS.MODELS_WARMUP, { variants });
     } catch (error) {
-      logger.warn("Failed to warmup models:", error);
+      logger.warn('Failed to warmup models:', error);
     }
   },
 };

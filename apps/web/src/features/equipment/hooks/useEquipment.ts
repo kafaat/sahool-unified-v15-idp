@@ -3,31 +3,24 @@
  * خطافات React لميزة المعدات
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { equipmentApi } from "../api";
-import type {
-  EquipmentFilters,
-  EquipmentFormData,
-  MaintenanceFormData,
-} from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { equipmentApi } from '../api';
+import type { EquipmentFilters, EquipmentFormData, MaintenanceFormData } from '../types';
 
 // Query Keys
 export const equipmentKeys = {
-  all: ["equipment"] as const,
-  lists: () => [...equipmentKeys.all, "list"] as const,
-  list: (filters?: EquipmentFilters) =>
-    [...equipmentKeys.lists(), filters] as const,
-  detail: (id: string) => [...equipmentKeys.all, "detail", id] as const,
-  stats: () => [...equipmentKeys.all, "stats"] as const,
+  all: ['equipment'] as const,
+  lists: () => [...equipmentKeys.all, 'list'] as const,
+  list: (filters?: EquipmentFilters) => [...equipmentKeys.lists(), filters] as const,
+  detail: (id: string) => [...equipmentKeys.all, 'detail', id] as const,
+  stats: () => [...equipmentKeys.all, 'stats'] as const,
   maintenance: {
-    all: ["maintenance"] as const,
-    lists: () => [...equipmentKeys.maintenance.all, "list"] as const,
-    list: (equipmentId?: string) =>
-      [...equipmentKeys.maintenance.lists(), equipmentId] as const,
-    detail: (id: string) =>
-      [...equipmentKeys.maintenance.all, "detail", id] as const,
+    all: ['maintenance'] as const,
+    lists: () => [...equipmentKeys.maintenance.all, 'list'] as const,
+    list: (equipmentId?: string) => [...equipmentKeys.maintenance.lists(), equipmentId] as const,
+    detail: (id: string) => [...equipmentKeys.maintenance.all, 'detail', id] as const,
   },
 };
 
@@ -86,19 +79,11 @@ export function useUpdateEquipment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<EquipmentFormData>;
-    }) => equipmentApi.updateEquipment(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<EquipmentFormData> }) =>
+      equipmentApi.updateEquipment(id, data),
     onSuccess: (updatedEquipment) => {
       queryClient.invalidateQueries({ queryKey: equipmentKeys.lists() });
-      queryClient.setQueryData(
-        equipmentKeys.detail(updatedEquipment.id),
-        updatedEquipment,
-      );
+      queryClient.setQueryData(equipmentKeys.detail(updatedEquipment.id), updatedEquipment);
       queryClient.invalidateQueries({ queryKey: equipmentKeys.stats() });
     },
   });
@@ -135,10 +120,7 @@ export function useUpdateEquipmentLocation() {
       location: { latitude: number; longitude: number; fieldId?: string };
     }) => equipmentApi.updateLocation(id, location),
     onSuccess: (updatedEquipment) => {
-      queryClient.setQueryData(
-        equipmentKeys.detail(updatedEquipment.id),
-        updatedEquipment,
-      );
+      queryClient.setQueryData(equipmentKeys.detail(updatedEquipment.id), updatedEquipment);
       queryClient.invalidateQueries({ queryKey: equipmentKeys.lists() });
     },
   });
@@ -173,8 +155,7 @@ export function useCreateMaintenance() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: MaintenanceFormData) =>
-      equipmentApi.createMaintenance(data),
+    mutationFn: (data: MaintenanceFormData) => equipmentApi.createMaintenance(data),
     onSuccess: (newRecord) => {
       queryClient.invalidateQueries({
         queryKey: equipmentKeys.maintenance.lists(),
@@ -194,21 +175,13 @@ export function useUpdateMaintenance() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<MaintenanceFormData>;
-    }) => equipmentApi.updateMaintenance(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<MaintenanceFormData> }) =>
+      equipmentApi.updateMaintenance(id, data),
     onSuccess: (updatedRecord) => {
       queryClient.invalidateQueries({
         queryKey: equipmentKeys.maintenance.lists(),
       });
-      queryClient.setQueryData(
-        equipmentKeys.maintenance.detail(updatedRecord.id),
-        updatedRecord,
-      );
+      queryClient.setQueryData(equipmentKeys.maintenance.detail(updatedRecord.id), updatedRecord);
     },
   });
 }
@@ -228,7 +201,7 @@ export function useCompleteMaintenance() {
       });
       queryClient.setQueryData(
         equipmentKeys.maintenance.detail(completedRecord.id),
-        completedRecord,
+        completedRecord
       );
       queryClient.invalidateQueries({
         queryKey: equipmentKeys.detail(completedRecord.equipmentId),

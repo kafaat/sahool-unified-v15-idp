@@ -11,13 +11,13 @@
  * closing > surviving regex-based stripping).
  */
 
-import xss, { type IFilterXSSOptions } from "xss";
+import xss, { type IFilterXSSOptions } from 'xss';
 
 // Plain-text mode: strip ALL tags and attributes, returning only text content
 const PLAIN_TEXT_OPTIONS: IFilterXSSOptions = {
-    whiteList: {},          // No tags allowed
-    stripIgnoreTag: true,   // Strip tags not in whitelist (all of them)
-    stripIgnoreTagBody: ["script", "style", "noscript"], // Also strip body of these
+  whiteList: {}, // No tags allowed
+  stripIgnoreTag: true, // Strip tags not in whitelist (all of them)
+  stripIgnoreTagBody: ['script', 'style', 'noscript'], // Also strip body of these
 };
 
 /**
@@ -27,18 +27,18 @@ const PLAIN_TEXT_OPTIONS: IFilterXSSOptions = {
  * @returns Sanitized plain text string with all HTML removed
  */
 export function sanitizeInput(input: string): string {
-    if (typeof input !== "string") return input;
+  if (typeof input !== 'string') return input;
 
-    // Remove null bytes and control characters (except newlines and tabs)
-    // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
-    let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  // Remove null bytes and control characters (except newlines and tabs)
+  // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
+  let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-    // Use xss library to strip all HTML tags and dangerous content.
-    // Properly handles incomplete tags, encoded entities, event handlers,
-    // and nested markup that regex cannot reliably catch.
-    sanitized = xss(sanitized, PLAIN_TEXT_OPTIONS);
+  // Use xss library to strip all HTML tags and dangerous content.
+  // Properly handles incomplete tags, encoded entities, event handlers,
+  // and nested markup that regex cannot reliably catch.
+  sanitized = xss(sanitized, PLAIN_TEXT_OPTIONS);
 
-    return sanitized.trim();
+  return sanitized.trim();
 }
 
 /**
@@ -47,27 +47,24 @@ export function sanitizeInput(input: string): string {
  * @param allowedTags - Array of allowed HTML tags (default: none)
  * @returns Sanitized HTML string
  */
-export function sanitizeHtml(
-    html: string,
-    allowedTags: string[] = []
-): string {
-    if (typeof html !== "string") return html;
+export function sanitizeHtml(html: string, allowedTags: string[] = []): string {
+  if (typeof html !== 'string') return html;
 
-    if (allowedTags.length === 0) {
-        return sanitizeInput(html);
-    }
+  if (allowedTags.length === 0) {
+    return sanitizeInput(html);
+  }
 
-    // Build whitelist object for xss library: { tagName: [] } (no attributes)
-    const whiteList: Record<string, string[]> = {};
-    for (const tag of allowedTags) {
-        whiteList[tag] = [];
-    }
+  // Build whitelist object for xss library: { tagName: [] } (no attributes)
+  const whiteList: Record<string, string[]> = {};
+  for (const tag of allowedTags) {
+    whiteList[tag] = [];
+  }
 
-    return xss(html, {
-        whiteList,
-        stripIgnoreTag: true,
-        stripIgnoreTagBody: ["script", "style", "noscript"],
-    }).trim();
+  return xss(html, {
+    whiteList,
+    stripIgnoreTag: true,
+    stripIgnoreTagBody: ['script', 'style', 'noscript'],
+  }).trim();
 }
 
 /**
@@ -76,12 +73,12 @@ export function sanitizeHtml(
  * @returns Sanitized email or null if invalid
  */
 export function sanitizeEmail(email: string): string | null {
-    if (typeof email !== "string") return null;
+  if (typeof email !== 'string') return null;
 
-    const sanitized = sanitizeInput(email);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const sanitized = sanitizeInput(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    return emailRegex.test(sanitized) ? sanitized : null;
+  return emailRegex.test(sanitized) ? sanitized : null;
 }
 
 /**
@@ -90,21 +87,21 @@ export function sanitizeEmail(email: string): string | null {
  * @returns Sanitized URL or null if dangerous
  */
 export function sanitizeUrl(url: string): string | null {
-    if (typeof url !== "string") return null;
+  if (typeof url !== 'string') return null;
 
-    const sanitized = sanitizeInput(url).trim();
+  const sanitized = sanitizeInput(url).trim();
 
-    // Block dangerous protocols
-    const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
-    if (dangerousProtocols.test(sanitized)) {
-        return null;
-    }
+  // Block dangerous protocols
+  const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
+  if (dangerousProtocols.test(sanitized)) {
+    return null;
+  }
 
-    // Allow only http, https, mailto, tel
-    const safeProtocols = /^(https?|mailto|tel):/i;
-    if (!safeProtocols.test(sanitized) && !sanitized.startsWith("/")) {
-        return null;
-    }
+  // Allow only http, https, mailto, tel
+  const safeProtocols = /^(https?|mailto|tel):/i;
+  if (!safeProtocols.test(sanitized) && !sanitized.startsWith('/')) {
+    return null;
+  }
 
-    return sanitized;
+  return sanitized;
 }

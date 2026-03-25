@@ -3,20 +3,20 @@
  * إدارة ذاكرة المزرعة للذكاء الاصطناعي
  */
 
-"use client";
+'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { logger } from "@/lib/logger";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 /**
  * Memory entry types
  */
 export enum MemoryEntryType {
-  OBSERVATION = "observation",
-  RECOMMENDATION = "recommendation",
-  ACTION = "action",
-  OUTCOME = "outcome",
-  METRIC = "metric",
+  OBSERVATION = 'observation',
+  RECOMMENDATION = 'recommendation',
+  ACTION = 'action',
+  OUTCOME = 'outcome',
+  METRIC = 'metric',
 }
 
 /**
@@ -88,7 +88,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
         confidence?: number;
         tags?: string[];
         metadata?: Record<string, unknown>;
-      },
+      }
     ): MemoryEntry => {
       const entry: MemoryEntry = {
         id: generateId(),
@@ -107,7 +107,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
         if (updated.length > maxEntries) {
           const trimmed = updated.slice(0, maxEntries);
           logger.warn(
-            `[useFarmMemory] Trimmed memory from ${updated.length} to ${maxEntries} entries`,
+            `[useFarmMemory] Trimmed memory from ${updated.length} to ${maxEntries} entries`
           );
           return trimmed;
         }
@@ -118,7 +118,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
       logger.debug(`[useFarmMemory] Added ${type} entry:`, { id: entry.id });
       return entry;
     },
-    [maxEntries],
+    [maxEntries]
   );
 
   /**
@@ -136,7 +136,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
             return updated;
           }
           return entry;
-        }),
+        })
       );
 
       if (updated) {
@@ -145,7 +145,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
 
       return updated;
     },
-    [],
+    []
   );
 
   /**
@@ -162,7 +162,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
           return false;
         }
         return true;
-      }),
+      })
     );
 
     if (deleted) {
@@ -176,45 +176,40 @@ export function useFarmMemory(maxEntries: number = 1000) {
    * Query memory entries
    * الاستعلام عن إدخالات الذاكرة
    */
-  const queryEntries = useCallback(
-    (options?: MemoryQueryOptions): MemoryEntry[] => {
-      let results = [...entriesRef.current];
+  const queryEntries = useCallback((options?: MemoryQueryOptions): MemoryEntry[] => {
+    let results = [...entriesRef.current];
 
-      if (options?.fieldId) {
-        results = results.filter((e) => e.fieldId === options.fieldId);
-      }
+    if (options?.fieldId) {
+      results = results.filter((e) => e.fieldId === options.fieldId);
+    }
 
-      if (options?.tenantId) {
-        results = results.filter((e) => e.tenantId === options.tenantId);
-      }
+    if (options?.tenantId) {
+      results = results.filter((e) => e.tenantId === options.tenantId);
+    }
 
-      if (options?.type) {
-        results = results.filter((e) => e.type === options.type);
-      }
+    if (options?.type) {
+      results = results.filter((e) => e.type === options.type);
+    }
 
-      if (options?.tags && options.tags.length > 0) {
-        results = results.filter((e) =>
-          options.tags?.some((tag) => e.tags && e.tags.includes(tag)),
-        );
-      }
+    if (options?.tags && options.tags.length > 0) {
+      results = results.filter((e) => options.tags?.some((tag) => e.tags && e.tags.includes(tag)));
+    }
 
-      if (options?.startTime) {
-        results = results.filter((e) => e.timestamp >= options.startTime!);
-      }
+    if (options?.startTime) {
+      results = results.filter((e) => e.timestamp >= options.startTime!);
+    }
 
-      if (options?.endTime) {
-        results = results.filter((e) => e.timestamp <= options.endTime!);
-      }
+    if (options?.endTime) {
+      results = results.filter((e) => e.timestamp <= options.endTime!);
+    }
 
-      if (options?.limit && options.limit > 0) {
-        results = results.slice(0, options.limit);
-      }
+    if (options?.limit && options.limit > 0) {
+      results = results.slice(0, options.limit);
+    }
 
-      logger.debug(`[useFarmMemory] Query returned ${results.length} entries`);
-      return results;
-    },
-    [],
-  );
+    logger.debug(`[useFarmMemory] Query returned ${results.length} entries`);
+    return results;
+  }, []);
 
   /**
    * Search memory by content
@@ -229,10 +224,10 @@ export function useFarmMemory(maxEntries: number = 1000) {
         (e) =>
           e.title.toLowerCase().includes(lowerQuery) ||
           e.content.toLowerCase().includes(lowerQuery) ||
-          e.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery)),
+          e.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))
       );
     },
-    [queryEntries],
+    [queryEntries]
   );
 
   /**
@@ -263,15 +258,9 @@ export function useFarmMemory(maxEntries: number = 1000) {
       totalEntries: currentEntries.length,
       entriesByType,
       oldestEntry:
-        currentEntries.length > 0
-          ? currentEntries[currentEntries.length - 1]!.timestamp
-          : null,
-      newestEntry:
-        currentEntries.length > 0 ? currentEntries[0]!.timestamp : null,
-      averageConfidence:
-        currentEntries.length > 0
-          ? totalConfidence / currentEntries.length
-          : 0,
+        currentEntries.length > 0 ? currentEntries[currentEntries.length - 1]!.timestamp : null,
+      newestEntry: currentEntries.length > 0 ? currentEntries[0]!.timestamp : null,
+      averageConfidence: currentEntries.length > 0 ? totalConfidence / currentEntries.length : 0,
       memorySize,
     };
   }, []);
@@ -299,10 +288,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
             shouldDelete = true;
           } else if (options?.type && entry.type === options.type) {
             shouldDelete = true;
-          } else if (
-            options?.fieldId &&
-            entry.fieldId === options.fieldId
-          ) {
+          } else if (options?.fieldId && entry.fieldId === options.fieldId) {
             shouldDelete = true;
           }
 
@@ -311,13 +297,13 @@ export function useFarmMemory(maxEntries: number = 1000) {
           }
 
           return !shouldDelete;
-        }),
+        })
       );
 
       logger.info(`[useFarmMemory] Cleared ${deletedCount} entries`);
       return deletedCount;
     },
-    [],
+    []
   );
 
   /**
@@ -337,16 +323,14 @@ export function useFarmMemory(maxEntries: number = 1000) {
       const imported = JSON.parse(data) as MemoryEntry[];
 
       if (!Array.isArray(imported)) {
-        throw new Error("Invalid memory format");
+        throw new Error('Invalid memory format');
       }
 
       setEntries(imported);
-      logger.info(
-        `[useFarmMemory] Imported ${imported.length} memory entries`,
-      );
+      logger.info(`[useFarmMemory] Imported ${imported.length} memory entries`);
       return true;
     } catch (error) {
-      logger.error("[useFarmMemory] Import failed:", error);
+      logger.error('[useFarmMemory] Import failed:', error);
       return false;
     }
   }, []);

@@ -30,7 +30,7 @@ function simpleHash(data: string): string {
   let hash = 0;
   for (let i = 0; i < data.length; i++) {
     const char = data.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
   return Math.abs(hash).toString(16).padStart(16, '0');
@@ -50,9 +50,8 @@ class AuditLogger {
   }
 
   log(entry: Omit<AuditEntry, 'id' | 'timestamp' | 'hash' | 'previousHash'>): AuditEntry {
-    const previousHash = this.entries.length > 0
-      ? this.entries[this.entries.length - 1].hash
-      : '0'.repeat(16);
+    const previousHash =
+      this.entries.length > 0 ? this.entries[this.entries.length - 1].hash : '0'.repeat(16);
 
     const timestamp = new Date();
     const id = `audit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -92,7 +91,7 @@ class AuditLogger {
     const redacted: Record<string, { old: unknown; new: unknown }> = {};
 
     for (const [key, value] of Object.entries(changes)) {
-      if (this.config.sensitiveFields.some(f => key.toLowerCase().includes(f.toLowerCase()))) {
+      if (this.config.sensitiveFields.some((f) => key.toLowerCase().includes(f.toLowerCase()))) {
         redacted[key] = { old: '[REDACTED]', new: '[REDACTED]' };
       } else {
         redacted[key] = value;
@@ -107,16 +106,16 @@ class AuditLogger {
   }
 
   getEntriesByTenant(tenantId: string): AuditEntry[] {
-    return this.entries.filter(e => e.tenantId === tenantId);
+    return this.entries.filter((e) => e.tenantId === tenantId);
   }
 
   getEntriesByUser(userId: string): AuditEntry[] {
-    return this.entries.filter(e => e.userId === userId);
+    return this.entries.filter((e) => e.userId === userId);
   }
 
   getEntriesByResource(resourceType: string, resourceId: string): AuditEntry[] {
     return this.entries.filter(
-      e => e.resourceType === resourceType && e.resourceId === resourceId
+      (e) => e.resourceType === resourceType && e.resourceId === resourceId
     );
   }
 
@@ -387,19 +386,19 @@ describe('AuditLogger', () => {
     it('should filter by tenant', () => {
       const entries = logger.getEntriesByTenant('tenant-A');
       expect(entries).toHaveLength(2);
-      expect(entries.every(e => e.tenantId === 'tenant-A')).toBe(true);
+      expect(entries.every((e) => e.tenantId === 'tenant-A')).toBe(true);
     });
 
     it('should filter by user', () => {
       const entries = logger.getEntriesByUser('user-1');
       expect(entries).toHaveLength(2);
-      expect(entries.every(e => e.userId === 'user-1')).toBe(true);
+      expect(entries.every((e) => e.userId === 'user-1')).toBe(true);
     });
 
     it('should filter by resource', () => {
       const entries = logger.getEntriesByResource('field', 'field-1');
       expect(entries).toHaveLength(2);
-      expect(entries.every(e => e.resourceId === 'field-1')).toBe(true);
+      expect(entries.every((e) => e.resourceId === 'field-1')).toBe(true);
     });
   });
 

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Lazy-loaded Recharts Re-exports
@@ -25,4 +25,4 @@ export {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
+} from 'recharts';

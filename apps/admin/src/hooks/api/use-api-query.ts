@@ -6,9 +6,9 @@
  * Supports auto-refetch, stale time, error handling, and cache invalidation.
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface ApiError {
   message: string;
@@ -69,7 +69,7 @@ export function invalidateQueries(keyPrefix: string): void {
 export function useApiQuery<T>(
   queryKey: string[],
   queryFn: () => Promise<T>,
-  options: UseApiQueryOptions<T> = {},
+  options: UseApiQueryOptions<T> = {}
 ): UseApiQueryResult<T> {
   const {
     enabled = true,
@@ -84,7 +84,7 @@ export function useApiQuery<T>(
   const [error, setError] = useState<ApiError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const cacheKey = queryKey.join(":");
+  const cacheKey = queryKey.join(':');
   const queryFnRef = useRef(queryFn);
   queryFnRef.current = queryFn;
   const onSuccessRef = useRef(onSuccess);
@@ -96,45 +96,49 @@ export function useApiQuery<T>(
   // Track mount state to avoid state updates after unmount
   useEffect(() => {
     isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  const fetchData = useCallback(async (signal?: AbortSignal) => {
-    // Check cache first
-    const cached = queryCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < staleTime) {
-      setData(cached.data as T);
-      setError(null);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const result = await queryFnRef.current();
-      if (!isMountedRef.current) return;
-      if (signal?.aborted) return;
-      setData(result);
-      setError(null);
-      queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
-      onSuccessRef.current?.(result);
-    } catch (err) {
-      if (!isMountedRef.current) return;
-      if (signal?.aborted) return;
-      const apiError: ApiError = {
-        message:
-          err instanceof Error ? err.message : "An unknown error occurred",
-        status: (err as { response?: { status?: number } })?.response?.status,
-      };
-      setError(apiError);
-      onErrorRef.current?.(apiError);
-    } finally {
-      // Always clear isLoading if component is still mounted,
-      // even when the signal was aborted due to dep changes (not unmount).
-      if (isMountedRef.current) {
-        setIsLoading(false);
+  const fetchData = useCallback(
+    async (signal?: AbortSignal) => {
+      // Check cache first
+      const cached = queryCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < staleTime) {
+        setData(cached.data as T);
+        setError(null);
+        return;
       }
-    }
-  }, [cacheKey, staleTime]);
+
+      setIsLoading(true);
+      try {
+        const result = await queryFnRef.current();
+        if (!isMountedRef.current) return;
+        if (signal?.aborted) return;
+        setData(result);
+        setError(null);
+        queryCache.set(cacheKey, { data: result, timestamp: Date.now() });
+        onSuccessRef.current?.(result);
+      } catch (err) {
+        if (!isMountedRef.current) return;
+        if (signal?.aborted) return;
+        const apiError: ApiError = {
+          message: err instanceof Error ? err.message : 'An unknown error occurred',
+          status: (err as { response?: { status?: number } })?.response?.status,
+        };
+        setError(apiError);
+        onErrorRef.current?.(apiError);
+      } finally {
+        // Always clear isLoading if component is still mounted,
+        // even when the signal was aborted due to dep changes (not unmount).
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [cacheKey, staleTime]
+  );
 
   // Initial fetch
   useEffect(() => {
@@ -195,7 +199,7 @@ export interface UseApiMutationResult<TData, TVariables> {
  */
 export function useApiMutation<TData, TVariables = void>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options: UseApiMutationOptions<TData, TVariables> = {},
+  options: UseApiMutationOptions<TData, TVariables> = {}
 ): UseApiMutationResult<TData, TVariables> {
   const [data, setData] = useState<TData | undefined>();
   const [error, setError] = useState<ApiError | null>(null);
@@ -206,38 +210,34 @@ export function useApiMutation<TData, TVariables = void>(
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
-  const mutate = useCallback(
-    async (variables: TVariables): Promise<TData | undefined> => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const result = await mutationFnRef.current(variables);
-        setData(result);
+  const mutate = useCallback(async (variables: TVariables): Promise<TData | undefined> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await mutationFnRef.current(variables);
+      setData(result);
 
-        // Invalidate related queries
-        if (optionsRef.current.invalidateKeys) {
-          for (const key of optionsRef.current.invalidateKeys) {
-            invalidateQueries(key);
-          }
+      // Invalidate related queries
+      if (optionsRef.current.invalidateKeys) {
+        for (const key of optionsRef.current.invalidateKeys) {
+          invalidateQueries(key);
         }
-
-        optionsRef.current.onSuccess?.(result, variables);
-        return result;
-      } catch (err) {
-        const apiError: ApiError = {
-          message:
-            err instanceof Error ? err.message : "An unknown error occurred",
-          status: (err as { response?: { status?: number } })?.response?.status,
-        };
-        setError(apiError);
-        optionsRef.current.onError?.(apiError, variables);
-        return undefined;
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [],
-  );
+
+      optionsRef.current.onSuccess?.(result, variables);
+      return result;
+    } catch (err) {
+      const apiError: ApiError = {
+        message: err instanceof Error ? err.message : 'An unknown error occurred',
+        status: (err as { response?: { status?: number } })?.response?.status,
+      };
+      setError(apiError);
+      optionsRef.current.onError?.(apiError, variables);
+      return undefined;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const reset = useCallback(() => {
     setData(undefined);

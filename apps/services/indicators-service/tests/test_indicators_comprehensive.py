@@ -599,20 +599,20 @@ class TestGetTenantIndicators:
 class TestDeleteFieldIndicators:
     @pytest.mark.asyncio
     async def test_no_pool(self):
-        assert await delete_field_indicators("f1") is False
+        assert await delete_field_indicators("f1", "tenant_001") is False
 
     @pytest.mark.asyncio
     async def test_success(self):
         conn = AsyncMock()
         app.state.db_pool = _make_mock_pool(conn)
-        assert await delete_field_indicators("f1") is True
+        assert await delete_field_indicators("f1", "tenant_001") is True
 
     @pytest.mark.asyncio
     async def test_db_error(self):
         conn = AsyncMock()
         conn.execute.side_effect = Exception("db")
         app.state.db_pool = _make_mock_pool(conn)
-        assert await delete_field_indicators("f1") is False
+        assert await delete_field_indicators("f1", "tenant_001") is False
 
 
 # ===========================================================================

@@ -166,6 +166,8 @@ model Sensor {
   @@index([deviceId])
   @@index([sensorType])
   @@index([deviceId, sensorType])
+  @@index([tenantId, deviceId]) // Tenant-scoped device sensor lookup
+  @@index([tenantId, sensorType]) // Tenant-scoped sensor type filtering
   @@map("sensors")
 }
 
@@ -200,6 +202,9 @@ model SensorReading {
   @@index([sensorId, timestamp])
   @@index([deviceId, timestamp])
   @@index([deviceId, sensorId, timestamp]) // Optimize historical queries for specific sensor on device
+  @@index([tenantId, sensorId, timestamp]) // Tenant-scoped sensor time-series queries
+  @@index([tenantId, deviceId, timestamp]) // Tenant-scoped device time-series queries
+  @@index([tenantId, timestamp]) // Tenant-scoped time range queries
   @@map("sensor_readings")
 }
 
@@ -234,6 +239,7 @@ model Actuator {
   @@index([deviceId])
   @@index([actuatorType])
   @@index([deviceId, actuatorType])
+  @@index([tenantId, deviceId]) // Tenant-scoped device actuator lookup
   @@map("actuators")
 }
 
@@ -273,6 +279,7 @@ model ActuatorCommand {
   @@index([requestedAt])
   @@index([actuatorId, status])
   @@index([actuatorId, requestedAt])
+  @@index([tenantId, status, requestedAt]) // Tenant-scoped command status queries
   @@map("actuator_commands")
 }
 

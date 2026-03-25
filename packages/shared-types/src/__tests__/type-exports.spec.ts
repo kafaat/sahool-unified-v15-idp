@@ -65,9 +65,7 @@ interface ApiError {
   details?: Record<string, unknown>;
 }
 
-type Result<T, E = ApiError> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = ApiError> = { success: true; data: T } | { success: false; error: E };
 
 // Type guard functions
 function isField(obj: unknown): obj is Field {
@@ -92,12 +90,7 @@ function isGeoJSONPolygon(obj: unknown): obj is GeoJSONPolygon {
 }
 
 function isApiError(obj: unknown): obj is ApiError {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'code' in obj &&
-    'message' in obj
-  );
+  return typeof obj === 'object' && obj !== null && 'code' in obj && 'message' in obj;
 }
 
 describe('Type Definitions', () => {
@@ -172,7 +165,7 @@ describe('Type Definitions', () => {
     it('should validate FieldStatus type', () => {
       const validStatuses: FieldStatus[] = ['active', 'fallow', 'harvested', 'planned'];
 
-      validStatuses.forEach(status => {
+      validStatuses.forEach((status) => {
         const field: Field = {
           id: 'field-123',
           tenantId: 'tenant-456',
@@ -194,7 +187,15 @@ describe('Type Definitions', () => {
     it('should define valid GeoJSON Polygon', () => {
       const polygon: GeoJSONPolygon = {
         type: 'Polygon',
-        coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+          ],
+        ],
       };
 
       expect(polygon.type).toBe('Polygon');
@@ -380,7 +381,15 @@ describe('Type Guards', () => {
     it('should return true for valid Polygon', () => {
       const polygon = {
         type: 'Polygon',
-        coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [0, 0],
+          ],
+        ],
       };
 
       expect(isGeoJSONPolygon(polygon)).toBe(true);

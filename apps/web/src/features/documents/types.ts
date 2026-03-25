@@ -3,8 +3,16 @@
  * أنواع ميزة الوثائق
  */
 
-export type DocumentCategory = "compliance" | "permits" | "contracts" | "reports" | "certificates" | "maps" | "invoices" | "other";
-export type DocumentStatus = "draft" | "active" | "expired" | "archived";
+export type DocumentCategory =
+  | 'compliance'
+  | 'permits'
+  | 'contracts'
+  | 'reports'
+  | 'certificates'
+  | 'maps'
+  | 'invoices'
+  | 'other';
+export type DocumentStatus = 'draft' | 'active' | 'expired' | 'archived';
 
 export interface Document {
   id: string;

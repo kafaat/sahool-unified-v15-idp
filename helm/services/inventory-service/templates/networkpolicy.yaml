@@ -1,0 +1,55 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inventory-service.fullname" . }}
+  labels:
+    {{- include "inventory-service.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "inventory-service.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from sahool platform pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sahool
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+    # Allow traffic from Kong API gateway
+    - from:
+        - podSelector:
+            matchLabels:
+              app: kong
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+  egress:
+    # DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # PostgreSQL
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Redis
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 6379
+    # NATS
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 4222
+{{- end }}

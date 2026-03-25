@@ -3,14 +3,9 @@
  * بيانات مؤشر الغطاء النباتي الوهمية
  */
 
-import { generateId, randomFloat } from "./utils";
+import { generateId, randomFloat } from './utils';
 
-export type VegetationHealth =
-  | "excellent"
-  | "good"
-  | "moderate"
-  | "poor"
-  | "critical";
+export type VegetationHealth = 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
 
 export interface MockNDVIData {
   id: string;
@@ -34,43 +29,35 @@ export interface MockNDVIZone {
 }
 
 const healthArabic: Record<VegetationHealth, string> = {
-  excellent: "ممتاز",
-  good: "جيد",
-  moderate: "متوسط",
-  poor: "ضعيف",
-  critical: "حرج",
+  excellent: 'ممتاز',
+  good: 'جيد',
+  moderate: 'متوسط',
+  poor: 'ضعيف',
+  critical: 'حرج',
 };
 
 const recommendationsPool = {
-  excellent: [
-    "استمر في نظام الري الحالي",
-    "الحقل في حالة ممتازة",
-    "مراقبة دورية للحفاظ على الصحة",
-  ],
-  good: [
-    "يمكن تحسين الري قليلاً",
-    "التسميد الإضافي قد يحسن النمو",
-    "مراقبة مستوى المغذيات",
-  ],
+  excellent: ['استمر في نظام الري الحالي', 'الحقل في حالة ممتازة', 'مراقبة دورية للحفاظ على الصحة'],
+  good: ['يمكن تحسين الري قليلاً', 'التسميد الإضافي قد يحسن النمو', 'مراقبة مستوى المغذيات'],
   moderate: [
-    "زيادة معدل الري مطلوبة",
-    "فحص التربة للمغذيات",
-    "مراقبة الآفات المحتملة",
-    "التسميد العاجل موصى به",
+    'زيادة معدل الري مطلوبة',
+    'فحص التربة للمغذيات',
+    'مراقبة الآفات المحتملة',
+    'التسميد العاجل موصى به',
   ],
   poor: [
-    "تدخل عاجل مطلوب",
-    "فحص شامل للتربة",
-    "زيادة الري بشكل كبير",
-    "معالجة نقص المغذيات",
-    "فحص وجود أمراض",
+    'تدخل عاجل مطلوب',
+    'فحص شامل للتربة',
+    'زيادة الري بشكل كبير',
+    'معالجة نقص المغذيات',
+    'فحص وجود أمراض',
   ],
   critical: [
-    "تدخل طارئ مطلوب",
-    "استشارة خبير زراعي فوراً",
-    "إعادة تقييم نظام الري بالكامل",
-    "فحص شامل للآفات والأمراض",
-    "تحليل عاجل للتربة",
+    'تدخل طارئ مطلوب',
+    'استشارة خبير زراعي فوراً',
+    'إعادة تقييم نظام الري بالكامل',
+    'فحص شامل للآفات والأمراض',
+    'تحليل عاجل للتربة',
   ],
 };
 
@@ -78,11 +65,11 @@ const recommendationsPool = {
  * Determine health status based on NDVI value
  */
 export function getHealthFromNDVI(ndvi: number): VegetationHealth {
-  if (ndvi >= 0.7) return "excellent";
-  if (ndvi >= 0.5) return "good";
-  if (ndvi >= 0.3) return "moderate";
-  if (ndvi >= 0.15) return "poor";
-  return "critical";
+  if (ndvi >= 0.7) return 'excellent';
+  if (ndvi >= 0.5) return 'good';
+  if (ndvi >= 0.3) return 'moderate';
+  if (ndvi >= 0.15) return 'poor';
+  return 'critical';
 }
 
 /**
@@ -95,7 +82,7 @@ export function generateMockNDVI(fieldId?: string): MockNDVIData {
   const relevantRecommendations = recommendationsPool[health];
   const numRecommendations = Math.min(
     relevantRecommendations.length,
-    Math.floor(Math.random() * 2) + 1,
+    Math.floor(Math.random() * 2) + 1
   );
 
   const recommendations: string[] = [];
@@ -124,17 +111,14 @@ export function generateMockNDVI(fieldId?: string): MockNDVIData {
 /**
  * Generate mock NDVI zones for a field
  */
-export function generateMockNDVIZones(
-  fieldId: string,
-  zoneCount: number = 4,
-): MockNDVIZone[] {
+export function generateMockNDVIZones(fieldId: string, zoneCount: number = 4): MockNDVIZone[] {
   const zones: MockNDVIZone[] = [];
   const zoneNames = [
-    "المنطقة الشمالية",
-    "المنطقة الجنوبية",
-    "المنطقة الشرقية",
-    "المنطقة الغربية",
-    "الوسط",
+    'المنطقة الشمالية',
+    'المنطقة الجنوبية',
+    'المنطقة الشرقية',
+    'المنطقة الغربية',
+    'الوسط',
   ];
 
   for (let i = 0; i < Math.min(zoneCount, zoneNames.length); i++) {
@@ -173,10 +157,7 @@ function generateZoneCoordinates(): { lat: number; lng: number }[] {
 /**
  * Generate historical NDVI data
  */
-export function generateHistoricalNDVI(
-  fieldId: string,
-  weeks: number = 12,
-): MockNDVIData[] {
+export function generateHistoricalNDVI(fieldId: string, weeks: number = 12): MockNDVIData[] {
   const data: MockNDVIData[] = [];
   const now = new Date();
   let previousNDVI = randomFloat(0.3, 0.7, 2);
@@ -214,11 +195,11 @@ export function getHealthLabel(health: VegetationHealth): string {
  */
 export function getHealthColor(health: VegetationHealth): string {
   const colors: Record<VegetationHealth, string> = {
-    excellent: "#22c55e", // green-500
-    good: "#84cc16", // lime-500
-    moderate: "#eab308", // yellow-500
-    poor: "#f97316", // orange-500
-    critical: "#ef4444", // red-500
+    excellent: '#22c55e', // green-500
+    good: '#84cc16', // lime-500
+    moderate: '#eab308', // yellow-500
+    poor: '#f97316', // orange-500
+    critical: '#ef4444', // red-500
   };
   return colors[health];
 }

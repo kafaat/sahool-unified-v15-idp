@@ -9,4 +9,4 @@ export {
   UpdatePrompt,
   InstallPrompt,
   PWAStatus,
-} from "./ServiceWorkerRegistration";
+} from './ServiceWorkerRegistration';

@@ -6,14 +6,10 @@
  * يستقبل ويسجل تقارير انتهاكات سياسة أمان المحتوى
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import {
-  isValidCSPReport,
-  sanitizeCSPReport,
-  type CSPReportBody,
-} from "@/lib/security/csp-config";
-import { isRateLimited } from "@/lib/rate-limiter";
-import { logger } from "@/lib/logger";
+import { NextRequest, NextResponse } from 'next/server';
+import { isValidCSPReport, sanitizeCSPReport, type CSPReportBody } from '@/lib/security/csp-config';
+import { isRateLimited } from '@/lib/rate-limiter';
+import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -22,7 +18,7 @@ import { logger } from "@/lib/logger";
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000, // 1 minute
   maxRequests: 100,
-  keyPrefix: "csp-report",
+  keyPrefix: 'csp-report',
 };
 
 /**
@@ -30,19 +26,19 @@ const RATE_LIMIT_CONFIG = {
  * الحصول على عنوان IP للعميل
  */
 function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
 
   if (forwarded) {
-    const firstIp = forwarded.split(",")[0];
-    return firstIp ? firstIp.trim() : "unknown";
+    const firstIp = forwarded.split(',')[0];
+    return firstIp ? firstIp.trim() : 'unknown';
   }
 
   if (realIp) {
     return realIp;
   }
 
-  return "unknown";
+  return 'unknown';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -60,7 +56,7 @@ export async function POST(request: NextRequest) {
     const rateLimited = await isRateLimited(clientIP, RATE_LIMIT_CONFIG);
 
     if (rateLimited) {
-      return NextResponse.json({ error: "Too many reports" }, { status: 429 });
+      return NextResponse.json({ error: 'Too many reports' }, { status: 429 });
     }
 
     // Parse request body
@@ -68,58 +64,55 @@ export async function POST(request: NextRequest) {
 
     // Validate report format
     if (!isValidCSPReport(body)) {
-      return NextResponse.json(
-        { error: "Invalid CSP report format" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Invalid CSP report format' }, { status: 400 });
     }
 
     const reportBody = body as CSPReportBody;
-    const report = reportBody["csp-report"];
+    const report = reportBody['csp-report'];
 
     // Sanitize and format report
     const sanitized = sanitizeCSPReport(report);
 
     // Filter out known false positives
-    const blockedUri = report["blocked-uri"];
+    const blockedUri = report['blocked-uri'];
 
     // Skip browser extensions
     if (
-      blockedUri.startsWith("chrome-extension://") ||
-      blockedUri.startsWith("moz-extension://") ||
-      blockedUri.startsWith("safari-extension://") ||
-      blockedUri.startsWith("ms-browser-extension://")
+      blockedUri.startsWith('chrome-extension://') ||
+      blockedUri.startsWith('moz-extension://') ||
+      blockedUri.startsWith('safari-extension://') ||
+      blockedUri.startsWith('ms-browser-extension://')
     ) {
-      return NextResponse.json({ status: "ignored" }, { status: 200 });
+      return NextResponse.json({ status: 'ignored' }, { status: 200 });
     }
 
     // Skip about:blank and data URIs in development
     if (
-      process.env.NODE_ENV === "development" &&
-      (blockedUri === "about:blank" || blockedUri.startsWith("data:"))
+      process.env.NODE_ENV === 'development' &&
+      (blockedUri === 'about:blank' || blockedUri.startsWith('data:'))
     ) {
-      return NextResponse.json({ status: "ignored" }, { status: 200 });
+      return NextResponse.json({ status: 'ignored' }, { status: 200 });
     }
 
     // Log CSP violation
-    logger.warn("[CSP Violation]", {
+    logger.warn('[CSP Violation]', {
       ...sanitized,
       clientIP,
-      userAgent: request.headers.get("user-agent"),
+      userAgent: request.headers.get('user-agent'),
     });
 
     // In production, you might want to send this to a logging service
     // such as Sentry, LogRocket, or your own analytics platform
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === 'production') {
       // Example: Send to external monitoring service
       // await sendToMonitoringService(sanitized);
 
       // Log to stderr for container log aggregation (always log in production)
       logger.production({
-        type: "csp-violation",
+        type: 'csp-violation',
         ...sanitized,
         clientIP,
-        userAgent: request.headers.get("user-agent"),
+        userAgent: request.headers.get('user-agent'),
         environment: process.env.NODE_ENV,
       });
     }
@@ -128,11 +121,8 @@ export async function POST(request: NextRequest) {
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     // Critical error - always log
-    logger.critical("[CSP Report Handler Error]", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.critical('[CSP Report Handler Error]', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -141,27 +131,27 @@ export async function POST(request: NextRequest) {
  * Handle preflight requests
  */
 export async function OPTIONS(request: NextRequest) {
-  const origin = request.headers.get("origin") || "";
+  const origin = request.headers.get('origin') || '';
   const allowedOrigins = [
-    "https://sahool.com",
-    "https://app.sahool.com",
-    "https://admin.sahool.com",
-    "https://staging.sahool.com",
+    'https://sahool.com',
+    'https://app.sahool.com',
+    'https://admin.sahool.com',
+    'https://staging.sahool.com',
   ];
 
   // In development, allow localhost origins
-  if (process.env.NODE_ENV === "development") {
-    allowedOrigins.push("http://localhost:3000", "http://localhost:3001");
+  if (process.env.NODE_ENV === 'development') {
+    allowedOrigins.push('http://localhost:3000', 'http://localhost:3001');
   }
 
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : "https://sahool.com";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : 'https://sahool.com';
 
   return new NextResponse(null, {
     status: 204,
     headers: new Headers({
-      "Access-Control-Allow-Origin": corsOrigin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      'Access-Control-Allow-Origin': corsOrigin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
     }),
   });
 }

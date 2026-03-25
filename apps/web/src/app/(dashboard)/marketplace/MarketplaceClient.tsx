@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Marketplace Page Client Component
  * صفحة السوق الزراعي
  */
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   ShoppingCart as ShoppingCartIcon,
   Package,
@@ -13,7 +13,7 @@ import {
   Loader2,
   CheckCircle,
   MapPin,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   ProductsGrid,
   CartSidebar,
@@ -22,21 +22,21 @@ import {
   useProducts,
   useOrders,
   useCreateOrder,
-} from "@/features/marketplace";
-import type { Order } from "@/features/marketplace";
-import { ErrorTracking } from "@/lib/monitoring/error-tracking";
-import { Modal, ModalFooter, useToast } from "@/components/ui";
+} from '@/features/marketplace';
+import type { Order } from '@/features/marketplace';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import { Modal, ModalFooter, useToast } from '@/components/ui';
 
 // Initial shipping address state
-const initialShippingAddress: Order["shippingAddress"] = {
-  name: "",
-  phone: "",
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  region: "",
-  postalCode: "",
-  country: "Saudi Arabia",
+const initialShippingAddress: Order['shippingAddress'] = {
+  name: '',
+  phone: '',
+  addressLine1: '',
+  addressLine2: '',
+  city: '',
+  region: '',
+  postalCode: '',
+  country: 'Saudi Arabia',
 };
 
 function MarketplaceContent() {
@@ -44,8 +44,10 @@ function MarketplaceContent() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderSuccess, setIsOrderSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
-  const [shippingAddress, setShippingAddress] = useState<Order["shippingAddress"]>(initialShippingAddress);
-  const [orderNotes, setOrderNotes] = useState("");
+  const [, setSelectedProductId] = useState<string | null>(null);
+  const [shippingAddress, setShippingAddress] =
+    useState<Order['shippingAddress']>(initialShippingAddress);
+  const [orderNotes, setOrderNotes] = useState('');
 
   const { cart, clearCart } = useCart();
   const { data: products } = useProducts();
@@ -60,11 +62,11 @@ function MarketplaceContent() {
   // Validate shipping address
   const isAddressValid = () => {
     return (
-      shippingAddress.name.trim() !== "" &&
-      shippingAddress.phone.trim() !== "" &&
-      shippingAddress.addressLine1.trim() !== "" &&
-      shippingAddress.city.trim() !== "" &&
-      shippingAddress.region.trim() !== ""
+      shippingAddress.name.trim() !== '' &&
+      shippingAddress.phone.trim() !== '' &&
+      shippingAddress.addressLine1.trim() !== '' &&
+      shippingAddress.city.trim() !== '' &&
+      shippingAddress.region.trim() !== ''
     );
   };
 
@@ -72,9 +74,9 @@ function MarketplaceContent() {
   const handleCheckout = () => {
     try {
       ErrorTracking.addBreadcrumb({
-        type: "click",
-        category: "ui",
-        message: "Checkout initiated",
+        type: 'click',
+        category: 'ui',
+        message: 'Checkout initiated',
         data: {
           itemsCount: cart.items.length,
           total: cart.total,
@@ -87,9 +89,9 @@ function MarketplaceContent() {
       setIsCheckoutOpen(true);
     } catch (error) {
       ErrorTracking.captureError(
-        error instanceof Error ? error : new Error("Checkout failed"),
+        error instanceof Error ? error : new Error('Checkout failed'),
         undefined,
-        { cart },
+        { cart }
       );
     }
   };
@@ -98,18 +100,18 @@ function MarketplaceContent() {
   const handleSubmitOrder = async () => {
     if (!isAddressValid()) {
       showToast({
-        type: "error",
-        message: "Please fill in all required fields",
-        messageAr: "يرجى ملء جميع الحقول المطلوبة",
+        type: 'error',
+        message: 'Please fill in all required fields',
+        messageAr: 'يرجى ملء جميع الحقول المطلوبة',
       });
       return;
     }
 
     try {
       ErrorTracking.addBreadcrumb({
-        type: "click",
-        category: "checkout",
-        message: "Order submission started",
+        type: 'click',
+        category: 'checkout',
+        message: 'Order submission started',
         data: {
           itemsCount: cart.items.length,
           total: cart.total,
@@ -133,28 +135,28 @@ function MarketplaceContent() {
       clearCart();
 
       showToast({
-        type: "success",
+        type: 'success',
         message: `Order ${result.orderNumber} placed successfully!`,
         messageAr: `تم تأكيد الطلب ${result.orderNumber} بنجاح!`,
       });
 
       ErrorTracking.addBreadcrumb({
-        type: "console",
-        category: "checkout",
-        message: "Order placed successfully",
+        type: 'console',
+        category: 'checkout',
+        message: 'Order placed successfully',
         data: { orderId: result.id, orderNumber: result.orderNumber },
       });
     } catch (error) {
       ErrorTracking.captureError(
-        error instanceof Error ? error : new Error("Order submission failed"),
+        error instanceof Error ? error : new Error('Order submission failed'),
         undefined,
-        { cart, shippingAddress },
+        { cart, shippingAddress }
       );
 
       showToast({
-        type: "error",
-        message: "Failed to place order. Please try again.",
-        messageAr: "فشل في إتمام الطلب. يرجى المحاولة مرة أخرى.",
+        type: 'error',
+        message: 'Failed to place order. Please try again.',
+        messageAr: 'فشل في إتمام الطلب. يرجى المحاولة مرة أخرى.',
       });
     }
   };
@@ -165,11 +167,11 @@ function MarketplaceContent() {
     setIsOrderSuccess(false);
     setOrderNumber(null);
     setShippingAddress(initialShippingAddress);
-    setOrderNotes("");
+    setOrderNotes('');
   };
 
   // Update shipping address field
-  const updateShippingField = (field: keyof Order["shippingAddress"], value: string) => {
+  const updateShippingField = (field: keyof Order['shippingAddress'], value: string) => {
     setShippingAddress((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -205,12 +207,8 @@ function MarketplaceContent() {
               <Package className="w-6 h-6 text-blue-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {totalProducts}
-          </h3>
-          <p className="text-sm text-gray-600">
-            منتجات متاحة | Available Products
-          </p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{totalProducts}</h3>
+          <p className="text-sm text-gray-600">منتجات متاحة | Available Products</p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -219,12 +217,8 @@ function MarketplaceContent() {
               <ShoppingCartIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {cartItemsCount}
-          </h3>
-          <p className="text-sm text-gray-600">
-            منتجات في السلة | Items in Cart
-          </p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{cartItemsCount}</h3>
+          <p className="text-sm text-gray-600">منتجات في السلة | Items in Cart</p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -233,9 +227,7 @@ function MarketplaceContent() {
               <TrendingUp className="w-6 h-6 text-orange-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {totalOrders}
-          </h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{totalOrders}</h3>
           <p className="text-sm text-gray-600">طلباتي | My Orders</p>
         </div>
       </div>
@@ -245,9 +237,7 @@ function MarketplaceContent() {
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-bold mb-1">
-                لديك {cartItemsCount} منتجات في السلة
-              </h3>
+              <h3 className="text-xl font-bold mb-1">لديك {cartItemsCount} منتجات في السلة</h3>
               <p className="text-blue-100">
                 الإجمالي: {cart.total.toFixed(2)} {cart.currency}
               </p>
@@ -290,13 +280,9 @@ function MarketplaceContent() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              تم تأكيد طلبك بنجاح!
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">تم تأكيد طلبك بنجاح!</h3>
             <p className="text-gray-600 mb-1">Order Confirmed Successfully!</p>
-            <p className="text-lg font-semibold text-blue-600 mb-6">
-              رقم الطلب: {orderNumber}
-            </p>
+            <p className="text-lg font-semibold text-blue-600 mb-6">رقم الطلب: {orderNumber}</p>
             <p className="text-sm text-gray-500 mb-6">
               سيتم إرسال تفاصيل الطلب إلى هاتفك
               <br />
@@ -325,11 +311,15 @@ function MarketplaceContent() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">المجموع الفرعي | Subtotal</span>
-                  <span>{cart.subtotal.toFixed(2)} {cart.currency}</span>
+                  <span>
+                    {cart.subtotal.toFixed(2)} {cart.currency}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">الضريبة | Tax (15%)</span>
-                  <span>{cart.tax.toFixed(2)} {cart.currency}</span>
+                  <span>
+                    {cart.tax.toFixed(2)} {cart.currency}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">الشحن | Shipping</span>
@@ -343,7 +333,9 @@ function MarketplaceContent() {
                 </div>
                 <div className="flex justify-between pt-2 border-t border-gray-200 text-lg font-bold">
                   <span>الإجمالي | Total</span>
-                  <span className="text-blue-600">{cart.total.toFixed(2)} {cart.currency}</span>
+                  <span className="text-blue-600">
+                    {cart.total.toFixed(2)} {cart.currency}
+                  </span>
                 </div>
               </div>
             </div>
@@ -362,7 +354,7 @@ function MarketplaceContent() {
                   <input
                     type="text"
                     value={shippingAddress.name}
-                    onChange={(e) => updateShippingField("name", e.target.value)}
+                    onChange={(e) => updateShippingField('name', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="الاسم الكامل"
                     disabled={createOrderMutation.isPending}
@@ -375,7 +367,7 @@ function MarketplaceContent() {
                   <input
                     type="tel"
                     value={shippingAddress.phone}
-                    onChange={(e) => updateShippingField("phone", e.target.value)}
+                    onChange={(e) => updateShippingField('phone', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="+966 5XX XXX XXXX"
                     dir="ltr"
@@ -389,7 +381,7 @@ function MarketplaceContent() {
                   <input
                     type="text"
                     value={shippingAddress.addressLine1}
-                    onChange={(e) => updateShippingField("addressLine1", e.target.value)}
+                    onChange={(e) => updateShippingField('addressLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="الشارع، رقم المبنى"
                     disabled={createOrderMutation.isPending}
@@ -401,8 +393,8 @@ function MarketplaceContent() {
                   </label>
                   <input
                     type="text"
-                    value={shippingAddress.addressLine2 || ""}
-                    onChange={(e) => updateShippingField("addressLine2", e.target.value)}
+                    value={shippingAddress.addressLine2 || ''}
+                    onChange={(e) => updateShippingField('addressLine2', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="الشقة، الطابق (اختياري)"
                     disabled={createOrderMutation.isPending}
@@ -415,7 +407,7 @@ function MarketplaceContent() {
                   <input
                     type="text"
                     value={shippingAddress.city}
-                    onChange={(e) => updateShippingField("city", e.target.value)}
+                    onChange={(e) => updateShippingField('city', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="المدينة"
                     disabled={createOrderMutation.isPending}
@@ -428,7 +420,7 @@ function MarketplaceContent() {
                   <input
                     type="text"
                     value={shippingAddress.region}
-                    onChange={(e) => updateShippingField("region", e.target.value)}
+                    onChange={(e) => updateShippingField('region', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="المنطقة"
                     disabled={createOrderMutation.isPending}
@@ -440,8 +432,8 @@ function MarketplaceContent() {
                   </label>
                   <input
                     type="text"
-                    value={shippingAddress.postalCode || ""}
-                    onChange={(e) => updateShippingField("postalCode", e.target.value)}
+                    value={shippingAddress.postalCode || ''}
+                    onChange={(e) => updateShippingField('postalCode', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="12345"
                     dir="ltr"
@@ -506,9 +498,7 @@ function MarketplaceContent() {
                   جاري المعالجة...
                 </>
               ) : (
-                <>
-                  تأكيد الطلب | Confirm Order
-                </>
+                <>تأكيد الطلب | Confirm Order</>
               )}
             </button>
           </ModalFooter>

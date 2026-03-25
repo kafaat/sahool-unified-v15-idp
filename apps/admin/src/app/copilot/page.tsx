@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 // Copilot Management Page - Sahool AI Copilot Admin
 // صفحة إدارة المساعد الذكي - لوحة تحكم سهول
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import { cn } from "@/lib/utils";
-import { logger } from "../../lib/logger";
-import { API_URLS } from "@/config/api";
-import axios from "axios";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import { cn } from '@/lib/utils';
+import { logger } from '../../lib/logger';
+import { API_URLS } from '@/config/api';
+import axios from 'axios';
 import {
   Bot,
   FileText,
@@ -31,19 +31,19 @@ import {
   AlertTriangle,
   Clock,
   ExternalLink,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const COPILOT_API = process.env.NEXT_PUBLIC_COPILOT_API_URL || "/api/v1/copilot";
+const COPILOT_API = process.env.NEXT_PUBLIC_COPILOT_API_URL || '/api/v1/copilot';
 
-type TabId = "dashboard" | "rag" | "guards" | "tools";
+type TabId = 'dashboard' | 'rag' | 'guards' | 'tools';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: "dashboard", label: "لوحة المتابعة | Dashboard", icon: Bot },
-  { id: "rag", label: "إدارة RAG | RAG Management", icon: FileText },
-  { id: "guards", label: "سجل الحماية | Guard Logs", icon: Shield },
-  { id: "tools", label: "الأدوات | Tools", icon: Wrench },
+  { id: 'dashboard', label: 'لوحة المتابعة | Dashboard', icon: Bot },
+  { id: 'rag', label: 'إدارة RAG | RAG Management', icon: FileText },
+  { id: 'guards', label: 'سجل الحماية | Guard Logs', icon: Shield },
+  { id: 'tools', label: 'الأدوات | Tools', icon: Wrench },
 ];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ interface GuardLogEntry {
   id: string;
   tool_name: string;
   input_summary?: string;
-  decision: "allowed" | "blocked" | "warning";
+  decision: 'allowed' | 'blocked' | 'warning';
   reason?: string;
   timestamp: string;
   user_id?: string;
@@ -95,13 +95,11 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
   ]);
 
   const docs =
-    docsRes.status === "fulfilled" ? docsRes.value.data?.documents || docsRes.value.data || [] : [];
+    docsRes.status === 'fulfilled' ? docsRes.value.data?.documents || docsRes.value.data || [] : [];
   const tools =
-    toolsRes.status === "fulfilled" ? toolsRes.value.data?.tools || toolsRes.value.data || [] : [];
+    toolsRes.status === 'fulfilled' ? toolsRes.value.data?.tools || toolsRes.value.data || [] : [];
 
-  const blockedCount = Array.isArray(tools)
-    ? tools.filter((t: ToolInfo) => !t.allowed).length
-    : 0;
+  const blockedCount = Array.isArray(tools) ? tools.filter((t: ToolInfo) => !t.allowed).length : 0;
 
   return {
     total_chats: 0,
@@ -136,7 +134,7 @@ async function fetchGuardLogs(): Promise<GuardLogEntry[]> {
   // We simulate with a POST to guard with a probe payload.
   try {
     const res = await axios.post(API_URLS.copilotEndpoints.guardLogs, {
-      tool_name: "__list_logs__",
+      tool_name: '__list_logs__',
       dry_run: true,
     });
     return res.data?.logs || res.data || [];
@@ -154,7 +152,7 @@ async function fetchTools(): Promise<ToolInfo[]> {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function CopilotPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [isLoading, setIsLoading] = useState(true);
 
   // Dashboard state
@@ -167,13 +165,13 @@ export default function CopilotPage() {
 
   // RAG state
   const [ragDocs, setRagDocs] = useState<RAGDocument[]>([]);
-  const [ragSearch, setRagSearch] = useState("");
+  const [ragSearch, setRagSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({
-    title: "",
-    title_ar: "",
-    content: "",
-    source: "",
+    title: '',
+    title_ar: '',
+    content: '',
+    source: '',
   });
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -183,7 +181,7 @@ export default function CopilotPage() {
 
   // Tools state
   const [tools, setTools] = useState<ToolInfo[]>([]);
-  const [toolSearch, setToolSearch] = useState("");
+  const [toolSearch, setToolSearch] = useState('');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -197,7 +195,7 @@ export default function CopilotPage() {
       const data = await fetchDashboardStats();
       setStats(data);
     } catch (error) {
-      logger.error("Failed to load copilot dashboard stats:", error);
+      logger.error('Failed to load copilot dashboard stats:', error);
     } finally {
       setIsLoading(false);
     }
@@ -209,7 +207,7 @@ export default function CopilotPage() {
       const data = await fetchRAGDocuments();
       setRagDocs(data);
     } catch (error) {
-      logger.error("Failed to load RAG documents:", error);
+      logger.error('Failed to load RAG documents:', error);
     } finally {
       setIsLoading(false);
     }
@@ -221,7 +219,7 @@ export default function CopilotPage() {
       const data = await fetchGuardLogs();
       setGuardLogs(data);
     } catch (error) {
-      logger.error("Failed to load guard logs:", error);
+      logger.error('Failed to load guard logs:', error);
     } finally {
       setIsLoading(false);
     }
@@ -233,7 +231,7 @@ export default function CopilotPage() {
       const data = await fetchTools();
       setTools(data);
     } catch (error) {
-      logger.error("Failed to load tools:", error);
+      logger.error('Failed to load tools:', error);
     } finally {
       setIsLoading(false);
     }
@@ -242,16 +240,16 @@ export default function CopilotPage() {
   const loadActiveTab = useCallback(() => {
     setCurrentPage(1);
     switch (activeTab) {
-      case "dashboard":
+      case 'dashboard':
         loadDashboard();
         break;
-      case "rag":
+      case 'rag':
         loadRAGDocs();
         break;
-      case "guards":
+      case 'guards':
         loadGuardLogs();
         break;
-      case "tools":
+      case 'tools':
         loadTools();
         break;
     }
@@ -273,11 +271,11 @@ export default function CopilotPage() {
         content: addForm.content,
         source: addForm.source || undefined,
       });
-      setAddForm({ title: "", title_ar: "", content: "", source: "" });
+      setAddForm({ title: '', title_ar: '', content: '', source: '' });
       setShowAddModal(false);
       await loadRAGDocs();
     } catch (error) {
-      logger.error("Failed to add RAG document:", error);
+      logger.error('Failed to add RAG document:', error);
     } finally {
       setIsAdding(false);
     }
@@ -289,7 +287,7 @@ export default function CopilotPage() {
       await deleteRAGDocument(id);
       setRagDocs((prev) => prev.filter((d) => d.id !== id));
     } catch (error) {
-      logger.error("Failed to delete RAG document:", error);
+      logger.error('Failed to delete RAG document:', error);
     } finally {
       setIsDeleting(null);
     }
@@ -303,8 +301,8 @@ export default function CopilotPage() {
     return ragDocs.filter(
       (d) =>
         d.title.toLowerCase().includes(query) ||
-        (d.title_ar || "").toLowerCase().includes(query) ||
-        (d.source || "").toLowerCase().includes(query),
+        (d.title_ar || '').toLowerCase().includes(query) ||
+        (d.source || '').toLowerCase().includes(query)
     );
   }, [ragDocs, ragSearch]);
 
@@ -314,9 +312,9 @@ export default function CopilotPage() {
     return tools.filter(
       (t) =>
         t.name.toLowerCase().includes(query) ||
-        (t.description || "").toLowerCase().includes(query) ||
-        (t.description_ar || "").toLowerCase().includes(query) ||
-        (t.category || "").toLowerCase().includes(query),
+        (t.description || '').toLowerCase().includes(query) ||
+        (t.description_ar || '').toLowerCase().includes(query) ||
+        (t.category || '').toLowerCase().includes(query)
     );
   }, [tools, toolSearch]);
 
@@ -324,7 +322,7 @@ export default function CopilotPage() {
   const totalGuardPages = Math.ceil(guardLogs.length / itemsPerPage);
   const paginatedGuardLogs = guardLogs.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   // ─── Render Helpers ──────────────────────────────────────────────────────
@@ -332,12 +330,12 @@ export default function CopilotPage() {
   const formatTimestamp = (ts: string) => {
     try {
       const d = new Date(ts);
-      return d.toLocaleDateString("ar-YE", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+      return d.toLocaleDateString('ar-YE', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       });
     } catch {
       return ts;
@@ -346,21 +344,21 @@ export default function CopilotPage() {
 
   const getDecisionBadge = (decision: string) => {
     switch (decision) {
-      case "allowed":
+      case 'allowed':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
             <CheckCircle2 className="w-3 h-3" />
             مسموح | Allowed
           </span>
         );
-      case "blocked":
+      case 'blocked':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
             <XCircle className="w-3 h-3" />
             محظور | Blocked
           </span>
         );
-      case "warning":
+      case 'warning':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
             <AlertTriangle className="w-3 h-3" />
@@ -389,7 +387,9 @@ export default function CopilotPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total_chats}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">إجمالي المحادثات | Total Chats</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            إجمالي المحادثات | Total Chats
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
@@ -399,7 +399,9 @@ export default function CopilotPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-green-600">{stats.active_users}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">المستخدمون النشطون | Active Users</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            المستخدمون النشطون | Active Users
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
@@ -409,7 +411,9 @@ export default function CopilotPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-red-600">{stats.blocked_tools}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">أدوات محظورة | Blocked Tools</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            أدوات محظورة | Blocked Tools
+          </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
@@ -419,7 +423,9 @@ export default function CopilotPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-purple-600">{stats.rag_docs_count}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">مستندات RAG | RAG Documents</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            مستندات RAG | RAG Documents
+          </p>
         </div>
       </div>
 
@@ -430,41 +436,49 @@ export default function CopilotPage() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
-            onClick={() => setActiveTab("rag")}
+            onClick={() => setActiveTab('rag')}
             className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-purple-100 rounded-lg">
               <FileText className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">إدارة المستندات | Manage Documents</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                إدارة المستندات | Manage Documents
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">إضافة وحذف مستندات RAG</p>
             </div>
           </button>
 
           <button
-            onClick={() => setActiveTab("guards")}
+            onClick={() => setActiveTab('guards')}
             className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-amber-100 rounded-lg">
               <Shield className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">سجل الحماية | Guard Logs</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                سجل الحماية | Guard Logs
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">مراجعة قرارات الحماية</p>
             </div>
           </button>
 
           <button
-            onClick={() => setActiveTab("tools")}
+            onClick={() => setActiveTab('tools')}
             className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-right"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
               <Wrench className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">الأدوات المتاحة | Available Tools</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">عرض وإدارة أدوات الكوبايلوت</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                الأدوات المتاحة | Available Tools
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                عرض وإدارة أدوات الكوبايلوت
+              </p>
             </div>
           </button>
         </div>
@@ -517,9 +531,7 @@ export default function CopilotPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
-            <RefreshCw
-              className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")}
-            />
+            <RefreshCw className={cn('w-5 h-5 text-gray-600', isLoading && 'animate-spin')} />
           </button>
 
           <button
@@ -588,35 +600,35 @@ export default function CopilotPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {doc.source || "-"}
+                      {doc.source || '-'}
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                        {doc.content_type || "text"}
+                        {doc.content_type || 'text'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      {doc.chunk_count ?? "-"}
+                      {doc.chunk_count ?? '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {doc.created_at ? formatTimestamp(doc.created_at) : "-"}
+                      {doc.created_at ? formatTimestamp(doc.created_at) : '-'}
                     </td>
                     <td className="px-4 py-3">
                       <span
                         className={cn(
-                          "inline-flex px-2 py-0.5 rounded text-xs font-medium",
-                          doc.status === "active" || doc.status === "indexed"
-                            ? "bg-green-100 text-green-700"
-                            : doc.status === "processing"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-gray-100 text-gray-700",
+                          'inline-flex px-2 py-0.5 rounded text-xs font-medium',
+                          doc.status === 'active' || doc.status === 'indexed'
+                            ? 'bg-green-100 text-green-700'
+                            : doc.status === 'processing'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-gray-100 text-gray-700'
                         )}
                       >
-                        {doc.status === "active" || doc.status === "indexed"
-                          ? "مفهرس | Indexed"
-                          : doc.status === "processing"
-                            ? "قيد المعالجة | Processing"
-                            : doc.status || "غير معروف"}
+                        {doc.status === 'active' || doc.status === 'indexed'
+                          ? 'مفهرس | Indexed'
+                          : doc.status === 'processing'
+                            ? 'قيد المعالجة | Processing'
+                            : doc.status || 'غير معروف'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -647,10 +659,7 @@ export default function CopilotPage() {
       {/* Add Document Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowAddModal(false)}
-          />
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowAddModal(false)} />
           <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-slide-up">
             <button
               onClick={() => setShowAddModal(false)}
@@ -673,9 +682,7 @@ export default function CopilotPage() {
                   <input
                     type="text"
                     value={addForm.title}
-                    onChange={(e) =>
-                      setAddForm((prev) => ({ ...prev, title: e.target.value }))
-                    }
+                    onChange={(e) => setAddForm((prev) => ({ ...prev, title: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="Document title..."
                   />
@@ -688,9 +695,7 @@ export default function CopilotPage() {
                   <input
                     type="text"
                     value={addForm.title_ar}
-                    onChange={(e) =>
-                      setAddForm((prev) => ({ ...prev, title_ar: e.target.value }))
-                    }
+                    onChange={(e) => setAddForm((prev) => ({ ...prev, title_ar: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="عنوان المستند..."
                   />
@@ -702,9 +707,7 @@ export default function CopilotPage() {
                   </label>
                   <textarea
                     value={addForm.content}
-                    onChange={(e) =>
-                      setAddForm((prev) => ({ ...prev, content: e.target.value }))
-                    }
+                    onChange={(e) => setAddForm((prev) => ({ ...prev, content: e.target.value }))}
                     rows={6}
                     className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="محتوى المستند... | Document content..."
@@ -718,9 +721,7 @@ export default function CopilotPage() {
                   <input
                     type="text"
                     value={addForm.source}
-                    onChange={(e) =>
-                      setAddForm((prev) => ({ ...prev, source: e.target.value }))
-                    }
+                    onChange={(e) => setAddForm((prev) => ({ ...prev, source: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="https://... or file path"
                   />
@@ -738,7 +739,7 @@ export default function CopilotPage() {
                   ) : (
                     <Plus className="w-5 h-5" />
                   )}
-                  {isAdding ? "جاري الإضافة..." : "إضافة | Add"}
+                  {isAdding ? 'جاري الإضافة...' : 'إضافة | Add'}
                 </button>
                 <button
                   onClick={() => setShowAddModal(false)}
@@ -771,9 +772,7 @@ export default function CopilotPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
-            <RefreshCw
-              className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")}
-            />
+            <RefreshCw className={cn('w-5 h-5 text-gray-600', isLoading && 'animate-spin')} />
           </button>
         </div>
       </div>
@@ -835,14 +834,14 @@ export default function CopilotPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
-                        {log.input_summary || "-"}
+                        {log.input_summary || '-'}
                       </td>
                       <td className="px-4 py-3">{getDecisionBadge(log.decision)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
-                        {log.reason || "-"}
+                        {log.reason || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {log.user_id || "-"}
+                        {log.user_id || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                         <span className="inline-flex items-center gap-1">
@@ -871,9 +870,7 @@ export default function CopilotPage() {
                 صفحة {currentPage} من {totalGuardPages}
               </span>
               <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalGuardPages, p + 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.min(totalGuardPages, p + 1))}
                 disabled={currentPage === totalGuardPages}
                 className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -909,9 +906,7 @@ export default function CopilotPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث | Refresh"
           >
-            <RefreshCw
-              className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")}
-            />
+            <RefreshCw className={cn('w-5 h-5 text-gray-600', isLoading && 'animate-spin')} />
           </button>
         </div>
       </div>
@@ -926,9 +921,7 @@ export default function CopilotPage() {
       ) : filteredTools.length === 0 ? (
         <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-100 dark:border-gray-700">
           <Wrench className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">
-            لا توجد أدوات | No tools available
-          </p>
+          <p className="text-gray-500 dark:text-gray-400">لا توجد أدوات | No tools available</p>
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -936,29 +929,23 @@ export default function CopilotPage() {
             <div
               key={tool.name}
               className={cn(
-                "bg-white dark:bg-gray-800 rounded-xl p-5 border transition-all",
+                'bg-white dark:bg-gray-800 rounded-xl p-5 border transition-all',
                 tool.allowed
-                  ? "border-gray-100 dark:border-gray-700 hover:border-green-200 hover:shadow-sm"
-                  : "border-red-100 bg-red-50/30",
+                  ? 'border-gray-100 dark:border-gray-700 hover:border-green-200 hover:shadow-sm'
+                  : 'border-red-100 bg-red-50/30'
               )}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div
-                    className={cn(
-                      "p-2 rounded-lg",
-                      tool.allowed ? "bg-green-50" : "bg-red-50",
-                    )}
-                  >
+                  <div className={cn('p-2 rounded-lg', tool.allowed ? 'bg-green-50' : 'bg-red-50')}>
                     <Wrench
-                      className={cn(
-                        "w-4 h-4",
-                        tool.allowed ? "text-green-600" : "text-red-600",
-                      )}
+                      className={cn('w-4 h-4', tool.allowed ? 'text-green-600' : 'text-red-600')}
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{tool.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                      {tool.name}
+                    </p>
                     {tool.category && (
                       <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 mt-0.5">
                         {tool.category}
@@ -968,10 +955,8 @@ export default function CopilotPage() {
                 </div>
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
-                    tool.allowed
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700",
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
+                    tool.allowed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                   )}
                 >
                   {tool.allowed ? (
@@ -989,7 +974,7 @@ export default function CopilotPage() {
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                {tool.description_ar || tool.description || "بدون وصف | No description"}
+                {tool.description_ar || tool.description || 'بدون وصف | No description'}
               </p>
 
               {tool.requires_guard && (
@@ -1050,10 +1035,10 @@ export default function CopilotPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
+                  'flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
                   activeTab === tab.id
-                    ? "border-sahool-600 text-sahool-600 bg-sahool-50/50"
-                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
+                    ? 'border-sahool-600 text-sahool-600 bg-sahool-50/50'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -1065,10 +1050,10 @@ export default function CopilotPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "dashboard" && renderDashboard()}
-      {activeTab === "rag" && renderRAG()}
-      {activeTab === "guards" && renderGuardLogs()}
-      {activeTab === "tools" && renderTools()}
+      {activeTab === 'dashboard' && renderDashboard()}
+      {activeTab === 'rag' && renderRAG()}
+      {activeTab === 'guards' && renderGuardLogs()}
+      {activeTab === 'tools' && renderTools()}
     </div>
   );
 }

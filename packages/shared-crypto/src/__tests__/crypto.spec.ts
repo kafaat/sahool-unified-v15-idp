@@ -3,7 +3,7 @@
  * Tests encryption, hashing, and PII handling from @sahool/shared-crypto
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   // Field encryption
   encrypt,
@@ -39,15 +39,14 @@ import {
   generateToken,
   generateSecureRandomString,
   createHashId,
-} from "../index";
+} from '../index';
 
 // Mock environment variables
 beforeEach(() => {
-  process.env.ENCRYPTION_KEY =
-    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+  process.env.ENCRYPTION_KEY = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
   process.env.DETERMINISTIC_ENCRYPTION_KEY =
-    "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
-  process.env.HMAC_SECRET = "test-hmac-secret-key";
+    'fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210';
+  process.env.HMAC_SECRET = 'test-hmac-secret-key';
 });
 
 afterEach(() => {
@@ -60,10 +59,10 @@ afterEach(() => {
 // Password Hashing Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Password Hashing", () => {
-  describe("hashPassword", () => {
-    it("should hash password using bcrypt", async () => {
-      const password = "mySecurePassword123!";
+describe('Password Hashing', () => {
+  describe('hashPassword', () => {
+    it('should hash password using bcrypt', async () => {
+      const password = 'mySecurePassword123!';
       const hash = await hashPassword(password);
 
       expect(hash).toBeTruthy();
@@ -71,20 +70,20 @@ describe("Password Hashing", () => {
       expect(hash.length).toBeGreaterThan(50);
     });
 
-    it("should generate different hashes for same password", async () => {
-      const password = "mySecurePassword123!";
+    it('should generate different hashes for same password', async () => {
+      const password = 'mySecurePassword123!';
       const hash1 = await hashPassword(password);
       const hash2 = await hashPassword(password);
 
       expect(hash1).not.toBe(hash2); // Different salts
     });
 
-    it("should throw error for empty password", async () => {
-      await expect(hashPassword("")).rejects.toThrow();
+    it('should throw error for empty password', async () => {
+      await expect(hashPassword('')).rejects.toThrow();
     });
 
-    it("should accept custom rounds parameter", async () => {
-      const password = "mySecurePassword123!";
+    it('should accept custom rounds parameter', async () => {
+      const password = 'mySecurePassword123!';
       const hash = await hashPassword(password, 10);
 
       expect(hash).toBeTruthy();
@@ -92,64 +91,64 @@ describe("Password Hashing", () => {
     });
   });
 
-  describe("verifyPassword", () => {
-    it("should verify correct password", async () => {
-      const password = "mySecurePassword123!";
+  describe('verifyPassword', () => {
+    it('should verify correct password', async () => {
+      const password = 'mySecurePassword123!';
       const hash = await hashPassword(password);
       const isValid = await verifyPassword(password, hash);
 
       expect(isValid).toBe(true);
     });
 
-    it("should reject incorrect password", async () => {
-      const password = "mySecurePassword123!";
+    it('should reject incorrect password', async () => {
+      const password = 'mySecurePassword123!';
       const hash = await hashPassword(password);
-      const isValid = await verifyPassword("wrongPassword", hash);
+      const isValid = await verifyPassword('wrongPassword', hash);
 
       expect(isValid).toBe(false);
     });
 
-    it("should return false for empty password", async () => {
-      const hash = await hashPassword("password");
-      const isValid = await verifyPassword("", hash);
+    it('should return false for empty password', async () => {
+      const hash = await hashPassword('password');
+      const isValid = await verifyPassword('', hash);
 
       expect(isValid).toBe(false);
     });
 
-    it("should return false for empty hash", async () => {
-      const isValid = await verifyPassword("password", "");
+    it('should return false for empty hash', async () => {
+      const isValid = await verifyPassword('password', '');
 
       expect(isValid).toBe(false);
     });
   });
 
-  describe("hashPasswordSync", () => {
-    it("should hash password synchronously", () => {
-      const password = "mySecurePassword123!";
+  describe('hashPasswordSync', () => {
+    it('should hash password synchronously', () => {
+      const password = 'mySecurePassword123!';
       const hash = hashPasswordSync(password);
 
       expect(hash).toBeTruthy();
       expect(hash).toMatch(/^\$2[aby]\$\d+\$/);
     });
 
-    it("should throw error for empty password", () => {
-      expect(() => hashPasswordSync("")).toThrow();
+    it('should throw error for empty password', () => {
+      expect(() => hashPasswordSync('')).toThrow();
     });
   });
 
-  describe("verifyPasswordSync", () => {
-    it("should verify password synchronously", () => {
-      const password = "mySecurePassword123!";
+  describe('verifyPasswordSync', () => {
+    it('should verify password synchronously', () => {
+      const password = 'mySecurePassword123!';
       const hash = hashPasswordSync(password);
       const isValid = verifyPasswordSync(password, hash);
 
       expect(isValid).toBe(true);
     });
 
-    it("should reject incorrect password", () => {
-      const password = "mySecurePassword123!";
+    it('should reject incorrect password', () => {
+      const password = 'mySecurePassword123!';
       const hash = hashPasswordSync(password);
-      const isValid = verifyPasswordSync("wrongPassword", hash);
+      const isValid = verifyPasswordSync('wrongPassword', hash);
 
       expect(isValid).toBe(false);
     });
@@ -160,10 +159,10 @@ describe("Password Hashing", () => {
 // SHA Hashing Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("SHA Hashing", () => {
-  describe("sha256", () => {
-    it("should create SHA-256 hash", () => {
-      const data = "test data";
+describe('SHA Hashing', () => {
+  describe('sha256', () => {
+    it('should create SHA-256 hash', () => {
+      const data = 'test data';
       const hash = sha256(data);
 
       expect(hash).toBeTruthy();
@@ -171,23 +170,23 @@ describe("SHA Hashing", () => {
       expect(hash).toMatch(/^[0-9a-f]{64}$/);
     });
 
-    it("should produce consistent hashes", () => {
-      const data = "test data";
+    it('should produce consistent hashes', () => {
+      const data = 'test data';
       const hash1 = sha256(data);
       const hash2 = sha256(data);
 
       expect(hash1).toBe(hash2);
     });
 
-    it("should produce different hashes for different data", () => {
-      const hash1 = sha256("data1");
-      const hash2 = sha256("data2");
+    it('should produce different hashes for different data', () => {
+      const hash1 = sha256('data1');
+      const hash2 = sha256('data2');
 
       expect(hash1).not.toBe(hash2);
     });
 
-    it("should handle Buffer input", () => {
-      const buffer = Buffer.from("test data");
+    it('should handle Buffer input', () => {
+      const buffer = Buffer.from('test data');
       const hash = sha256(buffer);
 
       expect(hash).toBeTruthy();
@@ -195,17 +194,17 @@ describe("SHA Hashing", () => {
     });
   });
 
-  describe("sha256Base64", () => {
-    it("should create base64 encoded SHA-256 hash", () => {
-      const data = "test data";
+  describe('sha256Base64', () => {
+    it('should create base64 encoded SHA-256 hash', () => {
+      const data = 'test data';
       const hash = sha256Base64(data);
 
       expect(hash).toBeTruthy();
       expect(hash).toMatch(/^[A-Za-z0-9+/]+=*$/); // Base64 format
     });
 
-    it("should produce consistent hashes", () => {
-      const data = "test data";
+    it('should produce consistent hashes', () => {
+      const data = 'test data';
       const hash1 = sha256Base64(data);
       const hash2 = sha256Base64(data);
 
@@ -213,9 +212,9 @@ describe("SHA Hashing", () => {
     });
   });
 
-  describe("sha512", () => {
-    it("should create SHA-512 hash", () => {
-      const data = "test data";
+  describe('sha512', () => {
+    it('should create SHA-512 hash', () => {
+      const data = 'test data';
       const hash = sha512(data);
 
       expect(hash).toBeTruthy();
@@ -223,8 +222,8 @@ describe("SHA Hashing", () => {
       expect(hash).toMatch(/^[0-9a-f]{128}$/);
     });
 
-    it("should produce consistent hashes", () => {
-      const data = "test data";
+    it('should produce consistent hashes', () => {
+      const data = 'test data';
       const hash1 = sha512(data);
       const hash2 = sha512(data);
 
@@ -237,10 +236,10 @@ describe("SHA Hashing", () => {
 // HMAC Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("HMAC", () => {
-  describe("createHMAC", () => {
-    it("should create HMAC signature", () => {
-      const data = "important data";
+describe('HMAC', () => {
+  describe('createHMAC', () => {
+    it('should create HMAC signature', () => {
+      const data = 'important data';
       const hmac = createHMAC(data);
 
       expect(hmac).toBeTruthy();
@@ -248,50 +247,50 @@ describe("HMAC", () => {
       expect(hmac).toMatch(/^[0-9a-f]{64}$/);
     });
 
-    it("should produce consistent signatures", () => {
-      const data = "important data";
+    it('should produce consistent signatures', () => {
+      const data = 'important data';
       const hmac1 = createHMAC(data);
       const hmac2 = createHMAC(data);
 
       expect(hmac1).toBe(hmac2);
     });
 
-    it("should produce different signatures for different data", () => {
-      const hmac1 = createHMAC("data1");
-      const hmac2 = createHMAC("data2");
+    it('should produce different signatures for different data', () => {
+      const hmac1 = createHMAC('data1');
+      const hmac2 = createHMAC('data2');
 
       expect(hmac1).not.toBe(hmac2);
     });
 
-    it("should accept custom secret", () => {
-      const data = "test data";
-      const secret = "custom-secret";
+    it('should accept custom secret', () => {
+      const data = 'test data';
+      const secret = 'custom-secret';
       const hmac = createHMAC(data, secret);
 
       expect(hmac).toBeTruthy();
     });
   });
 
-  describe("verifyHMAC", () => {
-    it("should verify valid HMAC", () => {
-      const data = "important data";
+  describe('verifyHMAC', () => {
+    it('should verify valid HMAC', () => {
+      const data = 'important data';
       const hmac = createHMAC(data);
       const isValid = verifyHMAC(data, hmac);
 
       expect(isValid).toBe(true);
     });
 
-    it("should reject invalid HMAC", () => {
-      const data = "important data";
+    it('should reject invalid HMAC', () => {
+      const data = 'important data';
       const hmac = createHMAC(data);
-      const isValid = verifyHMAC("tampered data", hmac);
+      const isValid = verifyHMAC('tampered data', hmac);
 
       expect(isValid).toBe(false);
     });
 
-    it("should reject malformed HMAC", () => {
-      const data = "important data";
-      const isValid = verifyHMAC(data, "invalid-hmac");
+    it('should reject malformed HMAC', () => {
+      const data = 'important data';
+      const isValid = verifyHMAC(data, 'invalid-hmac');
 
       expect(isValid).toBe(false);
     });
@@ -302,10 +301,10 @@ describe("HMAC", () => {
 // Field Encryption Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Field Encryption", () => {
-  describe("encrypt and decrypt", () => {
-    it("should encrypt and decrypt data", () => {
-      const plaintext = "sensitive data";
+describe('Field Encryption', () => {
+  describe('encrypt and decrypt', () => {
+    it('should encrypt and decrypt data', () => {
+      const plaintext = 'sensitive data';
       const encrypted = encrypt(plaintext);
       const decrypted = decrypt(encrypted);
 
@@ -313,153 +312,153 @@ describe("Field Encryption", () => {
       expect(decrypted).toBe(plaintext);
     });
 
-    it("should produce different ciphertexts for same plaintext", () => {
-      const plaintext = "sensitive data";
+    it('should produce different ciphertexts for same plaintext', () => {
+      const plaintext = 'sensitive data';
       const encrypted1 = encrypt(plaintext);
       const encrypted2 = encrypt(plaintext);
 
       expect(encrypted1).not.toBe(encrypted2); // Different IVs
     });
 
-    it("should handle empty strings", () => {
-      const encrypted = encrypt("");
-      expect(encrypted).toBe("");
+    it('should handle empty strings', () => {
+      const encrypted = encrypt('');
+      expect(encrypted).toBe('');
 
-      const decrypted = decrypt("");
-      expect(decrypted).toBe("");
+      const decrypted = decrypt('');
+      expect(decrypted).toBe('');
     });
 
-    it("should include IV and auth tag", () => {
-      const plaintext = "test data";
+    it('should include IV and auth tag', () => {
+      const plaintext = 'test data';
       const encrypted = encrypt(plaintext);
 
       // Format: iv:authTag:ciphertext
-      const parts = encrypted.split(":");
+      const parts = encrypted.split(':');
       expect(parts.length).toBe(3);
     });
   });
 
-  describe("encryptSearchable and decryptSearchable", () => {
-    it("should create deterministic encryption", () => {
-      const plaintext = "searchable data";
+  describe('encryptSearchable and decryptSearchable', () => {
+    it('should create deterministic encryption', () => {
+      const plaintext = 'searchable data';
       const encrypted1 = encryptSearchable(plaintext);
       const encrypted2 = encryptSearchable(plaintext);
 
       expect(encrypted1).toBe(encrypted2); // Deterministic
     });
 
-    it("should use v2 format with s2: prefix", () => {
-      const plaintext = "searchable data";
+    it('should use v2 format with s2: prefix', () => {
+      const plaintext = 'searchable data';
       const encrypted = encryptSearchable(plaintext);
 
-      expect(encrypted.startsWith("s2:")).toBe(true);
+      expect(encrypted.startsWith('s2:')).toBe(true);
     });
 
-    it("should decrypt with hint", () => {
-      const plaintext = "searchable data";
+    it('should decrypt with hint', () => {
+      const plaintext = 'searchable data';
       const encrypted = encryptSearchable(plaintext);
       const decrypted = decryptSearchable(encrypted, plaintext);
 
       expect(decrypted).toBe(plaintext);
     });
 
-    it("should fail to decrypt without hint", () => {
-      const plaintext = "searchable data";
+    it('should fail to decrypt without hint', () => {
+      const plaintext = 'searchable data';
       const encrypted = encryptSearchable(plaintext);
 
       expect(() => decryptSearchable(encrypted)).toThrow();
     });
 
-    it("should fail to decrypt with wrong hint", () => {
-      const plaintext = "searchable data";
+    it('should fail to decrypt with wrong hint', () => {
+      const plaintext = 'searchable data';
       const encrypted = encryptSearchable(plaintext);
 
-      expect(() => decryptSearchable(encrypted, "wrong hint")).toThrow();
+      expect(() => decryptSearchable(encrypted, 'wrong hint')).toThrow();
     });
 
-    it("should handle empty strings", () => {
-      const encrypted = encryptSearchable("");
-      expect(encrypted).toBe("");
+    it('should handle empty strings', () => {
+      const encrypted = encryptSearchable('');
+      expect(encrypted).toBe('');
     });
   });
 
-  describe("encryptDeterministic and decryptDeterministic", () => {
-    it("should create deterministic encryption", () => {
-      const plaintext = "deterministic data";
+  describe('encryptDeterministic and decryptDeterministic', () => {
+    it('should create deterministic encryption', () => {
+      const plaintext = 'deterministic data';
       const encrypted1 = encryptDeterministic(plaintext);
       const encrypted2 = encryptDeterministic(plaintext);
 
       expect(encrypted1).toBe(encrypted2);
     });
 
-    it("should decrypt with correct hint", () => {
-      const plaintext = "deterministic data";
+    it('should decrypt with correct hint', () => {
+      const plaintext = 'deterministic data';
       const encrypted = encryptDeterministic(plaintext);
       const decrypted = decryptDeterministic(encrypted, plaintext);
 
       expect(decrypted).toBe(plaintext);
     });
 
-    it("should fail to decrypt with wrong hint", () => {
-      const plaintext = "deterministic data";
+    it('should fail to decrypt with wrong hint', () => {
+      const plaintext = 'deterministic data';
       const encrypted = encryptDeterministic(plaintext);
 
-      expect(() => decryptDeterministic(encrypted, "wrong")).toThrow();
+      expect(() => decryptDeterministic(encrypted, 'wrong')).toThrow();
     });
 
-    it("should fail to decrypt without hint", () => {
-      const plaintext = "deterministic data";
+    it('should fail to decrypt without hint', () => {
+      const plaintext = 'deterministic data';
       const encrypted = encryptDeterministic(plaintext);
 
       expect(() => decryptDeterministic(encrypted)).toThrow();
     });
 
-    it("should handle empty strings", () => {
-      const encrypted = encryptDeterministic("");
-      expect(encrypted).toBe("");
+    it('should handle empty strings', () => {
+      const encrypted = encryptDeterministic('');
+      expect(encrypted).toBe('');
     });
   });
 
-  describe("legacy searchable encryption migration", () => {
-    it("should identify legacy format", () => {
-      const plaintext = "test-national-id";
+  describe('legacy searchable encryption migration', () => {
+    it('should identify legacy format', () => {
+      const plaintext = 'test-national-id';
       const legacy = encryptLegacySearchable(plaintext);
 
       expect(isLegacySearchable(legacy)).toBe(true);
-      expect(isLegacySearchable("s2:" + legacy)).toBe(false);
+      expect(isLegacySearchable('s2:' + legacy)).toBe(false);
     });
 
-    it("should migrate legacy to v2", () => {
-      const plaintext = "123456789";
+    it('should migrate legacy to v2', () => {
+      const plaintext = '123456789';
       const legacy = encryptLegacySearchable(plaintext);
 
       const migrated = migrateSearchableEncryption(legacy, plaintext);
 
       expect(migrated).not.toBeNull();
-      expect(migrated!.startsWith("s2:")).toBe(true);
+      expect(migrated!.startsWith('s2:')).toBe(true);
 
       // Verify migrated value decrypts correctly
       const decrypted = decryptSearchable(migrated!, plaintext);
       expect(decrypted).toBe(plaintext);
     });
 
-    it("should return null for wrong plaintext during migration", () => {
-      const legacy = encryptLegacySearchable("123456789");
-      const result = migrateSearchableEncryption(legacy, "wrong");
+    it('should return null for wrong plaintext during migration', () => {
+      const legacy = encryptLegacySearchable('123456789');
+      const result = migrateSearchableEncryption(legacy, 'wrong');
 
       expect(result).toBeNull();
     });
 
-    it("should pass through already-migrated values", () => {
-      const plaintext = "123456789";
+    it('should pass through already-migrated values', () => {
+      const plaintext = '123456789';
       const v2 = encryptSearchable(plaintext);
       const result = migrateSearchableEncryption(v2, plaintext);
 
       expect(result).toBe(v2);
     });
 
-    it("should decrypt legacy format via decryptSearchable", () => {
-      const plaintext = "+967712345678";
+    it('should decrypt legacy format via decryptSearchable', () => {
+      const plaintext = '+967712345678';
       const legacy = encryptLegacySearchable(plaintext);
 
       const decrypted = decryptSearchable(legacy, plaintext);
@@ -467,44 +466,44 @@ describe("Field Encryption", () => {
     });
   });
 
-  describe("encryptFields and decryptFields", () => {
-    it("should encrypt multiple fields", () => {
+  describe('encryptFields and decryptFields', () => {
+    it('should encrypt multiple fields', () => {
       const data = {
-        name: "John Doe",
-        email: "john@example.com",
-        phone: "+967712345678",
-        publicField: "visible",
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '+967712345678',
+        publicField: 'visible',
       };
 
-      const encrypted = encryptFields(data, ["email", "phone"]);
+      const encrypted = encryptFields(data, ['email', 'phone']);
 
-      expect(encrypted.name).toBe("John Doe"); // Not encrypted
-      expect(encrypted.email).not.toBe("john@example.com"); // Encrypted
-      expect(encrypted.phone).not.toBe("+967712345678"); // Encrypted
-      expect(encrypted.publicField).toBe("visible"); // Not encrypted
+      expect(encrypted.name).toBe('John Doe'); // Not encrypted
+      expect(encrypted.email).not.toBe('john@example.com'); // Encrypted
+      expect(encrypted.phone).not.toBe('+967712345678'); // Encrypted
+      expect(encrypted.publicField).toBe('visible'); // Not encrypted
     });
 
-    it("should decrypt multiple fields", () => {
+    it('should decrypt multiple fields', () => {
       const data = {
-        email: "john@example.com",
-        phone: "+967712345678",
+        email: 'john@example.com',
+        phone: '+967712345678',
       };
 
-      const encrypted = encryptFields(data, ["email", "phone"]);
-      const decrypted = decryptFields(encrypted, ["email", "phone"]);
+      const encrypted = encryptFields(data, ['email', 'phone']);
+      const decrypted = decryptFields(encrypted, ['email', 'phone']);
 
-      expect(decrypted.email).toBe("john@example.com");
-      expect(decrypted.phone).toBe("+967712345678");
+      expect(decrypted.email).toBe('john@example.com');
+      expect(decrypted.phone).toBe('+967712345678');
     });
 
-    it("should use deterministic encryption when specified", () => {
+    it('should use deterministic encryption when specified', () => {
       const data = {
-        nationalId: "123456789",
-        phone: "+967712345678",
+        nationalId: '123456789',
+        phone: '+967712345678',
       };
 
-      const encrypted1 = encryptFields(data, ["nationalId", "phone"], true);
-      const encrypted2 = encryptFields(data, ["nationalId", "phone"], true);
+      const encrypted1 = encryptFields(data, ['nationalId', 'phone'], true);
+      const encrypted2 = encryptFields(data, ['nationalId', 'phone'], true);
 
       expect(encrypted1.nationalId).toBe(encrypted2.nationalId);
       expect(encrypted1.phone).toBe(encrypted2.phone);
@@ -516,9 +515,9 @@ describe("Field Encryption", () => {
 // Encryption Key Management Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Encryption Key Management", () => {
-  describe("generateEncryptionKey", () => {
-    it("should generate valid encryption key", () => {
+describe('Encryption Key Management', () => {
+  describe('generateEncryptionKey', () => {
+    it('should generate valid encryption key', () => {
       const key = generateEncryptionKey();
 
       expect(key).toBeTruthy();
@@ -526,7 +525,7 @@ describe("Encryption Key Management", () => {
       expect(key).toMatch(/^[0-9a-f]{64}$/);
     });
 
-    it("should generate unique keys", () => {
+    it('should generate unique keys', () => {
       const key1 = generateEncryptionKey();
       const key2 = generateEncryptionKey();
 
@@ -534,48 +533,48 @@ describe("Encryption Key Management", () => {
     });
   });
 
-  describe("validateEncryptionKey", () => {
-    it("should validate correct key format", () => {
+  describe('validateEncryptionKey', () => {
+    it('should validate correct key format', () => {
       const key = generateEncryptionKey();
       expect(validateEncryptionKey(key)).toBe(true);
     });
 
-    it("should reject invalid key length", () => {
-      expect(validateEncryptionKey("too-short")).toBe(false);
+    it('should reject invalid key length', () => {
+      expect(validateEncryptionKey('too-short')).toBe(false);
     });
 
-    it("should reject invalid characters", () => {
-      const invalidKey = "g".repeat(64); // 'g' is not hex
+    it('should reject invalid characters', () => {
+      const invalidKey = 'g'.repeat(64); // 'g' is not hex
       expect(validateEncryptionKey(invalidKey)).toBe(false);
     });
 
-    it("should reject non-string keys", () => {
+    it('should reject non-string keys', () => {
       expect(validateEncryptionKey(123 as any)).toBe(false);
     });
   });
 
-  describe("isEncrypted", () => {
-    it("should detect encrypted data", () => {
-      const plaintext = "test data";
+  describe('isEncrypted', () => {
+    it('should detect encrypted data', () => {
+      const plaintext = 'test data';
       const encrypted = encrypt(plaintext);
 
       expect(isEncrypted(encrypted)).toBe(true);
       expect(isEncrypted(plaintext)).toBe(false);
     });
 
-    it("should handle empty strings", () => {
-      expect(isEncrypted("")).toBe(false);
+    it('should handle empty strings', () => {
+      expect(isEncrypted('')).toBe(false);
     });
 
-    it("should handle non-strings", () => {
+    it('should handle non-strings', () => {
       expect(isEncrypted(null as any)).toBe(false);
       expect(isEncrypted(undefined as any)).toBe(false);
     });
   });
 
-  describe("rotateEncryption", () => {
-    it("should re-encrypt with new key", () => {
-      const plaintext = "test data";
+  describe('rotateEncryption', () => {
+    it('should re-encrypt with new key', () => {
+      const plaintext = 'test data';
       const encrypted = encrypt(plaintext);
 
       // Set previous key
@@ -595,27 +594,27 @@ describe("Encryption Key Management", () => {
 // Specialized Hashing Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Specialized Hashing", () => {
-  describe("createDeterministicHash", () => {
-    it("should create deterministic hash", () => {
-      const data = "test data";
+describe('Specialized Hashing', () => {
+  describe('createDeterministicHash', () => {
+    it('should create deterministic hash', () => {
+      const data = 'test data';
       const hash1 = createDeterministicHash(data);
       const hash2 = createDeterministicHash(data);
 
       expect(hash1).toBe(hash2);
     });
 
-    it("should produce different hashes for different data", () => {
-      const hash1 = createDeterministicHash("data1");
-      const hash2 = createDeterministicHash("data2");
+    it('should produce different hashes for different data', () => {
+      const hash1 = createDeterministicHash('data1');
+      const hash2 = createDeterministicHash('data2');
 
       expect(hash1).not.toBe(hash2);
     });
   });
 
-  describe("hashSensitiveData", () => {
-    it("should hash sensitive data with salt", () => {
-      const data = "sensitive";
+  describe('hashSensitiveData', () => {
+    it('should hash sensitive data with salt', () => {
+      const data = 'sensitive';
       const result = hashSensitiveData(data);
 
       expect(result.hash).toBeTruthy();
@@ -623,8 +622,8 @@ describe("Specialized Hashing", () => {
       expect(result.hash.length).toBe(64);
     });
 
-    it("should produce different hashes without specified salt", () => {
-      const data = "sensitive";
+    it('should produce different hashes without specified salt', () => {
+      const data = 'sensitive';
       const result1 = hashSensitiveData(data);
       const result2 = hashSensitiveData(data);
 
@@ -632,9 +631,9 @@ describe("Specialized Hashing", () => {
       expect(result1.salt).not.toBe(result2.salt);
     });
 
-    it("should produce same hash with same salt", () => {
-      const data = "sensitive";
-      const salt = "fixed-salt";
+    it('should produce same hash with same salt', () => {
+      const data = 'sensitive';
+      const salt = 'fixed-salt';
       const result1 = hashSensitiveData(data, salt);
       const result2 = hashSensitiveData(data, salt);
 
@@ -643,19 +642,19 @@ describe("Specialized Hashing", () => {
     });
   });
 
-  describe("verifySensitiveDataHash", () => {
-    it("should verify correct sensitive data", () => {
-      const data = "sensitive";
+  describe('verifySensitiveDataHash', () => {
+    it('should verify correct sensitive data', () => {
+      const data = 'sensitive';
       const { hash, salt } = hashSensitiveData(data);
       const isValid = verifySensitiveDataHash(data, hash, salt);
 
       expect(isValid).toBe(true);
     });
 
-    it("should reject incorrect data", () => {
-      const data = "sensitive";
+    it('should reject incorrect data', () => {
+      const data = 'sensitive';
       const { hash, salt } = hashSensitiveData(data);
-      const isValid = verifySensitiveDataHash("wrong", hash, salt);
+      const isValid = verifySensitiveDataHash('wrong', hash, salt);
 
       expect(isValid).toBe(false);
     });
@@ -666,52 +665,52 @@ describe("Specialized Hashing", () => {
 // Checksum and Integrity Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Checksum and Integrity", () => {
-  describe("createChecksum", () => {
-    it("should create checksum for data", () => {
-      const data = "test data";
+describe('Checksum and Integrity', () => {
+  describe('createChecksum', () => {
+    it('should create checksum for data', () => {
+      const data = 'test data';
       const checksum = createChecksum(data);
 
       expect(checksum).toBeTruthy();
       expect(checksum.length).toBe(64);
     });
 
-    it("should produce consistent checksums", () => {
-      const data = "test data";
+    it('should produce consistent checksums', () => {
+      const data = 'test data';
       const checksum1 = createChecksum(data);
       const checksum2 = createChecksum(data);
 
       expect(checksum1).toBe(checksum2);
     });
 
-    it("should handle Buffer input", () => {
-      const buffer = Buffer.from("test data");
+    it('should handle Buffer input', () => {
+      const buffer = Buffer.from('test data');
       const checksum = createChecksum(buffer);
 
       expect(checksum).toBeTruthy();
     });
   });
 
-  describe("verifyChecksum", () => {
-    it("should verify valid checksum", () => {
-      const data = "test data";
+  describe('verifyChecksum', () => {
+    it('should verify valid checksum', () => {
+      const data = 'test data';
       const checksum = createChecksum(data);
       const isValid = verifyChecksum(data, checksum);
 
       expect(isValid).toBe(true);
     });
 
-    it("should reject invalid checksum", () => {
-      const data = "test data";
+    it('should reject invalid checksum', () => {
+      const data = 'test data';
       const checksum = createChecksum(data);
-      const isValid = verifyChecksum("tampered data", checksum);
+      const isValid = verifyChecksum('tampered data', checksum);
 
       expect(isValid).toBe(false);
     });
 
-    it("should handle malformed checksums", () => {
-      const data = "test data";
-      const isValid = verifyChecksum(data, "invalid");
+    it('should handle malformed checksums', () => {
+      const data = 'test data';
+      const isValid = verifyChecksum(data, 'invalid');
 
       expect(isValid).toBe(false);
     });
@@ -722,9 +721,9 @@ describe("Checksum and Integrity", () => {
 // Utility Functions Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Utility Functions", () => {
-  describe("generateToken", () => {
-    it("should generate secure token", () => {
+describe('Utility Functions', () => {
+  describe('generateToken', () => {
+    it('should generate secure token', () => {
       const token = generateToken();
 
       expect(token).toBeTruthy();
@@ -732,45 +731,45 @@ describe("Utility Functions", () => {
       expect(token).toMatch(/^[0-9a-f]{64}$/);
     });
 
-    it("should generate unique tokens", () => {
+    it('should generate unique tokens', () => {
       const token1 = generateToken();
       const token2 = generateToken();
 
       expect(token1).not.toBe(token2);
     });
 
-    it("should accept custom length", () => {
+    it('should accept custom length', () => {
       const token = generateToken(16);
 
       expect(token.length).toBe(32); // 16 bytes in hex
     });
   });
 
-  describe("generateSecureRandomString", () => {
-    it("should generate URL-safe random string", () => {
+  describe('generateSecureRandomString', () => {
+    it('should generate URL-safe random string', () => {
       const str = generateSecureRandomString();
 
       expect(str).toBeTruthy();
       expect(str).toMatch(/^[A-Za-z0-9_-]+$/); // Base64url format
     });
 
-    it("should generate unique strings", () => {
+    it('should generate unique strings', () => {
       const str1 = generateSecureRandomString();
       const str2 = generateSecureRandomString();
 
       expect(str1).not.toBe(str2);
     });
 
-    it("should accept custom length", () => {
+    it('should accept custom length', () => {
       const str = generateSecureRandomString(16);
 
       expect(str).toBeTruthy();
     });
   });
 
-  describe("createHashId", () => {
-    it("should create hash-based ID", () => {
-      const data = "test data";
+  describe('createHashId', () => {
+    it('should create hash-based ID', () => {
+      const data = 'test data';
       const id = createHashId(data);
 
       expect(id).toBeTruthy();
@@ -778,17 +777,17 @@ describe("Utility Functions", () => {
       expect(id).toMatch(/^[0-9a-f]{16}$/);
     });
 
-    it("should produce consistent IDs", () => {
-      const data = "test data";
+    it('should produce consistent IDs', () => {
+      const data = 'test data';
       const id1 = createHashId(data);
       const id2 = createHashId(data);
 
       expect(id1).toBe(id2);
     });
 
-    it("should produce different IDs for different data", () => {
-      const id1 = createHashId("data1");
-      const id2 = createHashId("data2");
+    it('should produce different IDs for different data', () => {
+      const id1 = createHashId('data1');
+      const id2 = createHashId('data2');
 
       expect(id1).not.toBe(id2);
     });
@@ -799,14 +798,14 @@ describe("Utility Functions", () => {
 // Integration Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("Integration Tests", () => {
-  describe("User Data Protection", () => {
-    it("should protect user credentials", async () => {
+describe('Integration Tests', () => {
+  describe('User Data Protection', () => {
+    it('should protect user credentials', async () => {
       const userData = {
-        email: "user@example.com",
-        password: "SecurePass123!",
-        nationalId: "123456789",
-        phone: "+967712345678",
+        email: 'user@example.com',
+        password: 'SecurePass123!',
+        nationalId: '123456789',
+        phone: '+967712345678',
       };
 
       // Hash password
@@ -819,26 +818,23 @@ describe("Integration Tests", () => {
           nationalId: userData.nationalId,
           phone: userData.phone,
         },
-        ["nationalId", "phone"],
+        ['nationalId', 'phone']
       );
 
       // Verify password
-      const isValidPassword = await verifyPassword(
-        userData.password,
-        passwordHash,
-      );
+      const isValidPassword = await verifyPassword(userData.password, passwordHash);
       expect(isValidPassword).toBe(true);
 
       // Decrypt fields
-      const decrypted = decryptFields(encrypted, ["nationalId", "phone"]);
+      const decrypted = decryptFields(encrypted, ['nationalId', 'phone']);
       expect(decrypted.nationalId).toBe(userData.nationalId);
       expect(decrypted.phone).toBe(userData.phone);
     });
   });
 
-  describe("Data Integrity Pipeline", () => {
-    it("should ensure data integrity with HMAC", () => {
-      const data = { userId: "123", action: "login", timestamp: Date.now() };
+  describe('Data Integrity Pipeline', () => {
+    it('should ensure data integrity with HMAC', () => {
+      const data = { userId: '123', action: 'login', timestamp: Date.now() };
       const jsonData = JSON.stringify(data);
 
       // Create checksum
@@ -852,18 +848,18 @@ describe("Integration Tests", () => {
       expect(verifyHMAC(jsonData, hmac)).toBe(true);
 
       // Tamper with data
-      const tamperedData = JSON.stringify({ ...data, action: "admin" });
+      const tamperedData = JSON.stringify({ ...data, action: 'admin' });
       expect(verifyChecksum(tamperedData, checksum)).toBe(false);
       expect(verifyHMAC(tamperedData, hmac)).toBe(false);
     });
   });
 
-  describe("Searchable Encryption for Database", () => {
-    it("should enable searching encrypted fields", () => {
+  describe('Searchable Encryption for Database', () => {
+    it('should enable searching encrypted fields', () => {
       const users = [
-        { name: "John", nationalId: "123456789" },
-        { name: "Jane", nationalId: "987654321" },
-        { name: "Bob", nationalId: "555555555" },
+        { name: 'John', nationalId: '123456789' },
+        { name: 'Jane', nationalId: '987654321' },
+        { name: 'Bob', nationalId: '555555555' },
       ];
 
       // Encrypt national IDs (searchable)
@@ -873,38 +869,36 @@ describe("Integration Tests", () => {
       }));
 
       // Search for specific national ID
-      const searchId = "987654321";
+      const searchId = '987654321';
       const encryptedSearchId = encryptSearchable(searchId);
 
-      const found = encryptedUsers.find(
-        (user) => user.nationalId === encryptedSearchId,
-      );
+      const found = encryptedUsers.find((user) => user.nationalId === encryptedSearchId);
       expect(found).toBeTruthy();
-      expect(found?.name).toBe("Jane");
+      expect(found?.name).toBe('Jane');
     });
 
-    it("should produce different ciphertext than legacy for same plaintext", () => {
-      const plaintext = "123456789";
+    it('should produce different ciphertext than legacy for same plaintext', () => {
+      const plaintext = '123456789';
       const v2 = encryptSearchable(plaintext);
       const legacy = encryptLegacySearchable(plaintext);
 
       // v2 has prefix, legacy doesn't
-      expect(v2.startsWith("s2:")).toBe(true);
-      expect(legacy.startsWith("s2:")).toBe(false);
+      expect(v2.startsWith('s2:')).toBe(true);
+      expect(legacy.startsWith('s2:')).toBe(false);
 
       // The raw ciphertext should differ (different IV derivation)
       expect(v2.slice(3)).not.toBe(legacy);
     });
   });
 
-  describe("Complete Encryption Workflow", () => {
-    it("should handle complete encryption workflow", () => {
+  describe('Complete Encryption Workflow', () => {
+    it('should handle complete encryption workflow', () => {
       // 1. Generate keys
       const encryptionKey = generateEncryptionKey();
       expect(validateEncryptionKey(encryptionKey)).toBe(true);
 
       // 2. Encrypt data
-      const sensitiveData = "Patient medical record #12345";
+      const sensitiveData = 'Patient medical record #12345';
       const encrypted = encrypt(sensitiveData);
       expect(isEncrypted(encrypted)).toBe(true);
 

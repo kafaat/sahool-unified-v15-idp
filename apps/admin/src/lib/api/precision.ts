@@ -1,8 +1,8 @@
 // Precision Agriculture API Client
 // عميل API للزراعة الدقيقة
 
-import { apiClient, API_URLS } from "../api";
-import { logger } from "../logger";
+import { apiClient, API_URLS } from '../api';
+import { logger } from '../logger';
 
 /**
  * Generate a unique ID for mock data.
@@ -44,8 +44,8 @@ export interface VRAPrescription {
   farmName: string;
   fieldName: string;
   cropType: string;
-  prescriptionType: "fertilizer" | "pesticide" | "irrigation";
-  status: "pending" | "approved" | "rejected" | "applied";
+  prescriptionType: 'fertilizer' | 'pesticide' | 'irrigation';
+  status: 'pending' | 'approved' | 'rejected' | 'applied';
   createdAt: string;
   createdBy: string;
   approvedBy?: string;
@@ -72,7 +72,7 @@ export interface GDDField {
   daysToNextStage: number;
   gddToNextStage: number;
   alerts: Array<{
-    type: "info" | "warning" | "critical";
+    type: 'info' | 'warning' | 'critical';
     message: string;
     messageAr: string;
   }>;
@@ -91,12 +91,12 @@ export interface SprayWindow {
   farmName: string;
   fieldName: string;
   cropType: string;
-  productType: "pesticide" | "herbicide" | "fungicide" | "fertilizer";
+  productType: 'pesticide' | 'herbicide' | 'fungicide' | 'fertilizer';
   productName: string;
   windowStart: string;
   windowEnd: string;
   optimalTime: string;
-  status: "upcoming" | "optimal" | "missed" | "completed";
+  status: 'upcoming' | 'optimal' | 'missed' | 'completed';
   conditions: {
     temperature: number;
     windSpeed: number;
@@ -128,13 +128,10 @@ export async function fetchVRAPrescriptions(params?: {
   limit?: number;
 }): Promise<VRAPrescription[]> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.advisory}/v1/prescriptions`,
-      { params },
-    );
+    const response = await apiClient.get(`${API_URLS.advisory}/v1/prescriptions`, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch VRA prescriptions:", error);
+    logger.error('Failed to fetch VRA prescriptions:', error);
     // Return mock data for development
     return generateMockVRAPrescriptions();
   }
@@ -142,24 +139,20 @@ export async function fetchVRAPrescriptions(params?: {
 
 export async function approvePrescription(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(
-      `${API_URLS.advisory}/v1/prescriptions/${id}/approve`,
-    );
+    await apiClient.patch(`${API_URLS.advisory}/v1/prescriptions/${id}/approve`);
     return true;
   } catch (error) {
-    logger.error("Failed to approve prescription:", error);
+    logger.error('Failed to approve prescription:', error);
     return false;
   }
 }
 
 export async function rejectPrescription(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(
-      `${API_URLS.advisory}/v1/prescriptions/${id}/reject`,
-    );
+    await apiClient.patch(`${API_URLS.advisory}/v1/prescriptions/${id}/reject`);
     return true;
   } catch (error) {
-    logger.error("Failed to reject prescription:", error);
+    logger.error('Failed to reject prescription:', error);
     return false;
   }
 }
@@ -170,7 +163,7 @@ export async function fetchGDDData(): Promise<GDDField[]> {
     const response = await apiClient.get(`${API_URLS.weather}/v1/gdd`);
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch GDD data:", error);
+    logger.error('Failed to fetch GDD data:', error);
     return generateMockGDDData();
   }
 }
@@ -178,57 +171,50 @@ export async function fetchGDDData(): Promise<GDDField[]> {
 // Spray Management API Functions
 export async function fetchSprayWindows(): Promise<SprayWindow[]> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.weather}/v1/spray-windows`,
-    );
+    const response = await apiClient.get(`${API_URLS.weather}/v1/spray-windows`);
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch spray windows:", error);
+    logger.error('Failed to fetch spray windows:', error);
     return generateMockSprayWindows();
   }
 }
 
-export async function fetchSprayHistory(params?: {
-  limit?: number;
-}): Promise<SprayHistory[]> {
+export async function fetchSprayHistory(params?: { limit?: number }): Promise<SprayHistory[]> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.advisory}/v1/spray-history`,
-      { params },
-    );
+    const response = await apiClient.get(`${API_URLS.advisory}/v1/spray-history`, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch spray history:", error);
+    logger.error('Failed to fetch spray history:', error);
     return generateMockSprayHistory();
   }
 }
 
 // Mock Data Generators
 function generateMockVRAPrescriptions(): VRAPrescription[] {
-  const types: Array<"fertilizer" | "pesticide" | "irrigation"> = [
-    "fertilizer",
-    "pesticide",
-    "irrigation",
+  const types: Array<'fertilizer' | 'pesticide' | 'irrigation'> = [
+    'fertilizer',
+    'pesticide',
+    'irrigation',
   ];
-  const statuses: Array<"pending" | "approved" | "rejected" | "applied"> = [
-    "pending",
-    "approved",
-    "rejected",
-    "applied",
+  const statuses: Array<'pending' | 'approved' | 'rejected' | 'applied'> = [
+    'pending',
+    'approved',
+    'rejected',
+    'applied',
   ];
 
-  const cropTypes = ["قمح", "بن", "قات", "ذرة"] as const;
+  const cropTypes = ['قمح', 'بن', 'قات', 'ذرة'] as const;
   return Array.from({ length: 15 }, (_, i) => {
     return {
-      id: generateMockId("vra", i),
-      farmId: generateMockId("farm", i % 10),
+      id: generateMockId('vra', i),
+      farmId: generateMockId('farm', i % 10),
       farmName: `مزرعة ${(i % 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
       cropType: selectByIndex(cropTypes, i),
       prescriptionType: selectByIndex(types, i + 1),
       status: selectByIndex(statuses, i + 2),
       createdAt: new Date(
-        Date.now() - deterministicValue(i, 0, 14) * 24 * 60 * 60 * 1000,
+        Date.now() - deterministicValue(i, 0, 14) * 24 * 60 * 60 * 1000
       ).toISOString(),
       createdBy: `user-${(i % 5) + 1}`,
       area: deterministicValue(i, 10, 60),
@@ -240,14 +226,14 @@ function generateMockVRAPrescriptions(): VRAPrescription[] {
 
 function generateMockGDDData(): GDDField[] {
   const stages = [
-    { en: "Vegetative", ar: "نمو خضري", target: 800 },
-    { en: "Flowering", ar: "إزهار", target: 1200 },
-    { en: "Grain Fill", ar: "امتلاء الحبوب", target: 1600 },
-    { en: "Maturity", ar: "نضج", target: 2000 },
+    { en: 'Vegetative', ar: 'نمو خضري', target: 800 },
+    { en: 'Flowering', ar: 'إزهار', target: 1200 },
+    { en: 'Grain Fill', ar: 'امتلاء الحبوب', target: 1600 },
+    { en: 'Maturity', ar: 'نضج', target: 2000 },
   ];
 
-  const gddCropTypes = ["قمح", "ذرة"] as const;
-  const alertTypes: Array<"info" | "warning" | "critical"> = ["info", "warning", "critical"];
+  const gddCropTypes = ['قمح', 'ذرة'] as const;
+  const alertTypes: Array<'info' | 'warning' | 'critical'> = ['info', 'warning', 'critical'];
 
   return Array.from({ length: 8 }, (_, i) => {
     const stageIndex = i % (stages.length - 1);
@@ -268,9 +254,7 @@ function generateMockGDDData(): GDDField[] {
       farmName: `مزرعة ${(i % 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
       cropType: selectByIndex(gddCropTypes, i),
-      plantingDate: new Date(
-        Date.now() - 60 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
+      plantingDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
       currentGDD,
       targetGDD: nextStage.target,
       currentStage: currentStage.en,
@@ -284,8 +268,8 @@ function generateMockGDDData(): GDDField[] {
           ? [
               {
                 type: selectByIndex(alertTypes, i),
-                message: "Temperature stress detected",
-                messageAr: "تم اكتشاف إجهاد حراري",
+                message: 'Temperature stress detected',
+                messageAr: 'تم اكتشاف إجهاد حراري',
               },
             ]
           : [],
@@ -296,26 +280,24 @@ function generateMockGDDData(): GDDField[] {
 
 function generateMockSprayWindows(): SprayWindow[] {
   const products = [
-    { type: "pesticide" as const, name: "Malathion" },
-    { type: "herbicide" as const, name: "Glyphosate" },
-    { type: "fungicide" as const, name: "Mancozeb" },
-    { type: "fertilizer" as const, name: "NPK 20-20-20" },
+    { type: 'pesticide' as const, name: 'Malathion' },
+    { type: 'herbicide' as const, name: 'Glyphosate' },
+    { type: 'fungicide' as const, name: 'Mancozeb' },
+    { type: 'fertilizer' as const, name: 'NPK 20-20-20' },
   ];
 
-  const statuses: Array<"upcoming" | "optimal" | "missed" | "completed"> = [
-    "upcoming",
-    "optimal",
-    "missed",
-    "completed",
+  const statuses: Array<'upcoming' | 'optimal' | 'missed' | 'completed'> = [
+    'upcoming',
+    'optimal',
+    'missed',
+    'completed',
   ];
 
-  const cropTypes = ["قمح", "بن", "قات"] as const;
+  const cropTypes = ['قمح', 'بن', 'قات'] as const;
 
   return Array.from({ length: 12 }, (_, i) => {
     const product = selectByIndex(products, i);
-    const startDate = new Date(
-      Date.now() + deterministicValue(i, 0, 7) * 24 * 60 * 60 * 1000,
-    );
+    const startDate = new Date(Date.now() + deterministicValue(i, 0, 7) * 24 * 60 * 60 * 1000);
     const endDate = new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000);
 
     return {
@@ -328,9 +310,7 @@ function generateMockSprayWindows(): SprayWindow[] {
       productName: product.name,
       windowStart: startDate.toISOString(),
       windowEnd: endDate.toISOString(),
-      optimalTime: new Date(
-        startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
+      optimalTime: new Date(startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000).toISOString(),
       status: selectByIndex(statuses, i),
       conditions: {
         temperature: 20 + deterministicValue(i, 0, 10),
@@ -339,14 +319,14 @@ function generateMockSprayWindows(): SprayWindow[] {
         precipitation: deterministicValue(i, 0, 5),
       },
       recommendations: [
-        "Apply early morning or late evening",
-        "Avoid windy conditions",
-        "Check weather forecast",
+        'Apply early morning or late evening',
+        'Avoid windy conditions',
+        'Check weather forecast',
       ],
       recommendationsAr: [
-        "التطبيق في الصباح الباكر أو المساء",
-        "تجنب الظروف العاصفة",
-        "تحقق من توقعات الطقس",
+        'التطبيق في الصباح الباكر أو المساء',
+        'تجنب الظروف العاصفة',
+        'تحقق من توقعات الطقس',
       ],
     };
   });
@@ -354,10 +334,10 @@ function generateMockSprayWindows(): SprayWindow[] {
 
 function generateMockSprayHistory(): SprayHistory[] {
   const products = [
-    { type: "pesticide", name: "Malathion" },
-    { type: "herbicide", name: "Glyphosate" },
-    { type: "fungicide", name: "Mancozeb" },
-    { type: "fertilizer", name: "NPK 20-20-20" },
+    { type: 'pesticide', name: 'Malathion' },
+    { type: 'herbicide', name: 'Glyphosate' },
+    { type: 'fungicide', name: 'Mancozeb' },
+    { type: 'fertilizer', name: 'NPK 20-20-20' },
   ];
 
   return Array.from({ length: 20 }, (_, i) => {
@@ -369,7 +349,7 @@ function generateMockSprayHistory(): SprayHistory[] {
       productType: product.type,
       productName: product.name,
       appliedAt: new Date(
-        Date.now() - deterministicValue(i, 0, 30) * 24 * 60 * 60 * 1000,
+        Date.now() - deterministicValue(i, 0, 30) * 24 * 60 * 60 * 1000
       ).toISOString(),
       area: deterministicValue(i, 5, 35),
       quantity: deterministicValue(i, 10, 60),

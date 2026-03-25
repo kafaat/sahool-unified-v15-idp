@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 /**
  * Analytics Chart Component
  * مكون الرسوم البيانية التحليلية
  */
 
-import { useMemo } from "react";
+import { useMemo } from 'react';
 import {
   AreaChart,
   Area,
@@ -23,11 +23,11 @@ import {
   Legend,
   ResponsiveContainer,
   TooltipProps,
-} from "recharts";
-import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+} from 'recharts';
+import { cn } from '@/lib/utils';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-export type ChartType = "area" | "bar" | "line" | "pie" | "donut";
+export type ChartType = 'area' | 'bar' | 'line' | 'pie' | 'donut';
 
 export interface ChartDataPoint {
   name: string;
@@ -40,7 +40,7 @@ export interface ChartSeries {
   name: string;
   nameAr?: string;
   color?: string;
-  type?: "monotone" | "linear" | "step";
+  type?: 'monotone' | 'linear' | 'step';
 }
 
 interface AnalyticsChartProps {
@@ -71,14 +71,14 @@ interface AnalyticsChartProps {
 
 // Default color palette
 const defaultColors = [
-  "#10B981", // Sahool green
-  "#3B82F6", // Blue
-  "#F59E0B", // Yellow
-  "#EF4444", // Red
-  "#8B5CF6", // Purple
-  "#EC4899", // Pink
-  "#06B6D4", // Cyan
-  "#84CC16", // Lime
+  '#10B981', // Sahool green
+  '#3B82F6', // Blue
+  '#F59E0B', // Yellow
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#EC4899', // Pink
+  '#06B6D4', // Cyan
+  '#84CC16', // Lime
 ];
 
 // Custom tooltip component
@@ -92,27 +92,17 @@ function CustomTooltip({
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 p-3 min-w-[150px]">
-      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-        {label}
-      </p>
+      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">{label}</p>
       <div className="space-y-1">
         {payload.map((entry, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between gap-4 text-sm"
-          >
+          <div key={index} className="flex items-center justify-between gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-gray-600 dark:text-gray-400">
-                {entry.name}
-              </span>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
             </div>
             <span className="font-medium text-gray-900 dark:text-gray-100">
-              {typeof entry.value === "number"
-                ? entry.value.toLocaleString(isRtl ? "ar-YE" : "en-US")
+              {typeof entry.value === 'number'
+                ? entry.value.toLocaleString(isRtl ? 'ar-YE' : 'en-US')
                 : entry.value}
             </span>
           </div>
@@ -136,11 +126,11 @@ export default function AnalyticsChart({
   showTooltip = true,
   stacked = false,
   gradient = true,
-  className = "",
+  className = '',
   currentValue,
   previousValue,
-  valuePrefix = "",
-  valueSuffix = "",
+  valuePrefix = '',
+  valueSuffix = '',
   innerRadius = 60,
   outerRadius = 80,
   showLabels = false,
@@ -148,11 +138,11 @@ export default function AnalyticsChart({
   // Calculate trend
   const trend = useMemo(() => {
     if (currentValue === undefined || previousValue === undefined) return null;
-    if (previousValue === 0) return { direction: "up", percentage: 100 };
+    if (previousValue === 0) return { direction: 'up', percentage: 100 };
 
     const change = ((currentValue - previousValue) / previousValue) * 100;
     return {
-      direction: change > 0 ? "up" : change < 0 ? "down" : "neutral",
+      direction: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral',
       percentage: Math.abs(change),
     };
   }, [currentValue, previousValue]);
@@ -161,7 +151,7 @@ export default function AnalyticsChart({
   const preparedSeries = useMemo(() => {
     return series.map((s, index) => ({
       ...s,
-      color: s.color || defaultColors[index % defaultColors.length] || "#10B981",
+      color: s.color || defaultColors[index % defaultColors.length] || '#10B981',
     }));
   }, [series]);
 
@@ -187,86 +177,70 @@ export default function AnalyticsChart({
   // Render chart based on type
   const renderChart = () => {
     switch (type) {
-      case "area":
+      case 'area':
         return (
           <AreaChart data={data}>
             {gradient && renderGradients()}
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />}
             <XAxis
               dataKey="nameAr"
-              tick={{ fontSize: 12, fill: "#6B7280" }}
-              axisLine={{ stroke: "#E5E7EB" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
+              axisLine={{ stroke: '#E5E7EB' }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "#6B7280" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(value) =>
-                value.toLocaleString("ar-YE", { notation: "compact" })
-              }
+              tickFormatter={(value) => value.toLocaleString('ar-YE', { notation: 'compact' })}
             />
-            {showTooltip && (
-              <Tooltip content={<CustomTooltip />} />
-            )}
+            {showTooltip && <Tooltip content={<CustomTooltip />} />}
             {showLegend && (
               <Legend
                 wrapperStyle={{ paddingTop: 20 }}
                 formatter={(value) => (
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {value}
-                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
                 )}
               />
             )}
             {preparedSeries.map((s) => (
               <Area
                 key={s.dataKey}
-                type={s.type || "monotone"}
+                type={s.type || 'monotone'}
                 dataKey={s.dataKey}
                 name={s.nameAr || s.name}
                 stroke={s.color}
                 fill={gradient ? `url(#gradient-${s.dataKey})` : s.color}
                 fillOpacity={gradient ? 1 : 0.3}
                 strokeWidth={2}
-                stackId={stacked ? "stack" : undefined}
+                stackId={stacked ? 'stack' : undefined}
               />
             ))}
           </AreaChart>
         );
 
-      case "bar":
+      case 'bar':
         return (
           <BarChart data={data}>
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />}
             <XAxis
               dataKey="nameAr"
-              tick={{ fontSize: 12, fill: "#6B7280" }}
-              axisLine={{ stroke: "#E5E7EB" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
+              axisLine={{ stroke: '#E5E7EB' }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "#6B7280" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(value) =>
-                value.toLocaleString("ar-YE", { notation: "compact" })
-              }
+              tickFormatter={(value) => value.toLocaleString('ar-YE', { notation: 'compact' })}
             />
-            {showTooltip && (
-              <Tooltip content={<CustomTooltip />} />
-            )}
+            {showTooltip && <Tooltip content={<CustomTooltip />} />}
             {showLegend && (
               <Legend
                 wrapperStyle={{ paddingTop: 20 }}
                 formatter={(value) => (
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {value}
-                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
                 )}
               />
             )}
@@ -277,49 +251,41 @@ export default function AnalyticsChart({
                 name={s.nameAr || s.name}
                 fill={s.color}
                 radius={[4, 4, 0, 0]}
-                stackId={stacked ? "stack" : undefined}
+                stackId={stacked ? 'stack' : undefined}
               />
             ))}
           </BarChart>
         );
 
-      case "line":
+      case 'line':
         return (
           <LineChart data={data}>
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />}
             <XAxis
               dataKey="nameAr"
-              tick={{ fontSize: 12, fill: "#6B7280" }}
-              axisLine={{ stroke: "#E5E7EB" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
+              axisLine={{ stroke: '#E5E7EB' }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "#6B7280" }}
+              tick={{ fontSize: 12, fill: '#6B7280' }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(value) =>
-                value.toLocaleString("ar-YE", { notation: "compact" })
-              }
+              tickFormatter={(value) => value.toLocaleString('ar-YE', { notation: 'compact' })}
             />
-            {showTooltip && (
-              <Tooltip content={<CustomTooltip />} />
-            )}
+            {showTooltip && <Tooltip content={<CustomTooltip />} />}
             {showLegend && (
               <Legend
                 wrapperStyle={{ paddingTop: 20 }}
                 formatter={(value) => (
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {value}
-                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
                 )}
               />
             )}
             {preparedSeries.map((s) => (
               <Line
                 key={s.dataKey}
-                type={s.type || "monotone"}
+                type={s.type || 'monotone'}
                 dataKey={s.dataKey}
                 name={s.nameAr || s.name}
                 stroke={s.color}
@@ -331,18 +297,18 @@ export default function AnalyticsChart({
           </LineChart>
         );
 
-      case "pie":
-      case "donut":
+      case 'pie':
+      case 'donut':
         return (
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={type === "donut" ? innerRadius : 0}
+              innerRadius={type === 'donut' ? innerRadius : 0}
               outerRadius={outerRadius}
               paddingAngle={2}
-              dataKey={preparedSeries[0]?.dataKey || "value"}
+              dataKey={preparedSeries[0]?.dataKey || 'value'}
               nameKey="nameAr"
               label={
                 showLabels
@@ -354,22 +320,18 @@ export default function AnalyticsChart({
               {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={defaultColors[index % defaultColors.length] ?? "#10B981"}
+                  fill={defaultColors[index % defaultColors.length] ?? '#10B981'}
                 />
               ))}
             </Pie>
-            {showTooltip && (
-              <Tooltip content={<CustomTooltip />} />
-            )}
+            {showTooltip && <Tooltip content={<CustomTooltip />} />}
             {showLegend && (
               <Legend
                 layout="vertical"
                 align="right"
                 verticalAlign="middle"
                 formatter={(value) => (
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {value}
-                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
                 )}
               />
             )}
@@ -378,14 +340,18 @@ export default function AnalyticsChart({
 
       default:
         // Fallback to empty area chart
-        return <AreaChart data={data}><Area dataKey="value" /></AreaChart>;
+        return (
+          <AreaChart data={data}>
+            <Area dataKey="value" />
+          </AreaChart>
+        );
     }
   };
 
   return (
     <div
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700",
+        'bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700',
         className
       )}
     >
@@ -411,21 +377,21 @@ export default function AnalyticsChart({
             <div className="text-left">
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {valuePrefix}
-                {currentValue.toLocaleString("ar-YE")}
+                {currentValue.toLocaleString('ar-YE')}
                 {valueSuffix}
               </div>
               {trend && (
                 <div
                   className={cn(
-                    "flex items-center gap-1 text-sm mt-1",
-                    trend.direction === "up" && "text-green-600 dark:text-green-400",
-                    trend.direction === "down" && "text-red-600 dark:text-red-400",
-                    trend.direction === "neutral" && "text-gray-500 dark:text-gray-400"
+                    'flex items-center gap-1 text-sm mt-1',
+                    trend.direction === 'up' && 'text-green-600 dark:text-green-400',
+                    trend.direction === 'down' && 'text-red-600 dark:text-red-400',
+                    trend.direction === 'neutral' && 'text-gray-500 dark:text-gray-400'
                   )}
                 >
-                  {trend.direction === "up" && <TrendingUp className="w-4 h-4" />}
-                  {trend.direction === "down" && <TrendingDown className="w-4 h-4" />}
-                  {trend.direction === "neutral" && <Minus className="w-4 h-4" />}
+                  {trend.direction === 'up' && <TrendingUp className="w-4 h-4" />}
+                  {trend.direction === 'down' && <TrendingDown className="w-4 h-4" />}
+                  {trend.direction === 'neutral' && <Minus className="w-4 h-4" />}
                   <span>{trend.percentage.toFixed(1)}%</span>
                 </div>
               )}
@@ -446,9 +412,9 @@ export default function AnalyticsChart({
 export function SparklineChart({
   data,
   dataKey,
-  color = "#10B981",
+  color = '#10B981',
   height = 40,
-  className = "",
+  className = '',
 }: {
   data: ChartDataPoint[];
   dataKey: string;
@@ -457,7 +423,7 @@ export function SparklineChart({
   className?: string;
 }) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data}>
           <defs>

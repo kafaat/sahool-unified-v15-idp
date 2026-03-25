@@ -125,6 +125,9 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmmirror.com && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+
 # Copy built shared-events package to node_modules
 RUN mkdir -p node_modules/@sahool && cp -r packages/shared-events node_modules/@sahool/shared-events && rm -rf packages
 

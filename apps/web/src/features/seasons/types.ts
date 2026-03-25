@@ -3,8 +3,8 @@
  * أنواع ميزة المواسم
  */
 
-export type SeasonStatus = "planning" | "active" | "harvesting" | "completed" | "cancelled";
-export type SeasonType = "winter" | "summer" | "spring" | "fall";
+export type SeasonStatus = 'planning' | 'active' | 'harvesting' | 'completed' | 'cancelled';
+export type SeasonType = 'winter' | 'summer' | 'spring' | 'fall';
 
 export interface Season {
   id: string;

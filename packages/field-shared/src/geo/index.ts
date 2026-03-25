@@ -8,8 +8,8 @@
  * - Type definitions for geospatial data
  */
 
-export { GeoService, geoService } from "./geo-service";
-export { geoRoutes } from "./geo-routes";
+export { GeoService, geoService } from './geo-service';
+export { geoRoutes } from './geo-routes';
 
 export type {
   FieldInRadius,
@@ -19,4 +19,4 @@ export type {
   FieldAreaResult,
   PointInFieldResult,
   FieldsDistanceResult,
-} from "./geo-service";
+} from './geo-service';

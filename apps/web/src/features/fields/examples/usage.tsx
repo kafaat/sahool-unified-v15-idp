@@ -5,7 +5,7 @@
  * This file demonstrates how to use the updated fields hooks with real API
  */
 
-"use client";
+'use client';
 
 import {
   useFields,
@@ -14,11 +14,11 @@ import {
   useUpdateField,
   useDeleteField,
   useFieldStats,
-} from "../hooks/useFields";
-import { useAuth } from "@/stores/auth.store";
-import type { FieldFormData } from "../types";
-import { logger } from "@/lib/logger";
-import { AstralFieldWidget } from "../components/AstralFieldWidget";
+} from '../hooks/useFields';
+import { useAuth } from '@/stores/auth.store';
+import type { FieldFormData } from '../types';
+import { logger } from '@/lib/logger';
+import { AstralFieldWidget } from '../components/AstralFieldWidget';
 
 /**
  * Example 1: Fetching all fields
@@ -48,10 +48,10 @@ export function FieldsListExample() {
  */
 export function FilteredFieldsExample() {
   const { data: fields } = useFields({
-    search: "wheat",
+    search: 'wheat',
     minArea: 2,
     maxArea: 10,
-    status: "active",
+    status: 'active',
   });
 
   return (
@@ -97,15 +97,15 @@ export function CreateFieldExample() {
 
   const handleCreateField = async () => {
     const newField: FieldFormData = {
-      name: "New Field",
-      nameAr: "حقل جديد",
+      name: 'New Field',
+      nameAr: 'حقل جديد',
       area: 5.5,
-      crop: "Wheat",
-      cropAr: "قمح",
-      description: "A new field for wheat cultivation",
-      descriptionAr: "حقل جديد لزراعة القمح",
+      crop: 'Wheat',
+      cropAr: 'قمح',
+      description: 'A new field for wheat cultivation',
+      descriptionAr: 'حقل جديد لزراعة القمح',
       polygon: {
-        type: "Polygon",
+        type: 'Polygon',
         coordinates: [
           [
             [44.2, 15.3],
@@ -123,7 +123,7 @@ export function CreateFieldExample() {
         data: newField,
         tenantId: user?.tenant_id,
       });
-      alert("تم إنشاء الحقل بنجاح / Field created successfully!");
+      alert('تم إنشاء الحقل بنجاح / Field created successfully!');
     } catch (error) {
       const err = error as Error;
       try {
@@ -137,9 +137,7 @@ export function CreateFieldExample() {
 
   return (
     <button onClick={handleCreateField} disabled={createField.isPending}>
-      {createField.isPending
-        ? "جاري الإنشاء..."
-        : "إنشاء حقل جديد / Create New Field"}
+      {createField.isPending ? 'جاري الإنشاء...' : 'إنشاء حقل جديد / Create New Field'}
     </button>
   );
 }
@@ -156,13 +154,13 @@ export function UpdateFieldExample({ fieldId }: { fieldId: string }) {
       await updateField.mutateAsync({
         id: fieldId,
         data: {
-          crop: "Barley",
-          cropAr: "شعير",
+          crop: 'Barley',
+          cropAr: 'شعير',
           area: 6.0,
         },
         tenantId: user?.tenant_id,
       });
-      alert("تم تحديث الحقل بنجاح / Field updated successfully!");
+      alert('تم تحديث الحقل بنجاح / Field updated successfully!');
     } catch (error) {
       const err = error as Error;
       try {
@@ -176,7 +174,7 @@ export function UpdateFieldExample({ fieldId }: { fieldId: string }) {
 
   return (
     <button onClick={handleUpdateField} disabled={updateField.isPending}>
-      {updateField.isPending ? "جاري التحديث..." : "تحديث الحقل / Update Field"}
+      {updateField.isPending ? 'جاري التحديث...' : 'تحديث الحقل / Update Field'}
     </button>
   );
 }
@@ -188,17 +186,13 @@ export function DeleteFieldExample({ fieldId }: { fieldId: string }) {
   const deleteField = useDeleteField();
 
   const handleDeleteField = async () => {
-    if (
-      !confirm(
-        "هل أنت متأكد من حذف هذا الحقل؟ / Are you sure you want to delete this field?",
-      )
-    ) {
+    if (!confirm('هل أنت متأكد من حذف هذا الحقل؟ / Are you sure you want to delete this field?')) {
       return;
     }
 
     try {
       await deleteField.mutateAsync(fieldId);
-      alert("تم حذف الحقل بنجاح / Field deleted successfully!");
+      alert('تم حذف الحقل بنجاح / Field deleted successfully!');
     } catch (error) {
       const err = error as Error;
       try {
@@ -211,12 +205,8 @@ export function DeleteFieldExample({ fieldId }: { fieldId: string }) {
   };
 
   return (
-    <button
-      onClick={handleDeleteField}
-      disabled={deleteField.isPending}
-      className="text-red-600"
-    >
-      {deleteField.isPending ? "جاري الحذف..." : "حذف الحقل / Delete Field"}
+    <button onClick={handleDeleteField} disabled={deleteField.isPending} className="text-red-600">
+      {deleteField.isPending ? 'جاري الحذف...' : 'حذف الحقل / Delete Field'}
     </button>
   );
 }
@@ -263,12 +253,12 @@ export function AstralFieldWidgetExample({ fieldId }: { fieldId: string }) {
     description_ar: string;
     due_date: string;
     field_id: string;
-    priority: "high" | "medium" | "low";
+    priority: 'high' | 'medium' | 'low';
   }) => {
-    logger.info("Creating task from astronomical recommendation:", taskData);
+    logger.info('Creating task from astronomical recommendation:', taskData);
     // Here you would call your task creation API
     alert(
-      `مهمة جديدة: ${taskData.title_ar}\nNew task: ${taskData.title}\nموعد التنفيذ: ${taskData.due_date}`,
+      `مهمة جديدة: ${taskData.title_ar}\nNew task: ${taskData.title}\nموعد التنفيذ: ${taskData.due_date}`
     );
   };
 
@@ -276,14 +266,8 @@ export function AstralFieldWidgetExample({ fieldId }: { fieldId: string }) {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        التقويم الفلكي للحقل: {field.nameAr}
-      </h2>
-      <AstralFieldWidget
-        field={field}
-        onCreateTask={handleCreateTask}
-        compact={false}
-      />
+      <h2 className="text-2xl font-bold mb-4">التقويم الفلكي للحقل: {field.nameAr}</h2>
+      <AstralFieldWidget field={field} onCreateTask={handleCreateTask} compact={false} />
     </div>
   );
 }
@@ -300,7 +284,7 @@ export function FieldsCRUDExample() {
 
   // Handle API errors with fallback to mock data
   if (error) {
-    logger.warn("API error, displaying cached/mock data:", error);
+    logger.warn('API error, displaying cached/mock data:', error);
   }
 
   // Show loading state

@@ -79,16 +79,13 @@ async def _get_db(request: Request):
     return pool
 
 
-async def _get_batch_or_404(pool, batch_id: str, tenant_id: str | None = None) -> dict:
-    """Get batch by ID with tenant isolation or raise 404."""
-    if tenant_id:
-        row = await pool.fetchrow(
-            "SELECT * FROM produce_batches WHERE id = $1 AND tenant_id = $2",
-            uuid.UUID(batch_id),
-            uuid.UUID(tenant_id),
-        )
-    else:
-        row = await pool.fetchrow("SELECT * FROM produce_batches WHERE id = $1", uuid.UUID(batch_id))
+async def _get_batch_or_404(pool, batch_id: str, tenant_id: str) -> dict:
+    """Get batch by ID with mandatory tenant isolation or raise 404."""
+    row = await pool.fetchrow(
+        "SELECT * FROM produce_batches WHERE id = $1 AND tenant_id = $2",
+        uuid.UUID(batch_id),
+        uuid.UUID(tenant_id),
+    )
     if not row:
         raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
     return dict(row)
@@ -235,10 +232,10 @@ async def create_batch(
 
 
 @router.get("/batches/{batch_id}")
-async def get_batch(batch_id: str, req: Request):
+async def get_batch(batch_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Get batch details - الحصول على تفاصيل الدفعة"""
     pool = await _get_db(req)
-    row = await _get_batch_or_404(pool, batch_id)
+    row = await _get_batch_or_404(pool, batch_id, tenant_id)
     return _row_to_dict(row)
 
 
@@ -263,10 +260,12 @@ async def list_batches(req: Request, tenant_id: str = Depends(get_tenant_id), fa
 
 
 @router.put("/batches/{batch_id}")
-async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request):
+async def update_batch(
+    batch_id: str, request: BatchUpdateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Update batch details - تحديث تفاصيل الدفعة"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
 
     ALLOWED_COLUMNS = {"product_name_en", "product_name_ar", "quantity", "status"}
     updates = {k: v for k, v in request.model_dump(exclude_none=True).items() if k in ALLOWED_COLUMNS}
@@ -281,9 +280,10 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request)
         set_clauses.append(f"{key} = ${i}")
         values.append(val)
     values.append(uuid.UUID(batch_id))
+    values.append(uuid.UUID(tenant_id))
 
     row = await pool.fetchrow(
-        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values) - 1} AND tenant_id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
@@ -294,10 +294,12 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request)
 
 
 @router.post("/batches/{batch_id}/events/harvest")
-async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req: Request):
+async def record_harvest_event(
+    batch_id: str, request: HarvestEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record harvest event - تسجيل حدث الحصاد"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
     batch_uuid = uuid.UUID(batch_id)
 
     row = await pool.fetchrow(
@@ -316,7 +318,9 @@ async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req:
 
     # Update batch status
     await pool.execute(
-        "UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND status = 'created'", batch_uuid
+        "UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND tenant_id = $2 AND status = 'created'",
+        batch_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -328,10 +332,12 @@ async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req:
 
 
 @router.post("/batches/{batch_id}/events/processing")
-async def record_processing_event(batch_id: str, request: ProcessingEventRequest, req: Request):
+async def record_processing_event(
+    batch_id: str, request: ProcessingEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record processing event - تسجيل حدث المعالجة"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
     batch_uuid = uuid.UUID(batch_id)
 
     row = await pool.fetchrow(
@@ -346,7 +352,11 @@ async def record_processing_event(batch_id: str, request: ProcessingEventRequest
         request.notes,
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_processing' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_processing' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -357,10 +367,12 @@ async def record_processing_event(batch_id: str, request: ProcessingEventRequest
 
 
 @router.post("/batches/{batch_id}/events/storage")
-async def record_storage_event(batch_id: str, request: StorageEventRequest, req: Request):
+async def record_storage_event(
+    batch_id: str, request: StorageEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record storage event - تسجيل حدث التخزين"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
     batch_uuid = uuid.UUID(batch_id)
 
     row = await pool.fetchrow(
@@ -375,7 +387,11 @@ async def record_storage_event(batch_id: str, request: StorageEventRequest, req:
         request.humidity_percent,
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_storage' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_storage' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -386,10 +402,12 @@ async def record_storage_event(batch_id: str, request: StorageEventRequest, req:
 
 
 @router.post("/batches/{batch_id}/events/transport")
-async def record_transport_event(batch_id: str, request: TransportEventRequest, req: Request):
+async def record_transport_event(
+    batch_id: str, request: TransportEventRequest, req: Request, tenant_id: str = Depends(get_tenant_id)
+):
     """Record transport event - تسجيل حدث النقل"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
     batch_uuid = uuid.UUID(batch_id)
 
     metadata = {}
@@ -410,7 +428,11 @@ async def record_transport_event(batch_id: str, request: TransportEventRequest, 
         json.dumps(metadata) if metadata else "{}",
     )
 
-    await pool.execute("UPDATE produce_batches SET status = 'in_transit' WHERE id = $1", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'in_transit' WHERE id = $1 AND tenant_id = $2",
+        batch_uuid,
+        uuid.UUID(tenant_id),
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -421,10 +443,10 @@ async def record_transport_event(batch_id: str, request: TransportEventRequest, 
 
 
 @router.get("/batches/{batch_id}/events")
-async def list_batch_events(batch_id: str, req: Request):
+async def list_batch_events(batch_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """List all events for a batch - قائمة أحداث الدفعة"""
     pool = await _get_db(req)
-    await _get_batch_or_404(pool, batch_id)
+    await _get_batch_or_404(pool, batch_id, tenant_id)
 
     rows = await pool.fetch(
         "SELECT * FROM supply_chain_events WHERE batch_id = $1 ORDER BY timestamp ASC",
@@ -438,10 +460,10 @@ async def list_batch_events(batch_id: str, req: Request):
 
 
 @router.get("/batches/{batch_id}/qr")
-async def generate_qr_code(batch_id: str, req: Request):
+async def generate_qr_code(batch_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Generate QR code for batch - إنشاء رمز QR للدفعة"""
     pool = await _get_db(req)
-    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))
 
     try:
         from shared.traceability import QRCodeGenerator
@@ -548,10 +570,10 @@ async def verify_code(code: str, req: Request):
 
 
 @router.post("/batches/{batch_id}/split")
-async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request):
+async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Split a batch into sub-batches - تقسيم الدفعة إلى دفعات فرعية"""
     pool = await _get_db(req)
-    parent = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+    parent = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))
 
     parent_qty = float(parent.get("quantity", 0))
     total_split = sum(request.quantities)
@@ -589,10 +611,11 @@ async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request):
     remaining = parent_qty - total_split
     new_status = "split" if remaining == 0 else parent.get("status", "created")
     await pool.execute(
-        "UPDATE produce_batches SET quantity = $1, status = $2 WHERE id = $3",
+        "UPDATE produce_batches SET quantity = $1, status = $2 WHERE id = $3 AND tenant_id = $4",
         remaining,
         new_status,
         uuid.UUID(batch_id),
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -610,10 +633,10 @@ async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request):
 
 
 @router.get("/carbon/{batch_id}")
-async def estimate_carbon_footprint(batch_id: str, req: Request):
+async def estimate_carbon_footprint(batch_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Estimate carbon footprint for batch - تقدير البصمة الكربونية"""
     pool = await _get_db(req)
-    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))
 
     transport_events = await pool.fetch(
         "SELECT * FROM supply_chain_events WHERE batch_id = $1 AND event_type = 'transport'",
@@ -660,10 +683,16 @@ class RecallInitiateRequest(BaseModel):
 
 
 @router.post("/batches/{batch_id}/recall")
-async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Request, _user=Depends(get_current_user)):
+async def initiate_recall(
+    batch_id: str,
+    request: RecallInitiateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(get_current_user),
+):
     """Initiate product recall - بدء استرجاع المنتج (GS1 EPCIS compliant)"""
     pool = await _get_db(req)
-    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id, tenant_id))
 
     if batch.get("status") == "recalled":
         raise HTTPException(
@@ -672,7 +701,11 @@ async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Re
         )
 
     # Update batch status to recalled
-    await pool.execute("UPDATE produce_batches SET status = 'recalled' WHERE id = $1", uuid.UUID(batch_id))
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'recalled' WHERE id = $1 AND tenant_id = $2",
+        uuid.UUID(batch_id),
+        uuid.UUID(tenant_id),
+    )
 
     # Record recall event in supply chain
     recall_event = await pool.fetchrow(
@@ -706,8 +739,9 @@ async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Re
     if child_batches:
         child_ids = [c["id"] for c in child_batches]
         await pool.execute(
-            "UPDATE produce_batches SET status = 'recalled' WHERE id = ANY($1::uuid[])",
+            "UPDATE produce_batches SET status = 'recalled' WHERE id = ANY($1::uuid[]) AND tenant_id = $2",
             child_ids,
+            uuid.UUID(tenant_id),
         )
 
     nc = getattr(req.app.state, "nc", None)

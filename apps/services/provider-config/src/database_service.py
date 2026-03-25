@@ -347,26 +347,37 @@ class ProviderConfigService:
 
         return query.order_by(ConfigVersion.changed_at.desc()).limit(limit).all()
 
-    def get_config_version(self, session: Session, config_id: str, version: int) -> ConfigVersion | None:
+    def get_config_version(
+        self, session: Session, config_id: str, version: int, tenant_id: str | None = None
+    ) -> ConfigVersion | None:
         """Get specific version of a configuration"""
-        return (
-            session.query(ConfigVersion)
-            .filter(ConfigVersion.config_id == config_id, ConfigVersion.version == version)
-            .first()
+        query = session.query(ConfigVersion).filter(
+            ConfigVersion.config_id == config_id, ConfigVersion.version == version
         )
+        if tenant_id is not None:
+            query = query.filter(ConfigVersion.tenant_id == tenant_id)
+        return query.first()
 
     def rollback_to_version(
-        self, session: Session, config_id: str, version: int, updated_by: str | None = None
+        self,
+        session: Session,
+        config_id: str,
+        version: int,
+        updated_by: str | None = None,
+        tenant_id: str | None = None,
     ) -> ProviderConfig | None:
-        """Rollback configuration to a specific version"""
+        """Rollback configuration to a specific version with tenant isolation"""
         try:
-            # Get the version to rollback to
-            version_record = self.get_config_version(session, config_id, version)
+            # Get the version to rollback to (tenant-scoped)
+            version_record = self.get_config_version(session, config_id, version, tenant_id=tenant_id)
             if not version_record:
                 return None
 
-            # Get current config
-            config = session.query(ProviderConfig).filter(ProviderConfig.id == config_id).first()
+            # Get current config with tenant isolation
+            query = session.query(ProviderConfig).filter(ProviderConfig.id == config_id)
+            if tenant_id is not None:
+                query = query.filter(ProviderConfig.tenant_id == tenant_id)
+            config = query.first()
             if not config:
                 return None
 

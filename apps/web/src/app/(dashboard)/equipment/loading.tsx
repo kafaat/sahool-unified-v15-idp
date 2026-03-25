@@ -15,10 +15,7 @@ export default function Loading() {
       {/* Stat cards skeleton - 4 equipment status cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-100 p-4"
-          >
+          <div key={i} className="bg-white rounded-xl border border-gray-100 p-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-gray-100 rounded-lg" />
               <div>

@@ -3,11 +3,11 @@
  * مكون تحميل
  */
 
-import React from "react";
+import React from 'react';
 
 interface LoadingSpinnerProps {
   /** Size of the spinner / حجم دائرة التحميل */
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Show loading text / عرض نص التحميل */
   showText?: boolean;
   /** Custom loading text / نص تحميل مخصص */
@@ -21,25 +21,22 @@ interface LoadingSpinnerProps {
 }
 
 const sizeClasses = {
-  sm: "h-6 w-6 border-2",
-  md: "h-10 w-10 border-2",
-  lg: "h-12 w-12 border-b-2",
-  xl: "h-16 w-16 border-b-3",
+  sm: 'h-6 w-6 border-2',
+  md: 'h-10 w-10 border-2',
+  lg: 'h-12 w-12 border-b-2',
+  xl: 'h-16 w-16 border-b-3',
 };
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = "md",
+  size = 'md',
   showText = true,
-  text = "Loading...",
-  textAr = "جاري التحميل...",
-  height = "200px",
-  className = "",
+  text = 'Loading...',
+  textAr = 'جاري التحميل...',
+  height = '200px',
+  className = '',
 }) => {
   return (
-    <div
-      className={`flex flex-col items-center justify-center ${className}`}
-      style={{ height }}
-    >
+    <div className={`flex flex-col items-center justify-center ${className}`} style={{ height }}>
       <div
         className={`animate-spin rounded-full border-green-500 ${sizeClasses[size]}`}
         role="status"
@@ -59,9 +56,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
  * Chart Loading Spinner - optimized for chart components
  * مكون تحميل للرسوم البيانية
  */
-export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({
-  height = "400px",
-}) => {
+export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({ height = '400px' }) => {
   return (
     <div
       className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center"
@@ -82,9 +77,7 @@ export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({
  * Map Loading Spinner - optimized for map components
  * مكون تحميل للخرائط
  */
-export const MapLoadingSpinner: React.FC<{ height?: string }> = ({
-  height = "500px",
-}) => {
+export const MapLoadingSpinner: React.FC<{ height?: string }> = ({ height = '500px' }) => {
   return (
     <div
       className="bg-gray-100 flex items-center justify-center rounded-xl"

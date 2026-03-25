@@ -1,7 +1,7 @@
 /**
  * Session Management Page for Admin Dashboard
  * Allows administrators to view and manage active sessions
- * 
+ *
  * صفحة إدارة الجلسات - للمشرفين لعرض وإدارة الجلسات النشطة
  */
 
@@ -46,7 +46,7 @@ export default function SessionManagementPage() {
     try {
       const response = await fetch('/api/admin/sessions');
       if (!response.ok) throw new Error('Failed to fetch sessions');
-      
+
       const data = await response.json();
       setSessions(data.sessions || []);
       setError(null);
@@ -58,9 +58,12 @@ export default function SessionManagementPage() {
   };
 
   const revokeSession = async (sessionId: string) => {
-    if (!confirm(locale === 'ar' 
-      ? 'هل أنت متأكد من إلغاء هذه الجلسة؟' 
-      : 'Are you sure you want to revoke this session?')
+    if (
+      !confirm(
+        locale === 'ar'
+          ? 'هل أنت متأكد من إلغاء هذه الجلسة؟'
+          : 'Are you sure you want to revoke this session?'
+      )
     ) {
       return;
     }
@@ -103,9 +106,7 @@ export default function SessionManagementPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {locale === 'ar' ? 'جارٍ التحميل...' : 'Loading...'}
-          </p>
+          <p className="text-gray-600">{locale === 'ar' ? 'جارٍ التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
@@ -120,7 +121,7 @@ export default function SessionManagementPage() {
             {locale === 'ar' ? 'إدارة الجلسات' : 'Session Management'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            {locale === 'ar' 
+            {locale === 'ar'
               ? 'عرض وإدارة الجلسات النشطة لجميع المستخدمين'
               : 'View and manage active sessions for all users'}
           </p>
@@ -159,7 +160,7 @@ export default function SessionManagementPage() {
             {locale === 'ar' ? 'المستخدمون النشطون' : 'Active Users'}
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-            {new Set(sessions.map(s => s.userId)).size}
+            {new Set(sessions.map((s) => s.userId)).size}
           </div>
         </div>
 
@@ -205,7 +206,10 @@ export default function SessionManagementPage() {
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {sessions.map((session) => (
-                <tr key={session.id} className={session.isCurrent ? 'bg-green-50 dark:bg-green-900/10' : ''}>
+                <tr
+                  key={session.id}
+                  className={session.isCurrent ? 'bg-green-50 dark:bg-green-900/10' : ''}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {session.userEmail}
@@ -225,9 +229,7 @@ export default function SessionManagementPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {session.ipAddress}
-                    </div>
+                    <div className="text-sm text-gray-900 dark:text-white">{session.ipAddress}</div>
                     {session.location && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {session.location.city}, {session.location.country}

@@ -3,22 +3,22 @@
  * خطافات React لميزة صور الأقمار الصناعية
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { satelliteApi } from "../api";
-import type { SatelliteFilters } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { satelliteApi } from '../api';
+import type { SatelliteFilters } from '../types';
 
 export const satelliteKeys = {
-  all: ["satellite"] as const,
-  lists: () => [...satelliteKeys.all, "list"] as const,
+  all: ['satellite'] as const,
+  lists: () => [...satelliteKeys.all, 'list'] as const,
   list: (filters?: SatelliteFilters) => [...satelliteKeys.lists(), filters] as const,
-  detail: (id: string) => [...satelliteKeys.all, "detail", id] as const,
-  stats: () => [...satelliteKeys.all, "stats"] as const,
-  images: (fieldId: string) => [...satelliteKeys.all, "images", fieldId] as const,
+  detail: (id: string) => [...satelliteKeys.all, 'detail', id] as const,
+  stats: () => [...satelliteKeys.all, 'stats'] as const,
+  images: (fieldId: string) => [...satelliteKeys.all, 'images', fieldId] as const,
   timeSeries: (fieldId: string, indexType: string) =>
-    [...satelliteKeys.all, "timeseries", fieldId, indexType] as const,
-  zones: (fieldId: string) => [...satelliteKeys.all, "zones", fieldId] as const,
+    [...satelliteKeys.all, 'timeseries', fieldId, indexType] as const,
+  zones: (fieldId: string) => [...satelliteKeys.all, 'zones', fieldId] as const,
 };
 
 export function useSatelliteFields(filters?: SatelliteFilters) {
@@ -45,7 +45,10 @@ export function useSatelliteStats() {
   });
 }
 
-export function useSatelliteImages(fieldId: string, filters?: { dateFrom?: string; dateTo?: string }) {
+export function useSatelliteImages(
+  fieldId: string,
+  filters?: { dateFrom?: string; dateTo?: string }
+) {
   return useQuery({
     queryKey: [...satelliteKeys.images(fieldId), filters],
     queryFn: () => satelliteApi.getImages(fieldId, filters),

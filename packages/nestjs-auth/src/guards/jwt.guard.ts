@@ -15,11 +15,11 @@ import {
   UnauthorizedException,
   ForbiddenException,
   Logger,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { AuthGuard } from "@nestjs/passport";
-import { Observable } from "rxjs";
-import { AuthErrors } from "../config/jwt.config";
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
+import { Observable } from 'rxjs';
+import { AuthErrors } from '../config/jwt.config';
 
 /**
  * JWT Authentication Guard
@@ -42,7 +42,7 @@ import { AuthErrors } from "../config/jwt.config";
  * ```
  */
 @Injectable()
-export class JwtAuthGuard extends AuthGuard("jwt") {
+export class JwtAuthGuard extends AuthGuard('jwt') {
   private readonly logger = new Logger(JwtAuthGuard.name);
 
   constructor(private reflector: Reflector) {
@@ -52,11 +52,9 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
   /**
    * Handle authentication request
    */
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     // Check if route is marked as public
-    const isPublic = this.reflector.getAllAndOverride<boolean>("isPublic", [
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -77,37 +75,28 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const method = request.method;
 
     if (err || !user) {
-      if (info?.name === "TokenExpiredError") {
-        this.logger.warn(
-          `Authentication failed [${method} ${path}]: Token expired`,
-        );
+      if (info?.name === 'TokenExpiredError') {
+        this.logger.warn(`Authentication failed [${method} ${path}]: Token expired`);
         throw new UnauthorizedException(AuthErrors.EXPIRED_TOKEN.en);
       }
 
-      if (info?.name === "JsonWebTokenError") {
+      if (info?.name === 'JsonWebTokenError') {
         this.logger.warn(
-          `Authentication failed [${method} ${path}]: Invalid token - ${info.message}`,
+          `Authentication failed [${method} ${path}]: Invalid token - ${info.message}`
         );
         throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
       }
 
       if (err) {
-        this.logger.error(
-          `Authentication error [${method} ${path}]: ${err.message}`,
-          err.stack,
-        );
+        this.logger.error(`Authentication error [${method} ${path}]: ${err.message}`, err.stack);
         throw err;
       }
 
-      this.logger.warn(
-        `Authentication failed [${method} ${path}]: Missing token`,
-      );
+      this.logger.warn(`Authentication failed [${method} ${path}]: Missing token`);
       throw new UnauthorizedException(AuthErrors.MISSING_TOKEN.en);
     }
 
-    this.logger.debug(
-      `Authentication successful [${method} ${path}]: User ${user.id}`,
-    );
+    this.logger.debug(`Authentication successful [${method} ${path}]: User ${user.id}`);
 
     return user;
   }
@@ -136,7 +125,7 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>("roles", [
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -185,10 +174,10 @@ export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
-      "permissions",
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>('permissions', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (!requiredPermissions || requiredPermissions.length === 0) {
       return true;
@@ -202,7 +191,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const hasPermission = requiredPermissions.some((permission: string) =>
-      user.permissions.includes(permission),
+      user.permissions.includes(permission)
     );
 
     if (!hasPermission) {
@@ -243,7 +232,7 @@ export class FarmAccessGuard implements CanActivate {
     }
 
     // Admin users have access to all farms
-    if (user.roles && user.roles.includes("admin")) {
+    if (user.roles && user.roles.includes('admin')) {
       return true;
     }
 
@@ -286,7 +275,7 @@ export class FarmAccessGuard implements CanActivate {
  * ```
  */
 @Injectable()
-export class OptionalAuthGuard extends AuthGuard("jwt") {
+export class OptionalAuthGuard extends AuthGuard('jwt') {
   handleRequest(_err: any, user: any) {
     // Return user if authenticated, null otherwise
     return user || null;

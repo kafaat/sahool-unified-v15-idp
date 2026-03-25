@@ -118,12 +118,11 @@ def cancel_job(job_id: str) -> bool:
     return True
 
 
-def list_jobs(tenant_id: str = None, field_id: str = None, status: str = None) -> list[dict]:
-    """قائمة المهام"""
+def list_jobs(tenant_id: str, field_id: str = None, status: str = None) -> list[dict]:
+    """قائمة المهام مع عزل إلزامي للمستأجر"""
     jobs = list(_jobs.values())
 
-    if tenant_id:
-        jobs = [j for j in jobs if j["tenant_id"] == tenant_id]
+    jobs = [j for j in jobs if j["tenant_id"] == tenant_id]
     if field_id:
         jobs = [j for j in jobs if j["field_id"] == field_id]
     if status:

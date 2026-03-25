@@ -103,7 +103,7 @@ async def tenant_connection(
     if not tenant_id:
         raise RuntimeError("tenant_id cannot be empty")
 
-    conn: asyncpg.Connection = await pool.acquire()
+    conn: asyncpg.Connection = await pool.acquire(timeout=10.0)
     try:
         # Set RLS session variables using parameterized SET
         # Use set_config() which is SQL-injection safe (takes text parameters)
@@ -128,9 +128,8 @@ async def tenant_connection(
         try:
             await conn.execute("SELECT set_config('app.current_tenant', '', true)")
             await conn.execute("SELECT set_config('app.is_super_admin', 'false', true)")
-        except Exception:
-            # Connection may already be broken; pool.release will handle it
-            pass
+        except Exception as exc:
+            logger.warning("Failed to reset RLS session variables: %s", exc)
         await pool.release(conn)
 
 
@@ -238,7 +237,7 @@ async def verify_tenant_isolation(app: FastAPI) -> bool:
     all_ok = True
 
     try:
-        conn = await pool.acquire()
+        conn = await pool.acquire(timeout=10.0)
         try:
             for table in critical_tables:
                 row = await conn.fetchrow(

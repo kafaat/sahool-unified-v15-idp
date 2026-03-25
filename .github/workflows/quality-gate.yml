@@ -22,15 +22,16 @@ jobs:
   static-analysis:
     name: "Stage 1 - Static Analysis"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       python_issues: ${{ steps.ruff.outputs.issues }}
       sql_issues: ${{ steps.sqlfluff.outputs.issues }}
       spec_valid: ${{ steps.spec.outputs.valid }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -63,7 +64,7 @@ jobs:
           npx @stoplight/spectral-cli lint $OPENAPI_SPEC --format=pretty || true
 
       # Upload spec for downstream jobs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: openapi-spec
           path: ${{ env.OPENAPI_SPEC }}
@@ -75,19 +76,20 @@ jobs:
     name: "Stage 2 - Contract Testing"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       contract_pass: ${{ steps.schemathesis.outputs.pass }}
       newman_pass: ${{ steps.newman.outputs.pass }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: openapi-spec
           path: api/
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -129,7 +131,7 @@ jobs:
             echo "pass=skip" >> $GITHUB_OUTPUT
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: contract-reports
@@ -144,14 +146,15 @@ jobs:
     name: "Stage 3 - Security Scan"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       bandit_issues: ${{ steps.bandit.outputs.issues }}
       semgrep_issues: ${{ steps.semgrep.outputs.issues }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -179,7 +182,7 @@ jobs:
           pip install detect-secrets --quiet
           detect-secrets scan --all-files --exclude-files '\.lock$|node_modules|\.g\.dart$' > .secrets-report.json || true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: security-reports
@@ -194,14 +197,15 @@ jobs:
     name: "Stage 4 - Tests"
     needs: static-analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       python_pass: ${{ steps.pytest.outputs.pass }}
       coverage: ${{ steps.pytest.outputs.coverage }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -232,7 +236,7 @@ jobs:
             echo "pass=false" >> $GITHUB_OUTPUT
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-reports
@@ -248,8 +252,9 @@ jobs:
     needs: [static-analysis, contract-testing, security-scan, tests]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate Quality Report
         env:
@@ -324,6 +329,6 @@ jobs:
       # Post as PR comment
       - name: Post Quality Report to PR
         if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           path: quality-report.md

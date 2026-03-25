@@ -5,14 +5,14 @@
  * Kubernetes readiness probe - returns 200 when the app is ready to serve traffic.
  */
 
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const ready = {
-      status: "ok",
-      service: "sahool-web",
+      status: 'ok',
+      service: 'sahool-web',
       checks: {
         apiConfigured: !!apiUrl,
       },
@@ -20,9 +20,6 @@ export async function GET() {
 
     return NextResponse.json(ready, { status: 200 });
   } catch {
-    return NextResponse.json(
-      { status: "not_ready", service: "sahool-web" },
-      { status: 503 },
-    );
+    return NextResponse.json({ status: 'not_ready', service: 'sahool-web' }, { status: 503 });
   }
 }

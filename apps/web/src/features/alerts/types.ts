@@ -7,16 +7,16 @@
 // Alert Enums and Base Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type AlertSeverity = "info" | "warning" | "critical" | "emergency";
+export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency';
 export type AlertCategory =
-  | "crop_health"
-  | "weather"
-  | "irrigation"
-  | "pest"
-  | "disease"
-  | "market"
-  | "system";
-export type AlertStatus = "active" | "acknowledged" | "resolved" | "dismissed";
+  | 'crop_health'
+  | 'weather'
+  | 'irrigation'
+  | 'pest'
+  | 'disease'
+  | 'market'
+  | 'system';
+export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'dismissed';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Alert Interface
@@ -60,8 +60,8 @@ export interface AlertFilters {
 export interface AlertListParams extends AlertFilters {
   page?: number;
   limit?: number;
-  sortBy?: "createdAt" | "severity" | "status";
-  sortOrder?: "asc" | "desc";
+  sortBy?: 'createdAt' | 'severity' | 'status';
+  sortOrder?: 'asc' | 'desc';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -73,7 +73,7 @@ export interface AlertStats {
   bySeverity: Record<AlertSeverity, number>;
   byCategory: Record<AlertCategory, number>;
   byStatus: Record<AlertStatus, number>;
-  trend: "increasing" | "stable" | "decreasing";
+  trend: 'increasing' | 'stable' | 'decreasing';
   trendPercentage?: number;
 }
 
@@ -161,7 +161,7 @@ export interface DismissAlertPayload {
 
 export interface BulkAlertActionPayload {
   alertIds: string[];
-  action: "acknowledge" | "resolve" | "dismiss";
+  action: 'acknowledge' | 'resolve' | 'dismiss';
   notes?: string;
   reason?: string;
 }
@@ -171,7 +171,7 @@ export interface BulkAlertActionPayload {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface AlertStreamEvent {
-  type: "new" | "update" | "delete";
+  type: 'new' | 'update' | 'delete';
   alert: Alert;
   timestamp: string;
 }

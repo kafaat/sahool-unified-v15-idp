@@ -168,6 +168,7 @@ async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
     # Resolve tenant-scoped subject | تحويل الموضوع إلى نطاق المستأجر
     if tenant_id:
         from shared.events.subjects import get_tenant_subject
+
         # Extract domain and action from subject like "sahool.indicators.computed"
         parts = subject.split(".", 2)  # ["sahool", "indicators", "computed"]
         if len(parts) >= 3:
@@ -332,11 +333,12 @@ async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
     return []
 
 
-async def delete_field_indicators(field_id: str) -> bool:
-    """Delete all indicators for a field.
+async def delete_field_indicators(field_id: str, tenant_id: str) -> bool:
+    """Delete all indicators for a field, scoped to tenant.
 
     Args:
         field_id: The field identifier
+        tenant_id: Tenant ID for isolation (required)
 
     Returns:
         True if deleted successfully, False otherwise
@@ -346,14 +348,15 @@ async def delete_field_indicators(field_id: str) -> bool:
             async with app.state.db_pool.acquire() as conn:
                 await conn.execute(
                     """
-                    DELETE FROM field_indicators WHERE field_id = $1
+                    DELETE FROM field_indicators WHERE field_id = $1 AND tenant_id = $2
                 """,
                     field_id,
+                    tenant_id,
                 )
-            logger.info("Deleted field indicators", field_id=field_id)
+            logger.info("Deleted field indicators", field_id=field_id, tenant_id=tenant_id)
             return True
         except Exception as e:
-            logger.warning("Failed to delete field indicators", field_id=field_id, error=str(e))
+            logger.warning("Failed to delete field indicators", field_id=field_id, tenant_id=tenant_id, error=str(e))
             return False
     return False
 
@@ -1088,20 +1091,21 @@ async def get_single_indicator(field_id: str, indicator_type: str):
 
 
 @app.delete("/v1/field/{field_id}/indicators")
-async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_current_user)):
+async def delete_field_indicators_endpoint(field_id: str, user=Depends(get_current_user)):
     """حذف جميع مؤشرات حقل معين
 
     Delete all stored indicators for a specific field.
     Use with caution - this operation cannot be undone.
     """
-    success = await delete_field_indicators(field_id)
+    tenant_id = getattr(user, "tenant_id", None) if user else None
+    if not tenant_id:
+        raise HTTPException(status_code=401, detail="Tenant ID is required for this operation.")
+    success = await delete_field_indicators(field_id, tenant_id)
 
     if not success:
         raise HTTPException(status_code=503, detail="Failed to delete indicators. Database may not be available.")
 
     # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
-    # Extract tenant_id from authenticated user | استخراج معرف المستأجر من المستخدم المصادق
-    user_tenant_id = getattr(_user, "tenant_id", None) if _user else None
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.deleted",
@@ -1109,7 +1113,7 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
             "field_id": field_id,
             "timestamp": timestamp,
         },
-        tenant_id=user_tenant_id,
+        tenant_id=tenant_id,
     )
 
     logger.info("Field indicators deleted", field_id=field_id)

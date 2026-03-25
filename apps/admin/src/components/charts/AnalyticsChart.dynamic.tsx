@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Dynamic (lazy-loaded) AnalyticsChart wrapper
@@ -8,9 +8,9 @@
  * Shows a loading skeleton while the chart library is being loaded.
  */
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
-const AnalyticsChart = dynamic(() => import("./AnalyticsChart"), {
+const AnalyticsChart = dynamic(() => import('./AnalyticsChart'), {
   ssr: false,
   loading: () => (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 animate-pulse">

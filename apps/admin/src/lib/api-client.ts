@@ -15,16 +15,16 @@
  * - معالجة الأخطاء ثنائية اللغة (العربية/الإنجليزية)
  */
 
-import { sanitizeInput } from "./sanitize";
-import { logger } from "./logger";
+import { sanitizeInput } from './sanitize';
+import { logger } from './logger';
 import {
   API_BASE_URL,
   DEFAULT_TIMEOUT,
   MAX_RETRY_ATTEMPTS,
   RETRY_DELAY,
   IS_PRODUCTION,
-} from "@/config/api";
-import { CUSTOM_HEADERS } from "@sahool/shared-types/contracts";
+} from '@/config/api';
+import { CUSTOM_HEADERS } from '@sahool/shared-types/contracts';
 
 // =============================================================================
 // Types & Interfaces | الأنواع والواجهات
@@ -42,25 +42,25 @@ interface ApiResponse<T = unknown> {
 /**
  * Admin user roles | أدوار المستخدم الإداري
  */
-export type AdminRole = "super_admin" | "admin" | "supervisor" | "viewer";
+export type AdminRole = 'super_admin' | 'admin' | 'supervisor' | 'viewer';
 
 /**
  * Permission types | أنواع الصلاحيات
  */
 export type Permission =
-  | "users:read"
-  | "users:write"
-  | "users:delete"
-  | "fields:read"
-  | "fields:write"
-  | "fields:delete"
-  | "reports:read"
-  | "reports:export"
-  | "settings:read"
-  | "settings:write"
-  | "audit:read"
-  | "billing:read"
-  | "billing:write";
+  | 'users:read'
+  | 'users:write'
+  | 'users:delete'
+  | 'fields:read'
+  | 'fields:write'
+  | 'fields:delete'
+  | 'reports:read'
+  | 'reports:export'
+  | 'settings:read'
+  | 'settings:write'
+  | 'audit:read'
+  | 'billing:read'
+  | 'billing:write';
 
 /**
  * Audit log entry | سجل التدقيق
@@ -107,20 +107,16 @@ interface LoginRequestBody {
 
 /** Type guard to check if value is a RawApiResponse object */
 function isRawApiResponse(value: unknown): value is RawApiResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** Extract error message from raw API response */
 function extractErrorMessage(data: unknown, fallback: string): string {
   if (isRawApiResponse(data)) {
     return (
-      (typeof data.error === "string" ? data.error : undefined) ||
-      (typeof data.message === "string" ? data.message : undefined) ||
-      (typeof data.detail === "string" ? data.detail : undefined) ||
+      (typeof data.error === 'string' ? data.error : undefined) ||
+      (typeof data.message === 'string' ? data.message : undefined) ||
+      (typeof data.detail === 'string' ? data.detail : undefined) ||
       fallback
     );
   }
@@ -132,7 +128,7 @@ interface User {
   email: string;
   name: string;
   name_ar?: string;
-  role: "admin" | "supervisor" | "viewer";
+  role: 'admin' | 'supervisor' | 'viewer';
   tenant_id?: string;
 }
 
@@ -156,32 +152,35 @@ function delay(ms: number): Promise<void> {
  */
 const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
   super_admin: [
-    "users:read", "users:write", "users:delete",
-    "fields:read", "fields:write", "fields:delete",
-    "reports:read", "reports:export",
-    "settings:read", "settings:write",
-    "audit:read",
-    "billing:read", "billing:write",
+    'users:read',
+    'users:write',
+    'users:delete',
+    'fields:read',
+    'fields:write',
+    'fields:delete',
+    'reports:read',
+    'reports:export',
+    'settings:read',
+    'settings:write',
+    'audit:read',
+    'billing:read',
+    'billing:write',
   ],
   admin: [
-    "users:read", "users:write",
-    "fields:read", "fields:write", "fields:delete",
-    "reports:read", "reports:export",
-    "settings:read", "settings:write",
-    "audit:read",
-    "billing:read",
+    'users:read',
+    'users:write',
+    'fields:read',
+    'fields:write',
+    'fields:delete',
+    'reports:read',
+    'reports:export',
+    'settings:read',
+    'settings:write',
+    'audit:read',
+    'billing:read',
   ],
-  supervisor: [
-    "users:read",
-    "fields:read", "fields:write",
-    "reports:read",
-    "settings:read",
-  ],
-  viewer: [
-    "users:read",
-    "fields:read",
-    "reports:read",
-  ],
+  supervisor: ['users:read', 'fields:read', 'fields:write', 'reports:read', 'settings:read'],
+  viewer: ['users:read', 'fields:read', 'reports:read'],
 };
 
 class AdminApiClient {
@@ -190,20 +189,15 @@ class AdminApiClient {
   private rbacContext: RBACContext | null = null;
   private auditQueue: AuditLogEntry[] = [];
   private auditFlushTimer: ReturnType<typeof setTimeout> | null = null;
-  private currentUserId: string = "";
-  private currentUserEmail: string = "";
+  private currentUserId: string = '';
+  private currentUserEmail: string = '';
   private onUnauthorized: (() => void) | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     // Block HTTP in production instead of just warning
-    if (
-      IS_PRODUCTION &&
-      !baseUrl.startsWith("https://") &&
-      !baseUrl.includes("localhost")
-    ) {
+    if (IS_PRODUCTION && !baseUrl.startsWith('https://') && !baseUrl.includes('localhost')) {
       throw new Error(
-        "API_BASE_URL must use HTTPS in production. " +
-        "يجب استخدام HTTPS في بيئة الإنتاج"
+        'API_BASE_URL must use HTTPS in production. ' + 'يجب استخدام HTTPS في بيئة الإنتاج'
       );
     }
     this.baseUrl = baseUrl;
@@ -225,8 +219,8 @@ class AdminApiClient {
   clearToken() {
     this.token = null;
     this.rbacContext = null;
-    this.currentUserId = "";
-    this.currentUserEmail = "";
+    this.currentUserId = '';
+    this.currentUserEmail = '';
   }
 
   // ===========================================================================
@@ -339,11 +333,11 @@ class AdminApiClient {
     this.auditQueue = [];
 
     try {
-      await this.post("/api/v1/admin/audit/batch", { entries: logsToSend });
+      await this.post('/api/v1/admin/audit/batch', { entries: logsToSend });
       logger.info(`Flushed ${logsToSend.length} audit log entries`);
     } catch (error) {
       this.auditQueue = [...logsToSend, ...this.auditQueue];
-      logger.error("Failed to flush audit logs", error);
+      logger.error('Failed to flush audit logs', error);
     }
   }
 
@@ -356,11 +350,11 @@ class AdminApiClient {
     startDate?: string;
     endDate?: string;
   }): Promise<ApiResponse<{ data: AuditLogEntry[]; total: number; page: number }>> {
-    if (!this.hasPermission("audit:read")) {
+    if (!this.hasPermission('audit:read')) {
       return {
         success: false,
-        error: "Permission denied: audit:read required",
-        errorAr: "الوصول مرفوض: صلاحية قراءة التدقيق مطلوبة",
+        error: 'Permission denied: audit:read required',
+        errorAr: 'الوصول مرفوض: صلاحية قراءة التدقيق مطلوبة',
       };
     }
 
@@ -373,7 +367,7 @@ class AdminApiClient {
     if (options.startDate) params.start_date = options.startDate;
     if (options.endDate) params.end_date = options.endDate;
 
-    return this.get("/api/v1/admin/audit", params);
+    return this.get('/api/v1/admin/audit', params);
   }
 
   // ===========================================================================
@@ -382,14 +376,9 @@ class AdminApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestOptions = {},
+    options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
-    const {
-      params,
-      skipRetry = false,
-      timeout = DEFAULT_TIMEOUT,
-      ...fetchOptions
-    } = options;
+    const { params, skipRetry = false, timeout = DEFAULT_TIMEOUT, ...fetchOptions } = options;
 
     let url = `${this.baseUrl}${endpoint}`;
     if (params) {
@@ -398,21 +387,19 @@ class AdminApiClient {
     }
 
     const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Accept-Language": "ar,en",
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Accept-Language': 'ar,en',
       [CUSTOM_HEADERS.REQUEST_ID]: crypto.randomUUID(),
       ...options.headers,
     };
 
     if (this.token) {
-      (headers as Record<string, string>)["Authorization"] =
-        `Bearer ${this.token}`;
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
     }
 
     if (this.rbacContext?.tenantId) {
-      (headers as Record<string, string>)[CUSTOM_HEADERS.TENANT_ID] =
-        this.rbacContext.tenantId;
+      (headers as Record<string, string>)[CUSTOM_HEADERS.TENANT_ID] = this.rbacContext.tenantId;
     }
 
     // Retry logic
@@ -435,15 +422,15 @@ class AdminApiClient {
 
         // Parse response
         let data: unknown;
-        const contentType = response.headers.get("content-type");
+        const contentType = response.headers.get('content-type');
 
-        if (contentType && contentType.includes("application/json")) {
+        if (contentType && contentType.includes('application/json')) {
           try {
             data = await response.json();
           } catch {
             return {
               success: false,
-              error: "Invalid JSON response from server",
+              error: 'Invalid JSON response from server',
             };
           }
         } else {
@@ -457,8 +444,8 @@ class AdminApiClient {
             this.clearToken();
             if (this.onUnauthorized) {
               this.onUnauthorized();
-            } else if (typeof window !== "undefined") {
-              window.location.href = "/login";
+            } else if (typeof window !== 'undefined') {
+              window.location.href = '/login';
             }
           }
 
@@ -466,10 +453,7 @@ class AdminApiClient {
           if (response.status >= 400 && response.status < 500) {
             return {
               success: false,
-              error: extractErrorMessage(
-                data,
-                `Request failed with status ${response.status}`,
-              ),
+              error: extractErrorMessage(data, `Request failed with status ${response.status}`),
             };
           }
 
@@ -491,13 +475,13 @@ class AdminApiClient {
         }
         return { success: true, data: data as T };
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error("Unknown error");
+        lastError = error instanceof Error ? error : new Error('Unknown error');
 
         // Handle abort/timeout
-        if (error instanceof Error && error.name === "AbortError") {
+        if (error instanceof Error && error.name === 'AbortError') {
           return {
             success: false,
-            error: "Request timeout - please try again",
+            error: 'Request timeout - please try again',
           };
         }
 
@@ -512,8 +496,7 @@ class AdminApiClient {
     // All retries failed
     return {
       success: false,
-      error:
-        lastError?.message || "Network error - please check your connection",
+      error: lastError?.message || 'Network error - please check your connection',
     };
   }
 
@@ -530,7 +513,7 @@ class AdminApiClient {
     if (!emailRegex.test(sanitizedEmail)) {
       return {
         success: false,
-        error: "Invalid email format",
+        error: 'Invalid email format',
       };
     }
 
@@ -545,20 +528,20 @@ class AdminApiClient {
       user: User;
       requires_2fa?: boolean;
       temp_token?: string;
-    }>("/api/v1/auth/login", {
-      method: "POST",
+    }>('/api/v1/auth/login', {
+      method: 'POST',
       body: JSON.stringify(body),
       skipRetry: true, // Don't retry auth requests
     });
   }
 
   async getCurrentUser() {
-    return this.request<User>("/api/v1/auth/me");
+    return this.request<User>('/api/v1/auth/me');
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>("/api/v1/auth/refresh", {
-      method: "POST",
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
   }
@@ -568,12 +551,12 @@ class AdminApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async get<T>(endpoint: string, params?: Record<string, string>) {
-    return this.request<T>(endpoint, { method: "GET", params });
+    return this.request<T>(endpoint, { method: 'GET', params });
   }
 
   async post<T, B = Record<string, unknown>>(endpoint: string, body?: B) {
     return this.request<T>(endpoint, {
-      method: "POST",
+      method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
     });
   }
@@ -581,10 +564,10 @@ class AdminApiClient {
   async patch<T, B = Record<string, unknown>>(
     endpoint: string,
     body?: B,
-    params?: Record<string, string>,
+    params?: Record<string, string>
   ) {
     return this.request<T>(endpoint, {
-      method: "PATCH",
+      method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
       params,
     });
@@ -592,13 +575,13 @@ class AdminApiClient {
 
   async put<T, B = Record<string, unknown>>(endpoint: string, body?: B) {
     return this.request<T>(endpoint, {
-      method: "PUT",
+      method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
   async delete<T>(endpoint: string) {
-    return this.request<T>(endpoint, { method: "DELETE" });
+    return this.request<T>(endpoint, { method: 'DELETE' });
   }
 }
 
@@ -607,8 +590,8 @@ export function extractErrorMessageAr(data: unknown, fallback: string): string {
   if (isRawApiResponse(data)) {
     const raw = data as { error_ar?: string; message_ar?: string };
     return (
-      (typeof raw.error_ar === "string" ? raw.error_ar : undefined) ||
-      (typeof raw.message_ar === "string" ? raw.message_ar : undefined) ||
+      (typeof raw.error_ar === 'string' ? raw.error_ar : undefined) ||
+      (typeof raw.message_ar === 'string' ? raw.message_ar : undefined) ||
       fallback
     );
   }

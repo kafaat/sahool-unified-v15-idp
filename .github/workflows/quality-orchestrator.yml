@@ -26,17 +26,18 @@ jobs:
   lint-format:
     name: "Layer 1 – Lint & Format"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-lint-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -44,7 +45,7 @@ jobs:
             pip-lint-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -67,7 +68,7 @@ jobs:
         run: npx oxlint . --format json > reports/oxlint.json || true
 
       - name: Upload lint reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-lint-format
           path: reports/
@@ -79,17 +80,18 @@ jobs:
   type-check:
     name: "Layer 2 – Type Check"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-typecheck-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -97,7 +99,7 @@ jobs:
             pip-typecheck-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -123,7 +125,7 @@ jobs:
         run: npx pyright shared/ai/ || true
 
       - name: Upload type-check reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-type-check
           path: reports/
@@ -135,16 +137,17 @@ jobs:
   security-sast:
     name: "Layer 3 – Security SAST"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-security-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -164,20 +167,20 @@ jobs:
         run: detect-secrets scan --all-files > reports/secrets.json || true
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: python, javascript-typescript
 
       - name: Autobuild for CodeQL
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:python"
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-security-sast
           path: reports/
@@ -189,16 +192,17 @@ jobs:
   dependency-security:
     name: "Layer 4 – Dependency Security"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-depaudit-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -206,7 +210,7 @@ jobs:
             pip-depaudit-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -226,7 +230,7 @@ jobs:
         run: pip-audit --format json -o reports/pip-audit.json || true
 
       - name: Upload dependency reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-dependency-security
           path: reports/
@@ -238,12 +242,13 @@ jobs:
   architecture:
     name: "Layer 5 – Architecture"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -264,7 +269,7 @@ jobs:
         run: npx depcheck --json > reports/depcheck.json || true
 
       - name: Upload architecture reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-architecture
           path: reports/
@@ -276,17 +281,18 @@ jobs:
   dead-code-complexity:
     name: "Layer 6 – Dead Code & Complexity"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-complexity-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -306,7 +312,7 @@ jobs:
         run: radon cc apps/ shared/ -j -n C > reports/radon.json || true
 
       - name: Upload dead-code/complexity reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-dead-code-complexity
           path: reports/
@@ -318,17 +324,18 @@ jobs:
   tests:
     name: "Layer 7 – Tests"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-tests-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
@@ -336,7 +343,7 @@ jobs:
             pip-tests-${{ runner.os }}-
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -362,7 +369,7 @@ jobs:
           NATS_URL: ""
 
       - name: Upload test reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-tests
           path: reports/
@@ -374,12 +381,24 @@ jobs:
   container-infra:
     name: "Layer 8 – Container & Infra"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Create reports directory
         run: mkdir -p reports
+
+      - name: Install Trivy
+        run: |
+          TRIVY_VERSION="0.69.3"
+          curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            -o trivy.tar.gz && \
+          tar -xzf trivy.tar.gz trivy && \
+          sudo mv trivy /usr/local/bin/trivy && \
+          rm -f trivy.tar.gz && \
+          trivy --version
+        continue-on-error: true
 
       - name: Trivy – Scan Dockerfiles (config)
         uses: aquasecurity/trivy-action@v0.35.0
@@ -402,7 +421,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload container/infra reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-container-infra
           path: reports/
@@ -414,6 +433,7 @@ jobs:
   quality-report:
     name: "Quality Report"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always()
     needs:
       - lint-format
@@ -425,10 +445,10 @@ jobs:
       - tests
       - container-infra
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -436,56 +456,56 @@ jobs:
         run: mkdir -p reports
 
       - name: Download lint-format reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-lint-format
           path: reports/
         continue-on-error: true
 
       - name: Download type-check reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-type-check
           path: reports/
         continue-on-error: true
 
       - name: Download security-sast reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-security-sast
           path: reports/
         continue-on-error: true
 
       - name: Download dependency-security reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-dependency-security
           path: reports/
         continue-on-error: true
 
       - name: Download architecture reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-architecture
           path: reports/
         continue-on-error: true
 
       - name: Download dead-code-complexity reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-dead-code-complexity
           path: reports/
         continue-on-error: true
 
       - name: Download test reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-tests
           path: reports/
         continue-on-error: true
 
       - name: Download container-infra reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: reports-container-infra
           path: reports/
@@ -500,7 +520,7 @@ jobs:
 
       - name: Comment PR with quality summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -552,7 +572,7 @@ jobs:
             }
 
       - name: Upload final quality report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: quality-report
           path: quality-report.md

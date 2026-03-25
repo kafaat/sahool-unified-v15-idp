@@ -1,52 +1,54 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from "lucide-react";
-import { useCrops, useCropStats } from "@/features/crops";
-import type { CropCategory, CropStage } from "@/features/crops";
+import React, { useState, useMemo } from 'react';
+import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from 'lucide-react';
+import { useCrops, useCropStats } from '@/features/crops';
+import type { CropCategory, CropStage } from '@/features/crops';
 
 const categoryLabels: Record<CropCategory, string> = {
-  cereals: "حبوب",
-  vegetables: "خضروات",
-  fruits: "فواكه",
-  legumes: "بقوليات",
-  forage: "أعلاف",
-  industrial: "صناعية",
+  cereals: 'حبوب',
+  vegetables: 'خضروات',
+  fruits: 'فواكه',
+  legumes: 'بقوليات',
+  forage: 'أعلاف',
+  industrial: 'صناعية',
 };
 
 const stageConfig: Record<CropStage, { color: string; labelAr: string }> = {
-  germination: { color: "bg-amber-100 text-amber-800", labelAr: "إنبات" },
-  seedling: { color: "bg-lime-100 text-lime-800", labelAr: "بادرة" },
-  vegetative: { color: "bg-green-100 text-green-800", labelAr: "نمو خضري" },
-  flowering: { color: "bg-pink-100 text-pink-800", labelAr: "إزهار" },
-  fruiting: { color: "bg-orange-100 text-orange-800", labelAr: "إثمار" },
-  maturity: { color: "bg-yellow-100 text-yellow-800", labelAr: "نضج" },
-  harvest: { color: "bg-red-100 text-red-800", labelAr: "حصاد" },
+  germination: { color: 'bg-amber-100 text-amber-800', labelAr: 'إنبات' },
+  seedling: { color: 'bg-lime-100 text-lime-800', labelAr: 'بادرة' },
+  vegetative: { color: 'bg-green-100 text-green-800', labelAr: 'نمو خضري' },
+  flowering: { color: 'bg-pink-100 text-pink-800', labelAr: 'إزهار' },
+  fruiting: { color: 'bg-orange-100 text-orange-800', labelAr: 'إثمار' },
+  maturity: { color: 'bg-yellow-100 text-yellow-800', labelAr: 'نضج' },
+  harvest: { color: 'bg-red-100 text-red-800', labelAr: 'حصاد' },
 };
 
-const categories: Array<{ value: CropCategory | "all"; labelAr: string }> = [
-  { value: "all", labelAr: "جميع الفئات" },
-  { value: "cereals", labelAr: "حبوب" },
-  { value: "vegetables", labelAr: "خضروات" },
-  { value: "fruits", labelAr: "فواكه" },
-  { value: "legumes", labelAr: "بقوليات" },
-  { value: "forage", labelAr: "أعلاف" },
-  { value: "industrial", labelAr: "صناعية" },
+const categories: Array<{ value: CropCategory | 'all'; labelAr: string }> = [
+  { value: 'all', labelAr: 'جميع الفئات' },
+  { value: 'cereals', labelAr: 'حبوب' },
+  { value: 'vegetables', labelAr: 'خضروات' },
+  { value: 'fruits', labelAr: 'فواكه' },
+  { value: 'legumes', labelAr: 'بقوليات' },
+  { value: 'forage', labelAr: 'أعلاف' },
+  { value: 'industrial', labelAr: 'صناعية' },
 ];
 
 function getHealthColor(score: number): string {
-  if (score >= 80) return "text-green-600";
-  if (score >= 60) return "text-yellow-600";
-  return "text-red-600";
+  if (score >= 80) return 'text-green-600';
+  if (score >= 60) return 'text-yellow-600';
+  return 'text-red-600';
 }
 
 export default function CropsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<CropCategory | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<CropCategory | 'all'>('all');
 
-  const { data: crops = [], isLoading, error } = useCrops(
-    selectedCategory !== "all" ? { category: selectedCategory } : undefined
-  );
+  const {
+    data: crops = [],
+    isLoading,
+    error,
+  } = useCrops(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useCropStats();
 
   const filteredCrops = useMemo(() => {
@@ -102,7 +104,9 @@ export default function CropsClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المحاصيل</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalCrops ?? crops.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalCrops ?? crops.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">المساحة الكلية</div>
@@ -142,11 +146,13 @@ export default function CropsClient() {
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as CropCategory | "all")}
+          onChange={(e) => setSelectedCategory(e.target.value as CropCategory | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {categories.map((c) => (
-            <option key={c.value} value={c.value}>{c.labelAr}</option>
+            <option key={c.value} value={c.value}>
+              {c.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -159,7 +165,10 @@ export default function CropsClient() {
           filteredCrops.map((crop) => {
             const stage = stageConfig[crop.currentStage];
             return (
-              <div key={crop.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
+              <div
+                key={crop.id}
+                className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
@@ -167,7 +176,9 @@ export default function CropsClient() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{crop.nameAr}</h3>
-                      <p className="text-sm text-gray-500">{crop.varietyAr} ({crop.variety})</p>
+                      <p className="text-sm text-gray-500">
+                        {crop.varietyAr} ({crop.variety})
+                      </p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${stage.color}`}>

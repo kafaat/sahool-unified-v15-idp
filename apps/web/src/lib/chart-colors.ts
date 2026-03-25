@@ -6,7 +6,7 @@
  * Import these instead of hardcoding hex values in components.
  */
 
-import { lightTheme } from "@sahool/design-system";
+import { lightTheme } from '@sahool/design-system';
 
 // ---------------------------------------------------------------------------
 // NDVI Colors - مؤشر الغطاء النباتي

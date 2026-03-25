@@ -3,9 +3,9 @@
  * مكون نتيجة التشخيص
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -16,40 +16,29 @@ import {
   AlertCircle,
   Loader2,
   ExternalLink,
-} from "lucide-react";
-import {
-  useDiagnosisResult,
-  useRequestConsultation,
-} from "../hooks/useCropHealth";
-import type { DiagnosedDisease, Treatment } from "../types";
-import { logger } from "@/lib/logger";
-import { useToast } from "@/components/ui/toast";
+} from 'lucide-react';
+import { useDiagnosisResult, useRequestConsultation } from '../hooks/useCropHealth';
+import type { DiagnosedDisease, Treatment } from '../types';
+import { logger } from '@/lib/logger';
+import { useToast } from '@/components/ui/toast';
 
 interface DiagnosisResultProps {
   requestId: string;
 }
 
-export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
-  requestId,
-}) => {
+export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) => {
   const { data: result, isLoading } = useDiagnosisResult(requestId);
-  const [expandedTreatment, setExpandedTreatment] = useState<string | null>(
-    null,
-  );
+  const [expandedTreatment, setExpandedTreatment] = useState<string | null>(null);
   const requestConsultation = useRequestConsultation();
   const { showToast } = useToast();
 
   if (isLoading || !result) {
     return (
-      <div
-        className="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
-             >
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         <div className="flex flex-col items-center justify-center">
           <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
           <p className="text-gray-600 font-medium">جاري تحليل الصور...</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Analyzing images with AI...
-          </p>
+          <p className="text-sm text-gray-500 mt-1">Analyzing images with AI...</p>
         </div>
       </div>
     );
@@ -57,27 +46,27 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
 
   const urgencyConfig = {
     immediate: {
-      label: "فوري",
-      labelEn: "Immediate",
-      color: "text-red-600",
-      bg: "bg-red-50",
-      border: "border-red-200",
+      label: 'فوري',
+      labelEn: 'Immediate',
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
       icon: AlertTriangle,
     },
     soon: {
-      label: "قريباً",
-      labelEn: "Soon",
-      color: "text-yellow-600",
-      bg: "bg-yellow-50",
-      border: "border-yellow-200",
+      label: 'قريباً',
+      labelEn: 'Soon',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-200',
       icon: Clock,
     },
     monitor: {
-      label: "مراقبة",
-      labelEn: "Monitor",
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      border: "border-blue-200",
+      label: 'مراقبة',
+      labelEn: 'Monitor',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+      border: 'border-blue-200',
       icon: TrendingUp,
     },
   };
@@ -88,15 +77,15 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
         diagnosisId: requestId,
       });
       showToast({
-        type: "success",
-        message: "Consultation request sent successfully",
-        messageAr: "تم إرسال طلب الاستشارة بنجاح",
+        type: 'success',
+        message: 'Consultation request sent successfully',
+        messageAr: 'تم إرسال طلب الاستشارة بنجاح',
       });
     } catch (err) {
       showToast({
-        type: "error",
-        message: "Error sending consultation request",
-        messageAr: "حدث خطأ أثناء إرسال طلب الاستشارة",
+        type: 'error',
+        message: 'Error sending consultation request',
+        messageAr: 'حدث خطأ أثناء إرسال طلب الاستشارة',
       });
       logger.error(err);
     }
@@ -125,8 +114,8 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
             <div className="text-sm text-yellow-900">
               <p className="font-medium">مستوى ثقة منخفض</p>
               <p className="mt-1">
-                قد تحتاج إلى استشارة خبير للحصول على تشخيص أكثر دقة. يمكنك طلب
-                استشارة خبير من الأسفل.
+                قد تحتاج إلى استشارة خبير للحصول على تشخيص أكثر دقة. يمكنك طلب استشارة خبير من
+                الأسفل.
               </p>
             </div>
           </div>
@@ -151,16 +140,10 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
                     <span className="flex items-center justify-center w-8 h-8 bg-white rounded-full text-sm font-bold text-gray-700">
                       {index + 1}
                     </span>
-                    <h3 className="text-xl font-bold text-gray-900">
-                      {diagnosed.disease.nameAr}
-                    </h3>
+                    <h3 className="text-xl font-bold text-gray-900">{diagnosed.disease.nameAr}</h3>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {diagnosed.disease.name}
-                  </p>
-                  <p className="text-sm text-gray-700 mt-2">
-                    {diagnosed.disease.descriptionAr}
-                  </p>
+                  <p className="text-sm text-gray-600">{diagnosed.disease.name}</p>
+                  <p className="text-sm text-gray-700 mt-2">{diagnosed.disease.descriptionAr}</p>
                 </div>
                 <div className="text-left">
                   <p className="text-sm text-gray-600">مستوى الثقة</p>
@@ -200,10 +183,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
                 </h4>
                 <ul className="space-y-1">
                   {diagnosed.disease.symptomsAr.map((symptom, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 flex items-start gap-2"
-                    >
+                    <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
                       <span className="text-green-500 mt-1">•</span>
                       <span>{symptom}</span>
                     </li>
@@ -214,9 +194,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
               {/* Spread Estimation */}
               {diagnosed.estimatedSpread && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-orange-900 mb-2">
-                    تقدير الانتشار
-                  </h4>
+                  <h4 className="font-semibold text-orange-900 mb-2">تقدير الانتشار</h4>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <p className="text-xs text-orange-700">حالياً</p>
@@ -254,179 +232,157 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
                   العلاجات الموصى بها
                 </h4>
                 <div className="space-y-3">
-                  {diagnosed.recommendedTreatments.map(
-                    (treatment: Treatment) => (
-                      <div
-                        key={treatment.id}
-                        className="border border-gray-200 rounded-lg overflow-hidden"
+                  {diagnosed.recommendedTreatments.map((treatment: Treatment) => (
+                    <div
+                      key={treatment.id}
+                      className="border border-gray-200 rounded-lg overflow-hidden"
+                    >
+                      <button
+                        onClick={() =>
+                          setExpandedTreatment(
+                            expandedTreatment === treatment.id ? null : treatment.id
+                          )
+                        }
+                        className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
                       >
-                        <button
-                          onClick={() =>
-                            setExpandedTreatment(
-                              expandedTreatment === treatment.id
-                                ? null
-                                : treatment.id,
-                            )
-                          }
-                          className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
-                        >
-                          <div className="text-right">
-                            <p className="font-medium text-gray-900">
-                              {treatment.nameAr}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {treatment.name}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`px-2 py-1 rounded text-xs font-medium ${
-                                treatment.type === "chemical"
-                                  ? "bg-purple-100 text-purple-700"
-                                  : treatment.type === "biological"
-                                    ? "bg-green-100 text-green-700"
-                                    : treatment.type === "cultural"
-                                      ? "bg-blue-100 text-blue-700"
-                                      : "bg-gray-100 text-gray-700"
-                              }`}
-                            >
-                              {treatment.type === "chemical"
-                                ? "كيميائي"
-                                : treatment.type === "biological"
-                                  ? "حيوي"
-                                  : treatment.type === "cultural"
-                                    ? "ثقافي"
-                                    : "وقائي"}
-                            </span>
-                            <ExternalLink className="w-4 h-4 text-gray-400" />
-                          </div>
-                        </button>
+                        <div className="text-right">
+                          <p className="font-medium text-gray-900">{treatment.nameAr}</p>
+                          <p className="text-sm text-gray-600">{treatment.name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              treatment.type === 'chemical'
+                                ? 'bg-purple-100 text-purple-700'
+                                : treatment.type === 'biological'
+                                  ? 'bg-green-100 text-green-700'
+                                  : treatment.type === 'cultural'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {treatment.type === 'chemical'
+                              ? 'كيميائي'
+                              : treatment.type === 'biological'
+                                ? 'حيوي'
+                                : treatment.type === 'cultural'
+                                  ? 'ثقافي'
+                                  : 'وقائي'}
+                          </span>
+                          <ExternalLink className="w-4 h-4 text-gray-400" />
+                        </div>
+                      </button>
 
-                        {expandedTreatment === treatment.id && (
-                          <div className="p-4 space-y-4">
-                            {/* Description */}
-                            <div>
-                              <p className="text-sm text-gray-700">
-                                {treatment.descriptionAr}
-                              </p>
-                            </div>
+                      {expandedTreatment === treatment.id && (
+                        <div className="p-4 space-y-4">
+                          {/* Description */}
+                          <div>
+                            <p className="text-sm text-gray-700">{treatment.descriptionAr}</p>
+                          </div>
 
-                            {/* Steps */}
+                          {/* Steps */}
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900 mb-2">
+                              خطوات التطبيق:
+                            </p>
+                            <ol className="space-y-2">
+                              {treatment.stepsAr.map((step, idx) => (
+                                <li
+                                  key={idx}
+                                  className="text-sm text-gray-700 flex items-start gap-2"
+                                >
+                                  <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex-shrink-0 mt-0.5">
+                                    {idx + 1}
+                                  </span>
+                                  <span>{step}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+
+                          {/* Materials */}
+                          {treatment.materials && treatment.materials.length > 0 && (
                             <div>
                               <p className="text-sm font-semibold text-gray-900 mb-2">
-                                خطوات التطبيق:
+                                المواد المطلوبة:
                               </p>
-                              <ol className="space-y-2">
-                                {treatment.stepsAr.map((step, idx) => (
+                              <div className="space-y-2">
+                                {treatment.materials.map((material, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                                  >
+                                    <span className="text-sm text-gray-900">{material.nameAr}</span>
+                                    <span className="text-sm text-gray-600">
+                                      {material.quantityAr}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Timing & Frequency */}
+                          {(treatment.timingAr || treatment.frequencyAr) && (
+                            <div className="grid grid-cols-2 gap-4">
+                              {treatment.timingAr && (
+                                <div>
+                                  <p className="text-xs text-gray-600 mb-1 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    التوقيت
+                                  </p>
+                                  <p className="text-sm text-gray-900">{treatment.timingAr}</p>
+                                </div>
+                              )}
+                              {treatment.frequencyAr && (
+                                <div>
+                                  <p className="text-xs text-gray-600 mb-1 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    التكرار
+                                  </p>
+                                  <p className="text-sm text-gray-900">{treatment.frequencyAr}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Precautions */}
+                          {treatment.precautionsAr && treatment.precautionsAr.length > 0 && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                              <p className="text-sm font-semibold text-yellow-900 mb-2">
+                                احتياطات:
+                              </p>
+                              <ul className="space-y-1">
+                                {treatment.precautionsAr.map((precaution, idx) => (
                                   <li
                                     key={idx}
-                                    className="text-sm text-gray-700 flex items-start gap-2"
+                                    className="text-sm text-yellow-800 flex items-start gap-2"
                                   >
-                                    <span className="flex items-center justify-center w-5 h-5 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex-shrink-0 mt-0.5">
-                                      {idx + 1}
-                                    </span>
-                                    <span>{step}</span>
+                                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                    <span>{precaution}</span>
                                   </li>
                                 ))}
-                              </ol>
+                              </ul>
                             </div>
+                          )}
 
-                            {/* Materials */}
-                            {treatment.materials &&
-                              treatment.materials.length > 0 && (
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-900 mb-2">
-                                    المواد المطلوبة:
-                                  </p>
-                                  <div className="space-y-2">
-                                    {treatment.materials.map(
-                                      (material, idx) => (
-                                        <div
-                                          key={idx}
-                                          className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                                        >
-                                          <span className="text-sm text-gray-900">
-                                            {material.nameAr}
-                                          </span>
-                                          <span className="text-sm text-gray-600">
-                                            {material.quantityAr}
-                                          </span>
-                                        </div>
-                                      ),
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-
-                            {/* Timing & Frequency */}
-                            {(treatment.timingAr || treatment.frequencyAr) && (
-                              <div className="grid grid-cols-2 gap-4">
-                                {treatment.timingAr && (
-                                  <div>
-                                    <p className="text-xs text-gray-600 mb-1 flex items-center gap-1">
-                                      <Calendar className="w-3 h-3" />
-                                      التوقيت
-                                    </p>
-                                    <p className="text-sm text-gray-900">
-                                      {treatment.timingAr}
-                                    </p>
-                                  </div>
-                                )}
-                                {treatment.frequencyAr && (
-                                  <div>
-                                    <p className="text-xs text-gray-600 mb-1 flex items-center gap-1">
-                                      <Clock className="w-3 h-3" />
-                                      التكرار
-                                    </p>
-                                    <p className="text-sm text-gray-900">
-                                      {treatment.frequencyAr}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Precautions */}
-                            {treatment.precautionsAr &&
-                              treatment.precautionsAr.length > 0 && (
-                                <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                                  <p className="text-sm font-semibold text-yellow-900 mb-2">
-                                    احتياطات:
-                                  </p>
-                                  <ul className="space-y-1">
-                                    {treatment.precautionsAr.map(
-                                      (precaution, idx) => (
-                                        <li
-                                          key={idx}
-                                          className="text-sm text-yellow-800 flex items-start gap-2"
-                                        >
-                                          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                                          <span>{precaution}</span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-
-                            {/* Cost */}
-                            {treatment.cost && (
-                              <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded">
-                                <span className="text-sm font-medium text-blue-900">
-                                  التكلفة التقديرية:
-                                </span>
-                                <span className="text-sm font-bold text-blue-900">
-                                  {treatment.cost.min.toLocaleString("ar-SA")} -{" "}
-                                  {treatment.cost.max.toLocaleString("ar-SA")}{" "}
-                                  {treatment.cost.currency}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ),
-                  )}
+                          {/* Cost */}
+                          {treatment.cost && (
+                            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded">
+                              <span className="text-sm font-medium text-blue-900">
+                                التكلفة التقديرية:
+                              </span>
+                              <span className="text-sm font-bold text-blue-900">
+                                {treatment.cost.min.toLocaleString('ar-SA')} -{' '}
+                                {treatment.cost.max.toLocaleString('ar-SA')}{' '}
+                                {treatment.cost.currency}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -438,9 +394,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
       <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">
-              هل تحتاج إلى رأي خبير؟
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">هل تحتاج إلى رأي خبير؟</h3>
             <p className="text-sm text-gray-600 mt-1">
               يمكنك طلب استشارة من خبير زراعي للحصول على توصيات مخصصة
             </p>

@@ -6,10 +6,10 @@
  * Provides a consistent error UI with page name context.
  */
 
-"use client";
+'use client';
 
-import { ReactNode } from "react";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { ReactNode } from 'react';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface PageErrorBoundaryProps {
   children: ReactNode;
@@ -31,8 +31,8 @@ interface PageErrorBoundaryProps {
  */
 export function PageErrorBoundary({
   children,
-  pageName = "Page",
-  pageNameAr = "الصفحة",
+  pageName = 'Page',
+  pageNameAr = 'الصفحة',
 }: PageErrorBoundaryProps) {
   return (
     <ErrorBoundary
@@ -56,12 +56,8 @@ export function PageErrorBoundary({
               </svg>
             </div>
 
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              خطأ في {pageNameAr}
-            </h2>
-            <p className="text-gray-500 mb-1">
-              حدث خطأ غير متوقع أثناء تحميل هذه الصفحة
-            </p>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">خطأ في {pageNameAr}</h2>
+            <p className="text-gray-500 mb-1">حدث خطأ غير متوقع أثناء تحميل هذه الصفحة</p>
             <p className="text-gray-400 text-sm mb-6">
               An unexpected error occurred while loading {pageName}
             </p>

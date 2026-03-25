@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "appTitle": "SAHOOL Atmosphere",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "weatherOverview": "Weather Overview",
+  "temperature": "Temperature",
+  "humidity": "Humidity",
+  "windSpeed": "Wind Speed",
+  "pressure": "Pressure",
+  "forecast": "Forecast",
+  "settings": "Settings",
+  "refresh": "Refresh",
+  "noData": "No data available",
+  "error": "An error occurred",
+  "retry": "Retry",
+  "loading": "Loading..."
+}

@@ -3,11 +3,7 @@
  * Useful decorators for SAHOOL platform authentication and authorization
  */
 
-import {
-  createParamDecorator,
-  ExecutionContext,
-  SetMetadata,
-} from "@nestjs/common";
+import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
 
 /**
  * Public route decorator
@@ -26,7 +22,7 @@ import {
  * }
  * ```
  */
-export const Public = () => SetMetadata("isPublic", true);
+export const Public = () => SetMetadata('isPublic', true);
 
 /**
  * Roles decorator
@@ -48,7 +44,7 @@ export const Public = () => SetMetadata("isPublic", true);
  * }
  * ```
  */
-export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 /**
  * Require Permissions decorator
@@ -71,7 +67,7 @@ export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
  * ```
  */
 export const RequirePermissions = (...permissions: string[]) =>
-  SetMetadata("permissions", permissions);
+  SetMetadata('permissions', permissions);
 
 /**
  * Current User decorator
@@ -101,7 +97,7 @@ export const CurrentUser = createParamDecorator(
     const user = request.user;
 
     return data ? user?.[data] : user;
-  },
+  }
 );
 
 /**
@@ -120,12 +116,10 @@ export const CurrentUser = createParamDecorator(
  * }
  * ```
  */
-export const UserId = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): string => {
-    const request = ctx.switchToHttp().getRequest();
-    return request.user?.id;
-  },
-);
+export const UserId = createParamDecorator((data: unknown, ctx: ExecutionContext): string => {
+  const request = ctx.switchToHttp().getRequest();
+  return request.user?.id;
+});
 
 /**
  * User Roles decorator
@@ -146,12 +140,10 @@ export const UserId = createParamDecorator(
  * }
  * ```
  */
-export const UserRoles = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): string[] => {
-    const request = ctx.switchToHttp().getRequest();
-    return request.user?.roles || [];
-  },
-);
+export const UserRoles = createParamDecorator((data: unknown, ctx: ExecutionContext): string[] => {
+  const request = ctx.switchToHttp().getRequest();
+  return request.user?.roles || [];
+});
 
 /**
  * Tenant ID decorator
@@ -172,8 +164,8 @@ export const UserRoles = createParamDecorator(
 export const TenantId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user?.tenantId || request.headers["x-tenant-id"];
-  },
+    return request.user?.tenantId || request.headers['x-tenant-id'];
+  }
 );
 
 /**
@@ -196,7 +188,7 @@ export const UserPermissions = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string[] => {
     const request = ctx.switchToHttp().getRequest();
     return request.user?.permissions || [];
-  },
+  }
 );
 
 /**
@@ -224,14 +216,14 @@ export const AuthToken = createParamDecorator(
       return undefined;
     }
 
-    const [scheme, token] = authorization.split(" ");
+    const [scheme, token] = authorization.split(' ');
 
-    if (scheme.toLowerCase() !== "bearer") {
+    if (scheme.toLowerCase() !== 'bearer') {
       return undefined;
     }
 
     return token;
-  },
+  }
 );
 
 /**
@@ -261,16 +253,16 @@ export const RequestLanguage = createParamDecorator(
     }
 
     // Check Accept-Language header
-    const acceptLanguage = request.headers["accept-language"];
+    const acceptLanguage = request.headers['accept-language'];
     if (acceptLanguage) {
       // Extract first language from Accept-Language header
-      const lang = acceptLanguage.split(",")[0].split("-")[0];
+      const lang = acceptLanguage.split(',')[0].split('-')[0];
       return lang;
     }
 
     // Default to English
-    return "en";
-  },
+    return 'en';
+  }
 );
 
 /**

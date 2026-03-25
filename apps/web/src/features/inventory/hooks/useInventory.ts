@@ -3,20 +3,20 @@
  * خطافات React لميزة المخزون
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { inventoryApi } from "../api";
-import type { InventoryFilters, InventoryFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { inventoryApi } from '../api';
+import type { InventoryFilters, InventoryFormData } from '../types';
 
 export const inventoryKeys = {
-  all: ["inventory"] as const,
-  lists: () => [...inventoryKeys.all, "list"] as const,
+  all: ['inventory'] as const,
+  lists: () => [...inventoryKeys.all, 'list'] as const,
   list: (filters?: InventoryFilters) => [...inventoryKeys.lists(), filters] as const,
-  detail: (id: string) => [...inventoryKeys.all, "detail", id] as const,
-  stats: () => [...inventoryKeys.all, "stats"] as const,
+  detail: (id: string) => [...inventoryKeys.all, 'detail', id] as const,
+  stats: () => [...inventoryKeys.all, 'stats'] as const,
   transactions: {
-    all: ["inventory-transactions"] as const,
+    all: ['inventory-transactions'] as const,
     list: (itemId?: string) => [...inventoryKeys.transactions.all, itemId] as const,
   },
 };
@@ -101,7 +101,7 @@ export function useAdjustInventory() {
       adjustment,
     }: {
       id: string;
-      adjustment: { quantity: number; type: "in" | "out" | "adjustment"; reason: string };
+      adjustment: { quantity: number; type: 'in' | 'out' | 'adjustment'; reason: string };
     }) => inventoryApi.adjustQuantity(id, adjustment),
     onSuccess: (updatedItem) => {
       queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });

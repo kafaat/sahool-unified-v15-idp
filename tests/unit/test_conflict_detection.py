@@ -349,8 +349,8 @@ class TestErrorCodeConflicts:
         content = codes_file.read_text(encoding="utf-8")
         codes: dict[str, str] = {}
 
-        # Match KEY: "VALUE",
-        pattern = re.compile(r'(\w+):\s*"([^"]+)"')
+        # Match KEY: "VALUE", or KEY: 'VALUE',
+        pattern = re.compile(r"""(\w+):\s*['"]([^'"]+)['"]""")
         in_error_codes = False
         for line in content.splitlines():
             if "ERROR_CODES" in line and "=" in line and "{" in line:
@@ -375,11 +375,11 @@ class TestErrorCodeConflicts:
         content = codes_file.read_text(encoding="utf-8")
         messages: dict[str, dict] = {}
 
-        # Find error message blocks with en: and ar: fields
+        # Find error message blocks with en: and ar: fields (single or double quotes)
         block_pattern = re.compile(
             r"\[ERROR_CODES\.(\w+)\]:\s*\{[^}]*"
-            r'en:\s*"([^"]*)"[^}]*'
-            r'ar:\s*"([^"]*)"',
+            r"""en:\s*['"]([^'"]*)['"][^}]*"""
+            r"""ar:\s*['"]([^'"]*)['"]""",
             re.DOTALL,
         )
         for match in block_pattern.finditer(content):
@@ -837,7 +837,7 @@ class TestCrossContractConsistency:
             pytest.skip("contracts/index.ts not found")
 
         content = index_file.read_text(encoding="utf-8")
-        match = re.search(r'CONTRACT_VERSION\s*=\s*"(\d+\.\d+\.\d+)"', content)
+        match = re.search(r"""CONTRACT_VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]""", content)
         assert match, "CONTRACT_VERSION not found or not semver format"
 
         version = match.group(1)

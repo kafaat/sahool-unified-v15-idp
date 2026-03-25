@@ -11,11 +11,11 @@ from uuid import uuid4
 
 import pytest
 
-TEST_TENANT_ID = str(uuid4())
-
 from shared.events.contracts import BaseEvent
 from shared.events.models import EventMetadata, EventPriority, EventStatus
 from shared.events.publisher import EventPublisher, PublisherConfig
+
+TEST_TENANT_ID = str(uuid4())
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Mock Event Classes
@@ -578,6 +578,7 @@ class TestEventSystemIntegration:
             name="Field 1",
             area_hectares=50.0,
             correlation_id=correlation_id,
+            tenant_id=TEST_TENANT_ID,
         )
 
         event2 = CropPlantedEvent(
@@ -586,10 +587,14 @@ class TestEventSystemIntegration:
             planting_date="2024-01-01",
             expected_harvest_date="2024-06-01",
             correlation_id=correlation_id,
+            tenant_id=TEST_TENANT_ID,
         )
 
-        await publisher.publish_event("sahool.field.created", event1)
-        await publisher.publish_event("sahool.crop.planted", event2)
+        result1 = await publisher.publish_event("sahool.field.created", event1)
+        result2 = await publisher.publish_event("sahool.crop.planted", event2)
+
+        assert result1 is True
+        assert result2 is True
 
         # Both events should have same correlation ID
         assert event1.correlation_id == correlation_id

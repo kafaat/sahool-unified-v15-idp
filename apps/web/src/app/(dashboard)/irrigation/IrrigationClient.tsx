@@ -20,6 +20,20 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
+/** Convert datetime-local input value back to ISO 8601 string */
+const toISO = (localDateStr: string): string => {
+  if (!localDateStr) return '';
+  return new Date(localDateStr).toISOString();
+};
+
+/** Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) */
+const toLocalInput = (isoStr: string): string => {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
 
@@ -153,20 +167,6 @@ export default function IrrigationClient() {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  /** Convert datetime-local input value back to ISO 8601 string */
-  const toISO = (localDateStr: string): string => {
-    if (!localDateStr) return '';
-    return new Date(localDateStr).toISOString();
-  };
-
-  /** Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) */
-  const toLocalInput = (isoStr: string): string => {
-    if (!isoStr) return '';
-    const d = new Date(isoStr);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   const now = new Date();

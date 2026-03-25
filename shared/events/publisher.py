@@ -292,7 +292,7 @@ class EventPublisher:
             "buffer_overflow_count": self._buffer_overflow_count,
             "service_name": self.service_name,
             "service_version": self.service_version,
-            "rejected_total": self._rejected_total,
+            "rejected_count": self._rejected_total,
             "rejected_buffer_size": len(self._rejected_events),
         }
 
@@ -547,10 +547,15 @@ class EventPublisher:
             return False
 
         # Tenant propagation: mirror publish_event() behavior
-        if isinstance(data, dict) and not data.get("tenant_id"):
-            ctx_tenant = _get_current_tenant_id()
-            if ctx_tenant:
-                data["tenant_id"] = ctx_tenant
+        if isinstance(data, dict):
+            # Normalize camelCase tenantId → tenant_id for compatibility
+            if not data.get("tenant_id") and data.get("tenantId"):
+                data["tenant_id"] = data["tenantId"]
+            # Pull from request context if still missing
+            if not data.get("tenant_id"):
+                ctx_tenant = _get_current_tenant_id()
+                if ctx_tenant:
+                    data["tenant_id"] = ctx_tenant
 
         if isinstance(data, dict) and not data.get("tenant_id"):
             logger.error("publish_json rejected without tenant_id: subject=%s", subject)

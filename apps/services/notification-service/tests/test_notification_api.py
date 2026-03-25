@@ -116,7 +116,7 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
         except ImportError:
             pass
 
-    client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+    client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
     yield client
 
     app.dependency_overrides.clear()
@@ -434,7 +434,7 @@ class TestErrorHandling:
             pass
 
         try:
-            with TestClient(app, raise_server_exceptions=False, headers={"X-Tenant-ID": "test-tenant-1"}) as client:
+            with TestClient(app, raise_server_exceptions=False, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"}) as client:
                 with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
                     response = client.get("/farmer/farmer-123")
                     # Service should handle DB errors gracefully and return a server error

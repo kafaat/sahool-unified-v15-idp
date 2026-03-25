@@ -68,6 +68,10 @@ except ImportError:
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"
 PORT = int(os.getenv("PORT", "8253"))
@@ -786,7 +790,8 @@ async def simulate_field(req: SimulationRequest, user: User = Depends(get_curren
     try:
         result = dt_engine.simulate(req)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        _logger.error("Simulation failed for field %s: %s", req.field_state.field_id, e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Simulation failed | فشلت المحاكاة")
 
     nc = getattr(app.state, "nc", None)
     if nc:

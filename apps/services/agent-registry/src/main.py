@@ -539,8 +539,8 @@ async def get_all_health_statuses():
         }
 
     except Exception as e:
-        logger.error("get_all_health_statuses_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("get_all_health_statuses_failed", error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 # ---------------------------------------------------------------------------

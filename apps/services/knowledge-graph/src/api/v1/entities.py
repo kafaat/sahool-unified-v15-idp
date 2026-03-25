@@ -3,9 +3,12 @@ Entity API endpoints
 نقاط نهاية API الكيانات
 """
 
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+logger = logging.getLogger(__name__)
 
 from models import Crop, Disease, Treatment
 
@@ -52,7 +55,8 @@ async def list_crops(
             "data": crops,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list crops: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/crops/{crop_id}")
@@ -78,7 +82,8 @@ async def get_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/crops")
@@ -106,7 +111,8 @@ async def create_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create crop: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -133,7 +139,8 @@ async def list_diseases(
             "data": diseases,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list diseases: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/diseases/{disease_id}")

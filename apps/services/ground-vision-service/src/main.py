@@ -16,7 +16,7 @@ try:
 except ImportError:
     structlog = None  # type: ignore[assignment]
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -246,6 +246,14 @@ if HAS_ERROR_HANDLERS:
 app.add_middleware(TenantContextMiddleware)
 
 
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-ID"),
+) -> str:
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-ID header required")
+    return x_tenant_id
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -387,7 +395,7 @@ async def register_camera(request: CameraRegistration, current_user: User = Depe
 
 @app.get("/api/v1/cameras", tags=["Cameras"])
 async def list_cameras(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     tower_id: str = Query(None, description="Filter by tower"),
 ):
     """
@@ -419,7 +427,7 @@ async def list_cameras(
 
 
 @app.get("/api/v1/cameras/{camera_id}", tags=["Cameras"])
-async def get_camera(camera_id: str, tenant_id: str = Query(..., description="Tenant identifier")):
+async def get_camera(camera_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get camera details.
 

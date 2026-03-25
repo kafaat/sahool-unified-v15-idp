@@ -22,7 +22,7 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from jose import jwt
+import jwt
 
 
 @pytest.fixture

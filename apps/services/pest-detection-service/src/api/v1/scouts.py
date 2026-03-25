@@ -17,18 +17,16 @@ from pydantic import BaseModel, Field
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = structlog.get_logger(__name__)
@@ -157,7 +155,7 @@ async def list_reports(
     status: ReportStatus | None = None,
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    _user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     List scout reports.
@@ -181,7 +179,7 @@ async def list_reports(
 
 
 @router.post("/scouts/reports", response_model=ScoutReport)
-async def create_report(report_data: ScoutReportCreate):
+async def create_report(report_data: ScoutReportCreate, current_user: User = Depends(get_current_user)):
     """
     Create a new scout report.
     إنشاء تقرير مسح حقلي جديد.
@@ -222,7 +220,7 @@ async def get_report(report_id: str):
 
 
 @router.put("/scouts/reports/{report_id}", response_model=ScoutReport)
-async def update_report(report_id: str, report_data: ScoutReportCreate):
+async def update_report(report_id: str, report_data: ScoutReportCreate, current_user: User = Depends(get_current_user)):
     """
     Update scout report.
     تحديث تقرير المسح الحقلي.
@@ -249,7 +247,7 @@ async def update_report(report_id: str, report_data: ScoutReportCreate):
 
 
 @router.delete("/scouts/reports/{report_id}")
-async def delete_report(report_id: str, _user=Depends(get_current_user)):
+async def delete_report(report_id: str, current_user: User = Depends(get_current_user)):
     """
     Delete scout report.
     حذف تقرير المسح الحقلي.
@@ -284,7 +282,7 @@ async def get_reports_by_field(
 
 
 @router.post("/scouts/reports/{report_id}/observations", response_model=Observation)
-async def add_observation(report_id: str, obs_data: ObservationCreate):
+async def add_observation(report_id: str, obs_data: ObservationCreate, current_user: User = Depends(get_current_user)):
     """
     Add observation to report.
     إضافة ملاحظة إلى التقرير.

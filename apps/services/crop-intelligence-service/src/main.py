@@ -1566,7 +1566,7 @@ async def export_vrt(
 
 
 @app.post("/api/v1/diagnose")
-def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp")):
+def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"), current_user: User = Depends(get_current_user)):
     """
     تشخيص سريع بدون حفظ
 
@@ -1708,6 +1708,7 @@ async def analyze_zone_diseases(
     tenant_id: str | None = Query(
         default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
     ),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحليل أمراض المنطقة من آخر رصد
@@ -1833,7 +1834,7 @@ class FertilizerPlanRequest(BaseModel):
 
 
 @app.post("/api/v1/nutrients/detect")
-def detect_nutrients(body: NutrientDetectionRequest):
+def detect_nutrients(body: NutrientDetectionRequest, current_user: User = Depends(get_current_user)):
     """كشف نقص العناصر الغذائية من المؤشرات النباتية"""
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
@@ -1864,7 +1865,7 @@ def detect_nutrients(body: NutrientDetectionRequest):
 
 
 @app.post("/api/v1/nutrients/fertilizer-plan")
-def create_fertilizer_plan(body: FertilizerPlanRequest):
+def create_fertilizer_plan(body: FertilizerPlanRequest, current_user: User = Depends(get_current_user)):
     """إنشاء خطة تسميد مخصصة"""
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
@@ -1897,6 +1898,7 @@ async def analyze_zone_nutrients(
     field_id: str,
     zone_id: str,
     field_area_hectares: float = Query(default=1.0, gt=0),
+    current_user: User = Depends(get_current_user),
 ):
     """تحليل العناصر الغذائية في المنطقة من آخر رصد"""
     # Try to get from database first
@@ -2019,7 +2021,7 @@ class YieldPredictionRequest(BaseModel):
 
 
 @app.post("/api/v1/yield/predict")
-def predict_crop_yield(body: YieldPredictionRequest):
+def predict_crop_yield(body: YieldPredictionRequest, current_user: User = Depends(get_current_user)):
     """تنبؤ المحصول من المؤشرات النباتية"""
     try:
         crop = YieldCropType(body.crop_type.lower())
@@ -2061,6 +2063,7 @@ async def predict_zone_yield(
     crop_type: str = Query(default="wheat", description="نوع المحصول"),
     field_area_hectares: float = Query(default=1.0, gt=0),
     growth_stage_percent: float = Query(default=50.0, ge=0, le=100),
+    current_user: User = Depends(get_current_user),
 ):
     """تنبؤ محصول المنطقة من آخر رصد"""
     db_obs = await db_get_observations(field_id, zone_id, 1)
@@ -2137,7 +2140,7 @@ class PestAssessmentRequest(BaseModel):
 
 
 @app.post("/api/v1/pests/assess")
-def assess_pests(body: PestAssessmentRequest):
+def assess_pests(body: PestAssessmentRequest, current_user: User = Depends(get_current_user)):
     """تقييم مخاطر الآفات بناءً على الظروف البيئية"""
     risks = assess_pest_risks(
         temp_c=body.temp_c,
@@ -2169,6 +2172,7 @@ async def assess_zone_pests(
     humidity_pct: float = Query(..., ge=0, le=100),
     crop_type: str = Query(default="general"),
     season: str = Query(default="summer"),
+    current_user: User = Depends(get_current_user),
 ):
     """تقييم مخاطر الآفات في المنطقة"""
     db_obs = await db_get_observations(field_id, zone_id, 1)
@@ -2240,6 +2244,7 @@ async def comprehensive_analysis(
     tenant_id: str | None = Query(
         default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
     ),
+    current_user: User = Depends(get_current_user),
 ):
     """تحليل شامل للحقل"""
     try:

@@ -14,6 +14,21 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request
 
+# Authentication imports - fail-secure fallback
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 from ..models.events import EventCreate, EventResponse, EventStatus, EventType
 from ..models.rules import (
     Rule,
@@ -90,6 +105,7 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 async def create_event(
     event_data: EventCreate,
     request: Request,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -359,6 +375,7 @@ async def list_events(
 async def update_event_status(
     event_id: str = Path(..., description="معرف الحدث"),
     new_status: EventStatus = Query(..., description="الحالة الجديدة"),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -504,6 +521,7 @@ async def get_field_event_stats(
 @router.post("/rules", response_model=RuleResponse, tags=["Rules"])
 async def create_rule(
     rule_data: RuleCreate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -741,6 +759,7 @@ async def list_rules(
 async def update_rule(
     rule_id: str = Path(..., description="معرف القاعدة"),
     update_data: RuleUpdate = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -820,6 +839,7 @@ async def update_rule(
 @router.delete("/rules/{rule_id}", tags=["Rules"])
 async def delete_rule(
     rule_id: str = Path(..., description="معرف القاعدة"),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """

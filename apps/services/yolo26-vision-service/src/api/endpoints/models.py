@@ -15,6 +15,20 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from src.core.config import settings
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 from src.models.versioning import (
     ModelMetrics,
     ModelStage,
@@ -209,6 +223,7 @@ async def get_specific_version(
 async def register_version(
     request: RegisterVersionRequest,
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> ModelVersionResponse:
     """Register a new model version."""
     try:
@@ -263,6 +278,7 @@ async def activate_version(
     variant: str,
     version: str,
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Activate a specific version."""
     success = registry.activate_version(task, variant, version)
@@ -304,6 +320,7 @@ async def rollback_version(
     variant: str,
     to_version: str | None = Query(default=None, description="Specific version to rollback to"),
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Rollback to a previous version."""
     rolled_back = registry.rollback(task, variant, to_version)
@@ -344,6 +361,7 @@ async def update_version_metrics(
     version: str,
     metrics: ModelMetricsUpdate,
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Update metrics for a version."""
     model_metrics = ModelMetrics(
@@ -387,6 +405,7 @@ async def deprecate_version(
     variant: str,
     version: str,
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Deprecate a version."""
     success = registry.deprecate_version(task, variant, version)
@@ -425,6 +444,7 @@ async def promote_to_production(
     variant: str,
     version: str,
     registry: ModelVersionRegistry = Depends(get_registry),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Promote a version to production."""
     success = registry.promote_to_production(task, variant, version)
@@ -540,6 +560,7 @@ async def preload_model(
     task: str,
     variant: str = Query(default="m", description="Model variant"),
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Preload a model into memory."""
     try:
@@ -587,6 +608,7 @@ async def preload_model(
 )
 async def clear_model_cache(
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, str]:
     """Clear the model cache."""
     manager.clear_cache()

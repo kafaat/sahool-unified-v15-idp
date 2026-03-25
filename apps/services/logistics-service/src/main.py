@@ -40,13 +40,12 @@ except ImportError:
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    class User(BaseModel):  # type: ignore[no-redef]
-        id: str = ""
-        tenant_id: str = ""
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
     async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Security headers middleware
@@ -821,6 +820,7 @@ async def get_vehicle(
 @app.post("/api/v1/vehicles", response_model=Vehicle, status_code=201)
 async def create_vehicle(
     data: VehicleCreate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -869,6 +869,7 @@ async def create_vehicle(
 async def update_vehicle(
     vehicle_id: str,
     data: VehicleUpdate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -898,6 +899,7 @@ async def update_vehicle_location(
     lat: float = Query(...),
     lon: float = Query(...),
     fuel_level: float | None = Query(None),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -981,6 +983,7 @@ async def get_storage_facility(
 @app.post("/api/v1/storage-facilities", response_model=StorageFacility, status_code=201)
 async def create_storage_facility(
     data: StorageFacilityCreate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1035,6 +1038,7 @@ async def update_facility_conditions(
     facility_id: str,
     temperature_c: float | None = Query(None),
     humidity_percent: float | None = Query(None),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1114,6 +1118,7 @@ async def list_harvest_collections(
 @app.post("/api/v1/collections", response_model=HarvestCollection, status_code=201)
 async def create_harvest_collection(
     data: HarvestCollectionCreate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1169,6 +1174,7 @@ async def create_harvest_collection(
 async def assign_vehicle_to_collection(
     collection_id: str,
     vehicle_id: str = Query(...),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1199,6 +1205,7 @@ async def update_collection_status(
     collection_id: str,
     status: ShipmentStatus = Query(...),
     actual_quantity_kg: float | None = Query(None),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1235,6 +1242,7 @@ async def update_collection_status(
 @app.post("/api/v1/routes/optimize", response_model=RouteOptimizationResult)
 async def optimize_route(
     data: RouteOptimizationRequest,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1358,6 +1366,7 @@ async def list_shipments(
 @app.post("/api/v1/shipments", response_model=Shipment, status_code=201)
 async def create_shipment(
     data: ShipmentCreate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -1414,6 +1423,7 @@ async def update_shipment_status(
     status: ShipmentStatus = Query(...),
     lat: float | None = Query(None),
     lon: float | None = Query(None),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """

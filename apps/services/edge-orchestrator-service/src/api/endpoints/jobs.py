@@ -32,6 +32,19 @@ from src.api.schemas import (
 from src.core.config import settings
 from src.utils.device_manager import DeviceManager, get_device_manager
 
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/edge", tags=["jobs", "edge"])
@@ -198,6 +211,7 @@ async def create_job(
     background_tasks: BackgroundTasks,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeJob:
     """
     Create and queue a new edge computing job.
@@ -426,6 +440,7 @@ async def cancel_job(
     job_id: UUID,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeJob:
     """
     Cancel a pending or running job.
@@ -510,6 +525,7 @@ async def retry_job(
     background_tasks: BackgroundTasks,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> EdgeJob:
     """
     Retry a failed or cancelled job.

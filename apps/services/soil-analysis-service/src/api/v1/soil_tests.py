@@ -16,18 +16,16 @@ logger = structlog.get_logger()
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 router = APIRouter(prefix="/api/v1/soil", tags=["soil-analysis"])
@@ -127,7 +125,7 @@ class TrendRequest(BaseModel):
 async def create_soil_test(
     request: SoilTestCreateRequest,
     req: Request,
-    _user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Create a new soil test record - إنشاء سجل تحليل تربة جديد"""
@@ -214,7 +212,7 @@ async def get_field_soil_tests(field_id: str):
 
 
 @router.delete("/tests/{test_id}", status_code=204)
-async def delete_soil_test(test_id: str, _user=Depends(get_current_user)):
+async def delete_soil_test(test_id: str, current_user: User = Depends(get_current_user)):
     """Delete soil test - حذف تحليل التربة"""
     if test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -223,7 +221,7 @@ async def delete_soil_test(test_id: str, _user=Depends(get_current_user)):
 
 
 @router.post("/interpret")
-async def interpret_soil_test(request: InterpretRequest, req: Request):
+async def interpret_soil_test(request: InterpretRequest, req: Request, current_user: User = Depends(get_current_user)):
     """Interpret soil test results - تفسير نتائج تحليل التربة"""
     if request.test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -289,7 +287,7 @@ async def interpret_soil_test(request: InterpretRequest, req: Request):
 
 
 @router.post("/recommendations/amendment-plan")
-async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
+async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request, current_user: User = Depends(get_current_user)):
     """Generate soil amendment plan - إنشاء خطة تعديل التربة"""
     if request.test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -359,7 +357,7 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
 
 
 @router.post("/trends")
-async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
@@ -446,7 +444,7 @@ async def get_crop_nutrient_requirements(crop: str):
 
 
 @router.post("/interpretation/nutrient-status")
-async def check_nutrient_status(request: NutrientStatusRequest):
+async def check_nutrient_status(request: NutrientStatusRequest, current_user: User = Depends(get_current_user)):
     """Check individual nutrient status - فحص حالة عنصر غذائي فردي"""
     try:
         from shared.soil_testing import get_nutrient_status
@@ -476,7 +474,7 @@ async def check_nutrient_status(request: NutrientStatusRequest):
 
 
 @router.post("/interpretation/ph-status")
-async def check_ph_status(request: PhStatusRequest):
+async def check_ph_status(request: PhStatusRequest, current_user: User = Depends(get_current_user)):
     """Check soil pH status - فحص حالة حموضة التربة"""
     try:
         from shared.soil_testing import get_ph_status
@@ -488,7 +486,7 @@ async def check_ph_status(request: PhStatusRequest):
 
 
 @router.post("/interpretation/ec-status")
-async def check_ec_status(request: EcStatusRequest):
+async def check_ec_status(request: EcStatusRequest, current_user: User = Depends(get_current_user)):
     """Check soil EC/salinity status - فحص حالة ملوحة التربة"""
     try:
         from shared.soil_testing import get_ec_status
@@ -500,7 +498,7 @@ async def check_ec_status(request: EcStatusRequest):
 
 
 @router.post("/recommendations/calculate-rate")
-async def calculate_rate(request: FertilizerRateRequest):
+async def calculate_rate(request: FertilizerRateRequest, current_user: User = Depends(get_current_user)):
     """Calculate fertilizer application rate - حساب معدل تطبيق السماد"""
     try:
         from shared.soil_testing import calculate_fertilizer_rate
@@ -519,7 +517,7 @@ async def calculate_rate(request: FertilizerRateRequest):
 
 
 @router.post("/trends/nutrient")
-async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id)):
+async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
@@ -555,7 +553,7 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: st
 
 
 @router.post("/trends/compare-periods")
-async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id)):
+async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 

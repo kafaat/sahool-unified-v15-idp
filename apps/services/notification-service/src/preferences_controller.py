@@ -224,7 +224,7 @@ async def update_preference(
     Available channels: email, sms, push, whatsapp, in_app
     """
     # Enforce tenant isolation
-    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id
@@ -267,7 +267,7 @@ async def set_quiet_hours(
     Example: 22:00 to 06:00 (10 PM to 6 AM)
     """
     # Enforce tenant isolation
-    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id
@@ -310,7 +310,7 @@ async def bulk_update_preferences(
     Useful for initial setup or updating all preferences together.
     """
     # Enforce tenant isolation
-    if hasattr(current_user, 'tenant_id') and current_user.tenant_id and current_user.tenant_id != tenant_id:
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
         raise HTTPException(403, "Tenant mismatch")
     # Enforce ownership: use authenticated user's ID
     effective_user_id = current_user.id

@@ -76,17 +76,20 @@ class WebSocketClient {
     this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
+    // Use explicit token param if provided; otherwise rely on httpOnly cookies
+    // (WebSocket handshakes send cookies automatically when same-origin).
     const authToken = token ?? null;
     this.authToken = authToken;
 
     try {
-      let wsUrl = `${this.url}/events`;
+      const wsUrl = `${this.url}/events`;
       const protocols: string[] = [];
       if (authToken) {
         // Send token via Sec-WebSocket-Protocol header instead of URL query
         // This avoids token leakage in server logs and browser history
         protocols.push(`access_token.${authToken}`);
       }
+      // When no explicit token, cookies are sent automatically by the browser
       this.ws = new WebSocket(wsUrl, protocols.length > 0 ? protocols : undefined);
 
       this.ws.onopen = () => {

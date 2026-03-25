@@ -25,7 +25,11 @@ except ImportError:
         tenant_id: str = ""
 
     async def get_current_user():
-        return None
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
 
 
 logger = logging.getLogger("sahool-notifications.preferences-controller")
@@ -219,9 +223,11 @@ async def update_preference(
     Configure which channels to use for each event type.
     Available channels: email, sms, push, whatsapp, in_app
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
     try:
         result = await PreferencesService.update_event_preference(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             event_type=request.event_type,
             channels=request.channels,
             enabled=request.enabled,
@@ -257,9 +263,11 @@ async def set_quiet_hours(
     Time format: HH:MM (24-hour format)
     Example: 22:00 to 06:00 (10 PM to 6 AM)
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
     try:
         result = await PreferencesService.set_quiet_hours(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             quiet_hours_start=request.quiet_hours_start,
             quiet_hours_end=request.quiet_hours_end,
             tenant_id=tenant_id,
@@ -295,9 +303,11 @@ async def bulk_update_preferences(
 
     Useful for initial setup or updating all preferences together.
     """
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id if current_user and current_user.id else request.user_id
     try:
         result = await PreferencesService.bulk_update_preferences(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             preferences=request.preferences,
             tenant_id=tenant_id,
         )

@@ -99,6 +99,8 @@ variable "eks_public_access_enabled" {
 variable "eks_public_access_cidrs" {
   description = "قائمة CIDR المسموح بها للوصول العام لـ EKS / Allowed CIDR blocks for EKS public access"
   type        = list(string)
+  # Default: empty list = no public access (private-only EKS API endpoint).
+  # Override with specific CIDRs (e.g., VPN egress IPs) when public access is needed.
   default     = []
 
   validation {

@@ -149,4 +149,4 @@ securityContext:
 
 # Network Policy
 networkPolicy:
-  enabled: false
+  enabled: true

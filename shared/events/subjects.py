@@ -200,6 +200,16 @@ SAHOOL_BILLING_PAYMENT_REFUNDED = "sahool.billing.payment.refunded"
 SAHOOL_BILLING_INVOICE_CREATED = "sahool.billing.invoice.created"
 SAHOOL_BILLING_INVOICE_PAID = "sahool.billing.invoice.paid"
 SAHOOL_BILLING_INVOICE_OVERDUE = "sahool.billing.invoice.overdue"
+SAHOOL_BILLING_INVOICE_GENERATED = "sahool.billing.invoice_generated"
+
+# Payment extended events
+SAHOOL_BILLING_PAYMENT_CREATED = "sahool.billing.payment.created"
+SAHOOL_BILLING_PAYMENT_SUCCEEDED = "sahool.billing.payment.succeeded"
+
+# Subscription extended events
+SAHOOL_BILLING_SUBSCRIPTION_PAST_DUE = "sahool.billing.subscription.past_due"
+SAHOOL_BILLING_SUBSCRIPTION_PLAN_CHANGED = "sahool.billing.subscription.plan_changed"
+SAHOOL_BILLING_SUBSCRIPTION_TRIAL_EXPIRED = "sahool.billing.subscription.trial_expired"
 
 # Quota events
 SAHOOL_BILLING_QUOTA_EXCEEDED = "sahool.billing.quota.exceeded"
@@ -279,12 +289,32 @@ SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Advisory Subjects - موضوعات الاستشارات الزراعية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_ADVISORY_RECOMMENDATION_ISSUED = "sahool.advisory.recommendation_issued"
+SAHOOL_ADVISORY_FERTILIZER_PLAN_ISSUED = "sahool.advisory.fertilizer_plan_issued"
+SAHOOL_ADVISORY_NUTRIENT_ASSESSMENT_ISSUED = "sahool.advisory.nutrient_assessment_issued"
+
+SAHOOL_ADVISORY_ALL = "sahool.advisory.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Alert Subjects - موضوعات التنبيهات
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_ALERT_CREATED = "sahool.alert.created"
 SAHOOL_ALERT_ACKNOWLEDGED = "sahool.alert.acknowledged"
 SAHOOL_ALERT_RESOLVED = "sahool.alert.resolved"
+SAHOOL_ALERT_UPDATED = "sahool.alert.updated"
+SAHOOL_ALERT_EXPIRED = "sahool.alert.expired"
+SAHOOL_ALERT_TRIGGERED = "sahool.alert.triggered"
+
+# Agricultural alert types
+SAHOOL_ALERT_STRESS_DETECTION = "sahool.alert.stress_detection"
+SAHOOL_ALERT_LAI_ANOMALY = "sahool.alert.lai_anomaly"
+SAHOOL_ALERT_PRE_HARVEST = "sahool.alert.pre_harvest"
+SAHOOL_ALERT_HARVEST_READINESS = "sahool.alert.harvest_readiness"
 
 SAHOOL_ALERT_ALL = "sahool.alert.*"
 

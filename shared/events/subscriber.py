@@ -115,7 +115,7 @@ class SubscriberConfig(BaseModel):
     tls_key_path: str | None = Field(default=None, description="Path to client key")
 
     @model_validator(mode="after")
-    def _load_tls_from_env(self) -> SubscriberConfig:
+    def _load_tls_from_env(self) -> "SubscriberConfig":
         if os.getenv("NATS_TLS_ENABLED", "").lower() in ("true", "1", "yes"):
             self.tls_enabled = True
             self.tls_ca_path = self.tls_ca_path or os.getenv("NATS_TLS_CA")
@@ -327,7 +327,6 @@ class EventSubscriber:
             connect_opts = {}
             if self.config.tls_enabled:
                 import ssl
-
                 tls_context = ssl.create_default_context()
                 if self.config.tls_ca_path:
                     tls_context.load_verify_locations(self.config.tls_ca_path)

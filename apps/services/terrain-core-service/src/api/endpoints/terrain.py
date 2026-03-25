@@ -276,6 +276,7 @@ async def analyze_terrain(
     request_data: TerrainAnalysisRequest,
     dem_processor: DEMProcessor = Depends(get_dem_processor),
     terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
 ):
     """Perform full terrain analysis for a field | إجراء تحليل كامل للتضاريس"""
     start_time = time.time()

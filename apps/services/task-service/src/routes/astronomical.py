@@ -239,6 +239,7 @@ async def create_task_with_astronomical_recommendation(
     data: AstronomicalTaskCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create task with astronomical recommendation
@@ -353,6 +354,7 @@ async def create_task_with_astronomical_recommendation(
 async def validate_date_for_activity(
     data: DateValidationRequest,
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Validate date suitability for agricultural activity

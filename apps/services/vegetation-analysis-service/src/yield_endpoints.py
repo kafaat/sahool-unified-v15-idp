@@ -161,7 +161,7 @@ class RegionalYieldStats(BaseModel):
 
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
-async def predict_yield(request: YieldPredictionRequest):
+async def predict_yield(request: YieldPredictionRequest, current_user: User = Depends(get_current_user)):
     """
     التنبؤ بإنتاجية المحصول | Predict Crop Yield
 

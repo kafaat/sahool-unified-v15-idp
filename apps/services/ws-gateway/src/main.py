@@ -482,6 +482,7 @@ class BroadcastRequest(BaseModel):
 async def broadcast_message(
     req: BroadcastRequest,
     authorization: str | None = Header(None),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Broadcast a message to specific rooms or users.

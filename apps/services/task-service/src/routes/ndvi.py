@@ -130,6 +130,7 @@ async def create_task_from_ndvi_alert(
     data: NdviAlertTaskRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create task from NDVI alert
@@ -370,6 +371,7 @@ async def auto_create_tasks(
     data: TaskAutoCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Batch create tasks from recommendations

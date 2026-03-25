@@ -169,9 +169,15 @@ export default function IrrigationClient() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const totalWaterToday = schedules
-    .filter((s) => s.status !== 'cancelled' && s.scheduledAt.slice(0, 10) === today)
+    .filter((s) => {
+      if (s.status === 'cancelled') return false;
+      const d = new Date(s.scheduledAt);
+      const schedLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return schedLocal === todayLocal;
+    })
     .reduce((sum, s) => sum + s.waterAmount, 0);
 
   const overdueCount = schedules.filter((s) => s.status === 'overdue').length;

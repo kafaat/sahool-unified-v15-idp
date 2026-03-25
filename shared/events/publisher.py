@@ -417,10 +417,8 @@ class EventPublisher:
                 event.event_id,
                 event.source_service,
             )
-            raise ValueError(
-                f"Event missing required tenant_id: subject={subject}, "
-                f"event_id={event.event_id}, service={event.source_service}"
-            )
+            self._stats["errors"] += 1
+            return False
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:

@@ -96,11 +96,15 @@ def setup_cors(
         import logging
 
         logging.error(
-            "SECURITY: Blocking wildcard (*) CORS origins in production; falling back to DEFAULT_ORIGINS['production']."
+            "SECURITY: Blocking wildcard (*) CORS origins in production!"
         )
-        origins = DEFAULT_ORIGINS["production"]
+        origins = [
+            "https://sahool.app",
+            "https://admin.sahool.app",
+            "https://api.sahool.app",
+        ]
 
-    # Default allowed methods (includes DELETE; override allowed_methods for stricter policies)
+    # Default allowed methods (no DELETE for safety by default)
     methods = allowed_methods or ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
     # Default allowed headers

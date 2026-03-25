@@ -27,6 +27,7 @@ except ImportError:
     async def get_current_user():
         return None
 
+
 logger = logging.getLogger("sahool-notifications.preferences-controller")
 
 # Create router
@@ -206,7 +207,11 @@ async def get_event_preference(
 
 
 @router.post("/update", summary="تحديث تفضيلات حدث - Update Event Preference")
-async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
+async def update_preference(
+    request: UpdateEventPreferenceRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User | None = Depends(get_current_user),
+):
     """
     تحديث تفضيلات نوع حدث معين
     Update preferences for a specific event type
@@ -239,7 +244,11 @@ async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: st
 
 
 @router.post("/quiet-hours", summary="تحديد ساعات الهدوء - Set Quiet Hours")
-async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
+async def set_quiet_hours(
+    request: SetQuietHoursRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User | None = Depends(get_current_user),
+):
     """
     تحديد ساعات الهدوء (عدم الإزعاج)
     Set quiet hours (do not disturb period)
@@ -275,7 +284,11 @@ async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depend
 
 
 @router.post("/bulk-update", summary="تحديث تفضيلات متعددة - Bulk Update Preferences")
-async def bulk_update_preferences(request: BulkUpdatePreferencesRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
+async def bulk_update_preferences(
+    request: BulkUpdatePreferencesRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User | None = Depends(get_current_user),
+):
     """
     تحديث تفضيلات متعددة دفعة واحدة
     Bulk update multiple preferences at once

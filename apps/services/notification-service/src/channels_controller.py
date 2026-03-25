@@ -27,6 +27,7 @@ except ImportError:
     async def get_current_user():
         return None
 
+
 logger = logging.getLogger("sahool-notifications.channels-controller")
 
 # Create router
@@ -111,7 +112,11 @@ class UpdateChannelStatusRequest(BaseModel):
 
 
 @router.post("/add", summary="إضافة قناة إشعار - Add Notification Channel")
-async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_tenant_id), current_user: User | None = Depends(get_current_user)):
+async def add_channel(
+    request: AddChannelRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User | None = Depends(get_current_user),
+):
     """
     إضافة قناة إشعار جديدة للمستخدم
     Add a new notification channel for a user
@@ -258,7 +263,9 @@ async def list_channels(
 
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
-async def update_channel_status(request: UpdateChannelStatusRequest, current_user: User | None = Depends(get_current_user)):
+async def update_channel_status(
+    request: UpdateChannelStatusRequest, current_user: User | None = Depends(get_current_user)
+):
     """
     تحديث حالة قناة (تفعيل/تعطيل)
     Update channel status (enable/disable)

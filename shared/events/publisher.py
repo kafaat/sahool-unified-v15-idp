@@ -389,19 +389,11 @@ class EventPublisher:
         Returns:
             True if published successfully, False otherwise
         """
-        if not self.is_connected:
-            # Buffer the message for retry when reconnected instead of dropping
-            return self._buffer_message(subject, event, timeout, use_jetstream)
-
-        # ── Metadata enrichment ──────────────────────────────────────────
+        # ── Metadata enrichment (runs before buffering/publishing) ────────
+        # All enrichment happens here so both buffered and direct-published
+        # events carry identical metadata (source, tenant, correlation, trace).
         if not event.source_service:
             event.source_service = self.service_name
-
-        # H4: Auto-propagate correlation_id from HTTP entrypoint context.
-        # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
-        #        never inside workers.  Workers inherit it from the inbound message.
-        if not event.correlation_id:
-            event.correlation_id = _get_current_correlation_id()
 
         # Tenant propagation: pull from request context if not set on event
         if not event.tenant_id:
@@ -417,8 +409,14 @@ class EventPublisher:
                 event.event_id,
                 event.source_service,
             )
-            self._stats["errors"] += 1
+            self._error_count += 1
             return False
+
+        # H4: Auto-propagate correlation_id from HTTP entrypoint context.
+        # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
+        #        never inside workers.  Workers inherit it from the inbound message.
+        if not event.correlation_id:
+            event.correlation_id = _get_current_correlation_id()
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:
@@ -430,6 +428,10 @@ class EventPublisher:
             if tracestate:
                 # Store tracestate transiently (not serialized in JSON, only in headers)
                 event._tracestate = tracestate  # type: ignore[attr-defined]
+
+        if not self.is_connected:
+            # Buffer the fully-enriched message for retry when reconnected
+            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # Serialize event
         try:

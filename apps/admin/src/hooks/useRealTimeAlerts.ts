@@ -1,11 +1,11 @@
+'use client';
+
 /**
  * Sahool Admin Dashboard - Real-Time Alerts Hook
  * خطاف التنبيهات في الوقت الفعلي
  *
  * Manages real-time alert notifications via WebSocket
  */
-
-'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useWebSocketEvent } from './useWebSocket';

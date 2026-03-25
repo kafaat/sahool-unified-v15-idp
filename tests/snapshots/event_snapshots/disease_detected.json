@@ -18,7 +18,6 @@
   "span_id": null,
   "symptoms_observed": [],
   "tenant_id": "00000000-0000-0000-0000-000000000003",
-  "tenant_id_header": null,
   "timestamp": "<VOLATILE>",
   "trace_id": null,
   "treatment_recommendation": null,

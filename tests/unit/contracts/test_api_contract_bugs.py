@@ -457,6 +457,7 @@ class TestFieldConstraintValidation:
                 field_id=uuid4(),
                 ndvi_value=1.5,  # Out of range
                 updated_at=_NOW,
+                tenant_id="test-tenant",
             )
 
     def test_negative_area_rejected(self):

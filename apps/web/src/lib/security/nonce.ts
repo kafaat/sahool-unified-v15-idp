@@ -103,8 +103,8 @@ export function isServer(): boolean {
 const DANGEROUS_PATTERNS = [
   // Direct code execution
   /\beval\s*\(/gi,
-  /\bFunction\s*\(/gi,
   /\bnew\s+Function\s*\(/gi,
+  /\bFunction\s*\(/g,
 
   // Script injection attempts
   /<script[\s>]/gi,

@@ -69,8 +69,16 @@ jobs:
           echo "$NODE_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          PY_COUNT=$(echo "$PYTHON_FILES" | grep -c '.' || echo 0)
-          NODE_COUNT=$(echo "$NODE_FILES" | grep -c '.' || echo 0)
+          if [ -n "$PYTHON_FILES" ]; then
+            PY_COUNT=$(echo "$PYTHON_FILES" | wc -l | tr -d ' ')
+          else
+            PY_COUNT=0
+          fi
+          if [ -n "$NODE_FILES" ]; then
+            NODE_COUNT=$(echo "$NODE_FILES" | wc -l | tr -d ' ')
+          else
+            NODE_COUNT=0
+          fi
           echo "python_count=$PY_COUNT" >> $GITHUB_OUTPUT
           echo "node_count=$NODE_COUNT" >> $GITHUB_OUTPUT
 

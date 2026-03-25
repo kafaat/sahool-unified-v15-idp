@@ -276,8 +276,8 @@ async def register_agent(request: RegisterAgentRequest):
         }
 
     except Exception as e:
-        logger.error("register_agent_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("register_agent_failed", error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"], dependencies=[Depends(verify_api_key)])
@@ -307,8 +307,8 @@ async def get_agent(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("get_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("get_agent_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.get("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
@@ -345,8 +345,8 @@ async def list_agents(
         }
 
     except Exception as e:
-        logger.error("list_agents_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("list_agents_failed", error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.delete(
@@ -395,8 +395,8 @@ async def deregister_agent(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 # ============================================================================
@@ -428,8 +428,8 @@ async def discover_by_capability(capability: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_capability_failed", capability=capability, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_capability_failed", capability=capability, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.get("/api/v1/registry/discover/skill", tags=["Discovery"])
@@ -456,8 +456,8 @@ async def discover_by_skill(skill: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_skill_failed", skill=skill, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_skill_failed", skill=skill, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.post("/api/v1/registry/discover/tags", tags=["Discovery"])
@@ -484,8 +484,8 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
         }
 
     except Exception as e:
-        logger.error("discover_by_tags_failed", tags=request.tags, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_tags_failed", tags=request.tags, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 # ============================================================================
@@ -512,8 +512,8 @@ async def check_agent_health(agent_id: str):
         return health_result.model_dump()
 
     except Exception as e:
-        logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم") from e
 
 
 @app.get("/api/v1/registry/health/all", tags=["Health"])

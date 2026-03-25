@@ -257,7 +257,8 @@ async def validate_relationship(
             "data": result,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to validate relationship: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/add")
@@ -305,4 +306,5 @@ async def add_relationship(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to add relationship: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")

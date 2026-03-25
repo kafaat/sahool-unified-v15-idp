@@ -37,6 +37,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+logger = logging.getLogger(__name__)
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
@@ -701,8 +703,8 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest, current_user: 
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 

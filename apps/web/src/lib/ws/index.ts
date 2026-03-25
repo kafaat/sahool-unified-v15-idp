@@ -82,15 +82,13 @@ class WebSocketClient {
     this.authToken = authToken;
 
     try {
-      const wsUrl = `${this.url}/events`;
-      const protocols: string[] = [];
+      let wsUrl = `${this.url}/events`;
       if (authToken) {
-        // Send token via Sec-WebSocket-Protocol header instead of URL query
-        // This avoids token leakage in server logs and browser history
-        protocols.push(`access_token.${authToken}`);
+        const separator = wsUrl.includes('?') ? '&' : '?';
+        wsUrl = `${wsUrl}${separator}token=${encodeURIComponent(authToken)}`;
       }
       // When no explicit token, cookies are sent automatically by the browser
-      this.ws = new WebSocket(wsUrl, protocols.length > 0 ? protocols : undefined);
+      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         logger.log('🔌 WebSocket connected');

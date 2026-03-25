@@ -270,6 +270,11 @@ class EventPublisher:
         self._buffered_count = 0
         self._buffer_overflow_count = 0
 
+        # Rejected events buffer for debugging/DLQ inspection
+        self._rejected_events: list[dict[str, Any]] = []
+        self._rejected_events_max: int = 100
+        self._rejected_total: int = 0
+
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS."""
@@ -287,7 +292,30 @@ class EventPublisher:
             "buffer_overflow_count": self._buffer_overflow_count,
             "service_name": self.service_name,
             "service_version": self.service_version,
+            "rejected_count": self._rejected_total,
+            "rejected_buffer_size": len(self._rejected_events),
         }
+
+    @property
+    def rejected_events(self) -> list[dict[str, Any]]:
+        """Get a copy of rejected events for debugging/DLQ inspection."""
+        return list(self._rejected_events)
+
+    def _record_rejection(self, subject: str, reason: str, event_id: str | None = None) -> None:
+        """Record a rejected event for debugging/DLQ inspection."""
+        import time
+
+        self._rejected_total += 1
+        entry = {
+            "subject": subject,
+            "reason": reason,
+            "event_id": event_id,
+            "timestamp": time.time(),
+            "service": self.service_name,
+        }
+        self._rejected_events.append(entry)
+        if len(self._rejected_events) > self._rejected_events_max:
+            del self._rejected_events[: -self._rejected_events_max]
 
     async def connect(self) -> bool:
         """
@@ -410,6 +438,7 @@ class EventPublisher:
                 event.source_service,
             )
             self._error_count += 1
+            self._record_rejection(subject, "missing_tenant_id", event.event_id)
             return False
 
         # H4: Auto-propagate correlation_id from HTTP entrypoint context.
@@ -517,8 +546,22 @@ class EventPublisher:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
 
+        # Tenant propagation: mirror publish_event() behavior
+        if isinstance(data, dict):
+            # Normalize camelCase tenantId → tenant_id for compatibility
+            if not data.get("tenant_id") and data.get("tenantId"):
+                data["tenant_id"] = data["tenantId"]
+            # Pull from request context if still missing
+            if not data.get("tenant_id"):
+                ctx_tenant = _get_current_tenant_id()
+                if ctx_tenant:
+                    data["tenant_id"] = ctx_tenant
+
         if isinstance(data, dict) and not data.get("tenant_id"):
-            logger.warning("publish_json called without tenant_id: subject=%s", subject)
+            logger.error("publish_json rejected without tenant_id: subject=%s", subject)
+            self._error_count += 1
+            self._record_rejection(subject, "missing_tenant_id")
+            return False
 
         try:
             payload = json.dumps(data, default=str).encode("utf-8")

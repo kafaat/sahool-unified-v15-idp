@@ -310,7 +310,7 @@ class TestEventPublisherPublishing:
         publisher._connected = True
         publisher._nc = mock_nc
 
-        data = {"key": "value", "number": 42}
+        data = {"key": "value", "number": 42, "tenant_id": "test-tenant"}
         result = await publisher.publish_json("test.subject", data)
 
         assert result is True

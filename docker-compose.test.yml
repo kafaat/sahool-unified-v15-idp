@@ -68,7 +68,7 @@ services:
       - sahool-test-network
 
   qdrant_test:
-    image: qdrant/qdrant:v1.7.4
+    image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant-test
     ports:
       - "6335:6333"  # Different port

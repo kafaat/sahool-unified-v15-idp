@@ -1167,7 +1167,7 @@ services:
 
   # Ollama Local LLM - نموذج اللغة المحلي (اختياري)
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.5.4
     container_name: sahool-enterprise-ollama
     volumes:
       - ollama_data:/root/.ollama

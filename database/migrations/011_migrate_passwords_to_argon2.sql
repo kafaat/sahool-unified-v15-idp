@@ -82,7 +82,7 @@ WHERE
     AND password_hash LIKE '$argon2%';
 
 -- Add trigger to automatically set password_algorithm on password update
-CREATE OR REPLACE FUNCTION SET_PASSWORD_ALGORITHM()
+CREATE OR REPLACE FUNCTION set_password_algorithm()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.password_hash IS NOT NULL AND NEW.password_hash != OLD.password_hash THEN
@@ -113,7 +113,7 @@ DROP TRIGGER IF EXISTS trigger_set_password_algorithm ON users;
 CREATE TRIGGER trigger_set_password_algorithm
 BEFORE INSERT OR UPDATE OF password_hash ON users
 FOR EACH ROW
-EXECUTE FUNCTION SET_PASSWORD_ALGORITHM();
+EXECUTE FUNCTION set_password_algorithm();
 
 -- Create view for monitoring migration progress
 CREATE OR REPLACE VIEW password_migration_stats AS

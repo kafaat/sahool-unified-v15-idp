@@ -322,7 +322,7 @@ WHERE
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Step 9: Create deadlock prevention advisory lock wrapper
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE OR REPLACE FUNCTION SAFE_DELETE_WITH_LOCK(
+CREATE OR REPLACE FUNCTION safe_delete_with_lock(
     p_table_name TEXT,
     p_id UUID,
     p_lock_timeout_ms INTEGER DEFAULT 5000

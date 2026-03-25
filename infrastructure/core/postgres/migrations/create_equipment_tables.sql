@@ -129,7 +129,7 @@ CREATE INDEX IF NOT EXISTS ix_alerts_equipment_due ON equipment_alerts (equipmen
 -- ============================================================================
 -- Triggers for updated_at
 -- ============================================================================
-CREATE OR REPLACE FUNCTION UPDATE_EQUIPMENT_UPDATED_AT_COLUMN()
+CREATE OR REPLACE FUNCTION update_equipment_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
@@ -141,7 +141,7 @@ DROP TRIGGER IF EXISTS update_equipment_updated_at ON equipment;
 CREATE TRIGGER update_equipment_updated_at
 BEFORE UPDATE ON equipment
 FOR EACH ROW
-EXECUTE FUNCTION UPDATE_EQUIPMENT_UPDATED_AT_COLUMN();
+EXECUTE FUNCTION update_equipment_updated_at_column();
 
 -- Verification
 SELECT 'Equipment tables created successfully!' AS status;

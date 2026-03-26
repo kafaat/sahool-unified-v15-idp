@@ -248,6 +248,7 @@ export default function IrrigationClient() {
 
   const activeCount = schedules.filter((s) => s.status === 'in_progress').length;
   const cancelledCount = schedules.filter((s) => s.status === 'cancelled').length;
+  const overdueCount = schedules.filter((s) => s.status === 'overdue').length;
 
   // CRUD handlers
   const openCreate = useCallback(() => {
@@ -386,6 +387,18 @@ export default function IrrigationClient() {
         </button>
       </div>
 
+      {/* Overdue Alert */}
+      {overdueCount > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-shake">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <span className="font-medium text-red-800">
+              تنبيه: {overdueCount} جدول ري متأخر يتطلب اهتماماً
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Paused Alert */}
       {cancelledCount > 0 && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-shake">
@@ -512,7 +525,7 @@ export default function IrrigationClient() {
                       </div>
                       <div>
                         <div className="font-medium text-gray-900">{schedule.name || schedule.fieldName}</div>
-                        {schedule.fieldName && (
+                        {schedule.name && (
                           <div className="text-xs text-gray-500">{schedule.fieldName}</div>
                         )}
                       </div>

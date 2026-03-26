@@ -51,50 +51,56 @@ vi.mock('@sahool/api-client', () => ({
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Unified Client (Web)', () => {
-  // Import the module once — the CSRF interceptor is registered at module
-  // scope so re-importing via vi.resetModules() is unnecessary and breaks
-  // the vi.mock() factory on subsequent dynamic imports.
-  let mod: typeof import('../unified-client');
-  let csrfInterceptor: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig;
-
-  beforeAll(async () => {
-    mod = await import('../unified-client');
-    // Capture the CSRF interceptor registered during module initialization
-    csrfInterceptor = mockInterceptorUse.mock.calls[0][0];
-  });
-
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset module registry so each test re-executes the module code,
+    // including the CSRF interceptor registration.
+    vi.resetModules();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    // Use clearAllMocks instead of restoreAllMocks: restoreAllMocks calls
+    // mockRestore() on every vi.fn(), which strips mockImplementation from
+    // the SahoolApiClient factory mock.  On the next vi.resetModules() +
+    // dynamic import the cleared constructor returns an empty object (no
+    // axiosInstance), causing the module-level CSRF interceptor setup to throw.
+    vi.clearAllMocks();
   });
 
   describe('Module Exports', () => {
-    it('exports sahoolClient', () => {
+    it('exports sahoolClient', async () => {
+      const mod = await import('../unified-client');
       expect(mod.sahoolClient).toBeDefined();
     });
 
-    it('exports unifiedApiClient as the axios instance', () => {
+    it('exports unifiedApiClient as the axios instance', async () => {
+      const mod = await import('../unified-client');
       expect(mod.unifiedApiClient).toBeDefined();
       expect(mod.unifiedApiClient.interceptors).toBeDefined();
     });
   });
 
   describe('Configuration', () => {
-    it('configures withCredentials: true for httpOnly cookie auth', () => {
+    it('configures withCredentials: true for httpOnly cookie auth', async () => {
+      const mod = await import('../unified-client');
       expect(mod.unifiedApiClient.defaults.withCredentials).toBe(true);
     });
   });
 
   describe('CSRF Interceptor', () => {
-    it('registers a request interceptor', () => {
-      // Interceptor was registered during module initialization (beforeAll)
-      expect(csrfInterceptor).toBeTypeOf('function');
+    it('registers a request interceptor', async () => {
+      // Import triggers interceptor registration
+      await import('../unified-client');
+      expect(mockInterceptorUse).toHaveBeenCalled();
     });
 
-    it('injects X-CSRF-Token header on POST requests when cookie exists', () => {
+    it('injects X-CSRF-Token header on POST requests when cookie exists', async () => {
+      await import('../unified-client');
+
+      // Get the interceptor function that was registered
+      const interceptorFn = mockInterceptorUse.mock.calls[0][0];
+      expect(interceptorFn).toBeTypeOf('function');
+
       // Simulate _csrf cookie being available
       mockCookiesGet.mockReturnValue('csrf-token-abc123');
 
@@ -107,14 +113,17 @@ describe('Unified Client (Web)', () => {
         headers: mockHeaders,
       } as unknown as InternalAxiosRequestConfig;
 
-      const result = csrfInterceptor(config);
+      const result = interceptorFn(config);
 
       expect(mockCookiesGet).toHaveBeenCalledWith('_csrf');
       expect(mockHeaders.set).toHaveBeenCalledWith('X-CSRF-Token', 'csrf-token-abc123');
       expect(result).toBe(config);
     });
 
-    it('injects X-CSRF-Token header on PUT requests', () => {
+    it('injects X-CSRF-Token header on PUT requests', async () => {
+      await import('../unified-client');
+      const interceptorFn = mockInterceptorUse.mock.calls[0][0];
+
       mockCookiesGet.mockReturnValue('csrf-token-xyz');
 
       const mockHeaders = { set: vi.fn() };
@@ -123,12 +132,15 @@ describe('Unified Client (Web)', () => {
         headers: mockHeaders,
       } as unknown as InternalAxiosRequestConfig;
 
-      csrfInterceptor(config);
+      interceptorFn(config);
 
       expect(mockHeaders.set).toHaveBeenCalledWith('X-CSRF-Token', 'csrf-token-xyz');
     });
 
-    it('injects X-CSRF-Token header on DELETE requests', () => {
+    it('injects X-CSRF-Token header on DELETE requests', async () => {
+      await import('../unified-client');
+      const interceptorFn = mockInterceptorUse.mock.calls[0][0];
+
       mockCookiesGet.mockReturnValue('csrf-del-token');
 
       const mockHeaders = { set: vi.fn() };
@@ -137,12 +149,15 @@ describe('Unified Client (Web)', () => {
         headers: mockHeaders,
       } as unknown as InternalAxiosRequestConfig;
 
-      csrfInterceptor(config);
+      interceptorFn(config);
 
       expect(mockHeaders.set).toHaveBeenCalledWith('X-CSRF-Token', 'csrf-del-token');
     });
 
-    it('does NOT inject X-CSRF-Token on GET requests', () => {
+    it('does NOT inject X-CSRF-Token on GET requests', async () => {
+      await import('../unified-client');
+      const interceptorFn = mockInterceptorUse.mock.calls[0][0];
+
       mockCookiesGet.mockReturnValue('csrf-token-abc123');
 
       const mockHeaders = { set: vi.fn() };
@@ -151,12 +166,15 @@ describe('Unified Client (Web)', () => {
         headers: mockHeaders,
       } as unknown as InternalAxiosRequestConfig;
 
-      csrfInterceptor(config);
+      interceptorFn(config);
 
       expect(mockHeaders.set).not.toHaveBeenCalled();
     });
 
-    it('does NOT inject header when _csrf cookie is missing', () => {
+    it('does NOT inject header when _csrf cookie is missing', async () => {
+      await import('../unified-client');
+      const interceptorFn = mockInterceptorUse.mock.calls[0][0];
+
       mockCookiesGet.mockReturnValue(undefined);
 
       const mockHeaders = { set: vi.fn() };
@@ -165,7 +183,7 @@ describe('Unified Client (Web)', () => {
         headers: mockHeaders,
       } as unknown as InternalAxiosRequestConfig;
 
-      csrfInterceptor(config);
+      interceptorFn(config);
 
       expect(mockCookiesGet).toHaveBeenCalledWith('_csrf');
       expect(mockHeaders.set).not.toHaveBeenCalled();

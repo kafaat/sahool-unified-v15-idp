@@ -22,7 +22,7 @@ export type VegetationIndexType = 'ndvi' | 'ndwi' | 'evi' | 'savi' | 'ndre' | 'l
  */
 export interface NdviTileLayerProps {
   /** معرف الحقل - Field ID */
-  fieldId: string | null;
+  fieldId: string;
 
   /** نوع المؤشر النباتي - Vegetation index type (default: ndvi) */
   indexType?: VegetationIndexType;
@@ -147,14 +147,15 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   const dateString = date ? date.toISOString().split('T')[0] : undefined;
 
   // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
-  // Note: useNDVIMap fetches NDVI data only. When the backend satellite API
-  // supports multi-index endpoints, replace with useVegetationIndexMap().
-  // Skip fetching when a non-NDVI index is selected or no fieldId to avoid unnecessary API calls.
-  const isNdviIndex = indexType === 'ndvi';
-  const { data: ndviMapData, error } = useNDVIMap(
-    isNdviIndex && fieldId ? fieldId : '',
-    isNdviIndex ? dateString : undefined
-  );
+  // Only fetch NDVI tiles when the active index is "ndvi"; other index types
+  // use different data sources and should not trigger this query.
+  const { data: rawNdviMapData, error: rawError } = useNDVIMap(fieldId, dateString, {
+    enabled: indexType === 'ndvi',
+  });
+  // Guard against stale React Query cache: never pass NDVI data or a stale error
+  // to the layer effects when the active index has already switched away from "ndvi".
+  const ndviMapData = indexType === 'ndvi' ? rawNdviMapData : undefined;
+  const error = indexType === 'ndvi' ? rawError : undefined;
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);
@@ -303,8 +304,9 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
         }
       }
     };
-    // isLayerLoaded is intentionally excluded: it's a guard against redundant updates,
-    // not a reactive dependency. Including it would cause an infinite loop since this effect sets it.
+    // isLayerLoaded is intentionally excluded: it's a guard against redundant
+    // updates, not a reactive dependency. Including it causes an infinite loop
+    // since this very effect is the one that sets it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, ndviMapData, visible, opacity, fieldId, dateString, indexType]);
 
@@ -366,7 +368,13 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 /** تسميات المؤشرات - Index labels */
 const INDEX_LABELS: Record<
   VegetationIndexType,
-  { title: string; description: string; lowLabel: string; midLabel: string; highLabel: string }
+  {
+    title: string;
+    description: string;
+    lowLabel: string;
+    midLabel: string;
+    highLabel: string;
+  }
 > = {
   ndvi: {
     title: 'مؤشر NDVI',

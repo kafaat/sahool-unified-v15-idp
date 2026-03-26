@@ -29,9 +29,9 @@ describe('IrrigationClient', () => {
 
   it('should display table headers', () => {
     render(<IrrigationClient />);
-    expect(screen.getByText('الحقل')).toBeInTheDocument();
+    expect(screen.getByText('الاسم')).toBeInTheDocument();
     expect(screen.getByText('النوع')).toBeInTheDocument();
-    expect(screen.getByText('تاريخ الجدولة')).toBeInTheDocument();
+    expect(screen.getByText('تاريخ البدء')).toBeInTheDocument();
     expect(screen.getByText('كمية المياه')).toBeInTheDocument();
     expect(screen.getByText('الحالة')).toBeInTheDocument();
   });
@@ -65,8 +65,8 @@ describe('IrrigationClient', () => {
     fireEvent.click(createBtn);
 
     expect(screen.getByText('جدولة ري جديد')).toBeInTheDocument();
-    expect(screen.getByText(/اسم الحقل/)).toBeInTheDocument();
-    expect(screen.getByText('نوع الري')).toBeInTheDocument();
+    expect(screen.getByText(/اسم الجدول/)).toBeInTheDocument();
+    expect(screen.getByText('نوع الجدولة')).toBeInTheDocument();
   });
 
   it('should close modal on cancel', () => {

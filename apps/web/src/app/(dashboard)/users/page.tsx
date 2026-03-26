@@ -3,7 +3,8 @@
  * صفحة إدارة المستخدمين
  */
 
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { requireAdmin } from '@/lib/auth/route-guard';
 import UsersClient from './UsersClient';
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   keywords: ['users', 'المستخدمين', 'roles', 'أدوار', 'permissions', 'sahool'],
 };
 
-export default function UsersPage() {
+export default async function UsersPage() {
+  await requireAdmin();
   return <UsersClient />;
 }

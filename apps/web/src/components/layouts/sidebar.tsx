@@ -1,4 +1,4 @@
-"use client";
+'use client';
 /**
  * Client (Farmer) Sidebar Navigation
  * شريط التنقل الجانبي للعميل (المزارع)
@@ -17,11 +17,11 @@
  *   the hamburger button in Header. Parent layout passes `isOpen`
  *   and `onClose` props.
  */
-import React, { useCallback, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { clsx } from "clsx";
+import React, { useCallback, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { clsx } from 'clsx';
 import {
   LayoutDashboard,
   Sprout,
@@ -53,7 +53,7 @@ import {
   Bot,
   HelpCircle,
   Bug,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface NavItem {
   labelKey: string;
@@ -77,79 +77,77 @@ interface NavGroup {
  */
 const navGroups: NavGroup[] = [
   {
-    groupKey: "overview",
+    groupKey: 'overview',
+    items: [{ labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard }],
+  },
+  {
+    groupKey: 'farmManagement',
     items: [
-      { labelKey: "dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { labelKey: 'farms', href: '/farms', icon: Building2 },
+      { labelKey: 'fields', href: '/fields', icon: MapPin },
+      { labelKey: 'crops', href: '/crops', icon: Sprout },
+      { labelKey: 'seasons', href: '/seasons', icon: Calendar },
+      { labelKey: 'inventory', href: '/inventory', icon: Package },
+      { labelKey: 'tasks', href: '/tasks', icon: ListChecks },
     ],
   },
   {
-    groupKey: "farmManagement",
+    groupKey: 'waterAndIrrigation',
     items: [
-      { labelKey: "farms", href: "/farms", icon: Building2 },
-      { labelKey: "fields", href: "/fields", icon: MapPin },
-      { labelKey: "crops", href: "/crops", icon: Sprout },
-      { labelKey: "seasons", href: "/seasons", icon: Calendar },
-      { labelKey: "inventory", href: "/inventory", icon: Package },
-      { labelKey: "tasks", href: "/tasks", icon: ListChecks },
+      { labelKey: 'irrigation', href: '/irrigation', icon: Droplets },
+      { labelKey: 'pivotIrrigation', href: '/pivot-irrigation', icon: Droplets },
     ],
   },
   {
-    groupKey: "waterAndIrrigation",
+    groupKey: 'cropIntelligence',
     items: [
-      { labelKey: "irrigation", href: "/irrigation", icon: Droplets },
-      { labelKey: "pivotIrrigation", href: "/pivot-irrigation", icon: Droplets },
+      { labelKey: 'cropHealth', href: '/crop-health', icon: HeartPulse },
+      { labelKey: 'diseases', href: '/diseases', icon: Bug },
+      { labelKey: 'weather', href: '/weather', icon: CloudSun },
+      { labelKey: 'satellite', href: '/satellite', icon: Satellite },
+      { labelKey: 'yield', href: '/yield', icon: BarChart3 },
+      { labelKey: 'precisionAgriculture', href: '/precision-agriculture/gdd', icon: Crosshair },
     ],
   },
   {
-    groupKey: "cropIntelligence",
+    groupKey: 'iotAndEquipment',
     items: [
-      { labelKey: "cropHealth", href: "/crop-health", icon: HeartPulse },
-      { labelKey: "diseases", href: "/diseases", icon: Bug },
-      { labelKey: "weather", href: "/weather", icon: CloudSun },
-      { labelKey: "satellite", href: "/satellite", icon: Satellite },
-      { labelKey: "yield", href: "/yield", icon: BarChart3 },
-      { labelKey: "precisionAgriculture", href: "/precision-agriculture/gdd", icon: Crosshair },
+      { labelKey: 'iot', href: '/iot', icon: Cpu },
+      { labelKey: 'sensors', href: '/sensors', icon: Activity },
+      { labelKey: 'equipment', href: '/equipment', icon: Wrench },
     ],
   },
   {
-    groupKey: "iotAndEquipment",
+    groupKey: 'businessAndCommunity',
     items: [
-      { labelKey: "iot", href: "/iot", icon: Cpu },
-      { labelKey: "sensors", href: "/sensors", icon: Activity },
-      { labelKey: "equipment", href: "/equipment", icon: Wrench },
+      { labelKey: 'marketplace', href: '/marketplace', icon: ShoppingCart },
+      { labelKey: 'wallet', href: '/wallet', icon: Wallet },
+      { labelKey: 'community', href: '/community', icon: Users },
+      { labelKey: 'logistics', href: '/logistics', icon: Truck },
     ],
   },
   {
-    groupKey: "businessAndCommunity",
+    groupKey: 'reportsAndDocs',
     items: [
-      { labelKey: "marketplace", href: "/marketplace", icon: ShoppingCart },
-      { labelKey: "wallet", href: "/wallet", icon: Wallet },
-      { labelKey: "community", href: "/community", icon: Users },
-      { labelKey: "logistics", href: "/logistics", icon: Truck },
+      { labelKey: 'reports', href: '/reports', icon: FileBarChart },
+      { labelKey: 'analytics', href: '/analytics', icon: TrendingUp },
+      { labelKey: 'documents', href: '/documents', icon: FileText },
     ],
   },
   {
-    groupKey: "reportsAndDocs",
+    groupKey: 'alertsAndNotifications',
     items: [
-      { labelKey: "reports", href: "/reports", icon: FileBarChart },
-      { labelKey: "analytics", href: "/analytics", icon: TrendingUp },
-      { labelKey: "documents", href: "/documents", icon: FileText },
+      { labelKey: 'alerts', href: '/alerts', icon: AlertTriangle },
+      { labelKey: 'notifications', href: '/notifications', icon: Bell },
+      { labelKey: 'disasterAssessment', href: '/disaster-assessment', icon: AlertTriangle },
     ],
   },
   {
-    groupKey: "alertsAndNotifications",
+    groupKey: 'tools',
     items: [
-      { labelKey: "alerts", href: "/alerts", icon: AlertTriangle },
-      { labelKey: "notifications", href: "/notifications", icon: Bell },
-      { labelKey: "disasterAssessment", href: "/disaster-assessment", icon: AlertTriangle },
-    ],
-  },
-  {
-    groupKey: "tools",
-    items: [
-      { labelKey: "copilot", href: "/copilot", icon: Bot },
-      { labelKey: "support", href: "/support", icon: HelpCircle },
-      { labelKey: "settings", href: "/settings", icon: Settings },
+      { labelKey: 'copilot', href: '/copilot', icon: Bot },
+      { labelKey: 'support', href: '/support', icon: HelpCircle },
+      { labelKey: 'settings', href: '/settings', icon: Settings },
     ],
   },
 ];
@@ -161,13 +159,10 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export const Sidebar = React.memo(function Sidebar({
-  isOpen = false,
-  onClose,
-}: SidebarProps) {
+export const Sidebar = React.memo(function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const t = useTranslations("nav");
-  const tCommon = useTranslations("common");
+  const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
 
   // Close drawer when route changes (user navigated)
   useEffect(() => {
@@ -181,10 +176,10 @@ export const Sidebar = React.memo(function Sidebar({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === 'Escape') onClose?.();
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   const handleNavClick = useCallback(() => {
@@ -195,11 +190,10 @@ export const Sidebar = React.memo(function Sidebar({
   const sidebarContent = (
     <aside
       className={clsx(
-        "w-64 bg-white dark:bg-gray-800 border-e border-gray-200 dark:border-gray-700 flex flex-col h-full",
+        'w-64 bg-white dark:bg-gray-800 border-e border-gray-200 dark:border-gray-700 flex flex-col h-full'
       )}
-      data-testid="desktop-sidebar"
       role="navigation"
-      aria-label={t("mainNav")}
+      aria-label={t('mainNav')}
     >
       {/* Logo + Close button (mobile only) */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -209,9 +203,9 @@ export const Sidebar = React.memo(function Sidebar({
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {tCommon("appName")}
+              {tCommon('appName')}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{tCommon("tagline")}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{tCommon('tagline')}</p>
           </div>
         </Link>
         {/* Close button - visible only inside mobile drawer */}
@@ -220,7 +214,7 @@ export const Sidebar = React.memo(function Sidebar({
             type="button"
             onClick={onClose}
             className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
-            aria-label={t("closeMenu") || "Close menu"}
+            aria-label={t('closeMenu') || 'Close menu'}
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -232,15 +226,14 @@ export const Sidebar = React.memo(function Sidebar({
         <div className="space-y-4">
           {navGroups.map((group) => (
             <div key={group.groupKey}>
-              {group.groupKey !== "overview" && (
+              {group.groupKey !== 'overview' && (
                 <div className="px-4 py-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                   {t(group.groupKey)}
                 </div>
               )}
               <ul className="space-y-0.5">
                 {group.items.map((item) => {
-                  const isActive =
-                    pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                   const Icon = item.icon;
 
                   return (
@@ -250,28 +243,26 @@ export const Sidebar = React.memo(function Sidebar({
                         prefetch={false}
                         onClick={handleNavClick}
                         className={clsx(
-                          "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors",
-                          "hover:bg-sahool-green-50 dark:hover:bg-gray-700 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
+                          'flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors',
+                          'hover:bg-sahool-green-50 dark:hover:bg-gray-700 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500',
                           isActive
-                            ? "bg-sahool-green-100 dark:bg-sahool-green-900/30 text-sahool-green-700 dark:text-sahool-green-400 font-medium"
-                            : "text-gray-700 dark:text-gray-300",
+                            ? 'bg-sahool-green-100 dark:bg-sahool-green-900/30 text-sahool-green-700 dark:text-sahool-green-400 font-medium'
+                            : 'text-gray-700 dark:text-gray-300'
                         )}
-                        aria-current={isActive ? "page" : undefined}
+                        aria-current={isActive ? 'page' : undefined}
                         aria-label={t(item.labelKey)}
                       >
                         <Icon
                           className={clsx(
-                            "w-5 h-5 flex-shrink-0",
+                            'w-5 h-5 flex-shrink-0',
                             isActive
-                              ? "text-sahool-green-600 dark:text-sahool-green-400"
-                              : "text-gray-400 group-hover:text-sahool-green-600 dark:group-hover:text-sahool-green-400",
+                              ? 'text-sahool-green-600 dark:text-sahool-green-400'
+                              : 'text-gray-400 group-hover:text-sahool-green-600 dark:group-hover:text-sahool-green-400'
                           )}
                           aria-hidden="true"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium">
-                            {t(item.labelKey)}
-                          </div>
+                          <div className="text-sm font-medium">{t(item.labelKey)}</div>
                         </div>
                       </Link>
                     </li>
@@ -286,7 +277,7 @@ export const Sidebar = React.memo(function Sidebar({
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          <div className="font-medium">{t("version")} 16.0.0</div>
+          <div className="font-medium">{t('version')} 16.0.0</div>
         </div>
       </div>
     </aside>
@@ -295,7 +286,9 @@ export const Sidebar = React.memo(function Sidebar({
   return (
     <>
       {/* Desktop sidebar - always visible on md+ */}
-      <div className="hidden md:block h-full">{sidebarContent}</div>
+      <div className="hidden md:block h-full" data-testid="desktop-sidebar">
+        {sidebarContent}
+      </div>
 
       {/* Mobile drawer overlay — only rendered when onClose is provided,
           so the backdrop/Escape/button affordances are always functional */}
@@ -313,7 +306,7 @@ export const Sidebar = React.memo(function Sidebar({
             className="fixed inset-y-0 start-0 z-50 w-64 shadow-xl"
             role="dialog"
             aria-modal="true"
-            aria-label={t("mainNav")}
+            aria-label={t('mainNav')}
             data-testid="mobile-drawer"
           >
             {sidebarContent}

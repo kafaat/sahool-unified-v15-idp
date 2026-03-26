@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * NDVI Tile Layer Component
@@ -8,13 +8,13 @@
  * Renders NDVI data as a colored tile overlay on the map
  */
 
-import { useEffect, useRef, useState } from "react";
-import type { Map as MaplibreMap } from "maplibre-gl";
-import { useNDVIMap } from "@/features/ndvi";
-import { logger } from "@/lib/logger";
+import { useEffect, useRef, useState } from 'react';
+import type { Map as MaplibreMap } from 'maplibre-gl';
+import { useNDVIMap } from '@/features/ndvi';
+import { logger } from '@/lib/logger';
 
 /** نوع المؤشر النباتي - Vegetation index type */
-export type VegetationIndexType = "ndvi" | "ndwi" | "evi" | "savi" | "ndre" | "lai";
+export type VegetationIndexType = 'ndvi' | 'ndwi' | 'evi' | 'savi' | 'ndre' | 'lai';
 
 /**
  * خصائص مكون طبقة NDVI
@@ -52,69 +52,68 @@ export interface NdviTileLayerProps {
  */
 const INDEX_COLOR_STOPS: Record<VegetationIndexType, Array<{ value: number; color: string }>> = {
   ndvi: [
-    { value: -1.0, color: "#8B4513" }, // تربة جافة / Bare soil
-    { value: 0.0, color: "#FF0000" },  // بدون غطاء نباتي / No vegetation
-    { value: 0.2, color: "#FF6600" },
-    { value: 0.3, color: "#FFAA00" },
-    { value: 0.4, color: "#FFFF00" },
-    { value: 0.5, color: "#AAFF00" },
-    { value: 0.6, color: "#55FF00" },
-    { value: 0.7, color: "#00FF00" },
-    { value: 0.8, color: "#00CC00" },
-    { value: 1.0, color: "#006600" },
+    { value: -1.0, color: '#8B4513' }, // تربة جافة / Bare soil
+    { value: 0.0, color: '#FF0000' }, // بدون غطاء نباتي / No vegetation
+    { value: 0.2, color: '#FF6600' },
+    { value: 0.3, color: '#FFAA00' },
+    { value: 0.4, color: '#FFFF00' },
+    { value: 0.5, color: '#AAFF00' },
+    { value: 0.6, color: '#55FF00' },
+    { value: 0.7, color: '#00FF00' },
+    { value: 0.8, color: '#00CC00' },
+    { value: 1.0, color: '#006600' },
   ],
   ndwi: [
-    { value: -1.0, color: "#8B0000" }, // جفاف شديد / Severe drought
-    { value: -0.3, color: "#FF4500" },
-    { value: -0.1, color: "#FF8C00" }, // إجهاد مائي / Water stress
-    { value: 0.0, color: "#FFD700" },
-    { value: 0.1, color: "#87CEEB" },
-    { value: 0.2, color: "#4169E1" },  // محتوى مائي كافٍ / Adequate
-    { value: 0.4, color: "#0000CD" },
-    { value: 1.0, color: "#00008B" },  // مشبّع / Saturated
+    { value: -1.0, color: '#8B0000' }, // جفاف شديد / Severe drought
+    { value: -0.3, color: '#FF4500' },
+    { value: -0.1, color: '#FF8C00' }, // إجهاد مائي / Water stress
+    { value: 0.0, color: '#FFD700' },
+    { value: 0.1, color: '#87CEEB' },
+    { value: 0.2, color: '#4169E1' }, // محتوى مائي كافٍ / Adequate
+    { value: 0.4, color: '#0000CD' },
+    { value: 1.0, color: '#00008B' }, // مشبّع / Saturated
   ],
   evi: [
-    { value: -1.0, color: "#8B4513" },
-    { value: 0.0, color: "#FF0000" },
-    { value: 0.15, color: "#FF6600" },
-    { value: 0.3, color: "#FFFF00" },
-    { value: 0.45, color: "#AAFF00" },
-    { value: 0.6, color: "#00CC00" },
-    { value: 1.0, color: "#006600" },
+    { value: -1.0, color: '#8B4513' },
+    { value: 0.0, color: '#FF0000' },
+    { value: 0.15, color: '#FF6600' },
+    { value: 0.3, color: '#FFFF00' },
+    { value: 0.45, color: '#AAFF00' },
+    { value: 0.6, color: '#00CC00' },
+    { value: 1.0, color: '#006600' },
   ],
   savi: [
-    { value: -1.0, color: "#8B4513" }, // تربة عارية / Bare soil
-    { value: 0.0, color: "#D2691E" },
-    { value: 0.1, color: "#FF6600" },
-    { value: 0.25, color: "#FFAA00" },
-    { value: 0.4, color: "#FFFF00" },  // غطاء متناثر / Sparse vegetation
-    { value: 0.5, color: "#AAFF00" },
-    { value: 0.6, color: "#55FF00" },
-    { value: 0.8, color: "#00CC00" },
-    { value: 1.0, color: "#006600" },
+    { value: -1.0, color: '#8B4513' }, // تربة عارية / Bare soil
+    { value: 0.0, color: '#D2691E' },
+    { value: 0.1, color: '#FF6600' },
+    { value: 0.25, color: '#FFAA00' },
+    { value: 0.4, color: '#FFFF00' }, // غطاء متناثر / Sparse vegetation
+    { value: 0.5, color: '#AAFF00' },
+    { value: 0.6, color: '#55FF00' },
+    { value: 0.8, color: '#00CC00' },
+    { value: 1.0, color: '#006600' },
   ],
   ndre: [
-    { value: -1.0, color: "#4B0082" },
-    { value: 0.0, color: "#FF0000" },  // نقص كلوروفيل / Chlorophyll deficiency
-    { value: 0.1, color: "#FF6600" },
-    { value: 0.2, color: "#FFAA00" },
-    { value: 0.3, color: "#FFFF00" },
-    { value: 0.4, color: "#7FFF00" },
-    { value: 0.5, color: "#00CC00" },
-    { value: 1.0, color: "#006400" },
+    { value: -1.0, color: '#4B0082' },
+    { value: 0.0, color: '#FF0000' }, // نقص كلوروفيل / Chlorophyll deficiency
+    { value: 0.1, color: '#FF6600' },
+    { value: 0.2, color: '#FFAA00' },
+    { value: 0.3, color: '#FFFF00' },
+    { value: 0.4, color: '#7FFF00' },
+    { value: 0.5, color: '#00CC00' },
+    { value: 1.0, color: '#006400' },
   ],
   lai: [
-    { value: 0.0, color: "#F5DEB3" },  // تربة عارية / Bare
-    { value: 1.0, color: "#FFD700" },
-    { value: 2.0, color: "#ADFF2F" },
-    { value: 3.0, color: "#7CFC00" },
-    { value: 4.0, color: "#32CD32" },
-    { value: 5.0, color: "#228B22" },
-    { value: 6.0, color: "#006400" },
-    { value: 8.0, color: "#003300" },
+    { value: 0.0, color: '#F5DEB3' }, // تربة عارية / Bare
+    { value: 1.0, color: '#FFD700' },
+    { value: 2.0, color: '#ADFF2F' },
+    { value: 3.0, color: '#7CFC00' },
+    { value: 4.0, color: '#32CD32' },
+    { value: 5.0, color: '#228B22' },
+    { value: 6.0, color: '#006400' },
+    { value: 8.0, color: '#003300' },
   ],
 };
-
 
 /**
  * معرفات ديناميكية حسب نوع المؤشر
@@ -127,7 +126,6 @@ function getSourceId(indexType: VegetationIndexType): string {
   return `${indexType}-raster-source`;
 }
 
-
 /**
  * مكون طبقة NDVI للخريطة
  * NDVI Tile Layer Component
@@ -137,7 +135,7 @@ function getSourceId(indexType: VegetationIndexType): string {
  */
 export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   fieldId,
-  indexType = "ndvi",
+  indexType = 'ndvi',
   date,
   opacity = 0.7,
   visible = true,
@@ -146,14 +144,17 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   onError,
 }) => {
   // تنسيق التاريخ للـ API - Format date for API
-  const dateString = date ? date.toISOString().split("T")[0] : undefined;
+  const dateString = date ? date.toISOString().split('T')[0] : undefined;
 
   // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
   // Only fetch NDVI tiles when the active index is "ndvi"; other index types
   // use different data sources and should not trigger this query.
-  const { data: ndviMapData, error } = useNDVIMap(fieldId, dateString, {
-    enabled: indexType === "ndvi",
+  const { data: rawNdviMapData, error } = useNDVIMap(fieldId, dateString, {
+    enabled: indexType === 'ndvi',
   });
+  // Guard against stale React Query cache: never pass NDVI data to the layer
+  // effect when the active index has already switched away from "ndvi".
+  const ndviMapData = indexType === 'ndvi' ? rawNdviMapData : undefined;
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);
@@ -211,7 +212,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       // إضافة مصدر البيانات النقطية
       // Add raster data source
       mapInstance.addSource(sourceId, {
-        type: "raster",
+        type: 'raster',
         tiles: [rasterUrl],
         tileSize: 256,
         bounds: bounds
@@ -228,26 +229,28 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       // Add raster layer with index-specific color gradient
       mapInstance.addLayer({
         id: layerId,
-        type: "raster",
+        type: 'raster',
         source: sourceId,
         paint: {
           // التحكم في الشفافية - Opacity control
-          "raster-opacity": opacity,
+          'raster-opacity': opacity,
 
           // تحسين جودة العرض - Improve rendering quality
-          "raster-resampling": "linear",
+          'raster-resampling': 'linear',
 
           // تطبيق التدرج اللوني إذا كان متاحاً
           // Apply color scale if available
           ...(colorScale && {
-            "raster-color": [
-              "interpolate",
-              ["linear"],
-              ["raster-value"],
+            'raster-color': [
+              'interpolate',
+              ['linear'],
+              ['raster-value'],
               colorScale.min,
-              colorScale.colors[0] ?? INDEX_COLOR_STOPS[indexType]?.[0]?.color ?? "#FF0000",
+              colorScale.colors[0] ?? INDEX_COLOR_STOPS[indexType]?.[0]?.color ?? '#FF0000',
               colorScale.max,
-              colorScale.colors[colorScale.colors.length - 1] ?? INDEX_COLOR_STOPS[indexType]?.[INDEX_COLOR_STOPS[indexType]!.length - 1]?.color ?? "#00FF00",
+              colorScale.colors[colorScale.colors.length - 1] ??
+                INDEX_COLOR_STOPS[indexType]?.[INDEX_COLOR_STOPS[indexType]!.length - 1]?.color ??
+                '#00FF00',
             ],
           }),
         },
@@ -264,7 +267,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
           {
             padding: 50,
             duration: 1000,
-          },
+          }
         );
       }
 
@@ -317,7 +320,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 
     try {
       if (mapInstance.getLayer(layerId)) {
-        mapInstance.setPaintProperty(layerId, "raster-opacity", opacity);
+        mapInstance.setPaintProperty(layerId, 'raster-opacity', opacity);
       }
     } catch (err) {
       logger.warn(`Error updating ${indexType} layer opacity:`, err);
@@ -335,11 +338,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 
     try {
       if (mapInstance.getLayer(layerId)) {
-        mapInstance.setLayoutProperty(
-          layerId,
-          "visibility",
-          visible ? "visible" : "none",
-        );
+        mapInstance.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
       }
     } catch (err) {
       logger.warn(`Error updating ${indexType} layer visibility:`, err);
@@ -352,9 +351,8 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
    */
   useEffect(() => {
     if (error) {
-      const errorObj =
-        error instanceof Error ? error : new Error("Failed to load NDVI data");
-      logger.error("NDVI data fetch error:", errorObj);
+      const errorObj = error instanceof Error ? error : new Error('Failed to load NDVI data');
+      logger.error('NDVI data fetch error:', errorObj);
       onErrorRef.current?.(errorObj);
     }
   }, [error]);
@@ -367,13 +365,58 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 };
 
 /** تسميات المؤشرات - Index labels */
-const INDEX_LABELS: Record<VegetationIndexType, { title: string; description: string; lowLabel: string; midLabel: string; highLabel: string }> = {
-  ndvi: { title: "مؤشر NDVI", description: "كثافة الغطاء النباتي", lowLabel: "ضعيف", midLabel: "متوسط", highLabel: "كثيف" },
-  ndwi: { title: "مؤشر NDWI", description: "محتوى الماء في النبات", lowLabel: "جفاف", midLabel: "متوسط", highLabel: "مشبّع" },
-  evi: { title: "مؤشر EVI", description: "الغطاء المحسّن", lowLabel: "ضعيف", midLabel: "متوسط", highLabel: "كثيف" },
-  savi: { title: "مؤشر SAVI", description: "الغطاء المعدّل للتربة", lowLabel: "تربة عارية", midLabel: "متناثر", highLabel: "كثيف" },
-  ndre: { title: "مؤشر NDRE", description: "تركيز الكلوروفيل", lowLabel: "نقص", midLabel: "متوسط", highLabel: "ممتاز" },
-  lai: { title: "مؤشر LAI", description: "مساحة الأوراق (m²/m²)", lowLabel: "0", midLabel: "4", highLabel: "8" },
+const INDEX_LABELS: Record<
+  VegetationIndexType,
+  {
+    title: string;
+    description: string;
+    lowLabel: string;
+    midLabel: string;
+    highLabel: string;
+  }
+> = {
+  ndvi: {
+    title: 'مؤشر NDVI',
+    description: 'كثافة الغطاء النباتي',
+    lowLabel: 'ضعيف',
+    midLabel: 'متوسط',
+    highLabel: 'كثيف',
+  },
+  ndwi: {
+    title: 'مؤشر NDWI',
+    description: 'محتوى الماء في النبات',
+    lowLabel: 'جفاف',
+    midLabel: 'متوسط',
+    highLabel: 'مشبّع',
+  },
+  evi: {
+    title: 'مؤشر EVI',
+    description: 'الغطاء المحسّن',
+    lowLabel: 'ضعيف',
+    midLabel: 'متوسط',
+    highLabel: 'كثيف',
+  },
+  savi: {
+    title: 'مؤشر SAVI',
+    description: 'الغطاء المعدّل للتربة',
+    lowLabel: 'تربة عارية',
+    midLabel: 'متناثر',
+    highLabel: 'كثيف',
+  },
+  ndre: {
+    title: 'مؤشر NDRE',
+    description: 'تركيز الكلوروفيل',
+    lowLabel: 'نقص',
+    midLabel: 'متوسط',
+    highLabel: 'ممتاز',
+  },
+  lai: {
+    title: 'مؤشر LAI',
+    description: 'مساحة الأوراق (m²/m²)',
+    lowLabel: '0',
+    midLabel: '4',
+    highLabel: '8',
+  },
 };
 
 /**
@@ -381,28 +424,24 @@ const INDEX_LABELS: Record<VegetationIndexType, { title: string; description: st
  * Helper component to display vegetation index color legend
  */
 export const NdviColorLegend: React.FC<{ className?: string; indexType?: VegetationIndexType }> = ({
-  className = "",
-  indexType = "ndvi",
+  className = '',
+  indexType = 'ndvi',
 }) => {
   const colorStops = INDEX_COLOR_STOPS[indexType];
   const labels = INDEX_LABELS[indexType];
 
   return (
-    <div
-      className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}
-    >
-      <h4 className="text-xs font-bold text-gray-700 mb-2 text-right">
-        {labels.title}
-      </h4>
+    <div className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}>
+      <h4 className="text-xs font-bold text-gray-700 mb-2 text-right">{labels.title}</h4>
 
       {/* شريط التدرج اللوني - Color gradient bar */}
       <div className="relative h-4 rounded overflow-hidden mb-2">
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(to right, ${colorStops.map(
-              (stop) => stop.color,
-            ).join(", ")})`,
+            background: `linear-gradient(to right, ${colorStops
+              .map((stop) => stop.color)
+              .join(', ')})`,
           }}
         />
       </div>
@@ -414,9 +453,7 @@ export const NdviColorLegend: React.FC<{ className?: string; indexType?: Vegetat
           <br />
           {labels.highLabel}
         </span>
-        <span className="text-center">
-          {labels.midLabel}
-        </span>
+        <span className="text-center">{labels.midLabel}</span>
         <span className="text-right">
           {colorStops[0]?.value ?? 0}
           <br />
@@ -439,7 +476,7 @@ export const NdviColorLegend: React.FC<{ className?: string; indexType?: Vegetat
 export const NdviLoadingOverlay: React.FC<{
   isLoading: boolean;
   className?: string;
-}> = ({ isLoading, className = "" }) => {
+}> = ({ isLoading, className = '' }) => {
   if (!isLoading) return null;
 
   return (

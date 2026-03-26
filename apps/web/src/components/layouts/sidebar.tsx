@@ -4,7 +4,7 @@
  * شريط التنقل الجانبي للعميل (المزارع)
  *
  * This sidebar is for the farmer-facing web app only.
- * Admin-only features (Users, Audit, Copilot, Vision, Drone, Terrain,
+ * Admin-only features (Users, Audit, Vision, Drone, Terrain,
  * Edge Devices, Virtual Sensors, Research, Compliance, Scouting)
  * are in the admin portal (apps/admin/).
  *

@@ -149,12 +149,13 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
   // Only fetch NDVI tiles when the active index is "ndvi"; other index types
   // use different data sources and should not trigger this query.
-  const { data: rawNdviMapData, error } = useNDVIMap(fieldId, dateString, {
+  const { data: rawNdviMapData, error: rawError } = useNDVIMap(fieldId, dateString, {
     enabled: indexType === 'ndvi',
   });
-  // Guard against stale React Query cache: never pass NDVI data to the layer
-  // effect when the active index has already switched away from "ndvi".
+  // Guard against stale React Query cache: never pass NDVI data or a stale error
+  // to the layer effects when the active index has already switched away from "ndvi".
   const ndviMapData = indexType === 'ndvi' ? rawNdviMapData : undefined;
+  const error = indexType === 'ndvi' ? rawError : undefined;
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);

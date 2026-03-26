@@ -674,7 +674,7 @@ class PestDetectionResponse(DetectionResponse):
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
     vlm_stats: dict[str, int] | None = Field(
         default=None,
-        description=("VLM verification counts (confirmed/suspicious/dismissed/error). Present only when use_vlm=True."),
+        description=("VLM verification counts (confirmed/suspicious/dismissed/error). null unless use_vlm=True."),
     )
 
 
@@ -690,7 +690,7 @@ class DiseaseDetectionResponse(DetectionResponse):
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
     vlm_stats: dict[str, int] | None = Field(
         default=None,
-        description=("VLM verification counts (confirmed/suspicious/dismissed/error). Present only when use_vlm=True."),
+        description=("VLM verification counts (confirmed/suspicious/dismissed/error). null unless use_vlm=True."),
     )
 
 
@@ -704,7 +704,7 @@ class WeedDetectionResponse(DetectionResponse):
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
     vlm_stats: dict[str, int] | None = Field(
         default=None,
-        description=("VLM verification counts (confirmed/suspicious/dismissed/error). Present only when use_vlm=True."),
+        description=("VLM verification counts (confirmed/suspicious/dismissed/error). null unless use_vlm=True."),
     )
 
 

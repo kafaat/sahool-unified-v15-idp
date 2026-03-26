@@ -10,7 +10,6 @@ Tests cover:
 - verify(): disabled provider, timeout, generic exception, success
 - verify_batch(): ordering preserved, sequential calls
 - build_vlm_verifier_from_settings(): factory reads Settings attrs
-- _run_vlm_pass() integration in detection endpoints (disease + weed)
 """
 
 from __future__ import annotations
@@ -178,6 +177,72 @@ class TestExtractJson:
 
     def test_empty_string_returns_empty_dict(self):
         assert VLMVerifier._extract_json("") == {}
+
+
+# =============================================================================
+# _parse_has_pest  (robust string / numeric handling)
+# =============================================================================
+
+
+class TestParseHasPest:
+    def test_bool_true(self):
+        assert VLMVerifier._parse_has_pest(True) is True
+
+    def test_bool_false(self):
+        assert VLMVerifier._parse_has_pest(False) is False
+
+    def test_int_nonzero(self):
+        assert VLMVerifier._parse_has_pest(1) is True
+
+    def test_int_zero(self):
+        assert VLMVerifier._parse_has_pest(0) is False
+
+    def test_string_true(self):
+        assert VLMVerifier._parse_has_pest("true") is True
+        assert VLMVerifier._parse_has_pest("True") is True
+        assert VLMVerifier._parse_has_pest("yes") is True
+        assert VLMVerifier._parse_has_pest("1") is True
+
+    def test_string_false(self):
+        # A bare bool(str) would treat "false" as True; _parse_has_pest must not.
+        assert VLMVerifier._parse_has_pest("false") is False
+        assert VLMVerifier._parse_has_pest("False") is False
+        assert VLMVerifier._parse_has_pest("no") is False
+        assert VLMVerifier._parse_has_pest("0") is False
+        assert VLMVerifier._parse_has_pest("") is False
+
+    def test_unknown_type_returns_false(self):
+        assert VLMVerifier._parse_has_pest(None) is False
+        assert VLMVerifier._parse_has_pest([]) is False
+
+
+# =============================================================================
+# _crop_region and verify() accept pre-decoded PIL Image
+# =============================================================================
+
+
+class TestPredecodedImage:
+    def test_crop_region_accepts_pil_image(self):
+        """_crop_region should accept a PIL Image without re-decoding bytes."""
+        image_bytes = _make_jpeg(200, 200)
+        v = VLMVerifier()
+        pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        # Passing PIL Image directly should produce the same crop as bytes path.
+        cropped_from_pil = v._crop_region(pil_image, [10, 10, 100, 100])
+        cropped_from_bytes = v._crop_region(image_bytes, [10, 10, 100, 100])
+        img_pil = Image.open(io.BytesIO(cropped_from_pil))
+        img_bytes = Image.open(io.BytesIO(cropped_from_bytes))
+        assert img_pil.size == img_bytes.size
+
+    @pytest.mark.asyncio
+    async def test_verify_accepts_pil_image(self):
+        """verify() should accept a pre-decoded PIL Image."""
+        payload = {"has_pest": True, "confidence": 80}
+        v = _make_verifier(provider="qwen_vl")
+        pil_image = Image.open(io.BytesIO(_make_jpeg())).convert("RGB")
+        with patch.object(v, "_call_qwen_vl", new_callable=AsyncMock, return_value=payload):
+            result = await v.verify(pil_image, [0, 0, 50, 50])
+        assert result.status == VLMVerificationStatus.CONFIRMED
 
 
 # =============================================================================

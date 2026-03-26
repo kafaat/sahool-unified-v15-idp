@@ -134,7 +134,7 @@ class Settings(BaseSettings):
     )
 
     # VLM Secondary Verification Configuration
-    # Reduces false positives ~40% and false negatives ~30% (YOLO + Qwen-VL cooperative)
+    # Reduces false positives and false negatives via YOLO + VLM cooperative verification
     vlm_provider: str = Field(
         default="disabled",
         description="VLM provider for secondary verification: disabled | qwen_vl | ollama | vllm",

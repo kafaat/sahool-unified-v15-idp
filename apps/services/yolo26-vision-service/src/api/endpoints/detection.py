@@ -241,10 +241,13 @@ async def _run_vlm_pass(
     }
     verified: list = []
 
+    # Decode the image once so that _crop_region does not re-decode per detection.
+    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
     try:
         for det in detections:
             bbox = [det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2]
-            vlm_result = await verifier.verify(image_bytes, bbox, det.class_name_en)
+            vlm_result = await verifier.verify(pil_image, bbox, det.class_name_en)
 
             status_key = vlm_result.status.value
             vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
@@ -680,7 +683,7 @@ async def detect_pests(
         processing_time = (time.perf_counter() - start_time) * 1000
 
         # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
-        # Pain Point 3 fix: ~40% fewer false positives, ~30% fewer false negatives
+        # Pain Point 3 fix: secondary VLM verification to reduce false positives and false negatives
         vlm_stats: dict[str, int] | None = None
         if use_vlm and detections:
             detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, PestDetection)

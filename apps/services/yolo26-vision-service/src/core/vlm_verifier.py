@@ -225,7 +225,7 @@ class VLMVerifier:
 
     async def verify(
         self,
-        image_bytes: bytes,
+        image: bytes | Image.Image,
         bbox: list[float],
         pest_type_hint: str | None = None,
     ) -> VLMVerificationResult:
@@ -233,7 +233,10 @@ class VLMVerifier:
         Secondary-verify a single YOLO detection via VLM.
 
         Args:
-            image_bytes: Full-image JPEG/PNG bytes.
+            image: Full-image JPEG/PNG bytes, or a pre-decoded
+                :class:`PIL.Image.Image` (pass the latter when verifying
+                multiple detections from the same image to avoid repeated
+                decode overhead).
             bbox: Detection bounding box ``[x1, y1, x2, y2]`` in pixel coordinates.
             pest_type_hint: YOLO predicted class name (used for logging only).
 
@@ -251,7 +254,7 @@ class VLMVerifier:
 
         t0 = time.perf_counter()
         try:
-            crop_bytes = self._crop_region(image_bytes, bbox)
+            crop_bytes = self._crop_region(image, bbox)
 
             if self.provider == VLMProvider.QWEN_VL:
                 raw = await self._call_qwen_vl(crop_bytes)
@@ -298,7 +301,7 @@ class VLMVerifier:
 
     async def verify_batch(
         self,
-        image_bytes: bytes,
+        image: bytes | Image.Image,
         detections: list[dict[str, Any]],
     ) -> list[VLMVerificationResult]:
         """
@@ -307,7 +310,8 @@ class VLMVerifier:
         Sequential (not concurrent) to avoid saturating VLM rate limits.
 
         Args:
-            image_bytes: Full-image bytes.
+            image: Full-image bytes, or a pre-decoded :class:`PIL.Image.Image`.
+                Pass a pre-decoded image to avoid redundant decode on each call.
             detections: List of detection dicts each containing ``"bbox"``
                 (pixel coords list) and optionally ``"class_name_en"``.
 
@@ -318,16 +322,20 @@ class VLMVerifier:
         for det in detections:
             bbox: list[float] = det.get("bbox", [0.0, 0.0, 0.0, 0.0])
             hint: str | None = det.get("class_name_en")
-            results.append(await self.verify(image_bytes, bbox, hint))
+            results.append(await self.verify(image, bbox, hint))
         return results
 
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _crop_region(self, image_bytes: bytes, bbox: list[float]) -> bytes:
+    def _crop_region(self, image: bytes | Image.Image, bbox: list[float]) -> bytes:
         """
         Crop the detection region from the full image.
+
+        Accepts either raw image bytes or a pre-decoded :class:`PIL.Image.Image`
+        so that callers processing multiple detections can decode the image once
+        and pass the same object for every crop.
 
         Clamps coordinates to image bounds. Falls back to the full image
         when the region is smaller than ``_MIN_CROP_PX`` in either dimension.
@@ -335,7 +343,10 @@ class VLMVerifier:
         Returns:
             JPEG-encoded bytes of the cropped region.
         """
-        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        if isinstance(image, bytes):
+            img = Image.open(io.BytesIO(image)).convert("RGB")
+        else:
+            img = image
         x1, y1, x2, y2 = (int(v) for v in bbox)
 
         # Clamp to image bounds
@@ -402,6 +413,26 @@ class VLMVerifier:
         except (json.JSONDecodeError, ValueError):
             return {}
 
+    @staticmethod
+    def _parse_has_pest(value: Any) -> bool:
+        """Robustly parse the ``has_pest`` field from VLM output.
+
+        Handles booleans, integers/floats, and string representations
+        so that a provider returning ``"false"`` (a truthy string) is
+        not incorrectly treated as ``True``.
+        """
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value != 0
+        if isinstance(value, str):
+            v = value.strip().lower()
+            if v in {"true", "1", "yes", "y"}:
+                return True
+            if v in {"false", "0", "no", "n", ""}:
+                return False
+        return False
+
     def _score_to_status(self, raw_confidence: float, has_pest: bool) -> VLMVerificationStatus:
         """
         Map raw VLM confidence (0-100 scale) and has_pest flag to a verdict.
@@ -425,7 +456,7 @@ class VLMVerifier:
 
     def _build_result(self, raw: dict[str, Any], t0: float) -> VLMVerificationResult:
         """Build a :class:`VLMVerificationResult` from parsed VLM JSON output."""
-        has_pest: bool = bool(raw.get("has_pest", False))
+        has_pest: bool = self._parse_has_pest(raw.get("has_pest", False))
         raw_conf: float = max(0.0, min(100.0, float(raw.get("confidence", 0.0))))
         pest_type: str | None = raw.get("pest_type") or None
         pest_type_ar: str | None = raw.get("pest_type_ar") or None

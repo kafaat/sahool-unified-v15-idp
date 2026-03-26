@@ -13,9 +13,9 @@
 copilot-api       (8088)  → RAG + LLM multi-provider
 advisory-service  (8093)  → أمراض + تسميد (قواعد ثابتة)
 ai-advisor        (8112)  → استشارة ذكاء اصطناعي منفصلة
-llm-orchestrator  (8164)  → يوجه للـ agents (CrewAI/NLP/Satellite)
-ai-chat-assistant (8260)  → يستدعي llm-orchestrator
-whatsapp-bot      (8240)  → يكتشف النية ويوجه لـ llm-orchestrator
+llm-orchestrator-service  (8164)  → يوجه للـ agents (CrewAI/NLP/Satellite)
+ai-chat-assistant         (8260)  → يستدعي llm-orchestrator-service
+whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-orchestrator-service
 ```
 
 **النتيجة**: 5 خدمات تجيب على نفس السؤال بطرق مختلفة، بلا تجربة موحدة ولا حوكمة مركزية.
@@ -69,9 +69,9 @@ class AgriIntentClassifier:
     يُستخدم من: copilot-api, whatsapp-bot, ussd-gateway, wechat-service
     """
     INTENTS = [
-        "crop_disease", "irrigation", "fertilizer", "pest_detection",
+        "crop_disease", "irrigation", "fertilizer", "pest",
         "weather", "market_price", "policy_query", "ndvi_analysis",
-        "general_advisory", "greeting", "help"
+        "general", "greeting", "help"
     ]
 
     async def classify(self, text: str, image: bytes | None = None) -> IntentResult:
@@ -90,7 +90,7 @@ class AgriIntentClassifier:
 | `pest` | pest-detection-service | 8125 |
 | `weather` | weather-service | 8092 |
 | `market_price` | marketplace-service | 3010 |
-| `policy_query` | agro-rules | 8151 |
+| `policy_query` | agro-rules (NATS worker) | NATS (موضوع `agro-rules.policy_query`) |
 | `ndvi_analysis` | vegetation-analysis-service | 8090 |
 | `general` | copilot RAG pipeline | داخلي |
 
@@ -198,7 +198,7 @@ FREE_TIER_LIMITS = {
 
 **المبدأ**: الإجابة البسيطة مجانية، التحليل المتعمق مدفوع.
 
-#### 3.2 — `apps/services/user-service/src/api/v1/quick_register.py` (جديد)
+#### 3.2 — `apps/services/user-service/src/auth/quick-register.controller.ts` (جديد)
 
 تسجيل مبسّط بدون بيانات كثيرة:
 
@@ -302,7 +302,7 @@ Response: {
 | `apps/services/copilot-api/src/core/context_aggregator.py` | تجميع السياق | 4 |
 | `apps/services/copilot-api/src/api/v1/encyclopedia.py` | موسوعة زراعية | 4 |
 | `apps/services/copilot-api/src/api/v1/services_rec.py` | توصية خدمات | 4 |
-| `apps/services/user-service/src/api/v1/quick_register.py` | تسجيل سريع | 3 |
+| `apps/services/user-service/src/auth/quick-register.controller.ts` | تسجيل سريع | 3 |
 
 ### ملفات مُعدَّلة
 

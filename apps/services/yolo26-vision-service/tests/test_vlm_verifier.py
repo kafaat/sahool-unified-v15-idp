@@ -33,7 +33,6 @@ from src.core.vlm_verifier import (
     build_vlm_verifier_from_settings,
 )
 
-
 # =============================================================================
 # Helpers
 # =============================================================================
@@ -227,7 +226,14 @@ class TestBuildResult:
         import time
 
         t0 = time.perf_counter()
-        raw = {"has_pest": True, "confidence": 90, "pest_type": "aphid", "pest_type_ar": "حشرة المن", "severity": "moderate", "diagnosis": "Aphid infestation"}
+        raw = {
+            "has_pest": True,
+            "confidence": 90,
+            "pest_type": "aphid",
+            "pest_type_ar": "حشرة المن",
+            "severity": "moderate",
+            "diagnosis": "Aphid infestation",
+        }
         result = v._build_result(raw, t0)
         assert result.status == VLMVerificationStatus.CONFIRMED
         assert result.has_pest is True
@@ -305,7 +311,14 @@ class TestVerifyTimeout:
 class TestVerifyQwenVL:
     @pytest.mark.asyncio
     async def test_confirmed_detection(self):
-        payload = {"has_pest": True, "confidence": 88, "pest_type": "Red Palm Weevil", "pest_type_ar": "سوسة النخيل", "severity": "severe", "diagnosis": "RPW detected"}
+        payload = {
+            "has_pest": True,
+            "confidence": 88,
+            "pest_type": "Red Palm Weevil",
+            "pest_type_ar": "سوسة النخيل",
+            "severity": "severe",
+            "diagnosis": "RPW detected",
+        }
         v = _make_verifier(provider="qwen_vl")
         with patch.object(v, "_call_qwen_vl", new_callable=AsyncMock, return_value=payload):
             result = await v.verify(_make_jpeg(), [10, 10, 90, 90], "Red Palm Weevil")
@@ -384,9 +397,9 @@ class TestVerifyBatch:
     async def test_batch_preserves_order(self):
         """Results should be in the same order as input detections."""
         payloads = [
-            {"has_pest": True, "confidence": 90},   # CONFIRMED
-            {"has_pest": False, "confidence": 5},   # DISMISSED
-            {"has_pest": True, "confidence": 60},   # SUSPICIOUS
+            {"has_pest": True, "confidence": 90},  # CONFIRMED
+            {"has_pest": False, "confidence": 5},  # DISMISSED
+            {"has_pest": True, "confidence": 60},  # SUSPICIOUS
         ]
         call_count = 0
 

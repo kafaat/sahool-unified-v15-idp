@@ -50,6 +50,7 @@ vi.mock("next-intl", () => ({
         pivotIrrigation: "Pivot Irrigation",
         irrigation: "Irrigation",
         cropHealth: "Crop Health",
+        diseases: "Diseases",
         weather: "Weather",
         satellite: "Satellite",
         yield: "Yield",
@@ -127,6 +128,7 @@ vi.mock("lucide-react", () => {
     Crosshair: IconMock,
     Bot: IconMock,
     HelpCircle: IconMock,
+    Bug: IconMock,
   };
 });
 

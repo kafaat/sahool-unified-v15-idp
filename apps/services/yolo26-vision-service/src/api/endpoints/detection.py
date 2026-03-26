@@ -883,6 +883,18 @@ async def detect_diseases(
                 }
             )
 
+        # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
+        vlm_stats: dict[str, int] | None = None
+        if use_vlm and detections:
+            detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, DiseaseDetection)
+            # Recalculate severity counts and affected area after VLM filtering
+            severity_counts = {s.value: 0 for s in SeverityLevel}
+            total_affected_area = 0.0
+            for det in detections:
+                severity_counts[det.severity.value] += 1
+                if det.affected_area_percent:
+                    total_affected_area += det.affected_area_percent
+
         processing_time = (time.perf_counter() - start_time) * 1000
 
         # Calculate overall health score (100 = healthy, 0 = severely diseased)
@@ -950,6 +962,7 @@ async def detect_diseases(
             overall_health_score=round(health_score, 1),
             severity_summary=severity_counts,
             visualization_base64=visualization_base64,
+            vlm_stats=vlm_stats,
         )
 
     except HTTPException:
@@ -982,6 +995,7 @@ async def detect_weeds(
     image_size: Annotated[int, Query(ge=320, le=1280)] = 640,
     return_visualization: bool = False,
     calculate_coverage: bool = True,
+    use_vlm: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
     current_user: User = Depends(get_current_user),
 ) -> WeedDetectionResponse:
@@ -1087,6 +1101,22 @@ async def detect_weeds(
         # Cap total coverage at 100%
         total_coverage = min(total_coverage, 100.0)
 
+        # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
+        vlm_stats: dict[str, int] | None = None
+        if use_vlm and detections:
+            detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, WeedDetection)
+            # Recalculate species distribution and total coverage after VLM filtering
+            species_distribution = {}
+            total_coverage = 0.0
+            for det in detections:
+                species_distribution[det.class_name_en] = species_distribution.get(det.class_name_en, 0) + 1
+                if det.coverage_percent:
+                    total_coverage += det.coverage_percent
+            total_coverage = min(total_coverage, 100.0)
+
+        # Recapture processing time including VLM latency
+        processing_time = (time.perf_counter() - start_time) * 1000
+
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
@@ -1131,6 +1161,7 @@ async def detect_weeds(
             total_coverage_percent=round(total_coverage, 1),
             species_distribution=species_distribution,
             visualization_base64=visualization_base64,
+            vlm_stats=vlm_stats,
         )
 
     except HTTPException:

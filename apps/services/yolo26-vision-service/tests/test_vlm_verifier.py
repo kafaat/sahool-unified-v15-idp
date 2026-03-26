@@ -16,7 +16,6 @@ Tests cover:
 from __future__ import annotations
 
 import io
-import json
 from dataclasses import dataclass
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -27,7 +26,6 @@ from PIL import Image
 # Ensure service root is importable (added by conftest.py already)
 from src.core.vlm_verifier import (
     VLMProvider,
-    VLMVerificationResult,
     VLMVerificationStatus,
     VLMVerifier,
     build_vlm_verifier_from_settings,
@@ -361,14 +359,14 @@ class TestVerifyVLLM:
         mock_response.json.return_value = response_data
         mock_response.raise_for_status = MagicMock()
 
-        with patch("httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client_cls.return_value.__aenter__.return_value = mock_client
-            mock_client.post.return_value = mock_response
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
 
+        with patch.object(v, "_get_http_client", return_value=mock_client):
             await v._call_vllm_vision(b"\xff\xd8\xff" + b"\x00" * 10)  # minimal JPEG-like bytes
-            call_args = mock_client.post.call_args
-            assert "chat/completions" in call_args[0][0]
+
+        call_args = mock_client.post.call_args
+        assert "chat/completions" in call_args[0][0]
 
 
 # =============================================================================

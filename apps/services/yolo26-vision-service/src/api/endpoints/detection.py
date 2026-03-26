@@ -234,10 +234,10 @@ async def _run_vlm_pass(
         return detections, {}
 
     vlm_stats: dict[str, int] = {
-        VLMVerificationStatus.CONFIRMED: 0,
-        VLMVerificationStatus.SUSPICIOUS: 0,
-        VLMVerificationStatus.DISMISSED: 0,
-        VLMVerificationStatus.ERROR: 0,
+        VLMVerificationStatus.CONFIRMED.value: 0,
+        VLMVerificationStatus.SUSPICIOUS.value: 0,
+        VLMVerificationStatus.DISMISSED.value: 0,
+        VLMVerificationStatus.ERROR.value: 0,
     }
     verified: list = []
 
@@ -275,10 +275,10 @@ async def _run_vlm_pass(
     logger.info(
         "vlm_pass_complete",
         provider=verifier.provider,
-        confirmed=vlm_stats[VLMVerificationStatus.CONFIRMED],
-        suspicious=vlm_stats[VLMVerificationStatus.SUSPICIOUS],
-        dismissed=vlm_stats[VLMVerificationStatus.DISMISSED],
-        error=vlm_stats[VLMVerificationStatus.ERROR],
+        confirmed=vlm_stats[VLMVerificationStatus.CONFIRMED.value],
+        suspicious=vlm_stats[VLMVerificationStatus.SUSPICIOUS.value],
+        dismissed=vlm_stats[VLMVerificationStatus.DISMISSED.value],
+        error=vlm_stats[VLMVerificationStatus.ERROR.value],
     )
     return verified, vlm_stats
 

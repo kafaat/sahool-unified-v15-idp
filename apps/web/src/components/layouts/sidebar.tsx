@@ -297,8 +297,9 @@ export const Sidebar = React.memo(function Sidebar({
       {/* Desktop sidebar - always visible on md+ */}
       <div className="hidden md:block h-full">{sidebarContent}</div>
 
-      {/* Mobile drawer overlay */}
-      {isOpen && (
+      {/* Mobile drawer overlay — only rendered when onClose is provided,
+          so the backdrop/Escape/button affordances are always functional */}
+      {isOpen && onClose && (
         <div className="md:hidden fixed inset-0 z-40">
           {/* Backdrop */}
           <div

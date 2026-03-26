@@ -57,12 +57,14 @@ export function useNDVITimeSeries(fieldId: string, startDate?: string, endDate?:
 
 /**
  * Hook to fetch NDVI map data
+ * @param enabled - additional guard; defaults to true. Pass false to suppress the fetch
+ *   (e.g. when the active vegetation index is not "ndvi").
  */
-export function useNDVIMap(fieldId: string, date?: string) {
+export function useNDVIMap(fieldId: string, date?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ndviKeys.map(fieldId, date),
     queryFn: () => ndviApi.getNDVIMap(fieldId, date),
-    enabled: !!fieldId,
+    enabled: !!fieldId && (options?.enabled ?? true),
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 }

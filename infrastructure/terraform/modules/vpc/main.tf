@@ -82,7 +82,8 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.cidr_block, var.subnet_newbits, count.index)
   availability_zone       = var.availability_zones[count.index]
-  map_public_ip_on_launch = true
+  # Public IPs assigned explicitly via ELB/NAT, not automatically
+  map_public_ip_on_launch = false
 
   tags = merge(
     local.common_tags,
@@ -461,6 +462,8 @@ resource "aws_security_group" "vpc_endpoints" {
     description = "HTTPS from VPC CIDR"
   }
 
+  # TODO(security): In production, restrict egress to specific CIDR ranges
+  # (e.g., VPC CIDR for interface endpoints) instead of 0.0.0.0/0.
   egress {
     from_port   = 0
     to_port     = 0

@@ -22,6 +22,7 @@ spec:
         environment: {{ .Values.environment }}
         deploymentSlot: {{ .Values.deploymentSlot }}
     spec:
+      terminationGracePeriodSeconds: 60
       automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -95,6 +96,10 @@ spec:
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
           resources:
             {{- if .Values.gpu.enabled }}
             {{- toYaml .Values.resources | nindent 12 }}

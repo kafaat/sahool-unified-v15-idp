@@ -12,6 +12,18 @@
 # ======================================================================
 
 # ======================================================================
+# العلامات الإلزامية (Mandatory Tags)
+# ======================================================================
+locals {
+  mandatory_tags = {
+    Project     = "Sahool"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Owner       = "KAFAAT"
+  }
+}
+
+# ======================================================================
 # الشبكة الافتراضية الخاصة (VPC - Virtual Private Cloud)
 # ======================================================================
 # إنشاء VPC للمنطقة مع دعم DNS
@@ -55,7 +67,8 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
   availability_zone       = var.availability_zones[count.index]
-  map_public_ip_on_launch = true
+  # Public IPs assigned explicitly via ELB/NAT, not automatically
+  map_public_ip_on_launch = false
 
   tags = merge(
     var.tags,
@@ -347,11 +360,13 @@ resource "aws_iam_role_policy" "eks_s3_access" {
     Statement = [
       {
         Effect = "Allow"
+        # Note: s3:DeleteObject is intentionally excluded from the node role.
+        # Object deletion should use a separate privileged role with MFA or
+        # additional authorization to prevent accidental or malicious data loss.
         Action = [
           "s3:GetObject",
           "s3:PutObject",
-          "s3:ListBucket",
-          "s3:DeleteObject"
+          "s3:ListBucket"
         ]
         Resource = [
           "${aws_s3_bucket.satellite_imagery[0].arn}/*",
@@ -476,6 +491,8 @@ resource "aws_security_group" "rds" {
     description     = "PostgreSQL access from EKS cluster"
   }
 
+  # TODO(security): In production, restrict egress to specific CIDR ranges
+  # (e.g., VPC CIDR, S3 gateway endpoint) instead of 0.0.0.0/0.
   egress {
     from_port   = 0
     to_port     = 0
@@ -619,6 +636,8 @@ resource "aws_security_group" "redis" {
     description     = "Redis access from EKS cluster"
   }
 
+  # TODO(security): In production, restrict egress to specific CIDR ranges
+  # (e.g., VPC CIDR, S3 gateway endpoint) instead of 0.0.0.0/0.
   egress {
     from_port   = 0
     to_port     = 0

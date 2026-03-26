@@ -114,6 +114,8 @@ resource "aws_security_group" "cluster" {
   }
 }
 
+# TODO(security): In production, restrict egress to specific CIDR ranges
+# (e.g., VPC CIDR, ECR/S3 endpoints) instead of 0.0.0.0/0.
 resource "aws_security_group_rule" "cluster_egress" {
   type              = "egress"
   from_port         = 0
@@ -155,6 +157,8 @@ resource "aws_security_group" "nodes" {
   }
 }
 
+# TODO(security): In production, restrict egress to specific CIDR ranges
+# (e.g., VPC CIDR, ECR/S3 endpoints, NAT gateway) instead of 0.0.0.0/0.
 resource "aws_security_group_rule" "nodes_egress" {
   type              = "egress"
   from_port         = 0

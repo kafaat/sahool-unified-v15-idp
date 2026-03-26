@@ -91,6 +91,8 @@ podSecurityContext:
 
 securityContext:
   allowPrivilegeEscalation: false
+  # Infrastructure pods (postgres, redis, nats) require writable root filesystem
+  # for data directory initialization. Data paths use persistent volumes.
   readOnlyRootFilesystem: false
   runAsNonRoot: true
   capabilities:

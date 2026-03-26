@@ -85,6 +85,11 @@ probes:
     periodSeconds: 5
     timeoutSeconds: 3
     failureThreshold: 3
+  startup:
+    path: /healthz
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30
 
 nodeSelector: {}
 
@@ -115,4 +120,4 @@ securityContext:
 
 # Network Policy
 networkPolicy:
-  enabled: false
+  enabled: true

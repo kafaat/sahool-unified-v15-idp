@@ -45,7 +45,15 @@ networkPolicy:
   enabled: false
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
+
+# Startup probe configuration
+startupProbe:
+  path: /healthz
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30

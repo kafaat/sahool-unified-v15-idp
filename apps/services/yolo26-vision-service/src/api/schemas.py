@@ -56,6 +56,23 @@ class SeverityLevel(StrEnum):
     CRITICAL = "critical"
 
 
+class VLMVerificationStatus(StrEnum):
+    """VLM secondary verification verdict.
+
+    Returned per-detection when ``use_vlm=True`` is passed to a detection endpoint.
+
+    - ``confirmed``:  VLM agrees with YOLO (confidence ≥ confirm_threshold).
+    - ``suspicious``: VLM is uncertain — flag for manual agronomist review.
+    - ``dismissed``:  VLM rejects YOLO detection — likely false positive (filtered out).
+    - ``error``:      VLM call failed — YOLO detection kept unverified.
+    """
+
+    CONFIRMED = "confirmed"
+    SUSPICIOUS = "suspicious"
+    DISMISSED = "dismissed"
+    ERROR = "error"
+
+
 # =============================================================================
 # Bilingual Class Definitions
 # =============================================================================
@@ -443,6 +460,28 @@ class ImageMetadata(BaseModel):
 # =============================================================================
 
 
+class VLMVerification(BaseModel):
+    """Secondary verification result from a Vision-Language Model (Qwen-VL / Ollama).
+
+    Attached to each detection when ``use_vlm=True`` is requested.
+    Detections with status ``dismissed`` are filtered from the response.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    status: VLMVerificationStatus = Field(..., description="VLM verification verdict")
+    has_pest: bool = Field(..., description="Whether the VLM found a pest or disease")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="VLM confidence (0.0–1.0)")
+    pest_type: str | None = Field(default=None, description="VLM-identified pest/disease name (English)")
+    pest_type_ar: str | None = Field(default=None, description="VLM-identified pest/disease name (Arabic)")
+    severity: str | None = Field(default=None, description="VLM-assessed severity (mild/moderate/severe)")
+    diagnosis_en: str | None = Field(default=None, description="One-sentence VLM diagnosis (English)")
+    diagnosis_ar: str | None = Field(default=None, description="One-sentence VLM diagnosis (Arabic)")
+    provider: str = Field(default="disabled", description="VLM provider used (qwen_vl, ollama, disabled)")
+    latency_ms: float = Field(default=0.0, ge=0.0, description="VLM API call latency in ms")
+    error: str | None = Field(default=None, description="Error message when status is 'error'")
+
+
 class DetectionBase(BaseModel):
     """Base detection result."""
 
@@ -463,6 +502,9 @@ class PestDetection(DetectionBase):
     life_stage: str | None = Field(default=None, description="Life stage (egg, larva, adult)")
     recommended_action_en: str | None = Field(default=None, description="Recommended action (English)")
     recommended_action_ar: str | None = Field(default=None, description="Recommended action (Arabic)")
+    vlm_verification: VLMVerification | None = Field(
+        default=None, description="VLM secondary verification result (present only when use_vlm=True)"
+    )
 
 
 class DiseaseDetection(DetectionBase):
@@ -475,6 +517,9 @@ class DiseaseDetection(DetectionBase):
     spread_risk: SeverityLevel = Field(default=SeverityLevel.MEDIUM, description="Risk of spread")
     recommended_treatment_en: str | None = Field(default=None, description="Recommended treatment (English)")
     recommended_treatment_ar: str | None = Field(default=None, description="Recommended treatment (Arabic)")
+    vlm_verification: VLMVerification | None = Field(
+        default=None, description="VLM secondary verification result (present only when use_vlm=True)"
+    )
 
 
 class WeedDetection(DetectionBase):
@@ -484,6 +529,9 @@ class WeedDetection(DetectionBase):
         default=None, ge=0.0, le=100.0, description="Weed coverage percentage in detected area"
     )
     growth_stage: str | None = Field(default=None, description="Weed growth stage")
+    vlm_verification: VLMVerification | None = Field(
+        default=None, description="VLM secondary verification result (present only when use_vlm=True)"
+    )
 
 
 # =============================================================================
@@ -517,6 +565,13 @@ class PestDetectionRequest(DetectionRequest):
 
     include_life_stage: bool = Field(default=True, description="Include pest life stage in results")
     include_recommendations: bool = Field(default=True, description="Include recommended actions")
+    use_vlm: bool = Field(
+        default=False,
+        description=(
+            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+        ),
+    )
 
 
 class DiseaseDetectionRequest(DetectionRequest):
@@ -524,12 +579,26 @@ class DiseaseDetectionRequest(DetectionRequest):
 
     calculate_affected_area: bool = Field(default=True, description="Calculate affected area percentage")
     include_treatments: bool = Field(default=True, description="Include treatment recommendations")
+    use_vlm: bool = Field(
+        default=False,
+        description=(
+            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+        ),
+    )
 
 
 class WeedDetectionRequest(DetectionRequest):
     """Request for weed detection."""
 
     calculate_coverage: bool = Field(default=True, description="Calculate weed coverage percentage")
+    use_vlm: bool = Field(
+        default=False,
+        description=(
+            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+        ),
+    )
 
 
 class PlantCountRequest(BaseModel):
@@ -604,6 +673,13 @@ class PestDetectionResponse(DetectionResponse):
     total_count: int = Field(default=0, ge=0, description="Total number of pests detected")
     severity_summary: dict[str, int] = Field(default_factory=dict, description="Count by severity level")
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
+    vlm_stats: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "VLM verification counts (confirmed/suspicious/dismissed/error). "
+            "Present only when use_vlm=True."
+        ),
+    )
 
 
 class DiseaseDetectionResponse(DetectionResponse):
@@ -616,6 +692,13 @@ class DiseaseDetectionResponse(DetectionResponse):
     )
     severity_summary: dict[str, int] = Field(default_factory=dict, description="Count by severity level")
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
+    vlm_stats: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "VLM verification counts (confirmed/suspicious/dismissed/error). "
+            "Present only when use_vlm=True."
+        ),
+    )
 
 
 class WeedDetectionResponse(DetectionResponse):
@@ -626,6 +709,13 @@ class WeedDetectionResponse(DetectionResponse):
     total_coverage_percent: float = Field(default=0.0, ge=0.0, le=100.0, description="Total weed coverage percentage")
     species_distribution: dict[str, int] = Field(default_factory=dict, description="Count by species")
     visualization_base64: str | None = Field(default=None, description="Base64 encoded visualization")
+    vlm_stats: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "VLM verification counts (confirmed/suspicious/dismissed/error). "
+            "Present only when use_vlm=True."
+        ),
+    )
 
 
 class PlantCountResponse(DetectionResponse):

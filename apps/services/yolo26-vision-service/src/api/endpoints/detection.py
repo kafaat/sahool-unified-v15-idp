@@ -31,11 +31,15 @@ from src.api.schemas import (
     PestDetectionRequest,
     PestDetectionResponse,
     SeverityLevel,
+    VLMVerification,
+    VLMVerificationStatus,
     WeedDetection,
     WeedDetectionRequest,
     WeedDetectionResponse,
 )
 from src.core.config import settings
+from src.core.vlm_verifier import VLMVerificationStatus as _VLMStatus  # noqa: F401 (re-export alias)
+from src.core.vlm_verifier import build_vlm_verifier_from_settings
 from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
@@ -193,6 +197,88 @@ def create_visualization(
     except Exception as e:
         logger.warning("visualization_failed", error=str(e))
         return ""
+
+
+# =============================================================================
+# VLM Secondary Verification Helper
+# =============================================================================
+
+
+async def _run_vlm_pass(
+    image_bytes: bytes,
+    detections: list,
+    detection_class: type,
+) -> tuple[list, dict[str, int]]:
+    """
+    Run VLM secondary verification on a list of YOLO detections.
+
+    Builds a :class:`VLMVerifier` from the global settings, then verifies
+    each detection sequentially.  Detections with a ``dismissed`` verdict
+    are filtered out; all others are returned with ``vlm_verification``
+    attached.
+
+    Args:
+        image_bytes: Full-image bytes passed to the VLM verifier.
+        detections: List of Pydantic detection objects (frozen models).
+        detection_class: The concrete Pydantic model class to reconstruct
+            with the VLM result attached (e.g. ``PestDetection``).
+
+    Returns:
+        Tuple of (filtered detections with VLM results, vlm_stats dict).
+    """
+    verifier = build_vlm_verifier_from_settings(settings)
+    if not verifier.is_enabled:
+        logger.warning(
+            "vlm_not_configured",
+            message="use_vlm=True requested but VLM_PROVIDER is 'disabled'; skipping VLM pass",
+        )
+        return detections, {}
+
+    vlm_stats: dict[str, int] = {
+        VLMVerificationStatus.CONFIRMED: 0,
+        VLMVerificationStatus.SUSPICIOUS: 0,
+        VLMVerificationStatus.DISMISSED: 0,
+        VLMVerificationStatus.ERROR: 0,
+    }
+    verified: list = []
+
+    for det in detections:
+        bbox = [det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2]
+        vlm_result = await verifier.verify(image_bytes, bbox, det.class_name_en)
+
+        status_key = vlm_result.status.value
+        vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
+
+        if vlm_result.status == VLMVerificationStatus.DISMISSED:
+            continue  # Filter YOLO false positive
+
+        vlm_schema = VLMVerification(
+            status=VLMVerificationStatus(vlm_result.status),
+            has_pest=vlm_result.has_pest,
+            confidence=vlm_result.confidence,
+            pest_type=vlm_result.pest_type,
+            pest_type_ar=vlm_result.pest_type_ar,
+            severity=vlm_result.severity,
+            diagnosis_en=vlm_result.diagnosis_en,
+            provider=vlm_result.provider,
+            latency_ms=vlm_result.latency_ms,
+            error=vlm_result.error,
+        )
+
+        # Reconstruct frozen Pydantic model with VLM data attached
+        det_data = det.model_dump()
+        det_data["vlm_verification"] = vlm_schema.model_dump()
+        verified.append(detection_class.model_validate(det_data))
+
+    logger.info(
+        "vlm_pass_complete",
+        provider=verifier.provider,
+        confirmed=vlm_stats[VLMVerificationStatus.CONFIRMED],
+        suspicious=vlm_stats[VLMVerificationStatus.SUSPICIOUS],
+        dismissed=vlm_stats[VLMVerificationStatus.DISMISSED],
+        error=vlm_stats[VLMVerificationStatus.ERROR],
+    )
+    return verified, vlm_stats
 
 
 # =============================================================================
@@ -488,6 +574,7 @@ async def detect_pests(
     image_size: Annotated[int, Query(ge=320, le=1280)] = 640,
     return_visualization: bool = False,
     include_recommendations: bool = True,
+    use_vlm: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
     current_user: User = Depends(get_current_user),
 ) -> PestDetectionResponse:

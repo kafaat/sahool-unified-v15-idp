@@ -30,7 +30,6 @@ function LoginForm() {
 
   // 2FA states
   const [requires2FA, setRequires2FA] = useState(false);
-  const [_tempToken, setTempToken] = useState("");
   const [twoFACode, setTwoFACode] = useState("");
 
   const validateEmail = (value: string): string => {
@@ -84,7 +83,6 @@ function LoginForm() {
         result.requires_2fa
       ) {
         setRequires2FA(true);
-        setTempToken(result.temp_token || "");
         setError("");
       } else {
         router.push(returnTo);

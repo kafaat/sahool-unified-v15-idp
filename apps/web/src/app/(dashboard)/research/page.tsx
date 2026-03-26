@@ -4,6 +4,7 @@
  */
 
 import { Metadata } from "next";
+import { requireAdmin } from "@/lib/auth/route-guard";
 import ResearchClient from "./ResearchClient";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   description: "Manage agricultural research trials and experiments",
 };
 
-export default function ResearchPage() {
+export default async function ResearchPage() {
+  await requireAdmin();
   return <ResearchClient />;
 }

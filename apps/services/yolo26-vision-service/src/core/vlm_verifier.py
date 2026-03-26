@@ -128,9 +128,7 @@ class VLMVerifier:
     """
 
     # Qwen-VL DashScope endpoint
-    _QWEN_VL_DEFAULT_URL = (
-        "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
-    )
+    _QWEN_VL_DEFAULT_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
 
     # Structured verification prompt — requests bilingual JSON output
     _PROMPT = (
@@ -476,12 +474,7 @@ class VLMVerifier:
             response.raise_for_status()
 
         result = response.json()
-        content = (
-            result.get("output", {})
-            .get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-        )
+        content = result.get("output", {}).get("choices", [{}])[0].get("message", {}).get("content", "")
 
         # Qwen-VL may return content as a list of {"text": "..."} dicts
         if isinstance(content, list):
@@ -530,11 +523,7 @@ class VLMVerifier:
             response.raise_for_status()
 
         result = response.json()
-        content = (
-            result.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-        )
+        content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
         return self._extract_json(str(content))
 
     async def _call_ollama_vision(self, crop_bytes: bytes) -> dict[str, Any]:

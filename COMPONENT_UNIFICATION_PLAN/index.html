@@ -1,0 +1,1676 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>خطة توحيد المكونات — SAHOOL Unified Intelligence Layer - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-unified-intelligence-layer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة توحيد المكونات — SAHOOL Unified Intelligence Layer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-unified-intelligence-layer">خطة توحيد المكونات — SAHOOL Unified Intelligence Layer<a class="headerlink" href="#sahool-unified-intelligence-layer" title="Permanent link">&para;</a></h1>
+<p><strong>Component Unification Plan</strong></p>
+<blockquote>
+<p><strong>الإصدار</strong>: 1.0.0 | <strong>التاريخ</strong>: مارس 2026 | <strong>الحالة</strong>: جاهز للتنفيذ</p>
+</blockquote>
+<hr />
+<h2 id="1-problem-statement">1. المشكلة الحالية (Problem Statement)<a class="headerlink" href="#1-problem-statement" title="Permanent link">&para;</a></h2>
+<p>المزارع الذي يريد سؤالاً زراعياً واحداً يواجه 6 خدمات متضاربة تعمل باستقلالية:</p>
+<div class="codehilite"><pre><span></span><code>copilot-api       (8088)  → RAG + LLM multi-provider
+advisory-service  (8093)  → أمراض + تسميد (قواعد ثابتة)
+ai-advisor        (8112)  → استشارة ذكاء اصطناعي منفصلة
+llm-orchestrator-service  (8164)  → يوجه للـ agents (CrewAI/NLP/Satellite)
+ai-chat-assistant         (8260)  → يستدعي llm-orchestrator-service
+whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-orchestrator-service
+</code></pre></div>
+
+<p><strong>النتيجة</strong>: 5 خدمات تجيب على نفس السؤال بطرق مختلفة، بلا تجربة موحدة ولا حوكمة مركزية.</p>
+<hr />
+<h2 id="2-target-architecture">2. الهدف (Target Architecture)<a class="headerlink" href="#2-target-architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">المستخدم</span><span class="w"> </span><span class="p">(</span><span class="err">ويب</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="err">واتساب</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">USSD</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">WeChat</span><span class="p">)</span>
+<span class="w">         </span><span class="err">↓</span>
+<span class="err">┌─────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Unified</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="n">Gateway</span><span class="w">         </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="n">copilot</span><span class="o">-</span><span class="n">api</span><span class="w"> </span><span class="p">(</span><span class="mh">8088</span><span class="p">)</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="err">ترقية</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">IntentRouter</span><span class="w">                </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">ContextAggregator</span><span class="w">           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">ChannelNormalizer</span><span class="w">           </span><span class="err">│</span>
+<span class="err">└─────────────┬───────────────────┘</span>
+<span class="w">              </span><span class="err">↓</span><span class="w">  </span><span class="p">(</span><span class="err">توجيه</span><span class="w"> </span><span class="err">ذكي</span><span class="w"> </span><span class="err">حسب</span><span class="w"> </span><span class="err">النية</span><span class="p">)</span>
+<span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                     </span><span class="n">Expert</span><span class="w"> </span><span class="n">Microservices</span><span class="w">                     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">pest</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">service</span><span class="w">  </span><span class="n">yolo26</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="w">               </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">irrigation</span><span class="o">-</span><span class="n">smart</span><span class="w">  </span><span class="n">advisory</span><span class="o">-</span><span class="n">service</span><span class="w">  </span><span class="n">weather</span><span class="o">-</span><span class="n">service</span><span class="w">         </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">agro</span><span class="o">-</span><span class="n">rules</span><span class="w">  </span><span class="n">vegetation</span><span class="o">-</span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w">  </span><span class="n">marketplace</span><span class="o">-</span><span class="n">service</span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────────────────────────┘</span>
+<span class="w">              </span><span class="err">↓</span>
+<span class="w">      </span><span class="err">استجابة</span><span class="w"> </span><span class="err">موحدة</span><span class="w"> </span><span class="err">الشكل</span><span class="w"> </span><span class="p">(</span><span class="n">AR</span><span class="o">/</span><span class="n">EN</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>المبدأ الأساسي</strong>: لا نحذف أي خدمة — نضيف طبقة توحيد فوقها.</p>
+<hr />
+<h2 id="3">3. المراحل الأربع<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<hr />
+<h3 id="unified-query-gateway">المرحلة الأولى: توحيد بوابة الاستعلام (Unified Query Gateway)<a class="headerlink" href="#unified-query-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف</strong>: ترقية <code>copilot-api</code> ليكون نقطة الدخول الوحيدة.</p>
+<h4 id="11-sharedaiintent_classifierpy">1.1 — <code>shared/ai/intent_classifier.py</code> (جديد)<a class="headerlink" href="#11-sharedaiintent_classifierpy" title="Permanent link">&para;</a></h4>
+<p>نقل منطق تصنيف النية من <code>apps/services/whatsapp-bot-service/src/handlers/message_handler.py</code>
+إلى مكتبة مشتركة تُستخدم من جميع نقاط الدخول.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgriIntentClassifier</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unified intent classification for all entry points.</span>
+<span class="sd">    يُستخدم من: copilot-api, whatsapp-bot, ussd-gateway, wechat-service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">INTENTS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;crop_disease&quot;</span><span class="p">,</span> <span class="s2">&quot;irrigation&quot;</span><span class="p">,</span> <span class="s2">&quot;fertilizer&quot;</span><span class="p">,</span> <span class="s2">&quot;pest_detection&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;weather&quot;</span><span class="p">,</span> <span class="s2">&quot;market_price&quot;</span><span class="p">,</span> <span class="s2">&quot;policy_query&quot;</span><span class="p">,</span> <span class="s2">&quot;ndvi_analysis&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;general_advisory&quot;</span><span class="p">,</span> <span class="s2">&quot;greeting&quot;</span><span class="p">,</span> <span class="s2">&quot;help&quot;</span>
+    <span class="p">]</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntentResult</span><span class="p">:</span>
+        <span class="c1"># 1. Arabic pattern matching (fast, offline)</span>
+        <span class="c1"># 2. LLM classification (if patterns fail)</span>
+        <span class="c1"># 3. Vision classification (if image provided)</span>
+</code></pre></div>
+
+<p><strong>النوايا المدعومة وخدماتها</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>النية</th>
+<th>الخدمة المستهدفة</th>
+<th>المنفذ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>crop_disease</code></td>
+<td>pest-detection-service + yolo26-vision</td>
+<td>8125 / 8150</td>
+</tr>
+<tr>
+<td><code>irrigation</code></td>
+<td>irrigation-smart + ml_irrigation</td>
+<td>8094</td>
+</tr>
+<tr>
+<td><code>fertilizer</code></td>
+<td>advisory-service</td>
+<td>8093</td>
+</tr>
+<tr>
+<td><code>pest_detection</code></td>
+<td>pest-detection-service</td>
+<td>8125</td>
+</tr>
+<tr>
+<td><code>weather</code></td>
+<td>weather-service</td>
+<td>8092</td>
+</tr>
+<tr>
+<td><code>market_price</code></td>
+<td>marketplace-service</td>
+<td>3010</td>
+</tr>
+<tr>
+<td><code>policy_query</code></td>
+<td>agro-rules (NATS worker)</td>
+<td>NATS (موضوع <code>agro-rules.policy_query</code>)</td>
+</tr>
+<tr>
+<td><code>ndvi_analysis</code></td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+</tr>
+<tr>
+<td><code>general_advisory</code></td>
+<td>copilot RAG pipeline</td>
+<td>داخلي</td>
+</tr>
+</tbody>
+</table>
+<h4 id="12-appsservicescopilot-apisrccoreintent_routerpy">1.2 — <code>apps/services/copilot-api/src/core/intent_router.py</code> (جديد)<a class="headerlink" href="#12-appsservicescopilot-apisrccoreintent_routerpy" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IntentRouter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Routes queries to appropriate expert services based on classified intent.</span>
+<span class="sd">    يوجه الاستعلامات للخدمات المتخصصة بناءً على النية المكتشفة.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intent</span><span class="p">:</span> <span class="n">IntentResult</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RouterResult</span><span class="p">:</span>
+        <span class="o">...</span>
+</code></pre></div>
+
+<h4 id="13-appsservicescopilot-apisrcapiv1chatpy">1.3 — تعديل <code>apps/services/copilot-api/src/api/v1/chat.py</code><a class="headerlink" href="#13-appsservicescopilot-apisrcapiv1chatpy" title="Permanent link">&para;</a></h4>
+<p>إضافة <code>IntentRouter</code> و<code>ContextAggregator</code> في pipeline المحادثة:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">chat</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">IntentClassifier</span><span class="p">.</span><span class="n">classify</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">IntentRouter</span><span class="p">.</span><span class="n">route</span><span class="p">(</span><span class="n">intent</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">ContextAggregator</span><span class="p">.</span><span class="n">build_context</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">field_id</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">LLM</span><span class="p">.</span><span class="k">generate</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">UnifiedResponse</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span><span class="w"> </span><span class="n">answer_ar</span><span class="p">,</span><span class="w"> </span><span class="n">intent</span><span class="p">,</span><span class="w"> </span><span class="n">sources</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="14-appsservicescopilot-apisrcmodelsschemaspy">1.4 — تعديل <code>apps/services/copilot-api/src/models/schemas.py</code><a class="headerlink" href="#14-appsservicescopilot-apisrcmodelsschemaspy" title="Permanent link">&para;</a></h4>
+<p>إضافة حقول في <code>ChatResponse</code>:
+- <code>intent: str</code> — النية المكتشفة
+- <code>sources: list[Source]</code> — مصادر الإجابة
+- <code>services_used: list[str]</code> — الخدمات التي استُعينت بها
+- <code>confidence: float</code> — مستوى الثقة</p>
+<hr />
+<h3 id="multi-channel-adapter">المرحلة الثانية: توحيد قنوات الوصول (Multi-Channel Adapter)<a class="headerlink" href="#multi-channel-adapter" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف</strong>: جعل WhatsApp + USSD + WeChat + Web يصلون جميعاً لنفس <code>copilot-api</code>.</p>
+<h4 id="21-sharedchannel_adapter">2.1 — <code>shared/channel_adapter/</code> (جديد)<a class="headerlink" href="#21-sharedchannel_adapter" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>shared/channel_adapter/
+├── __init__.py
+├── models.py          # ChannelMessage, ChannelResponse
+├── normalizer.py      # تحويل رسائل كل قناة لصيغة موحدة
+└── channels/
+    ├── whatsapp.py    # يستورد منطق message_handler الموجود
+    ├── ussd.py        # يستورد منطق ussd-gateway الموجود
+    ├── wechat.py      # يستورد منطق wechat-service الموجود
+    └── web.py         # REST/WebSocket
+</code></pre></div>
+
+<p><strong>تدفق الرسائل الموحد</strong>:</p>
+<div class="codehilite"><pre><span></span><code>WhatsApp → normalizer → POST /api/v1/chat → copilot-api → WhatsApp formatter
+USSD     → normalizer → POST /api/v1/chat → copilot-api → USSD formatter (140 chars)
+WeChat   → normalizer → POST /api/v1/chat → copilot-api → WeChat formatter
+</code></pre></div>
+
+<h4 id="22-appsserviceswhatsapp-bot-servicesrchandlersmessage_handlerpy">2.2 — تعديل <code>apps/services/whatsapp-bot-service/src/handlers/message_handler.py</code><a class="headerlink" href="#22-appsserviceswhatsapp-bot-servicesrchandlersmessage_handlerpy" title="Permanent link">&para;</a></h4>
+<p><strong>قبل</strong>: يُجري تصنيف النية ويوجه مباشرة لـ <code>llm-orchestrator</code>
+<strong>بعد</strong>: يُرسّل الرسالة إلى <code>copilot-api</code> → يُنسّق الرد</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># بدلاً من:</span>
+<span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_llm_orchestrator</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="c1"># يصبح:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.channel_adapter.channels.whatsapp</span><span class="w"> </span><span class="kn">import</span> <span class="n">WhatsAppNormalizer</span>
+<span class="n">channel_msg</span> <span class="o">=</span> <span class="n">WhatsAppNormalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">CopilotClient</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">channel_msg</span><span class="p">)</span>
+<span class="n">formatted</span> <span class="o">=</span> <span class="n">WhatsAppFormatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="23-appsservicesussd-gatewaysrcmainpy">2.3 — تعديل <code>apps/services/ussd-gateway/src/main.py</code><a class="headerlink" href="#23-appsservicesussd-gatewaysrcmainpy" title="Permanent link">&para;</a></h4>
+<p>إضافة bridge داخلي يستدعي <code>copilot-api</code> ويُلخِّص الرد في 140 حرفاً (قيد USSD).</p>
+<hr />
+<h3 id="free-c-tier">المرحلة الثالثة: الشريحة المجانية (Free C-Tier)<a class="headerlink" href="#free-c-tier" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف</strong>: تفعيل الطبقة المجانية لجذب المزارعين غير المتصلين بالإنترنت.</p>
+<h4 id="31-appsservicesbilling-coresrcmainpy">3.1 — تعديل <code>apps/services/billing-core/src/main.py</code><a class="headerlink" href="#31-appsservicesbilling-coresrcmainpy" title="Permanent link">&para;</a></h4>
+<p>تفعيل <code>SubscriptionPlan.free</code> (النوع موجود في <code>packages/shared-types/src/contracts/api-responses.ts</code>):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">FREE_TIER_LIMITS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;daily_queries&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>          <span class="c1"># 20 سؤال زراعي يومياً</span>
+    <span class="s2">&quot;image_detection&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>         <span class="c1"># 3 صور كشف أمراض يومياً</span>
+    <span class="s2">&quot;weather_alerts&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># طقس مجاني دائماً</span>
+    <span class="s2">&quot;market_prices&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>        <span class="c1"># أسعار السوق مجانية</span>
+    <span class="s2">&quot;field_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>             <span class="c1"># حقل واحد</span>
+    <span class="s2">&quot;advanced_ndvi&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>       <span class="c1"># NDVI متقدم للمدفوعين فقط</span>
+    <span class="s2">&quot;ai_advisor_full&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>     <span class="c1"># الاستشارة الكاملة للمدفوعين</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>المبدأ</strong>: الإجابة البسيطة مجانية، التحليل المتعمق مدفوع.</p>
+<h4 id="32-appsservicesuser-servicesrcauthquick-registercontrollerts">3.2 — <code>apps/services/user-service/src/auth/quick-register.controller.ts</code> (جديد)<a class="headerlink" href="#32-appsservicesuser-servicesrcauthquick-registercontrollerts" title="Permanent link">&para;</a></h4>
+<p>تسجيل مبسّط بدون بيانات كثيرة:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">quick</span><span class="o">-</span><span class="n">register</span>
+<span class="nl">Body:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;phone&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;+967XXXXXXXX&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;channel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;whatsapp&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;ussd&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;web&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="nl">Response:</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="err">صالح</span><span class="w"> </span><span class="mh">30</span><span class="w"> </span><span class="err">يوماً،</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;free&quot;</span><span class="w"> </span><span class="err">تلقائياً</span>
+</code></pre></div>
+
+<h4 id="33-packagesshared-typessrccontractsapi-responsests">3.3 — تعديل <code>packages/shared-types/src/contracts/api-responses.ts</code><a class="headerlink" href="#33-packagesshared-typessrccontractsapi-responsests" title="Permanent link">&para;</a></h4>
+<p>إضافة <code>FreeTierLimits</code> type:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">FreeTierLimits</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">dailyQueries</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">imageDetection</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">weatherAlerts</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">marketPrices</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">fieldCount</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">advancedNdvi</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">aiAdvisorFull</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="unified-advisory">المرحلة الرابعة: الاستشارة الزراعية الموحدة (Unified Advisory)<a class="headerlink" href="#unified-advisory" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف</strong>: دمج <code>advisory-service</code> + <code>ai-advisor</code> + <code>copilot-api</code> في سياق واحد.</p>
+<h4 id="41-appsservicescopilot-apisrccorecontext_aggregatorpy">4.1 — <code>apps/services/copilot-api/src/core/context_aggregator.py</code> (جديد)<a class="headerlink" href="#41-appsservicescopilot-apisrccorecontext_aggregatorpy" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgriContextAggregator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    يجمع: RAG knowledge + expert rules + field sensor data + weather</span>
+<span class="sd">    في سياق واحد يُغذَّى للـ LLM لإجابة شاملة.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">build_context</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AggregatedContext</span><span class="p">:</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rag</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>                    <span class="c1"># ultraRAG</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advisory</span><span class="o">.</span><span class="n">get_rules</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>             <span class="c1"># advisory-service (8093)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">tenant_id</span><span class="p">),</span>  <span class="c1"># field-management-service (3000)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">get_current</span><span class="p">(</span><span class="n">field_id</span><span class="p">),</span>         <span class="c1"># weather-service (8092)</span>
+        <span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">,</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">AggregatedContext</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="42-appsservicescopilot-apisrcapiv1encyclopediapy">4.2 — <code>apps/services/copilot-api/src/api/v1/encyclopedia.py</code> (جديد)<a class="headerlink" href="#42-appsservicescopilot-apisrcapiv1encyclopediapy" title="Permanent link">&para;</a></h4>
+<p>موسوعة زراعية مبنية على المعرفة الموجودة في:
+- <code>shared/ai/knowledge/collections.py</code> — 13 مجموعة معرفية
+- <code>shared/ai/ultrarag/workflows/</code> — 11 سير عمل زراعي
+- <code>docs/knowledge-base/</code> — 91 مستند زراعي</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="kn">api</span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">encyclopedia</span><span class="o">/</span><span class="p">{</span><span class="nx">crop_type</span><span class="p">}</span>
+<span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="kn">api</span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">encyclopedia</span><span class="o">/</span><span class="nx">search</span><span class="p">?</span><span class="nx">q</span><span class="p">={</span><span class="nx">term</span><span class="p">}</span><span class="o">&amp;</span><span class="nx">lang</span><span class="p">=</span><span class="nx">ar</span><span class="o">|</span><span class="nx">en</span>
+</code></pre></div>
+
+<h4 id="43-appsservicescopilot-apisrcapiv1services_recpy">4.3 — <code>apps/services/copilot-api/src/api/v1/services_rec.py</code> (جديد)<a class="headerlink" href="#43-appsservicescopilot-apisrcapiv1services_recpy" title="Permanent link">&para;</a></h4>
+<p>توصية الخدمات الاجتماعية والمتخصصة:</p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/services/recommend
+Body: { &quot;query&quot;: &quot;أريد تمويلاً لشراء مضخة ري&quot;, &quot;location&quot;: {...}, &quot;field_id&quot;: &quot;...&quot; }
+
+Response: {
+  &quot;equipment_rental&quot;: [...],  // drone-service + equipment-service
+  &quot;financing&quot;: [...],          // billing-core + crop-insurance
+  &quot;training&quot;: [...],           // skills-service + learning_marketplace
+  &quot;subsidies&quot;: [...]           // agro-rules (policy queries)
+}
+</code></pre></div>
+
+<hr />
+<h2 id="4">4. قائمة الملفات الكاملة<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="_1">ملفات جديدة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الغرض</th>
+<th>المرحلة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/ai/intent_classifier.py</code></td>
+<td>تصنيف النية الموحد</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/__init__.py</code></td>
+<td>محوّل القنوات</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/models.py</code></td>
+<td>نماذج الرسائل الموحدة</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/normalizer.py</code></td>
+<td>تطبيع الرسائل</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/channels/whatsapp.py</code></td>
+<td>محوّل واتساب</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/channels/ussd.py</code></td>
+<td>محوّل USSD</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/channels/wechat.py</code></td>
+<td>محوّل WeChat</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>shared/channel_adapter/channels/web.py</code></td>
+<td>محوّل الويب</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>apps/services/copilot-api/src/core/intent_router.py</code></td>
+<td>توجيه النية</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>apps/services/copilot-api/src/core/context_aggregator.py</code></td>
+<td>تجميع السياق</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>apps/services/copilot-api/src/api/v1/encyclopedia.py</code></td>
+<td>موسوعة زراعية</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>apps/services/copilot-api/src/api/v1/services_rec.py</code></td>
+<td>توصية خدمات</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>apps/services/user-service/src/auth/quick-register.controller.ts</code></td>
+<td>تسجيل سريع</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">ملفات مُعدَّلة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>التعديل</th>
+<th>المرحلة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/services/copilot-api/src/api/v1/chat.py</code></td>
+<td>+ IntentRouter + ContextAggregator</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>apps/services/copilot-api/src/models/schemas.py</code></td>
+<td>+ intent, sources, services_used</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>apps/services/whatsapp-bot-service/src/handlers/message_handler.py</code></td>
+<td>→ يستدعي copilot-api</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>apps/services/ussd-gateway/src/main.py</code></td>
+<td>+ copilot-api bridge</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>apps/services/billing-core/src/main.py</code></td>
+<td>+ FREE_TIER_LIMITS</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>packages/shared-types/src/contracts/api-responses.ts</code></td>
+<td>+ FreeTierLimits type</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. أولويات التنفيذ<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الأولوية</th>
+<th>المهمة</th>
+<th>الأثر</th>
+<th>الجهد التقديري</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td><code>IntentClassifier</code> في <code>shared/ai/</code></td>
+<td>أساس كل شيء</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P0</strong></td>
+<td>ترقية <code>copilot-api</code> كبوابة موحدة</td>
+<td>فوري</td>
+<td>2 أيام</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td><code>Free tier</code> في <code>billing-core</code></td>
+<td>جذب مزارعين C</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td><code>whatsapp-bot</code> → <code>copilot-api</code></td>
+<td>قناة رئيسية للـ C tier</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td><code>ContextAggregator</code> (advisory + RAG)</td>
+<td>جودة الإجابة</td>
+<td>2 أيام</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Encyclopedia endpoint</td>
+<td>موسوعة §2.6</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td><code>ussd-gateway</code> → <code>copilot-api</code></td>
+<td>Basic phones</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>Services Recommender</td>
+<td>خدمات اجتماعية</td>
+<td>1 يوم</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>Quick Register</td>
+<td>تسجيل مبسط</td>
+<td>0.5 يوم</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المجموع التقديري</strong>: ~10.5 يوم عمل للتوحيد الكامل.</p>
+<hr />
+<h2 id="6">6. اعتبارات التنفيذ<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="_3">التوافق مع الكود الحالي<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>جميع الخدمات الموجودة تبقى تعمل بدون تغيير</li>
+<li><code>copilot-api</code> يضيف طبقة فوق الخدمات، لا يستبدلها</li>
+<li>التعديلات على <code>whatsapp-bot</code> و<code>ussd-gateway</code> اختيارية في المرحلة الأولى</li>
+</ul>
+<h3 id="_4">الأمان<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>جميع الطلبات تمر عبر JWT auth (<code>shared.auth.dependencies.get_current_user</code>)</li>
+<li><code>tenant_id</code> مطلوب في كل استعلام (متوافق مع <code>EventPublisher.publish_event</code>)</li>
+<li>حدود الطبقة المجانية تُطبَّق في <code>billing-core</code> قبل وصول الطلب للـ LLM</li>
+</ul>
+<h3 id="_5">الأداء<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>IntentClassifier</code> يعمل offline بالأنماط العربية أولاً (&lt; 1ms)</li>
+<li><code>ContextAggregator</code> يستخدم <code>asyncio.gather</code> لتوازي استدعاء الخدمات</li>
+<li>Redis cache للنوايا المتكررة (TTL: 5 دقائق)</li>
+</ul>
+<h3 id="_6">الاختبار<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>وحدة اختبار لكل intent في <code>tests/unit/test_intent_classifier.py</code></li>
+<li>اختبار تكامل في <code>tests/integration/test_copilot_gateway.py</code></li>
+<li>Pytest markers: <code>@pytest.mark.unit</code> و<code>@pytest.mark.integration</code></li>
+</ul>
+<hr />
+<h2 id="7">7. خريطة التبعيات<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>shared/ai/intent_classifier.py
+    ↑ يستخدمه
+apps/services/copilot-api/src/core/intent_router.py
+    ↑ يستخدمه
+apps/services/copilot-api/src/api/v1/chat.py
+    ↑ يغذّيه
+shared/channel_adapter/normalizer.py
+    ↑ يستخدمه
+apps/services/whatsapp-bot-service/
+apps/services/ussd-gateway/
+apps/services/wechat-service/
+</code></pre></div>
+
+<hr />
+<p><em>آخر تحديث: مارس 2026 | المؤلف: KAFAAT Platform Team</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

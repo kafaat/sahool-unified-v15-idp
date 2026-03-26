@@ -461,7 +461,7 @@ class ImageMetadata(BaseModel):
 
 
 class VLMVerification(BaseModel):
-    """Secondary verification result from a Vision-Language Model (Qwen-VL / Ollama).
+    """Secondary verification result from a Vision-Language Model (Qwen-VL / vLLM / Ollama).
 
     Attached to each detection when ``use_vlm=True`` is requested.
     Detections with status ``dismissed`` are filtered from the response.
@@ -476,8 +476,7 @@ class VLMVerification(BaseModel):
     pest_type_ar: str | None = Field(default=None, description="VLM-identified pest/disease name (Arabic)")
     severity: str | None = Field(default=None, description="VLM-assessed severity (mild/moderate/severe)")
     diagnosis_en: str | None = Field(default=None, description="One-sentence VLM diagnosis (English)")
-    diagnosis_ar: str | None = Field(default=None, description="One-sentence VLM diagnosis (Arabic)")
-    provider: str = Field(default="disabled", description="VLM provider used (qwen_vl, ollama, disabled)")
+    provider: str = Field(default="disabled", description="VLM provider used (qwen_vl, vllm, ollama, disabled)")
     latency_ms: float = Field(default=0.0, ge=0.0, description="VLM API call latency in ms")
     error: str | None = Field(default=None, description="Error message when status is 'error'")
 
@@ -568,7 +567,7 @@ class PestDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
             "Reduces false positives ~40%%. Requires vlm_provider to be configured."
         ),
     )
@@ -582,7 +581,7 @@ class DiseaseDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
             "Reduces false positives ~40%%. Requires vlm_provider to be configured."
         ),
     )
@@ -595,7 +594,7 @@ class WeedDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / Ollama). "
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
             "Reduces false positives ~40%%. Requires vlm_provider to be configured."
         ),
     )

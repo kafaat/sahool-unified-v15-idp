@@ -249,7 +249,7 @@ async def _run_vlm_pass(
         status_key = vlm_result.status.value
         vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
 
-        if vlm_result.status == VLMVerificationStatus.DISMISSED:
+        if vlm_result.status.value == VLMVerificationStatus.DISMISSED.value:
             continue  # Filter YOLO false positive
 
         vlm_schema = VLMVerification(
@@ -690,6 +690,18 @@ async def detect_pests(
         # Recapture processing time including VLM latency
         processing_time = (time.perf_counter() - start_time) * 1000
 
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": d.severity,
+                }
+                for d in detections
+            ]
+
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
@@ -916,6 +928,18 @@ async def detect_diseases(
             ) / len(detections)
             health_score = max(0.0, health_score - (avg_severity * 10))
 
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": d.severity,
+                }
+                for d in detections
+            ]
+
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
@@ -1116,6 +1140,18 @@ async def detect_weeds(
 
         # Recapture processing time including VLM latency
         processing_time = (time.perf_counter() - start_time) * 1000
+
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": SeverityLevel.MEDIUM,
+                }
+                for d in detections
+            ]
 
         # Generate visualization if requested
         visualization_base64 = None

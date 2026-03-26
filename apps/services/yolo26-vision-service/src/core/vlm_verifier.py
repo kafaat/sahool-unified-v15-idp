@@ -96,7 +96,6 @@ class VLMVerificationResult:
     pest_type_ar: str | None = None  # Arabic name when available
     severity: str | None = None  # "mild" / "moderate" / "severe"
     diagnosis_en: str | None = None
-    diagnosis_ar: str | None = None
 
     provider: str = VLMProvider.DISABLED
     latency_ms: float = 0.0

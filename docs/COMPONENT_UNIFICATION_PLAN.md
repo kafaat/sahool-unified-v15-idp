@@ -35,12 +35,12 @@ whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-
 │   + ChannelNormalizer           │
 └─────────────┬───────────────────┘
               ↓  (توجيه ذكي حسب النية)
-┌─────────────────────────────────────────────────┐
-│              Expert Microservices               │
-│  pest-detection  yolo26-vision  irrigation-smart │
-│  advisory-service  weather-service  agro-rules  │
-│  vegetation-analysis  marketplace-service       │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                     Expert Microservices                     │
+│  pest-detection-service  yolo26-vision-service               │
+│  irrigation-smart  advisory-service  weather-service         │
+│  agro-rules  vegetation-analysis-service  marketplace-service│
+└──────────────────────────────────────────────────────────────┘
               ↓
       استجابة موحدة الشكل (AR/EN)
 ```
@@ -59,7 +59,7 @@ whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-
 
 #### 1.1 — `shared/ai/intent_classifier.py` (جديد)
 
-نقل منطق تصنيف النية من `whatsapp-bot-service/src/handlers/message_handler.py`
+نقل منطق تصنيف النية من `apps/services/whatsapp-bot-service/src/handlers/message_handler.py`
 إلى مكتبة مشتركة تُستخدم من جميع نقاط الدخول.
 
 ```python
@@ -69,9 +69,9 @@ class AgriIntentClassifier:
     يُستخدم من: copilot-api, whatsapp-bot, ussd-gateway, wechat-service
     """
     INTENTS = [
-        "crop_disease", "irrigation", "fertilizer", "pest",
+        "crop_disease", "irrigation", "fertilizer", "pest_detection",
         "weather", "market_price", "policy_query", "ndvi_analysis",
-        "general", "greeting", "help"
+        "general_advisory", "greeting", "help"
     ]
 
     async def classify(self, text: str, image: bytes | None = None) -> IntentResult:
@@ -82,17 +82,17 @@ class AgriIntentClassifier:
 
 **النوايا المدعومة وخدماتها**:
 
-| النية | الخدمة المستهدفة | الميناء |
+| النية | الخدمة المستهدفة | المنفذ |
 |-------|-----------------|---------|
 | `crop_disease` | pest-detection-service + yolo26-vision | 8125 / 8150 |
 | `irrigation` | irrigation-smart + ml_irrigation | 8094 |
 | `fertilizer` | advisory-service | 8093 |
-| `pest` | pest-detection-service | 8125 |
+| `pest_detection` | pest-detection-service | 8125 |
 | `weather` | weather-service | 8092 |
 | `market_price` | marketplace-service | 3010 |
 | `policy_query` | agro-rules (NATS worker) | NATS (موضوع `agro-rules.policy_query`) |
 | `ndvi_analysis` | vegetation-analysis-service | 8090 |
-| `general` | copilot RAG pipeline | داخلي |
+| `general_advisory` | copilot RAG pipeline | داخلي |
 
 #### 1.2 — `apps/services/copilot-api/src/core/intent_router.py` (جديد)
 

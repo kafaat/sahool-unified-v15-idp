@@ -16,6 +16,9 @@ Verdict thresholds (configurable via Settings):
 
 Providers:
     - ``qwen_vl``:  Alibaba Qwen-VL via DashScope API (cloud, best accuracy)
+    - ``vllm``:     Platform-internal vLLM server (OpenAI-compat multimodal at
+                    ``http://sahool-vllm:8270/v1``). Reuses the existing SAHOOL
+                    vLLM service — no external GPU or cloud cost required.
     - ``ollama``:   Local Ollama Vision model (llava/bakllava, offline-first)
     - ``disabled``: VLM verification disabled (YOLO-only mode, default)
 """
@@ -187,6 +190,11 @@ class VLMVerifier:
         self.suspect_threshold = suspect_threshold
         self.timeout = timeout
 
+        # Reusable HTTP client — shared across all provider calls on this instance.
+        # Avoids per-call TCP handshake overhead (especially important in verify_batch).
+        # Callers should invoke ``await verifier.aclose()`` when done with the verifier.
+        self._http_client: httpx.AsyncClient | None = None
+
         logger.info(
             "vlm_verifier_initialized",
             provider=self.provider,
@@ -202,6 +210,18 @@ class VLMVerifier:
     def is_enabled(self) -> bool:
         """Return True when VLM verification is active (provider ≠ disabled)."""
         return self.provider != VLMProvider.DISABLED
+
+    def _get_http_client(self) -> httpx.AsyncClient:
+        """Return the shared :class:`httpx.AsyncClient`, creating it on first call."""
+        if self._http_client is None or self._http_client.is_closed:
+            self._http_client = httpx.AsyncClient(timeout=self.timeout)
+        return self._http_client
+
+    async def aclose(self) -> None:
+        """Close the shared HTTP client.  Call this when the verifier is no longer needed."""
+        if self._http_client is not None and not self._http_client.is_closed:
+            await self._http_client.aclose()
+        self._http_client = None
 
     async def verify(
         self,
@@ -357,15 +377,16 @@ class VLMVerifier:
                     start = i
                 depth += 1
             elif ch == "}":
-                depth -= 1
-                if depth == 0 and start != -1:
-                    candidate = text[start : i + 1]
-                    try:
-                        return json.loads(candidate)
-                    except (json.JSONDecodeError, ValueError):
-                        # Try next occurrence
-                        start = -1
-                        depth = 0
+                if depth > 0:
+                    depth -= 1
+                    if depth == 0 and start != -1:
+                        candidate = text[start : i + 1]
+                        try:
+                            return json.loads(candidate)
+                        except (json.JSONDecodeError, ValueError):
+                            # Try next occurrence
+                            start = -1
+                            depth = 0
 
         # 2. Fallback: regex for simple (non-nested) JSON object
         match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
@@ -405,7 +426,7 @@ class VLMVerifier:
     def _build_result(self, raw: dict[str, Any], t0: float) -> VLMVerificationResult:
         """Build a :class:`VLMVerificationResult` from parsed VLM JSON output."""
         has_pest: bool = bool(raw.get("has_pest", False))
-        raw_conf: float = float(raw.get("confidence", 0.0))
+        raw_conf: float = max(0.0, min(100.0, float(raw.get("confidence", 0.0))))
         pest_type: str | None = raw.get("pest_type") or None
         pest_type_ar: str | None = raw.get("pest_type_ar") or None
         severity: str | None = raw.get("severity") or None
@@ -468,9 +489,9 @@ class VLMVerifier:
             "parameters": {"result_format": "message"},
         }
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(self.qwen_api_url, headers=headers, json=payload)
-            response.raise_for_status()
+        client = self._get_http_client()
+        response = await client.post(self.qwen_api_url, headers=headers, json=payload)
+        response.raise_for_status()
 
         result = response.json()
         content = result.get("output", {}).get("choices", [{}])[0].get("message", {}).get("content", "")
@@ -513,13 +534,13 @@ class VLMVerifier:
             "max_tokens": 256,
         }
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(
-                f"{self.vllm_url}/chat/completions",
-                json=payload,
-                headers={"Content-Type": "application/json"},
-            )
-            response.raise_for_status()
+        client = self._get_http_client()
+        response = await client.post(
+            f"{self.vllm_url}/chat/completions",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        response.raise_for_status()
 
         result = response.json()
         content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
@@ -540,12 +561,12 @@ class VLMVerifier:
             "format": "json",
         }
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(
-                f"{self.ollama_url}/api/generate",
-                json=payload,
-            )
-            response.raise_for_status()
+        client = self._get_http_client()
+        response = await client.post(
+            f"{self.ollama_url}/api/generate",
+            json=payload,
+        )
+        response.raise_for_status()
 
         result = response.json()
         content = result.get("response", "")

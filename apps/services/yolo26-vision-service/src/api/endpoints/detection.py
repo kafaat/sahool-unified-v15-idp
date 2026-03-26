@@ -38,7 +38,6 @@ from src.api.schemas import (
     WeedDetectionResponse,
 )
 from src.core.config import settings
-from src.core.vlm_verifier import VLMVerificationStatus as _VLMStatus  # noqa: F401 (re-export alias)
 from src.core.vlm_verifier import build_vlm_verifier_from_settings
 from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
@@ -242,33 +241,36 @@ async def _run_vlm_pass(
     }
     verified: list = []
 
-    for det in detections:
-        bbox = [det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2]
-        vlm_result = await verifier.verify(image_bytes, bbox, det.class_name_en)
+    try:
+        for det in detections:
+            bbox = [det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2]
+            vlm_result = await verifier.verify(image_bytes, bbox, det.class_name_en)
 
-        status_key = vlm_result.status.value
-        vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
+            status_key = vlm_result.status.value
+            vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
 
-        if vlm_result.status.value == VLMVerificationStatus.DISMISSED.value:
-            continue  # Filter YOLO false positive
+            if vlm_result.status.value == VLMVerificationStatus.DISMISSED.value:
+                continue  # Filter YOLO false positive
 
-        vlm_schema = VLMVerification(
-            status=VLMVerificationStatus(vlm_result.status),
-            has_pest=vlm_result.has_pest,
-            confidence=vlm_result.confidence,
-            pest_type=vlm_result.pest_type,
-            pest_type_ar=vlm_result.pest_type_ar,
-            severity=vlm_result.severity,
-            diagnosis_en=vlm_result.diagnosis_en,
-            provider=vlm_result.provider,
-            latency_ms=vlm_result.latency_ms,
-            error=vlm_result.error,
-        )
+            vlm_schema = VLMVerification(
+                status=VLMVerificationStatus(vlm_result.status.value),
+                has_pest=vlm_result.has_pest,
+                confidence=vlm_result.confidence,
+                pest_type=vlm_result.pest_type,
+                pest_type_ar=vlm_result.pest_type_ar,
+                severity=vlm_result.severity,
+                diagnosis_en=vlm_result.diagnosis_en,
+                provider=vlm_result.provider,
+                latency_ms=vlm_result.latency_ms,
+                error=vlm_result.error,
+            )
 
-        # Reconstruct frozen Pydantic model with VLM data attached
-        det_data = det.model_dump()
-        det_data["vlm_verification"] = vlm_schema.model_dump()
-        verified.append(detection_class.model_validate(det_data))
+            # Reconstruct frozen Pydantic model with VLM data attached
+            det_data = det.model_dump()
+            det_data["vlm_verification"] = vlm_schema.model_dump()
+            verified.append(detection_class.model_validate(det_data))
+    finally:
+        await verifier.aclose()
 
     logger.info(
         "vlm_pass_complete",

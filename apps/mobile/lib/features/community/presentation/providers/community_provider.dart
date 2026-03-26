@@ -5,7 +5,10 @@
 /// for the farmer community hub.
 library;
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/config/api_config.dart';
+import '../../../../core/utils/app_logger.dart';
 
 // =============================================================================
 // Models
@@ -159,34 +162,89 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     loadPosts();
   }
 
+  Dio _buildDio() {
+    return Dio(BaseOptions(
+      baseUrl: ApiConfig.effectiveBaseUrl,
+      connectTimeout: ApiConfig.connectTimeout,
+      receiveTimeout: ApiConfig.receiveTimeout,
+      headers: ApiConfig.defaultHeaders,
+    ));
+  }
+
   /// Load community posts from chat-service with offline-first fallback
+  /// GET /api/v1/community/posts on chat-service (port 8115)
   /// تحميل منشورات المجتمع من خدمة المحادثة مع دعم وضع عدم الاتصال
   Future<void> loadPosts() async {
     state = state.copyWith(isLoading: true, error: null);
-
-    // TODO: Wire up Dio client via Riverpod provider to call
-    // GET /api/v1/community/posts on chat-service (port 8115).
-    // Once injected, replace mock data with real API call:
-    //   final response = await dio.get('/api/v1/community/posts');
-    //   return (response.data['posts'] as List)
-    //       .map((json) => CommunityPost.fromJson(json))
-    //       .toList();
-    //
-    // For now, use mock data (offline-first fallback).
-    final posts = _getMockPosts();
-    state = state.copyWith(posts: posts, isLoading: false);
+    try {
+      final dio = _buildDio();
+      final response = await dio.get('/api/v1/community/posts');
+      final data = response.data;
+      final rawPosts = (data is Map ? (data['posts'] ?? data['data']) : data) as List?;
+      if (rawPosts != null) {
+        final posts = rawPosts
+            .map((p) => _postFromJson(p as Map<String, dynamic>))
+            .toList();
+        state = state.copyWith(posts: posts, isLoading: false);
+        return;
+      }
+    } on DioException catch (e) {
+      AppLogger.w('Community API unavailable, using mock data: $e');
+    } catch (e) {
+      AppLogger.w('Community posts parse error, using mock data: $e');
+    }
+    // Offline fallback
+    state = state.copyWith(posts: _getMockPosts(), isLoading: false);
   }
 
-  /// Create a new community post
-  /// إنشاء منشور جديد في المجتمع
+  /// Parse CommunityPost from API JSON
+  CommunityPost _postFromJson(Map<String, dynamic> json) {
+    final commentsRaw = json['comments'] as List? ?? [];
+    final comments = commentsRaw.map((c) {
+      final cj = c as Map<String, dynamic>;
+      return PostComment(
+        id: (cj['id'] ?? cj['comment_id'] ?? '') as String,
+        authorName: (cj['author_name'] ?? cj['authorName'] ?? '') as String,
+        isExpert: (cj['is_expert'] ?? cj['isExpert'] ?? false) as bool,
+        content: (cj['content'] ?? '') as String,
+        createdAt: DateTime.tryParse((cj['created_at'] ?? cj['createdAt'] ?? '') as String) ?? DateTime.now(),
+        likes: (cj['likes'] as int?) ?? 0,
+      );
+    }).toList();
+
+    return CommunityPost(
+      id: (json['id'] ?? json['post_id'] ?? '') as String,
+      authorId: (json['author_id'] ?? json['authorId'] ?? '') as String,
+      authorName: (json['author_name'] ?? json['authorName'] ?? '') as String,
+      authorRole: (json['author_role'] ?? json['authorRole'] ?? 'Farmer') as String,
+      authorRoleAr: (json['author_role_ar'] ?? json['authorRoleAr'] ?? 'مزارع') as String,
+      authorAvatarUrl: json['author_avatar_url'] as String?,
+      title: (json['title'] ?? '') as String,
+      content: (json['content'] ?? '') as String,
+      imageUrls: ((json['image_urls'] ?? json['imageUrls']) as List?)?.cast<String>() ?? <String>[],
+      category: (json['category'] ?? 'general') as String,
+      categoryAr: (json['category_ar'] ?? json['categoryAr'] ?? 'عام') as String,
+      likesCount: (json['likes_count'] ?? json['likesCount'] ?? 0) as int,
+      commentsCount: (json['comments_count'] ?? json['commentsCount'] ?? comments.length) as int,
+      isLikedByMe: (json['is_liked_by_me'] ?? false) as bool,
+      isExpertPost: (json['is_expert_post'] ?? json['isExpertPost'] ?? false) as bool,
+      hasExpertReply: (json['has_expert_reply'] ?? json['hasExpertReply'] ?? false) as bool,
+      createdAt: DateTime.tryParse((json['created_at'] ?? json['createdAt'] ?? '') as String) ?? DateTime.now(),
+      comments: comments,
+    );
+  }
+
+  /// Create a new community post - sends to chat-service API, optimistic local update
+  /// إنشاء منشور جديد - يرسل لـ API مع تحديث محلي فوري
   Future<void> createPost({
     required String title,
     required String content,
     String category = 'general',
     List<String> imageUrls = const [],
   }) async {
+    final tempId = 'post_${DateTime.now().millisecondsSinceEpoch}';
     final newPost = CommunityPost(
-      id: 'post_${DateTime.now().millisecondsSinceEpoch}',
+      id: tempId,
       authorId: 'current_user',
       authorName: 'أنا',
       authorRole: 'Farmer',
@@ -199,7 +257,23 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
       createdAt: DateTime.now(),
     );
 
+    // Optimistic update
     state = state.copyWith(posts: [newPost, ...state.posts]);
+
+    try {
+      final dio = _buildDio();
+      await dio.post(
+        '/api/v1/community/posts',
+        data: {
+          'title': title,
+          'content': content,
+          'category': category,
+          'image_urls': imageUrls,
+        },
+      );
+    } catch (e) {
+      AppLogger.w('Create post API error (post kept locally): $e');
+    }
   }
 
   /// Toggle like on a post

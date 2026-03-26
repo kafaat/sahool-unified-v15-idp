@@ -38,9 +38,9 @@ def test_db_module_exists():
 
 
 def test_events_module_exists():
-    """Test that events module exists."""
+    """Test that events module exists (as package or single file)."""
     src_path = Path(__file__).parent.parent / "src"
-    assert (src_path / "events.py").exists()
+    assert (src_path / "events.py").exists() or (src_path / "events" / "__init__.py").exists()
 
 
 def test_migrations_exist():

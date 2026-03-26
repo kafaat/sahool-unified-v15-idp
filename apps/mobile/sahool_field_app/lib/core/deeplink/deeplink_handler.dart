@@ -17,6 +17,7 @@
 /// - Custom scheme: sahool://verify-otp?identifier=xxx&purpose=xxx
 /// - Universal link: https://sahool.app/reset-password?token=xxx
 /// - Universal link: https://sahool.app/verify-otp?identifier=xxx&purpose=xxx
+library;
 
 import 'dart:async';
 
@@ -69,7 +70,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       // Listen for incoming links while app is running
       _linkSubscription = _appLinks.uriLinkStream.listen(
         _handleUri,
-        onError: (error) {
+        onError: (Object error) {
           AppLogger.e(
             'Deep link stream error',
             tag: 'DEEPLINK',
@@ -667,82 +668,6 @@ class _DeepLinkHandlerState extends ConsumerState<DeepLinkHandler>
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Helper Functions
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// Build a password reset deep link URL
-String buildPasswordResetLink({
-  required String token,
-  String? email,
-  bool useUniversalLink = true,
-}) {
-  final params = <String, String>{
-    'token': token,
-    if (email != null) 'email': email,
-  };
-
-  if (useUniversalLink) {
-    return Uri.https(
-      kUniversalLinkHosts.first,
-      DeepLinkPaths.resetPassword,
-      params,
-    ).toString();
-  }
-
-  return Uri(
-    scheme: kSahoolScheme,
-    host: '',
-    path: DeepLinkPaths.resetPassword,
-    queryParameters: params,
-  ).toString();
-}
-
-/// Build an OTP verification deep link URL
-String buildOtpVerificationLink({
-  required String identifier,
-  required OtpPurpose purpose,
-  String? otp,
-  String? sessionId,
-  bool useUniversalLink = true,
-}) {
-  final params = <String, String>{
-    'identifier': identifier,
-    'purpose': purpose.name,
-    if (otp != null) 'otp': otp,
-    if (sessionId != null) 'session_id': sessionId,
-  };
-
-  if (useUniversalLink) {
-    return Uri.https(
-      kUniversalLinkHosts.first,
-      DeepLinkPaths.verifyOtp,
-      params,
-    ).toString();
-  }
-
-  return Uri(
-    scheme: kSahoolScheme,
-    host: '',
-    path: DeepLinkPaths.verifyOtp,
-    queryParameters: params,
-  ).toString();
-}
-
-/// Validate a deep link token format (basic validation)
-bool isValidTokenFormat(String token) {
-  // Basic validation - token should be at least 32 characters
-  // and contain only alphanumeric characters and hyphens
-  if (token.length < 32) return false;
-
-  final validPattern = RegExp(r'^[a-zA-Z0-9\-_]+$');
-  return validPattern.hasMatch(token);
-}
-
-/// Extract field ID from a deep link path
-String? extractFieldIdFromPath(String path) {
-  // Match patterns like /field/123 or /fields/abc-def
-  final pattern = RegExp(r'/fields?/([a-zA-Z0-9\-_]+)');
-  final match = pattern.firstMatch(path);
-  return match?.group(1);
-}
+// Helper functions (buildPasswordResetLink, buildOtpVerificationLink,
+// isValidTokenFormat, extractFieldIdFromPath) are defined in
+// deeplink_models.dart and re-exported above.

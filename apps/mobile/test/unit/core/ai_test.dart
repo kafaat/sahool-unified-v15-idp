@@ -1,5 +1,6 @@
 /// Unit Tests for AI Service Models and StateNotifier
 /// اختبارات وحدات خدمة الذكاء الاصطناعي
+library;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';

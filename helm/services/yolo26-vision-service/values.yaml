@@ -113,6 +113,11 @@ probes:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
+  startup:
+    path: /healthz
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 30
 
 # Node selection for GPU nodes
 nodeSelector:
@@ -146,3 +151,7 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+
+# Network Policy
+networkPolicy:
+  enabled: true

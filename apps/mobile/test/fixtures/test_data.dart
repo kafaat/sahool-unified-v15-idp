@@ -1,5 +1,6 @@
 /// Test Fixtures for SAHOOL Field App
 /// بيانات اختبار ثابتة
+library;
 
 /// Sample field data for tests
 class FieldFixtures {

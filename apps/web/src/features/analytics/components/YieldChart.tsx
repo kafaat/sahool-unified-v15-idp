@@ -3,9 +3,9 @@
  * مكون رسم بياني للمحصول
  */
 
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   DynamicLineChart as LineChart,
   DynamicLine as Line,
@@ -19,8 +19,8 @@ import {
   DynamicTooltip as Tooltip,
   DynamicLegend as Legend,
   DynamicResponsiveContainer as ResponsiveContainer,
-} from "@/components/charts/LazyRecharts.dynamic";
-import type { DataPoint, ChartType } from "../types";
+} from '@/components/charts/LazyRecharts.dynamic';
+import type { DataPoint, ChartType } from '../types';
 
 interface YieldChartProps {
   data: DataPoint[];
@@ -34,7 +34,7 @@ interface YieldChartProps {
 
 export const YieldChart: React.FC<YieldChartProps> = ({
   data,
-  chartType = "line",
+  chartType = 'line',
   title,
   titleAr,
   height = 400,
@@ -43,9 +43,9 @@ export const YieldChart: React.FC<YieldChartProps> = ({
 }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-        <p className="text-gray-600 dark:text-gray-400">لا توجد بيانات متاحة</p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">No data available</p>
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+        <p className="text-gray-600">لا توجد بيانات متاحة</p>
+        <p className="text-sm text-gray-500 mt-1">No data available</p>
       </div>
     );
   }
@@ -56,14 +56,14 @@ export const YieldChart: React.FC<YieldChartProps> = ({
     };
 
     const tooltipStyle = {
-      backgroundColor: "#fff",
-      border: "1px solid #e5e7eb",
-      borderRadius: "8px",
-      padding: "8px 12px",
+      backgroundColor: '#fff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '8px',
+      padding: '8px 12px',
     };
 
     switch (chartType) {
-      case "bar":
+      case 'bar':
         return (
           <BarChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" />}
@@ -77,15 +77,10 @@ export const YieldChart: React.FC<YieldChartProps> = ({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip contentStyle={tooltipStyle} />
             {showLegend && <Legend />}
-            <Bar
-              dataKey="value"
-              fill="#10b981"
-              name="الإنتاج"
-              radius={[8, 8, 0, 0]}
-            />
+            <Bar dataKey="value" fill="#10b981" name="الإنتاج" radius={[8, 8, 0, 0]} />
           </BarChart>
         );
-      case "area":
+      case 'area':
         return (
           <AreaChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" />}
@@ -109,7 +104,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
             />
           </AreaChart>
         );
-      case "line":
+      case 'line':
       default:
         return (
           <LineChart {...commonProps}>
@@ -139,15 +134,11 @@ export const YieldChart: React.FC<YieldChartProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       {(title || titleAr) && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {titleAr || title}
-          </h3>
-          {title && titleAr && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{title}</p>
-          )}
+          <h3 className="text-lg font-semibold text-gray-900">{titleAr || title}</h3>
+          {title && titleAr && <p className="text-sm text-gray-600 mt-1">{title}</p>}
         </div>
       )}
 

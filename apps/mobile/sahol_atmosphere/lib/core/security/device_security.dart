@@ -29,8 +29,8 @@ class DeviceSecurityService {
     try {
       bool isCompromised = false;
       bool isEmulator = false;
-      bool isDebugMode = kDebugMode;
-      List<String> threats = [];
+      const bool isDebugMode = kDebugMode;
+      final List<String> threats = [];
       Map<String, dynamic> deviceInfo = {};
 
       // Debug mode check

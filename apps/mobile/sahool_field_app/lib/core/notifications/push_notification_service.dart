@@ -8,6 +8,7 @@
 /// توفر هذه الخدمة وظائف الإشعارات الفورية.
 /// حالياً تعمل في وضع الإشعارات المحلية فقط (Firebase معطل).
 /// عند تفعيل Firebase، سيتم تحديث هذه الخدمة لاستخدام FCM.
+library;
 
 import 'dart:async';
 
@@ -101,7 +102,7 @@ class PushNotificationService {
   /// Request push notification permission
   /// طلب إذن الإشعارات الفورية
   Future<bool> requestPermission() async {
-    return await NotificationManager.instance.requestPermission();
+    return NotificationManager.instance.requestPermission();
   }
 
   /// Get the push notification token
@@ -285,7 +286,7 @@ final pushNotificationServiceProvider =
 final pushNotificationInitProvider = FutureProvider<bool>((ref) async {
   final service = ref.watch(pushNotificationServiceProvider);
   await service.initialize();
-  return await service.requestPermission();
+  return service.requestPermission();
 });
 
 /// Stream provider for push notifications

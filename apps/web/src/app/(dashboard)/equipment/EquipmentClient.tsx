@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Equipment Management Page
  * صفحة إدارة المعدات
  */
 
-import React, { useState } from "react";
-import { Plus } from "lucide-react";
+import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 import {
   EquipmentList,
   EquipmentDetails,
@@ -14,22 +14,18 @@ import {
   MaintenanceSchedule,
   useEquipmentStats,
   useEquipmentDetails,
-} from "@/features/equipment";
+} from '@/features/equipment';
 
 export default function EquipmentClient() {
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(
-    null,
-  );
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const { data: stats, isLoading: statsLoading } = useEquipmentStats();
-  const { data: selectedEquipment } = useEquipmentDetails(
-    selectedEquipmentId || "",
-  );
+  const { data: selectedEquipment } = useEquipmentDetails(selectedEquipmentId || '');
 
-  const handleEquipmentClick = (equipmentId: string) => {
-    setSelectedEquipmentId(equipmentId);
-    setShowForm(false);
-  };
+  // const handleEquipmentClick = (equipmentId: string) => {
+  //   setSelectedEquipmentId(equipmentId);
+  //   setShowForm(false);
+  // };
 
   const handleCreateClick = () => {
     setShowForm(true);
@@ -65,27 +61,21 @@ export default function EquipmentClient() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">إجمالي المعدات</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {stats.total || 0}
-            </p>
+            <p className="text-3xl font-bold text-gray-900">{stats.total || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد التشغيل</p>
-            <p className="text-3xl font-bold text-green-600">
-              {stats.byStatus?.["active"] || 0}
-            </p>
+            <p className="text-3xl font-bold text-green-600">{stats.byStatus?.['active'] || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد الصيانة</p>
             <p className="text-3xl font-bold text-orange-600">
-              {stats.byStatus?.["maintenance"] || 0}
+              {stats.byStatus?.['maintenance'] || 0}
             </p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">بحاجة لصيانة</p>
-            <p className="text-3xl font-bold text-red-600">
-              {stats.maintenanceDue || 0}
-            </p>
+            <p className="text-3xl font-bold text-red-600">{stats.maintenanceDue || 0}</p>
           </div>
         </div>
       )}
@@ -97,7 +87,7 @@ export default function EquipmentClient() {
           {showForm ? (
             <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                {selectedEquipmentId ? "تعديل معدة" : "إضافة معدة جديدة"}
+                {selectedEquipmentId ? 'تعديل معدة' : 'إضافة معدة جديدة'}
               </h2>
               <EquipmentForm
                 equipment={selectedEquipment}
@@ -118,7 +108,7 @@ export default function EquipmentClient() {
               <EquipmentDetails equipmentId={selectedEquipmentId} />
             </div>
           ) : (
-            <EquipmentList onFieldClick={handleEquipmentClick} onCreateClick={handleCreateClick} />
+            <EquipmentList />
           )}
         </div>
 

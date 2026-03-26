@@ -3,22 +3,22 @@
  * خطافات React لميزة سجل التدقيق
  */
 
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { auditApi } from "../api";
-import type { AuditFilters } from "../types";
+import { useQuery } from '@tanstack/react-query';
+import { auditApi } from '../api';
+import type { AuditFilters } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const auditKeys = {
-  all: ["audit"] as const,
-  lists: () => [...auditKeys.all, "list"] as const,
+  all: ['audit'] as const,
+  lists: () => [...auditKeys.all, 'list'] as const,
   list: (filters?: AuditFilters) => [...auditKeys.lists(), filters] as const,
-  detail: (id: string) => [...auditKeys.all, "detail", id] as const,
-  stats: () => [...auditKeys.all, "stats"] as const,
+  detail: (id: string) => [...auditKeys.all, 'detail', id] as const,
+  stats: () => [...auditKeys.all, 'stats'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

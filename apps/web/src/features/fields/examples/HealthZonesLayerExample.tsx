@@ -9,25 +9,20 @@
  * لعرض مناطق صحة الحقل على الخريطة مع ترميز الألوان بناءً على NDVI
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import {
-  HealthZonesLayer,
-  type FieldZone,
-} from "../components/HealthZonesLayer";
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import { HealthZonesLayer, type FieldZone } from '../components/HealthZonesLayer';
 
 // Dynamic imports for react-leaflet to avoid SSR issues
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false },
-) as any;
+const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
+  ssr: false,
+}) as any;
 
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false },
-) as any;
+const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), {
+  ssr: false,
+}) as any;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Sample Data - بيانات تجريبية
@@ -39,8 +34,8 @@ const TileLayer = dynamic(
  */
 const sampleZones: FieldZone[] = [
   {
-    id: "zone-1",
-    name: "المنطقة الشمالية",
+    id: 'zone-1',
+    name: 'المنطقة الشمالية',
     boundary: [
       [15.5527, 48.5164],
       [15.5537, 48.5174],
@@ -48,12 +43,12 @@ const sampleZones: FieldZone[] = [
       [15.5517, 48.5174],
     ],
     ndviValue: 0.75,
-    healthStatus: "excellent",
+    healthStatus: 'excellent',
     area: 2.5,
   },
   {
-    id: "zone-2",
-    name: "المنطقة الوسطى",
+    id: 'zone-2',
+    name: 'المنطقة الوسطى',
     boundary: [
       [15.5517, 48.5174],
       [15.5527, 48.5184],
@@ -61,12 +56,12 @@ const sampleZones: FieldZone[] = [
       [15.5507, 48.5184],
     ],
     ndviValue: 0.52,
-    healthStatus: "moderate",
+    healthStatus: 'moderate',
     area: 3.2,
   },
   {
-    id: "zone-3",
-    name: "المنطقة الجنوبية",
+    id: 'zone-3',
+    name: 'المنطقة الجنوبية',
     boundary: [
       [15.5507, 48.5184],
       [15.5517, 48.5194],
@@ -74,12 +69,12 @@ const sampleZones: FieldZone[] = [
       [15.5497, 48.5194],
     ],
     ndviValue: 0.32,
-    healthStatus: "poor",
+    healthStatus: 'poor',
     area: 1.8,
   },
   {
-    id: "zone-4",
-    name: "المنطقة الشرقية",
+    id: 'zone-4',
+    name: 'المنطقة الشرقية',
     boundary: [
       [15.5527, 48.5184],
       [15.5537, 48.5194],
@@ -87,7 +82,7 @@ const sampleZones: FieldZone[] = [
       [15.5517, 48.5194],
     ],
     ndviValue: 0.68,
-    healthStatus: "good",
+    healthStatus: 'good',
     area: 2.1,
   },
 ];
@@ -109,14 +104,12 @@ export default function HealthZonesLayerExample() {
 
   // Handle zone click
   const handleZoneClick = (zone: FieldZone) => {
-    console.log("Zone clicked:", zone);
+    console.log('Zone clicked:', zone);
     setSelectedZoneId(zone.id);
 
     // يمكنك هنا فتح modal أو عرض تفاصيل إضافية
     // Here you can open a modal or display additional details
-    alert(
-      `تم النقر على: ${zone.name}\nNDVI: ${zone.ndviValue}\nالصحة: ${zone.healthStatus}`,
-    );
+    alert(`تم النقر على: ${zone.name}\nNDVI: ${zone.ndviValue}\nالصحة: ${zone.healthStatus}`);
   };
 
   if (!isMounted) {
@@ -131,20 +124,16 @@ export default function HealthZonesLayerExample() {
     <div className="space-y-4">
       {/* العنوان والوصف - Header and Description */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          مثال على طبقة مناطق الصحة
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">مثال على طبقة مناطق الصحة</h1>
         <p className="text-gray-600">
-          هذا المثال يوضح كيفية استخدام مكون HealthZonesLayer لعرض مناطق الحقل
-          بألوان مختلفة بناءً على قيم NDVI. انقر على أي منطقة لعرض تفاصيلها.
+          هذا المثال يوضح كيفية استخدام مكون HealthZonesLayer لعرض مناطق الحقل بألوان مختلفة بناءً
+          على قيم NDVI. انقر على أي منطقة لعرض تفاصيلها.
         </p>
       </div>
 
       {/* عناصر التحكم - Controls */}
       <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          إعدادات العرض
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">إعدادات العرض</h2>
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -178,12 +167,8 @@ export default function HealthZonesLayerExample() {
       {/* المنطقة المحددة - Selected Zone Info */}
       {selectedZoneId && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h3 className="font-semibold text-green-900 mb-2">
-            المنطقة المحددة:
-          </h3>
-          <p className="text-green-800">
-            {sampleZones.find((z) => z.id === selectedZoneId)?.name}
-          </p>
+          <h3 className="font-semibold text-green-900 mb-2">المنطقة المحددة:</h3>
+          <p className="text-green-800">{sampleZones.find((z) => z.id === selectedZoneId)?.name}</p>
         </div>
       )}
 
@@ -193,7 +178,7 @@ export default function HealthZonesLayerExample() {
           <MapContainer
             center={[15.5517, 48.5184]}
             zoom={14}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={true}
           >
             {/* طبقة الخريطة الأساسية - Base Tile Layer */}
@@ -216,9 +201,7 @@ export default function HealthZonesLayerExample() {
 
       {/* دليل الألوان - Color Legend */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          دليل الألوان - ترميز NDVI
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">دليل الألوان - ترميز NDVI</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-green-500"></div>
@@ -246,9 +229,7 @@ export default function HealthZonesLayerExample() {
 
       {/* ملاحظات الاستخدام - Usage Notes */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-blue-900 mb-3">
-          ملاحظات الاستخدام
-        </h2>
+        <h2 className="text-lg font-semibold text-blue-900 mb-3">ملاحظات الاستخدام</h2>
         <ul className="space-y-2 text-blue-800 text-sm">
           <li>• يجب أن تكون الإحداثيات بتنسيق [lat, lng]</li>
           <li>• قيم NDVI يجب أن تكون بين -1 و 1</li>

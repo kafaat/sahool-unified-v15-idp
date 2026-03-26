@@ -185,7 +185,7 @@ class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
         final updatedPlan =
             await _repository.updateRotationYear(fieldId, updatedYear);
         state = AsyncValue.data(updatedPlan);
-      } catch (error, stackTrace) {
+      } catch (error) {
         state = currentState; // Revert on error
         rethrow;
       }

@@ -3,18 +3,18 @@
  * ضغط السياق لمعالجة الذكاء الاصطناعي
  */
 
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
-import { logger } from "@/lib/logger";
+import { useCallback, useState } from 'react';
+import { logger } from '@/lib/logger';
 
 /**
  * Compression level configuration
  */
 export enum CompressionLevel {
-  LOW = "low", // Minimal compression, preserve most details
-  MEDIUM = "medium", // Balanced compression
-  HIGH = "high", // Aggressive compression, preserve only essentials
+  LOW = 'low', // Minimal compression, preserve most details
+  MEDIUM = 'medium', // Balanced compression
+  HIGH = 'high', // Aggressive compression, preserve only essentials
 }
 
 /**
@@ -61,7 +61,7 @@ export function useContextCompression() {
   const compress = useCallback(
     (
       data: unknown,
-      level: CompressionLevel = CompressionLevel.MEDIUM,
+      level: CompressionLevel = CompressionLevel.MEDIUM
     ): {
       compressed: string;
       metadata: ContextMetadata;
@@ -75,9 +75,7 @@ export function useContextCompression() {
         switch (level) {
           case CompressionLevel.HIGH:
             // Remove whitespace, nulls, and optional fields
-            compressed = JSON.stringify(
-              removeNullsAndEmpty(stripWhitespace(data)),
-            );
+            compressed = JSON.stringify(removeNullsAndEmpty(stripWhitespace(data)));
             // Apply simple RLE for repeated patterns
             compressed = applySimpleRLE(compressed);
             break;
@@ -98,7 +96,7 @@ export function useContextCompression() {
 
         const metadata: ContextMetadata = {
           timestamp: Date.now(),
-          dataType: Array.isArray(data) ? "array" : typeof data,
+          dataType: Array.isArray(data) ? 'array' : typeof data,
           originalSize,
           compressedSize,
           compressionRatio,
@@ -119,24 +117,21 @@ export function useContextCompression() {
           };
         });
 
-        logger.debug(
-          `[useContextCompression] Compressed ${level}`,
-          {
-            originalSize,
-            compressedSize,
-            ratio: compressionRatio.toFixed(2),
-          },
-        );
+        logger.debug(`[useContextCompression] Compressed ${level}`, {
+          originalSize,
+          compressedSize,
+          ratio: compressionRatio.toFixed(2),
+        });
 
         return { compressed, metadata };
       } catch (error) {
-        logger.error("[useContextCompression] Compression failed:", error);
+        logger.error('[useContextCompression] Compression failed:', error);
         throw new Error(
-          `Compression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Compression failed: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
     },
-    [],
+    []
   );
 
   /**
@@ -155,9 +150,9 @@ export function useContextCompression() {
       // LOW/MEDIUM level: plain JSON
       return JSON.parse(compressed);
     } catch (error) {
-      logger.error("[useContextCompression] Decompression failed:", error);
+      logger.error('[useContextCompression] Decompression failed:', error);
       throw new Error(
-        `Decompression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Decompression failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }, []);
@@ -202,18 +197,14 @@ function removeNullsAndEmpty(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj
       .map((item) => removeNullsAndEmpty(item))
-      .filter((item) => item !== null && item !== undefined && item !== "");
+      .filter((item) => item !== null && item !== undefined && item !== '');
   }
 
-  if (obj !== null && typeof obj === "object") {
+  if (obj !== null && typeof obj === 'object') {
     const cleaned: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       const cleaned_value = removeNullsAndEmpty(value);
-      if (
-        cleaned_value !== null &&
-        cleaned_value !== undefined &&
-        cleaned_value !== ""
-      ) {
+      if (cleaned_value !== null && cleaned_value !== undefined && cleaned_value !== '') {
         cleaned[key] = cleaned_value;
       }
     }
@@ -227,7 +218,7 @@ function removeNullsAndEmpty(obj: unknown): unknown {
  * Strip unnecessary whitespace
  */
 function stripWhitespace(obj: unknown): unknown {
-  if (typeof obj === "string") {
+  if (typeof obj === 'string') {
     return obj.trim();
   }
 
@@ -235,7 +226,7 @@ function stripWhitespace(obj: unknown): unknown {
     return obj.map(stripWhitespace);
   }
 
-  if (obj !== null && typeof obj === "object") {
+  if (obj !== null && typeof obj === 'object') {
     const stripped: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       stripped[key] = stripWhitespace(value);
@@ -247,7 +238,7 @@ function stripWhitespace(obj: unknown): unknown {
 }
 
 /** Prefix marker for RLE-encoded strings to distinguish from plain JSON */
-const RLE_PREFIX = "\x02RLE:";
+const RLE_PREFIX = '\x02RLE:';
 
 /**
  * Apply simple Run-Length Encoding for compression.

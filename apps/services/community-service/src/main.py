@@ -18,7 +18,7 @@ import os
 import sys
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -73,15 +73,17 @@ try:
 except ImportError:
     AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = "anonymous"
         username: str = "anonymous"
         email: str = "anonymous@sahool.app"
-        tenant_id: str = "default"
+        tenant_id: str | None = None
         roles: list[str] = []
 
     async def get_current_user() -> User:  # type: ignore[misc]
-        return User()
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # ---------------------------------------------------------------------------

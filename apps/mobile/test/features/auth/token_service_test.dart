@@ -7,14 +7,12 @@
 /// - Token expiry handling
 /// - Automatic token refresh scheduling
 /// - Session management
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
-import 'package:sahool_field_app/core/auth/biometric_service.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 import 'package:sahool_field_app/core/auth/token_manager.dart';
-import 'package:sahool_field_app/core/http/api_client.dart';
 
 import 'auth_fixtures.dart';
 import 'auth_mocks.dart';

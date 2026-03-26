@@ -260,7 +260,7 @@ services:
   # NATS Cluster Monitor (Optional)
   # ─────────────────────────────────────────────────────────────────────────────
   nats-surveyor:
-    image: natsio/nats-surveyor:latest
+    image: natsio/nats-surveyor:0.14.2
     container_name: sahool-nats-surveyor
     hostname: nats-surveyor
     restart: unless-stopped

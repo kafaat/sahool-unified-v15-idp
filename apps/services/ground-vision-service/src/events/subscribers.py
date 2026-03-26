@@ -9,8 +9,9 @@ ground vision data with satellite imagery, weather, and field updates.
 import json
 import logging
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime, timezone
-from typing import Callable, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 

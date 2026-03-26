@@ -16,23 +16,23 @@ Author: SAHOOL QA Team
 Updated: January 2025
 """
 
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from shared.ai.context_engineering.evaluation import (
-    RecommendationEvaluator,
-    EvaluationResult,
+    DEFAULT_PASSING_THRESHOLD,
+    MAX_SCORE,
+    MIN_SCORE,
+    BaseEvaluator,
     CriteriaScore,
     EvaluationCriteria,
     EvaluationGrade,
+    EvaluationResult,
+    RecommendationEvaluator,
     RecommendationType,
-    BaseEvaluator,
-    DEFAULT_PASSING_THRESHOLD,
-    MIN_SCORE,
-    MAX_SCORE,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

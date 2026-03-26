@@ -18,17 +18,17 @@
 /**
  * Digital Elevation Model data source
  */
-export type DEMSource = "copernicus" | "srtm" | "alos" | "aster" | "lidar" | "local" | "drone";
+export type DEMSource = 'copernicus' | 'srtm' | 'alos' | 'aster' | 'lidar' | 'local' | 'drone';
 
 /**
  * Risk level classification
  */
-export type RiskLevel = "low" | "medium" | "high" | "critical";
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Resolution of terrain data
  */
-export type TerrainResolution = "1m" | "5m" | "10m" | "30m" | "90m";
+export type TerrainResolution = '1m' | '5m' | '10m' | '30m' | '90m';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Elevation Types
@@ -39,7 +39,7 @@ export type TerrainResolution = "1m" | "5m" | "10m" | "30m" | "90m";
  * Elevation statistics for a field
  */
 export interface ElevationStats {
-  min: number;              // meters above sea level
+  min: number; // meters above sea level
   max: number;
   mean: number;
   median: number;
@@ -65,15 +65,15 @@ export interface ElevationProfile {
   lengthMeters: number;
   sampleCount: number;
   samples: Array<{
-    distance: number;       // meters from start
-    elevation: number;      // meters
+    distance: number; // meters from start
+    elevation: number; // meters
     latitude: number;
     longitude: number;
   }>;
-  maxSlope: number;         // degrees
+  maxSlope: number; // degrees
   avgSlope: number;
-  cumulativeGain: number;   // meters
-  cumulativeLoss: number;   // meters
+  cumulativeGain: number; // meters
+  cumulativeLoss: number; // meters
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -85,23 +85,23 @@ export interface ElevationProfile {
  * Slope classification
  */
 export type SlopeClass =
-  | "flat"            // مسطح (0-2°)
-  | "gentle"          // منحدر خفيف (2-5°)
-  | "moderate"        // معتدل (5-10°)
-  | "steep"           // منحدر (10-20°)
-  | "very_steep"      // شديد الانحدار (20-45°)
-  | "extreme";        // حاد جداً (>45°)
+  | 'flat' // مسطح (0-2°)
+  | 'gentle' // منحدر خفيف (2-5°)
+  | 'moderate' // معتدل (5-10°)
+  | 'steep' // منحدر (10-20°)
+  | 'very_steep' // شديد الانحدار (20-45°)
+  | 'extreme'; // حاد جداً (>45°)
 
 /**
  * Slope analysis result
  */
 export interface SlopeAnalysis {
-  min: number;                  // degrees
+  min: number; // degrees
   max: number;
   mean: number;
   stdDev: number;
   distribution: {
-    flat: number;               // percentage of area
+    flat: number; // percentage of area
     gentle: number;
     moderate: number;
     steep: number;
@@ -125,15 +125,15 @@ export interface SlopeAnalysis {
  * Aspect direction (compass direction)
  */
 export type AspectDirection =
-  | "flat"            // مسطح
-  | "north"           // شمال
-  | "northeast"       // شمال شرق
-  | "east"            // شرق
-  | "southeast"       // جنوب شرق
-  | "south"           // جنوب
-  | "southwest"       // جنوب غرب
-  | "west"            // غرب
-  | "northwest";      // شمال غرب
+  | 'flat' // مسطح
+  | 'north' // شمال
+  | 'northeast' // شمال شرق
+  | 'east' // شرق
+  | 'southeast' // جنوب شرق
+  | 'south' // جنوب
+  | 'southwest' // جنوب غرب
+  | 'west' // غرب
+  | 'northwest'; // شمال غرب
 
 /**
  * Aspect analysis result
@@ -141,9 +141,9 @@ export type AspectDirection =
 export interface AspectAnalysis {
   dominantDirection: AspectDirection;
   dominantDirectionAr: string;
-  dominantAngle: number;            // degrees (0-360)
+  dominantAngle: number; // degrees (0-360)
   distribution: {
-    flat: number;                   // percentage of area
+    flat: number; // percentage of area
     north: number;
     northeast: number;
     east: number;
@@ -153,11 +153,11 @@ export interface AspectAnalysis {
     west: number;
     northwest: number;
   };
-  solarExposure: "low" | "medium" | "high";
+  solarExposure: 'low' | 'medium' | 'high';
   solarExposureAr: string;
-  frostRisk: "low" | "medium" | "high";
+  frostRisk: 'low' | 'medium' | 'high';
   frostRiskAr: string;
-  windExposure: "sheltered" | "moderate" | "exposed";
+  windExposure: 'sheltered' | 'moderate' | 'exposed';
   windExposureAr: string;
   recommendedCrops?: string[];
   recommendedCropsAr?: string[];
@@ -172,7 +172,7 @@ export interface AspectAnalysis {
  * Flow accumulation analysis
  */
 export interface FlowAnalysis {
-  maxAccumulation: number;          // number of cells
+  maxAccumulation: number; // number of cells
   drainageChannels: Array<{
     channelId: string;
     lengthMeters: number;
@@ -185,16 +185,24 @@ export interface FlowAnalysis {
       longitude: number;
     };
     avgAccumulation: number;
-    order: number;                  // Strahler stream order
+    order: number; // Strahler stream order
   }>;
-  watershedArea: number;            // hectares
+  watershedArea: number; // hectares
   outletPoint?: {
     latitude: number;
     longitude: number;
   };
-  flowDirection: "north" | "northeast" | "east" | "southeast" | "south" | "southwest" | "west" | "northwest";
+  flowDirection:
+    | 'north'
+    | 'northeast'
+    | 'east'
+    | 'southeast'
+    | 'south'
+    | 'southwest'
+    | 'west'
+    | 'northwest';
   flowDirectionAr: string;
-  drainageDensity: number;          // km/km²
+  drainageDensity: number; // km/km²
 }
 
 /**
@@ -206,15 +214,15 @@ export interface TWIAnalysis {
   mean: number;
   stdDev: number;
   distribution: {
-    veryDry: number;                // percentage (TWI < 4)
-    dry: number;                    // percentage (TWI 4-6)
-    moderate: number;               // percentage (TWI 6-8)
-    wet: number;                    // percentage (TWI 8-10)
-    veryWet: number;                // percentage (TWI > 10)
+    veryDry: number; // percentage (TWI < 4)
+    dry: number; // percentage (TWI 4-6)
+    moderate: number; // percentage (TWI 6-8)
+    wet: number; // percentage (TWI 8-10)
+    veryWet: number; // percentage (TWI > 10)
   };
-  waterloggingProneAreas: number;   // percentage of field
-  wellDrainedAreas: number;         // percentage of field
-  moistureRetentionIndex: number;   // 0-100
+  waterloggingProneAreas: number; // percentage of field
+  wellDrainedAreas: number; // percentage of field
+  moistureRetentionIndex: number; // 0-100
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -226,10 +234,10 @@ export interface TWIAnalysis {
  * Erosion type classification
  */
 export type ErosionType =
-  | "sheet"               // تعرية سطحية
-  | "rill"                // تعرية أخدودية صغيرة
-  | "gully"               // تعرية أخدودية كبيرة
-  | "wind";               // تعرية ريحية
+  | 'sheet' // تعرية سطحية
+  | 'rill' // تعرية أخدودية صغيرة
+  | 'gully' // تعرية أخدودية كبيرة
+  | 'wind'; // تعرية ريحية
 
 /**
  * Erosion risk assessment
@@ -237,7 +245,7 @@ export type ErosionType =
 export interface ErosionRiskAssessment {
   overallRisk: RiskLevel;
   overallRiskAr: string;
-  riskScore: number;                // 0-100
+  riskScore: number; // 0-100
   erosionTypes: Array<{
     type: ErosionType;
     typeAr: string;
@@ -245,11 +253,11 @@ export interface ErosionRiskAssessment {
     riskAr: string;
     affectedAreaPercent: number;
   }>;
-  estimatedSoilLoss: number;        // tons/ha/year (RUSLE model)
-  kFactor: number;                  // soil erodibility factor
-  lsFactor: number;                 // slope length and steepness factor
-  cFactor: number;                  // cover management factor
-  pFactor: number;                  // support practice factor
+  estimatedSoilLoss: number; // tons/ha/year (RUSLE model)
+  kFactor: number; // soil erodibility factor
+  lsFactor: number; // slope length and steepness factor
+  cFactor: number; // cover management factor
+  pFactor: number; // support practice factor
   mitigationRequired: boolean;
   mitigationMeasures?: string[];
   mitigationMeasuresAr?: string[];
@@ -292,7 +300,7 @@ export interface TerrainAnalysis {
   terracingRecommendation?: string;
   terracingRecommendationAr?: string;
   analyzedAt: Date;
-  dataQuality: "high" | "medium" | "low";
+  dataQuality: 'high' | 'medium' | 'low';
   dataQualityAr: string;
   processingTimeMs: number;
 }
@@ -370,10 +378,10 @@ export interface TerrainComparison {
     fieldNameAr: string;
     summary: TerrainSummary;
   }>;
-  bestForIrrigation: string;        // field ID
-  bestForMachinery: string;         // field ID
-  lowestErosionRisk: string;        // field ID
-  lowestWaterloggingRisk: string;   // field ID
+  bestForIrrigation: string; // field ID
+  bestForMachinery: string; // field ID
+  lowestErosionRisk: string; // field ID
+  lowestWaterloggingRisk: string; // field ID
   overallRanking: Array<{
     fieldId: string;
     score: number;
@@ -393,9 +401,9 @@ export interface TerrainComparison {
 export interface TerrainIrrigationRecommendation {
   fieldId: string;
   suitableIrrigationTypes: Array<{
-    type: "drip" | "sprinkler" | "flood" | "pivot" | "furrow";
+    type: 'drip' | 'sprinkler' | 'flood' | 'pivot' | 'furrow';
     typeAr: string;
-    suitabilityScore: number;       // 0-100
+    suitabilityScore: number; // 0-100
     considerations: string[];
     considerationsAr: string[];
   }>;
@@ -418,10 +426,10 @@ export interface TerrainIrrigationRecommendation {
 export interface LandLevelingRecommendation {
   fieldId: string;
   required: boolean;
-  urgency: "low" | "medium" | "high";
+  urgency: 'low' | 'medium' | 'high';
   urgencyAr: string;
-  estimatedCutVolume: number;       // cubic meters
-  estimatedFillVolume: number;      // cubic meters
+  estimatedCutVolume: number; // cubic meters
+  estimatedFillVolume: number; // cubic meters
   estimatedCost?: number;
   estimatedCostCurrency?: string;
   expectedBenefits: string[];

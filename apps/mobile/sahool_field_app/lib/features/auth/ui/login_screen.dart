@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/biometric_service.dart';
@@ -70,6 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/map');
       }
     } on BiometricException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -85,16 +85,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void dispose() {
     _phoneController.dispose();
-    for (var controller in _otpControllers) {
+    for (final controller in _otpControllers) {
       controller.dispose();
     }
-    for (var node in _otpFocusNodes) {
+    for (final node in _otpFocusNodes) {
       node.dispose();
     }
     super.dispose();
   }
 
-  void _sendOtp() async {
+  Future<void> _sendOtp() async {
     // Validate phone number
     final validation = InputValidator.validateYemenPhone(_phoneController.text);
 
@@ -112,6 +112,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
 
     setState(() {
       _isLoading = false;
@@ -137,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
     // Validate OTP
@@ -215,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: SahoolColors.primary.withOpacity(0.1),
+                        color: SahoolColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -337,7 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),

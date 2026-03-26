@@ -535,8 +535,6 @@ class PostGISMigrationHelper:
         safe_column = v(column)
         if not index_name:
             index_name = f"idx_{safe_table}_{safe_column}_gist"
-        safe_index = v(index_name)
-
         _validate_identifier(table, "table name")
         _validate_identifier(column, "column name")
         _validate_identifier(index_name, "index name")

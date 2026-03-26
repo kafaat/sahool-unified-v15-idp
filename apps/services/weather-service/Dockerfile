@@ -11,7 +11,8 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /build
 
@@ -35,12 +36,13 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip and build tools with multi-mirror fallback
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -76,10 +78,10 @@ LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}" \
       org.opencontainers.image.vendor="KAFAAT" \
       org.opencontainers.image.description="Weather Service - Weather data and forecasts"
 
-# Install minimal runtime dependencies
+# Upgrade system packages and install minimal runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
-    ca-certificates \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -95,6 +97,15 @@ COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
 # Set virtual environment path
 ENV VIRTUAL_ENV=/home/sahool/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Strip build tools from production venv (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /home/sahool/venv/lib/python*/site-packages/pip* \
+           /home/sahool/venv/lib/python*/site-packages/setuptools* \
+           /home/sahool/venv/lib/python*/site-packages/wheel* \
+           /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy shared modules
 COPY --chown=sahool:sahool shared/ /app/shared/

@@ -2,6 +2,7 @@
 /// اختبارات إعدادات الأمان
 ///
 /// Tests for centralized security configuration
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/security/security_config.dart';

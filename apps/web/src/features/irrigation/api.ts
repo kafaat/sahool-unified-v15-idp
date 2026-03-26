@@ -3,10 +3,10 @@
  * طبقة API لميزة الري - Real API with mock fallback
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { IRRIGATION_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
-import type { IrrigationSchedule, IrrigationMethod, CreateScheduleRequest } from "./types";
-import { MOCK_IRRIGATION_SCHEDULES, MOCK_IRRIGATION_METHODS } from "./api.mock";
+import { createApiClient, logger } from '@/lib/api/factory';
+import { IRRIGATION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import type { IrrigationSchedule, IrrigationMethod, CreateScheduleRequest } from './types';
+import { MOCK_IRRIGATION_SCHEDULES, MOCK_IRRIGATION_METHODS } from './api.mock';
 
 const api = createApiClient();
 
@@ -20,10 +20,10 @@ export const irrigationApi = {
       const response = await api.get(IRRIGATION_ENDPOINTS.SCHEDULES_LIST);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      logger.warn("API returned unexpected format for schedules, using mock data");
+      logger.warn('API returned unexpected format for schedules, using mock data');
       return MOCK_IRRIGATION_SCHEDULES;
     } catch (error) {
-      logger.warn("Failed to fetch irrigation schedules from API, using mock data:", error);
+      logger.warn('Failed to fetch irrigation schedules from API, using mock data:', error);
       return MOCK_IRRIGATION_SCHEDULES;
     }
   },
@@ -37,14 +37,14 @@ export const irrigationApi = {
       const response = await api.post(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to create schedule via API, creating locally:", error);
+      logger.warn('Failed to create schedule via API, creating locally:', error);
       // Return a locally-constructed schedule as fallback
       return {
         id: crypto.randomUUID(),
         fieldId: `field-${Date.now()}`,
         fieldName: data.fieldName,
         type: data.type,
-        status: "scheduled",
+        status: 'scheduled',
         scheduledAt: data.scheduledAt || new Date().toISOString(),
         duration: data.duration,
         waterAmount: data.waterAmount,
@@ -56,13 +56,16 @@ export const irrigationApi = {
    * Update an irrigation schedule
    * تحديث جدول ري
    */
-  updateSchedule: async (scheduleId: string, data: Partial<CreateScheduleRequest>): Promise<IrrigationSchedule> => {
+  updateSchedule: async (
+    scheduleId: string,
+    data: Partial<CreateScheduleRequest>
+  ): Promise<IrrigationSchedule> => {
     try {
       const url = buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId });
       const response = await api.patch(url, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to update schedule via API:", error);
+      logger.warn('Failed to update schedule via API:', error);
       throw error;
     }
   },
@@ -76,7 +79,7 @@ export const irrigationApi = {
       const url = buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId });
       await api.delete(url);
     } catch (error) {
-      logger.warn("Failed to delete schedule via API:", error);
+      logger.warn('Failed to delete schedule via API:', error);
       // Silently succeed - local state will handle deletion
     }
   },
@@ -99,10 +102,10 @@ export const irrigationApi = {
           efficiency: (m.efficiency_percent || m.efficiency || 0) as number,
         }));
       }
-      logger.warn("API returned unexpected format for methods, using mock data");
+      logger.warn('API returned unexpected format for methods, using mock data');
       return MOCK_IRRIGATION_METHODS;
     } catch (error) {
-      logger.warn("Failed to fetch irrigation methods from API, using mock data:", error);
+      logger.warn('Failed to fetch irrigation methods from API, using mock data:', error);
       return MOCK_IRRIGATION_METHODS;
     }
   },
@@ -111,7 +114,13 @@ export const irrigationApi = {
    * Fetch irrigation stats/summary
    * جلب إحصائيات الري
    */
-  getStats: async (): Promise<{ totalWaterToday: number; inProgressCount: number; scheduledCount: number; overdueCount: number; efficiency: number }> => {
+  getStats: async (): Promise<{
+    totalWaterToday: number;
+    inProgressCount: number;
+    scheduledCount: number;
+    overdueCount: number;
+    efficiency: number;
+  }> => {
     try {
       const response = await api.get(IRRIGATION_ENDPOINTS.EFFICIENCY);
       const data = response.data.data || response.data;
@@ -124,7 +133,13 @@ export const irrigationApi = {
       };
     } catch {
       // Stats will be computed from schedules in the component
-      return { totalWaterToday: 0, inProgressCount: 0, scheduledCount: 0, overdueCount: 0, efficiency: 87 };
+      return {
+        totalWaterToday: 0,
+        inProgressCount: 0,
+        scheduledCount: 0,
+        overdueCount: 0,
+        efficiency: 87,
+      };
     }
   },
 };

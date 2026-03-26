@@ -13,9 +13,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-import redis.asyncio as redis
-from redis.asyncio import Redis
-from redis.exceptions import RedisError
+try:
+    import redis.asyncio as redis
+    from redis.asyncio import Redis
+    from redis.exceptions import RedisError
+except ImportError:
+    redis = None  # type: ignore[assignment]
+    Redis = None  # type: ignore[assignment,misc]
+    RedisError = Exception  # type: ignore[assignment,misc]
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +153,9 @@ class RedisTokenRevocationStore:
         """Initialize Redis connection"""
         if self._initialized:
             return
+
+        if redis is None:
+            raise ImportError("redis.asyncio is required for token revocation. Install it with: pip install redis")
 
         try:
             url = self._build_redis_url()

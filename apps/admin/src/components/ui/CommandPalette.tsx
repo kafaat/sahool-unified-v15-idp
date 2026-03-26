@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * Command Palette (Cmd+K / Ctrl+K)
  * لوحة الأوامر السريعة للتنقل والبحث
  */
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   Search,
   LayoutDashboard,
@@ -33,7 +33,7 @@ import {
   Eye,
   Cpu,
   ClipboardList,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface CommandItem {
   id: string;
@@ -46,35 +46,227 @@ interface CommandItem {
 }
 
 const commands: CommandItem[] = [
-  { id: "dashboard", labelAr: "لوحة التحكم", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, keywords: ["home", "main", "رئيسية"], section: "الرئيسية" },
-  { id: "farms", labelAr: "المزارع", label: "Farms", href: "/farms", icon: MapPin, keywords: ["field", "حقول", "مزرعة"], section: "العمليات" },
-  { id: "diseases", labelAr: "الأمراض", label: "Diseases", href: "/diseases", icon: Bug, keywords: ["pest", "آفات", "مرض"], section: "العمليات" },
-  { id: "irrigation", labelAr: "الري", label: "Irrigation", href: "/irrigation", icon: Droplets, keywords: ["water", "مياه", "سقي"], section: "العمليات" },
-  { id: "tasks", labelAr: "المهام", label: "Tasks", href: "/tasks", icon: CheckSquare, keywords: ["todo", "عمل", "مهمة"], section: "العمليات" },
-  { id: "sensors", labelAr: "المستشعرات", label: "Sensors", href: "/sensors", icon: Activity, keywords: ["iot", "حساس"], section: "المراقبة" },
-  { id: "alerts", labelAr: "التنبيهات", label: "Alerts", href: "/alerts", icon: Bell, keywords: ["notification", "تنبيه", "إنذار"], section: "المراقبة" },
-  { id: "epidemic", labelAr: "مركز الأوبئة", label: "Epidemic Center", href: "/epidemic", icon: Activity, keywords: ["outbreak", "وباء"], section: "المراقبة" },
-  { id: "yield", labelAr: "الإنتاجية", label: "Yield", href: "/yield", icon: TrendingUp, keywords: ["harvest", "محصول", "إنتاج"], section: "المراقبة" },
-  { id: "users", labelAr: "المستخدمين", label: "Users", href: "/users", icon: Users, keywords: ["admin", "مستخدم", "إدارة"], section: "الإدارة" },
-  { id: "equipment", labelAr: "المعدات", label: "Equipment", href: "/equipment", icon: Wrench, keywords: ["machine", "آلة", "معدة"], section: "الإدارة" },
-  { id: "inventory", labelAr: "المخزون", label: "Inventory", href: "/inventory", icon: Package, keywords: ["stock", "مخزن"], section: "الإدارة" },
-  { id: "marketplace", labelAr: "السوق", label: "Marketplace", href: "/marketplace", icon: ShoppingCart, keywords: ["sell", "buy", "بيع", "شراء"], section: "الإدارة" },
-  { id: "research", labelAr: "البحوث", label: "Research", href: "/research", icon: FlaskConical, keywords: ["study", "بحث", "تجربة"], section: "الإدارة" },
-  { id: "compliance", labelAr: "الامتثال", label: "Compliance", href: "/compliance", icon: Shield, keywords: ["globalgap", "معايير"], section: "الإدارة" },
-  { id: "crop-health", labelAr: "صحة المحصول", label: "Crop Health", href: "/crop-health", icon: Sprout, keywords: ["ndvi", "نبات", "صحة"], section: "الذكاء" },
-  { id: "copilot", labelAr: "المساعد الذكي", label: "AI Copilot", href: "/copilot", icon: MessageCircle, keywords: ["ai", "chat", "ذكاء"], section: "الذكاء" },
-  { id: "vision", labelAr: "الرؤية الحاسوبية", label: "Vision", href: "/vision", icon: Eye, keywords: ["yolo", "detect", "كشف"], section: "الذكاء" },
-  { id: "drone", labelAr: "الطائرات", label: "Drones", href: "/drone", icon: Plane, keywords: ["uav", "طائرة", "مسيرة"], section: "الذكاء" },
-  { id: "terrain", labelAr: "التضاريس", label: "Terrain", href: "/terrain", icon: Mountain, keywords: ["dem", "تضاريس", "ارتفاع"], section: "الذكاء" },
-  { id: "edge-devices", labelAr: "أجهزة الحافة", label: "Edge Devices", href: "/edge-devices", icon: Cpu, keywords: ["jetson", "حافة", "جهاز"], section: "الذكاء" },
-  { id: "satellite", labelAr: "الأقمار الصناعية", label: "Satellite", href: "/analytics/satellite", icon: Satellite, keywords: ["ndvi", "قمر", "فضاء"], section: "التحليلات" },
-  { id: "audit", labelAr: "سجل التدقيق", label: "Audit Trail", href: "/audit", icon: ClipboardList, keywords: ["log", "تدقيق", "سجل"], section: "النظام" },
-  { id: "settings", labelAr: "الإعدادات", label: "Settings", href: "/settings", icon: Settings, keywords: ["config", "إعداد", "تكوين"], section: "النظام" },
+  {
+    id: 'dashboard',
+    labelAr: 'لوحة التحكم',
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    keywords: ['home', 'main', 'رئيسية'],
+    section: 'الرئيسية',
+  },
+  {
+    id: 'farms',
+    labelAr: 'المزارع',
+    label: 'Farms',
+    href: '/farms',
+    icon: MapPin,
+    keywords: ['field', 'حقول', 'مزرعة'],
+    section: 'العمليات',
+  },
+  {
+    id: 'diseases',
+    labelAr: 'الأمراض',
+    label: 'Diseases',
+    href: '/diseases',
+    icon: Bug,
+    keywords: ['pest', 'آفات', 'مرض'],
+    section: 'العمليات',
+  },
+  {
+    id: 'irrigation',
+    labelAr: 'الري',
+    label: 'Irrigation',
+    href: '/irrigation',
+    icon: Droplets,
+    keywords: ['water', 'مياه', 'سقي'],
+    section: 'العمليات',
+  },
+  {
+    id: 'tasks',
+    labelAr: 'المهام',
+    label: 'Tasks',
+    href: '/tasks',
+    icon: CheckSquare,
+    keywords: ['todo', 'عمل', 'مهمة'],
+    section: 'العمليات',
+  },
+  {
+    id: 'sensors',
+    labelAr: 'المستشعرات',
+    label: 'Sensors',
+    href: '/sensors',
+    icon: Activity,
+    keywords: ['iot', 'حساس'],
+    section: 'المراقبة',
+  },
+  {
+    id: 'alerts',
+    labelAr: 'التنبيهات',
+    label: 'Alerts',
+    href: '/alerts',
+    icon: Bell,
+    keywords: ['notification', 'تنبيه', 'إنذار'],
+    section: 'المراقبة',
+  },
+  {
+    id: 'epidemic',
+    labelAr: 'مركز الأوبئة',
+    label: 'Epidemic Center',
+    href: '/epidemic',
+    icon: Activity,
+    keywords: ['outbreak', 'وباء'],
+    section: 'المراقبة',
+  },
+  {
+    id: 'yield',
+    labelAr: 'الإنتاجية',
+    label: 'Yield',
+    href: '/yield',
+    icon: TrendingUp,
+    keywords: ['harvest', 'محصول', 'إنتاج'],
+    section: 'المراقبة',
+  },
+  {
+    id: 'users',
+    labelAr: 'المستخدمين',
+    label: 'Users',
+    href: '/users',
+    icon: Users,
+    keywords: ['admin', 'مستخدم', 'إدارة'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'equipment',
+    labelAr: 'المعدات',
+    label: 'Equipment',
+    href: '/equipment',
+    icon: Wrench,
+    keywords: ['machine', 'آلة', 'معدة'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'inventory',
+    labelAr: 'المخزون',
+    label: 'Inventory',
+    href: '/inventory',
+    icon: Package,
+    keywords: ['stock', 'مخزن'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'marketplace',
+    labelAr: 'السوق',
+    label: 'Marketplace',
+    href: '/marketplace',
+    icon: ShoppingCart,
+    keywords: ['sell', 'buy', 'بيع', 'شراء'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'research',
+    labelAr: 'البحوث',
+    label: 'Research',
+    href: '/research',
+    icon: FlaskConical,
+    keywords: ['study', 'بحث', 'تجربة'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'compliance',
+    labelAr: 'الامتثال',
+    label: 'Compliance',
+    href: '/compliance',
+    icon: Shield,
+    keywords: ['globalgap', 'معايير'],
+    section: 'الإدارة',
+  },
+  {
+    id: 'crop-health',
+    labelAr: 'صحة المحصول',
+    label: 'Crop Health',
+    href: '/crop-health',
+    icon: Sprout,
+    keywords: ['ndvi', 'نبات', 'صحة'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'copilot',
+    labelAr: 'المساعد الذكي',
+    label: 'AI Copilot',
+    href: '/copilot',
+    icon: MessageCircle,
+    keywords: ['ai', 'chat', 'ذكاء'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'vision',
+    labelAr: 'الرؤية الحاسوبية',
+    label: 'Vision',
+    href: '/vision',
+    icon: Eye,
+    keywords: ['yolo', 'detect', 'كشف'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'drone',
+    labelAr: 'الطائرات',
+    label: 'Drones',
+    href: '/drone',
+    icon: Plane,
+    keywords: ['uav', 'طائرة', 'مسيرة'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'terrain',
+    labelAr: 'التضاريس',
+    label: 'Terrain',
+    href: '/terrain',
+    icon: Mountain,
+    keywords: ['dem', 'تضاريس', 'ارتفاع'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'edge-devices',
+    labelAr: 'أجهزة الحافة',
+    label: 'Edge Devices',
+    href: '/edge-devices',
+    icon: Cpu,
+    keywords: ['jetson', 'حافة', 'جهاز'],
+    section: 'الذكاء',
+  },
+  {
+    id: 'satellite',
+    labelAr: 'الأقمار الصناعية',
+    label: 'Satellite',
+    href: '/analytics/satellite',
+    icon: Satellite,
+    keywords: ['ndvi', 'قمر', 'فضاء'],
+    section: 'التحليلات',
+  },
+  {
+    id: 'audit',
+    labelAr: 'سجل التدقيق',
+    label: 'Audit Trail',
+    href: '/audit',
+    icon: ClipboardList,
+    keywords: ['log', 'تدقيق', 'سجل'],
+    section: 'النظام',
+  },
+  {
+    id: 'settings',
+    labelAr: 'الإعدادات',
+    label: 'Settings',
+    href: '/settings',
+    icon: Settings,
+    keywords: ['config', 'إعداد', 'تكوين'],
+    section: 'النظام',
+  },
 ];
 
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -88,7 +280,7 @@ export default function CommandPalette() {
       (cmd) =>
         cmd.labelAr.includes(q) ||
         cmd.label.toLowerCase().includes(q) ||
-        cmd.keywords.some((kw) => kw.includes(q)),
+        cmd.keywords.some((kw) => kw.includes(q))
     );
   }, [query]);
 
@@ -117,15 +309,15 @@ export default function CommandPalette() {
   // Open/close handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
-        setQuery("");
+        setQuery('');
         setSelectedIndex(0);
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Focus input on open
@@ -138,27 +330,27 @@ export default function CommandPalette() {
   // Navigate selection
   const handleKeyNav = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((i) => Math.min(i + 1, filteredCommands.length - 1));
-      } else if (e.key === "ArrowUp") {
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setSelectedIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter" && filteredCommands[selectedIndex]) {
+      } else if (e.key === 'Enter' && filteredCommands[selectedIndex]) {
         e.preventDefault();
         router.push(filteredCommands[selectedIndex].href);
         setIsOpen(false);
-      } else if (e.key === "Escape") {
+      } else if (e.key === 'Escape') {
         setIsOpen(false);
       }
     },
-    [filteredCommands, selectedIndex, router],
+    [filteredCommands, selectedIndex, router]
   );
 
   // Scroll selected item into view
   useEffect(() => {
     const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
-    el?.scrollIntoView({ block: "nearest" });
+    el?.scrollIntoView({ block: 'nearest' });
   }, [selectedIndex]);
 
   if (!isOpen) return null;
@@ -230,26 +422,20 @@ export default function CommandPalette() {
                         }}
                         onMouseEnter={() => setSelectedIndex(currentIndex)}
                         className={cn(
-                          "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+                          'w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors',
                           isSelected
-                            ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50",
+                            ? 'bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                         )}
                       >
                         <Icon
                           className={cn(
-                            "w-4 h-4 flex-shrink-0",
-                            isSelected
-                              ? "text-sahool-600 dark:text-sahool-400"
-                              : "text-gray-400",
+                            'w-4 h-4 flex-shrink-0',
+                            isSelected ? 'text-sahool-600 dark:text-sahool-400' : 'text-gray-400'
                           )}
                         />
-                        <span className="flex-1 text-right font-medium">
-                          {cmd.labelAr}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {cmd.label}
-                        </span>
+                        <span className="flex-1 text-right font-medium">{cmd.labelAr}</span>
+                        <span className="text-xs text-gray-400">{cmd.label}</span>
                       </button>
                     );
                   })}

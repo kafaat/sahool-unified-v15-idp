@@ -3,9 +3,14 @@
  * أنواع ميزة الامتثال والجودة
  */
 
-export type ComplianceStatus = "compliant" | "partial" | "non_compliant" | "pending_review" | "not_applicable";
-export type CertificationStatus = "active" | "expired" | "pending" | "revoked";
-export type AuditSeverity = "critical" | "major" | "minor" | "observation";
+export type ComplianceStatus =
+  | 'compliant'
+  | 'partial'
+  | 'non_compliant'
+  | 'pending_review'
+  | 'not_applicable';
+export type CertificationStatus = 'active' | 'expired' | 'pending' | 'revoked';
+export type AuditSeverity = 'critical' | 'major' | 'minor' | 'observation';
 
 export interface ComplianceItem {
   id: string;
@@ -37,14 +42,14 @@ export interface ComplianceAction {
   assignedTo: string;
   dueDate: string;
   completedDate?: string;
-  status: "pending" | "in_progress" | "completed" | "overdue";
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
 }
 
 export interface Certification {
   id: string;
   name: string;
   nameAr: string;
-  type: "globalgap" | "organic" | "iso" | "haccp" | "other";
+  type: 'globalgap' | 'organic' | 'iso' | 'haccp' | 'other';
   issuer: string;
   issuerAr: string;
   status: CertificationStatus;
@@ -61,12 +66,12 @@ export interface AuditReport {
   id: string;
   auditDate: string;
   auditor: string;
-  auditType: "internal" | "external" | "surveillance";
+  auditType: 'internal' | 'external' | 'surveillance';
   overallScore: number;
   findings: AuditFinding[];
   recommendations?: string[];
   recommendationsAr?: string[];
-  status: "draft" | "final" | "approved";
+  status: 'draft' | 'final' | 'approved';
   attachments?: string[];
 }
 
@@ -76,7 +81,7 @@ export interface AuditFinding {
   description: string;
   descriptionAr: string;
   severity: AuditSeverity;
-  status: "open" | "closed" | "in_progress";
+  status: 'open' | 'closed' | 'in_progress';
   rootCause?: string;
   correctiveAction?: string;
   dueDate?: string;

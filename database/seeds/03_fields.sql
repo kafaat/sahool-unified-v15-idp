@@ -589,24 +589,24 @@ VALUES
 
 -- Verification queries
 SELECT
-    f.name as field_name,
-    f.name_ar as field_name_ar,
-    fm.name as farm_name,
+    f.name AS field_name,
+    f.name_ar AS field_name_ar,
+    fm.name AS farm_name,
     fm.governorate,
     f.area_hectares,
     f.soil_type,
     f.irrigation_type,
     f.status
-FROM fields f
-JOIN farms fm ON f.farm_id = fm.id
+FROM fields AS f
+INNER JOIN farms AS fm ON f.farm_id = fm.id
 ORDER BY fm.governorate, fm.name, f.name;
 
 -- Summary by soil type and irrigation
 SELECT
     soil_type,
     irrigation_type,
-    COUNT(*) as field_count,
-    ROUND(SUM(area_hectares)::numeric, 2) as total_hectares
+    COUNT(*) AS field_count,
+    ROUND(SUM(area_hectares)::NUMERIC, 2) AS total_hectares
 FROM fields
 GROUP BY soil_type, irrigation_type
 ORDER BY soil_type, irrigation_type;
@@ -614,10 +614,10 @@ ORDER BY soil_type, irrigation_type;
 -- Summary by governorate
 SELECT
     fm.governorate,
-    COUNT(f.id) as field_count,
-    ROUND(SUM(f.area_hectares)::numeric, 2) as total_hectares,
-    ROUND(AVG(f.area_hectares)::numeric, 2) as avg_hectares
-FROM fields f
-JOIN farms fm ON f.farm_id = fm.id
+    COUNT(f.id) AS field_count,
+    ROUND(SUM(f.area_hectares)::NUMERIC, 2) AS total_hectares,
+    ROUND(AVG(f.area_hectares)::NUMERIC, 2) AS avg_hectares
+FROM fields AS f
+INNER JOIN farms AS fm ON f.farm_id = fm.id
 GROUP BY fm.governorate
 ORDER BY fm.governorate;

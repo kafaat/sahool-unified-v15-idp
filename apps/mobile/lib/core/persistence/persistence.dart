@@ -10,6 +10,7 @@
 /// ```dart
 /// import 'package:sahool_field_app/core/persistence/persistence.dart';
 /// ```
+library;
 
 export 'app_state_manager.dart';
 export 'preferences_manager.dart';

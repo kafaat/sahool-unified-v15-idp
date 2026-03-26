@@ -14,7 +14,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from collections import defaultdict
+from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps
@@ -77,13 +77,48 @@ class TokenBucket:
         self.last_refill = now
 
 
+class LRUDict(OrderedDict):
+    """OrderedDict with a maximum size, evicting oldest entries when full."""
+
+    def __init__(self, maxsize: int = 10000, *args, **kwargs):
+        self._maxsize = maxsize
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.move_to_end(key)
+        super().__setitem__(key, value)
+        while len(self) > self._maxsize:
+            oldest_key = next(iter(self))
+            del self[oldest_key]
+
+    def __missing__(self, key):
+        """Auto-create empty list for missing keys (replaces defaultdict behaviour)."""
+        self[key] = []
+        return self[key]
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+    def get(self, key, default=None):
+        if key in self:
+            self.move_to_end(key)
+            return super().__getitem__(key)
+        return default
+
+
 class RateLimiter:
     """Rate limiter with sliding window and token bucket"""
 
+    # Maximum number of unique client keys to track before evicting oldest
+    MAX_ENTRIES = 10000
+
     def __init__(self, tier_config: TierConfig | None = None):
         self.tier_config = tier_config or TierConfig()
-        self._buckets: dict[str, TokenBucket] = {}
-        self._request_counts: dict[str, list[float]] = defaultdict(list)
+        self._buckets: LRUDict = LRUDict(maxsize=self.MAX_ENTRIES)
+        self._request_counts: LRUDict = LRUDict(maxsize=self.MAX_ENTRIES)
         self._lock = asyncio.Lock()
 
     def _get_bucket(self, key: str, config: RateLimitConfig) -> TokenBucket:
@@ -139,7 +174,10 @@ class RateLimiter:
         """
         # Get client identifier
         client_ip = request.client.host if request.client else "unknown"
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        # Use verified tenant_id from auth context, not untrusted header
+        tenant_id = "default"
+        if hasattr(request.state, "user") and request.state.user:
+            tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
         key = f"{tenant_id}:{client_ip}"
 
         # Use per-request config override if set (avoids shared state mutation)
@@ -180,9 +218,7 @@ class RateLimiter:
 
         return True, self._build_headers(key, config, tier, exceeded=False, remaining=remaining)
 
-    def _build_headers(
-        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int
-    ) -> dict:
+    def _build_headers(self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int) -> dict:
         """Build rate limit response headers."""
 
         headers = {
@@ -205,7 +241,10 @@ _rate_limiter = RateLimiter()
 async def _log_rate_limit_exceeded(request: Request, tier: str):
     """Log rate limit exceeded event for security monitoring"""
     client_ip = request.client.host if request.client else "unknown"
-    tenant_id = request.headers.get("X-Tenant-ID", "default")
+    # Use verified tenant_id from auth context, not untrusted header
+    tenant_id = "default"
+    if hasattr(request.state, "user") and request.state.user:
+        tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
     user_agent = request.headers.get("User-Agent", "unknown")
 
     # Security logging
@@ -439,7 +478,12 @@ def rate_limit_by_tenant(
     """
 
     def tenant_key(request: Request) -> str:
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        # Security: Use verified tenant_id from JWT, not untrusted header
+        tenant_id = "default"
+        if hasattr(request.state, "user") and request.state.user:
+            tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
+        elif hasattr(request.state, "token_payload") and request.state.token_payload:
+            tenant_id = getattr(request.state.token_payload, "tenant_id", None) or "default"
         # nosemgrep
         return f"tenant:{tenant_id}"
 

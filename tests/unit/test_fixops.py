@@ -13,10 +13,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
+import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
-import tempfile
+
+import pytest
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.fixops]
@@ -136,7 +137,7 @@ class TestSignalCollector:
 
     def test_clear_signals(self):
         """Test clearing collected signals."""
-        from tools.fixops.signals import SignalCollector, LocalSignal
+        from tools.fixops.signals import LocalSignal, SignalCollector
 
         collector = SignalCollector()
         collector._local_signals.append(LocalSignal(tool="test", issues=[]))
@@ -253,7 +254,7 @@ class TestOrchestrator:
 
     def test_orchestrator_initialization(self):
         """Test orchestrator initializes correctly."""
-        from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+        from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
         config = FixOpsConfig()
         orchestrator = FixOpsOrchestrator(config)
@@ -377,7 +378,7 @@ class TestOrchestrator:
     @pytest.mark.asyncio
     async def test_orchestrator_run_dry_run(self):
         """Test orchestrator run in dry-run mode."""
-        from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+        from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
         with tempfile.TemporaryDirectory() as tmpdir:
             config = FixOpsConfig(
@@ -440,7 +441,7 @@ def temp_repo():
 @pytest.fixture
 def mock_orchestrator(temp_repo):
     """Create orchestrator with mock config."""
-    from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+    from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
     config = FixOpsConfig(
         repo_root=temp_repo,

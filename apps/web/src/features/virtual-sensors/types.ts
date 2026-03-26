@@ -42,7 +42,7 @@ export interface SoilMoistureEstimate {
   fieldCapacity: number;
   wiltingPoint: number;
   depletionFraction: number;
-  status: "adequate" | "deficit" | "surplus";
+  status: 'adequate' | 'deficit' | 'surplus';
   statusAr: string;
 }
 
@@ -59,7 +59,7 @@ export interface IrrigationRecommendation {
 
 export interface IrrigationQuickCheck {
   needsIrrigation: boolean;
-  urgency: "none" | "low" | "medium" | "high";
+  urgency: 'none' | 'low' | 'medium' | 'high';
   urgencyAr: string;
   recommendation: string;
   recommendationAr: string;

@@ -522,6 +522,6 @@ class TestComposeSummaryStatistics:
                     else:
                         seen[host_port] = svc_name
         assert not duplicates, (
-            f"Duplicate host port assignments in docker-compose.yml:\n"
+            "Duplicate host port assignments in docker-compose.yml:\n"
             + "\n".join(f"  {d}" for d in duplicates)
         )

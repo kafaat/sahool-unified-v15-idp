@@ -5,7 +5,7 @@
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant" | "system";
+  role: 'user' | 'assistant' | 'system';
   content: string;
   contentAr?: string;
   toolCalls?: ToolCall[];
@@ -27,7 +27,7 @@ export interface ToolCall {
   toolName: string;
   arguments: Record<string, unknown>;
   result?: unknown;
-  status: "pending" | "running" | "completed" | "failed";
+  status: 'pending' | 'running' | 'completed' | 'failed';
 }
 
 export interface CopilotTool {
@@ -35,7 +35,7 @@ export interface CopilotTool {
   nameAr: string;
   description: string;
   descriptionAr: string;
-  category: "data" | "ai" | "calculation" | "action";
+  category: 'data' | 'ai' | 'calculation' | 'action';
   enabled: boolean;
 }
 
@@ -46,7 +46,7 @@ export interface RagDocument {
   type: string;
   size: number;
   uploadedAt: string;
-  status: "processing" | "indexed" | "failed";
+  status: 'processing' | 'indexed' | 'failed';
 }
 
 export interface RagSearchResult {

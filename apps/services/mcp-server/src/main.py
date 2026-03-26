@@ -29,10 +29,56 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-from fastapi import FastAPI, Request, Response
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from prometheus_client import Counter, Histogram, generate_latest
+
+# Authentication imports - optional for environments without auth module
+# استيراد المصادقة - اختياري للبيئات بدون وحدة المصادقة
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    _auth_available = True
+except ImportError:
+    _auth_available = False
+
+
+async def require_auth(request: Request):
+    """
+    Require authentication for MCP endpoints.
+    طلب المصادقة لنقاط نهاية MCP.
+
+    Fails closed if auth module is unavailable unless AUTH_DISABLED_FOR_DEV is set.
+    يفشل بشكل مغلق إذا لم تكن وحدة المصادقة متاحة ما لم يتم تعيين AUTH_DISABLED_FOR_DEV.
+    """
+    if not _auth_available:
+        if os.getenv("AUTH_DISABLED_FOR_DEV", "").lower() in ("1", "true", "yes"):
+            return None
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication module unavailable and AUTH_DISABLED_FOR_DEV not set",
+        )
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or invalid authorization header",
+        )
+    try:
+        return await get_current_user(request)
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+        )
+
 
 # Add parent directories to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
@@ -82,7 +128,10 @@ logging.basicConfig(
     level=getattr(logging, LOG_LEVEL.upper()),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Metrics
 mcp_requests_total = Counter(
@@ -206,7 +255,7 @@ async def metrics():
 
 
 @app.get("/")
-async def root():
+async def root(user=Depends(require_auth)):
     """Root endpoint with server information"""
     return {
         "name": mcp_server.name,
@@ -229,7 +278,7 @@ async def root():
 
 
 @app.post("/mcp")
-async def handle_mcp_request(request: Request):
+async def handle_mcp_request(request: Request, user=Depends(require_auth)):
     """Handle MCP JSON-RPC request"""
     start_time = asyncio.get_event_loop().time()
 
@@ -320,7 +369,7 @@ async def handle_mcp_request(request: Request):
 
 
 @app.get("/mcp/sse")
-async def handle_sse(request: Request):
+async def handle_sse(request: Request, user=Depends(require_auth)):
     """Handle Server-Sent Events for streaming MCP"""
     import json
 
@@ -359,7 +408,7 @@ async def handle_sse(request: Request):
 
 
 @app.get("/tools")
-async def list_tools():
+async def list_tools(user=Depends(require_auth)):
     """List available tools (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 
@@ -373,7 +422,7 @@ async def list_tools():
 
 
 @app.get("/resources")
-async def list_resources():
+async def list_resources(user=Depends(require_auth)):
     """List available resources (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 
@@ -387,7 +436,7 @@ async def list_resources():
 
 
 @app.get("/prompts")
-async def list_prompts():
+async def list_prompts(user=Depends(require_auth)):
     """List available prompts (convenience endpoint)"""
     from shared.mcp.server import JSONRPCRequest
 

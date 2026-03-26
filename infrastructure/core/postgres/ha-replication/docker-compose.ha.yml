@@ -213,7 +213,7 @@ services:
   # WAL-G - Continuous WAL Archiving to S3
   # ─────────────────────────────────────────────────────────────────────────────
   wal-archiver:
-    image: wal-g/wal-g:latest-alpine
+    image: wal-g/wal-g:v3.0.3-alpine
     container_name: sahool-wal-archiver
     hostname: wal-archiver
     networks:

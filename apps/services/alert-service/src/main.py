@@ -8,13 +8,13 @@ Version: 16.0.0
 import logging
 import os
 import re
-import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path as PathLib
 from uuid import UUID
 
+import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
 # Shared middleware imports
@@ -40,6 +40,25 @@ except ImportError:
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
+
 
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
@@ -195,6 +214,13 @@ async def lifespan(app: FastAPI):
 async def handle_ndvi_anomaly(data: dict):
     """معالجة شذوذ NDVI من خدمة NDVI"""
     logger.info(f"Received NDVI anomaly event: {data.get('event_id')}")
+    # SECURITY: Reject events without tenant_id to maintain tenant isolation
+    if not data.get("tenant_id"):
+        logger.warning(
+            "Dropping NDVI anomaly event without tenant_id: event_id=%s",
+            data.get("event_id"),
+        )
+        return
     try:
         alert = await create_alert_internal(
             AlertCreate(
@@ -229,6 +255,13 @@ async def handle_ndvi_anomaly(data: dict):
 async def handle_weather_alert(data: dict):
     """معالجة تنبيه الطقس"""
     logger.info(f"Received weather alert event: {data.get('event_id')}")
+    # SECURITY: Reject events without tenant_id to maintain tenant isolation
+    if not data.get("tenant_id"):
+        logger.warning(
+            "Dropping weather alert event without tenant_id: event_id=%s",
+            data.get("event_id"),
+        )
+        return
     try:
         severity_map = {
             "extreme": AlertSeverity.CRITICAL,
@@ -261,6 +294,13 @@ async def handle_weather_alert(data: dict):
 async def handle_iot_threshold(data: dict):
     """معالجة تجاوز عتبة IoT"""
     logger.info(f"Received IoT threshold event: {data.get('event_id')}")
+    # SECURITY: Reject events without tenant_id to maintain tenant isolation
+    if not data.get("tenant_id"):
+        logger.warning(
+            "Dropping IoT threshold event without tenant_id: event_id=%s",
+            data.get("event_id"),
+        )
+        return
     try:
         metric = data.get("metric", "unknown")
         value = data.get("value", "N/A")
@@ -396,6 +436,32 @@ def readiness():
 
 async def create_alert_internal(alert_data: AlertCreate) -> dict:
     """إنشاء تنبيه داخلياً"""
+    # SECURITY: Reject alerts without a valid tenant_id to prevent data
+    # from being stored outside tenant isolation boundaries. Events from
+    # NATS (NDVI, weather, IoT) may omit tenant_id -- those must be
+    # dropped rather than stored as tenant-less records accessible to all.
+    if not alert_data.tenant_id or not alert_data.tenant_id.strip():
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "missing_tenant",
+                "message": "tenant_id is required for alert creation",
+                "message_ar": "معرف المستأجر مطلوب لإنشاء التنبيه",
+            },
+        )
+    # Validate tenant_id is a valid UUID
+    try:
+        UUID(alert_data.tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid_tenant",
+                "message": "tenant_id must be a valid UUID",
+                "message_ar": "يجب أن يكون معرف المستأجر UUID صالح",
+            },
+        )
+
     if SessionLocal is None:
         raise HTTPException(status_code=503, detail="Database not available")
     db = SessionLocal()
@@ -506,6 +572,7 @@ async def create_rule(
     rule_data: AlertRuleCreate,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إنشاء قاعدة تنبيه
@@ -568,6 +635,7 @@ async def delete_rule(
     rule_id: str = Path(..., description="معرف القاعدة"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف قاعدة تنبيه
@@ -610,12 +678,16 @@ async def delete_rule(
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)):
+async def create_alert_endpoint(
+    alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)
+):
     """
     إنشاء تنبيه جديد
     Create a new alert
     """
-    # Validate tenant matches request
+    # Enforce tenant from JWT - reject header/body mismatch
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID from JWT does not match request")
     if alert_data.tenant_id is not None and alert_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id
@@ -690,6 +762,7 @@ async def update_alert_endpoint(
     update_data: AlertUpdate = None,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحديث حالة تنبيه
@@ -753,6 +826,7 @@ async def delete_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حذف تنبيه
@@ -840,6 +914,7 @@ async def resolve_alert(
     note: str | None = Query(None, description="ملاحظة الحل"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     حل تنبيه
@@ -886,6 +961,7 @@ async def dismiss_alert(
     user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     رفض تنبيه
@@ -926,5 +1002,6 @@ async def dismiss_alert(
 if __name__ == "__main__":
     import uvicorn
 
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
     port = int(os.getenv("PORT", 8113))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)

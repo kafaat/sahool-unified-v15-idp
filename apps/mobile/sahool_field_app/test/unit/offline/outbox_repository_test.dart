@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sahool_field_app/core/offline/outbox_repository.dart';
 import 'package:sahool_field_app/core/offline/offline_sync_engine.dart';

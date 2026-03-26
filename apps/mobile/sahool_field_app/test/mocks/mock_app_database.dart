@@ -837,7 +837,7 @@ class MockAppDatabase extends Mock implements AppDatabase {
   }
 
   @override
-  Future<void> runBatch(Function(Batch batch) operations) async {
+  Future<void> runBatch(void Function(Batch batch) operations) async {
     // For mock, just ignore batch operations
   }
 

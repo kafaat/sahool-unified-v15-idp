@@ -14,29 +14,29 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
-import pytest
-import tempfile
 import shutil
+import tempfile
+from datetime import UTC, datetime, timezone
 from pathlib import Path
-from datetime import datetime, timezone, UTC
+
+import pytest
 
 from shared.ai.vector_store import (
-    VectorStore,
-    VectorStoreConfig,
-    VectorStoreBackend,
+    CollectionInfo,
     DistanceMetric,
     IndexType,
-    VectorDocument,
-    SearchResult,
-    CollectionInfo,
-    VectorStoreBackendBase,
-    SQLiteBackend,
     MemoryBackend,
-    get_vector_store,
+    SearchResult,
+    SQLiteBackend,
+    VectorDocument,
+    VectorStore,
+    VectorStoreBackend,
+    VectorStoreBackendBase,
+    VectorStoreConfig,
     add_documents,
+    get_vector_store,
     search_documents,
 )
-
 
 # ============================================================================
 # Config Tests

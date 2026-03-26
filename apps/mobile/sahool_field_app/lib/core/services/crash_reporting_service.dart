@@ -3,6 +3,7 @@
 ///
 /// Handles error reporting, crash tracking, and debugging support
 /// Sanitizes PII, tracks breadcrumbs, and supports multiple providers
+library;
 
 import 'dart:async';
 import 'dart:io';
@@ -502,8 +503,8 @@ class CrashReportingService {
       return;
     }
 
-    // Filter out certain errors if needed
-    if (_shouldFilterError(error)) {
+    // Filter out certain non-fatal errors if needed
+    if (!fatal && _shouldFilterError(error)) {
       return;
     }
 

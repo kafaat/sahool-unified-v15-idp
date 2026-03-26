@@ -11,6 +11,11 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import (
     FastAPI,
     Header,
@@ -28,6 +33,20 @@ from pydantic import BaseModel
 from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+# Import authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 def sanitize_log_input(value: str) -> str:
@@ -65,7 +84,10 @@ logging.basicConfig(
     level=LOG_LEVEL_MAP.get(LOG_LEVEL, logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger("ws-gateway")
+if structlog is not None:
+    logger = structlog.get_logger("ws-gateway")
+else:
+    logger = logging.getLogger("ws-gateway")
 
 
 async def validate_jwt_token(token: str) -> dict:
@@ -460,6 +482,7 @@ class BroadcastRequest(BaseModel):
 async def broadcast_message(
     req: BroadcastRequest,
     authorization: str | None = Header(None),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Broadcast a message to specific rooms or users.

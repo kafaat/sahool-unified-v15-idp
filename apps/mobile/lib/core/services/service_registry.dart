@@ -7,6 +7,7 @@
 /// - Health check integration
 /// - Service versioning
 /// - Graceful degradation support
+library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -261,26 +262,26 @@ class ServiceRegistry {
       baseUrl: EnvConfig.cropHealthUrl,
       tier: ServiceTier.intelligence,
       endpoints: {
-        'diagnose': '/api/v1/crop-health/diagnose',
-        'diagnose-batch': '/api/v1/crop-health/diagnose/batch',
-        'crops': '/api/v1/crop-health/crops',
-        'diseases': '/api/v1/crop-health/diseases',
-        'treatment': '/api/v1/crop-health/treatment',
-        'expert-review': '/api/v1/crop-health/expert-review',
+        'diagnose': '/api/v1/diagnose',
+        'diagnose-batch': '/api/v1/diagnose/batch',
+        'crops': '/api/v1/disease/types',
+        'diseases': '/api/v1/disease/types',
+        'treatment': '/api/v1/nutrients/fertilizer-plan',
+        'expert-review': '/api/v1/disease/detect',
       },
     ));
 
-    // NDVI Processor
+    // Vegetation Analysis Service (was ndvi-processor)
     register(ServiceConfig(
-      id: 'ndvi-processor',
-      name: 'NDVI Processor',
-      nameAr: 'معالج مؤشر الغطاء النباتي',
+      id: 'vegetation-analysis-service',
+      name: 'Vegetation Analysis Service',
+      nameAr: 'خدمة تحليل الغطاء النباتي',
       baseUrl: EnvConfig.satelliteUrl,
       tier: ServiceTier.intelligence,
       endpoints: {
-        'process': '/api/v1/ndvi/process',
-        'timeseries': '/api/v1/ndvi/timeseries',
-        'comparison': '/api/v1/ndvi/comparison',
+        'process': '/v1/analyze',
+        'timeseries': '/v1/ndvi-timeseries/analyze',
+        'comparison': '/v1/ndvi-timeseries/compare',
       },
     ));
   }
@@ -323,11 +324,11 @@ class ServiceRegistry {
       },
     ));
 
-    // Yield Engine
+    // Yield Prediction Service (was yield-engine)
     register(ServiceConfig(
-      id: 'yield-engine',
-      name: 'Yield Engine',
-      nameAr: 'محرك الإنتاجية',
+      id: 'yield-prediction-service',
+      name: 'Yield Prediction Service',
+      nameAr: 'خدمة التنبؤ بالإنتاجية',
       baseUrl: EnvConfig.sprayUrl,
       tier: ServiceTier.decision,
       endpoints: {

@@ -11,6 +11,11 @@ import sys
 from datetime import datetime
 from typing import Any
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from agents import (
     AgentContext,
     AgentPercept,
@@ -35,7 +40,10 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI(
@@ -56,6 +64,7 @@ app.add_middleware(TenantContextMiddleware)
 # Rate Limiting - Critical for AI agent endpoints
 try:
     from fastapi import Request
+
     from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def ai_agents_tier_func(request: Request) -> RateLimitTier:

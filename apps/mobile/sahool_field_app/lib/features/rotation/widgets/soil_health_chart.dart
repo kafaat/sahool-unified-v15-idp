@@ -6,9 +6,9 @@ class SoilHealthChart extends StatelessWidget {
   final List<SoilHealth> soilHealthData;
 
   const SoilHealthChart({
-    Key? key,
+    super.key,
     required this.soilHealthData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -216,9 +216,9 @@ class SoilHealthChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: phColor.withOpacity(0.1),
+        color: phColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: phColor.withOpacity(0.3)),
+        border: Border.all(color: phColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -341,9 +341,9 @@ class RadarChart extends StatelessWidget {
   final SoilHealth data;
 
   const RadarChart({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -490,7 +490,7 @@ class RadarChartPainter extends CustomPainter {
 
     // Fill
     final fillPaint = Paint()
-      ..color = Colors.green.withOpacity(0.2)
+      ..color = Colors.green.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 

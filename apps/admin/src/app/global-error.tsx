@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Global Error Boundary (Root Layout Level)
@@ -8,7 +8,7 @@
  * Must include its own <html> and <body> tags.
  */
 
-import { getDirection, getLocale } from "@/lib/i18n";
+import { getDirection, getLocale } from '@/lib/i18n';
 
 export default function GlobalError({
   error,
@@ -28,17 +28,11 @@ export default function GlobalError({
             <div className="text-6xl">⚠️</div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">
-                خطأ حرج في النظام
-              </h1>
+              <h1 className="text-2xl font-bold">خطأ حرج في النظام</h1>
               <p className="text-gray-600">
                 A critical system error occurred. Please refresh the page.
               </p>
-              {error.digest && (
-                <p className="text-xs text-gray-400 font-mono">
-                  {error.digest}
-                </p>
-              )}
+              {error.digest && <p className="text-xs text-gray-400 font-mono">{error.digest}</p>}
             </div>
 
             <button

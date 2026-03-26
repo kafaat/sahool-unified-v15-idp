@@ -17,18 +17,16 @@ from pydantic import BaseModel, Field
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = structlog.get_logger(__name__)
@@ -263,7 +261,7 @@ ALERTS_DB: dict[str, Alert] = {}
 async def list_thresholds(
     crop: str | None = None,
     pest_id: str | None = None,
-    _user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     List economic thresholds.
@@ -304,7 +302,7 @@ async def get_threshold(crop: str, pest_id: str):
 
 
 @router.post("/thresholds/assess", response_model=ThresholdResult)
-async def assess_threshold(assessment: ThresholdAssessment):
+async def assess_threshold(assessment: ThresholdAssessment, current_user: User = Depends(get_current_user)):
     """
     Assess threshold status.
     تقييم حالة العتبة.
@@ -433,6 +431,7 @@ async def get_alert(alert_id: str):
 async def acknowledge_alert(
     alert_id: str,
     acknowledged_by: str = Query(..., description="User acknowledging the alert"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Acknowledge alert.
@@ -463,6 +462,7 @@ async def acknowledge_alert(
 async def resolve_alert(
     alert_id: str,
     resolution_notes: str | None = None,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Resolve alert.
@@ -491,6 +491,7 @@ async def create_alert(
     priority: AlertPriority,
     message_en: str,
     message_ar: str,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create manual alert.

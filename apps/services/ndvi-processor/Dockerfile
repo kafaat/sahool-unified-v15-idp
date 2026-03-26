@@ -22,12 +22,12 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/ndvi-processor/requirements.txt .

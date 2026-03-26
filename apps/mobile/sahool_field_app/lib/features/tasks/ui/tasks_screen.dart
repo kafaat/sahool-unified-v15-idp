@@ -19,7 +19,7 @@ class _TasksScreenState extends State<TasksScreen> {
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
-        title: const Text("المهام والعمليات"),
+        title: const Text('المهام والعمليات'),
         backgroundColor: Colors.white,
         foregroundColor: SahoolColors.forestGreen,
         elevation: 0,
@@ -53,12 +53,12 @@ class _TasksScreenState extends State<TasksScreen> {
             const SizedBox(height: 24),
 
             // 3. مهام اليوم (Today's Tasks)
-            _buildSectionHeader("مهام اليوم", Icons.today),
+            _buildSectionHeader('مهام اليوم', Icons.today),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "ري الحقل الشمالي",
-              subtitle: "القطاع C • مضخة رقم 2",
-              time: "08:00 ص",
+              title: 'ري الحقل الشمالي',
+              subtitle: 'القطاع C • مضخة رقم 2',
+              time: '08:00 ص',
               priority: TaskPriority.high,
               taskType: TaskType.irrigation,
               isCompleted: false,
@@ -67,9 +67,9 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "فحص الحشرات",
-              subtitle: "مزرعة الطماطم • فحص وقائي",
-              time: "10:30 ص",
+              title: 'فحص الحشرات',
+              subtitle: 'مزرعة الطماطم • فحص وقائي',
+              time: '10:30 ص',
               priority: TaskPriority.medium,
               taskType: TaskType.scouting,
               isCompleted: true,
@@ -78,9 +78,9 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "جمع عينات التربة",
-              subtitle: "الحقل الجنوبي • تحليل المغذيات",
-              time: "02:00 م",
+              title: 'جمع عينات التربة',
+              subtitle: 'الحقل الجنوبي • تحليل المغذيات',
+              time: '02:00 م',
               priority: TaskPriority.medium,
               taskType: TaskType.sampling,
               isCompleted: false,
@@ -91,12 +91,12 @@ class _TasksScreenState extends State<TasksScreen> {
             const SizedBox(height: 24),
 
             // 4. المهام القادمة (Upcoming)
-            _buildSectionHeader("غداً والقادم", Icons.upcoming),
+            _buildSectionHeader('غداً والقادم', Icons.upcoming),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "تسميد التربة (NPK)",
-              subtitle: "الحقل الجنوبي • 50 كجم/هكتار",
-              time: "غداً",
+              title: 'تسميد التربة (NPK)',
+              subtitle: 'الحقل الجنوبي • 50 كجم/هكتار',
+              time: 'غداً',
               priority: TaskPriority.low,
               taskType: TaskType.fertilization,
               isCompleted: false,
@@ -105,9 +105,9 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "صيانة نظام الري",
-              subtitle: "فحص الفلاتر والصمامات",
-              time: "بعد غد",
+              title: 'صيانة نظام الري',
+              subtitle: 'فحص الفلاتر والصمامات',
+              time: 'بعد غد',
               priority: TaskPriority.medium,
               taskType: TaskType.maintenance,
               isCompleted: false,
@@ -116,9 +116,9 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 12),
             _TaskCard(
-              title: "رش مبيد فطري",
-              subtitle: "الحقل الشرقي • وقائي",
-              time: "الخميس",
+              title: 'رش مبيد فطري',
+              subtitle: 'الحقل الشرقي • وقائي',
+              time: 'الخميس',
               priority: TaskPriority.high,
               taskType: TaskType.spraying,
               isCompleted: false,
@@ -134,7 +134,7 @@ class _TasksScreenState extends State<TasksScreen> {
         onPressed: () => _showAddTaskSheet(context),
         backgroundColor: SahoolColors.forestGreen,
         icon: const Icon(Icons.add_task, color: Colors.white),
-        label: const Text("مهمة جديدة", style: TextStyle(color: Colors.white)),
+        label: const Text('مهمة جديدة', style: TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -154,12 +154,12 @@ class _TasksScreenState extends State<TasksScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "إنجاز الأسبوع",
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                    'إنجاز الأسبوع',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    "12 / 15",
+                    '12 / 15',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 32,
@@ -167,8 +167,8 @@ class _TasksScreenState extends State<TasksScreen> {
                     ),
                   ),
                   Text(
-                    "مهمة مكتملة",
-                    style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                    'مهمة مكتملة',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
                   ),
                 ],
               ),
@@ -188,14 +188,14 @@ class _TasksScreenState extends State<TasksScreen> {
                         child: CircularProgressIndicator(
                           value: 0.8,
                           strokeWidth: 8,
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
                           valueColor: const AlwaysStoppedAnimation(
                             SahoolColors.harvestGold,
                           ),
                         ),
                       ),
                       Text(
-                        "80%",
+                        '80%',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -218,35 +218,35 @@ class _TasksScreenState extends State<TasksScreen> {
       child: Row(
         children: [
           _FilterChip(
-            label: "الكل",
+            label: 'الكل',
             icon: Icons.list,
             isSelected: _selectedFilter == 'all',
             onTap: () => setState(() => _selectedFilter = 'all'),
           ),
           const SizedBox(width: 8),
           _FilterChip(
-            label: "ري",
+            label: 'ري',
             icon: Icons.water_drop,
             isSelected: _selectedFilter == 'irrigation',
             onTap: () => setState(() => _selectedFilter = 'irrigation'),
           ),
           const SizedBox(width: 8),
           _FilterChip(
-            label: "تسميد",
+            label: 'تسميد',
             icon: Icons.eco,
             isSelected: _selectedFilter == 'fertilization',
             onTap: () => setState(() => _selectedFilter = 'fertilization'),
           ),
           const SizedBox(width: 8),
           _FilterChip(
-            label: "رش",
+            label: 'رش',
             icon: Icons.blur_on,
             isSelected: _selectedFilter == 'spraying',
             onTap: () => setState(() => _selectedFilter = 'spraying'),
           ),
           const SizedBox(width: 8),
           _FilterChip(
-            label: "صيانة",
+            label: 'صيانة',
             icon: Icons.build,
             isSelected: _selectedFilter == 'maintenance',
             onTap: () => setState(() => _selectedFilter = 'maintenance'),
@@ -276,7 +276,7 @@ class _TasksScreenState extends State<TasksScreen> {
         ),
         TextButton(
           onPressed: () {},
-          child: const Text("عرض الكل"),
+          child: const Text('عرض الكل'),
         ),
       ],
     );
@@ -313,7 +313,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -328,14 +328,14 @@ class _TasksScreenState extends State<TasksScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "ري الحقل الشمالي",
+                        'ري الحقل الشمالي',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        "القطاع C • مضخة رقم 2",
+                        'القطاع C • مضخة رقم 2',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -344,18 +344,18 @@ class _TasksScreenState extends State<TasksScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            _DetailRow(
+            const _DetailRow(
                 icon: Icons.schedule,
-                label: "الوقت",
-                value: "08:00 ص - 10:00 ص"),
-            _DetailRow(
-                icon: Icons.person, label: "المسؤول", value: "أحمد محمد"),
-            _DetailRow(
+                label: 'الوقت',
+                value: '08:00 ص - 10:00 ص'),
+            const _DetailRow(
+                icon: Icons.person, label: 'المسؤول', value: 'أحمد محمد'),
+            const _DetailRow(
                 icon: Icons.location_on,
-                label: "الموقع",
-                value: "الحقل الشمالي - القطاع C"),
-            _DetailRow(
-                icon: Icons.water, label: "كمية المياه", value: "500 م³"),
+                label: 'الموقع',
+                value: 'الحقل الشمالي - القطاع C'),
+            const _DetailRow(
+                icon: Icons.water, label: 'كمية المياه', value: '500 م³'),
             const Spacer(),
             Row(
               children: [
@@ -363,7 +363,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.edit),
-                    label: const Text("تعديل"),
+                    label: const Text('تعديل'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: SahoolColors.forestGreen),
@@ -376,7 +376,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.check),
-                    label: const Text("إكمال"),
+                    label: const Text('إكمال'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: SahoolColors.forestGreen,
@@ -419,14 +419,14 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              "مهمة جديدة",
+              'مهمة جديدة',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             TextField(
               decoration: InputDecoration(
-                labelText: "عنوان المهمة",
-                hintText: "مثال: ري الحقل الشمالي",
+                labelText: 'عنوان المهمة',
+                hintText: 'مثال: ري الحقل الشمالي',
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
@@ -438,7 +438,7 @@ class _TasksScreenState extends State<TasksScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                labelText: "نوع المهمة",
+                labelText: 'نوع المهمة',
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
@@ -459,7 +459,7 @@ class _TasksScreenState extends State<TasksScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
-                labelText: "الحقل",
+                labelText: 'الحقل',
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
@@ -480,8 +480,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                      labelText: "التاريخ",
-                      hintText: "اختر التاريخ",
+                      labelText: 'التاريخ',
+                      hintText: 'اختر التاريخ',
                       filled: true,
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
@@ -498,8 +498,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                      labelText: "الوقت",
-                      hintText: "اختر الوقت",
+                      labelText: 'الوقت',
+                      hintText: 'اختر الوقت',
                       filled: true,
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
@@ -528,7 +528,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                 ),
                 child:
-                    const Text("إضافة المهمة", style: TextStyle(fontSize: 16)),
+                    const Text('إضافة المهمة', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -579,7 +579,7 @@ class _FilterChip extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? SahoolColors.forestGreen
-                : Colors.grey.withOpacity(0.3),
+                : Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -685,7 +685,7 @@ class _TaskCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: typeColor.withOpacity(0.1),
+                color: typeColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(typeIcon, color: typeColor, size: 22),

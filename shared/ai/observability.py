@@ -19,12 +19,13 @@ import json
 import logging
 import os
 import time
+from collections.abc import Callable
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from .metrics import get_metrics_collector
 

@@ -4,9 +4,9 @@ Configuration management for AI Chat Assistant service.
 """
 
 import logging
+from typing import Optional
 
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 

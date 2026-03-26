@@ -60,8 +60,8 @@ class TestKnowledgeEventPublisher:
     def test_document_ingested_event(self):
         """Should publish document_ingested event."""
         from shared.ai.knowledge.events import (
-            KnowledgeEventPublisher,
             SUBJECT_DOCUMENT_INGESTED,
+            KnowledgeEventPublisher,
         )
 
         mock_nc = AsyncMock()
@@ -242,8 +242,9 @@ class TestURLExtractor:
 
     def test_httpx_not_installed_handled(self):
         """Should handle missing httpx gracefully."""
-        from shared.ai.knowledge.ingestion.extractors import URLExtractor
         from unittest.mock import patch
+
+        from shared.ai.knowledge.ingestion.extractors import URLExtractor
 
         extractor = URLExtractor()
 

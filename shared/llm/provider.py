@@ -13,10 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, AsyncIterator
+from typing import Any
 
 
 class ProviderType(StrEnum):

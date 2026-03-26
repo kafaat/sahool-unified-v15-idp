@@ -234,7 +234,7 @@ class AuthService {
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
-        return await _loginWithMock(email, password);
+        return _loginWithMock(email, password);
       }
 
       rethrow;
@@ -259,7 +259,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
@@ -277,15 +282,15 @@ class AuthService {
       );
 
       // Extract user data
-      final userData = data['user'] ?? data;
+      final userData = (data['user'] ?? data) as Map<String, dynamic>;
       final user = User(
-        id: userData['id'] ?? userData['_id'] ?? 'unknown',
-        email: userData['email'] ?? email,
-        name: userData['name'] ?? userData['username'] ?? 'مستخدم',
-        role: userData['role'] ?? 'farmer',
-        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
-        phone: userData['phone'],
-        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+        id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
+        email: (userData['email'] ?? email) as String,
+        name: (userData['name'] ?? userData['username'] ?? 'مستخدم') as String,
+        role: (userData['role'] ?? 'farmer') as String,
+        tenantId: (userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId) as String,
+        phone: userData['phone'] as String?,
+        avatarUrl: (userData['avatar_url'] ?? userData['avatarUrl']) as String?,
       );
 
       // Set auth token in API client for subsequent requests
@@ -408,11 +413,16 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
-      final success = data['success'] ?? false;
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
+      final success = (data['success'] as bool?) ?? false;
 
       if (!success) {
-        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        final message = (data['message'] ?? 'فشل تغيير كلمة المرور') as String;
         throw AuthException(message);
       }
 
@@ -571,84 +581,6 @@ class AuthService {
     }
   }
 
-  /// Refresh token using real API (kept for backwards compatibility)
-  /// Note: This is now delegated to TokenManager
-  @Deprecated('Use tokenManager.refreshToken() instead')
-  Future<void> _refreshTokenWithApi(String refreshTokenValue) async {
-    AppLogger.i('Refreshing token via API (legacy method)', tag: 'AUTH');
-
-    try {
-      final response = await apiClient!.post(
-        '/api/v1/auth/refresh',
-        {
-          'refresh_token': refreshTokenValue,
-        },
-      );
-
-      // Parse API response
-      if (response == null) {
-        throw AuthException('استجابة غير صالحة من الخادم');
-      }
-
-      final data = response is Map<String, dynamic> ? response : response['data'];
-
-      // Extract new tokens
-      final accessToken = data['access_token'] ?? data['accessToken'];
-      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshTokenValue;
-      final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
-
-      if (accessToken == null) {
-        throw AuthException('بيانات التوكن مفقودة في الاستجابة');
-      }
-
-      final tokens = TokenPair(
-        accessToken: accessToken as String,
-        refreshToken: newRefreshToken as String,
-        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
-      );
-
-      // Update auth token in API client
-      apiClient!.setAuthToken(tokens.accessToken);
-
-      await _storeTokens(tokens);
-      _scheduleTokenRefresh(tokens.expiresIn);
-
-      AppLogger.i('API token refresh successful', tag: 'AUTH');
-    } on ApiException catch (e) {
-      AppLogger.e('API token refresh failed', tag: 'AUTH', error: e);
-
-      // Convert API exceptions to auth exceptions
-      if (e.statusCode == 401 || e.statusCode == 403) {
-        throw AuthException('انتهت صلاحية الجلسة', code: 'SESSION_EXPIRED');
-      } else if (e.isNetworkError) {
-        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
-      } else {
-        throw AuthException(e.message, code: e.code);
-      }
-    }
-  }
-
-  /// Refresh token using mock data (development only)
-  @Deprecated('Use tokenManager.refreshToken() instead')
-  Future<void> _refreshTokenWithMock() async {
-    AppLogger.w('Using MOCK token refresh (development only)', tag: 'AUTH');
-
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Simulated response
-    final tokens = TokenPair(
-      accessToken: 'mock_new_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-      expiresIn: 3600,
-    );
-
-    await _storeTokens(tokens);
-    _scheduleTokenRefresh(tokens.expiresIn);
-
-    AppLogger.i('Mock token refresh successful', tag: 'AUTH');
-  }
-
   /// Get current access token
   Future<String?> getAccessToken() async {
     return secureStorage.getAccessToken();
@@ -711,65 +643,36 @@ class AuthService {
 // Models
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// User model (aligned with Prisma User schema)
+/// User model
 class User {
   final String id;
   final String email;
   final String name;
   final String role;
-  final String status;
   final String tenantId;
   final String? phone;
-  final String? firstName;
-  final String? lastName;
-  final String? firstNameAr;
-  final String? lastNameAr;
-  final String? nameAr;
   final String? avatarUrl;
-  final bool emailVerified;
-  final bool phoneVerified;
 
   const User({
     required this.id,
     required this.email,
     required this.name,
     required this.role,
-    this.status = 'active',
     required this.tenantId,
     this.phone,
-    this.firstName,
-    this.lastName,
-    this.firstNameAr,
-    this.lastNameAr,
-    this.nameAr,
     this.avatarUrl,
-    this.emailVerified = false,
-    this.phoneVerified = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Build display name from firstName/lastName if 'name' is absent
-    final firstName = json['first_name'] as String?;
-    final lastName = json['last_name'] as String?;
-    final name = json['name'] as String? ??
-        [firstName, lastName].whereType<String>().join(' ');
-
+    final email = json['email'] as String;
     return User(
       id: json['id'] as String,
-      email: json['email'] as String,
-      name: name.isEmpty ? json['email'] as String : name,
-      role: (json['role'] as String? ?? 'viewer').toLowerCase(),
-      status: (json['status'] as String? ?? 'active').toLowerCase(),
+      email: email,
+      name: (json['name'] as String?) ?? email,
+      role: (json['role'] as String?) ?? 'viewer',
       tenantId: json['tenant_id'] as String,
       phone: json['phone'] as String?,
-      firstName: firstName,
-      lastName: lastName,
-      firstNameAr: json['first_name_ar'] as String?,
-      lastNameAr: json['last_name_ar'] as String?,
-      nameAr: json['name_ar'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      emailVerified: json['email_verified'] as bool? ?? false,
-      phoneVerified: json['phone_verified'] as bool? ?? false,
     );
   }
 
@@ -779,75 +682,8 @@ class User {
       'email': email,
       'name': name,
       'role': role,
-      'status': status,
       'tenant_id': tenantId,
       'phone': phone,
-      'first_name': firstName,
-      'last_name': lastName,
-      'first_name_ar': firstNameAr,
-      'last_name_ar': lastNameAr,
-      'name_ar': nameAr,
-      'avatar_url': avatarUrl,
-      'email_verified': emailVerified,
-      'phone_verified': phoneVerified,
-    };
-  }
-}
-
-/// User profile model (matches Prisma UserProfile schema)
-class UserProfile {
-  final String id;
-  final String tenantId;
-  final String userId;
-  final String? nationalId;
-  final DateTime? dateOfBirth;
-  final String? address;
-  final String? city;
-  final String? region;
-  final String? country;
-  final String? avatarUrl;
-
-  const UserProfile({
-    required this.id,
-    required this.tenantId,
-    required this.userId,
-    this.nationalId,
-    this.dateOfBirth,
-    this.address,
-    this.city,
-    this.region,
-    this.country = 'SA',
-    this.avatarUrl,
-  });
-
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
-      id: json['id'] as String,
-      tenantId: json['tenant_id'] as String,
-      userId: json['user_id'] as String,
-      nationalId: json['national_id'] as String?,
-      dateOfBirth: json['date_of_birth'] != null
-          ? DateTime.parse(json['date_of_birth'] as String)
-          : null,
-      address: json['address'] as String?,
-      city: json['city'] as String?,
-      region: json['region'] as String?,
-      country: json['country'] as String? ?? 'SA',
-      avatarUrl: json['avatar_url'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'tenant_id': tenantId,
-      'user_id': userId,
-      'national_id': nationalId,
-      'date_of_birth': dateOfBirth?.toIso8601String(),
-      'address': address,
-      'city': city,
-      'region': region,
-      'country': country,
       'avatar_url': avatarUrl,
     };
   }

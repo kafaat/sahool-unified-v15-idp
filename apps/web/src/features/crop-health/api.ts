@@ -3,8 +3,8 @@
  * طبقة API لميزة صحة المحصول
  */
 
-import { type AxiosError } from "axios";
-import { createApiClient, logger } from "@/lib/api/factory";
+import { type AxiosError } from 'axios';
+import { createApiClient, logger } from '@/lib/api/factory';
 import type {
   HealthSummary,
   HealthRecord,
@@ -15,8 +15,8 @@ import type {
   ExpertConsultation,
   HealthFilters,
   DiseaseSeverity,
-} from "./types";
-import { CROP_HEALTH_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+} from './types';
+import { CROP_HEALTH_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 
 /**
  * API Response Types
@@ -30,7 +30,7 @@ interface ApiHealthRecordResponse {
   cropTypeAr?: string;
   date: string;
   healthScore: number;
-  status: "healthy" | "at_risk" | "diseased" | "critical";
+  status: 'healthy' | 'at_risk' | 'diseased' | 'critical';
   observations?: string;
   observationsAr?: string;
   images?: string[];
@@ -44,7 +44,7 @@ interface ApiHealthRecordResponse {
   treatments?: Array<{
     treatmentId: string;
     appliedAt: string;
-    status: "planned" | "applied" | "completed";
+    status: 'planned' | 'applied' | 'completed';
   }>;
   nextCheckDate?: string;
 }
@@ -66,7 +66,7 @@ interface ApiDiagnosisResponse {
     lat: number;
     lng: number;
   };
-  status: "pending" | "analyzing" | "completed" | "failed";
+  status: 'pending' | 'analyzing' | 'completed' | 'failed';
   createdAt: string;
   updatedAt: string;
 }
@@ -78,64 +78,64 @@ const api = createApiClient({ timeout: 30000 });
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_SUMMARY_FAILED: {
-    en: "Failed to fetch health summary. Using cached data.",
-    ar: "فشل في جلب ملخص الصحة. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch health summary. Using cached data.',
+    ar: 'فشل في جلب ملخص الصحة. استخدام البيانات المخزنة.',
   },
   FETCH_RECORDS_FAILED: {
-    en: "Failed to fetch health records. Using cached data.",
-    ar: "فشل في جلب سجلات الصحة. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch health records. Using cached data.',
+    ar: 'فشل في جلب سجلات الصحة. استخدام البيانات المخزنة.',
   },
   FETCH_RECORD_FAILED: {
-    en: "Failed to fetch health record.",
-    ar: "فشل في جلب سجل الصحة.",
+    en: 'Failed to fetch health record.',
+    ar: 'فشل في جلب سجل الصحة.',
   },
   CREATE_RECORD_FAILED: {
-    en: "Failed to create health record. Please try again.",
-    ar: "فشل في إنشاء سجل الصحة. الرجاء المحاولة مرة أخرى.",
+    en: 'Failed to create health record. Please try again.',
+    ar: 'فشل في إنشاء سجل الصحة. الرجاء المحاولة مرة أخرى.',
   },
   UPDATE_RECORD_FAILED: {
-    en: "Failed to update health record. Please try again.",
-    ar: "فشل في تحديث سجل الصحة. الرجاء المحاولة مرة أخرى.",
+    en: 'Failed to update health record. Please try again.',
+    ar: 'فشل في تحديث سجل الصحة. الرجاء المحاولة مرة أخرى.',
   },
   SUBMIT_DIAGNOSIS_FAILED: {
-    en: "Failed to submit diagnosis request. Please try again.",
-    ar: "فشل في إرسال طلب التشخيص. الرجاء المحاولة مرة أخرى.",
+    en: 'Failed to submit diagnosis request. Please try again.',
+    ar: 'فشل في إرسال طلب التشخيص. الرجاء المحاولة مرة أخرى.',
   },
   UPLOAD_IMAGES_FAILED: {
-    en: "Failed to upload images. Please try again.",
-    ar: "فشل في رفع الصور. الرجاء المحاولة مرة أخرى.",
+    en: 'Failed to upload images. Please try again.',
+    ar: 'فشل في رفع الصور. الرجاء المحاولة مرة أخرى.',
   },
   FETCH_DIAGNOSIS_FAILED: {
-    en: "Failed to fetch diagnosis result.",
-    ar: "فشل في جلب نتيجة التشخيص.",
+    en: 'Failed to fetch diagnosis result.',
+    ar: 'فشل في جلب نتيجة التشخيص.',
   },
   FETCH_DISEASES_FAILED: {
-    en: "Failed to fetch disease database.",
-    ar: "فشل في جلب قاعدة بيانات الأمراض.",
+    en: 'Failed to fetch disease database.',
+    ar: 'فشل في جلب قاعدة بيانات الأمراض.',
   },
   FETCH_ALERTS_FAILED: {
-    en: "Failed to fetch disease alerts.",
-    ar: "فشل في جلب تنبيهات الأمراض.",
+    en: 'Failed to fetch disease alerts.',
+    ar: 'فشل في جلب تنبيهات الأمراض.',
   },
   DISMISS_ALERT_FAILED: {
-    en: "Failed to dismiss alert.",
-    ar: "فشل في إلغاء التنبيه.",
+    en: 'Failed to dismiss alert.',
+    ar: 'فشل في إلغاء التنبيه.',
   },
   REQUEST_CONSULTATION_FAILED: {
-    en: "Failed to request expert consultation.",
-    ar: "فشل في طلب استشارة خبير.",
+    en: 'Failed to request expert consultation.',
+    ar: 'فشل في طلب استشارة خبير.',
   },
   FETCH_CONSULTATIONS_FAILED: {
-    en: "Failed to fetch consultations.",
-    ar: "فشل في جلب الاستشارات.",
+    en: 'Failed to fetch consultations.',
+    ar: 'فشل في جلب الاستشارات.',
   },
   NOT_FOUND: {
-    en: "Record not found.",
-    ar: "السجل غير موجود.",
+    en: 'Record not found.',
+    ar: 'السجل غير موجود.',
   },
 };
 
@@ -145,21 +145,19 @@ import {
   MOCK_HEALTH_RECORDS,
   MOCK_DISEASES,
   MOCK_DISEASE_ALERTS,
-} from "./api.mock";
+} from './api.mock';
 
 /**
  * Map API health record to feature health record
  */
-function mapApiHealthRecordToHealthRecord(
-  apiRecord: ApiHealthRecordResponse,
-): HealthRecord {
+function mapApiHealthRecordToHealthRecord(apiRecord: ApiHealthRecordResponse): HealthRecord {
   return {
     id: apiRecord.id,
     fieldId: apiRecord.fieldId,
-    fieldName: apiRecord.fieldName || "",
-    fieldNameAr: apiRecord.fieldNameAr || apiRecord.fieldName || "",
-    cropType: apiRecord.cropType || "",
-    cropTypeAr: apiRecord.cropTypeAr || apiRecord.cropType || "",
+    fieldName: apiRecord.fieldName || '',
+    fieldNameAr: apiRecord.fieldNameAr || apiRecord.fieldName || '',
+    cropType: apiRecord.cropType || '',
+    cropTypeAr: apiRecord.cropTypeAr || apiRecord.cropType || '',
     date: apiRecord.date,
     healthScore: apiRecord.healthScore,
     status: apiRecord.status,
@@ -181,9 +179,7 @@ function mapApiHealthRecordToHealthRecord(
 /**
  * Map API diagnosis to feature diagnosis
  */
-function mapApiDiagnosisToDiagnosis(
-  apiDiagnosis: ApiDiagnosisResponse,
-): DiagnosisRequest {
+function mapApiDiagnosisToDiagnosis(apiDiagnosis: ApiDiagnosisResponse): DiagnosisRequest {
   return {
     id: apiDiagnosis.id,
     userId: apiDiagnosis.userId,
@@ -212,25 +208,19 @@ export const cropHealthApi = {
   getHealthSummary: async (filters?: HealthFilters): Promise<HealthSummary> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.fieldIds?.length)
-        params.set("field_ids", filters.fieldIds.join(","));
-      if (filters?.cropTypes?.length)
-        params.set("crop_types", filters.cropTypes.join(","));
-      if (filters?.status?.length)
-        params.set("status", filters.status.join(","));
-      if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
-      if (filters?.dateTo) params.set("date_to", filters.dateTo);
+      if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
+      if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
+      if (filters?.status?.length) params.set('status', filters.status.join(','));
+      if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
+      if (filters?.dateTo) params.set('date_to', filters.dateTo);
 
       const response = await api.get(
-        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/summary?${params.toString()}`,
+        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/summary?${params.toString()}`
       );
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch health summary from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch health summary from API, using mock data:', error);
       return MOCK_HEALTH_SUMMARY;
     }
   },
@@ -238,24 +228,18 @@ export const cropHealthApi = {
   /**
    * Get health records with optional filters
    */
-  getHealthRecords: async (
-    filters?: HealthFilters,
-  ): Promise<HealthRecord[]> => {
+  getHealthRecords: async (filters?: HealthFilters): Promise<HealthRecord[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.fieldIds?.length)
-        params.set("field_ids", filters.fieldIds.join(","));
-      if (filters?.cropTypes?.length)
-        params.set("crop_types", filters.cropTypes.join(","));
-      if (filters?.status?.length)
-        params.set("status", filters.status.join(","));
-      if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
-      if (filters?.dateTo) params.set("date_to", filters.dateTo);
-      if (filters?.severity?.length)
-        params.set("severity", filters.severity.join(","));
+      if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
+      if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
+      if (filters?.status?.length) params.set('status', filters.status.join(','));
+      if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
+      if (filters?.dateTo) params.set('date_to', filters.dateTo);
+      if (filters?.severity?.length) params.set('severity', filters.severity.join(','));
 
       const response = await api.get(
-        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/records?${params.toString()}`,
+        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/records?${params.toString()}`
       );
       const records = response.data.data || response.data;
 
@@ -263,13 +247,10 @@ export const cropHealthApi = {
         return records.map(mapApiHealthRecordToHealthRecord);
       }
 
-      logger.warn("API returned unexpected format, using mock data");
+      logger.warn('API returned unexpected format, using mock data');
       return MOCK_HEALTH_RECORDS;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch health records from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch health records from API, using mock data:', error);
       return MOCK_HEALTH_RECORDS;
     }
   },
@@ -283,10 +264,7 @@ export const cropHealthApi = {
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
     } catch (error) {
-      logger.warn(
-        `Failed to fetch health record ${id} from API, using mock data:`,
-        error,
-      );
+      logger.warn(`Failed to fetch health record ${id} from API, using mock data:`, error);
 
       // Fallback to mock data
       const mockRecord = MOCK_HEALTH_RECORDS.find((r) => r.id === id);
@@ -301,32 +279,28 @@ export const cropHealthApi = {
   /**
    * Create new health record
    */
-  createHealthRecord: async (
-    data: Partial<HealthRecord>,
-  ): Promise<HealthRecord> => {
+  createHealthRecord: async (data: Partial<HealthRecord>): Promise<HealthRecord> => {
     try {
       const response = await api.post(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records`, data);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
     } catch (error) {
-      logger.error("Failed to create health record:", error);
+      logger.error('Failed to create health record:', error);
 
       const axiosError = error as AxiosError<{
         message?: string;
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.CREATE_RECORD_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.CREATE_RECORD_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.CREATE_RECORD_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.CREATE_RECORD_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -334,10 +308,7 @@ export const cropHealthApi = {
   /**
    * Update health record
    */
-  updateHealthRecord: async (
-    id: string,
-    data: Partial<HealthRecord>,
-  ): Promise<HealthRecord> => {
+  updateHealthRecord: async (id: string, data: Partial<HealthRecord>): Promise<HealthRecord> => {
     try {
       const response = await api.put(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`, data);
       const record = response.data.data || response.data;
@@ -350,17 +321,15 @@ export const cropHealthApi = {
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.UPDATE_RECORD_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.UPDATE_RECORD_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.UPDATE_RECORD_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_RECORD_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -368,32 +337,28 @@ export const cropHealthApi = {
   /**
    * Submit diagnosis request
    */
-  submitDiagnosis: async (
-    data: Partial<DiagnosisRequest>,
-  ): Promise<DiagnosisRequest> => {
+  submitDiagnosis: async (data: Partial<DiagnosisRequest>): Promise<DiagnosisRequest> => {
     try {
       const response = await api.post(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, data);
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
     } catch (error) {
-      logger.error("Failed to submit diagnosis request:", error);
+      logger.error('Failed to submit diagnosis request:', error);
 
       const axiosError = error as AxiosError<{
         message?: string;
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -404,38 +369,32 @@ export const cropHealthApi = {
   uploadDiagnosisImages: async (files: File[]): Promise<string[]> => {
     try {
       const formData = new FormData();
-      files.forEach((file) => formData.append("images", file));
+      files.forEach((file) => formData.append('images', file));
 
-      const response = await api.post(
-        `${CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST}/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      const response = await api.post(`${CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      );
+      });
 
       return response.data.urls || response.data.data?.urls || [];
     } catch (error) {
-      logger.error("Failed to upload diagnosis images:", error);
+      logger.error('Failed to upload diagnosis images:', error);
 
       const axiosError = error as AxiosError<{
         message?: string;
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -452,10 +411,10 @@ export const cropHealthApi = {
         return diagnoses.map(mapApiDiagnosisToDiagnosis);
       }
 
-      logger.warn("API returned unexpected format for diagnoses");
+      logger.warn('API returned unexpected format for diagnoses');
       return [];
     } catch (error) {
-      logger.warn("Failed to fetch diagnosis requests from API:", error);
+      logger.warn('Failed to fetch diagnosis requests from API:', error);
       return [];
     }
   },
@@ -465,7 +424,9 @@ export const cropHealthApi = {
    */
   getDiagnosisRequest: async (id: string): Promise<DiagnosisRequest> => {
     try {
-      const response = await api.get(buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }));
+      const response = await api.get(
+        buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id })
+      );
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
     } catch (error) {
@@ -480,7 +441,7 @@ export const cropHealthApi = {
   getDiagnosisResult: async (requestId: string): Promise<DiagnosisResult> => {
     try {
       const response = await api.get(
-        `${buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: requestId })}/result`,
+        `${buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: requestId })}/result`
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -501,10 +462,10 @@ export const cropHealthApi = {
         return diseases;
       }
 
-      logger.warn("API returned unexpected format, using mock diseases");
+      logger.warn('API returned unexpected format, using mock diseases');
       return MOCK_DISEASES;
     } catch (error) {
-      logger.warn("Failed to fetch diseases from API, using mock data:", error);
+      logger.warn('Failed to fetch diseases from API, using mock data:', error);
       return MOCK_DISEASES;
     }
   },
@@ -521,13 +482,10 @@ export const cropHealthApi = {
         return alerts;
       }
 
-      logger.warn("API returned unexpected format, using mock alerts");
+      logger.warn('API returned unexpected format, using mock alerts');
       return MOCK_DISEASE_ALERTS;
     } catch (error) {
-      logger.warn(
-        "Failed to fetch disease alerts from API, using mock data:",
-        error,
-      );
+      logger.warn('Failed to fetch disease alerts from API, using mock data:', error);
       return MOCK_DISEASE_ALERTS;
     }
   },
@@ -546,17 +504,15 @@ export const cropHealthApi = {
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.DISMISS_ALERT_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.DISMISS_ALERT_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.DISMISS_ALERT_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.DISMISS_ALERT_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -570,30 +526,25 @@ export const cropHealthApi = {
     questionAr?: string;
   }): Promise<ExpertConsultation> => {
     try {
-      const response = await api.post(
-        CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW,
-        data,
-      );
+      const response = await api.post(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to request expert consultation:", error);
+      logger.error('Failed to request expert consultation:', error);
 
       const axiosError = error as AxiosError<{
         message?: string;
         message_ar?: string;
       }>;
       const errorMessage =
-        axiosError.response?.data?.message ||
-        ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.en;
+        axiosError.response?.data?.message || ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.en;
       const errorMessageAr =
-        axiosError.response?.data?.message_ar ||
-        ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.ar;
+        axiosError.response?.data?.message_ar || ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.ar;
 
       throw new Error(
         JSON.stringify({
           message: errorMessage,
           messageAr: errorMessageAr,
-        }),
+        })
       );
     }
   },
@@ -610,10 +561,10 @@ export const cropHealthApi = {
         return consultations;
       }
 
-      logger.warn("API returned unexpected format for consultations");
+      logger.warn('API returned unexpected format for consultations');
       return [];
     } catch (error) {
-      logger.warn("Failed to fetch consultations from API:", error);
+      logger.warn('Failed to fetch consultations from API:', error);
       return [];
     }
   },

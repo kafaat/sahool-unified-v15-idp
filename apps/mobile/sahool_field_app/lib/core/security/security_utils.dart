@@ -72,8 +72,9 @@ class SecurityUtils {
     if (password.contains(RegExp(r'[a-z]'))) score++; // lowercase
     if (password.contains(RegExp(r'[A-Z]'))) score++; // uppercase
     if (password.contains(RegExp(r'[0-9]'))) score++; // numbers
-    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')))
+    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
       score++; // special
+    }
 
     // Determine strength
     if (score <= 2) return PasswordStrength.weak;
@@ -193,10 +194,10 @@ class SecurityUtils {
     final parts = token.split('.');
     if (parts.length != 3) return false;
 
-    // Check if each part is valid base64
+    // Check if each part is valid base64url (JWT parts are unpadded)
     try {
       for (final part in parts) {
-        base64Url.decode(part);
+        base64Url.decode(base64Url.normalize(part));
       }
       return true;
     } catch (e) {

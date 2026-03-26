@@ -14,32 +14,32 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
-import pytest
 import tempfile
 from datetime import datetime
 from pathlib import Path
 
+import pytest
+
 from shared.ai.crop_vision import (
-    CropVisionAnalyzer,
+    BoundingBox,
     CropType,
+    CropVisionAnalyzer,
+    DiseaseDetection,
     DiseaseType,
     GrowthStage,
+    GrowthStageDetection,
+    ImagePreprocessor,
+    NDVIAnalysis,
+    PestDetection,
     PestType,
     Severity,
-    BoundingBox,
     VisionAnalysisResult,
-    DiseaseDetection,
-    GrowthStageDetection,
-    PestDetection,
     YieldEstimate,
-    NDVIAnalysis,
-    ImagePreprocessor,
-    get_crop_vision_analyzer,
     analyze_crop_image,
     detect_crop_disease,
     detect_crop_pests,
+    get_crop_vision_analyzer,
 )
-
 
 # ============================================================================
 # Enum Tests

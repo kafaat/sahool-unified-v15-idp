@@ -84,7 +84,7 @@
 /// - Permission checks logging
 /// - Session events logging
 
-library iam;
+library;
 
 // Models
 export 'models/iam_models.dart';

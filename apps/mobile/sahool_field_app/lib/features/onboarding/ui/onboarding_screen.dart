@@ -16,37 +16,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: "أهلاً بك في سهول",
-      subtitle: "منصتك الذكية لإدارة مزرعتك",
+      title: 'أهلاً بك في سهول',
+      subtitle: 'منصتك الذكية لإدارة مزرعتك',
       description:
-          "سهول يساعدك في مراقبة حقولك، تتبع صحة المحاصيل، وإدارة العمليات الزراعية بكفاءة عالية.",
+          'سهول يساعدك في مراقبة حقولك، تتبع صحة المحاصيل، وإدارة العمليات الزراعية بكفاءة عالية.',
       icon: Icons.agriculture,
       color: SahoolColors.forestGreen,
       illustration: _IllustrationType.farm,
     ),
     OnboardingPage(
-      title: "راقب حقولك بذكاء",
-      subtitle: "صور الأقمار الصناعية ومؤشرات NDVI",
+      title: 'راقب حقولك بذكاء',
+      subtitle: 'صور الأقمار الصناعية ومؤشرات NDVI',
       description:
-          "احصل على صور حية لحقولك من الأقمار الصناعية مع تحليل صحة المحاصيل باستخدام مؤشرات الغطاء النباتي.",
+          'احصل على صور حية لحقولك من الأقمار الصناعية مع تحليل صحة المحاصيل باستخدام مؤشرات الغطاء النباتي.',
       icon: Icons.satellite_alt,
       color: SahoolColors.sageGreen,
       illustration: _IllustrationType.satellite,
     ),
     OnboardingPage(
-      title: "توقعات الطقس الدقيقة",
-      subtitle: "تنبؤات محلية لحقلك",
+      title: 'توقعات الطقس الدقيقة',
+      subtitle: 'تنبؤات محلية لحقلك',
       description:
-          "توقعات طقس مخصصة لموقع مزرعتك مع تنبيهات الصقيع والأمطار وتوصيات زراعية يومية.",
+          'توقعات طقس مخصصة لموقع مزرعتك مع تنبيهات الصقيع والأمطار وتوصيات زراعية يومية.',
       icon: Icons.wb_sunny,
       color: SahoolColors.harvestGold,
       illustration: _IllustrationType.weather,
     ),
     OnboardingPage(
-      title: "مجتمع المزارعين",
-      subtitle: "تعلم من خبراء الزراعة",
+      title: 'مجتمع المزارعين',
+      subtitle: 'تعلم من خبراء الزراعة',
       description:
-          "تواصل مع مزارعين آخرين، اطرح أسئلتك، واحصل على إجابات من خبراء معتمدين في مختلف المجالات الزراعية.",
+          'تواصل مع مزارعين آخرين، اطرح أسئلتك، واحصل على إجابات من خبراء معتمدين في مختلف المجالات الزراعية.',
       icon: Icons.people,
       color: SahoolColors.earthBrown,
       illustration: _IllustrationType.community,
@@ -88,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: TextButton(
                 onPressed: _completeOnboarding,
                 child: Text(
-                  "تخطي",
+                  'تخطي',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 16,
@@ -142,8 +142,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       child: Text(
                         _currentPage == _pages.length - 1
-                            ? "ابدأ الآن"
-                            : "التالي",
+                            ? 'ابدأ الآن'
+                            : 'التالي',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -284,7 +284,7 @@ class _FarmIllustration extends StatelessWidget {
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
           ),
@@ -297,8 +297,8 @@ class _FarmIllustration extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    color.withOpacity(0.3),
-                    color.withOpacity(0.5),
+                    color.withValues(alpha: 0.3),
+                    color.withValues(alpha: 0.5),
                   ],
                 ),
                 borderRadius: const BorderRadius.vertical(
@@ -317,15 +317,15 @@ class _FarmIllustration extends StatelessWidget {
           Positioned(
             bottom: 60,
             right: 50,
-            child: Icon(Icons.grass, size: 36, color: color.withOpacity(0.7)),
+            child: Icon(Icons.grass, size: 36, color: color.withValues(alpha: 0.7)),
           ),
           Positioned(
             bottom: 70,
             right: 90,
-            child: Icon(Icons.grass, size: 28, color: color.withOpacity(0.5)),
+            child: Icon(Icons.grass, size: 28, color: color.withValues(alpha: 0.5)),
           ),
           // Sun
-          Positioned(
+          const Positioned(
             top: 20,
             right: 40,
             child:
@@ -355,7 +355,7 @@ class _SatelliteIllustration extends StatelessWidget {
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
           ),
@@ -379,7 +379,7 @@ class _SatelliteIllustration extends StatelessWidget {
               width: 120,
               height: 80,
               decoration: BoxDecoration(
-                border: Border.all(color: color.withOpacity(0.5), width: 2),
+                border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: GridView.count(
@@ -401,7 +401,7 @@ class _SatelliteIllustration extends StatelessWidget {
                         SahoolColors.healthGood,
                         SahoolColors.healthExcellent,
                       ][index]
-                          .withOpacity(0.6),
+                          .withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -423,7 +423,7 @@ class _SignalPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.3)
+      ..color = color.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -467,8 +467,8 @@ class _WeatherIllustration extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: RadialGradient(
                 colors: [
-                  color.withOpacity(0.2),
-                  color.withOpacity(0.05),
+                  color.withValues(alpha: 0.2),
+                  color.withValues(alpha: 0.05),
                 ],
               ),
               shape: BoxShape.circle,
@@ -496,7 +496,7 @@ class _WeatherIllustration extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -508,7 +508,7 @@ class _WeatherIllustration extends StatelessWidget {
                   Icon(Icons.thermostat, color: color, size: 28),
                   const SizedBox(width: 8),
                   Text(
-                    "32°C",
+                    '32°C',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -554,7 +554,7 @@ class _CommunityIllustration extends StatelessWidget {
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
           ),
@@ -572,9 +572,9 @@ class _CommunityIllustration extends StatelessWidget {
             left: 40,
             child: CircleAvatar(
               radius: 24,
-              backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
+              backgroundColor: SahoolColors.sageGreen.withValues(alpha: 0.5),
               child:
-                  Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
+                  const Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
             ),
           ),
           Positioned(
@@ -582,12 +582,12 @@ class _CommunityIllustration extends StatelessWidget {
             right: 40,
             child: CircleAvatar(
               radius: 20,
-              backgroundColor: SahoolColors.harvestGold.withOpacity(0.5),
+              backgroundColor: SahoolColors.harvestGold.withValues(alpha: 0.5),
               child:
-                  Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
+                  const Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
             ),
           ),
-          Positioned(
+          const Positioned(
             bottom: 30,
             left: 50,
             child: CircleAvatar(
@@ -602,9 +602,9 @@ class _CommunityIllustration extends StatelessWidget {
             right: 50,
             child: CircleAvatar(
               radius: 26,
-              backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
+              backgroundColor: SahoolColors.sageGreen.withValues(alpha: 0.5),
               child:
-                  Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
+                  const Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
             ),
           ),
           // Connection lines
@@ -624,7 +624,7 @@ class _CommunityIllustration extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                   ),
                 ],
@@ -647,7 +647,7 @@ class _ConnectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.2)
+      ..color = color.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 

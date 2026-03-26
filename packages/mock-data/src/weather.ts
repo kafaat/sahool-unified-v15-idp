@@ -3,15 +3,9 @@
  * بيانات الطقس الوهمية
  */
 
-import { generateId, randomFloat, randomItem } from "./utils";
+import { generateId, randomFloat, randomItem } from './utils';
 
-export type WeatherCondition =
-  | "sunny"
-  | "cloudy"
-  | "rainy"
-  | "partly_cloudy"
-  | "windy"
-  | "stormy";
+export type WeatherCondition = 'sunny' | 'cloudy' | 'rainy' | 'partly_cloudy' | 'windy' | 'stormy';
 
 export interface MockWeatherData {
   id: string;
@@ -40,15 +34,15 @@ export interface MockWeatherForecast {
   windSpeed: number;
 }
 
-const windDirections = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+const windDirections = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
 const conditionArabic: Record<WeatherCondition, string> = {
-  sunny: "مشمس",
-  cloudy: "غائم",
-  rainy: "ممطر",
-  partly_cloudy: "غائم جزئياً",
-  windy: "عاصف",
-  stormy: "عاصف مع أمطار",
+  sunny: 'مشمس',
+  cloudy: 'غائم',
+  rainy: 'ممطر',
+  partly_cloudy: 'غائم جزئياً',
+  windy: 'عاصف',
+  stormy: 'عاصف مع أمطار',
 };
 
 /**
@@ -56,12 +50,12 @@ const conditionArabic: Record<WeatherCondition, string> = {
  */
 export function generateMockWeather(fieldId?: string): MockWeatherData {
   const condition = randomItem<WeatherCondition>([
-    "sunny",
-    "cloudy",
-    "rainy",
-    "partly_cloudy",
-    "windy",
-    "stormy",
+    'sunny',
+    'cloudy',
+    'rainy',
+    'partly_cloudy',
+    'windy',
+    'stormy',
   ]);
 
   return {
@@ -72,10 +66,7 @@ export function generateMockWeather(fieldId?: string): MockWeatherData {
     humidity: randomFloat(30, 80, 0),
     windSpeed: randomFloat(0, 30, 1),
     windDirection: randomItem(windDirections),
-    precipitation:
-      condition === "rainy" || condition === "stormy"
-        ? randomFloat(0, 50, 1)
-        : 0,
+    precipitation: condition === 'rainy' || condition === 'stormy' ? randomFloat(0, 50, 1) : 0,
     condition,
     uvIndex: randomFloat(1, 11, 0),
     visibility: randomFloat(5, 20, 1),
@@ -86,10 +77,7 @@ export function generateMockWeather(fieldId?: string): MockWeatherData {
 /**
  * Generate mock weather forecast
  */
-export function generateMockForecast(
-  fieldId?: string,
-  days: number = 7,
-): MockWeatherForecast[] {
+export function generateMockForecast(fieldId?: string, days: number = 7): MockWeatherForecast[] {
   const forecasts: MockWeatherForecast[] = [];
   const startDate = new Date();
 
@@ -98,23 +86,23 @@ export function generateMockForecast(
     date.setDate(date.getDate() + i);
 
     const condition = randomItem<WeatherCondition>([
-      "sunny",
-      "cloudy",
-      "rainy",
-      "partly_cloudy",
-      "windy",
-      "stormy",
+      'sunny',
+      'cloudy',
+      'rainy',
+      'partly_cloudy',
+      'windy',
+      'stormy',
     ]);
 
     forecasts.push({
       id: generateId(),
       fieldId: fieldId || generateId(),
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split('T')[0],
       high: randomFloat(30, 45, 0),
       low: randomFloat(18, 28, 0),
       condition,
       precipitationChance:
-        condition === "rainy" || condition === "stormy"
+        condition === 'rainy' || condition === 'stormy'
           ? randomFloat(60, 100, 0)
           : randomFloat(0, 30, 0),
       humidity: randomFloat(30, 80, 0),
@@ -135,10 +123,7 @@ export function getWeatherConditionLabel(condition: WeatherCondition): string {
 /**
  * Generate historical weather data
  */
-export function generateHistoricalWeather(
-  fieldId: string,
-  days: number = 30,
-): MockWeatherData[] {
+export function generateHistoricalWeather(fieldId: string, days: number = 30): MockWeatherData[] {
   const data: MockWeatherData[] = [];
   const now = new Date();
 

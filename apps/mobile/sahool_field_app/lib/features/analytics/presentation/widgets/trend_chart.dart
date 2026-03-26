@@ -5,7 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../providers/analytics_providers.dart';
 
 /// Displays historical trend data as a line chart
@@ -168,7 +168,7 @@ class TrendChart extends ConsumerWidget {
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: _getTrendColor(trend.trend).withOpacity(0.1),
+                        color: _getTrendColor(trend.trend).withValues(alpha: 0.1),
                       ),
                     ),
                   ],

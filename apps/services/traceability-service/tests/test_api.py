@@ -74,8 +74,8 @@ class TestBatchEndpoints:
 
     def test_create_batch(self, db_client, mock_db_pool):
         """Test creating a produce batch."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         # Override auth dependency for testing
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
@@ -330,8 +330,8 @@ class TestRecallManagement:
 
     def test_initiate_recall(self, db_client, mock_db_pool):
         """Test initiating a product recall."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -366,8 +366,8 @@ class TestRecallManagement:
 
     def test_recall_already_recalled_batch(self, db_client, mock_db_pool):
         """Test that recalling an already recalled batch returns 400."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -385,8 +385,8 @@ class TestRecallManagement:
 
     def test_recall_with_child_batches(self, db_client, mock_db_pool):
         """Test recall propagates to child batches."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -421,8 +421,8 @@ class TestNATSEventPublishing:
 
     def test_create_batch_publishes_event(self, db_client, mock_db_pool, mock_nats):
         """Test batch creation publishes NATS event."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 

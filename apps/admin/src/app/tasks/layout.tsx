@@ -1,14 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "SAHOOL - Task Management",
-  description: "Farm task scheduling, assignment, and progress tracking",
+  title: 'SAHOOL - Task Management',
+  description: 'Farm task scheduling, assignment, and progress tracking',
 };
 
-export default function TasksLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function TasksLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

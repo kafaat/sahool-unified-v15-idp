@@ -23,6 +23,7 @@ import math
 import random
 from collections.abc import Callable
 from dataclasses import dataclass
+
 import structlog
 
 from shared.calibration.objective import build_weighted_nll_objective

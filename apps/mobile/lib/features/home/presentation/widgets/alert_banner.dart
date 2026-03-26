@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../logic/home_providers.dart';
 
 /// شريط التنبيهات
-class AlertBanner extends StatelessWidget {
+/// Uses alertsProvider to determine whether an active alert exists
+class AlertBanner extends ConsumerWidget {
   const AlertBanner({
     super.key,
     this.onDismiss,
@@ -11,27 +14,27 @@ class AlertBanner extends StatelessWidget {
   final VoidCallback? onDismiss;
 
   @override
-  Widget build(BuildContext context) {
-    // Demo data - في الإنتاج سيكون من Provider
-    final hasActiveAlert = true;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasActive = ref.watch(hasActiveAlertProvider);
+    final primaryAlert = ref.watch(primaryAlertProvider);
 
-    if (!hasActiveAlert) {
+    if (!hasActive || primaryAlert == null) {
       return const SizedBox.shrink();
     }
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
+        color: Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.2),
+              color: Colors.orange.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.warning, color: Colors.orange, size: 20),
@@ -41,15 +44,15 @@ class AlertBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'تنبيه طقس',
-                  style: TextStyle(
+                Text(
+                  primaryAlert.title,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange,
                   ),
                 ),
                 Text(
-                  'ارتفاع درجات الحرارة - ينصح بالري المبكر',
+                  primaryAlert.message,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[700],
@@ -58,12 +61,13 @@ class AlertBanner extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.close, size: 18),
-            onPressed: onDismiss,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
+          if (onDismiss != null)
+            IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              onPressed: onDismiss,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
         ],
       ),
     );

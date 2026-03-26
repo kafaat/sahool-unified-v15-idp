@@ -14,7 +14,7 @@
 services:
   # Primary Kong node
   kong-primary:
-    image: kong:3.9
+    image: kong:3.9.0
     container_name: sahool-kong-primary
     environment:
       KONG_DATABASE: "off"
@@ -76,7 +76,7 @@ services:
 
   # Secondary Kong node
   kong-secondary:
-    image: kong:3.9
+    image: kong:3.9.0
     container_name: sahool-kong-secondary
     environment:
       KONG_DATABASE: "off"
@@ -136,7 +136,7 @@ services:
 
   # Tertiary Kong node
   kong-tertiary:
-    image: kong:3.9
+    image: kong:3.9.0
     container_name: sahool-kong-tertiary
     environment:
       KONG_DATABASE: "off"

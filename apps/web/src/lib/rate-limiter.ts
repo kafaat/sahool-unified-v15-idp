@@ -8,8 +8,8 @@
  * يوفر تحديد المعدل مع دعم Redis والتراجع إلى الذاكرة
  */
 
-import { Redis } from "ioredis";
-import { logger } from "@/lib/logger";
+import { Redis } from 'ioredis';
+import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -55,10 +55,7 @@ setInterval(cleanupMemoryStore, 60000);
  * Check rate limit using in-memory store
  * التحقق من حد المعدل باستخدام مخزن الذاكرة
  */
-function checkMemoryRateLimit(
-  key: string,
-  options: RateLimiterOptions,
-): boolean {
+function checkMemoryRateLimit(key: string, options: RateLimiterOptions): boolean {
   const now = Date.now();
   const record = memoryStore.get(key);
 
@@ -103,9 +100,7 @@ function getRedisClient(): Redis | null {
         retryStrategy: (times: number) => {
           if (times > 3) {
             redisError = true;
-            logger.error(
-              "[Rate Limiter] Redis connection failed, falling back to memory",
-            );
+            logger.error('[Rate Limiter] Redis connection failed, falling back to memory');
             return null;
           }
           return Math.min(times * 50, 2000);
@@ -114,17 +109,17 @@ function getRedisClient(): Redis | null {
       });
 
       // Handle connection errors
-      redisClient.on("error", (err) => {
-        logger.error("[Rate Limiter] Redis error:", err.message);
+      redisClient.on('error', (err) => {
+        logger.error('[Rate Limiter] Redis error:', err.message);
         redisError = true;
       });
 
-      redisClient.on("connect", () => {
-        logger.log("[Rate Limiter] Redis connected successfully");
+      redisClient.on('connect', () => {
+        logger.log('[Rate Limiter] Redis connected successfully');
         redisError = false;
       });
     } catch (error) {
-      logger.error("[Rate Limiter] Failed to initialize Redis:", error);
+      logger.error('[Rate Limiter] Failed to initialize Redis:', error);
       redisError = true;
       return null;
     }
@@ -137,10 +132,7 @@ function getRedisClient(): Redis | null {
  * Check rate limit using Redis
  * التحقق من حد المعدل باستخدام Redis
  */
-async function checkRedisRateLimit(
-  key: string,
-  options: RateLimiterOptions,
-): Promise<boolean> {
+async function checkRedisRateLimit(key: string, options: RateLimiterOptions): Promise<boolean> {
   const redis = getRedisClient();
   if (!redis) {
     return checkMemoryRateLimit(key, options);
@@ -148,7 +140,7 @@ async function checkRedisRateLimit(
 
   try {
     // Ensure Redis is connected
-    if (redis.status !== "ready" && redis.status !== "connecting") {
+    if (redis.status !== 'ready' && redis.status !== 'connecting') {
       await redis.connect();
     }
 
@@ -163,10 +155,7 @@ async function checkRedisRateLimit(
     // Check if rate limit exceeded
     return count > options.maxRequests;
   } catch (error) {
-    logger.error(
-      "[Rate Limiter] Redis operation failed, falling back to memory:",
-      error,
-    );
+    logger.error('[Rate Limiter] Redis operation failed, falling back to memory:', error);
     // Fallback to memory on Redis errors
     return checkMemoryRateLimit(key, options);
   }
@@ -199,7 +188,7 @@ async function checkRedisRateLimit(
  */
 export async function isRateLimited(
   identifier: string,
-  options: RateLimiterOptions,
+  options: RateLimiterOptions
 ): Promise<boolean> {
   const key = `${options.keyPrefix}:${identifier}`;
 
@@ -222,7 +211,7 @@ export async function isRateLimited(
  */
 export async function getRemainingRequests(
   identifier: string,
-  options: RateLimiterOptions,
+  options: RateLimiterOptions
 ): Promise<number> {
   const key = `${options.keyPrefix}:${identifier}`;
 
@@ -231,17 +220,14 @@ export async function getRemainingRequests(
     const redis = getRedisClient();
     if (redis) {
       try {
-        if (redis.status !== "ready" && redis.status !== "connecting") {
+        if (redis.status !== 'ready' && redis.status !== 'connecting') {
           await redis.connect();
         }
         const count = await redis.get(key);
         const currentCount = count ? parseInt(count, 10) : 0;
         return Math.max(0, options.maxRequests - currentCount);
       } catch (error) {
-        logger.error(
-          "[Rate Limiter] Failed to get remaining requests from Redis:",
-          error,
-        );
+        logger.error('[Rate Limiter] Failed to get remaining requests from Redis:', error);
       }
     }
   }
@@ -267,10 +253,7 @@ export async function getRemainingRequests(
  * @param identifier - Unique identifier to reset
  * @param keyPrefix - Prefix for the rate limit key
  */
-export async function resetRateLimit(
-  identifier: string,
-  keyPrefix: string,
-): Promise<void> {
+export async function resetRateLimit(identifier: string, keyPrefix: string): Promise<void> {
   const key = `${keyPrefix}:${identifier}`;
 
   // Try Redis first
@@ -278,16 +261,13 @@ export async function resetRateLimit(
     const redis = getRedisClient();
     if (redis) {
       try {
-        if (redis.status !== "ready" && redis.status !== "connecting") {
+        if (redis.status !== 'ready' && redis.status !== 'connecting') {
           await redis.connect();
         }
         await redis.del(key);
         return;
       } catch (error) {
-        logger.error(
-          "[Rate Limiter] Failed to reset rate limit in Redis:",
-          error,
-        );
+        logger.error('[Rate Limiter] Failed to reset rate limit in Redis:', error);
       }
     }
   }
@@ -306,7 +286,7 @@ export async function closeRateLimiter(): Promise<void> {
       await redisClient.quit();
       redisClient = null;
     } catch (error) {
-      logger.error("[Rate Limiter] Failed to close Redis connection:", error);
+      logger.error('[Rate Limiter] Failed to close Redis connection:', error);
     }
   }
   memoryStore.clear();

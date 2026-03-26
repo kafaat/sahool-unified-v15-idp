@@ -9,8 +9,8 @@
  * - Error context enrichment
  */
 
-import type { ErrorInfo } from "react";
-import { logger } from "../logger";
+import type { ErrorInfo } from 'react';
+import { logger } from '../logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -19,7 +19,7 @@ import { logger } from "../logger";
 export interface ErrorEvent {
   id: string;
   timestamp: string;
-  type: "error" | "warning" | "info";
+  type: 'error' | 'warning' | 'info';
   message: string;
   stack?: string;
   componentStack?: string;
@@ -33,7 +33,7 @@ export interface ErrorEvent {
 
 export interface Breadcrumb {
   timestamp: string;
-  type: "navigation" | "click" | "xhr" | "console" | "error";
+  type: 'navigation' | 'click' | 'xhr' | 'console' | 'error';
   category: string;
   message: string;
   data?: Record<string, unknown>;
@@ -42,7 +42,7 @@ export interface Breadcrumb {
 export interface PerformanceMetric {
   name: string;
   value: number;
-  rating: "good" | "needs-improvement" | "poor";
+  rating: 'good' | 'needs-improvement' | 'poor';
   timestamp: string;
 }
 
@@ -51,8 +51,8 @@ export interface PerformanceMetric {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MAX_BREADCRUMBS = 50;
-const SESSION_ID_KEY = "sahool_session_id";
-const ERROR_ENDPOINT = "/api/log-error";
+const SESSION_ID_KEY = 'sahool_session_id';
+const ERROR_ENDPOINT = '/api/log-error';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // State
@@ -75,7 +75,7 @@ let clickListener: ((event: MouseEvent) => void) | null = null;
 function getSessionId(): string {
   if (sessionId) return sessionId;
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     sessionId = sessionStorage.getItem(SESSION_ID_KEY);
     if (!sessionId) {
       sessionId = generateId();
@@ -96,7 +96,7 @@ function generateId(): string {
 // Breadcrumbs
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function addBreadcrumb(breadcrumb: Omit<Breadcrumb, "timestamp">): void {
+export function addBreadcrumb(breadcrumb: Omit<Breadcrumb, 'timestamp'>): void {
   const entry: Breadcrumb = {
     ...breadcrumb,
     timestamp: new Date().toISOString(),
@@ -121,17 +121,17 @@ export function clearBreadcrumbs(): void {
 export function captureError(
   error: Error,
   errorInfo?: ErrorInfo,
-  metadata?: Record<string, unknown>,
+  metadata?: Record<string, unknown>
 ): void {
   const event: ErrorEvent = {
     id: generateId(),
     timestamp: new Date().toISOString(),
-    type: "error",
+    type: 'error',
     message: error.message,
     stack: error.stack,
     componentStack: errorInfo?.componentStack ?? undefined,
-    url: typeof window !== "undefined" ? window.location.href : "",
-    userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     userId: userId ?? undefined,
     sessionId: getSessionId(),
     metadata,
@@ -143,16 +143,16 @@ export function captureError(
 
 export function captureMessage(
   message: string,
-  type: "error" | "warning" | "info" = "info",
-  metadata?: Record<string, unknown>,
+  type: 'error' | 'warning' | 'info' = 'info',
+  metadata?: Record<string, unknown>
 ): void {
   const event: ErrorEvent = {
     id: generateId(),
     timestamp: new Date().toISOString(),
     type,
     message,
-    url: typeof window !== "undefined" ? window.location.href : "",
-    userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     userId: userId ?? undefined,
     sessionId: getSessionId(),
     metadata,
@@ -165,26 +165,26 @@ export function captureMessage(
 async function sendError(event: ErrorEvent): Promise<void> {
   try {
     // Log to console in development
-    if (process.env.NODE_ENV === "development") {
-      logger.group("🔴 Error Captured");
-      logger.error("Message:", event.message);
-      logger.error("Stack:", event.stack);
+    if (process.env.NODE_ENV === 'development') {
+      logger.group('🔴 Error Captured');
+      logger.error('Message:', event.message);
+      logger.error('Stack:', event.stack);
       if (event.componentStack) {
-        logger.error("Component Stack:", event.componentStack);
+        logger.error('Component Stack:', event.componentStack);
       }
-      logger.log("Breadcrumbs:", event.breadcrumbs);
+      logger.log('Breadcrumbs:', event.breadcrumbs);
       logger.groupEnd();
     }
 
     // Send to error endpoint
     await fetch(ERROR_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(event),
     });
   } catch (e) {
     // Silent fail - don't cause more errors
-    logger.warn("Failed to send error to server:", e);
+    logger.warn('Failed to send error to server:', e);
   }
 }
 
@@ -212,23 +212,17 @@ const vitalsThresholds = {
 
 function getRating(
   name: keyof typeof vitalsThresholds,
-  value: number,
-): "good" | "needs-improvement" | "poor" {
+  value: number
+): 'good' | 'needs-improvement' | 'poor' {
   const threshold = vitalsThresholds[name];
-  if (value <= threshold.good) return "good";
-  if (value <= threshold.poor) return "needs-improvement";
-  return "poor";
+  if (value <= threshold.good) return 'good';
+  if (value <= threshold.poor) return 'needs-improvement';
+  return 'poor';
 }
 
-export function reportWebVitals(metric: {
-  name: string;
-  value: number;
-  id: string;
-}): void {
+export function reportWebVitals(metric: { name: string; value: number; id: string }): void {
   const name = metric.name as keyof typeof vitalsThresholds;
-  const rating = vitalsThresholds[name]
-    ? getRating(name, metric.value)
-    : "good";
+  const rating = vitalsThresholds[name] ? getRating(name, metric.value) : 'good';
 
   const performanceMetric: PerformanceMetric = {
     name: metric.name,
@@ -238,12 +232,9 @@ export function reportWebVitals(metric: {
   };
 
   // Log in development
-  if (process.env.NODE_ENV === "development") {
-    const emoji =
-      rating === "good" ? "🟢" : rating === "needs-improvement" ? "🟡" : "🔴";
-    logger.log(
-      `${emoji} ${metric.name}: ${metric.value.toFixed(2)} (${rating})`,
-    );
+  if (process.env.NODE_ENV === 'development') {
+    const emoji = rating === 'good' ? '🟢' : rating === 'needs-improvement' ? '🟡' : '🔴';
+    logger.log(`${emoji} ${metric.name}: ${metric.value.toFixed(2)} (${rating})`);
   }
 
   // Send to analytics endpoint
@@ -252,14 +243,14 @@ export function reportWebVitals(metric: {
 
 async function sendPerformanceMetric(metric: PerformanceMetric): Promise<void> {
   try {
-    await fetch("/api/analytics/performance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    await fetch('/api/analytics/performance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...metric,
         sessionId: getSessionId(),
         userId,
-        url: typeof window !== "undefined" ? window.location.href : "",
+        url: typeof window !== 'undefined' ? window.location.href : '',
       }),
     });
   } catch {
@@ -272,7 +263,7 @@ async function sendPerformanceMetric(metric: PerformanceMetric): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function initializeErrorTracking(options?: { userId?: string }): void {
-  if (isInitialized || typeof window === "undefined") return;
+  if (isInitialized || typeof window === 'undefined') return;
 
   if (options?.userId) {
     userId = options.userId;
@@ -290,19 +281,16 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
 
   // Unhandled promise rejection handler
   window.onunhandledrejection = (event) => {
-    const error =
-      event.reason instanceof Error
-        ? event.reason
-        : new Error(String(event.reason));
-    captureError(error, undefined, { type: "unhandledrejection" });
+    const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
+    captureError(error, undefined, { type: 'unhandledrejection' });
   };
 
   // Track navigation
   originalPushState = history.pushState;
   history.pushState = function (...args) {
     addBreadcrumb({
-      type: "navigation",
-      category: "history",
+      type: 'navigation',
+      category: 'history',
       message: `Navigate to ${args[2]}`,
       data: { from: window.location.href, to: args[2] as string },
     });
@@ -314,40 +302,39 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
     const target = event.target as HTMLElement;
     const text = target.innerText?.substring(0, 50) || target.className;
     addBreadcrumb({
-      type: "click",
-      category: "ui",
+      type: 'click',
+      category: 'ui',
       message: `Click on ${target.tagName.toLowerCase()}`,
       data: { text, className: target.className },
     });
   };
-  document.addEventListener("click", clickListener, { passive: true });
+  document.addEventListener('click', clickListener, { passive: true });
 
   // Track XHR/Fetch
   originalFetch = window.fetch;
   window.fetch = async function (...args) {
-    const url =
-      typeof args[0] === "string" ? args[0] : (args[0] as Request).url;
-    const method = (args[1]?.method || "GET").toUpperCase();
+    const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url;
+    const method = (args[1]?.method || 'GET').toUpperCase();
 
     addBreadcrumb({
-      type: "xhr",
-      category: "fetch",
+      type: 'xhr',
+      category: 'fetch',
       message: `${method} ${url}`,
     });
 
     try {
       const response = await originalFetch!.apply(this, args);
       addBreadcrumb({
-        type: "xhr",
-        category: "fetch",
+        type: 'xhr',
+        category: 'fetch',
         message: `${method} ${url} - ${response.status}`,
         data: { status: response.status },
       });
       return response;
     } catch (error) {
       addBreadcrumb({
-        type: "error",
-        category: "fetch",
+        type: 'error',
+        category: 'fetch',
         message: `${method} ${url} - Failed`,
         data: { error: String(error) },
       });
@@ -356,14 +343,14 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
   };
 
   isInitialized = true;
-  logger.log("🔍 Error tracking initialized");
+  logger.log('🔍 Error tracking initialized');
 }
 
 /**
  * Clean up error tracking and restore original handlers
  */
 export function cleanupErrorTracking(): void {
-  if (!isInitialized || typeof window === "undefined") return;
+  if (!isInitialized || typeof window === 'undefined') return;
 
   // Restore original handlers
   window.onerror = null;
@@ -380,7 +367,7 @@ export function cleanupErrorTracking(): void {
   }
 
   if (clickListener) {
-    document.removeEventListener("click", clickListener);
+    document.removeEventListener('click', clickListener);
     clickListener = null;
   }
 
@@ -389,16 +376,14 @@ export function cleanupErrorTracking(): void {
   userId = null;
   isInitialized = false;
 
-  logger.log("🔍 Error tracking cleaned up");
+  logger.log('🔍 Error tracking cleaned up');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // User Context
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function setUser(
-  user: { id: string; email?: string; name?: string } | null,
-): void {
+export function setUser(user: { id: string; email?: string; name?: string } | null): void {
   userId = user?.id ?? null;
 }
 

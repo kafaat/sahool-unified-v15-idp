@@ -161,10 +161,10 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
       children: [
         FlutterMap(
           mapController: _mapController,
-          options: MapOptions(
-            initialCenter: const LatLng(24.7136, 46.6753), // Riyadh
+          options: const MapOptions(
+            initialCenter: LatLng(24.7136, 46.6753), // Riyadh
             initialZoom: 13,
-            interactionOptions: const InteractionOptions(
+            interactionOptions: InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
           ),
@@ -232,7 +232,7 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(color: Colors.black54),
                           ),

@@ -6,29 +6,29 @@
  * to auto-invalidate data when real-time updates arrive.
  */
 
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
-import { invalidateQueries } from "./use-api-query";
+import { useEffect, useRef } from 'react';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { invalidateQueries } from './use-api-query';
 
 type RealtimeEvent =
-  | "alert"
-  | "sensor"
-  | "irrigation"
-  | "diagnosis"
-  | "farm_update"
-  | "weather"
-  | "task";
+  | 'alert'
+  | 'sensor'
+  | 'irrigation'
+  | 'diagnosis'
+  | 'farm_update'
+  | 'weather'
+  | 'task';
 
 const EVENT_TO_CACHE_KEYS: Record<RealtimeEvent, string[]> = {
-  alert: ["alerts", "dashboard"],
-  sensor: ["sensors", "fields"],
-  irrigation: ["irrigation", "fields"],
-  diagnosis: ["diagnoses", "dashboard"],
-  farm_update: ["fields", "dashboard"],
-  weather: ["weather"],
-  task: ["tasks"],
+  alert: ['alerts', 'dashboard'],
+  sensor: ['sensors', 'fields'],
+  irrigation: ['irrigation', 'fields'],
+  diagnosis: ['diagnoses', 'dashboard'],
+  farm_update: ['fields', 'dashboard'],
+  weather: ['weather'],
+  task: ['tasks'],
 };
 
 /**
@@ -52,7 +52,7 @@ export function useRealtimeSync(events: RealtimeEvent[] = []) {
   eventsRef.current = events;
 
   // Stable key based on event names to only re-subscribe when events actually change
-  const eventsKey = events.join(",");
+  const eventsKey = events.join(',');
 
   useEffect(() => {
     if (!isConnected) return;
@@ -71,7 +71,7 @@ export function useRealtimeSync(events: RealtimeEvent[] = []) {
             invalidateQueries(key);
           }
         }
-      }),
+      })
     );
 
     return () => {

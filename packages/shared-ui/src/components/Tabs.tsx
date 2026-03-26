@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Tabs Component
@@ -7,8 +7,8 @@
  * An accessible tab navigation component
  */
 
-import * as React from "react";
-import { cn } from "@sahool/shared-utils";
+import * as React from 'react';
+import { cn } from '@sahool/shared-utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -31,9 +31,9 @@ export interface TabsProps {
   /** Tab content keyed by tab id */
   children?: React.ReactNode;
   /** Visual variant */
-  variant?: "line" | "pills" | "enclosed";
+  variant?: 'line' | 'pills' | 'enclosed';
   /** Orientation */
-  orientation?: "horizontal" | "vertical";
+  orientation?: 'horizontal' | 'vertical';
   /** Additional class name */
   className?: string;
 }
@@ -53,12 +53,7 @@ export interface TabPanelProps {
 // Tab Panel
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function TabPanel({
-  tabId,
-  activeTab,
-  children,
-  className,
-}: TabPanelProps) {
+export function TabPanel({ tabId, activeTab, children, className }: TabPanelProps) {
   if (tabId !== activeTab) return null;
 
   return (
@@ -67,7 +62,7 @@ export function TabPanel({
       id={`tabpanel-${tabId}`}
       aria-labelledby={`tab-${tabId}`}
       tabIndex={0}
-      className={cn("focus:outline-none", className)}
+      className={cn('focus:outline-none', className)}
     >
       {children}
     </div>
@@ -83,13 +78,11 @@ export function Tabs({
   activeTab: controlledActiveTab,
   onTabChange,
   children,
-  variant = "line",
-  orientation = "horizontal",
+  variant = 'line',
+  orientation = 'horizontal',
   className,
 }: TabsProps) {
-  const [internalActiveTab, setInternalActiveTab] = React.useState(
-    tabs[0]?.id || "",
-  );
+  const [internalActiveTab, setInternalActiveTab] = React.useState(tabs[0]?.id || '');
 
   const activeTab = controlledActiveTab ?? internalActiveTab;
 
@@ -105,42 +98,34 @@ export function Tabs({
     const enabledTabs = tabs.filter((tab) => !tab.disabled);
     const currentTab = tabs[currentIndex];
     if (!currentTab) return;
-    const currentEnabledIndex = enabledTabs.findIndex(
-      (tab) => tab.id === currentTab.id,
-    );
+    const currentEnabledIndex = enabledTabs.findIndex((tab) => tab.id === currentTab.id);
 
     let nextIndex: number;
     let targetTab: Tab | undefined;
 
-    const isHorizontal = orientation === "horizontal";
-    const prevKey = isHorizontal ? "ArrowLeft" : "ArrowUp";
-    const nextKey = isHorizontal ? "ArrowRight" : "ArrowDown";
+    const isHorizontal = orientation === 'horizontal';
+    const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp';
+    const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown';
 
     switch (event.key) {
       case prevKey:
         event.preventDefault();
-        nextIndex =
-          currentEnabledIndex > 0
-            ? currentEnabledIndex - 1
-            : enabledTabs.length - 1;
+        nextIndex = currentEnabledIndex > 0 ? currentEnabledIndex - 1 : enabledTabs.length - 1;
         targetTab = enabledTabs[nextIndex];
         if (targetTab) handleTabChange(targetTab.id);
         break;
       case nextKey:
         event.preventDefault();
-        nextIndex =
-          currentEnabledIndex < enabledTabs.length - 1
-            ? currentEnabledIndex + 1
-            : 0;
+        nextIndex = currentEnabledIndex < enabledTabs.length - 1 ? currentEnabledIndex + 1 : 0;
         targetTab = enabledTabs[nextIndex];
         if (targetTab) handleTabChange(targetTab.id);
         break;
-      case "Home":
+      case 'Home':
         event.preventDefault();
         targetTab = enabledTabs[0];
         if (targetTab) handleTabChange(targetTab.id);
         break;
-      case "End":
+      case 'End':
         event.preventDefault();
         targetTab = enabledTabs[enabledTabs.length - 1];
         if (targetTab) handleTabChange(targetTab.id);
@@ -151,51 +136,46 @@ export function Tabs({
   // Variant styles
   const variantStyles = {
     line: {
-      list: "border-b border-gray-200",
+      list: 'border-b border-gray-200',
       tab: cn(
-        "px-4 py-2 -mb-px border-b-2 transition-colors",
-        "hover:text-sahool-600 hover:border-gray-300",
-        "focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset",
+        'px-4 py-2 -mb-px border-b-2 transition-colors',
+        'hover:text-sahool-600 hover:border-gray-300',
+        'focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset'
       ),
-      active: "border-sahool-500 text-sahool-600 font-medium",
-      inactive: "border-transparent text-gray-500",
+      active: 'border-sahool-500 text-sahool-600 font-medium',
+      inactive: 'border-transparent text-gray-500',
     },
     pills: {
-      list: "gap-2",
+      list: 'gap-2',
       tab: cn(
-        "px-4 py-2 rounded-lg transition-colors",
-        "hover:bg-gray-100",
-        "focus:outline-none focus:ring-2 focus:ring-sahool-200",
+        'px-4 py-2 rounded-lg transition-colors',
+        'hover:bg-gray-100',
+        'focus:outline-none focus:ring-2 focus:ring-sahool-200'
       ),
-      active: "bg-sahool-100 text-sahool-700 font-medium",
-      inactive: "text-gray-600",
+      active: 'bg-sahool-100 text-sahool-700 font-medium',
+      inactive: 'text-gray-600',
     },
     enclosed: {
-      list: "border-b border-gray-200",
+      list: 'border-b border-gray-200',
       tab: cn(
-        "px-4 py-2 -mb-px border border-transparent rounded-t-lg transition-colors",
-        "hover:bg-gray-50",
-        "focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset",
+        'px-4 py-2 -mb-px border border-transparent rounded-t-lg transition-colors',
+        'hover:bg-gray-50',
+        'focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset'
       ),
-      active:
-        "bg-white border-gray-200 border-b-white text-sahool-600 font-medium",
-      inactive: "text-gray-500",
+      active: 'bg-white border-gray-200 border-b-white text-sahool-600 font-medium',
+      inactive: 'text-gray-500',
     },
   };
 
   const styles = variantStyles[variant];
 
   return (
-    <div className={cn(orientation === "vertical" && "flex gap-4", className)}>
+    <div className={cn(orientation === 'vertical' && 'flex gap-4', className)}>
       {/* Tab List */}
       <div
         role="tablist"
         aria-orientation={orientation}
-        className={cn(
-          "flex",
-          orientation === "vertical" ? "flex-col" : "flex-row",
-          styles.list,
-        )}
+        className={cn('flex', orientation === 'vertical' ? 'flex-col' : 'flex-row', styles.list)}
       >
         {tabs.map((tab, index) => (
           <button
@@ -211,10 +191,10 @@ export function Tabs({
             onClick={() => !tab.disabled && handleTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              "flex items-center gap-2 whitespace-nowrap",
+              'flex items-center gap-2 whitespace-nowrap',
               styles.tab,
               activeTab === tab.id ? styles.active : styles.inactive,
-              tab.disabled && "opacity-50 cursor-not-allowed",
+              tab.disabled && 'opacity-50 cursor-not-allowed'
             )}
           >
             {tab.icon}
@@ -225,9 +205,7 @@ export function Tabs({
 
       {/* Tab Panels */}
       {children && (
-        <div className={cn("flex-1", orientation === "horizontal" && "mt-4")}>
-          {children}
-        </div>
+        <div className={cn('flex-1', orientation === 'horizontal' && 'mt-4')}>{children}</div>
       )}
     </div>
   );

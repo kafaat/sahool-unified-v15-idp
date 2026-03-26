@@ -81,7 +81,7 @@
 /// - Warning dialogs
 /// - Status messages
 ///
-library security;
+library;
 
 // Core configuration
 export 'security_config.dart';
@@ -93,7 +93,7 @@ export 'certificate_pinning_service.dart';
 
 // Device Security (Root/Jailbreak Detection)
 export 'device_security.dart';
-export 'device_integrity_service.dart';
+export 'device_integrity_service.dart' hide SecurityThreatLevel;
 export 'device_security_screen.dart';
 
 // Session Management

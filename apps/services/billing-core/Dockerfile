@@ -18,13 +18,13 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/billing-core/requirements.txt .
@@ -57,6 +57,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Upgrade system packages to patch CVEs
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 # Create non-root user
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
@@ -64,6 +71,24 @@ RUN groupadd --system --gid 1000 sahool && \
 # Copy installed Python packages from builder
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
+
+# Strip build tools from production image (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /home/sahool/.local/lib/python*/site-packages/pip* \
+           /home/sahool/.local/lib/python*/site-packages/setuptools* \
+           /home/sahool/.local/lib/python*/site-packages/wheel* \
+           /home/sahool/.local/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/.local/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/.local/bin/pip* \
+           /home/sahool/.local/bin/wheel* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/bin/pip* \
+           /usr/local/bin/wheel* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY --chown=sahool:sahool shared/ ./shared/

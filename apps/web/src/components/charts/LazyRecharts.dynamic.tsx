@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Dynamic (lazy-loaded) Recharts Component Re-exports
@@ -12,16 +12,16 @@
  *   import { DynamicLineChart, DynamicResponsiveContainer } from "@/components/charts/LazyRecharts.dynamic";
  */
 
-import type { ComponentType } from "react";
-import dynamic from "next/dynamic";
+import type { ComponentType } from 'react';
+import dynamic from 'next/dynamic';
 
 // Helper: next/dynamic expects the loader to resolve to a component with a
 // `default` export OR a bare component.  Recharts uses named exports, so we
 // wrap each in `{ default: ... }`.  Using `ComponentType<any>` preserves the
 // "accepts any props" contract that the consumer components rely on.
 
-const loader = (pick: (mod: typeof import("recharts")) => ComponentType<any>) =>
-  import("recharts").then((mod) => ({ default: pick(mod) }));
+const loader = (pick: (mod: typeof import('recharts')) => ComponentType<any>) =>
+  import('recharts').then((mod) => ({ default: pick(mod) }));
 
 export const DynamicAreaChart = dynamic(() => loader((m) => m.AreaChart), {
   ssr: false,
@@ -78,10 +78,10 @@ export const DynamicYAxis = dynamic(() => loader((m) => m.YAxis), {
   loading: () => null,
 });
 
-export const DynamicCartesianGrid = dynamic(
-  () => loader((m) => m.CartesianGrid),
-  { ssr: false, loading: () => null },
-);
+export const DynamicCartesianGrid = dynamic(() => loader((m) => m.CartesianGrid), {
+  ssr: false,
+  loading: () => null,
+});
 
 export const DynamicTooltip = dynamic(() => loader((m) => m.Tooltip), {
   ssr: false,
@@ -93,7 +93,7 @@ export const DynamicLegend = dynamic(() => loader((m) => m.Legend), {
   loading: () => null,
 });
 
-export const DynamicResponsiveContainer = dynamic(
-  () => loader((m) => m.ResponsiveContainer),
-  { ssr: false, loading: () => null },
-);
+export const DynamicResponsiveContainer = dynamic(() => loader((m) => m.ResponsiveContainer), {
+  ssr: false,
+  loading: () => null,
+});

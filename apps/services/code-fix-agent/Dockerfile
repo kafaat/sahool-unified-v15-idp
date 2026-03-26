@@ -17,7 +17,8 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 
 # Create virtual environment to avoid pip root user warning
 # إنشاء بيئة افتراضية لتجنب تحذير المستخدم الجذر
-ENV VIRTUAL_ENV=/opt/venv
+ENV VIRTUAL_ENV=/opt/venv \
+    PIP_NO_CACHE_DIR=1
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
@@ -28,10 +29,10 @@ COPY apps/services/code-fix-agent/requirements.txt .
 # Install dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip setuptools wheel || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip setuptools wheel
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \

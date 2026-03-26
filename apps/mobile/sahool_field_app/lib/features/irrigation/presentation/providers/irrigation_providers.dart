@@ -15,7 +15,8 @@ import '../../data/repositories/irrigation_repository.dart';
 import '../../domain/services/water_calculator.dart';
 import '../../domain/services/irrigation_scheduler.dart';
 import '../../domain/services/weather_irrigation_integration.dart';
-import '../../../advisor/data/models/irrigation_models.dart';
+import '../../../advisor/data/models/irrigation_models.dart'
+    hide IrrigationCalculation, IrrigationSchedule, IrrigationEvent;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Core Providers - المزودون الأساسيون
@@ -117,7 +118,7 @@ List<IrrigationRecommendation> _generateRecommendations({
 
   // Urgency-based recommendation
   if (waterBalance.status == 'critical') {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.urgency,
       priority: Priority.high,
       title: 'Urgent Irrigation Needed',
@@ -126,7 +127,7 @@ List<IrrigationRecommendation> _generateRecommendations({
       descriptionAr: 'رطوبة التربة منخفضة جدًا. الري فورًا.',
     ));
   } else if (waterBalance.status == 'low') {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.urgency,
       priority: Priority.medium,
       title: 'Irrigation Recommended',
@@ -153,7 +154,7 @@ List<IrrigationRecommendation> _generateRecommendations({
 
   // Timing recommendation
   if (requirement.etc > 5) {
-    recommendations.add(IrrigationRecommendation(
+    recommendations.add(const IrrigationRecommendation(
       type: RecommendationType.timing,
       priority: Priority.low,
       title: 'Optimal Irrigation Time',
@@ -397,8 +398,8 @@ class SmartScheduleParams {
 
 /// Parameters for weather alerts
 class WeatherAlertParams {
-  final WeatherData currentWeather;
-  final List<WeatherData> forecast;
+  final IrrigationWeatherData currentWeather;
+  final List<IrrigationWeatherData> forecast;
 
   const WeatherAlertParams({
     required this.currentWeather,

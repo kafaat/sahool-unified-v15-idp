@@ -66,7 +66,8 @@ def point_in_polygon(lat: float, lng: float, boundary: list[LatLng]) -> bool:
         if lng > min(p1_lng, p2_lng):
             if lng <= max(p1_lng, p2_lng):
                 if lat <= max(p1_lat, p2_lat):
-                    if p1_lng != p2_lng:
+                    lat_intersect = p1_lat  # Default for vertical edges
+                    if abs(p2_lng - p1_lng) > 1e-10:
                         lat_intersect = (lng - p1_lng) * (p2_lat - p1_lat) / (p2_lng - p1_lng) + p1_lat
 
                     if p1_lat == p2_lat or lat <= lat_intersect:

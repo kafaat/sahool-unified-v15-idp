@@ -64,8 +64,9 @@ class VRAService {
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (vraType != null) queryParams['vra_type'] = vraType.value;
       if (status != null) queryParams['status'] = status.value;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String();
+      }
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
@@ -416,8 +417,9 @@ class VRAService {
   }) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (zoningMethod != null)
+      if (zoningMethod != null) {
         queryParams['zoning_method'] = zoningMethod.value;
+      }
       if (zonesCount != null) queryParams['zones_count'] = zonesCount;
 
       final response = await _dio.get(

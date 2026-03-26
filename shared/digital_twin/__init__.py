@@ -27,8 +27,8 @@ from shared.digital_twin.models import (
     FieldDailyState,
     FieldObservation,
     IrrigationRecommendation,
-    ObservationType,
     ObservationSource,
+    ObservationType,
 )
 from shared.digital_twin.pipeline import TwinPipeline
 from shared.digital_twin.repository import TwinRepository

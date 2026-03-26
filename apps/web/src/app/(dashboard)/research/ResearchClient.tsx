@@ -1,31 +1,39 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { FlaskConical, Plus, Calendar, MapPin, BarChart3, Users, AlertTriangle } from "lucide-react";
-import { useResearchTrials, useResearchStats } from "@/features/research";
-import type { ResearchTrial } from "@/features/research";
+import React, { useState, useMemo } from 'react';
+import {
+  FlaskConical,
+  Plus,
+  Calendar,
+  MapPin,
+  BarChart3,
+  Users,
+  AlertTriangle,
+} from 'lucide-react';
+import { useResearchTrials, useResearchStats } from '@/features/research';
+import type { ResearchTrial } from '@/features/research';
 
 export default function ResearchClient() {
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "completed">("all");
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('all');
 
   // Fetch data using React Query hooks
   const { data: trials = [], isLoading, error } = useResearchTrials();
   const { data: stats } = useResearchStats();
 
-  const getStatusBadge = (status: ResearchTrial["status"]) => {
-    const styles: Record<ResearchTrial["status"], string> = {
-      planning: "bg-blue-100 text-blue-800",
-      active: "bg-green-100 text-green-800",
-      completed: "bg-gray-100 text-gray-800",
-      on_hold: "bg-yellow-100 text-yellow-800",
-      cancelled: "bg-red-100 text-red-800",
+  const getStatusBadge = (status: ResearchTrial['status']) => {
+    const styles: Record<ResearchTrial['status'], string> = {
+      planning: 'bg-blue-100 text-blue-800',
+      active: 'bg-green-100 text-green-800',
+      completed: 'bg-gray-100 text-gray-800',
+      on_hold: 'bg-yellow-100 text-yellow-800',
+      cancelled: 'bg-red-100 text-red-800',
     };
-    const labels: Record<ResearchTrial["status"], string> = {
-      planning: "قيد التخطيط",
-      active: "نشط",
-      completed: "مكتمل",
-      on_hold: "معلق",
-      cancelled: "ملغي",
+    const labels: Record<ResearchTrial['status'], string> = {
+      planning: 'قيد التخطيط',
+      active: 'نشط',
+      completed: 'مكتمل',
+      on_hold: 'معلق',
+      cancelled: 'ملغي',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -36,9 +44,9 @@ export default function ResearchClient() {
 
   const filteredTrials = useMemo(() => {
     return trials.filter((trial) => {
-      if (activeTab === "all") return true;
-      if (activeTab === "active") return trial.status === "active" || trial.status === "planning";
-      return trial.status === "completed";
+      if (activeTab === 'all') return true;
+      if (activeTab === 'active') return trial.status === 'active' || trial.status === 'planning';
+      return trial.status === 'completed';
     });
   }, [trials, activeTab]);
 
@@ -85,7 +93,9 @@ export default function ResearchClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي التجارب</div>
-              <div className="text-xl font-bold text-gray-900">{stats?.totalTrials ?? trials.length}</div>
+              <div className="text-xl font-bold text-gray-900">
+                {stats?.totalTrials ?? trials.length}
+              </div>
             </div>
           </div>
         </div>
@@ -97,7 +107,7 @@ export default function ResearchClient() {
             <div>
               <div className="text-sm text-gray-500">نشطة</div>
               <div className="text-xl font-bold text-green-600">
-                {stats?.activeTrials ?? trials.filter((t) => t.status === "active").length}
+                {stats?.activeTrials ?? trials.filter((t) => t.status === 'active').length}
               </div>
             </div>
           </div>
@@ -110,7 +120,7 @@ export default function ResearchClient() {
             <div>
               <div className="text-sm text-gray-500">مكتملة</div>
               <div className="text-xl font-bold text-gray-600">
-                {stats?.completedTrials ?? trials.filter((t) => t.status === "completed").length}
+                {stats?.completedTrials ?? trials.filter((t) => t.status === 'completed').length}
               </div>
             </div>
           </div>
@@ -134,17 +144,17 @@ export default function ResearchClient() {
       <div className="border-b">
         <nav className="flex gap-4">
           {[
-            { key: "all", label: "الكل" },
-            { key: "active", label: "النشطة" },
-            { key: "completed", label: "المكتملة" },
+            { key: 'all', label: 'الكل' },
+            { key: 'active', label: 'النشطة' },
+            { key: 'completed', label: 'المكتملة' },
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as typeof activeTab)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? "border-sahool-green-600 text-sahool-green-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? 'border-sahool-green-600 text-sahool-green-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab.label}
@@ -156,12 +166,13 @@ export default function ResearchClient() {
       {/* Trials Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTrials.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            لا توجد تجارب بحثية
-          </div>
+          <div className="col-span-full text-center py-8 text-gray-500">لا توجد تجارب بحثية</div>
         ) : (
           filteredTrials.map((trial) => (
-            <div key={trial.id} className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow">
+            <div
+              key={trial.id}
+              className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
                   <FlaskConical className="w-5 h-5 text-sahool-green-600" />
@@ -181,11 +192,13 @@ export default function ResearchClient() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-500">
                   <Calendar className="w-4 h-4" />
-                  <span>{trial.startDate} - {trial.endDate}</span>
+                  <span>
+                    {trial.startDate} - {trial.endDate}
+                  </span>
                 </div>
               </div>
 
-              {trial.status === "active" && (
+              {trial.status === 'active' && (
                 <div className="mt-4">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-500">التقدم</span>

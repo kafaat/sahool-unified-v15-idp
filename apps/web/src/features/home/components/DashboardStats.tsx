@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Dashboard Stats Component
  * مكون إحصائيات لوحة التحكم
  */
 
-import React, { useEffect, useState, useRef } from "react";
-import { BarChart3, Droplets, MapPin, AlertTriangle, RefreshCw } from "lucide-react";
-import { useStats } from "../hooks/useStats";
-import { useWeather } from "../hooks/useWeather";
+import React, { useEffect, useState, useRef } from 'react';
+import { BarChart3, Droplets, MapPin, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useStats } from '../hooks/useStats';
+import { useWeather } from '../hooks/useWeather';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -66,28 +66,30 @@ const StatCard: React.FC<StatCardProps> = ({
   color,
   index,
 }) => {
-  const numericValue = typeof value === "number" ? value : null;
+  const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useAnimatedValue(numericValue ?? 0);
   const displayValue = numericValue !== null ? animatedValue : value;
 
   return (
     <div
       className={`p-6 rounded-xl border-2 ${color} bg-white dark:bg-gray-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-in-up cursor-default group`}
-      style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
+      style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
     >
       <div className="flex items-start justify-between">
-        <div className={`p-3 rounded-lg ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-200`}>
+        <div
+          className={`p-3 rounded-lg ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-200`}
+        >
           {icon}
         </div>
         {trend !== undefined && (
           <div
             className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${
               trend >= 0
-                ? "text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-900/30"
-                : "text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30"
+                ? 'text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-900/30'
+                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30'
             }`}
           >
-            <span className={trend >= 0 ? "rotate-0" : "rotate-180"}>&#9650;</span>
+            <span className={trend >= 0 ? 'rotate-0' : 'rotate-180'}>&#9650;</span>
             {Math.abs(trend)}%
           </div>
         )}
@@ -132,33 +134,33 @@ export const DashboardStats: React.FC = () => {
   const stats = [
     {
       icon: <MapPin className="w-6 h-6 text-blue-600" />,
-      label: "Total Fields",
-      labelAr: "إجمالي الحقول",
+      label: 'Total Fields',
+      labelAr: 'إجمالي الحقول',
       value: statsData?.totalFields || 0,
       trend: 5,
-      color: "border-blue-200",
+      color: 'border-blue-200',
     },
     {
       icon: <BarChart3 className="w-6 h-6 text-green-600" />,
-      label: "Active Tasks",
-      labelAr: "المهام النشطة",
+      label: 'Active Tasks',
+      labelAr: 'المهام النشطة',
       value: statsData?.activeTasks || 0,
       trend: -2,
-      color: "border-green-200",
+      color: 'border-green-200',
     },
     {
       icon: <AlertTriangle className="w-6 h-6 text-orange-600" />,
-      label: "Alerts",
-      labelAr: "التنبيهات",
+      label: 'Alerts',
+      labelAr: 'التنبيهات',
       value: statsData?.activeAlerts || 0,
-      color: "border-orange-200",
+      color: 'border-orange-200',
     },
     {
       icon: <Droplets className="w-6 h-6 text-cyan-600" />,
-      label: "Avg Humidity",
-      labelAr: "متوسط الرطوبة",
-      value: weatherData?.humidity ? `${weatherData.humidity}%` : "N/A",
-      color: "border-cyan-200",
+      label: 'Avg Humidity',
+      labelAr: 'متوسط الرطوبة',
+      value: weatherData?.humidity ? `${weatherData.humidity}%` : 'N/A',
+      color: 'border-cyan-200',
     },
   ];
 
@@ -171,7 +173,7 @@ export const DashboardStats: React.FC = () => {
           className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           aria-label="تحديث الإحصائيات"
         >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           <span className="text-xs">تحديث</span>
         </button>
       </div>

@@ -6,16 +6,16 @@
  * form fields and do not expose sensitive information.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
 // Mock next/navigation
-vi.mock("next/navigation", () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -24,11 +24,11 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn().mockResolvedValue(undefined),
   }),
   useSearchParams: () => new URLSearchParams(),
-  usePathname: () => "/login",
+  usePathname: () => '/login',
 }));
 
 // Mock next/link as a plain anchor
-vi.mock("next/link", () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     children,
@@ -46,7 +46,7 @@ vi.mock("next/link", () => ({
 }));
 
 // Mock auth store
-vi.mock("@/stores/auth.store", () => ({
+vi.mock('@/stores/auth.store', () => ({
   useAuth: () => ({
     user: null,
     isAuthenticated: false,
@@ -59,18 +59,16 @@ vi.mock("@/stores/auth.store", () => ({
 }));
 
 // Mock toast provider
-vi.mock("@/components/ui/toast", () => ({
+vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({
     showToast: vi.fn(),
     hideToast: vi.fn(),
   }),
-  ToastProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 // Mock logger
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -84,49 +82,47 @@ vi.mock("@/lib/logger", () => ({
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import LoginClient from "../../(auth)/login/LoginClient";
-import RegisterClient from "../../(auth)/register/RegisterClient";
-import ForgotPasswordClient from "../../(auth)/forgot-password/ForgotPasswordClient";
+import LoginClient from '../../(auth)/login/LoginClient';
+import RegisterClient from '../../(auth)/register/RegisterClient';
+import ForgotPasswordClient from '../../(auth)/forgot-password/ForgotPasswordClient';
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe("Web Login Page", () => {
+describe('Web Login Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", () => {
+  it('renders without crashing', () => {
     render(<LoginClient />);
     // The page should show the login heading in Arabic
-    expect(
-      screen.getByText("تسجيل الدخول إلى سهول"),
-    ).toBeInTheDocument();
+    expect(screen.getByText('تسجيل الدخول إلى سهول')).toBeInTheDocument();
   });
 
-  it("displays the English subtitle", () => {
+  it('displays the English subtitle', () => {
     render(<LoginClient />);
-    expect(screen.getByText("Login to SAHOOL")).toBeInTheDocument();
+    expect(screen.getByText('Login to SAHOOL')).toBeInTheDocument();
   });
 
-  it("renders a password input field", () => {
+  it('renders a password input field', () => {
     render(<LoginClient />);
     // The password input uses the Input component with labelAr "كلمة المرور"
-    expect(screen.getByText("كلمة المرور")).toBeInTheDocument();
-    const passwordInput = screen.getByPlaceholderText("••••••••");
+    expect(screen.getByText('كلمة المرور')).toBeInTheDocument();
+    const passwordInput = screen.getByPlaceholderText('••••••••');
     expect(passwordInput).toBeInTheDocument();
   });
 
-  it("renders the login submit button", () => {
+  it('renders the login submit button', () => {
     render(<LoginClient />);
-    const submitButton = screen.getByRole("button", {
+    const submitButton = screen.getByRole('button', {
       name: /تسجيل الدخول.*Login/i,
     });
     expect(submitButton).toBeInTheDocument();
   });
 
-  it("renders phone and email login method toggle", () => {
+  it('renders phone and email login method toggle', () => {
     render(<LoginClient />);
     // Toggle buttons contain phone and email labels
     // "البريد الإلكتروني" may appear multiple times (toggle + form label)
@@ -134,136 +130,134 @@ describe("Web Login Page", () => {
     expect(screen.getAllByText(/البريد الإلكتروني/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders forgot password link", () => {
+  it('renders forgot password link', () => {
     render(<LoginClient />);
-    const forgotLink = screen.getByRole("link", {
+    const forgotLink = screen.getByRole('link', {
       name: /نسيت كلمة المرور/i,
     });
     expect(forgotLink).toBeInTheDocument();
-    expect(forgotLink).toHaveAttribute("href", "/forgot-password");
+    expect(forgotLink).toHaveAttribute('href', '/forgot-password');
   });
 
-  it("renders create account link", () => {
+  it('renders create account link', () => {
     render(<LoginClient />);
-    const registerLink = screen.getByRole("link", {
+    const registerLink = screen.getByRole('link', {
       name: /إنشاء حساب جديد/i,
     });
     expect(registerLink).toBeInTheDocument();
-    expect(registerLink).toHaveAttribute("href", "/register");
+    expect(registerLink).toHaveAttribute('href', '/register');
   });
 
-  it("does NOT expose hardcoded credentials", () => {
+  it('does NOT expose hardcoded credentials', () => {
     render(<LoginClient />);
     expect(screen.queryByText(/admin123/i)).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/بيانات الدخول للتجربة/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/بيانات الدخول للتجربة/i)).not.toBeInTheDocument();
   });
 });
 
-describe("Web Register Page", () => {
+describe('Web Register Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", () => {
+  it('renders without crashing', () => {
     render(<RegisterClient />);
-    expect(screen.getByText("إنشاء حساب جديد")).toBeInTheDocument();
+    expect(screen.getByText('إنشاء حساب جديد')).toBeInTheDocument();
   });
 
-  it("displays English subtitle", () => {
+  it('displays English subtitle', () => {
     render(<RegisterClient />);
-    expect(screen.getByText("Create New Account")).toBeInTheDocument();
+    expect(screen.getByText('Create New Account')).toBeInTheDocument();
   });
 
-  it("renders first and last name fields", () => {
+  it('renders first and last name fields', () => {
     render(<RegisterClient />);
-    expect(screen.getByText("الاسم الأول")).toBeInTheDocument();
-    expect(screen.getByText("اسم العائلة")).toBeInTheDocument();
+    expect(screen.getByText('الاسم الأول')).toBeInTheDocument();
+    expect(screen.getByText('اسم العائلة')).toBeInTheDocument();
   });
 
-  it("renders password and confirm password fields", () => {
+  it('renders password and confirm password fields', () => {
     render(<RegisterClient />);
     // Both password fields exist
-    const passwordInputs = screen.getAllByPlaceholderText("••••••••");
+    const passwordInputs = screen.getAllByPlaceholderText('••••••••');
     expect(passwordInputs.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("renders phone and email registration method toggle", () => {
+  it('renders phone and email registration method toggle', () => {
     render(<RegisterClient />);
     // Should have phone and email toggle buttons (text may appear multiple times)
     expect(screen.getAllByText(/رقم الهاتف/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders submit button", () => {
+  it('renders submit button', () => {
     render(<RegisterClient />);
-    const submitButton = screen.getByRole("button", {
+    const submitButton = screen.getByRole('button', {
       name: /إنشاء حساب.*Create Account/i,
     });
     expect(submitButton).toBeInTheDocument();
   });
 
-  it("renders login link for existing users", () => {
+  it('renders login link for existing users', () => {
     render(<RegisterClient />);
-    const loginLink = screen.getByRole("link", {
+    const loginLink = screen.getByRole('link', {
       name: /تسجيل الدخول.*Login/i,
     });
     expect(loginLink).toBeInTheDocument();
-    expect(loginLink).toHaveAttribute("href", "/login");
+    expect(loginLink).toHaveAttribute('href', '/login');
   });
 
-  it("shows Yemen operator info", () => {
+  it('shows Yemen operator info', () => {
     render(<RegisterClient />);
     // Default method is phone, should show Yemen operator prefixes
     expect(screen.getByText(/يمن موبايل/)).toBeInTheDocument();
   });
 });
 
-describe("Web Forgot Password Page", () => {
+describe('Web Forgot Password Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", () => {
+  it('renders without crashing', () => {
     render(<ForgotPasswordClient />);
-    expect(screen.getByText("نسيت كلمة المرور؟")).toBeInTheDocument();
+    expect(screen.getByText('نسيت كلمة المرور؟')).toBeInTheDocument();
   });
 
-  it("displays English subtitle", () => {
+  it('displays English subtitle', () => {
     render(<ForgotPasswordClient />);
-    expect(screen.getByText("Forgot Password?")).toBeInTheDocument();
+    expect(screen.getByText('Forgot Password?')).toBeInTheDocument();
   });
 
-  it("renders recovery channel selector", () => {
+  it('renders recovery channel selector', () => {
     render(<ForgotPasswordClient />);
-    expect(screen.getByText("طريقة الاسترداد")).toBeInTheDocument();
-    expect(screen.getByText("Recovery Method")).toBeInTheDocument();
+    expect(screen.getByText('طريقة الاسترداد')).toBeInTheDocument();
+    expect(screen.getByText('Recovery Method')).toBeInTheDocument();
   });
 
-  it("renders all four recovery channel options", () => {
+  it('renders all four recovery channel options', () => {
     render(<ForgotPasswordClient />);
     // Channel options rendered as button text (Arabic labels + English sub-labels)
     // "Email" may appear multiple times (channel button + input label), so use getAllByText
-    expect(screen.getAllByText("Email").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("SMS")).toBeInTheDocument();
-    expect(screen.getByText("WhatsApp")).toBeInTheDocument();
-    expect(screen.getByText("Telegram")).toBeInTheDocument();
+    expect(screen.getAllByText('Email').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('SMS')).toBeInTheDocument();
+    expect(screen.getByText('WhatsApp')).toBeInTheDocument();
+    expect(screen.getByText('Telegram')).toBeInTheDocument();
   });
 
-  it("renders submit button", () => {
+  it('renders submit button', () => {
     render(<ForgotPasswordClient />);
-    const submitButton = screen.getByRole("button", {
+    const submitButton = screen.getByRole('button', {
       name: /إرسال رابط إعادة التعيين.*Send Reset Link/i,
     });
     expect(submitButton).toBeInTheDocument();
   });
 
-  it("renders back to login link", () => {
+  it('renders back to login link', () => {
     render(<ForgotPasswordClient />);
-    const backLink = screen.getByRole("link", {
+    const backLink = screen.getByRole('link', {
       name: /العودة لتسجيل الدخول.*Back to Login/i,
     });
     expect(backLink).toBeInTheDocument();
-    expect(backLink).toHaveAttribute("href", "/login");
+    expect(backLink).toHaveAttribute('href', '/login');
   });
 });

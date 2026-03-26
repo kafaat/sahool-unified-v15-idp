@@ -10,28 +10,28 @@ final dailyBriefProvider = FutureProvider<DailyBrief>((ref) async {
   return DailyBrief(
     greeting: _getGreeting(),
     headline: _getHeadline(),
-    weather: WeatherSummary(
+    weather: const WeatherSummary(
       temperature: 28,
       condition: 'sunny',
       humidity: 45,
       recommendation: 'طقس مثالي للعمل في الحقل',
     ),
     priorityItems: [
-      PriorityItem(
+      const PriorityItem(
         id: '1',
         title: 'ري حقل الشمال - منسوب الرطوبة منخفض',
         priority: Priority.high,
         type: PriorityType.irrigation,
         actionLabel: 'ابدأ الري',
       ),
-      PriorityItem(
+      const PriorityItem(
         id: '2',
         title: 'فحص البيت المحمي - علامات مبكرة للآفات',
         priority: Priority.medium,
         type: PriorityType.inspection,
         actionLabel: 'افحص',
       ),
-      PriorityItem(
+      const PriorityItem(
         id: '3',
         title: 'تسميد المنطقة الجنوبية',
         priority: Priority.low,

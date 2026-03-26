@@ -12,9 +12,9 @@ Provides voice-based interaction for farmers:
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

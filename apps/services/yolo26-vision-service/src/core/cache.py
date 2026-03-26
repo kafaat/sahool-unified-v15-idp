@@ -15,9 +15,10 @@ import io
 import json
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 import numpy as np
 import structlog

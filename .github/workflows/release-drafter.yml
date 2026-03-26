@@ -1,0 +1,39 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Release Drafter - Automatically drafts release notes from merged PRs
+# مسودة الإصدار التلقائي
+#
+# NOTE: The config file (.github/release-drafter.yml) must exist in the
+# default branch (main). This workflow only runs on pushes to main/develop.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: release-drafter-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  update-release-draft:
+    name: Draft Release Notes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          # Only create actual draft on main branch pushes
+          disable-autolabeler: ${{ github.ref != 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

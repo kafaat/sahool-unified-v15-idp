@@ -229,7 +229,7 @@ class MetaCloudWhatsAppProvider(BaseWhatsAppProvider):
                 "text": {"body": body},
             }
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 data = response.json()
@@ -280,7 +280,7 @@ class MetaCloudWhatsAppProvider(BaseWhatsAppProvider):
                 },
             }
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 data = response.json()
@@ -343,7 +343,7 @@ class UltraMsgProvider(BaseWhatsAppProvider):
                 "body": body,
             }
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(url, data=payload)
                 response.raise_for_status()
                 data = response.json()

@@ -3,24 +3,24 @@
  * الشاشة الرئيسية للوحة التحكم - محدثة لاستخدام الـ kernel المسترجع
  */
 
-"use client";
+'use client';
 
-import React, { useState, useCallback, useMemo } from "react";
-import { StatsCards } from "./StatsCards";
-import { TaskList } from "./TaskList";
-import { EventTimeline } from "./EventTimeline";
-import { AlertPanel } from "./AlertPanel";
-import { QuickActions } from "./QuickActions";
-import { useAlerts } from "../../hooks/useAlerts";
-import { ErrorTracking } from "@/lib/monitoring/error-tracking";
-import { MapView } from "./MapView.dynamic";
+import React, { useState, useCallback, useMemo } from 'react';
+import { StatsCards } from './StatsCards';
+import { TaskList } from './TaskList';
+import { EventTimeline } from './EventTimeline';
+import { AlertPanel } from './AlertPanel';
+import { QuickActions } from './QuickActions';
+import { useAlerts } from '../../hooks/useAlerts';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import { MapView } from './MapView.dynamic';
 // import type { KPI } from '@/types';
 
 interface CockpitProps {
   tenantId?: string;
 }
 
-export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
+export const Cockpit: React.FC<CockpitProps> = ({ tenantId = 'tenant_1' }) => {
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const { alerts, dismiss, dismissAll } = useAlerts();
 
@@ -28,9 +28,9 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
   const handleFieldSelect = useCallback((fieldId: string | null) => {
     setSelectedField(fieldId);
     ErrorTracking.addBreadcrumb({
-      type: "click",
-      category: "ui",
-      message: "Field selected",
+      type: 'click',
+      category: 'ui',
+      message: 'Field selected',
       data: { fieldId },
     });
   }, []);
@@ -47,27 +47,27 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
 
   const handleAction = useCallback((actionId: string) => {
     ErrorTracking.addBreadcrumb({
-      type: "click",
-      category: "ui",
-      message: "Quick action triggered",
+      type: 'click',
+      category: 'ui',
+      message: 'Quick action triggered',
       data: { actionId },
     });
   }, []);
 
   const handleAlertAction = useCallback((url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(url, '_blank', 'noopener,noreferrer');
   }, []);
 
   // Memoized formatted date
   const formattedDate = useMemo(
     () =>
-      new Date().toLocaleDateString("ar-YE", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      new Date().toLocaleDateString('ar-YE', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       }),
-    [],
+    []
   );
 
   return (
@@ -84,11 +84,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <div
-            className="flex items-center gap-2 text-sm"
-            role="status"
-            aria-label="حالة الاتصال"
-          >
+          <div className="flex items-center gap-2 text-sm" role="status" aria-label="حالة الاتصال">
             <span
               className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
               aria-hidden="true"
@@ -169,7 +165,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
             <div className="p-4 border-b flex items-center justify-between">
               <h3 className="font-bold text-gray-800">📋 مهام اليوم</h3>
               <span className="text-xs bg-emerald-600 text-white px-2 py-1 rounded-full">
-                {selectedField ? "حقل محدد" : "كل الحقول"}
+                {selectedField ? 'حقل محدد' : 'كل الحقول'}
               </span>
             </div>
             <div className="flex-1 overflow-auto p-4 max-h-[400px]">

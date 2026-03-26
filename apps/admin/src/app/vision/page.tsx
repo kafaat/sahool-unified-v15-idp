@@ -1,18 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Computer Vision Page
  * الرؤية الحاسوبية
  */
 
-import Header from "@/components/layout/Header";
-import {
-  Eye,
-  ScanLine,
-  Target,
-  Gauge,
-  Camera,
-} from "lucide-react";
+import Header from '@/components/layout/Header';
+import { Eye, ScanLine, Target, Gauge, Camera } from 'lucide-react';
 
 export default function VisionPage() {
   return (
@@ -70,8 +64,12 @@ export default function VisionPage() {
       {/* Content placeholder */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
         <Camera className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">سيتم عرض إدارة نماذج الرؤية الحاسوبية هنا</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">Computer vision model management and detection results will be displayed here</p>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          سيتم عرض إدارة نماذج الرؤية الحاسوبية هنا
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
+          Computer vision model management and detection results will be displayed here
+        </p>
       </div>
     </div>
   );

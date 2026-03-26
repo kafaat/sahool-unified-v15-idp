@@ -45,21 +45,23 @@ CREATE TABLE IF NOT EXISTS weather_history (
     data_source VARCHAR(50) DEFAULT 'mock',
     quality_score DECIMAL(3, 2) DEFAULT 1.0,
 
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now(),
 
-    UNIQUE(location_name, obs_date)
+    UNIQUE (location_name, obs_date)
 );
 
 -- Create index for efficient queries
-CREATE INDEX IF NOT EXISTS idx_weather_location_date ON weather_history(location_name, obs_date);
-CREATE INDEX IF NOT EXISTS idx_weather_governorate_date ON weather_history(governorate, obs_date);
+CREATE INDEX IF NOT EXISTS idx_weather_location_date ON weather_history (location_name, obs_date);
+CREATE INDEX IF NOT EXISTS idx_weather_governorate_date ON weather_history (governorate, obs_date);
 
 -- Helper function to generate weather data for a location
 -- This generates realistic Yemen weather patterns
 
 -- Function to calculate GDD (Growing Degree Days)
-CREATE OR REPLACE FUNCTION calculate_gdd(temp_avg DECIMAL, temp_min DECIMAL, temp_max DECIMAL, base_temp DECIMAL DEFAULT 10)
+CREATE OR REPLACE FUNCTION calculate_gdd(
+    temp_avg DECIMAL, temp_min DECIMAL, temp_max DECIMAL, base_temp DECIMAL DEFAULT 10
+)
 RETURNS DECIMAL AS $$
 DECLARE
     avg_temp DECIMAL;
@@ -77,11 +79,12 @@ $$ LANGUAGE plpgsql;
 -- Altitude: ~2,250m, temperate with two rainy seasons
 WITH date_series AS (
     SELECT generate_series(
-        CURRENT_DATE - INTERVAL '365 days',
-        CURRENT_DATE - INTERVAL '1 day',
-        '1 day'::interval
-    )::date AS obs_date
+        current_date - INTERVAL '365 days',
+        current_date - INTERVAL '1 day',
+        '1 day'::INTERVAL
+    )::DATE AS obs_date
 )
+
 INSERT INTO weather_history (
     location_name, location_name_ar, governorate,
     latitude, longitude, obs_date,
@@ -92,33 +95,39 @@ INSERT INTO weather_history (
     gdd_base_10, data_source
 )
 SELECT
-    'Sana''a City', 'صنعاء', 'صنعاء',
-    15.3547, 44.2066, obs_date,
+    'Sana''a City',
+    'صنعاء',
+    'صنعاء',
+    15.3547,
+    44.2066,
+    obs_date,
     -- Temperature varies by season (highland climate)
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 12.0 + random() * 4 -- Winter: 12-16°C
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 18.0 + random() * 6 -- Spring: 18-24°C
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 20.0 + random() * 5 -- Summer: 20-25°C
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 12.0 + random() * 4 -- Winter: 12-16°C
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 18.0 + random() * 6 -- Spring: 18-24°C
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 20.0 + random() * 5 -- Summer: 20-25°C
         ELSE 16.0 + random() * 5 -- Fall: 16-21°C
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 6.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 12.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 14.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 6.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 12.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 14.0 + random() * 4
         ELSE 10.0 + random() * 4
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 18.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 24.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 26.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 18.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 24.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 26.0 + random() * 5
         ELSE 22.0 + random() * 4
     END,
     -- Rainfall peaks in April-May and July-August
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (4, 5, 7, 8) THEN
-            CASE WHEN random() < 0.3 THEN random() * 25 ELSE 0 END
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 6, 9) THEN
-            CASE WHEN random() < 0.15 THEN random() * 10 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (4, 5, 7, 8)
+            THEN
+                CASE WHEN random() < 0.3 THEN random() * 25 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (3, 6, 9)
+            THEN
+                CASE WHEN random() < 0.15 THEN random() * 10 ELSE 0 END
         ELSE 0
     END,
     45.0 + random() * 30, -- Humidity 45-75%
@@ -138,11 +147,12 @@ WHERE location_name = 'Sana''a City';
 -- Generate weather data for Ta'izz (تعز) - Mountain climate
 WITH date_series AS (
     SELECT generate_series(
-        CURRENT_DATE - INTERVAL '365 days',
-        CURRENT_DATE - INTERVAL '1 day',
-        '1 day'::interval
-    )::date AS obs_date
+        current_date - INTERVAL '365 days',
+        current_date - INTERVAL '1 day',
+        '1 day'::INTERVAL
+    )::DATE AS obs_date
 )
+
 INSERT INTO weather_history (
     location_name, location_name_ar, governorate,
     latitude, longitude, obs_date,
@@ -153,31 +163,37 @@ INSERT INTO weather_history (
     gdd_base_10, data_source
 )
 SELECT
-    'Ta''izz City', 'تعز', 'تعز',
-    13.5795, 44.0216, obs_date,
+    'Ta''izz City',
+    'تعز',
+    'تعز',
+    13.5795,
+    44.0216,
+    obs_date,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 18.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 22.0 + random() * 6
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 24.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 18.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 22.0 + random() * 6
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 24.0 + random() * 5
         ELSE 20.0 + random() * 5
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 12.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 16.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 18.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 12.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 16.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 18.0 + random() * 4
         ELSE 14.0 + random() * 4
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 24.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 28.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 30.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 24.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 28.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 30.0 + random() * 5
         ELSE 26.0 + random() * 4
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (4, 5, 7, 8, 9) THEN
-            CASE WHEN random() < 0.4 THEN random() * 35 ELSE 0 END
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 6, 10) THEN
-            CASE WHEN random() < 0.2 THEN random() * 15 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (4, 5, 7, 8, 9)
+            THEN
+                CASE WHEN random() < 0.4 THEN random() * 35 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (3, 6, 10)
+            THEN
+                CASE WHEN random() < 0.2 THEN random() * 15 ELSE 0 END
         ELSE 0
     END,
     50.0 + random() * 30,
@@ -197,11 +213,12 @@ FROM date_series;
 -- Generate weather data for Al-Hudaydah (الحديدة) - Coastal hot climate
 WITH date_series AS (
     SELECT generate_series(
-        CURRENT_DATE - INTERVAL '365 days',
-        CURRENT_DATE - INTERVAL '1 day',
-        '1 day'::interval
-    )::date AS obs_date
+        current_date - INTERVAL '365 days',
+        current_date - INTERVAL '1 day',
+        '1 day'::INTERVAL
+    )::DATE AS obs_date
 )
+
 INSERT INTO weather_history (
     location_name, location_name_ar, governorate,
     latitude, longitude, obs_date,
@@ -212,32 +229,37 @@ INSERT INTO weather_history (
     gdd_base_10, data_source
 )
 SELECT
-    'Al-Hudaydah City', 'الحديدة', 'الحديدة',
-    14.7978, 42.9545, obs_date,
+    'Al-Hudaydah City',
+    'الحديدة',
+    'الحديدة',
+    14.7978,
+    42.9545,
+    obs_date,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 25.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 30.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 35.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 25.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 30.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 35.0 + random() * 5
         ELSE 28.0 + random() * 5
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 20.0 + random() * 3
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 24.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 28.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 20.0 + random() * 3
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 24.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 28.0 + random() * 4
         ELSE 22.0 + random() * 4
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 30.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 36.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 42.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 30.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 36.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 42.0 + random() * 5
         ELSE 34.0 + random() * 5
     END,
     -- Very little rainfall, mostly in summer
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (7, 8) THEN
-            CASE WHEN random() < 0.15 THEN random() * 15 ELSE 0 END
-        ELSE
-            CASE WHEN random() < 0.05 THEN random() * 5 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (7, 8)
+            THEN
+                CASE WHEN random() < 0.15 THEN random() * 15 ELSE 0 END
+        WHEN random() < 0.05 THEN random() * 5
+        ELSE 0
     END,
     70.0 + random() * 20, -- High humidity (coastal)
     12.0 + random() * 15,
@@ -256,11 +278,12 @@ FROM date_series;
 -- Generate weather data for Hadramout (حضرموت) - Wadi/Desert climate
 WITH date_series AS (
     SELECT generate_series(
-        CURRENT_DATE - INTERVAL '365 days',
-        CURRENT_DATE - INTERVAL '1 day',
-        '1 day'::interval
-    )::date AS obs_date
+        current_date - INTERVAL '365 days',
+        current_date - INTERVAL '1 day',
+        '1 day'::INTERVAL
+    )::DATE AS obs_date
 )
+
 INSERT INTO weather_history (
     location_name, location_name_ar, governorate,
     latitude, longitude, obs_date,
@@ -271,32 +294,37 @@ INSERT INTO weather_history (
     gdd_base_10, data_source
 )
 SELECT
-    'Shibam (Wadi Hadramout)', 'شبام (وادي حضرموت)', 'حضرموت',
-    15.9288, 48.7825, obs_date,
+    'Shibam (Wadi Hadramout)',
+    'شبام (وادي حضرموت)',
+    'حضرموت',
+    15.9288,
+    48.7825,
+    obs_date,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 20.0 + random() * 6
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 28.0 + random() * 7
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 34.0 + random() * 8
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 20.0 + random() * 6
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 28.0 + random() * 7
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 34.0 + random() * 8
         ELSE 26.0 + random() * 6
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 14.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 20.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 26.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 14.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 20.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 26.0 + random() * 5
         ELSE 18.0 + random() * 5
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 26.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 36.0 + random() * 6
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 42.0 + random() * 6
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 26.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 36.0 + random() * 6
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 42.0 + random() * 6
         ELSE 34.0 + random() * 6
     END,
     -- Very arid, occasional rain
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (4, 5, 10, 11) THEN
-            CASE WHEN random() < 0.1 THEN random() * 20 ELSE 0 END
-        ELSE
-            CASE WHEN random() < 0.03 THEN random() * 5 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (4, 5, 10, 11)
+            THEN
+                CASE WHEN random() < 0.1 THEN random() * 20 ELSE 0 END
+        WHEN random() < 0.03 THEN random() * 5
+        ELSE 0
     END,
     30.0 + random() * 25, -- Low humidity (desert)
     10.0 + random() * 12,
@@ -315,11 +343,12 @@ FROM date_series;
 -- Generate weather data for Ibb (إب) - Highland with high rainfall
 WITH date_series AS (
     SELECT generate_series(
-        CURRENT_DATE - INTERVAL '365 days',
-        CURRENT_DATE - INTERVAL '1 day',
-        '1 day'::interval
-    )::date AS obs_date
+        current_date - INTERVAL '365 days',
+        current_date - INTERVAL '1 day',
+        '1 day'::INTERVAL
+    )::DATE AS obs_date
 )
+
 INSERT INTO weather_history (
     location_name, location_name_ar, governorate,
     latitude, longitude, obs_date,
@@ -330,34 +359,40 @@ INSERT INTO weather_history (
     gdd_base_10, data_source
 )
 SELECT
-    'Ibb City', 'إب', 'إب',
-    13.9667, 44.1667, obs_date,
+    'Ibb City',
+    'إب',
+    'إب',
+    13.9667,
+    44.1667,
+    obs_date,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 16.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 20.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 22.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 16.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 20.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 22.0 + random() * 5
         ELSE 18.0 + random() * 5
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 10.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 14.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 16.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 10.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 14.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 16.0 + random() * 4
         ELSE 12.0 + random() * 4
     END,
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (12, 1, 2) THEN 22.0 + random() * 4
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 4, 5) THEN 26.0 + random() * 5
-        WHEN EXTRACT(MONTH FROM obs_date) IN (6, 7, 8) THEN 28.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (12, 1, 2) THEN 22.0 + random() * 4
+        WHEN extract(MONTH FROM obs_date) IN (3, 4, 5) THEN 26.0 + random() * 5
+        WHEN extract(MONTH FROM obs_date) IN (6, 7, 8) THEN 28.0 + random() * 5
         ELSE 24.0 + random() * 4
     END,
     -- High rainfall, especially in summer
     CASE
-        WHEN EXTRACT(MONTH FROM obs_date) IN (4, 5, 7, 8, 9) THEN
-            CASE WHEN random() < 0.5 THEN random() * 40 ELSE 0 END
-        WHEN EXTRACT(MONTH FROM obs_date) IN (3, 6, 10) THEN
-            CASE WHEN random() < 0.3 THEN random() * 20 ELSE 0 END
-        ELSE
-            CASE WHEN random() < 0.1 THEN random() * 10 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (4, 5, 7, 8, 9)
+            THEN
+                CASE WHEN random() < 0.5 THEN random() * 40 ELSE 0 END
+        WHEN extract(MONTH FROM obs_date) IN (3, 6, 10)
+            THEN
+                CASE WHEN random() < 0.3 THEN random() * 20 ELSE 0 END
+        WHEN random() < 0.1 THEN random() * 10
+        ELSE 0
     END,
     60.0 + random() * 25, -- Higher humidity
     9.0 + random() * 11,
@@ -377,26 +412,27 @@ FROM date_series;
 SELECT
     location_name,
     location_name_ar,
-    COUNT(*) as days,
-    ROUND(AVG(temp_avg_c)::numeric, 2) as avg_temp,
-    ROUND(AVG(precipitation_mm)::numeric, 2) as avg_rainfall,
-    ROUND(SUM(precipitation_mm)::numeric, 2) as total_rainfall_mm,
-    ROUND(AVG(humidity_avg_pct)::numeric, 2) as avg_humidity,
-    ROUND(AVG(gdd_base_10)::numeric, 2) as avg_daily_gdd,
-    ROUND(SUM(gdd_base_10)::numeric, 0) as total_annual_gdd
+    count(*) AS days,
+    round(avg(temp_avg_c)::NUMERIC, 2) AS avg_temp,
+    round(avg(precipitation_mm)::NUMERIC, 2) AS avg_rainfall,
+    round(sum(precipitation_mm)::NUMERIC, 2) AS total_rainfall_mm,
+    round(avg(humidity_avg_pct)::NUMERIC, 2) AS avg_humidity,
+    round(avg(gdd_base_10)::NUMERIC, 2) AS avg_daily_gdd,
+    round(sum(gdd_base_10)::NUMERIC, 0) AS total_annual_gdd
 FROM weather_history
-WHERE obs_date >= CURRENT_DATE - INTERVAL '365 days'
+WHERE obs_date >= current_date - INTERVAL '365 days'
 GROUP BY location_name, location_name_ar
 ORDER BY location_name;
 
 -- Monthly averages for Sana'a (example)
 SELECT
-    EXTRACT(MONTH FROM obs_date) as month,
-    ROUND(AVG(temp_avg_c)::numeric, 2) as avg_temp,
-    ROUND(SUM(precipitation_mm)::numeric, 2) as total_rainfall,
-    ROUND(AVG(humidity_avg_pct)::numeric, 2) as avg_humidity
+    extract(MONTH FROM obs_date) AS month,
+    round(avg(temp_avg_c)::NUMERIC, 2) AS avg_temp,
+    round(sum(precipitation_mm)::NUMERIC, 2) AS total_rainfall,
+    round(avg(humidity_avg_pct)::NUMERIC, 2) AS avg_humidity
 FROM weather_history
-WHERE location_name = 'Sana''a City'
-    AND obs_date >= CURRENT_DATE - INTERVAL '365 days'
-GROUP BY EXTRACT(MONTH FROM obs_date)
+WHERE
+    location_name = 'Sana''a City'
+    AND obs_date >= current_date - INTERVAL '365 days'
+GROUP BY extract(MONTH FROM obs_date)
 ORDER BY month;

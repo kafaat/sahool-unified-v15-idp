@@ -8,6 +8,7 @@
 /// - Field deletion with confirmation
 /// - NDVI status display
 /// - Crop type selection
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -649,11 +650,11 @@ void main() {
           locale: const Locale('ar'),
           home: Scaffold(
             appBar: AppBar(title: const Text('تفاصيل الحقل')),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
+            body: const Padding(
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text('الموقع الجغرافي',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),

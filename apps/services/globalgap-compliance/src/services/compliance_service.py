@@ -257,9 +257,8 @@ class ComplianceService:
         for _key, ncs in self.non_conformities.items():
             for nc in ncs:
                 if nc.id == non_conformity_id:
-                    nc.corrective_action_plan = action_plan
+                    nc.corrective_action_taken = action_plan
                     nc.corrective_action_deadline = deadline
-                    nc.corrective_action_status = status
                     if status == "completed":
                         nc.corrective_action_completed = True
                         nc.resolved_date = datetime.now(UTC)

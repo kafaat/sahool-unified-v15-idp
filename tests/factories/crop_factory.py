@@ -11,12 +11,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from uuid import uuid4
-import random
-
 
 # =============================================================================
 # Crop Models

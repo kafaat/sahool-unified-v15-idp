@@ -57,7 +57,11 @@ class TestKnowledgePersistenceIntegration:
 
         query = DocumentQuery(domain=KnowledgeDomain.CROPS)
         page = repo.find(query)
-        assert len(page.items) >= 5
+        assert len(page.items) == 5, f"Expected exactly 5 documents, got {len(page.items)}"
+        # Verify all stored documents are present with correct titles
+        stored_titles = {item.title for item in page.items}
+        for i in range(5):
+            assert f"Crop Document {i}" in stored_titles, f"Missing 'Crop Document {i}' in results"
 
 
 @pytest.mark.unit
@@ -100,7 +104,11 @@ class TestKnowledgeValidationIntegration:
         )
 
         result = validator.validate(doc)
-        assert result is not None
+        assert isinstance(result.issues, list)
+        # A minimal document (single-char title/content, no Arabic) should produce warnings
+        assert len(result.issues) > 0, "Minimal document should generate validation warnings"
+        warning_fields = [issue.field for issue in result.issues]
+        assert len(warning_fields) > 0, "Expected at least one field flagged"
 
 
 @pytest.mark.unit
@@ -126,9 +134,16 @@ class TestKnowledgeCacheIntegration:
 
         cache.put("query:wheat_irrigation", query_result)
         retrieved = cache.get("query:wheat_irrigation")
-        assert retrieved is not None
+        assert retrieved is not None, "Cache should return the stored query result"
+        assert retrieved["query"] == "wheat irrigation schedule"
+        assert retrieved["total"] == 2
         assert len(retrieved["results"]) == 2
+        assert retrieved["results"][0]["doc_id"] == "crop-001"
         assert retrieved["results"][0]["score"] == 0.92
+        assert retrieved["results"][0]["title"] == "Wheat Irrigation"
+        assert retrieved["results"][1]["doc_id"] == "crop-002"
+        assert retrieved["results"][1]["score"] == 0.85
+        assert retrieved["results"][1]["title"] == "Wheat Water Needs"
 
 
 @pytest.mark.unit
@@ -158,7 +173,14 @@ class TestQualityGateIntegration:
 
         # gate.check expects a list of documents
         result = gate.check([doc])
-        assert result is not None
+        assert isinstance(result.checks, list), "QualityCheckResult should contain a list of checks"
+        assert len(result.checks) > 0, "Quality gate should run at least one sub-check"
+        assert 0.0 <= result.score <= 1.0, f"Score should be between 0 and 1, got {result.score}"
+        # Verify each check has the expected structure
+        for check in result.checks:
+            assert "name" in check, "Each check should have a 'name' key"
+            assert "passed" in check, "Each check should have a 'passed' key"
+            assert "score" in check, "Each check should have a 'score' key"
 
 
 @pytest.mark.unit
@@ -181,12 +203,18 @@ class TestSerializationIntegration:
         )
 
         exported = serializer.export_to_dict([doc])
-        assert exported is not None
+        assert "manifest" in exported, "Exported dict should contain 'manifest'"
+        assert "documents" in exported, "Exported dict should contain 'documents'"
+        assert exported["manifest"]["total_documents"] == 1
+        assert "crops" in exported["manifest"]["domains"]
 
         docs_imported, result = serializer.import_from_dict(exported)
-        assert docs_imported is not None
-        assert len(docs_imported) >= 1
+        assert len(docs_imported) == 1, f"Expected 1 imported doc, got {len(docs_imported)}"
         assert docs_imported[0].title == doc.title
+        assert docs_imported[0].content == doc.content
+        assert docs_imported[0].domain == doc.domain
+        assert result.imported == 1
+        assert result.errors == []
 
 
 @pytest.mark.unit
@@ -209,10 +237,14 @@ class TestVersioningIntegration:
         )
 
         version_id = manager.track(doc)
-        assert version_id is not None
+        assert isinstance(version_id, str), "track() should return a version string"
+        assert version_id == "1.0.0", f"First version should be '1.0.0', got '{version_id}'"
 
         history = manager.get_history(doc.id)
-        assert len(history) >= 1
+        assert len(history) == 1, f"Expected exactly 1 version in history, got {len(history)}"
+        assert history[0].version == "1.0.0"
+        assert history[0].data["title"] == "Version 1"
+        assert history[0].data["content"] == "Original content."
 
 
 @pytest.mark.unit
@@ -222,8 +254,8 @@ class TestFreshnessMonitorIntegration:
     def test_freshness_check(self):
         """FreshnessMonitor should assess document freshness."""
         try:
-            from shared.ai.knowledge.models import CropKnowledgeDocument, KnowledgeDomain
             from shared.ai.knowledge.freshness_monitor import KnowledgeFreshnessMonitor
+            from shared.ai.knowledge.models import CropKnowledgeDocument, KnowledgeDomain
         except ImportError as e:
             pytest.skip(f"Missing dependency: {e}")
 
@@ -234,11 +266,27 @@ class TestFreshnessMonitorIntegration:
             content="Test content for freshness monitoring.",
         )
 
-        # check_single may return None for documents that don't have
-        # freshness metadata yet; verify the method is callable at minimum
+        # check_single returns None when the document has no expiration_date set
         report = monitor.check_single(doc)
-        # Report can be None for fresh documents without expiry
-        assert True  # Method completed without error
+        assert report is None, (
+            "Document without expiration_date should return None from check_single, "
+            f"got {report}"
+        )
+
+        # Now test with an expired document to verify non-None path
+        from datetime import date
+
+        expired_doc = CropKnowledgeDocument(
+            domain=KnowledgeDomain.CROPS,
+            title="Expired Doc",
+            content="Expired content.",
+        )
+        expired_doc.fresh.expiration_date = date(2020, 1, 1)
+
+        alert = monitor.check_single(expired_doc)
+        assert alert is not None, "Expired document should produce a FreshnessAlert"
+        assert alert.severity == "expired"
+        assert alert.days_until_expiry is not None and alert.days_until_expiry < 0
 
 
 @pytest.mark.unit
@@ -253,9 +301,19 @@ class TestGraphBuilderIntegration:
             pytest.skip(f"Missing dependency: {e}")
 
         graph = build_agricultural_knowledge_graph()
-        assert graph is not None
+        assert graph is not None, "build_agricultural_knowledge_graph() should return a graph object"
         assert len(graph.entities) > 0, "Graph should contain entities"
         assert len(graph.relations) > 0, "Graph should contain relations"
+        # Verify entities have required structure
+        for entity in graph.entities:
+            assert hasattr(entity, "entity_type"), "Each entity should have an entity_type"
+            assert hasattr(entity, "name"), "Each entity should have a name"
+            assert entity.name, f"Entity name should be non-empty, got: {entity.name!r}"
+        # Verify relations have required attributes
+        for relation in graph.relations:
+            assert hasattr(relation, "source_id"), "Each relation should have a source_id"
+            assert hasattr(relation, "target_id"), "Each relation should have a target_id"
+            assert hasattr(relation, "relation_type"), "Each relation should have a relation_type"
 
     def test_graph_has_crop_entities(self):
         """Graph should contain crop-related entities."""
@@ -267,6 +325,16 @@ class TestGraphBuilderIntegration:
         graph = build_agricultural_knowledge_graph()
         entity_types = {e.entity_type for e in graph.entities}
         assert len(entity_types) >= 2, f"Graph should have diverse entity types, got: {entity_types}"
+        # Agricultural graph should include crop-related entity types
+        entity_type_lower = {t.lower() for t in entity_types}
+        has_crop_related = any(
+            keyword in t for t in entity_type_lower
+            for keyword in ("crop", "plant", "disease", "pest", "soil", "irrigation")
+        )
+        assert has_crop_related, (
+            f"Graph should contain at least one agricultural entity type "
+            f"(crop, plant, disease, pest, soil, irrigation), got: {entity_types}"
+        )
 
 
 @pytest.mark.unit
@@ -281,7 +349,11 @@ class TestCorrectiveRetrievalIntegration:
             pytest.skip(f"Missing dependency: {e}")
 
         engine = CorrectiveRetrievalEngine()
-        assert engine is not None
+        assert hasattr(engine, "CORRECT_THRESHOLD"), "Engine should have CORRECT_THRESHOLD"
+        assert hasattr(engine, "AMBIGUOUS_THRESHOLD"), "Engine should have AMBIGUOUS_THRESHOLD"
+        assert engine.CORRECT_THRESHOLD > engine.AMBIGUOUS_THRESHOLD, (
+            "CORRECT_THRESHOLD should be higher than AMBIGUOUS_THRESHOLD"
+        )
 
     def test_retrieval_action_values(self):
         """RetrievalAction should have CORRECT, AMBIGUOUS, INCORRECT."""
@@ -314,8 +386,12 @@ class TestPivotManagementIntegration:
             span_count=4,
             angular_divisions=6,
         )
-        assert grid is not None
-        assert len(grid.zones) > 0
+        assert len(grid.zones) > 0, "Grid should contain zones"
+        # Verify grid dimensions match the requested parameters
+        expected_zone_count = 4 * 6  # span_count * angular_divisions
+        assert len(grid.zones) == expected_zone_count, (
+            f"Expected {expected_zone_count} zones (4 spans x 6 angles), got {len(grid.zones)}"
+        )
 
         ndvi_data = [[0.5 + (r * 0.05) + (c * 0.01) for c in range(10)] for r in range(10)]
         ndvi_bounds = (46.695, 24.695, 46.705, 24.705)
@@ -325,5 +401,13 @@ class TestPivotManagementIntegration:
             ndvi_data=ndvi_data,
             ndvi_bounds=ndvi_bounds,
         )
-        assert prescription is not None
-        assert len(prescription.zones) > 0
+        assert len(prescription.zones) > 0, "Prescription should contain VRI zones"
+        assert prescription.pivot_id == "test-pivot-001"
+        assert prescription.source_type == "ndvi", (
+            f"Source type should be 'ndvi', got '{prescription.source_type}'"
+        )
+        # Each zone should have a valid application rate
+        for zone in prescription.zones:
+            assert 0.0 <= zone.application_rate_percent <= 150.0, (
+                f"Zone {zone.zone_id} rate {zone.application_rate_percent}% out of range"
+            )

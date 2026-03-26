@@ -75,11 +75,75 @@ except ImportError:
         tenant_id: str = ""
 
     async def get_current_user():
-        return None
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
 
 
-async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
-    """Extract tenant ID from request header"""
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+) -> str:
+    """
+    Extract and validate tenant ID.
+    استخراج والتحقق من معرف المستأجر
+
+    SECURITY: Tenant ID must be a valid UUID and is required for all
+    tenant-scoped operations. Previously this accepted any string with a
+    default of "default", which broke tenant isolation entirely -- any
+    caller could omit the header and share the same "default" namespace,
+    or supply an arbitrary string to access another tenant's data.
+
+    The JWT-validated tenant should ideally be used (via TenantContextMiddleware),
+    but when auth is unavailable we still require a valid UUID from the header
+    to maintain isolation guarantees.
+    """
+    # SECURITY: If auth is available and user has a tenant_id from JWT, prefer that
+    if AUTH_AVAILABLE:
+        try:
+            # In production, the TenantContextMiddleware sets tenant from JWT.
+            # This is a defense-in-depth check at the route level.
+            user = await get_current_user()
+            if user and getattr(user, "tenant_id", None):
+                jwt_tenant = user.tenant_id
+                if x_tenant_id and x_tenant_id != jwt_tenant:
+                    logger.warning(
+                        "Tenant ID mismatch: header=%s jwt=%s — using JWT tenant",
+                        sanitize_for_log(x_tenant_id),
+                        sanitize_for_log(jwt_tenant),
+                    )
+                return jwt_tenant
+        except Exception as exc:
+            logger.warning(
+                "Defense-in-depth tenant check failed, falling back to header: %s",
+                exc,
+            )
+
+    if not x_tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "missing_tenant",
+                "message": "X-Tenant-Id header is required",
+                "message_ar": "رأس X-Tenant-Id مطلوب",
+            },
+        )
+
+    # Validate UUID format to prevent injection of arbitrary strings
+    try:
+        import uuid as _uuid_mod
+
+        _uuid_mod.UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid_tenant",
+                "message": "X-Tenant-Id must be a valid UUID",
+                "message_ar": "يجب أن يكون معرف المستأجر UUID صالح",
+            },
+        )
+
     return x_tenant_id
 
 
@@ -384,6 +448,7 @@ async def update_task(
     data: TaskUpdateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Update a task
@@ -397,7 +462,7 @@ async def update_task(
             raise HTTPException(status_code=400, detail=str(e))
 
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     # Prepare update data
     update_data = data.model_dump(exclude_unset=True)
@@ -426,7 +491,7 @@ async def update_task(
             },
         )
 
-    logger.info("Task updated: %s", sanitize_for_log(task_id))
+    logger.info("Task updated: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
     return db_task_to_dict(task)
 
@@ -436,6 +501,7 @@ async def delete_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Delete a task
@@ -454,7 +520,8 @@ async def delete_task(
             },
         )
 
-    logger.info("Task deleted: %s", sanitize_for_log(task_id))
+    performed_by = current_user.id if current_user and current_user.id else "system"
+    logger.info("Task deleted: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -467,13 +534,14 @@ async def start_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as in progress
     وضع علامة على المهمة كقيد التنفيذ
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     try:
         task = repo.start_task(task_id, tenant_id, performed_by)
@@ -488,7 +556,7 @@ async def start_task(
                 },
             )
 
-        logger.info("Task started: %s", sanitize_for_log(task_id))
+        logger.info("Task started: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
         return db_task_to_dict(task)
 
@@ -508,13 +576,14 @@ async def complete_task(
     data: TaskCompleteRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as completed with evidence
     وضع علامة على المهمة كمكتملة مع الأدلة
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
     now = datetime.now(UTC)
 
     task = repo.complete_task(
@@ -559,13 +628,14 @@ async def cancel_task(
     reason: str | None = Query(None, description="Cancellation reason"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Cancel a task
     إلغاء مهمة
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     task = repo.cancel_task(task_id, tenant_id, performed_by, reason)
 
@@ -598,6 +668,7 @@ async def add_evidence(
     lon: float | None = Query(None, description="Longitude"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Add evidence to a task
@@ -629,10 +700,12 @@ async def add_evidence(
 
     saved_evidence = repo.add_evidence(db_evidence)
 
+    added_by = current_user.id if current_user and current_user.id else "system"
     logger.info(
-        "Evidence added to task %s: %s",
+        "Evidence added to task %s: %s by %s",
         sanitize_for_log(task_id),
         sanitize_for_log(saved_evidence.evidence_id),
+        sanitize_for_log(added_by),
     )
 
     return EvidenceResponse(

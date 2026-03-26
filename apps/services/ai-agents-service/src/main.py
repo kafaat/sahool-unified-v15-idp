@@ -48,12 +48,12 @@ from shared.ai.agents import (
 )
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.events.contracts import (
     AgentExecutionCompletedEvent,
     AgentExecutionFailedEvent,
     AgentExecutionStartedEvent,
 )
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Database layer
 from . import db
@@ -598,7 +598,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # Get allowed origins from environment
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,

@@ -45,10 +45,17 @@ variable "db_username" {
   default     = "sahool_admin"
 }
 
+# TODO: Migrate to AWS Secrets Manager with aws_secretsmanager_secret to avoid
+# storing database passwords in Terraform state. Use data source to retrieve at apply time.
 variable "db_password" {
   description = "كلمة مرور قاعدة البيانات الرئيسية / Master database password"
   type        = string
   sensitive   = true
+
+  validation {
+    condition     = length(var.db_password) >= 16
+    error_message = "Database password must be at least 16 characters for security."
+  }
 }
 
 # ======================================================================

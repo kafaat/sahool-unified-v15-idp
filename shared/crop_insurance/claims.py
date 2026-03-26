@@ -20,11 +20,12 @@ import asyncio
 import json
 import os
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from shared.crop_insurance.models import (
     ClaimEvidence,

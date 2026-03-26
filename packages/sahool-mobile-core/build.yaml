@@ -1,0 +1,67 @@
+# SAHOOL Mobile Core - Build Configuration
+# ملف إعدادات توليد الكود
+
+targets:
+  $default:
+    builders:
+      # JSON Serializable configuration
+      json_serializable:
+        generate_for:
+          - "lib/models/**/*.dart"
+          - "lib/core/models/**/*.dart"
+          - "lib/core/storage/**/*.dart"
+          - "lib/features/**/models/*.dart"
+          - "lib/features/**/models/**/*.dart"
+          - "lib/features/**/domain/*.dart"
+          - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/data/*.dart"
+          - "lib/features/**/data/**/*.dart"
+        options:
+          explicit_to_json: true
+          include_if_null: false
+
+      # Freezed configuration
+      freezed:
+        generate_for:
+          - "lib/models/**/*.dart"
+          - "lib/core/models/**/*.dart"
+          - "lib/features/**/models/*.dart"
+          - "lib/features/**/models/**/*.dart"
+          - "lib/features/**/domain/*.dart"
+          - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/data/*.dart"
+          - "lib/features/**/data/**/*.dart"
+
+      # Drift database configuration
+      drift_dev:
+        generate_for:
+          # Direct files in storage directory (database.dart is here)
+          - "lib/core/storage/*.dart"
+          # Subdirectories of storage
+          - "lib/core/storage/**/*.dart"
+          # Database directory
+          - "lib/core/database/*.dart"
+          - "lib/core/database/**/*.dart"
+          # Feature data files
+          - "lib/features/**/data/*.dart"
+          - "lib/features/**/data/**/*.dart"
+          # Test database files (needed for in-memory DB tests)
+          - "test/core/database/*.dart"
+        options:
+          store_date_time_values_as_text: true
+
+      # Riverpod generator configuration
+      riverpod_generator:
+        generate_for:
+          - "lib/**/*.dart"
+
+      # Exclude test files from code generation (except database tests)
+      source_gen|combining_builder:
+        generate_for:
+          include:
+            - "lib/**"
+            - "test/core/database/**"
+          exclude:
+            - "**/*.mocks.dart"
+            - "**/*.g.dart"
+            - "**/*.freezed.dart"

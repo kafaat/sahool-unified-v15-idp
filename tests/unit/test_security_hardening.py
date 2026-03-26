@@ -1,10 +1,11 @@
 """Tests for security hardening module."""
 
 import pytest
+
 from shared.security.hardening import (
+    AuditStatus,
     SecurityHardening,
     SecurityLevel,
-    AuditStatus,
 )
 
 

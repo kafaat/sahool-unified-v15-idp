@@ -80,10 +80,10 @@ class DeviceSecurityScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -125,7 +125,7 @@ class DeviceSecurityScreen extends StatelessWidget {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
@@ -135,12 +135,12 @@ class DeviceSecurityScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.info_outline,
                         color: Colors.white,
                         size: 24,
@@ -257,7 +257,7 @@ class DeviceSecurityScreen extends StatelessWidget {
                     '${securityResult.deviceInfo['platform']} - ${securityResult.deviceInfo['model'] ?? 'Unknown'}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       fontFamily: 'IBMPlexSansArabic',
                     ),
                   ),
@@ -314,7 +314,7 @@ class DeviceSecurityScreen extends StatelessWidget {
       'Frida or hooking framework detected': 'تم اكتشاف أدوات اختراق',
     };
 
-    for (var entry in translations.entries) {
+    for (final entry in translations.entries) {
       if (threat.contains(entry.key)) {
         return entry.value;
       }

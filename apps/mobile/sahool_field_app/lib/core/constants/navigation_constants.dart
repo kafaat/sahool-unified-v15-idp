@@ -89,6 +89,30 @@ class NavigationConstants {
   // Astronomical Calendar - التقويم الفلكي
   static const String astronomical = '/astronomical';
 
+  // Crops - إدارة المحاصيل
+  static const String crops = '/crops';
+
+  // Gamification - الإنجازات
+  static const String achievements = '/achievements';
+
+  // IoT - إنترنت الأشياء
+  static const String iot = '/iot';
+
+  // Lab - المختبر
+  static const String lab = '/lab';
+
+  // Onboarding
+  static const String onboarding = '/onboarding';
+
+  // Payment & Wallet
+  static const String payment = '/payment';
+  static const String wallet = '/wallet';
+
+  // Research - التجارب البحثية
+  static const String research = '/research';
+  static const String researchTask = '/research/task';
+  static const String researchObservation = '/research/observation';
+
   // Utility Routes
   static const String help = '/help';
   static const String about = '/about';
@@ -135,6 +159,22 @@ class NavigationConstants {
     // Astronomical Calendar
     'astronomical': 'التقويم الفلكي',
     'astronomical_desc': 'التقويم الفلكي اليمني للزراعة',
+
+    // Crops, Gamification, IoT, Lab, Research, Wallet
+    'crops': 'المحاصيل',
+    'crops_desc': 'إدارة ومتابعة المحاصيل',
+    'achievements': 'الإنجازات',
+    'achievements_desc': 'إنجازاتك ومكافآتك',
+    'iot': 'أجهزة IoT',
+    'iot_desc': 'التحكم بأجهزة إنترنت الأشياء',
+    'lab': 'المختبر',
+    'lab_desc': 'تتبع العينات المخبرية',
+    'onboarding': 'التعريف بالتطبيق',
+    'payment': 'الدفع',
+    'wallet': 'المحفظة',
+    'wallet_desc': 'المحفظة الإلكترونية',
+    'research': 'التجارب البحثية',
+    'research_desc': 'إدارة التجارب والأبحاث الزراعية',
 
     // Feature Categories
     'precision_agriculture': 'الزراعة الدقيقة',
@@ -205,6 +245,15 @@ class NavigationConstants {
     // Pivot Irrigation
     'pivot_irrigation': Icons.water_drop_rounded,
 
+    // Crops, Gamification, IoT, Lab, Research, Wallet
+    'crops': Icons.grass_rounded,
+    'achievements': Icons.emoji_events_rounded,
+    'iot': Icons.sensors_rounded,
+    'lab': Icons.science_rounded,
+    'research': Icons.biotech_rounded,
+    'wallet': Icons.account_balance_wallet_rounded,
+    'payment': Icons.payment_rounded,
+
     // Utilities
     'alerts': Icons.notifications_active_rounded,
     'notifications': Icons.notifications_rounded,
@@ -238,6 +287,13 @@ class NavigationConstants {
     'crop_health': Color(0xFF8BC34A), // Light Green
     'astronomical': Color(0xFF5C6BC0), // Indigo (Moon/Stars)
     'pivot_irrigation': Color(0xFF00BCD4), // Cyan (Water)
+    'crops': Color(0xFF66BB6A), // Light Green
+    'achievements': Color(0xFFFFB300), // Amber
+    'iot': Color(0xFF26A69A), // Teal
+    'lab': Color(0xFF009688), // Teal Dark
+    'research': Color(0xFF5C6BC0), // Indigo
+    'wallet': Color(0xFF7E57C2), // Deep Purple
+    'payment': Color(0xFF42A5F5), // Blue
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -260,22 +316,27 @@ class NavigationConstants {
     FeatureGroup(
       title: 'field_management',
       icon: Icons.landscape_rounded,
-      features: ['fields', 'tasks', 'crop_health', 'satellite'],
+      features: ['fields', 'tasks', 'crop_health', 'crops', 'satellite'],
     ),
     FeatureGroup(
       title: 'monitoring',
       icon: Icons.monitor_rounded,
-      features: ['weather', 'alerts', 'map', 'astronomical'],
+      features: ['weather', 'alerts', 'map', 'iot', 'astronomical'],
     ),
     FeatureGroup(
       title: 'resources',
       icon: Icons.business_center_rounded,
-      features: ['inventory', 'market'],
+      features: ['inventory', 'market', 'wallet'],
     ),
     FeatureGroup(
       title: 'ai_tools',
       icon: Icons.psychology_rounded,
       features: ['chat', 'advisor', 'scanner', 'scouting'],
+    ),
+    FeatureGroup(
+      title: 'research',
+      icon: Icons.biotech_rounded,
+      features: ['research', 'lab', 'achievements'],
     ),
   ];
 

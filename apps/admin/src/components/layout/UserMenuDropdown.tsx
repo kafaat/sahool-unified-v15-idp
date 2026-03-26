@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * User Menu Dropdown
@@ -7,8 +7,8 @@
  * Lazy-loaded: Only rendered when the user clicks on their profile avatar.
  */
 
-import { Settings, HelpCircle, LogOut } from "lucide-react";
-import Link from "next/link";
+import { Settings, HelpCircle, LogOut } from 'lucide-react';
+import Link from 'next/link';
 
 interface UserMenuDropdownProps {
   userName?: string;
@@ -16,11 +16,7 @@ interface UserMenuDropdownProps {
   onLogout: () => void;
 }
 
-export default function UserMenuDropdown({
-  userName,
-  userEmail,
-  onLogout,
-}: UserMenuDropdownProps) {
+export default function UserMenuDropdown({ userName, userEmail, onLogout }: UserMenuDropdownProps) {
   return (
     <div
       role="menu"
@@ -28,12 +24,8 @@ export default function UserMenuDropdown({
       className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2"
     >
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-          {userName}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-          {userEmail}
-        </p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userEmail}</p>
       </div>
 
       <div className="py-1">

@@ -142,5 +142,5 @@ ALL_HTTP_SERVICES: dict[str, int] = {**PYTHON_SERVICES, **NODE_SERVICES}
 ALL_BUILT_SERVICES: dict[str, int | None] = {
     **PYTHON_SERVICES,
     **NODE_SERVICES,
-    **{s: None for s in PORTLESS_SERVICES},
+    **dict.fromkeys(PORTLESS_SERVICES),
 }

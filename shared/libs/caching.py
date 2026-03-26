@@ -12,6 +12,7 @@ Provides caching utilities with:
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -65,56 +66,61 @@ class InMemoryCache:
         self._cache: dict = {}
         self._expiry: dict = {}
         self._max_size = max_size
+        self._lock = asyncio.Lock()
 
     async def get(self, key: str) -> Any | None:
         """Get value from cache"""
-        # Check if key exists and not expired
-        if key in self._cache:
-            if key in self._expiry and time.time() > self._expiry[key]:
-                # Expired, remove it
-                del self._cache[key]
-                del self._expiry[key]
-                return None
-            return self._cache[key]
-        return None
+        async with self._lock:
+            # Check if key exists and not expired
+            if key in self._cache:
+                if key in self._expiry and time.time() > self._expiry[key]:
+                    # Expired, remove it
+                    del self._cache[key]
+                    del self._expiry[key]
+                    return None
+                return self._cache[key]
+            return None
 
     async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache with optional TTL"""
-        # Check size limit
-        if len(self._cache) >= self._max_size and key not in self._cache:
-            # Remove oldest entry (simple FIFO)
-            oldest_key = next(iter(self._cache))
-            del self._cache[oldest_key]
-            if oldest_key in self._expiry:
-                del self._expiry[oldest_key]
+        async with self._lock:
+            # Check size limit
+            if len(self._cache) >= self._max_size and key not in self._cache:
+                # Remove oldest entry (simple FIFO)
+                oldest_key = next(iter(self._cache))
+                del self._cache[oldest_key]
+                if oldest_key in self._expiry:
+                    del self._expiry[oldest_key]
 
-        self._cache[key] = value
+            self._cache[key] = value
 
-        if ttl is not None:
-            self._expiry[key] = time.time() + ttl
+            if ttl is not None:
+                self._expiry[key] = time.time() + ttl
 
     async def delete(self, key: str) -> None:
         """Delete value from cache"""
-        if key in self._cache:
-            del self._cache[key]
-        if key in self._expiry:
-            del self._expiry[key]
+        async with self._lock:
+            if key in self._cache:
+                del self._cache[key]
+            if key in self._expiry:
+                del self._expiry[key]
 
     async def clear(self, pattern: str = "*") -> None:
         """Clear all cache or keys matching pattern"""
-        if pattern == "*":
-            # Clear all
-            self._cache.clear()
-            self._expiry.clear()
-        else:
-            # Clear keys matching pattern (simple glob pattern support)
-            import fnmatch
+        async with self._lock:
+            if pattern == "*":
+                # Clear all
+                self._cache.clear()
+                self._expiry.clear()
+            else:
+                # Clear keys matching pattern (simple glob pattern support)
+                import fnmatch
 
-            keys_to_delete = [key for key in self._cache if fnmatch.fnmatch(key, pattern)]
-            for key in keys_to_delete:
-                del self._cache[key]
-                if key in self._expiry:
-                    del self._expiry[key]
+                keys_to_delete = [key for key in self._cache if fnmatch.fnmatch(key, pattern)]
+                for key in keys_to_delete:
+                    del self._cache[key]
+                    if key in self._expiry:
+                        del self._expiry[key]
 
     async def exists(self, key: str) -> bool:
         """Check if key exists in cache"""

@@ -7,6 +7,7 @@
 /// - Email addresses
 /// - Arabic text validation
 /// - SQL injection prevention for search queries
+library;
 
 import 'package:flutter/services.dart';
 

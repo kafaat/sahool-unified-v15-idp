@@ -33,7 +33,7 @@ class _ScannerScreenState extends State<ScannerScreen>
     super.dispose();
   }
 
-  void _startScan() async {
+  Future<void> _startScan() async {
     setState(() {
       _isScanning = true;
       _hasResult = false;
@@ -73,8 +73,8 @@ class _ScannerScreenState extends State<ScannerScreen>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.green.withOpacity(0.3),
-                  Colors.black.withOpacity(0.5),
+                  Colors.green.withValues(alpha: 0.3),
+                  Colors.black.withValues(alpha: 0.5),
                 ],
               ),
             ),
@@ -110,7 +110,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                 ? SahoolColors.warning
                 : _hasResult
                     ? SahoolColors.success
-                    : Colors.white.withOpacity(0.5),
+                    : Colors.white.withValues(alpha: 0.5),
             width: 3,
           ),
           borderRadius: BorderRadius.circular(20),
@@ -130,16 +130,16 @@ class _ScannerScreenState extends State<ScannerScreen>
                   decoration: BoxDecoration(
                     border: Border(
                       top: index < 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       bottom: index >= 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       left: index % 2 == 0
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       right: index % 2 == 1
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                     ),
                   ),
@@ -157,7 +157,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                     right: 0,
                     child: Container(
                       height: 3,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
@@ -224,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             end: Alignment.bottomCenter,
             colors: [
               Colors.transparent,
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -262,7 +262,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                         border: Border.all(color: Colors.white, width: 4),
                       ),
                       padding: const EdgeInsets.all(4),
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color:
                               _isScanning ? SahoolColors.warning : Colors.white,
@@ -300,13 +300,13 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Widget _buildScanningOverlay() {
-    return Container(
+    return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 60,
               height: 60,
               child: CircularProgressIndicator(
@@ -322,7 +322,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             const SizedBox(height: 8),
             Text(
               'يرجى الانتظار',
-              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             ),
           ],
         ),
@@ -336,7 +336,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       minChildSize: 0.3,
       maxChildSize: 0.85,
       builder: (context, scrollController) {
-        return Container(
+        return DecoratedBox(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -367,7 +367,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: SahoolColors.danger.withOpacity(0.1),
+                          color: SahoolColors.danger.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -503,9 +503,9 @@ class _ScannerScreenState extends State<ScannerScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

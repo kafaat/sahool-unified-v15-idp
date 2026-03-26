@@ -1,5 +1,6 @@
 /// Sample Fields Data for Testing
 /// بيانات الحقول النموذجية للاختبارات
+library;
 
 import 'package:sahool_field_app/core/storage/database.dart';
 import 'package:latlong2/latlong.dart';

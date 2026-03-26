@@ -31,7 +31,6 @@ from shared.ai.knowledge.models import (
     WeatherPatternDocument,
 )
 
-
 # ─── Enum Tests ───────────────────────────────────────────────────────────────
 
 

@@ -49,7 +49,7 @@ class SyncStatusWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: _getBackgroundColor(statusInfo.status).withOpacity(0.1),
+        color: _getBackgroundColor(statusInfo.status).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -73,10 +73,10 @@ class SyncStatusWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _getBackgroundColor(statusInfo.status).withOpacity(0.1),
+        color: _getBackgroundColor(statusInfo.status).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getBackgroundColor(statusInfo.status).withOpacity(0.3),
+          color: _getBackgroundColor(statusInfo.status).withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -263,7 +263,7 @@ class SyncStatusIndicator extends ConsumerWidget {
   }
 
   void _showSyncDialog(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => const SyncStatusSheet(),
     );

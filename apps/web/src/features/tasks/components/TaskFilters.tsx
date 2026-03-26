@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Task Filters Component
  * مكون تصفية المهام
  */
 
-import React from "react";
-import { Filter, X } from "lucide-react";
-import type { TaskFilters, Priority, TaskStatus } from "../types";
+import React from 'react';
+import { Filter, X } from 'lucide-react';
+import type { TaskFilters, Priority, TaskStatus } from '../types';
 
 interface TaskFiltersProps {
   filters: TaskFilters;
@@ -20,10 +20,7 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
   onChange,
   onReset,
 }) => {
-  const handleChange = <K extends keyof TaskFilters>(
-    key: K,
-    value: TaskFilters[K],
-  ) => {
+  const handleChange = <K extends keyof TaskFilters>(key: K, value: TaskFilters[K]) => {
     onChange({ ...filters, [key]: value || undefined });
   };
 
@@ -50,13 +47,11 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
       <div className="space-y-4">
         {/* Search */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            البحث
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">البحث</label>
           <input
             type="text"
-            value={filters.search || ""}
-            onChange={(e) => handleChange("search", e.target.value)}
+            value={filters.search || ''}
+            onChange={(e) => handleChange('search', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="ابحث في المهام..."
           />
@@ -64,14 +59,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            الحالة
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
           <select
-            value={filters.status || ""}
-            onChange={(e) =>
-              handleChange("status", e.target.value as TaskStatus)
-            }
+            value={filters.status || ''}
+            onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
@@ -84,14 +75,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 
         {/* Priority */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            الأولوية
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الأولوية</label>
           <select
-            value={filters.priority || ""}
-            onChange={(e) =>
-              handleChange("priority", e.target.value as Priority)
-            }
+            value={filters.priority || ''}
+            onChange={(e) => handleChange('priority', e.target.value as Priority)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
@@ -103,13 +90,11 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 
         {/* Field ID */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            الحقل
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الحقل</label>
           <input
             type="text"
-            value={filters.field_id || ""}
-            onChange={(e) => handleChange("field_id", e.target.value)}
+            value={filters.field_id || ''}
+            onChange={(e) => handleChange('field_id', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="معرّف الحقل"
           />
@@ -117,25 +102,21 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 
         {/* Date Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            من تاريخ
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">من تاريخ</label>
           <input
             type="date"
-            value={filters.due_date_from || ""}
-            onChange={(e) => handleChange("due_date_from", e.target.value)}
+            value={filters.due_date_from || ''}
+            onChange={(e) => handleChange('due_date_from', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            إلى تاريخ
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">إلى تاريخ</label>
           <input
             type="date"
-            value={filters.due_date_to || ""}
-            onChange={(e) => handleChange("due_date_to", e.target.value)}
+            value={filters.due_date_to || ''}
+            onChange={(e) => handleChange('due_date_to', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>

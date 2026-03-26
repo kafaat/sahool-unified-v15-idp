@@ -4,7 +4,7 @@
  *
  * Tests the getErrorMessage function from LoginClient.tsx
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 
 // Mirror the getErrorMessage function from LoginClient.tsx
 function getErrorMessage(error: unknown): string {
@@ -15,37 +15,37 @@ function getErrorMessage(error: unknown): string {
     }
     return error.message;
   }
-  return "Invalid credentials";
+  return 'Invalid credentials';
 }
 
-describe("LoginClient - getErrorMessage", () => {
-  it("should extract message from standard Error", () => {
-    expect(getErrorMessage(new Error("Connection timeout"))).toBe("Connection timeout");
+describe('LoginClient - getErrorMessage', () => {
+  it('should extract message from standard Error', () => {
+    expect(getErrorMessage(new Error('Connection timeout'))).toBe('Connection timeout');
   });
 
-  it("should extract message from axios-style error response", () => {
-    const error = new Error("Request failed");
-    (error as any).response = { data: { message: "Account locked" } };
-    expect(getErrorMessage(error)).toBe("Account locked");
+  it('should extract message from axios-style error response', () => {
+    const error = new Error('Request failed');
+    (error as any).response = { data: { message: 'Account locked' } };
+    expect(getErrorMessage(error)).toBe('Account locked');
   });
 
-  it("should fall back to error.message when no response data", () => {
-    const error = new Error("Network Error");
+  it('should fall back to error.message when no response data', () => {
+    const error = new Error('Network Error');
     (error as any).response = {};
-    expect(getErrorMessage(error)).toBe("Network Error");
+    expect(getErrorMessage(error)).toBe('Network Error');
   });
 
-  it("should fall back to error.message when response.data has no message", () => {
-    const error = new Error("Network Error");
+  it('should fall back to error.message when response.data has no message', () => {
+    const error = new Error('Network Error');
     (error as any).response = { data: {} };
-    expect(getErrorMessage(error)).toBe("Network Error");
+    expect(getErrorMessage(error)).toBe('Network Error');
   });
 
-  it("should return default message for non-Error values", () => {
-    expect(getErrorMessage("string")).toBe("Invalid credentials");
-    expect(getErrorMessage(null)).toBe("Invalid credentials");
-    expect(getErrorMessage(undefined)).toBe("Invalid credentials");
-    expect(getErrorMessage(42)).toBe("Invalid credentials");
-    expect(getErrorMessage({})).toBe("Invalid credentials");
+  it('should return default message for non-Error values', () => {
+    expect(getErrorMessage('string')).toBe('Invalid credentials');
+    expect(getErrorMessage(null)).toBe('Invalid credentials');
+    expect(getErrorMessage(undefined)).toBe('Invalid credentials');
+    expect(getErrorMessage(42)).toBe('Invalid credentials');
+    expect(getErrorMessage({})).toBe('Invalid credentials');
   });
 });

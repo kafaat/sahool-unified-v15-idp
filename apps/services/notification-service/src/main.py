@@ -18,7 +18,6 @@ Field-First Architecture:
 import asyncio
 import logging
 import os
-import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timezone
@@ -26,6 +25,7 @@ from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -70,13 +70,15 @@ except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
 
     async def get_current_user():
         """Placeholder when auth not available"""
-        return None
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Database imports
@@ -1509,7 +1511,7 @@ async def register_farmer(profile: FarmerProfile):
         }
     except Exception as e:
         logger.error(f"Error registering farmer: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to register farmer")
 
 
 @app.put("/{farmer_id}/preferences")
@@ -1607,5 +1609,6 @@ async def get_notification_stats():
 if __name__ == "__main__":
     import uvicorn
 
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
     port = int(os.getenv("PORT", 8110))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)

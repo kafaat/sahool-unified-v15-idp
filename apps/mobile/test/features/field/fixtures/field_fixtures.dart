@@ -6,6 +6,7 @@
 /// - NDVI data samples
 /// - API response mocks
 /// - GeoJSON features and collections
+library;
 
 import 'package:latlong2/latlong.dart';
 

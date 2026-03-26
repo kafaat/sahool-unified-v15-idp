@@ -136,6 +136,10 @@ class AuditLog(Base):
         Index("ix_audit_tenant_created", "tenant_id", "created_at"),
         # Index for querying by resource
         Index("ix_audit_resource", "resource_type", "resource_id"),
+        # Index for querying by resource scoped to tenant
+        Index("ix_audit_resource_tenant", "resource_type", "resource_id", "tenant_id"),
+        # Index for querying by action scoped to tenant
+        Index("ix_audit_action_tenant", "action", "tenant_id"),
         # Index for querying by actor
         Index("ix_audit_actor", "actor_id", "created_at"),
         # Index for correlation tracing

@@ -8,6 +8,7 @@
 /// - ThreatType coverage
 /// - SecurityConfig integration
 /// - Bilingual threat messages
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/security/device_security_service.dart';

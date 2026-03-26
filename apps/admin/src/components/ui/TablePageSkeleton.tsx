@@ -60,25 +60,17 @@ export default function TablePageSkeleton({
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1 min-w-[200px] h-10 bg-gray-200 dark:bg-gray-700 rounded-lg" />
           {Array.from({ length: filterInputs }).map((_, i) => (
-            <div
-              key={i}
-              className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg"
-            />
+            <div key={i} className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
           ))}
           <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-          {showAddButton && (
-            <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-          )}
+          {showAddButton && <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg" />}
         </div>
       </div>
 
       {/* Table skeleton */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         {Array.from({ length: tableRows }).map((_, i) => (
-          <div
-            key={i}
-            className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
-          >
+          <div key={i} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
             <div className="h-12 bg-gray-100 dark:bg-gray-700 rounded" />
           </div>
         ))}

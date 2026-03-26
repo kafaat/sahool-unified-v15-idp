@@ -116,14 +116,18 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
             ? const Center(child: CircularProgressIndicator())
             : weatherState.error != null
                 ? _buildErrorView(weatherState.error!)
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildWeatherTab(weatherState.data!),
-                      _buildRecommendationsTab(),
-                      _buildAlertsTab(),
-                    ],
-                  ),
+                : weatherState.data == null
+                    ? const Center(
+                        child: Text('لا توجد بيانات طقس متاحة'),
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildWeatherTab(weatherState.data!),
+                          _buildRecommendationsTab(),
+                          _buildAlertsTab(),
+                        ],
+                      ),
       ),
     );
   }
@@ -250,7 +254,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
       onSelected: (_) {
         ref.read(impactFilterProvider.notifier).state = value;
       },
-      selectedColor: (color ?? const Color(0xFF367C2B)).withOpacity(0.2),
+      selectedColor: (color ?? const Color(0xFF367C2B)).withValues(alpha: 0.2),
       checkmarkColor: color ?? const Color(0xFF367C2B),
     );
   }

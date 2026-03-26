@@ -59,7 +59,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("محفظتي"),
+        title: const Text('محفظتي'),
         backgroundColor: SahoolColors.forestGreen,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -102,7 +102,7 @@ class _WalletScreenState extends State<WalletScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.forestGreen.withOpacity(0.4),
+            color: SahoolColors.forestGreen.withValues(alpha: 0.4),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -116,7 +116,7 @@ class _WalletScreenState extends State<WalletScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "الرصيد الكلي",
+                'الرصيد الكلي',
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -125,7 +125,7 @@ class _WalletScreenState extends State<WalletScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -140,7 +140,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
           // الرصيد
           Text(
-            "\$ ${_balance.toStringAsFixed(2)}",
+            '\$ ${_balance.toStringAsFixed(2)}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 36,
@@ -152,9 +152,9 @@ class _WalletScreenState extends State<WalletScreen> {
 
           // آخر تحديث
           Text(
-            "آخر تحديث: ${DateTime.now().toString().substring(0, 16)}",
+            'آخر تحديث: ${DateTime.now().toString().substring(0, 16)}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 12,
             ),
           ),
@@ -166,7 +166,7 @@ class _WalletScreenState extends State<WalletScreen> {
               Expanded(
                 child: _ActionButton(
                   icon: Icons.arrow_upward,
-                  label: "إيداع",
+                  label: 'إيداع',
                   onTap: () => _showDepositDialog(),
                 ),
               ),
@@ -174,7 +174,7 @@ class _WalletScreenState extends State<WalletScreen> {
               Expanded(
                 child: _ActionButton(
                   icon: Icons.arrow_downward,
-                  label: "سحب",
+                  label: 'سحب',
                   onTap: () => _showWithdrawDialog(),
                 ),
               ),
@@ -182,7 +182,7 @@ class _WalletScreenState extends State<WalletScreen> {
               Expanded(
                 child: _ActionButton(
                   icon: Icons.swap_horiz,
-                  label: "تحويل",
+                  label: 'تحويل',
                   onTap: () => _showTransferDialog(),
                 ),
               ),
@@ -199,13 +199,13 @@ class _WalletScreenState extends State<WalletScreen> {
     Color scoreColor;
 
     if (scorePercentage >= 0.8) {
-      scoreStatus = "ممتاز";
+      scoreStatus = 'ممتاز';
       scoreColor = Colors.green;
     } else if (scorePercentage >= 0.6) {
-      scoreStatus = "جيد";
+      scoreStatus = 'جيد';
       scoreColor = Colors.orange;
     } else {
-      scoreStatus = "يحتاج تحسين";
+      scoreStatus = 'يحتاج تحسين';
       scoreColor = Colors.red;
     }
 
@@ -217,7 +217,7 @@ class _WalletScreenState extends State<WalletScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -255,7 +255,7 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "التقييم الائتماني",
+                  'التقييم الائتماني',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -273,7 +273,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "($_creditScore/$_maxCreditScore)",
+                      '($_creditScore/$_maxCreditScore)',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -312,7 +312,7 @@ class _WalletScreenState extends State<WalletScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "آخر العمليات",
+                'آخر العمليات',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -322,7 +322,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 onPressed: () {
                   // عرض كل العمليات
                 },
-                child: const Text("عرض الكل"),
+                child: const Text('عرض الكل'),
               ),
             ],
           ),
@@ -353,15 +353,15 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   void _showDepositDialog() {
-    _showAmountDialog("إيداع", "أدخل مبلغ الإيداع", Colors.green);
+    _showAmountDialog('إيداع', 'أدخل مبلغ الإيداع', Colors.green);
   }
 
   void _showWithdrawDialog() {
-    _showAmountDialog("سحب", "أدخل مبلغ السحب", Colors.red);
+    _showAmountDialog('سحب', 'أدخل مبلغ السحب', Colors.red);
   }
 
   void _showTransferDialog() {
-    _showAmountDialog("تحويل", "أدخل مبلغ التحويل", Colors.blue);
+    _showAmountDialog('تحويل', 'أدخل مبلغ التحويل', Colors.blue);
   }
 
   void _showAmountDialog(String title, String hint, Color color) {
@@ -430,7 +430,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                   ),
                   child: Text(
-                    "تأكيد $title",
+                    'تأكيد $title',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -468,7 +468,7 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -513,8 +513,8 @@ class _TransactionItem extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: isIncome
-            ? Colors.green.withOpacity(0.1)
-            : Colors.red.withOpacity(0.1),
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.red.withValues(alpha: 0.1),
         child: Icon(
           icon,
           color: isIncome ? Colors.green : Colors.red,

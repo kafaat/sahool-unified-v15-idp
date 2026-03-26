@@ -91,7 +91,7 @@ class TasksRepo {
       entityType: 'task',
       entityId: taskId,
       apiEndpoint: '/api/v1/tasks/$taskId/complete',
-      method: 'PUT',
+      method: 'POST',
       payload: jsonEncode({
         'task_id': taskId,
         'tenant_id': task.tenantId,

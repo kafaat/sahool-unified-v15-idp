@@ -15,7 +15,7 @@ Covers:
 from __future__ import annotations
 
 import os
-from datetime import date, datetime, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
@@ -194,9 +194,9 @@ class TestTwinRepositoryMemory:
     def setup_method(self):
         from shared.digital_twin.repository import (
             TwinRepository,
-            _mem_states,
             _mem_observations,
             _mem_recommendations,
+            _mem_states,
         )
 
         # Clear in-memory stores
@@ -276,9 +276,9 @@ class TestTwinRepositoryMemory:
 class TestTwinPipeline:
     def setup_method(self):
         from shared.digital_twin.repository import (
-            _mem_states,
             _mem_observations,
             _mem_recommendations,
+            _mem_states,
         )
 
         _mem_states.clear()
@@ -655,9 +655,11 @@ class TestTwinRouterSmoke:
             else:
                 sys.path.remove(service_src)
                 sys.path.insert(0, service_src)
-            from src.twin_router import router
-            from shared.auth.dependencies import get_current_user
             from unittest.mock import MagicMock
+
+            from src.twin_router import router
+
+            from shared.auth.dependencies import get_current_user
 
             app = FastAPI()
             app.include_router(router, prefix="/api/v1")

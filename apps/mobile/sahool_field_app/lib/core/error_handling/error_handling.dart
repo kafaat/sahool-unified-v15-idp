@@ -14,6 +14,7 @@
 /// - Recovery strategies and retry mechanisms
 /// - User-facing error display widgets
 /// - Error boundary for widget tree protection
+library;
 
 // Core exception types
 export 'app_exceptions.dart';

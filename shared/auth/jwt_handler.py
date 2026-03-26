@@ -77,7 +77,10 @@ def create_access_token(
         payload["permissions"] = permissions
 
     if extra_claims:
-        payload.update(extra_claims)
+        # Security: prevent extra_claims from overwriting core JWT fields
+        _protected_fields = {"sub", "exp", "iat", "iss", "aud", "jti", "type", "roles", "tid", "permissions"}
+        safe_claims = {k: v for k, v in extra_claims.items() if k not in _protected_fields}
+        payload.update(safe_claims)
 
     return jwt.encode(payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM)
 
@@ -186,9 +189,8 @@ def verify_token(token: str) -> TokenPayload:
             tenant_id=payload.get("tenant_id") or payload.get("tid"),
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
+            email=payload.get("email", ""),
             permissions=payload.get("permissions", []),
-            twofa_required=payload.get("twofa_required", False),
-            twofa_verified=payload.get("twofa_verified", False),
         )
 
     except jwt.ExpiredSignatureError:

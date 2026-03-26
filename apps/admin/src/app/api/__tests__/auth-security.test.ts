@@ -9,8 +9,8 @@
  * - Logout timeout and API_URL usage with AbortController
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NextRequest } from "next/server";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks
@@ -22,11 +22,11 @@ const mockCookieStore = {
   delete: vi.fn(),
 };
 
-vi.mock("next/headers", () => ({
+vi.mock('next/headers', () => ({
   cookies: vi.fn(() => Promise.resolve(mockCookieStore)),
 }));
 
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     log: vi.fn(),
     info: vi.fn(),
@@ -37,9 +37,9 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
-vi.mock("@/config/api", () => ({
-  API_URL: "http://localhost:8000",
-  API_BASE_URL: "http://localhost:8000",
+vi.mock('@/config/api', () => ({
+  API_URL: 'http://localhost:8000',
+  API_BASE_URL: 'http://localhost:8000',
   TIMEOUT_TIERS: {
     default: 10000,
     upload: 30000,
@@ -49,16 +49,16 @@ vi.mock("@/config/api", () => ({
   },
   API_PATHS: {
     auth: {
-      login: "/api/v1/auth/login",
-      logout: "/api/v1/auth/logout",
-      refresh: "/api/v1/auth/refresh",
-      me: "/api/v1/auth/me",
-      activity: "/api/v1/auth/activity",
+      login: '/api/v1/auth/login',
+      logout: '/api/v1/auth/logout',
+      refresh: '/api/v1/auth/refresh',
+      me: '/api/v1/auth/me',
+      activity: '/api/v1/auth/activity',
     },
   },
 }));
 
-vi.mock("@/lib/rate-limiter", () => ({
+vi.mock('@/lib/rate-limiter', () => ({
   checkRateLimit: vi.fn(() => ({ allowed: true })),
   resetRateLimit: vi.fn(),
 }));
@@ -66,20 +66,20 @@ vi.mock("@/lib/rate-limiter", () => ({
 // Helper to create NextRequest
 function createRequest(
   url: string,
-  options: RequestInit & { headers?: Record<string, string> } = {},
+  options: RequestInit & { headers?: Record<string, string> } = {}
 ): NextRequest {
-  return new NextRequest(new URL(url, "http://localhost:3002"), options);
+  return new NextRequest(new URL(url, 'http://localhost:3002'), options);
 }
 
 // Helper to create a Response with specific content-type
 function createResponseWithContentType(
   body: string,
   status: number,
-  contentType: string,
+  contentType: string
 ): Response {
   return new Response(body, {
     status,
-    headers: { "Content-Type": contentType },
+    headers: { 'Content-Type': contentType },
   });
 }
 
@@ -87,7 +87,7 @@ function createResponseWithContentType(
 // Refresh Route - maxAge Alignment Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("POST /api/auth/refresh - maxAge alignment", () => {
+describe('POST /api/auth/refresh - maxAge alignment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(globalThis.fetch).mockReset();
@@ -96,23 +96,23 @@ describe("POST /api/auth/refresh - maxAge alignment", () => {
     delete process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS;
   });
 
-  it("uses 1800s (30 min) as default maxAge for access token cookie, not 86400s", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('uses 1800s (30 min) as default maxAge for access token cookie, not 86400s', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          access_token: "new-access-token",
-          refresh_token: "new-refresh-token",
+          access_token: 'new-access-token',
+          refresh_token: 'new-refresh-token',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     const response = await POST(request);
@@ -120,74 +120,74 @@ describe("POST /api/auth/refresh - maxAge alignment", () => {
 
     // Verify access token cookie maxAge is 1800 (30 min), NOT 86400 (24h)
     expect(mockCookieStore.set).toHaveBeenCalledWith(
-      "sahool_admin_token",
-      "new-access-token",
+      'sahool_admin_token',
+      'new-access-token',
       expect.objectContaining({
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: 'strict',
         maxAge: 1800,
-        path: "/",
-      }),
+        path: '/',
+      })
     );
   });
 
-  it("uses 604800s (7 days) as default maxAge for refresh token cookie", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('uses 604800s (7 days) as default maxAge for refresh token cookie', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          access_token: "new-access-token",
-          refresh_token: "new-refresh-token",
+          access_token: 'new-access-token',
+          refresh_token: 'new-refresh-token',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     await POST(request);
 
     expect(mockCookieStore.set).toHaveBeenCalledWith(
-      "sahool_admin_refresh_token",
-      "new-refresh-token",
+      'sahool_admin_refresh_token',
+      'new-refresh-token',
       expect.objectContaining({
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: 'strict',
         maxAge: 604800,
-        path: "/",
-      }),
+        path: '/',
+      })
     );
   });
 
-  it("respects JWT_ACCESS_TOKEN_EXPIRE_SECONDS env var when set", async () => {
-    process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS = "900"; // 15 minutes
+  it('respects JWT_ACCESS_TOKEN_EXPIRE_SECONDS env var when set', async () => {
+    process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS = '900'; // 15 minutes
 
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          access_token: "new-access-token",
-          refresh_token: "new-refresh-token",
+          access_token: 'new-access-token',
+          refresh_token: 'new-refresh-token',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
     // Re-import to pick up env var change
     vi.resetModules();
 
     // Re-apply mocks after resetModules
-    vi.doMock("next/headers", () => ({
+    vi.doMock('next/headers', () => ({
       cookies: vi.fn(() => Promise.resolve(mockCookieStore)),
     }));
-    vi.doMock("@/lib/logger", () => ({
+    vi.doMock('@/lib/logger', () => ({
       logger: {
         log: vi.fn(),
         info: vi.fn(),
@@ -197,64 +197,64 @@ describe("POST /api/auth/refresh - maxAge alignment", () => {
         critical: vi.fn(),
       },
     }));
-    vi.doMock("@/config/api", () => ({
-      API_URL: "http://localhost:8000",
+    vi.doMock('@/config/api', () => ({
+      API_URL: 'http://localhost:8000',
       TIMEOUT_TIERS: { default: 10000 },
       API_PATHS: {
         auth: {
-          login: "/api/v1/auth/login",
-          logout: "/api/v1/auth/logout",
-          refresh: "/api/v1/auth/refresh",
-          me: "/api/v1/auth/me",
-          activity: "/api/v1/auth/activity",
+          login: '/api/v1/auth/login',
+          logout: '/api/v1/auth/logout',
+          refresh: '/api/v1/auth/refresh',
+          me: '/api/v1/auth/me',
+          activity: '/api/v1/auth/activity',
         },
       },
     }));
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     await POST(request);
 
     expect(mockCookieStore.set).toHaveBeenCalledWith(
-      "sahool_admin_token",
-      "new-access-token",
+      'sahool_admin_token',
+      'new-access-token',
       expect.objectContaining({
         maxAge: 900,
-      }),
+      })
     );
   });
 
-  it("sets last_activity cookie with same maxAge as access token", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('sets last_activity cookie with same maxAge as access token', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          access_token: "new-access-token",
-          refresh_token: "new-refresh-token",
+          access_token: 'new-access-token',
+          refresh_token: 'new-refresh-token',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     await POST(request);
 
     // last_activity should use the same maxAge as the access token (1800s default)
     expect(mockCookieStore.set).toHaveBeenCalledWith(
-      "sahool_admin_last_activity",
+      'sahool_admin_last_activity',
       expect.any(String),
       expect.objectContaining({
         maxAge: 1800,
-      }),
+      })
     );
   });
 });
@@ -263,111 +263,103 @@ describe("POST /api/auth/refresh - maxAge alignment", () => {
 // /api/auth/me - Content-Type Check Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("GET /api/auth/me - content-type validation", () => {
+describe('GET /api/auth/me - content-type validation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(globalThis.fetch).mockReset();
   });
 
-  it("returns 502 when backend responds with text/html instead of JSON", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('returns 502 when backend responds with text/html instead of JSON', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      createResponseWithContentType(
-        "<html><body>502 Bad Gateway</body></html>",
-        200,
-        "text/html",
-      ),
+      createResponseWithContentType('<html><body>502 Bad Gateway</body></html>', 200, 'text/html')
     );
 
-    const { GET } = await import("@/app/api/auth/me/route");
-    const request = createRequest("http://localhost:3002/api/auth/me");
+    const { GET } = await import('@/app/api/auth/me/route');
+    const request = createRequest('http://localhost:3002/api/auth/me');
 
     const response = await GET(request);
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("returns 502 when backend responds with text/plain", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('returns 502 when backend responds with text/plain', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      createResponseWithContentType(
-        "Internal Server Error",
-        500,
-        "text/plain",
-      ),
+      createResponseWithContentType('Internal Server Error', 500, 'text/plain')
     );
 
-    const { GET } = await import("@/app/api/auth/me/route");
-    const request = createRequest("http://localhost:3002/api/auth/me");
+    const { GET } = await import('@/app/api/auth/me/route');
+    const request = createRequest('http://localhost:3002/api/auth/me');
 
     const response = await GET(request);
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("returns 502 when backend has no content-type header", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('returns 502 when backend has no content-type header', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     // Response with no content-type header at all
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response('{"data": "test"}', { status: 200 }),
+      new Response('{"data": "test"}', { status: 200 })
     );
 
-    const { GET } = await import("@/app/api/auth/me/route");
-    const request = createRequest("http://localhost:3002/api/auth/me");
+    const { GET } = await import('@/app/api/auth/me/route');
+    const request = createRequest('http://localhost:3002/api/auth/me');
 
     const response = await GET(request);
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("succeeds when backend responds with application/json content-type", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('succeeds when backend responds with application/json content-type', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          id: "user-1",
-          email: "admin@sahool.app",
-          role: "admin",
+          id: 'user-1',
+          email: 'admin@sahool.app',
+          role: 'admin',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
-    const { GET } = await import("@/app/api/auth/me/route");
-    const request = createRequest("http://localhost:3002/api/auth/me");
+    const { GET } = await import('@/app/api/auth/me/route');
+    const request = createRequest('http://localhost:3002/api/auth/me');
 
     const response = await GET(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.data.email).toBe("admin@sahool.app");
+    expect(data.data.email).toBe('admin@sahool.app');
   });
 
-  it("accepts application/json; charset=utf-8 content-type", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('accepts application/json; charset=utf-8 content-type', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
-        JSON.stringify({ id: "user-1", email: "admin@sahool.app" }),
+        JSON.stringify({ id: 'user-1', email: 'admin@sahool.app' }),
         200,
-        "application/json; charset=utf-8",
-      ),
+        'application/json; charset=utf-8'
+      )
     );
 
-    const { GET } = await import("@/app/api/auth/me/route");
-    const request = createRequest("http://localhost:3002/api/auth/me");
+    const { GET } = await import('@/app/api/auth/me/route');
+    const request = createRequest('http://localhost:3002/api/auth/me');
 
     const response = await GET(request);
     const data = await response.json();
@@ -381,73 +373,65 @@ describe("GET /api/auth/me - content-type validation", () => {
 // /api/auth/refresh - Content-Type Check Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("POST /api/auth/refresh - content-type validation", () => {
+describe('POST /api/auth/refresh - content-type validation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(globalThis.fetch).mockReset();
   });
 
-  it("returns 502 when backend responds with text/html instead of JSON", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('returns 502 when backend responds with text/html instead of JSON', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      createResponseWithContentType(
-        "<html><body>Bad Gateway</body></html>",
-        200,
-        "text/html",
-      ),
+      createResponseWithContentType('<html><body>Bad Gateway</body></html>', 200, 'text/html')
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("returns 502 when backend responds with text/plain", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('returns 502 when backend responds with text/plain', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      createResponseWithContentType(
-        "Service Unavailable",
-        503,
-        "text/plain",
-      ),
+      createResponseWithContentType('Service Unavailable', 503, 'text/plain')
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("does not attempt JSON.parse on non-JSON response (prevents crash)", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('does not attempt JSON.parse on non-JSON response (prevents crash)', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     // Simulate nginx/Kong returning HTML error page
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
-        "<!DOCTYPE html><html><head><title>502 Bad Gateway</title></head><body><h1>502 Bad Gateway</h1><p>nginx</p></body></html>",
+        '<!DOCTYPE html><html><head><title>502 Bad Gateway</title></head><body><h1>502 Bad Gateway</h1><p>nginx</p></body></html>',
         502,
-        "text/html; charset=utf-8",
-      ),
+        'text/html; charset=utf-8'
+      )
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     // This should NOT throw - it should gracefully return 502
@@ -455,26 +439,26 @@ describe("POST /api/auth/refresh - content-type validation", () => {
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("Invalid response from backend");
+    expect(data.error).toBe('Invalid response from backend');
   });
 
-  it("succeeds when backend responds with valid application/json", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-refresh-token" });
+  it('succeeds when backend responds with valid application/json', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-refresh-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
       createResponseWithContentType(
         JSON.stringify({
-          access_token: "new-token",
-          refresh_token: "new-refresh",
+          access_token: 'new-token',
+          refresh_token: 'new-refresh',
         }),
         200,
-        "application/json",
-      ),
+        'application/json'
+      )
     );
 
-    const { POST } = await import("@/app/api/auth/refresh/route");
-    const request = createRequest("http://localhost:3002/api/auth/refresh", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/refresh/route');
+    const request = createRequest('http://localhost:3002/api/auth/refresh', {
+      method: 'POST',
     });
 
     const response = await POST(request);
@@ -489,48 +473,48 @@ describe("POST /api/auth/refresh - content-type validation", () => {
 // /api/auth/logout - Timeout and API_URL Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe("POST /api/auth/logout - timeout and API_URL", () => {
+describe('POST /api/auth/logout - timeout and API_URL', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(globalThis.fetch).mockReset();
   });
 
-  it("calls backend with API_URL from config (not hardcoded)", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('calls backend with API_URL from config (not hardcoded)', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: true }), { status: 200 }),
+      new Response(JSON.stringify({ success: true }), { status: 200 })
     );
 
-    const { POST } = await import("@/app/api/auth/logout/route");
-    const request = createRequest("http://localhost:3002/api/auth/logout", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/logout/route');
+    const request = createRequest('http://localhost:3002/api/auth/logout', {
+      method: 'POST',
     });
 
     await POST(request);
 
     // Verify fetch was called with the API_URL from config
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      "http://localhost:8000/api/v1/auth/logout",
+      'http://localhost:8000/api/v1/auth/logout',
       expect.objectContaining({
-        method: "POST",
+        method: 'POST',
         headers: expect.objectContaining({
-          Authorization: "Bearer valid-token",
+          Authorization: 'Bearer valid-token',
         }),
-      }),
+      })
     );
   });
 
-  it("passes AbortController signal to fetch for timeout support", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('passes AbortController signal to fetch for timeout support', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: true }), { status: 200 }),
+      new Response(JSON.stringify({ success: true }), { status: 200 })
     );
 
-    const { POST } = await import("@/app/api/auth/logout/route");
-    const request = createRequest("http://localhost:3002/api/auth/logout", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/logout/route');
+    const request = createRequest('http://localhost:3002/api/auth/logout', {
+      method: 'POST',
     });
 
     await POST(request);
@@ -540,20 +524,20 @@ describe("POST /api/auth/logout - timeout and API_URL", () => {
       expect.any(String),
       expect.objectContaining({
         signal: expect.any(AbortSignal),
-      }),
+      })
     );
   });
 
-  it("still clears cookies even when fetch times out (abort)", async () => {
-    mockCookieStore.get.mockReturnValue({ value: "valid-token" });
+  it('still clears cookies even when fetch times out (abort)', async () => {
+    mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
 
     // Simulate an abort error
-    const abortError = new DOMException("The operation was aborted", "AbortError");
+    const abortError = new DOMException('The operation was aborted', 'AbortError');
     vi.mocked(globalThis.fetch).mockRejectedValueOnce(abortError);
 
-    const { POST } = await import("@/app/api/auth/logout/route");
-    const request = createRequest("http://localhost:3002/api/auth/logout", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/logout/route');
+    const request = createRequest('http://localhost:3002/api/auth/logout', {
+      method: 'POST',
     });
 
     const response = await POST(request);
@@ -564,17 +548,17 @@ describe("POST /api/auth/logout - timeout and API_URL", () => {
     expect(data.success).toBe(true);
 
     // Cookies should still be deleted
-    expect(mockCookieStore.delete).toHaveBeenCalledWith("sahool_admin_token");
-    expect(mockCookieStore.delete).toHaveBeenCalledWith("sahool_admin_refresh_token");
-    expect(mockCookieStore.delete).toHaveBeenCalledWith("sahool_admin_last_activity");
+    expect(mockCookieStore.delete).toHaveBeenCalledWith('sahool_admin_token');
+    expect(mockCookieStore.delete).toHaveBeenCalledWith('sahool_admin_refresh_token');
+    expect(mockCookieStore.delete).toHaveBeenCalledWith('sahool_admin_last_activity');
   });
 
-  it("does not call backend when no access token exists", async () => {
+  it('does not call backend when no access token exists', async () => {
     mockCookieStore.get.mockReturnValue(undefined);
 
-    const { POST } = await import("@/app/api/auth/logout/route");
-    const request = createRequest("http://localhost:3002/api/auth/logout", {
-      method: "POST",
+    const { POST } = await import('@/app/api/auth/logout/route');
+    const request = createRequest('http://localhost:3002/api/auth/logout', {
+      method: 'POST',
     });
 
     const response = await POST(request);

@@ -27,9 +27,15 @@ except ImportError:
 
 import logging
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+from . import store as ndvi_store  # production persistence layer
 from .models import (
     AnomalyResponse,
     ChangeAnalysisRequest,
@@ -61,10 +67,12 @@ from .processing import (
     process_ndvi_mock,
     update_job_status,
 )
-from . import store as ndvi_store  # production persistence layer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ============== Application Lifecycle ==============
@@ -249,20 +257,26 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 @app.get("/health")
 def health():
     """فحص الصحة - Health check with metrics"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    from .processing import _jobs
+
+    all_jobs = list(_jobs.values())
+    active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
         "version": "16.0.0",
         "timestamp": datetime.now(UTC).isoformat(),
-        "metrics": {"queue_size": active_jobs, "total_jobs": len(list_jobs())},
+        "metrics": {"queue_size": active_jobs, "total_jobs": len(all_jobs)},
     }
 
 
 @app.get("/healthz")
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    from .processing import _jobs
+
+    all_jobs = list(_jobs.values())
+    active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -342,11 +356,11 @@ async def cancel_processing(job_id: str, user: User = Depends(get_current_user))
 
 @app.get("/process", response_model=JobListResponse)
 async def list_processing_jobs(
-    tenant_id: str = Query(None),
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     field_id: str = Query(None),
     status: str | None = Query(None),
 ):
-    """قائمة المهام"""
+    """قائمة المهام مع عزل إلزامي للمستأجر"""
     jobs = list_jobs(tenant_id=tenant_id, field_id=field_id, status=status)
     active = len([j for j in jobs if j["status"] in ["queued", "processing"]])
 

@@ -3,17 +3,14 @@
  * مكون نموذج الملف الشخصي
  */
 
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { User, MapPin, Building2, Upload, Loader2, Check } from "lucide-react";
-import {
-  useUserProfile,
-  useUpdateProfile,
-  useUploadAvatar,
-} from "../hooks/useSettings";
-import type { UpdateProfilePayload } from "../types";
-import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { User, MapPin, Building2, Upload, Loader2, Check } from 'lucide-react';
+import { useUserProfile, useUpdateProfile, useUploadAvatar } from '../hooks/useSettings';
+import type { UpdateProfilePayload } from '../types';
+import { logger } from '@/lib/logger';
 
 export const ProfileForm: React.FC = () => {
   const { data: profile, isLoading } = useUserProfile();
@@ -22,7 +19,7 @@ export const ProfileForm: React.FC = () => {
 
   const [formData, setFormData] = useState<UpdateProfilePayload>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
 
   useEffect(() => {
     if (profile) {
@@ -72,9 +69,9 @@ export const ProfileForm: React.FC = () => {
         avatar: avatarUrl,
       });
 
-      alert("تم تحديث الملف الشخصي بنجاح");
+      alert('تم تحديث الملف الشخصي بنجاح');
     } catch (err) {
-      alert("حدث خطأ أثناء تحديث الملف الشخصي");
+      alert('حدث خطأ أثناء تحديث الملف الشخصي');
       logger.error(err);
     }
   };
@@ -93,16 +90,17 @@ export const ProfileForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Avatar Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-          الصورة الشخصية
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-4">الصورة الشخصية</label>
         <div className="flex items-center gap-6">
           <div className="relative">
             {avatarPreview ? (
-              <img
+              <Image
                 src={avatarPreview}
-                alt="Profile"
+                alt="الصورة الشخصية"
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                unoptimized={avatarPreview.startsWith('data:')}
               />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
@@ -121,12 +119,8 @@ export const ProfileForm: React.FC = () => {
             </label>
           </div>
           <div>
-            <p className="text-sm text-gray-600">
-              صورة بحجم 400x400 بكسل على الأقل
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              JPG, PNG, or GIF (max 2MB)
-            </p>
+            <p className="text-sm text-gray-600">صورة بحجم 400x400 بكسل على الأقل</p>
+            <p className="text-xs text-gray-500 mt-1">JPG, PNG, or GIF (max 2MB)</p>
           </div>
         </div>
       </div>
@@ -134,30 +128,24 @@ export const ProfileForm: React.FC = () => {
       {/* Basic Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            الاسم بالعربية *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">الاسم بالعربية *</label>
           <input
             type="text"
-            value={formData.nameAr || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, nameAr: e.target.value })
-            }
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            value={formData.nameAr || ''}
+            onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Name in English *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Name in English *</label>
           <input
             type="text"
-            value={formData.name || ""}
+            value={formData.name || ''}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
             dir="ltr"
@@ -165,34 +153,28 @@ export const ProfileForm: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            رقم الهاتف
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
           <input
             type="tel"
-            value={formData.phone || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            value={formData.phone || ''}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
             dir="ltr"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            اللغة المفضلة
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">اللغة المفضلة</label>
           <select
-            value={formData.language || "ar"}
+            value={formData.language || 'ar'}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                language: e.target.value as "ar" | "en" | "both",
+                language: e.target.value as 'ar' | 'en' | 'both',
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
           >
             <option value="ar">العربية</option>
@@ -204,14 +186,12 @@ export const ProfileForm: React.FC = () => {
 
       {/* Bio */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          نبذة عنك
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">نبذة عنك</label>
         <textarea
-          value={formData.bioAr || ""}
+          value={formData.bioAr || ''}
           onChange={(e) => setFormData({ ...formData, bioAr: e.target.value })}
           rows={4}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           placeholder="اكتب نبذة مختصرة عنك وعن خبرتك في الزراعة..."
           disabled={isSaving}
         />
@@ -225,48 +205,42 @@ export const ProfileForm: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              المدينة
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">المدينة</label>
             <input
               type="text"
-              value={formData.location?.cityAr || ""}
+              value={formData.location?.cityAr || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
                   location: { ...formData.location!, cityAr: e.target.value },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              المنطقة
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">المنطقة</label>
             <input
               type="text"
-              value={formData.location?.regionAr || ""}
+              value={formData.location?.regionAr || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
                   location: { ...formData.location!, regionAr: e.target.value },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              الدولة
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">الدولة</label>
             <input
               type="text"
-              value={formData.location?.countryAr || ""}
+              value={formData.location?.countryAr || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -276,7 +250,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
@@ -291,12 +265,10 @@ export const ProfileForm: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              اسم المزرعة
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">اسم المزرعة</label>
             <input
               type="text"
-              value={formData.farmDetails?.nameAr || ""}
+              value={formData.farmDetails?.nameAr || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -306,18 +278,18 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               إجمالي المساحة (هكتار)
             </label>
             <input
               type="number"
-              value={formData.farmDetails?.totalArea || ""}
+              value={formData.farmDetails?.totalArea || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -327,7 +299,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
               step="0.1"
               min="0"
@@ -335,17 +307,11 @@ export const ProfileForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              نوع المزرعة
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">نوع المزرعة</label>
             <select
-              value={formData.farmDetails?.farmType || "individual"}
+              value={formData.farmDetails?.farmType || 'individual'}
               onChange={(e) => {
-                type FarmType =
-                  | "individual"
-                  | "family"
-                  | "company"
-                  | "cooperative";
+                type FarmType = 'individual' | 'family' | 'company' | 'cooperative';
                 const value = e.target.value as FarmType;
                 setFormData({
                   ...formData,
@@ -355,7 +321,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 });
               }}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
             >
               <option value="individual">فردية</option>
@@ -366,12 +332,10 @@ export const ProfileForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              سنة التأسيس
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">سنة التأسيس</label>
             <input
               type="number"
-              value={formData.farmDetails?.establishedYear || ""}
+              value={formData.farmDetails?.establishedYear || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -381,7 +345,7 @@ export const ProfileForm: React.FC = () => {
                   },
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
               min="1900"
               max={new Date().getFullYear()}
@@ -406,10 +370,10 @@ export const ProfileForm: React.FC = () => {
                 farmDetails: profile.farmDetails,
               });
               setAvatarFile(null);
-              setAvatarPreview(profile.avatar || "");
+              setAvatarPreview(profile.avatar || '');
             }
           }}
-          className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           disabled={isSaving}
         >
           إلغاء

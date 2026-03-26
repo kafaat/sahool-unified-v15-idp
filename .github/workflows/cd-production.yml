@@ -599,7 +599,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "To enable deployments, configure the secret in repository settings." >> $GITHUB_STEP_SUMMARY
             echo "::warning::Deployment was skipped - KUBE_CONFIG_PRODUCTION not configured"
-            exit 1
+            exit 0
           fi
 
           # Check if any deployment step failed

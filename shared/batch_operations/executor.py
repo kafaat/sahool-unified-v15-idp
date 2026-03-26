@@ -16,8 +16,9 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Coroutine
 from datetime import UTC, datetime
-from typing import Any, Callable, Coroutine, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from .models import (
     BATCH_MESSAGES,
@@ -501,6 +502,10 @@ class BatchExecutor:
         """
         self._cancel_requested = False
         self._pause_requested = False
+
+        # Validate tenant_id is set (H-06: tenant isolation)
+        if not batch.tenant_id:
+            raise BatchExecutionError("tenant_id is required for batch execution")
 
         start_time = time.time()
         items = batch.get_items()

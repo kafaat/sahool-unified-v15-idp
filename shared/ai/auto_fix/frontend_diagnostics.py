@@ -114,11 +114,12 @@ class FrontendDiagnosticRunner:
             return diagnostics
 
         try:
-            fix_flag = "--fix" if self.config.auto_fix else ""
-            cmd = f"npx eslint {path} --format json {fix_flag}".strip()
+            cmd = ["npx", "eslint", path, "--format", "json"]
+            if self.config.auto_fix:
+                cmd.append("--fix")
 
             result = subprocess.run(
-                cmd.split(),
+                cmd,
                 cwd=self.working_dir,
                 capture_output=True,
                 text=True,
@@ -211,11 +212,12 @@ class FrontendDiagnosticRunner:
         diagnostics = []
 
         try:
-            fix_flag = "--apply" if self.config.auto_fix else ""
-            cmd = f"npx biome check {path} --reporter json {fix_flag}".strip()
+            cmd = ["npx", "biome", "check", path, "--reporter", "json"]
+            if self.config.auto_fix:
+                cmd.append("--apply")
 
             result = subprocess.run(
-                cmd.split(),
+                cmd,
                 cwd=self.working_dir,
                 capture_output=True,
                 text=True,

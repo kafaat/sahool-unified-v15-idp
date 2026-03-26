@@ -9,6 +9,7 @@
 /// - Bulk operations and data integrity
 ///
 /// Uses in-memory TestDatabase for fast, isolated testing
+library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;

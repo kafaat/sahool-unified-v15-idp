@@ -158,14 +158,7 @@ class TwoFactorAuthService:
         if is_valid:
             logger.info("TOTP token verified successfully")
         else:
-            # Security audit: log failed 2FA attempts for brute-force detection
-            logger.warning(
-                "SECURITY: TOTP token verification failed",
-                extra={
-                    "event": "2fa_verification_failed",
-                    "method": "totp",
-                },
-            )
+            logger.warning("TOTP token verification failed")
 
         return is_valid
 
@@ -203,15 +196,22 @@ class TwoFactorAuthService:
         Returns:
             Hashed backup code
         """
-        # Remove formatting
-        clean_code = code.replace("-", "").strip()
+        # Remove formatting and normalize to uppercase for consistent hashing
+        clean_code = code.replace("-", "").strip().upper()
 
-        # Use simple hash for backup codes (they're single-use anyway)
-        import hashlib
+        try:
+            import bcrypt
 
-        return hashlib.sha256(clean_code.encode()).hexdigest()
+            return bcrypt.hashpw(clean_code.encode(), bcrypt.gensalt(rounds=12)).decode()
+        except ImportError:
+            # Fallback to SHA-256 with salt if bcrypt not available
+            import hashlib
+            import secrets
 
-    def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None]:
+            salt = secrets.token_hex(16)
+            return f"sha256:{salt}:{hashlib.sha256((salt + clean_code).encode()).hexdigest()}"
+
+    def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None, list[str]]:
         """
         Verify a backup code against stored hashes.
 
@@ -220,43 +220,45 @@ class TwoFactorAuthService:
             hashed_codes: List of hashed backup codes
 
         Returns:
-            Tuple of (is_valid, matched_hash)
-        """
-        is_valid, matched_hash, _ = self.verify_backup_code_with_remaining(code, hashed_codes)
-        return is_valid, matched_hash
-
-    def verify_backup_code_with_remaining(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None, list[str]]:
-        """
-        Verify a backup code and return remaining codes after invalidation.
-
-        The matched code is removed from the list to prevent reuse.
-        Callers MUST persist the returned remaining_codes to storage.
-
-        Args:
-            code: The backup code to verify
-            hashed_codes: List of hashed backup codes
-
-        Returns:
             Tuple of (is_valid, matched_hash, remaining_codes)
-            remaining_codes has the used code removed if valid
         """
         if not code or not hashed_codes:
             return False, None, list(hashed_codes) if hashed_codes else []
 
-        # Hash the provided code
-        code_hash = self.hash_backup_code(code)
-
-        # Constant-time comparison to prevent timing attacks
-        import hmac
+        clean_code = code.replace("-", "").strip().upper()
 
         for stored_hash in hashed_codes:
-            if hmac.compare_digest(code_hash, stored_hash):
-                # Remove used code to prevent reuse
+            match = False
+            if stored_hash.startswith("$2"):
+                # bcrypt hash
+                try:
+                    import bcrypt
+
+                    match = bcrypt.checkpw(clean_code.encode(), stored_hash.encode())
+                except ImportError:
+                    pass
+            elif stored_hash.startswith("sha256:"):
+                # Salted SHA-256 fallback hash
+                import hashlib
+                import hmac as _hmac
+
+                parts = stored_hash.split(":", 2)
+                if len(parts) == 3:
+                    salt = parts[1]
+                    expected = parts[2]
+                    computed = hashlib.sha256((salt + clean_code).encode()).hexdigest()
+                    match = _hmac.compare_digest(computed, expected)
+            else:
+                # Legacy plain SHA-256 hash (for backward compat)
+                import hashlib
+                import hmac as _hmac
+
+                computed = hashlib.sha256(clean_code.encode()).hexdigest()
+                match = _hmac.compare_digest(computed, stored_hash)
+
+            if match:
                 remaining = [h for h in hashed_codes if h != stored_hash]
-                logger.info(
-                    f"Backup code verified successfully. "
-                    f"Remaining codes: {len(remaining)}/{len(hashed_codes)}"
-                )
+                logger.info(f"Backup code verified successfully. Remaining codes: {len(remaining)}/{len(hashed_codes)}")
                 return True, stored_hash, remaining
 
         logger.warning(

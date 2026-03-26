@@ -6,6 +6,7 @@
 /// - Quiet hours settings
 /// - Sound and vibration preferences
 /// - Priority filtering
+library;
 
 import 'dart:convert';
 

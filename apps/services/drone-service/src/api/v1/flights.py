@@ -125,7 +125,8 @@ async def create_spray_flight_plan(
 ):
     """Create spray flight plan - إنشاء خطة رحلة رش"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, create_spray_flight_plan
+        from shared.drone_integration import Coordinate as DCoord
+        from shared.drone_integration import create_spray_flight_plan
     except ImportError:
         raise HTTPException(
             status_code=503,
@@ -219,7 +220,8 @@ async def create_mapping_flight_plan(
 ):
     """Create mapping flight plan - إنشاء خطة رحلة تصوير"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, create_mapping_flight_plan
+        from shared.drone_integration import Coordinate as DCoord
+        from shared.drone_integration import create_mapping_flight_plan
     except ImportError:
         raise HTTPException(
             status_code=503,
@@ -387,6 +389,8 @@ async def list_flight_plans(
     req: Request,
     field_id: str | None = None,
     plan_type: str | None = None,
+    limit: int = 500,
+    offset: int = 0,
     user=Depends(get_current_user),
 ):
     """List flight plans - قائمة خطط الرحلات"""
@@ -394,7 +398,9 @@ async def list_flight_plans(
     repo = _get_repo(req)
 
     if repo:
-        rows = await repo.list_flight_plans(tenant_id, field_id=field_id, plan_type=plan_type)
+        rows = await repo.list_flight_plans(
+            tenant_id, field_id=field_id, plan_type=plan_type, limit=min(limit, 1000), offset=offset
+        )
         plans = [{k: str(v) if k == "id" else v for k, v in r.items() if k != "waypoints"} for r in rows]
     else:
         plans = [p for p in _flight_plans.values() if p.get("tenant_id") == tenant_id]

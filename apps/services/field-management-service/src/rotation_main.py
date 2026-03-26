@@ -9,8 +9,23 @@ Port: 8099
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 # Import rotation API endpoints
 from .rotation_api import (
@@ -117,7 +132,7 @@ async def create_rotation_plan(
 
 
 @app.post("/v1/rotation/plan")
-async def create_rotation_plan_post(req: dict):
+async def create_rotation_plan_post(req: dict, current_user: User = Depends(get_current_user)):
     """
     POST endpoint to create rotation plan with custom history
     Create optimal crop rotation plan with provided field history
@@ -171,7 +186,7 @@ async def suggest_next_crop(field_id: str, season: str = "winter"):
 
 
 @app.post("/v1/rotation/evaluate")
-async def evaluate_rotation(req: dict):
+async def evaluate_rotation(req: dict, current_user: User = Depends(get_current_user)):
     """
     Evaluate a rotation plan for soil health and disease risk
 

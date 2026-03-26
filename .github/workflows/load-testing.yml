@@ -48,6 +48,7 @@ jobs:
   k6-load-test:
     name: k6 Load Test (${{ github.event.inputs.test_type || 'smoke' }})
     runs-on: ubuntu-latest
+    timeout-minutes: 120
 
     steps:
       - name: Checkout code
@@ -266,6 +267,7 @@ jobs:
   api-benchmark:
     name: API Benchmark
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     if: github.event_name == 'workflow_dispatch'
     needs: k6-load-test
 

@@ -23,41 +23,41 @@
  * Equipment types for leveling operations
  */
 export type EquipmentType =
-  | "bulldozer"       // جرافة
-  | "scraper"         // كاشطة
-  | "grader"          // ممهدة
-  | "laser_leveler"   // مسوي ليزر
-  | "excavator"       // حفارة
-  | "dump_truck";     // شاحنة قلابة
+  | 'bulldozer' // جرافة
+  | 'scraper' // كاشطة
+  | 'grader' // ممهدة
+  | 'laser_leveler' // مسوي ليزر
+  | 'excavator' // حفارة
+  | 'dump_truck'; // شاحنة قلابة
 
 /**
  * Soil types for leveling calculations
  * (Named LevelingSoilType to avoid conflict with field.ts SoilType)
  */
 export type LevelingSoilType =
-  | "sandy"   // رملية
-  | "loamy"   // طفالية
-  | "clay"    // طينية
-  | "silty"   // طميية
-  | "rocky";  // صخرية
+  | 'sandy' // رملية
+  | 'loamy' // طفالية
+  | 'clay' // طينية
+  | 'silty' // طميية
+  | 'rocky'; // صخرية
 
 /**
  * Leveling methods
  */
 export type LevelingMethod =
-  | "single_plane"  // مستوى واحد
-  | "dual_plane"    // مستويين
-  | "contour"       // كنتوري
-  | "bench";        // مصاطب
+  | 'single_plane' // مستوى واحد
+  | 'dual_plane' // مستويين
+  | 'contour' // كنتوري
+  | 'bench'; // مصاطب
 
 /**
  * Leveling optimization priority
  */
 export type LevelingPriority =
-  | "minimize_cost"          // تقليل التكلفة
-  | "minimize_earthwork"     // تقليل الحفر والردم
-  | "optimal_drainage"       // تصريف مثالي
-  | "irrigation_efficiency"; // كفاءة الري
+  | 'minimize_cost' // تقليل التكلفة
+  | 'minimize_earthwork' // تقليل الحفر والردم
+  | 'optimal_drainage' // تصريف مثالي
+  | 'irrigation_efficiency'; // كفاءة الري
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Elevation Point Types
@@ -68,17 +68,17 @@ export type LevelingPriority =
  * Single elevation survey point
  */
 export interface ElevationPoint {
-  x: number;           // X coordinate (meters)
-  y: number;           // Y coordinate (meters)
-  elevation: number;   // Elevation (meters)
-  pointId?: string;    // Optional point identifier
+  x: number; // X coordinate (meters)
+  y: number; // Y coordinate (meters)
+  elevation: number; // Elevation (meters)
+  pointId?: string; // Optional point identifier
 }
 
 /**
  * Field boundary polygon
  */
 export interface FieldBoundary {
-  coordinates: Array<[number, number]>;  // [x, y] pairs
+  coordinates: Array<[number, number]>; // [x, y] pairs
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -90,29 +90,29 @@ export interface FieldBoundary {
  * Cut and fill volume calculations
  */
 export interface CutFillVolume {
-  cutVolumeM3: number;        // Volume to cut (m³)
-  fillVolumeM3: number;       // Volume to fill (m³)
-  netVolumeM3: number;        // Net volume (cut - fill)
-  cutAreaM2: number;          // Area requiring cut (m²)
-  fillAreaM2: number;         // Area requiring fill (m²)
-  balanceRatio: number;       // Cut/Fill balance ratio
-  maxCutDepthM: number;       // Maximum cut depth (m)
-  maxFillDepthM: number;      // Maximum fill depth (m)
-  avgCutDepthM: number;       // Average cut depth (m)
-  avgFillDepthM: number;      // Average fill depth (m)
+  cutVolumeM3: number; // Volume to cut (m³)
+  fillVolumeM3: number; // Volume to fill (m³)
+  netVolumeM3: number; // Net volume (cut - fill)
+  cutAreaM2: number; // Area requiring cut (m²)
+  fillAreaM2: number; // Area requiring fill (m²)
+  balanceRatio: number; // Cut/Fill balance ratio
+  maxCutDepthM: number; // Maximum cut depth (m)
+  maxFillDepthM: number; // Maximum fill depth (m)
+  avgCutDepthM: number; // Average cut depth (m)
+  avgFillDepthM: number; // Average fill depth (m)
 }
 
 /**
  * Design plane parameters
  */
 export interface DesignPlane {
-  centroidElevation: number;  // Elevation at centroid (m)
-  gradeXPercent: number;      // Grade in X direction (%)
-  gradeYPercent: number;      // Grade in Y direction (%)
-  planeEquation: string;      // Plane equation: z = a*x + b*y + c
-  coefficientA: number;       // Coefficient a (grade X)
-  coefficientB: number;       // Coefficient b (grade Y)
-  coefficientC: number;       // Coefficient c (elevation offset)
+  centroidElevation: number; // Elevation at centroid (m)
+  gradeXPercent: number; // Grade in X direction (%)
+  gradeYPercent: number; // Grade in Y direction (%)
+  planeEquation: string; // Plane equation: z = a*x + b*y + c
+  coefficientA: number; // Coefficient a (grade X)
+  coefficientB: number; // Coefficient b (grade Y)
+  coefficientC: number; // Coefficient c (elevation offset)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -124,17 +124,17 @@ export interface DesignPlane {
  * Detailed cost estimation in SAR
  */
 export interface CostEstimate {
-  totalCostSAR: number;           // Total estimated cost
-  earthworkCostSAR: number;       // Earthwork cost
-  equipmentCostSAR: number;       // Equipment rental cost
-  laborCostSAR: number;           // Labor cost
-  fuelCostSAR: number;            // Fuel cost
-  surveyingCostSAR: number;       // Surveying cost
-  contingencySAR: number;         // Contingency (10%)
-  costPerM3SAR: number;           // Cost per cubic meter
-  costPerHectareSAR: number;      // Cost per hectare
+  totalCostSAR: number; // Total estimated cost
+  earthworkCostSAR: number; // Earthwork cost
+  equipmentCostSAR: number; // Equipment rental cost
+  laborCostSAR: number; // Labor cost
+  fuelCostSAR: number; // Fuel cost
+  surveyingCostSAR: number; // Surveying cost
+  contingencySAR: number; // Contingency (10%)
+  costPerM3SAR: number; // Cost per cubic meter
+  costPerHectareSAR: number; // Cost per hectare
   estimatedDurationHours: number; // Estimated duration (hours)
-  estimatedDurationDays: number;  // Estimated duration (8-hour days)
+  estimatedDurationDays: number; // Estimated duration (8-hour days)
 
   // Bilingual summary
   summaryEn: string;
@@ -154,7 +154,7 @@ export interface EquipmentRecommendation {
   totalCostSAR: number;
   productivityM3PerHour: number;
   recommendedFor: string;
-  priority: number;  // 1 = highest priority
+  priority: number; // 1 = highest priority
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -168,7 +168,7 @@ export interface EquipmentRecommendation {
 export interface LevelingPlan {
   planId: string;
   fieldId: string;
-  createdAt: string;  // ISO 8601 timestamp
+  createdAt: string; // ISO 8601 timestamp
 
   // Design parameters
   designPlane: DesignPlane;
@@ -226,7 +226,7 @@ export interface SimulationResult {
   // Statistics
   originalStdDev: number;
   simulatedStdDev: number;
-  uniformityImprovement: number;  // Percentage improvement
+  uniformityImprovement: number; // Percentage improvement
 
   // Bilingual summary
   summaryEn: string;
@@ -282,9 +282,9 @@ export interface SimulationRequest {
  * Health check response
  */
 export interface LevelingHealthResponse {
-  status: "ok" | "not_ready";
-  service: "leveling-optimizer-service";
-  serviceAr: "خدمة تحسين التسوية";
+  status: 'ok' | 'not_ready';
+  service: 'leveling-optimizer-service';
+  serviceAr: 'خدمة تحسين التسوية';
   version: string;
   timestamp: string;
 }
@@ -293,7 +293,7 @@ export interface LevelingHealthResponse {
  * Readiness check response
  */
 export interface LevelingReadinessResponse {
-  status: "ok" | "not_ready";
+  status: 'ok' | 'not_ready';
   database: boolean;
   nats: boolean;
   checks: {
@@ -334,8 +334,8 @@ export interface EquipmentProductivityConfig {
  * Soil factors configuration
  */
 export interface SoilFactorsConfig {
-  expansionFactor: number;   // Soil expansion factor
-  compactionFactor: number;  // Soil compaction factor
+  expansionFactor: number; // Soil expansion factor
+  compactionFactor: number; // Soil compaction factor
 }
 
 /**

@@ -3,40 +3,40 @@
  * طبقة API لميزة الامتثال والجودة
  */
 
-import { COMPLIANCE_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
-import { createApiClient, logger } from "@/lib/api/factory";
+import { COMPLIANCE_ENDPOINTS, API_PREFIX } from '@sahool/shared-types/contracts';
+import { createApiClient, logger } from '@/lib/api/factory';
 import type {
   ComplianceItem,
   Certification,
   AuditReport,
   ComplianceFilters,
   ComplianceStats,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch compliance data.",
-    ar: "فشل في جلب بيانات الامتثال.",
+    en: 'Failed to fetch compliance data.',
+    ar: 'فشل في جلب بيانات الامتثال.',
   },
 };
 
 // Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_COMPLIANCE, MOCK_CERTIFICATIONS, MOCK_STATS } from "./api.mock";
+import { MOCK_COMPLIANCE, MOCK_CERTIFICATIONS, MOCK_STATS } from './api.mock';
 
 export const complianceApi = {
   getCompliance: async (filters?: ComplianceFilters): Promise<ComplianceItem[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.category) params.set("category", filters.category);
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.search) params.set("search", filters.search);
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.search) params.set('search', filters.search);
 
       const response = await api.get(`${COMPLIANCE_ENDPOINTS.CHECKLISTS}?${params.toString()}`);
       const data = response.data.data || response.data;
@@ -45,10 +45,10 @@ export const complianceApi = {
         return data;
       }
 
-      logger.warn("API returned unexpected format, using mock data");
+      logger.warn('API returned unexpected format, using mock data');
       return MOCK_COMPLIANCE;
     } catch (error) {
-      logger.warn("Failed to fetch compliance data, using mock data:", error);
+      logger.warn('Failed to fetch compliance data, using mock data:', error);
       return MOCK_COMPLIANCE;
     }
   },
@@ -86,7 +86,7 @@ export const complianceApi = {
 
       return MOCK_CERTIFICATIONS;
     } catch (error) {
-      logger.warn("Failed to fetch certifications, using mock data:", error);
+      logger.warn('Failed to fetch certifications, using mock data:', error);
       return MOCK_CERTIFICATIONS;
     }
   },
@@ -108,7 +108,7 @@ export const complianceApi = {
       const response = await api.get(COMPLIANCE_ENDPOINTS.AUDITS);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to fetch audit reports:", error);
+      logger.warn('Failed to fetch audit reports:', error);
       return [];
     }
   },
@@ -118,7 +118,7 @@ export const complianceApi = {
       const response = await api.post(COMPLIANCE_ENDPOINTS.AUDITS, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create audit report:", error);
+      logger.error('Failed to create audit report:', error);
       throw error;
     }
   },
@@ -128,7 +128,7 @@ export const complianceApi = {
       const response = await api.get(`${API_PREFIX}/compliance/stats`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to fetch compliance stats, using mock data:", error);
+      logger.warn('Failed to fetch compliance stats, using mock data:', error);
       return MOCK_STATS;
     }
   },

@@ -139,22 +139,55 @@ def create_temp_token(user_id: str, email: str) -> str:
 
 
 def verify_temp_token(temp_token: str) -> dict | None:
-    """Verify and decode temporary token using JWT signature verification."""
+    """Verify and decode temporary token using JWT signature verification.
+
+    SECURITY: Validates the 'temp' claim to prevent regular access tokens
+    from being used to bypass 2FA challenges.
+    """
     try:
+        # First verify signature and standard claims via verify_token
         payload = verify_token(temp_token)
 
-        # Ensure this is a temp token, not a regular access token
-        if payload.token_type != "access" or not hasattr(payload, "user_id"):
+        if not hasattr(payload, "user_id") or not payload.user_id:
+            return None
+
+        # SECURITY: Decode raw JWT with full signature verification to
+        # access the 'temp' extra claim not in the TokenPayload model.
+        import jwt as pyjwt
+
+        from .config import config
+        from .jwt_handler import ALLOWED_ALGORITHMS
+
+        raw_payload = pyjwt.decode(
+            temp_token,
+            config.get_verification_key(),
+            algorithms=ALLOWED_ALGORITHMS,
+        )
+
+        if not raw_payload.get("temp"):
+            logger.warning(
+                "Temp token verification failed: missing 'temp' claim",
+                extra={"user_id": payload.user_id},
+            )
+            return None
+
+        email = raw_payload.get("email")
+        if not email:
+            logger.warning(
+                "Temp token missing 'email' claim",
+                extra={"user_id": payload.user_id},
+            )
             return None
 
         return {
             "user_id": payload.user_id,
+            "email": email,
             "temp": True,
         }
     except AuthException:
         return None
     except Exception as e:
-        logger.error(f"Error verifying temp token: {e}")
+        logger.error(f"Error verifying temp token: {type(e).__name__}", exc_info=True)
         return None
 
 
@@ -218,7 +251,7 @@ async def login(request: LoginRequest):
                 is_valid_backup = False
                 used_backup_hash = None
                 if not is_valid_totp and user.twofa_backup_codes:
-                    is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
+                    is_valid_backup, used_backup_hash, _remaining = twofa_service.verify_backup_code(
                         request.totp_code, user.twofa_backup_codes
                     )
 
@@ -323,7 +356,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
         is_valid_backup = False
         used_backup_hash = None
         if not is_valid_totp and user.twofa_backup_codes:
-            is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
+            is_valid_backup, used_backup_hash, _remaining = twofa_service.verify_backup_code(
                 request.totp_code, user.twofa_backup_codes
             )
 

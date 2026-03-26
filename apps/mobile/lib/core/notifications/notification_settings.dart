@@ -105,6 +105,9 @@ class NotificationSettings {
       _prefs.getInt('${_prefix}quiet_hours_start') ?? 22;
 
   set quietHoursStart(int value) {
+    if (value < 0 || value > 23) {
+      throw RangeError.range(value, 0, 23, 'quietHoursStart');
+    }
     _prefs.setInt('${_prefix}quiet_hours_start', value);
   }
 
@@ -112,6 +115,9 @@ class NotificationSettings {
   int get quietHoursEnd => _prefs.getInt('${_prefix}quiet_hours_end') ?? 7;
 
   set quietHoursEnd(int value) {
+    if (value < 0 || value > 23) {
+      throw RangeError.range(value, 0, 23, 'quietHoursEnd');
+    }
     _prefs.setInt('${_prefix}quiet_hours_end', value);
   }
 
@@ -122,11 +128,11 @@ class NotificationSettings {
     final now = DateTime.now().hour;
 
     if (quietHoursStart < quietHoursEnd) {
-      // مثال: من 22 إلى 7 (يمتد عبر منتصف الليل)
-      return now >= quietHoursStart || now < quietHoursEnd;
-    } else {
       // مثال: من 14 إلى 16 (في نفس اليوم)
       return now >= quietHoursStart && now < quietHoursEnd;
+    } else {
+      // مثال: من 22 إلى 7 (يمتد عبر منتصف الليل)
+      return now >= quietHoursStart || now < quietHoursEnd;
     }
   }
 
@@ -278,6 +284,12 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettingsSta
   }
 
   void setQuietHours(int start, int end) {
+    if (start < 0 || start > 23) {
+      throw RangeError.range(start, 0, 23, 'start');
+    }
+    if (end < 0 || end > 23) {
+      throw RangeError.range(end, 0, 23, 'end');
+    }
     _settings.quietHoursStart = start;
     _settings.quietHoursEnd = end;
     state = NotificationSettingsState.fromSettings(_settings);

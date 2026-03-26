@@ -1,7 +1,7 @@
 /**
  * Centralized Error Handler for Web Application
  * Provides consistent error handling across all API calls
- * 
+ *
  * معالج أخطاء مركزي لتوحيد معالجة الأخطاء
  */
 
@@ -33,7 +33,7 @@ export class ApiErrorHandler {
 
     // Network error (no response)
     if (!error.response) {
-      logger.warn('Network error:', error);
+      logger.error('Network error:', error);
       return {
         message: 'Network error. Please check your internet connection.',
         messageAr: 'خطأ في الشبكة. يرجى التحقق من اتصال الإنترنت.',
@@ -120,7 +120,7 @@ export class ApiErrorHandler {
       case 502:
       case 503:
       case 504:
-        logger.warn('Server error:', { status, data });
+        logger.error('Server error:', { status, data });
         return {
           message: 'Server error. Please try again later.',
           messageAr: 'خطأ في الخادم. حاول مرة أخرى لاحقاً.',

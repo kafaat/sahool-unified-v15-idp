@@ -9,6 +9,7 @@
 /// - Run history and statistics
 /// - VRI zone management
 /// - Alert handling
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

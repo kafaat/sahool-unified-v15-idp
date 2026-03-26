@@ -16,7 +16,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from shared.middleware.tenant_context import TenantContextMiddleware
-
 from src.api.v1 import pests, scouts, thresholds, treatments
 
 # Configure structured logging

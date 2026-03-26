@@ -1,14 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Thermometer,
-  TrendingUp,
-  Calendar,
-  Target,
-  Leaf,
-  BarChart3,
-} from "lucide-react";
+import React, { useState } from 'react';
+import { Thermometer, TrendingUp, Calendar, Target, Leaf, BarChart3 } from 'lucide-react';
 
 interface GDDRecord {
   id: string;
@@ -29,76 +22,76 @@ interface GDDRecord {
 
 const mockGDDRecords: GDDRecord[] = [
   {
-    id: "1",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    cropType: "Wheat",
-    cropTypeAr: "قمح",
-    plantingDate: "2024-11-15",
+    id: '1',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    cropType: 'Wheat',
+    cropTypeAr: 'قمح',
+    plantingDate: '2024-11-15',
     currentGDD: 850,
     targetGDD: 2100,
-    currentStage: "Tillering",
-    currentStageAr: "التفريع",
-    nextStage: "Stem Elongation",
-    nextStageAr: "استطالة الساق",
+    currentStage: 'Tillering',
+    currentStageAr: 'التفريع',
+    nextStage: 'Stem Elongation',
+    nextStageAr: 'استطالة الساق',
     gddToNextStage: 250,
     estimatedDaysToNextStage: 18,
   },
   {
-    id: "2",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    cropType: "Barley",
-    cropTypeAr: "شعير",
-    plantingDate: "2024-11-20",
+    id: '2',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    cropType: 'Barley',
+    cropTypeAr: 'شعير',
+    plantingDate: '2024-11-20',
     currentGDD: 720,
     targetGDD: 1800,
-    currentStage: "Tillering",
-    currentStageAr: "التفريع",
-    nextStage: "Jointing",
-    nextStageAr: "التعقيل",
+    currentStage: 'Tillering',
+    currentStageAr: 'التفريع',
+    nextStage: 'Jointing',
+    nextStageAr: 'التعقيل',
     gddToNextStage: 180,
     estimatedDaysToNextStage: 14,
   },
   {
-    id: "3",
-    fieldId: "field-3",
-    fieldName: "حقل القمح",
-    cropType: "Wheat",
-    cropTypeAr: "قمح",
-    plantingDate: "2024-11-10",
+    id: '3',
+    fieldId: 'field-3',
+    fieldName: 'حقل القمح',
+    cropType: 'Wheat',
+    cropTypeAr: 'قمح',
+    plantingDate: '2024-11-10',
     currentGDD: 920,
     targetGDD: 2100,
-    currentStage: "Stem Elongation",
-    currentStageAr: "استطالة الساق",
-    nextStage: "Heading",
-    nextStageAr: "طرد السنابل",
+    currentStage: 'Stem Elongation',
+    currentStageAr: 'استطالة الساق',
+    nextStage: 'Heading',
+    nextStageAr: 'طرد السنابل',
     gddToNextStage: 380,
     estimatedDaysToNextStage: 28,
   },
   {
-    id: "4",
-    fieldId: "field-5",
-    fieldName: "الصوب الزراعية",
-    cropType: "Tomato",
-    cropTypeAr: "طماطم",
-    plantingDate: "2024-12-01",
+    id: '4',
+    fieldId: 'field-5',
+    fieldName: 'الصوب الزراعية',
+    cropType: 'Tomato',
+    cropTypeAr: 'طماطم',
+    plantingDate: '2024-12-01',
     currentGDD: 580,
     targetGDD: 1500,
-    currentStage: "Flowering",
-    currentStageAr: "الإزهار",
-    nextStage: "Fruiting",
-    nextStageAr: "الإثمار",
+    currentStage: 'Flowering',
+    currentStageAr: 'الإزهار',
+    nextStage: 'Fruiting',
+    nextStageAr: 'الإثمار',
     gddToNextStage: 120,
     estimatedDaysToNextStage: 10,
   },
 ];
 
 export default function GDDClient() {
-  const [selectedField, setSelectedField] = useState<string>("all");
+  const [selectedField, setSelectedField] = useState<string>('all');
 
   const filteredRecords =
-    selectedField === "all"
+    selectedField === 'all'
       ? mockGDDRecords
       : mockGDDRecords.filter((r) => r.fieldId === selectedField);
 
@@ -107,9 +100,9 @@ export default function GDDClient() {
   };
 
   const getProgressColor = (percentage: number) => {
-    if (percentage < 33) return "bg-blue-500";
-    if (percentage < 66) return "bg-yellow-500";
-    return "bg-green-500";
+    if (percentage < 33) return 'bg-blue-500';
+    if (percentage < 66) return 'bg-yellow-500';
+    return 'bg-green-500';
   };
 
   const averageGDD = Math.round(
@@ -242,7 +235,9 @@ export default function GDDClient() {
                   </div>
                   <div>
                     <span className="text-gray-500">المتبقي:</span>
-                    <span className="font-medium text-gray-900 mr-1">{record.gddToNextStage} GDD</span>
+                    <span className="font-medium text-gray-900 mr-1">
+                      {record.gddToNextStage} GDD
+                    </span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-gray-500">الوقت المتوقع:</span>
@@ -255,7 +250,7 @@ export default function GDDClient() {
 
               <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
                 <span className="text-gray-500">
-                  تاريخ الزراعة: {new Date(record.plantingDate).toLocaleDateString("ar-SA")}
+                  تاريخ الزراعة: {new Date(record.plantingDate).toLocaleDateString('ar-SA')}
                 </span>
                 <button className="text-sahool-green-600 hover:text-sahool-green-700 font-medium">
                   التفاصيل

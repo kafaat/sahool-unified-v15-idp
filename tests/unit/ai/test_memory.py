@@ -16,23 +16,23 @@ Author: SAHOOL QA Team
 Updated: January 2025
 """
 
-import pytest
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from time import sleep
 
+import pytest
+
 from shared.ai.context_engineering.memory import (
-    FarmMemory,
-    MemoryEntry,
-    MemoryConfig,
-    MemoryType,
-    RelevanceScore,
-    RecallResult,
-    DEFAULT_WINDOW_SIZE,
-    DEFAULT_TTL_HOURS,
     DEFAULT_MAX_ENTRIES,
     DEFAULT_RELEVANCE_THRESHOLD,
+    DEFAULT_TTL_HOURS,
+    DEFAULT_WINDOW_SIZE,
+    FarmMemory,
+    MemoryConfig,
+    MemoryEntry,
+    MemoryType,
+    RecallResult,
+    RelevanceScore,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

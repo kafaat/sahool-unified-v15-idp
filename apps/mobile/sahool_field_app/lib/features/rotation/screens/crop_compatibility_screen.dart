@@ -4,7 +4,7 @@ import '../models/rotation_models.dart';
 import '../providers/rotation_provider.dart';
 
 class CropCompatibilityScreen extends ConsumerStatefulWidget {
-  const CropCompatibilityScreen({Key? key}) : super(key: key);
+  const CropCompatibilityScreen({super.key});
 
   @override
   ConsumerState<CropCompatibilityScreen> createState() =>
@@ -240,7 +240,7 @@ class _CropCompatibilityScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -403,7 +403,7 @@ class _CropCompatibilityScreenState
                             height: 40,
                             decoration: BoxDecoration(
                               color: _getCompatibilityColor(compatibility.score)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color:
@@ -473,7 +473,7 @@ class _CropCompatibilityScreenState
   }
 
   Color _getCompatibilityBackgroundColor(double score) {
-    return _getCompatibilityColor(score).withOpacity(0.1);
+    return _getCompatibilityColor(score).withValues(alpha: 0.1);
   }
 
   IconData _getCompatibilityIcon(double score) {

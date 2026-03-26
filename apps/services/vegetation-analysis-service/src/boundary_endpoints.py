@@ -9,8 +9,11 @@ import json
 import logging
 from datetime import datetime
 
-from fastapi import HTTPException, Query
+from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .field_boundary_detector import BoundaryChange
 
@@ -39,6 +42,7 @@ def register_boundary_endpoints(app, boundary_detector):
         lon: float = Query(..., description="Longitude of center point"),
         radius_m: float = Query(500, description="Search radius in meters"),
         date: str | None = Query(None, description="Date for imagery (ISO format)"),
+        _user: User = Depends(get_current_user),
     ):
         """
         Detect field boundaries around a point using NDVI edge detection.
@@ -103,11 +107,11 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Boundary detection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Boundary detection failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/boundaries/refine", response_model=dict)
-    async def refine_boundary(request: RefineBoundaryRequest):
+    async def refine_boundary(request: RefineBoundaryRequest, _user: User = Depends(get_current_user)):
         """
         Refine a rough field boundary by snapping to NDVI edges.
 
@@ -166,14 +170,15 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Boundary refinement failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Boundary refinement failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.get("/v1/boundaries/{field_id}/changes", response_model=dict)
     async def get_boundary_changes(
         field_id: str,
         since_date: str = Query(..., description="Compare to this date (ISO format)"),
         previous_coords: str = Query(..., description="Previous boundary coordinates (JSON array)"),
+        _user: User = Depends(get_current_user),
     ):
         """
         Detect changes in field boundary over time.
@@ -259,8 +264,8 @@ def register_boundary_endpoints(app, boundary_detector):
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Change detection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e)) from e
+            logger.error(f"Change detection failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error") from e
 
     logger.info("Field boundary detection endpoints registered")
 

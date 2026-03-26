@@ -10,7 +10,7 @@
 /// - Time series trend analysis
 /// - Offline support for field monitoring
 
-library ndvi;
+library;
 
 // Domain
 export 'domain/ndvi_value.dart';

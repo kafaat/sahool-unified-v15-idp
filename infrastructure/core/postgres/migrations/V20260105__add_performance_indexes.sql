@@ -13,8 +13,8 @@
 -- Add index on fields.current_crop_id
 -- Improves query performance when filtering or joining on current_crop
 -- Partial index: Only index non-null values to save space
-CREATE INDEX IF NOT EXISTS idx_fields_current_crop 
-ON geo.fields(current_crop_id) 
+CREATE INDEX IF NOT EXISTS idx_fields_current_crop
+ON geo.fields (current_crop_id)
 WHERE current_crop_id IS NOT NULL;
 
 COMMENT ON INDEX idx_fields_current_crop IS 'Performance index for fields by current crop (non-null only)';
@@ -27,8 +27,8 @@ COMMENT ON INDEX idx_fields_current_crop IS 'Performance index for fields by cur
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Tenants metadata
-CREATE INDEX IF NOT EXISTS idx_tenants_metadata_gin 
-ON tenants.tenants USING GIN (settings);
+CREATE INDEX IF NOT EXISTS idx_tenants_metadata_gin
+ON tenants.tenants USING gin (settings);
 
 COMMENT ON INDEX idx_tenants_metadata_gin IS 'GIN index for JSONB settings queries';
 
@@ -47,8 +47,8 @@ BEGIN
 END $$;
 
 -- Fields metadata
-CREATE INDEX IF NOT EXISTS idx_fields_metadata_gin 
-ON geo.fields USING GIN (metadata);
+CREATE INDEX IF NOT EXISTS idx_fields_metadata_gin
+ON geo.fields USING gin (metadata);
 
 COMMENT ON INDEX idx_fields_metadata_gin IS 'GIN index for fields metadata JSONB queries';
 

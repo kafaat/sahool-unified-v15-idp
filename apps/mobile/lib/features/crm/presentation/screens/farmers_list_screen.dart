@@ -2,6 +2,7 @@
 /// شاشة قائمة المزارعين
 ///
 /// Displays all farmers with search and filter capabilities
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/farmer_profile.dart';
 import '../../state/crm_providers.dart';
 import '../widgets/farmer_card.dart';
+import 'farmer_profile_screen.dart';
 
 /// Farmers List Screen
 /// شاشة عرض جميع المزارعين
@@ -178,7 +180,7 @@ class _FarmersListScreenState extends ConsumerState<FarmersListScreen> {
         label: Text(label, style: const TextStyle(fontSize: 12)),
         deleteIcon: const Icon(Icons.close, size: 16),
         onDeleted: onRemove,
-        backgroundColor: const Color(0xFF367C2B).withOpacity(0.1),
+        backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
         labelStyle: const TextStyle(color: Color(0xFF367C2B)),
         deleteIconColor: const Color(0xFF367C2B),
       ),
@@ -475,7 +477,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                         _status = selected ? status : null;
                       });
                     },
-                    selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+                    selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
                   );
                 }).toList(),
               ),
@@ -497,7 +499,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                         _segment = selected ? segment : null;
                       });
                     },
-                    selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+                    selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
                   );
                 }).toList(),
               ),
@@ -597,18 +599,3 @@ class _FilterSheetState extends State<_FilterSheet> {
   }
 }
 
-/// Placeholder for FarmerProfileScreen
-/// Will be implemented in farmer_profile_screen.dart
-class FarmerProfileScreen extends ConsumerWidget {
-  final String farmerId;
-
-  const FarmerProfileScreen({super.key, required this.farmerId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('ملف المزارع')),
-      body: Center(child: Text('Farmer ID: $farmerId')),
-    );
-  }
-}

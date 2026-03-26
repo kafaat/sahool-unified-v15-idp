@@ -4,6 +4,7 @@ Dependency injection for authentication and authorization
 """
 
 import logging
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
@@ -14,7 +15,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import config
 from .jwt_handler import verify_token
 from .models import AuthErrors, AuthException, User
-from .token_revocation import is_token_revoked
 from .user_cache import get_user_cache
 from .user_repository import get_user_repository
 
@@ -69,35 +69,6 @@ async def get_current_user(
         payload = verify_token(token)
         user_id = payload.user_id
 
-        # Check token revocation before any other validation
-        if config.TOKEN_REVOCATION_ENABLED:
-            try:
-                revoked, reason = await is_token_revoked(
-                    jti=payload.jti,
-                    user_id=user_id,
-                    tenant_id=payload.tenant_id,
-                    issued_at=payload.iat.timestamp() if payload.iat else None,
-                )
-                if revoked:
-                    logger.warning(
-                        f"Authentication failed: Token revoked for user {user_id}, reason={reason}"
-                    )
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail=AuthErrors.TOKEN_REVOKED.en,
-                        headers={"WWW-Authenticate": "Bearer"},
-                    )
-            except HTTPException:
-                raise
-            except Exception as e:
-                # Fail closed: reject token if revocation store is unavailable
-                logger.error(f"SECURITY: Token revocation check failed, failing closed: {e}")
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=AuthErrors.TOKEN_REVOKED.en,
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-
         # Check cache first for user status
         cache = get_user_cache()
         cached_user = None
@@ -136,7 +107,6 @@ async def get_current_user(
 
                 if request:
                     request.state.user = user
-                    request.state.token_payload = payload
 
                 return user
 
@@ -215,7 +185,7 @@ async def get_current_user(
             logger.warning("No user repository available - using token data only")
             user = User(
                 id=user_id,
-                email="",
+                email=payload.email or f"{user_id}@sahool.local",
                 roles=payload.roles,
                 tenant_id=payload.tenant_id,
                 permissions=payload.permissions,
@@ -223,10 +193,9 @@ async def get_current_user(
 
             logger.info(f"User {user_id} authenticated successfully (token only)")
 
-        # Store user and token payload in request state
+        # Store user in request state
         if request:
             request.state.user = user
-            request.state.token_payload = payload
 
         return user
 
@@ -247,53 +216,6 @@ async def get_current_user(
             detail=AuthErrors.INVALID_TOKEN.en,
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-async def require_2fa_verified(
-    user: User = Depends(get_current_user),
-    request: Request = Depends(),
-) -> User:
-    """
-    Dependency that enforces 2FA verification.
-
-    Use on sensitive endpoints that require completed 2FA.
-    Checks the JWT claim 'twofa_verified' to ensure the user
-    has passed 2FA during the current session.
-
-    Args:
-        user: Authenticated user from get_current_user
-        request: FastAPI request (injected by DI, never None)
-
-    Returns:
-        User object if 2FA is verified
-
-    Raises:
-        HTTPException 403: If 2FA is required but not verified
-
-    Example:
-        ```python
-        @app.post("/admin/danger")
-        async def danger(user: User = Depends(require_2fa_verified)):
-            ...
-        ```
-    """
-    # Fail-closed: if token_payload is missing from request state,
-    # we cannot verify 2FA status. get_current_user always sets it
-    # when request is available, so this should not happen in practice.
-    if not hasattr(request.state, "token_payload"):
-        logger.warning("require_2fa_verified: token_payload missing from request state")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Two-factor authentication is required for this operation",
-        )
-
-    payload = request.state.token_payload
-    if getattr(payload, "twofa_required", False) and not getattr(payload, "twofa_verified", False):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Two-factor authentication is required for this operation",
-        )
-    return user
 
 
 async def get_current_active_user(
@@ -365,10 +287,11 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
         )
 
     if requested_tenant_id:
-        # Admin users can access any tenant
-        if "admin" in (user.roles or []):
+        # Only super_admin can access cross-tenant resources
+        # يمكن فقط للمسؤول الأعلى الوصول إلى موارد المستأجرين الآخرين
+        if "super_admin" in (user.roles or []):
             return requested_tenant_id
-        # Non-admin users must match their own tenant
+        # Non-super_admin users must match their own tenant
         if user_tenant and user_tenant != requested_tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -520,6 +443,7 @@ class RateLimiter:
     ):
         self.requests = requests
         self.window_seconds = window_seconds
+        self._lock = threading.Lock()
         self.storage: dict = defaultdict(list)
         self.violation_count: dict = defaultdict(int)
 
@@ -536,34 +460,37 @@ class RateLimiter:
         now = time.time()
         window_start = now - self.window_seconds
 
-        # Clean old requests
-        self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
+        with self._lock:
+            # Clean old requests
+            self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
 
-        current_count = len(self.storage[key])
-        remaining = max(0, self.requests - current_count)
+            current_count = len(self.storage[key])
+            remaining = max(0, self.requests - current_count)
 
-        # Check limit
-        if current_count >= self.requests:
-            self.violation_count[key] += 1
-            logger.warning(
-                f"Rate limit exceeded for {key}: "
-                f"{current_count}/{self.requests} requests in {self.window_seconds}s "
-                f"(violation #{self.violation_count[key]})"
-            )
-            return False, 0
+            # Check limit
+            if current_count >= self.requests:
+                self.violation_count[key] += 1
+                logger.warning(
+                    f"Rate limit exceeded for {key}: "
+                    f"{current_count}/{self.requests} requests in {self.window_seconds}s "
+                    f"(violation #{self.violation_count[key]})"
+                )
+                return False, 0
 
-        # Add current request
-        self.storage[key].append(now)
-        return True, remaining - 1
+            # Add current request
+            self.storage[key].append(now)
+            return True, remaining - 1
 
     def get_violation_count(self, key: str) -> int:
         """Get number of rate limit violations for a key"""
-        return self.violation_count.get(key, 0)
+        with self._lock:
+            return self.violation_count.get(key, 0)
 
     def reset_violations(self, key: str) -> None:
         """Reset violation count for a key"""
-        if key in self.violation_count:
-            del self.violation_count[key]
+        with self._lock:
+            if key in self.violation_count:
+                del self.violation_count[key]
 
 
 # Global rate limiter instance
@@ -627,7 +554,7 @@ async def rate_limit_dependency(
     return user
 
 
-async def get_optional_user(
+def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
 ) -> User | None:
     """
@@ -658,31 +585,15 @@ async def get_optional_user(
         token = credentials.credentials
         payload = verify_token(token)
 
-        # Check token revocation for optional auth too
-        if config.TOKEN_REVOCATION_ENABLED:
-            try:
-                revoked, _reason = await is_token_revoked(
-                    jti=payload.jti,
-                    user_id=payload.user_id,
-                    tenant_id=payload.tenant_id,
-                    issued_at=payload.iat.timestamp() if payload.iat else None,
-                )
-                if revoked:
-                    logger.debug(f"Optional auth: token revoked for user {payload.user_id}")
-                    return None
-            except Exception:
-                # Fail closed for optional auth: treat as unauthenticated
-                return None
-
         return User(
             id=payload.user_id,
-            email="",
+            email=payload.email or f"{payload.user_id}@sahool.local",
             roles=payload.roles,
             tenant_id=payload.tenant_id,
             permissions=payload.permissions,
         )
     except AuthException as e:
-        logger.debug(f"Optional auth failed: {e.error.code}")
+        logger.debug(f"Optional auth failed: {e.error.value}")
         return None
     except Exception as e:
         logger.warning(f"Unexpected error in optional auth: {type(e).__name__}: {e}")

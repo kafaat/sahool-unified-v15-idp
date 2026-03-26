@@ -3,8 +3,8 @@
  * طبقة API لميزة مؤشر NDVI
  */
 
-import { createApiClient } from "@/lib/api/factory";
-import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
+import { createApiClient } from '@/lib/api/factory';
+import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -18,9 +18,9 @@ export interface NDVIData {
   ndviMin: number;
   ndviMax: number;
   ndviStd: number;
-  healthStatus: "excellent" | "good" | "moderate" | "poor" | "critical";
+  healthStatus: 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
   cloudCoverage: number;
-  source: "sentinel-2" | "landsat" | "modis";
+  source: 'sentinel-2' | 'landsat' | 'modis';
 }
 
 export interface NDVITimeSeries {
@@ -28,13 +28,13 @@ export interface NDVITimeSeries {
   data: Array<{
     date: string;
     ndvi: number;
-    healthStatus: NDVIData["healthStatus"];
+    healthStatus: NDVIData['healthStatus'];
   }>;
-  trend: "improving" | "stable" | "declining";
+  trend: 'improving' | 'stable' | 'declining';
   anomalies: Array<{
     date: string;
-    type: "sudden_drop" | "unusual_peak";
-    severity: "low" | "medium" | "high";
+    type: 'sudden_drop' | 'unusual_peak';
+    severity: 'low' | 'medium' | 'high';
   }>;
 }
 
@@ -66,9 +66,9 @@ export const ndviApi = {
    */
   getLatestNDVI: async (filters?: NDVIFilters): Promise<NDVIData[]> => {
     const params = new URLSearchParams();
-    if (filters?.governorate) params.set("governorate", filters.governorate);
-    if (filters?.minNdvi) params.set("min_ndvi", filters.minNdvi.toString());
-    if (filters?.maxNdvi) params.set("max_ndvi", filters.maxNdvi.toString());
+    if (filters?.governorate) params.set('governorate', filters.governorate);
+    if (filters?.minNdvi) params.set('min_ndvi', filters.minNdvi.toString());
+    if (filters?.maxNdvi) params.set('max_ndvi', filters.maxNdvi.toString());
 
     const response = await api.get(`${API_PREFIX}/ndvi/latest?${params.toString()}`);
     return response.data;
@@ -88,14 +88,14 @@ export const ndviApi = {
   getNDVITimeSeries: async (
     fieldId: string,
     startDate?: string,
-    endDate?: string,
+    endDate?: string
   ): Promise<NDVITimeSeries> => {
     const params = new URLSearchParams();
-    if (startDate) params.set("start_date", startDate);
-    if (endDate) params.set("end_date", endDate);
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
 
     const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/timeseries?${params.toString()}`,
+      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/timeseries?${params.toString()}`
     );
     return response.data;
   },
@@ -104,9 +104,9 @@ export const ndviApi = {
    * Get NDVI raster map data
    */
   getNDVIMap: async (fieldId: string, date?: string): Promise<NDVIMapData> => {
-    const params = date ? `?date=${date}` : "";
+    const params = date ? `?date=${date}` : '';
     const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/map${params}`,
+      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/map${params}`
     );
     return response.data;
   },
@@ -114,10 +114,10 @@ export const ndviApi = {
   /**
    * Request new NDVI analysis
    */
-  requestNDVIAnalysis: async (
-    fieldId: string,
-  ): Promise<{ jobId: string; status: string }> => {
-    const response = await api.post(`${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/analyze`);
+  requestNDVIAnalysis: async (fieldId: string): Promise<{ jobId: string; status: string }> => {
+    const response = await api.post(
+      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/analyze`
+    );
     return response.data;
   },
 
@@ -127,7 +127,7 @@ export const ndviApi = {
   compareNDVI: async (
     fieldId: string,
     date1: string,
-    date2: string,
+    date2: string
   ): Promise<{
     date1: NDVIData;
     date2: NDVIData;
@@ -136,7 +136,7 @@ export const ndviApi = {
     interpretation: string;
   }> => {
     const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/compare?date1=${date1}&date2=${date2}`,
+      `${buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId })}/compare?date1=${date1}&date2=${date2}`
     );
     return response.data;
   },
@@ -145,14 +145,14 @@ export const ndviApi = {
    * Get regional NDVI statistics
    */
   getRegionalStats: async (
-    governorate?: string,
+    governorate?: string
   ): Promise<{
     averageNDVI: number;
-    healthDistribution: Record<NDVIData["healthStatus"], number>;
+    healthDistribution: Record<NDVIData['healthStatus'], number>;
     topFields: Array<{ fieldId: string; name: string; ndvi: number }>;
     bottomFields: Array<{ fieldId: string; name: string; ndvi: number }>;
   }> => {
-    const params = governorate ? `?governorate=${governorate}` : "";
+    const params = governorate ? `?governorate=${governorate}` : '';
     const response = await api.get(`${SATELLITE_ENDPOINTS.NDVI_SUMMARY}/regional${params}`);
     return response.data;
   },

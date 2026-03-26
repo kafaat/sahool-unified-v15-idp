@@ -17,6 +17,7 @@ Usage:
         rows = await conn.fetch("SELECT * FROM fields")
 """
 
+from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.db.tenant_connection import (
     TenantPool,
     tenant_connection,
@@ -24,6 +25,8 @@ from shared.db.tenant_connection import (
 )
 
 __all__ = [
+    "Migration",
+    "SimpleMigrationRunner",
     "TenantPool",
     "tenant_connection",
     "tenant_transaction",

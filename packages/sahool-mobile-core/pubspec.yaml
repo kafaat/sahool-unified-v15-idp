@@ -1,0 +1,146 @@
+name: sahool_mobile_core
+description: >
+  SAHOOL Mobile Core - الحزمة الأساسية المشتركة لتطبيقات سهول الهاتف
+  Shared Flutter package providing core infrastructure, features, and UI
+  for all SAHOOL mobile applications. Offline-first, bilingual (AR/EN).
+publish_to: 'none'
+version: 16.0.0
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management - إدارة الحالة
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Database (Offline) - قاعدة بيانات مشفرة
+  drift: ^2.24.0
+  sqlite3: ^2.4.6
+  sqflite: ^2.4.1
+  sqlcipher_flutter_libs: ^0.6.1
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Network - الشبكة
+  dio: ^5.7.0
+  http: ^1.2.2
+  connectivity_plus: ^6.1.1
+  socket_io_client: ^2.0.3+1
+  web_socket_channel: ^3.0.1
+  crypto: ^3.0.6
+
+  # Background Tasks - المهام الخلفية
+  workmanager: ^0.6.0
+
+  # Notifications - الإشعارات
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+
+  # Storage - التخزين
+  shared_preferences: ^2.3.3
+  flutter_secure_storage: ^9.2.2
+
+  # Biometric Authentication - المصادقة البيومترية
+  local_auth: ^2.3.0
+
+  # Device Security - أمان الجهاز
+  secure_application: ^4.1.0
+  safe_device: ^1.1.7
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.1.0
+
+  # UI - واجهة المستخدم
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.16
+  cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1
+
+  # Image Processing - معالجة الصور
+  image: ^4.3.0
+
+  # Charts - الرسوم البيانية
+  fl_chart: ^0.69.2
+
+  # Calendar - التقويم
+  table_calendar: ^3.1.3
+
+  # Maps - الخرائط
+  flutter_map: ">=8.1.1 <8.2.0"
+  flutter_map_cache: ^2.0.0
+  latlong2: ^0.9.1
+
+  # Environment Configuration - إعدادات البيئة
+  flutter_dotenv: ^5.2.1
+
+  # Navigation - التنقل
+  go_router: ^14.6.2
+
+  # Deep Linking - الروابط العميقة
+  app_links: ^6.3.3
+
+  # Camera & Photos - الكاميرا والصور
+  image_picker: ^1.1.2
+  camera: ^0.11.0+2
+
+  # Location - الموقع
+  geolocator: ^13.0.2
+
+  # Barcode/QR Scanner - ماسح الباركود
+  mobile_scanner: ^6.0.2
+
+  # Utils - أدوات مساعدة
+  uuid: ^4.5.1
+  intl: 0.19.0
+  equatable: ^2.0.7
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # File Management - إدارة الملفات
+  file_picker: ^8.1.6
+  share_plus: ^10.1.4
+  url_launcher: ^6.2.2
+
+  # Permissions - الصلاحيات
+  permission_handler: ^11.3.1
+
+  # Audio Recording - تسجيل الصوت
+  record: ^5.1.2
+
+  # Voice Commands - الأوامر الصوتية
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+
+  # Date/Time - التاريخ والوقت
+  jiffy: ^6.3.1
+
+  # Crash Reporting - تقارير الأعطال
+  sentry_flutter: ^8.11.0
+
+  # Motion Sensors - مستشعرات الحركة
+  sensors_plus: ^7.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  import_sorter: ^4.6.0
+  build_runner: ^2.4.13
+  drift_dev: ^2.24.0
+  freezed: 2.5.8
+  json_serializable: ^6.9.0
+  riverpod_generator: ^2.6.3
+  mocktail: ^1.0.4
+
+dependency_overrides:
+  record_platform_interface: 1.2.0
+
+flutter:
+  uses-material-design: true

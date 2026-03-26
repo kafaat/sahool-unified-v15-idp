@@ -18,10 +18,7 @@ export default function CopilotLoading() {
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="flex border-b border-gray-100 dark:border-gray-700">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className={`px-5 py-3 ${i === 0 ? "border-b-2 border-gray-300" : ""}`}
-            >
+            <div key={i} className={`px-5 py-3 ${i === 0 ? 'border-b-2 border-gray-300' : ''}`}>
               <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
             </div>
           ))}

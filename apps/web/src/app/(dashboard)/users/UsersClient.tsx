@@ -1,41 +1,55 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Users, Plus, Search, Shield, AlertTriangle, CheckCircle, Clock, UserX } from "lucide-react";
-import { useUsers, useUserStats } from "@/features/users";
-import type { UserRole, UserStatus } from "@/features/users";
+import React, { useState, useMemo } from 'react';
+import {
+  Users,
+  Plus,
+  Search,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  UserX,
+} from 'lucide-react';
+import { useUsers, useUserStats } from '@/features/users';
+import type { UserRole, UserStatus } from '@/features/users';
 
-const roles: Array<{ value: UserRole | "all"; label: string; labelAr: string }> = [
-  { value: "all", label: "All Roles", labelAr: "جميع الأدوار" },
-  { value: "admin", label: "Admin", labelAr: "مدير" },
-  { value: "manager", label: "Manager", labelAr: "مشرف" },
-  { value: "farmer", label: "Farmer", labelAr: "مزارع" },
-  { value: "agronomist", label: "Agronomist", labelAr: "مهندس زراعي" },
-  { value: "viewer", label: "Viewer", labelAr: "مشاهد" },
+const roles: Array<{ value: UserRole | 'all'; label: string; labelAr: string }> = [
+  { value: 'all', label: 'All Roles', labelAr: 'جميع الأدوار' },
+  { value: 'admin', label: 'Admin', labelAr: 'مدير' },
+  { value: 'manager', label: 'Manager', labelAr: 'مشرف' },
+  { value: 'farmer', label: 'Farmer', labelAr: 'مزارع' },
+  { value: 'agronomist', label: 'Agronomist', labelAr: 'مهندس زراعي' },
+  { value: 'viewer', label: 'Viewer', labelAr: 'مشاهد' },
 ];
 
-const statusConfig: Record<UserStatus, { color: string; labelAr: string; icon: React.ElementType }> = {
-  active: { color: "bg-green-100 text-green-800", labelAr: "نشط", icon: CheckCircle },
-  inactive: { color: "bg-gray-100 text-gray-800", labelAr: "غير نشط", icon: UserX },
-  suspended: { color: "bg-red-100 text-red-800", labelAr: "موقوف", icon: AlertTriangle },
-  pending: { color: "bg-yellow-100 text-yellow-800", labelAr: "معلق", icon: Clock },
+const statusConfig: Record<
+  UserStatus,
+  { color: string; labelAr: string; icon: React.ElementType }
+> = {
+  active: { color: 'bg-green-100 text-green-800', labelAr: 'نشط', icon: CheckCircle },
+  inactive: { color: 'bg-gray-100 text-gray-800', labelAr: 'غير نشط', icon: UserX },
+  suspended: { color: 'bg-red-100 text-red-800', labelAr: 'موقوف', icon: AlertTriangle },
+  pending: { color: 'bg-yellow-100 text-yellow-800', labelAr: 'معلق', icon: Clock },
 };
 
 const roleLabelsAr: Record<UserRole, string> = {
-  admin: "مدير النظام",
-  manager: "مشرف",
-  farmer: "مزارع",
-  viewer: "مشاهد",
-  agronomist: "مهندس زراعي",
+  admin: 'مدير النظام',
+  manager: 'مشرف',
+  farmer: 'مزارع',
+  viewer: 'مشاهد',
+  agronomist: 'مهندس زراعي',
 };
 
 export default function UsersClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
 
-  const { data: users = [], isLoading, error } = useUsers(
-    selectedRole !== "all" ? { role: selectedRole } : undefined
-  );
+  const {
+    data: users = [],
+    isLoading,
+    error,
+  } = useUsers(selectedRole !== 'all' ? { role: selectedRole } : undefined);
   const { data: stats } = useUserStats();
 
   const filteredUsers = useMemo(() => {
@@ -91,7 +105,9 @@ export default function UsersClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المستخدمين</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalUsers ?? users.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalUsers ?? users.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">نشطون</div>
@@ -125,11 +141,13 @@ export default function UsersClient() {
         </div>
         <select
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value as UserRole | "all")}
+          onChange={(e) => setSelectedRole(e.target.value as UserRole | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {roles.map((r) => (
-            <option key={r.value} value={r.value}>{r.labelAr}</option>
+            <option key={r.value} value={r.value}>
+              {r.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -146,7 +164,9 @@ export default function UsersClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المزارع</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">آخر دخول</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">2FA</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -180,7 +200,9 @@ export default function UsersClient() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${st.color}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${st.color}`}
+                        >
                           <StIcon className="w-3 h-3" />
                           {st.labelAr}
                         </span>
@@ -188,8 +210,8 @@ export default function UsersClient() {
                       <td className="px-4 py-3 text-sm text-gray-600">{user.farmIds.length}</td>
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {user.lastLogin
-                          ? new Date(user.lastLogin).toLocaleDateString("ar-SA")
-                          : "—"}
+                          ? new Date(user.lastLogin).toLocaleDateString('ar-SA')
+                          : '—'}
                       </td>
                       <td className="px-4 py-3">
                         {user.twoFactorEnabled ? (

@@ -3,6 +3,7 @@
 ///
 /// Provides task reminder scheduling and overdue task checking.
 /// Integrates with NotificationManager for local notifications.
+library;
 
 import 'dart:async';
 

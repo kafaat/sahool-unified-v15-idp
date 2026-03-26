@@ -18,7 +18,7 @@ import logging
 import shlex
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from shared.drift_detection.models import (
@@ -150,6 +150,29 @@ class AutoRemediationEngine:
     Engine that applies remediation actions based on drift detection results.
     محرك يطبق إجراءات التصحيح بناءً على نتائج كشف الانحراف.
     """
+
+    # SECURITY: Only these commands are allowed for auto-fix execution
+    _ALLOWED_COMMANDS: frozenset[str] = frozenset(
+        {
+            "git",
+            "ruff",
+            "npm",
+            "npx",
+            "pytest",
+            "python",
+            "node",
+            "eslint",
+            "prettier",
+            "mypy",
+            "black",
+            "isort",
+            "docker",
+            "echo",
+            "true",
+            "false",
+            "sleep",
+        }
+    )
 
     def __init__(
         self,
@@ -319,6 +342,17 @@ class AutoRemediationEngine:
         if action.command:
             try:
                 argv = shlex.split(action.command)
+
+                # SECURITY: Validate command against allowlist
+                base_cmd = argv[0].split("/")[-1] if argv else ""
+                if base_cmd not in self._ALLOWED_COMMANDS:
+                    return RemediationResult(
+                        action_id=action.id,
+                        success=False,
+                        output="",
+                        error=f"Command '{base_cmd}' not in allowed commands: {sorted(self._ALLOWED_COMMANDS)}",
+                    )
+
                 result = subprocess.run(
                     argv,
                     shell=False,

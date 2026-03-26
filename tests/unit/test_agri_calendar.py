@@ -12,10 +12,25 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from datetime import date, timedelta
 from typing import Any
 
+import pytest
+
+from shared.agri_calendar.islamic import (
+    DAY_NAMES,
+    HIJRI_MONTH_ENUM,
+    HIJRI_MONTH_NAMES,
+    ISLAMIC_EVENTS,
+    HijriCalendar,
+    IslamicEventsManager,
+    format_dual_date,
+    get_current_hijri_date,
+    get_labor_advisory,
+    get_upcoming_islamic_events,
+    gregorian_to_hijri,
+    hijri_to_gregorian,
+)
 from shared.agri_calendar.models import (
     AgriculturalSeason,
     CalendarEvent,
@@ -34,40 +49,25 @@ from shared.agri_calendar.models import (
     TraditionalSeason,
     TraditionalSeasonInfo,
 )
+from shared.agri_calendar.planting import (
+    CROP_NAMES_AR,
+    PLANTING_WINDOWS,
+    PlantingRecommendationEngine,
+    get_crop_name_ar,
+    get_crops_to_plant_now,
+    get_planting_calendar,
+    get_planting_recommendation,
+)
 from shared.agri_calendar.seasons import (
+    REGION_METADATA,
+    TRADITIONAL_SEASONS,
     SeasonCalculator,
     get_current_season,
     get_current_traditional_season,
     get_region_info,
     list_saudi_regions,
     list_yemen_regions,
-    REGION_METADATA,
-    TRADITIONAL_SEASONS,
 )
-from shared.agri_calendar.planting import (
-    PlantingRecommendationEngine,
-    get_planting_recommendation,
-    get_crops_to_plant_now,
-    get_planting_calendar,
-    get_crop_name_ar,
-    CROP_NAMES_AR,
-    PLANTING_WINDOWS,
-)
-from shared.agri_calendar.islamic import (
-    HijriCalendar,
-    IslamicEventsManager,
-    gregorian_to_hijri,
-    hijri_to_gregorian,
-    get_current_hijri_date,
-    get_upcoming_islamic_events,
-    get_labor_advisory,
-    format_dual_date,
-    HIJRI_MONTH_NAMES,
-    HIJRI_MONTH_ENUM,
-    DAY_NAMES,
-    ISLAMIC_EVENTS,
-)
-
 
 # =============================================================================
 # SEASON CALCULATIONS TESTS - اختبارات حسابات المواسم
@@ -586,7 +586,8 @@ class TestIslamicEvents:
     def test_get_upcoming_islamic_events(self):
         """Test getting upcoming Islamic events"""
         manager = IslamicEventsManager()
-        upcoming = manager.get_upcoming_events(days_ahead=60)
+        # Use 180 days window to avoid date-dependent failures
+        upcoming = manager.get_upcoming_events(days_ahead=180)
 
         assert len(upcoming) > 0
 

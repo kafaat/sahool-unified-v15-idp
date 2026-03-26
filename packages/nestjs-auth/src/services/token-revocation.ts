@@ -11,14 +11,9 @@
  * - High-performance async operations
  */
 
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit,
-} from "@nestjs/common";
-import { createClient, RedisClientType } from "redis";
-import { JWTConfig } from "../config/jwt.config";
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { createClient, RedisClientType } from 'redis';
+import { JWTConfig } from '../config/jwt.config';
 
 /**
  * Revocation information interface
@@ -68,15 +63,13 @@ export interface RevocationStats {
  * ```
  */
 @Injectable()
-export class RedisTokenRevocationStore
-  implements OnModuleInit, OnModuleDestroy
-{
+export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisTokenRevocationStore.name);
 
   // Redis key prefixes
-  private readonly TOKEN_PREFIX = "revoked:token:";
-  private readonly USER_PREFIX = "revoked:user:";
-  private readonly TENANT_PREFIX = "revoked:tenant:";
+  private readonly TOKEN_PREFIX = 'revoked:token:';
+  private readonly USER_PREFIX = 'revoked:user:';
+  private readonly TENANT_PREFIX = 'revoked:tenant:';
 
   private redis: RedisClientType | null = null;
   private initialized = false;
@@ -142,16 +135,16 @@ export class RedisTokenRevocationStore
       });
 
       // Error handling
-      this.redis.on("error", (err: Error) => {
+      this.redis.on('error', (err: Error) => {
         this.logger.error(`Redis error: ${err.message}`);
       });
 
-      this.redis.on("connect", () => {
-        this.logger.log("Redis connected");
+      this.redis.on('connect', () => {
+        this.logger.log('Redis connected');
       });
 
-      this.redis.on("ready", () => {
-        this.logger.log("Redis ready");
+      this.redis.on('ready', () => {
+        this.logger.log('Redis ready');
       });
 
       // Connect to Redis
@@ -161,9 +154,11 @@ export class RedisTokenRevocationStore
       await this.redis.ping();
 
       this.initialized = true;
-      this.logger.log("Redis token revocation store initialized");
+      this.logger.log('Redis token revocation store initialized');
     } catch (error) {
-      this.logger.error(`Failed to initialize Redis: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to initialize Redis: ${error instanceof Error ? error.message : String(error)}`
+      );
       throw error;
     }
   }
@@ -177,7 +172,7 @@ export class RedisTokenRevocationStore
       await this.redis.quit();
       this.redis = null;
       this.initialized = false;
-      this.logger.log("Redis token revocation store closed");
+      this.logger.log('Redis token revocation store closed');
     }
   }
 
@@ -209,7 +204,7 @@ export class RedisTokenRevocationStore
       reason?: string;
       userId?: string;
       tenantId?: string;
-    } = {},
+    } = {}
   ): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
@@ -221,7 +216,7 @@ export class RedisTokenRevocationStore
 
     // Default TTL: 24 hours
     const ttl = options.expiresIn || 86400;
-    const reason = options.reason || "manual";
+    const reason = options.reason || 'manual';
 
     // Store revocation info
     const key = `${this.TOKEN_PREFIX}${jti}`;
@@ -237,13 +232,14 @@ export class RedisTokenRevocationStore
       await this.redis!.setEx(key, ttl, JSON.stringify(value));
 
       this.logger.log(
-        `Token revoked: jti=${jti.substring(0, 8)}..., ` +
-          `reason=${reason}, ttl=${ttl}s`,
+        `Token revoked: jti=${jti.substring(0, 8)}..., ` + `reason=${reason}, ttl=${ttl}s`
       );
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke token: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to revoke token: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -276,11 +272,10 @@ export class RedisTokenRevocationStore
     } catch (error) {
       this.logger.error(
         `SECURITY: Cannot verify token revocation status, failing closed. ` +
-        `Error: ${error instanceof Error ? error.message : String(error)}`
+          `Error: ${error instanceof Error ? error.message : String(error)}`
       );
       // Fail closed: treat token as revoked when revocation store is unavailable.
       // This prevents revoked tokens from being accepted during Redis outages.
-      // Aligned with Python shared/auth/token_revocation.py behavior.
       return true;
     }
   }
@@ -311,7 +306,9 @@ export class RedisTokenRevocationStore
 
       return null;
     } catch (error) {
-      this.logger.error(`Error getting revocation info: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Error getting revocation info: ${error instanceof Error ? error.message : String(error)}`
+      );
       return null;
     }
   }
@@ -335,10 +332,7 @@ export class RedisTokenRevocationStore
    * await store.revokeAllUserTokens('user-456', 'password_change');
    * ```
    */
-  async revokeAllUserTokens(
-    userId: string,
-    reason: string = "user_logout",
-  ): Promise<boolean> {
+  async revokeAllUserTokens(userId: string, reason: string = 'user_logout'): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -357,13 +351,13 @@ export class RedisTokenRevocationStore
       // Store with long TTL (30 days)
       await this.redis!.setEx(key, 2592000, JSON.stringify(value));
 
-      this.logger.log(
-        `All user tokens revoked: userId=${userId}, reason=${reason}`,
-      );
+      this.logger.log(`All user tokens revoked: userId=${userId}, reason=${reason}`);
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke user tokens: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to revoke user tokens: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -381,10 +375,7 @@ export class RedisTokenRevocationStore
    * const isRevoked = await store.isUserTokenRevoked('user-456', 1640000000);
    * ```
    */
-  async isUserTokenRevoked(
-    userId: string,
-    tokenIssuedAt: number,
-  ): Promise<boolean> {
+  async isUserTokenRevoked(userId: string, tokenIssuedAt: number): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -409,9 +400,10 @@ export class RedisTokenRevocationStore
     } catch (error) {
       this.logger.error(
         `SECURITY: Cannot verify user token revocation status, failing closed. ` +
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
+          `Error: ${error instanceof Error ? error.message : String(error)}`
       );
-      // Fail closed: treat as revoked when store is unavailable
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
       return true;
     }
   }
@@ -444,7 +436,9 @@ export class RedisTokenRevocationStore
 
       return deleted > 0;
     } catch (error) {
-      this.logger.error(`Failed to clear user revocation: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to clear user revocation: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -463,10 +457,7 @@ export class RedisTokenRevocationStore
    * @param reason - Reason for revocation
    * @returns True if revoked successfully
    */
-  async revokeAllTenantTokens(
-    tenantId: string,
-    reason: string = "security",
-  ): Promise<boolean> {
+  async revokeAllTenantTokens(tenantId: string, reason: string = 'security'): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -485,13 +476,13 @@ export class RedisTokenRevocationStore
       // Store with long TTL (30 days)
       await this.redis!.setEx(key, 2592000, JSON.stringify(value));
 
-      this.logger.warn(
-        `All tenant tokens revoked: tenantId=${tenantId}, reason=${reason}`,
-      );
+      this.logger.warn(`All tenant tokens revoked: tenantId=${tenantId}, reason=${reason}`);
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke tenant tokens: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to revoke tenant tokens: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -504,10 +495,7 @@ export class RedisTokenRevocationStore
    * @param tokenIssuedAt - When token was issued (iat claim)
    * @returns True if token was issued before tenant revocation
    */
-  async isTenantTokenRevoked(
-    tenantId: string,
-    tokenIssuedAt: number,
-  ): Promise<boolean> {
+  async isTenantTokenRevoked(tenantId: string, tokenIssuedAt: number): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
     }
@@ -531,9 +519,10 @@ export class RedisTokenRevocationStore
     } catch (error) {
       this.logger.error(
         `SECURITY: Cannot verify tenant token revocation status, failing closed. ` +
-        `Error: ${error instanceof Error ? error.message : String(error)}`,
+          `Error: ${error instanceof Error ? error.message : String(error)}`
       );
-      // Fail closed: treat as revoked when store is unavailable
+      // Fail closed: treat token as revoked when revocation store is unavailable.
+      // This prevents revoked tokens from being accepted during Redis outages.
       return true;
     }
   }
@@ -574,20 +563,20 @@ export class RedisTokenRevocationStore
 
     // Check JTI revocation
     if (options.jti && (await this.isTokenRevoked(options.jti))) {
-      return { isRevoked: true, reason: "token_revoked" };
+      return { isRevoked: true, reason: 'token_revoked' };
     }
 
     // Check user revocation
     if (options.userId && options.issuedAt) {
       if (await this.isUserTokenRevoked(options.userId, options.issuedAt)) {
-        return { isRevoked: true, reason: "user_tokens_revoked" };
+        return { isRevoked: true, reason: 'user_tokens_revoked' };
       }
     }
 
     // Check tenant revocation
     if (options.tenantId && options.issuedAt) {
       if (await this.isTenantTokenRevoked(options.tenantId, options.issuedAt)) {
-        return { isRevoked: true, reason: "tenant_tokens_revoked" };
+        return { isRevoked: true, reason: 'tenant_tokens_revoked' };
       }
     }
 
@@ -620,10 +609,12 @@ export class RedisTokenRevocationStore
         revokedTokens: tokenKeys.length,
         revokedUsers: userKeys.length,
         revokedTenants: tenantKeys.length,
-        redisUrl: this.buildRedisUrl().split("@").pop(), // Hide password
+        redisUrl: this.buildRedisUrl().split('@').pop(), // Hide password
       };
     } catch (error) {
-      this.logger.error(`Error getting stats: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Error getting stats: ${error instanceof Error ? error.message : String(error)}`
+      );
       return {
         initialized: this.initialized,
         revokedTokens: 0,
@@ -648,7 +639,9 @@ export class RedisTokenRevocationStore
       await this.redis!.ping();
       return true;
     } catch (error) {
-      this.logger.error(`Health check failed: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Health check failed: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -669,7 +662,7 @@ export class RedisTokenRevocationStore
  * export class AppModule {}
  * ```
  */
-import { Module, Global } from "@nestjs/common";
+import { Module, Global } from '@nestjs/common';
 
 @Global()
 @Module({

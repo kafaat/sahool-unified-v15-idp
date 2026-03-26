@@ -1,5 +1,6 @@
 /// SAHOOL Integration Test - Test Data Fixtures
 /// بيانات الاختبار الثابتة
+library;
 
 /// Test user credentials - loaded from environment or use test-only defaults
 /// بيانات المستخدمين للاختبار - تحمّل من البيئة أو تستخدم القيم الافتراضية للاختبار فقط

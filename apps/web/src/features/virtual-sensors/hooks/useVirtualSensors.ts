@@ -8,10 +8,10 @@
  * وتوصيات الري.
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { virtualSensorsApi } from "../api";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { virtualSensorsApi } from '../api';
 import type {
   ET0Result,
   ETCResult,
@@ -19,22 +19,22 @@ import type {
   SoilInfo,
   SoilMoistureEstimate,
   IrrigationRecommendation,
-} from "../types";
+} from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys - مفاتيح الاستعلام
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const virtualSensorKeys = {
-  all: ["virtual-sensors"] as const,
-  crops: () => [...virtualSensorKeys.all, "crops"] as const,
-  cropKc: (cropType: string) => [...virtualSensorKeys.all, "cropKc", cropType] as const,
-  soils: () => [...virtualSensorKeys.all, "soils"] as const,
-  irrigationMethods: () => [...virtualSensorKeys.all, "irrigationMethods"] as const,
-  et0: () => [...virtualSensorKeys.all, "et0"] as const,
-  etc: () => [...virtualSensorKeys.all, "etc"] as const,
-  soilMoisture: () => [...virtualSensorKeys.all, "soilMoisture"] as const,
-  irrigation: () => [...virtualSensorKeys.all, "irrigation"] as const,
+  all: ['virtual-sensors'] as const,
+  crops: () => [...virtualSensorKeys.all, 'crops'] as const,
+  cropKc: (cropType: string) => [...virtualSensorKeys.all, 'cropKc', cropType] as const,
+  soils: () => [...virtualSensorKeys.all, 'soils'] as const,
+  irrigationMethods: () => [...virtualSensorKeys.all, 'irrigationMethods'] as const,
+  et0: () => [...virtualSensorKeys.all, 'et0'] as const,
+  etc: () => [...virtualSensorKeys.all, 'etc'] as const,
+  soilMoisture: () => [...virtualSensorKeys.all, 'soilMoisture'] as const,
+  irrigation: () => [...virtualSensorKeys.all, 'irrigation'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -123,8 +123,14 @@ export function useCalculateET0() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { temperature: number; humidity: number; windSpeed: number; solarRadiation: number; latitude: number; date?: string }) =>
-      virtualSensorsApi.calculateET0(data),
+    mutationFn: (data: {
+      temperature: number;
+      humidity: number;
+      windSpeed: number;
+      solarRadiation: number;
+      latitude: number;
+      date?: string;
+    }) => virtualSensorsApi.calculateET0(data),
     onSuccess: (_result: ET0Result) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.et0() });
     },
@@ -143,8 +149,13 @@ export function useCalculateETC() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { cropType: string; growthStage?: string; et0?: number; latitude?: number; date?: string }) =>
-      virtualSensorsApi.calculateETC(data),
+    mutationFn: (data: {
+      cropType: string;
+      growthStage?: string;
+      et0?: number;
+      latitude?: number;
+      date?: string;
+    }) => virtualSensorsApi.calculateETC(data),
     onSuccess: (_result: ETCResult) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.etc() });
     },
@@ -163,8 +174,12 @@ export function useEstimateSoilMoisture() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { soilType: string; lastIrrigation?: string; et0?: number; rainfall?: number }) =>
-      virtualSensorsApi.estimateSoilMoisture(data),
+    mutationFn: (data: {
+      soilType: string;
+      lastIrrigation?: string;
+      et0?: number;
+      rainfall?: number;
+    }) => virtualSensorsApi.estimateSoilMoisture(data),
     onSuccess: (_result: SoilMoistureEstimate) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.soilMoisture() });
     },

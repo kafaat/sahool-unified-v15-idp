@@ -8,7 +8,7 @@ Pydantic / dataclass value objects for the field Digital Twin layer.
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4

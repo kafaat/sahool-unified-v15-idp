@@ -4,9 +4,10 @@ Tenant Isolation Tests for SAHOOL Platform.
 Tests validate multi-tenant data isolation and security.
 """
 
-import pytest
-from typing import Dict, Any, Optional
 import uuid
+from typing import Any, Dict, Optional
+
+import pytest
 
 
 class TenantContext:

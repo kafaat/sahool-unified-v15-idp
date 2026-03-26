@@ -202,7 +202,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
       HealthStatus.critical => SahoolColors.danger,
     };
 
-    return isSelected ? baseColor : baseColor.withOpacity(0.7);
+    return isSelected ? baseColor : baseColor.withValues(alpha: 0.7);
   }
 
   /// Get health status label in Arabic
@@ -263,7 +263,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
 
     // Loading state
     if (widget.isLoading) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: SahoolColors.paleOlive,
           borderRadius: BorderRadius.circular(20),
@@ -288,7 +288,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
 
     // Empty state
     if (widget.zones.isEmpty) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: SahoolColors.paleOlive,
           borderRadius: BorderRadius.circular(20),
@@ -360,10 +360,9 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
 
                   return Polygon(
                     points: zone.boundary,
-                    color: color.withOpacity(isSelected ? 0.5 : 0.3),
+                    color: color.withValues(alpha: isSelected ? 0.5 : 0.3),
                     borderColor: color,
                     borderStrokeWidth: isSelected ? 3 : 2,
-                    isFilled: true,
                   );
                 }).toList(),
               ),
@@ -405,7 +404,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.95),
+                              color: Colors.white.withValues(alpha: 0.95),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: _getHealthColor(zone.healthStatus),
@@ -413,7 +412,7 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -719,9 +718,9 @@ class _MetricBox extends StatelessWidget {
       width: fullWidth ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment:
@@ -883,7 +882,7 @@ class _ZoomButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

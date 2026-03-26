@@ -14,7 +14,7 @@
 /// final verifier = MigrationVerifier(db);
 /// final report = await verifier.runFullVerification();
 /// ```
-library migrations;
+library;
 
 // Schema version management
 export '../schema_version.dart';

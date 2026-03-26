@@ -350,8 +350,9 @@ class Equipment {
 
   /// Get fuel level category
   String getFuelLevelCategory(String locale) {
-    if (currentFuelPercent == null)
+    if (currentFuelPercent == null) {
       return locale == 'ar' ? 'غير معروف' : 'Unknown';
+    }
     if (currentFuelPercent! >= 75) return locale == 'ar' ? 'ممتلئ' : 'Full';
     if (currentFuelPercent! >= 50) return locale == 'ar' ? 'جيد' : 'Good';
     if (currentFuelPercent! >= 25) return locale == 'ar' ? 'متوسط' : 'Medium';

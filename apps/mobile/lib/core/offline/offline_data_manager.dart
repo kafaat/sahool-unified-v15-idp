@@ -6,6 +6,7 @@
 /// - Automatic sync when connection restored
 /// - Conflict resolution with user notification
 /// - Pending changes indicator
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -128,7 +129,7 @@ class OfflineDataManager {
     _startPeriodicSync();
 
     // تحديث عداد التغييرات المعلقة
-    _updatePendingCount();
+    unawaited(_updatePendingCount());
   }
 
   /// حفظ بيانات محلياً
@@ -158,10 +159,10 @@ class OfflineDataManager {
     }
 
     await _saveLocalItems(items);
-    _updatePendingCount();
+    unawaited(_updatePendingCount());
 
     // محاولة المزامنة الفورية إذا متصل
-    _trySyncNow();
+    unawaited(_trySyncNow());
   }
 
   /// الحصول على البيانات المحلية
@@ -197,7 +198,7 @@ class OfflineDataManager {
       (item) => item.id == id && item.entityType == entityType,
     );
     await _saveLocalItems(items);
-    _updatePendingCount();
+    unawaited(_updatePendingCount());
   }
 
   /// تحديث حالة عنصر
@@ -219,14 +220,14 @@ class OfflineDataManager {
         syncedAt: status == LocalDataStatus.synced ? DateTime.now() : null,
       );
       await _saveLocalItems(items);
-      _updatePendingCount();
+      unawaited(_updatePendingCount());
     }
   }
 
   /// مزامنة الآن
   Future<OfflineSyncResult> syncNow() async {
     if (_isSyncing) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'المزامنة جارية بالفعل',
       );
@@ -236,7 +237,7 @@ class OfflineDataManager {
     final isOffline = connectivityResults.isEmpty ||
                       connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOffline) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'لا يوجد اتصال بالإنترنت',
       );
@@ -287,7 +288,7 @@ class OfflineDataManager {
 
       _isSyncing = false;
       _syncStatusController.add(OfflineSyncStatus.idle);
-      _updatePendingCount();
+      unawaited(_updatePendingCount());
 
       return OfflineSyncResult(
         success: failed == 0,
@@ -350,10 +351,11 @@ class OfflineDataManager {
     if (jsonString == null) return [];
 
     try {
-      final List<dynamic> jsonList = jsonDecode(jsonString);
-      return jsonList.map((json) => LocalDataItem.fromJson(json)).toList();
+      final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
+      return jsonList.map((json) => LocalDataItem.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
-      AppLogger.e('Failed to parse local items', tag: 'OfflineSync', error: e);
+      AppLogger.e('Failed to parse local items, clearing corrupted data', tag: 'OfflineSync', error: e);
+      await _prefs.remove(_storageKey);
       return [];
     }
   }

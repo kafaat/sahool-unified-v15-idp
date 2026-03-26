@@ -8,10 +8,10 @@
  * مستجمعات المياه، التدفق، تحسين التسوية، القطع/الردم، وتقدير التكلفة.
  */
 
-"use client";
+'use client';
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { terrainApi } from "../api";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { terrainApi } from '../api';
 import type {
   DEMAnalysis,
   SlopeAnalysis,
@@ -22,23 +22,23 @@ import type {
   LevelingPlan,
   CutFillResult,
   LevelingCost,
-} from "../types";
+} from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys - مفاتيح الاستعلام
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const terrainKeys = {
-  all: ["terrain"] as const,
-  dem: (fieldId: string) => [...terrainKeys.all, "dem", fieldId] as const,
-  slope: (fieldId: string) => [...terrainKeys.all, "slope", fieldId] as const,
-  aspect: (fieldId: string) => [...terrainKeys.all, "aspect", fieldId] as const,
-  drainage: (fieldId: string) => [...terrainKeys.all, "drainage", fieldId] as const,
-  watershed: (fieldId: string) => [...terrainKeys.all, "watershed", fieldId] as const,
-  flow: (fieldId: string) => [...terrainKeys.all, "flow", fieldId] as const,
-  leveling: (fieldId: string) => [...terrainKeys.all, "leveling", fieldId] as const,
-  cutFill: (fieldId: string) => [...terrainKeys.all, "cutFill", fieldId] as const,
-  cost: (fieldId: string) => [...terrainKeys.all, "cost", fieldId] as const,
+  all: ['terrain'] as const,
+  dem: (fieldId: string) => [...terrainKeys.all, 'dem', fieldId] as const,
+  slope: (fieldId: string) => [...terrainKeys.all, 'slope', fieldId] as const,
+  aspect: (fieldId: string) => [...terrainKeys.all, 'aspect', fieldId] as const,
+  drainage: (fieldId: string) => [...terrainKeys.all, 'drainage', fieldId] as const,
+  watershed: (fieldId: string) => [...terrainKeys.all, 'watershed', fieldId] as const,
+  flow: (fieldId: string) => [...terrainKeys.all, 'flow', fieldId] as const,
+  leveling: (fieldId: string) => [...terrainKeys.all, 'leveling', fieldId] as const,
+  cutFill: (fieldId: string) => [...terrainKeys.all, 'cutFill', fieldId] as const,
+  cost: (fieldId: string) => [...terrainKeys.all, 'cost', fieldId] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

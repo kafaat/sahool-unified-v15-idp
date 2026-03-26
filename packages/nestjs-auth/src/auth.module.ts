@@ -14,9 +14,9 @@
  * @module AuthModule
  */
 
-import { Module, DynamicModule, Global } from "@nestjs/common";
-import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
-import { PassportModule } from "@nestjs/passport";
+import { Module, DynamicModule, Global } from '@nestjs/common';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 // Import all guards
 import {
@@ -26,24 +26,18 @@ import {
   FarmAccessGuard,
   OptionalAuthGuard,
   ActiveAccountGuard,
-} from "./guards/jwt.guard";
+} from './guards/jwt.guard';
 
-import {
-  TokenRevocationGuard,
-  TokenRevocationInterceptor,
-} from "./guards/token-revocation.guard";
+import { TokenRevocationGuard, TokenRevocationInterceptor } from './guards/token-revocation.guard';
 
 // Import strategy
-import { JwtStrategy } from "./strategies/jwt.strategy";
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 // Import services
-import {
-  UserValidationService,
-  IUserRepository,
-} from "./services/user-validation.service";
+import { UserValidationService, IUserRepository } from './services/user-validation.service';
 
 // Import config
-import { JWTConfig } from "./config/jwt.config";
+import { JWTConfig } from './config/jwt.config';
 
 /**
  * Configuration options for AuthModule
@@ -144,12 +138,8 @@ export class AuthModule {
       try {
         JWTConfig.validate();
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        console.error(
-          "[AuthModule] Configuration validation failed:",
-          errorMessage,
-        );
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[AuthModule] Configuration validation failed:', errorMessage);
         throw error;
       }
     }
@@ -179,9 +169,7 @@ export class AuthModule {
       {
         provide: JwtStrategy,
         useFactory: (userValidationService?: UserValidationService) => {
-          return new JwtStrategy(
-            enableUserValidation ? userValidationService : undefined,
-          );
+          return new JwtStrategy(enableUserValidation ? userValidationService : undefined);
         },
         inject: enableUserValidation ? [UserValidationService] : [],
       },
@@ -194,7 +182,7 @@ export class AuthModule {
         useFactory: (redis: any) => {
           return new UserValidationService(redis, userRepository);
         },
-        inject: ["REDIS_CLIENT"],
+        inject: ['REDIS_CLIENT'],
       });
     }
 
@@ -206,7 +194,7 @@ export class AuthModule {
     // Add global guard if enabled
     if (enableGlobalGuard) {
       providers.push({
-        provide: "APP_GUARD",
+        provide: 'APP_GUARD',
         useClass: JwtAuthGuard,
       });
     }
@@ -214,7 +202,7 @@ export class AuthModule {
     return {
       module: AuthModule,
       imports: [
-        PassportModule.register({ defaultStrategy: "jwt" }),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.register(jwtModuleOptions),
       ],
       providers,
@@ -229,9 +217,7 @@ export class AuthModule {
         ActiveAccountGuard,
         JwtStrategy,
         ...(enableUserValidation ? [UserValidationService] : []),
-        ...(enableTokenRevocation
-          ? [TokenRevocationGuard, TokenRevocationInterceptor]
-          : []),
+        ...(enableTokenRevocation ? [TokenRevocationGuard, TokenRevocationInterceptor] : []),
       ],
     };
   }
@@ -258,17 +244,13 @@ export class AuthModule {
    */
   static forRootAsync(options: {
     imports?: any[];
-    useFactory: (
-      ...args: any[]
-    ) => Promise<AuthModuleOptions> | AuthModuleOptions;
+    useFactory: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
     inject?: any[];
   }): DynamicModule {
-    const AUTH_CONFIG_TOKEN = "AUTH_MODULE_OPTIONS";
-
     return {
       module: AuthModule,
       imports: [
-        PassportModule.register({ defaultStrategy: "jwt" }),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.registerAsync({
           imports: options.imports,
           useFactory: async (...args: any[]) => {
@@ -288,53 +270,13 @@ export class AuthModule {
         }),
       ],
       providers: [
-        // Resolve config so conditional providers can read it
-        {
-          provide: AUTH_CONFIG_TOKEN,
-          useFactory: options.useFactory,
-          inject: options.inject,
-        },
         JwtAuthGuard,
         RolesGuard,
         PermissionsGuard,
         FarmAccessGuard,
         OptionalAuthGuard,
         ActiveAccountGuard,
-        // JwtStrategy conditionally uses UserValidationService
-        {
-          provide: JwtStrategy,
-          useFactory: (
-            config: AuthModuleOptions,
-            userValidationService?: UserValidationService,
-          ) => {
-            return new JwtStrategy(
-              config.enableUserValidation !== false
-                ? userValidationService
-                : undefined,
-            );
-          },
-          inject: [AUTH_CONFIG_TOKEN, { token: UserValidationService, optional: true }],
-        },
-        // UserValidationService registered conditionally via factory
-        {
-          provide: UserValidationService,
-          useFactory: (config: AuthModuleOptions, redis: any) => {
-            if (config.enableUserValidation === false) return undefined;
-            if (!redis) {
-              console.warn(
-                "[AuthModule] REDIS_CLIENT not available — UserValidationService " +
-                "will operate without caching. Provide REDIS_CLIENT for production use.",
-              );
-            }
-            return new UserValidationService(redis, config.userRepository);
-          },
-          inject: [AUTH_CONFIG_TOKEN, { token: "REDIS_CLIENT", optional: true }],
-        },
-        // Token revocation providers - registered as classes so NestJS DI
-        // resolves their constructor dependencies. The guard itself checks
-        // the @SkipRevocationCheck() decorator to bypass when not needed.
-        TokenRevocationGuard,
-        TokenRevocationInterceptor,
+        JwtStrategy,
       ],
       exports: [
         JwtModule,
@@ -346,9 +288,6 @@ export class AuthModule {
         OptionalAuthGuard,
         ActiveAccountGuard,
         JwtStrategy,
-        UserValidationService,
-        TokenRevocationGuard,
-        TokenRevocationInterceptor,
       ],
     };
   }

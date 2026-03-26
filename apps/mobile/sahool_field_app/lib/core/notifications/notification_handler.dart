@@ -5,6 +5,7 @@
 /// Manages notification badge counts and read status
 /// يتعامل مع النقر على الإشعارات والتوجيه للشاشات المناسبة
 /// يدير عدد الإشعارات غير المقروءة وحالة القراءة
+library;
 
 import 'dart:async';
 
@@ -338,7 +339,7 @@ class NotificationHandler {
     } catch (e) {
       debugPrint('❌ Navigation failed: $e');
       // Fallback to home
-      navigatorState.pushNamed('/');
+      await navigatorState.pushNamed('/');
     }
   }
 

@@ -48,7 +48,7 @@ class VRIZoneGridEditor extends StatefulWidget {
 
 class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
   late VRIZoneGrid _grid;
-  Set<String> _selectedZones = {};
+  final Set<String> _selectedZones = {};
   double _currentRate = 100;
   bool _isMultiSelectMode = false;
 
@@ -146,7 +146,7 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: _getRateColor(_currentRate),
-              inactiveTrackColor: _getRateColor(_currentRate).withOpacity(0.3),
+              inactiveTrackColor: _getRateColor(_currentRate).withValues(alpha: 0.3),
               thumbColor: _getRateColor(_currentRate),
               trackHeight: 8,
             ),
@@ -235,7 +235,7 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF367C2B).withOpacity(0.1),
+        color: const Color(0xFF367C2B).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -576,7 +576,7 @@ class _VRIGridPainter extends CustomPainter {
         final zoneId = '${zone.spanNumber - 1}_${zone.zoneNumber - 1}';
         if (selectedZones.contains(zoneId)) {
           final highlightPaint = Paint()
-            ..color = Colors.black.withOpacity(0.3)
+            ..color = Colors.black.withValues(alpha: 0.3)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 3;
           canvas.drawPath(path, highlightPaint);
@@ -732,7 +732,7 @@ class _ActionButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: buttonColor.withOpacity(0.1),
+                color: buttonColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: buttonColor, size: 20),

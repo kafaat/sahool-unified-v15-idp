@@ -20,6 +20,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
 
+
 def validate_jwt_config(environment: str | None = None) -> None:
     """
     Validate JWT configuration for the given environment.

@@ -8,8 +8,8 @@
 /// - Rollback support (where possible)
 /// - Audit logging
 /// - Encrypted database support
+library;
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -285,12 +285,29 @@ class SahoolMigrationStrategy {
     return backupPath;
   }
 
+  /// Regex for valid SQL identifiers (alphanumeric and underscores only).
+  /// Prevents SQL injection through table or column names.
+  static final _validIdentifier = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
+
+  /// Validate that a SQL identifier (table/column name) is safe to use
+  /// in string-interpolated SQL statements.
+  static void _validateIdentifier(String name, String kind) {
+    if (!_validIdentifier.hasMatch(name)) {
+      throw MigrationException(
+        'Invalid $kind name "$name": must contain only alphanumeric '
+        'characters and underscores, and must start with a letter or underscore.',
+        -1,
+      );
+    }
+  }
+
   /// Safely delete a table if it exists
   static Future<void> _safeDeleteTable(
     Migrator m,
     GeneratedDatabase db,
     String tableName,
   ) async {
+    _validateIdentifier(tableName, 'table');
     try {
       final exists = await db.customSelect(
         "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
@@ -316,10 +333,13 @@ class SahoolMigrationStrategy {
     String columnName,
     String columnType,
   ) async {
+    _validateIdentifier(tableName, 'table');
+    _validateIdentifier(columnName, 'column');
+    _validateIdentifier(columnType, 'column type');
     try {
       // Check if column exists
       final columns = await db.customSelect(
-        "PRAGMA table_info($tableName)",
+        'PRAGMA table_info($tableName)',
       ).get();
 
       final columnExists = columns.any(

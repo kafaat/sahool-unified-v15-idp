@@ -1,40 +1,42 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Calendar, Plus, Search, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
-import { useSeasons, useSeasonStats } from "@/features/seasons";
-import type { SeasonStatus, SeasonType } from "@/features/seasons";
+import React, { useState, useMemo } from 'react';
+import { Calendar, Plus, Search, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
+import { useSeasons, useSeasonStats } from '@/features/seasons';
+import type { SeasonStatus, SeasonType } from '@/features/seasons';
 
 const statusConfig: Record<SeasonStatus, { color: string; labelAr: string }> = {
-  planning: { color: "bg-blue-100 text-blue-800", labelAr: "تخطيط" },
-  active: { color: "bg-green-100 text-green-800", labelAr: "نشط" },
-  harvesting: { color: "bg-orange-100 text-orange-800", labelAr: "حصاد" },
-  completed: { color: "bg-gray-100 text-gray-800", labelAr: "مكتمل" },
-  cancelled: { color: "bg-red-100 text-red-800", labelAr: "ملغي" },
+  planning: { color: 'bg-blue-100 text-blue-800', labelAr: 'تخطيط' },
+  active: { color: 'bg-green-100 text-green-800', labelAr: 'نشط' },
+  harvesting: { color: 'bg-orange-100 text-orange-800', labelAr: 'حصاد' },
+  completed: { color: 'bg-gray-100 text-gray-800', labelAr: 'مكتمل' },
+  cancelled: { color: 'bg-red-100 text-red-800', labelAr: 'ملغي' },
 };
 
 const typeLabelsAr: Record<SeasonType, string> = {
-  winter: "شتوي",
-  summer: "صيفي",
-  spring: "ربيعي",
-  fall: "خريفي",
+  winter: 'شتوي',
+  summer: 'صيفي',
+  spring: 'ربيعي',
+  fall: 'خريفي',
 };
 
-const statusOptions: Array<{ value: SeasonStatus | "all"; labelAr: string }> = [
-  { value: "all", labelAr: "جميع الحالات" },
-  { value: "planning", labelAr: "تخطيط" },
-  { value: "active", labelAr: "نشط" },
-  { value: "harvesting", labelAr: "حصاد" },
-  { value: "completed", labelAr: "مكتمل" },
+const statusOptions: Array<{ value: SeasonStatus | 'all'; labelAr: string }> = [
+  { value: 'all', labelAr: 'جميع الحالات' },
+  { value: 'planning', labelAr: 'تخطيط' },
+  { value: 'active', labelAr: 'نشط' },
+  { value: 'harvesting', labelAr: 'حصاد' },
+  { value: 'completed', labelAr: 'مكتمل' },
 ];
 
 export default function SeasonsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<SeasonStatus | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<SeasonStatus | 'all'>('all');
 
-  const { data: seasons = [], isLoading, error } = useSeasons(
-    selectedStatus !== "all" ? { status: selectedStatus } : undefined
-  );
+  const {
+    data: seasons = [],
+    isLoading,
+    error,
+  } = useSeasons(selectedStatus !== 'all' ? { status: selectedStatus } : undefined);
   const { data: stats } = useSeasonStats();
 
   const filteredSeasons = useMemo(() => {
@@ -85,7 +87,9 @@ export default function SeasonsClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المواسم</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalSeasons ?? seasons.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalSeasons ?? seasons.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">مواسم نشطة</div>
@@ -99,7 +103,9 @@ export default function SeasonsClient() {
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <TrendingUp className="w-3.5 h-3.5" /> معدل الإنتاج
           </div>
-          <div className="text-2xl font-bold text-sahool-green-600">{stats?.averageYieldRate ?? 0}%</div>
+          <div className="text-2xl font-bold text-sahool-green-600">
+            {stats?.averageYieldRate ?? 0}%
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="flex items-center gap-1 text-sm text-gray-500">
@@ -125,11 +131,13 @@ export default function SeasonsClient() {
         </div>
         <select
           value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value as SeasonStatus | "all")}
+          onChange={(e) => setSelectedStatus(e.target.value as SeasonStatus | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {statusOptions.map((o) => (
-            <option key={o.value} value={o.value}>{o.labelAr}</option>
+            <option key={o.value} value={o.value}>
+              {o.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -141,9 +149,13 @@ export default function SeasonsClient() {
         ) : (
           filteredSeasons.map((season) => {
             const st = statusConfig[season.status];
-            const budgetPercent = season.budgetSar > 0 ? Math.round((season.spentSar / season.budgetSar) * 100) : 0;
+            const budgetPercent =
+              season.budgetSar > 0 ? Math.round((season.spentSar / season.budgetSar) * 100) : 0;
             return (
-              <div key={season.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
+              <div
+                key={season.id}
+                className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow"
+              >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-sahool-green-100 rounded-lg flex items-center justify-center">
@@ -152,12 +164,15 @@ export default function SeasonsClient() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-gray-900">{season.nameAr}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${st.color}`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${st.color}`}
+                        >
                           {st.labelAr}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500">
-                        {season.farmNameAr} | {typeLabelsAr[season.type]} | {season.startDate} → {season.endDate}
+                        {season.farmNameAr} | {typeLabelsAr[season.type]} | {season.startDate} →{' '}
+                        {season.endDate}
                       </p>
                     </div>
                   </div>
@@ -177,7 +192,9 @@ export default function SeasonsClient() {
                     </div>
                     {season.actualYieldTons !== undefined ? (
                       <div className="text-center">
-                        <div className="font-bold text-sahool-green-600">{season.actualYieldTons}t</div>
+                        <div className="font-bold text-sahool-green-600">
+                          {season.actualYieldTons}t
+                        </div>
                         <div className="text-gray-500">الإنتاج</div>
                       </div>
                     ) : (
@@ -206,11 +223,14 @@ export default function SeasonsClient() {
                   <div>
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>الميزانية</span>
-                      <span>{season.spentSar.toLocaleString()} / {season.budgetSar.toLocaleString()} ريال</span>
+                      <span>
+                        {season.spentSar.toLocaleString()} / {season.budgetSar.toLocaleString()}{' '}
+                        ريال
+                      </span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${budgetPercent > 90 ? "bg-red-500" : "bg-blue-500"}`}
+                        className={`h-full rounded-full transition-all ${budgetPercent > 90 ? 'bg-red-500' : 'bg-blue-500'}`}
                         style={{ width: `${Math.min(budgetPercent, 100)}%` }}
                       />
                     </div>

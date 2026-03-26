@@ -52,8 +52,12 @@ from starlette.types import ASGIApp
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Matches userinfo portion of a URL:  scheme://user:password@host  ->  scheme://***@host
-_URL_CREDENTIAL_RE = re.compile(
-    r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@"
+_URL_CREDENTIAL_RE = re.compile(r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@")
+
+# Matches sensitive query parameters: password=secret, token=abc, api_key=xyz
+_SENSITIVE_QUERY_PARAM_RE = re.compile(
+    r"((?:password|token|api_key|secret|access_token|refresh_token|auth)=)[^&]+",
+    re.IGNORECASE,
 )
 
 
@@ -62,19 +66,22 @@ def sanitize_url(url: str) -> str:
     Mask credentials embedded in a connection URL before logging.
 
     Handles common patterns:
-      nats://user:password@host:4222  ->  nats://***@host:4222
-      redis://:password@host:6379/0   ->  redis://***@host:6379/0
-      postgresql://user:pass@host/db  ->  postgresql://***@host/db
+      nats://user:password@host:4222          ->  nats://***@host:4222
+      redis://:password@host:6379/0           ->  redis://***@host:6379/0
+      postgresql://user:pass@host/db          ->  postgresql://***@host/db
+      http://host/path?password=secret&x=1    ->  http://host/path?password=***&x=1
 
     Args:
         url: A connection URL that may contain embedded credentials.
 
     Returns:
-        The URL with the userinfo portion replaced by '***'.
+        The URL with credentials replaced by '***'.
     """
     if not isinstance(url, str):
         return str(url)
-    return _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
+    result = _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
+    result = _SENSITIVE_QUERY_PARAM_RE.sub(r"\1=***", result)
+    return result
 
 
 def sanitize_urls(urls: list[str] | str) -> list[str] | str:
@@ -127,10 +134,7 @@ def sanitize_credentials(logger: logging.Logger, method_name: str, event_dict: d
         if isinstance(value, str) and "://" in value and "@" in value:
             event_dict[key] = sanitize_url(value)
         elif isinstance(value, list):
-            event_dict[key] = [
-                sanitize_url(v) if isinstance(v, str) and "://" in v and "@" in v else v
-                for v in value
-            ]
+            event_dict[key] = [sanitize_url(v) if isinstance(v, str) and "://" in v and "@" in v else v for v in value]
     return event_dict
 
 
@@ -335,13 +339,17 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
 
-            # Log error
+            # Log error - only log exception type, not message
+            # (exception messages may contain credentials or connection strings)
             self.logger.error(
                 "http_request_failed",
                 method=request.method,
                 path=request.url.path,
                 duration_ms=round(duration_ms, 2),
                 error_type=type(e).__name__,
+            )
+            self.logger.debug(
+                "http_request_error_details",
                 error_message=str(e),
                 exc_info=True,
             )

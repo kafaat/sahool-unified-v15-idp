@@ -41,6 +41,10 @@ on:
         default: 'false'
         type: boolean
 
+permissions:
+  contents: write
+  actions: read
+
 # Prevent concurrent release builds
 concurrency:
   group: mobile-release-${{ github.ref }}
@@ -60,6 +64,7 @@ jobs:
   version:
     name: Version Management
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
@@ -129,6 +134,7 @@ jobs:
   build-release-apk:
     name: Build Release APK
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: version
     if: ${{ github.event.inputs.build_type == 'apk' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
     defaults:
@@ -386,6 +392,7 @@ jobs:
   build-release-aab:
     name: Build Release AAB
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: version
     if: ${{ github.event.inputs.build_type == 'aab' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
     defaults:
@@ -631,6 +638,7 @@ jobs:
   deploy-play-store:
     name: Deploy to Play Store
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [version, build-release-aab]
     if: ${{ github.event.inputs.deploy_to_play_store == 'true' }}
     environment: production
@@ -689,6 +697,7 @@ jobs:
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [version, build-release-apk, build-release-aab]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     permissions:
@@ -749,6 +758,7 @@ jobs:
   release-status:
     name: Release Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [version, build-release-apk, build-release-aab]
     if: always()
 

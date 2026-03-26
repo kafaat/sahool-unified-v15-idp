@@ -3,6 +3,7 @@
 ///
 /// Tests DetectionHistoryNotifier, DetectionHistoryState, ModelStatus,
 /// FieldDetectionSummary, and session management.
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/vision/data/yolo26_service.dart';

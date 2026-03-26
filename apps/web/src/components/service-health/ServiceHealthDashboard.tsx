@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Service Health Dashboard
@@ -6,8 +6,8 @@
  * لوحة مراقبة صحة الخدمات عبر بوابة Kong
  */
 
-import React, { useEffect, useState, useCallback } from "react";
-import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Activity } from "lucide-react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Activity } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -16,7 +16,7 @@ import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Activity } from "lucide
 interface ServiceHealth {
   name: string;
   nameAr: string;
-  status: "healthy" | "degraded" | "unhealthy" | "checking";
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'checking';
   latencyMs: number;
   lastChecked: Date;
   endpoint: string;
@@ -35,52 +35,52 @@ interface ServiceHealthDashboardProps {
 
 const MONITORED_SERVICES = [
   {
-    key: "field-management",
-    name: "Field Management",
-    nameAr: "إدارة الحقول",
-    endpoint: "/api/v1/fields/healthz",
+    key: 'field-management',
+    name: 'Field Management',
+    nameAr: 'إدارة الحقول',
+    endpoint: '/api/v1/fields/healthz',
   },
   {
-    key: "weather",
-    name: "Weather Service",
-    nameAr: "خدمة الطقس",
-    endpoint: "/api/v1/weather/healthz",
+    key: 'weather',
+    name: 'Weather Service',
+    nameAr: 'خدمة الطقس',
+    endpoint: '/api/v1/weather/healthz',
   },
   {
-    key: "vegetation",
-    name: "Vegetation Analysis",
-    nameAr: "تحليل الغطاء النباتي",
-    endpoint: "/api/v1/vegetation/healthz",
+    key: 'vegetation',
+    name: 'Vegetation Analysis',
+    nameAr: 'تحليل الغطاء النباتي',
+    endpoint: '/api/v1/vegetation/healthz',
   },
   {
-    key: "irrigation",
-    name: "Smart Irrigation",
-    nameAr: "الري الذكي",
-    endpoint: "/api/v1/irrigation/healthz",
+    key: 'irrigation',
+    name: 'Smart Irrigation',
+    nameAr: 'الري الذكي',
+    endpoint: '/api/v1/irrigation/healthz',
   },
   {
-    key: "advisory",
-    name: "Advisory Service",
-    nameAr: "خدمة الاستشارات",
-    endpoint: "/api/v1/advisory/healthz",
+    key: 'advisory',
+    name: 'Advisory Service',
+    nameAr: 'خدمة الاستشارات',
+    endpoint: '/api/v1/advisory/healthz',
   },
   {
-    key: "tasks",
-    name: "Task Service",
-    nameAr: "إدارة المهام",
-    endpoint: "/api/v1/tasks/healthz",
+    key: 'tasks',
+    name: 'Task Service',
+    nameAr: 'إدارة المهام',
+    endpoint: '/api/v1/tasks/healthz',
   },
   {
-    key: "notifications",
-    name: "Notifications",
-    nameAr: "الإشعارات",
-    endpoint: "/api/v1/notifications/healthz",
+    key: 'notifications',
+    name: 'Notifications',
+    nameAr: 'الإشعارات',
+    endpoint: '/api/v1/notifications/healthz',
   },
   {
-    key: "alerts",
-    name: "Alert Service",
-    nameAr: "خدمة التنبيهات",
-    endpoint: "/api/v1/alerts/healthz",
+    key: 'alerts',
+    name: 'Alert Service',
+    nameAr: 'خدمة التنبيهات',
+    endpoint: '/api/v1/alerts/healthz',
   },
 ];
 
@@ -89,7 +89,7 @@ const MONITORED_SERVICES = [
 // ═══════════════════════════════════════════════════════════════════════════
 
 const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
-  className = "",
+  className = '',
   showTitle = true,
   compact = false,
   onServiceClick,
@@ -104,17 +104,17 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
   const checkServiceHealth = useCallback(
     async (service: (typeof MONITORED_SERVICES)[0]): Promise<ServiceHealth> => {
       const startTime = performance.now();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         const response = await fetch(`${apiUrl}${service.endpoint}`, {
-          method: "GET",
+          method: 'GET',
           signal: controller.signal,
           headers: {
-            Accept: "application/json",
+            Accept: 'application/json',
           },
         });
 
@@ -125,7 +125,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
           return {
             name: service.name,
             nameAr: service.nameAr,
-            status: latencyMs > 2000 ? "degraded" : "healthy",
+            status: latencyMs > 2000 ? 'degraded' : 'healthy',
             latencyMs,
             lastChecked: new Date(),
             endpoint: service.endpoint,
@@ -134,7 +134,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
           return {
             name: service.name,
             nameAr: service.nameAr,
-            status: response.status >= 500 ? "unhealthy" : "degraded",
+            status: response.status >= 500 ? 'unhealthy' : 'degraded',
             latencyMs,
             lastChecked: new Date(),
             endpoint: service.endpoint,
@@ -144,7 +144,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
         return {
           name: service.name,
           nameAr: service.nameAr,
-          status: "unhealthy",
+          status: 'unhealthy',
           latencyMs: Math.round(performance.now() - startTime),
           lastChecked: new Date(),
           endpoint: service.endpoint,
@@ -165,7 +165,7 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
       MONITORED_SERVICES.map((s) => ({
         name: s.name,
         nameAr: s.nameAr,
-        status: "checking" as const,
+        status: 'checking' as const,
         latencyMs: 0,
         lastChecked: new Date(),
         endpoint: s.endpoint,
@@ -192,15 +192,15 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
   /**
    * Get status icon
    */
-  const getStatusIcon = (status: ServiceHealth["status"]) => {
+  const getStatusIcon = (status: ServiceHealth['status']) => {
     switch (status) {
-      case "healthy":
+      case 'healthy':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "degraded":
+      case 'degraded':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case "unhealthy":
+      case 'unhealthy':
         return <XCircle className="h-5 w-5 text-red-500" />;
-      case "checking":
+      case 'checking':
         return <Activity className="h-5 w-5 text-blue-500 animate-pulse" />;
     }
   };
@@ -208,16 +208,16 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
   /**
    * Get status color class
    */
-  const getStatusColor = (status: ServiceHealth["status"]) => {
+  const getStatusColor = (status: ServiceHealth['status']) => {
     switch (status) {
-      case "healthy":
-        return "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800";
-      case "degraded":
-        return "bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800";
-      case "unhealthy":
-        return "bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800";
-      case "checking":
-        return "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800";
+      case 'healthy':
+        return 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800';
+      case 'degraded':
+        return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800';
+      case 'unhealthy':
+        return 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800';
+      case 'checking':
+        return 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800';
     }
   };
 
@@ -225,18 +225,18 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
    * Get latency color
    */
   const getLatencyColor = (latencyMs: number) => {
-    if (latencyMs < 200) return "text-green-600";
-    if (latencyMs < 500) return "text-yellow-600";
-    if (latencyMs < 1000) return "text-orange-600";
-    return "text-red-600";
+    if (latencyMs < 200) return 'text-green-600';
+    if (latencyMs < 500) return 'text-yellow-600';
+    if (latencyMs < 1000) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   /**
    * Count services by status
    */
-  const healthyCount = services.filter((s) => s.status === "healthy").length;
-  const degradedCount = services.filter((s) => s.status === "degraded").length;
-  const unhealthyCount = services.filter((s) => s.status === "unhealthy").length;
+  const healthyCount = services.filter((s) => s.status === 'healthy').length;
+  const degradedCount = services.filter((s) => s.status === 'degraded').length;
+  const unhealthyCount = services.filter((s) => s.status === 'unhealthy').length;
 
   return (
     <div className={`rounded-lg border bg-card p-4 ${className}`}>
@@ -252,10 +252,9 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
             disabled={isRefreshing}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50"
             title="Refresh health status"
+            aria-label="تحديث حالة الخدمات - Refresh health status"
           >
-            <RefreshCw
-              className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
       )}
@@ -276,34 +275,39 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
         </div>
         {lastRefresh && (
           <span className="text-xs text-muted-foreground mr-auto">
-            آخر تحديث: {lastRefresh.toLocaleTimeString("ar-SA")}
+            آخر تحديث: {lastRefresh.toLocaleTimeString('ar-SA')}
           </span>
         )}
       </div>
 
       {/* Service Grid */}
       <div
-        className={`grid gap-2 ${compact ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-1 sm:grid-cols-2"}`}
+        className={`grid gap-2 ${compact ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'}`}
       >
         {services.map((service) => (
           <div
             key={service.endpoint}
-            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)}`}
+            className={`p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm ${getStatusColor(service.status)} focus:outline-none focus:ring-2 focus:ring-blue-500`}
             onClick={() => onServiceClick?.(service)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onServiceClick?.(service);
+              }
+            }}
+            tabIndex={onServiceClick ? 0 : undefined}
+            role={onServiceClick ? 'button' : undefined}
+            aria-label={`${service.nameAr} - ${service.name}: ${service.status === 'healthy' ? 'سليم' : service.status === 'degraded' ? 'متدهور' : service.status === 'unhealthy' ? 'معطل' : 'جاري الفحص'}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {getStatusIcon(service.status)}
                 <div>
                   <p className="text-sm font-medium">{service.name}</p>
-                  {!compact && (
-                    <p className="text-xs text-muted-foreground">
-                      {service.nameAr}
-                    </p>
-                  )}
+                  {!compact && <p className="text-xs text-muted-foreground">{service.nameAr}</p>}
                 </div>
               </div>
-              {service.status !== "checking" && (
+              {service.status !== 'checking' && (
                 <span className={`text-xs font-mono ${getLatencyColor(service.latencyMs)}`}>
                   {service.latencyMs}ms
                 </span>
@@ -320,17 +324,17 @@ const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
           <span
             className={`font-medium ${
               unhealthyCount > 0
-                ? "text-red-600"
+                ? 'text-red-600'
                 : degradedCount > 0
-                  ? "text-yellow-600"
-                  : "text-green-600"
+                  ? 'text-yellow-600'
+                  : 'text-green-600'
             }`}
           >
             {unhealthyCount > 0
-              ? "System Issues"
+              ? 'System Issues'
               : degradedCount > 0
-                ? "Partially Degraded"
-                : "All Systems Operational"}
+                ? 'Partially Degraded'
+                : 'All Systems Operational'}
           </span>
         </div>
       </div>

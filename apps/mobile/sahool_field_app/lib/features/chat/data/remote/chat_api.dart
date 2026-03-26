@@ -2,9 +2,9 @@
 /// طبقة الاتصال بخدمة المحادثات
 ///
 /// Handles REST API calls and WebSocket connections
+library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/config/api_config.dart';

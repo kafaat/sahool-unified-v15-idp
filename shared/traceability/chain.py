@@ -10,9 +10,9 @@ from harvest to consumer, with full event history and verification.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Callable
 from uuid import uuid4
 
 from .models import (

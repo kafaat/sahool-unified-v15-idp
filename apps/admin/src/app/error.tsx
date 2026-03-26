@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Global Error Page
@@ -7,8 +7,8 @@
  * Catches unhandled errors at the page level (Next.js 13+ convention).
  */
 
-import { useEffect } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { useEffect } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function Error({
   error,
@@ -19,8 +19,8 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log error to monitoring (Sentry is configured via sentry.client.config.ts)
-    if (typeof window !== "undefined" && (window as any).__SENTRY__) {
-      import("@sentry/nextjs").then((Sentry) => {
+    if (typeof window !== 'undefined' && (window as any).__SENTRY__) {
+      import('@sentry/nextjs').then((Sentry) => {
         Sentry.captureException(error);
       });
     }
@@ -34,12 +34,8 @@ export default function Error({
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            حدث خطأ غير متوقع
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            An unexpected error occurred
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">حدث خطأ غير متوقع</h1>
+          <p className="text-gray-600 dark:text-gray-400">An unexpected error occurred</p>
           {error.digest && (
             <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">
               Error ID: {error.digest}

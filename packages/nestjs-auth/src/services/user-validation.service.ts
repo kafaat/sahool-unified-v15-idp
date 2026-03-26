@@ -8,9 +8,9 @@
  * - User status validation (active, verified, deleted, suspended)
  */
 
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import Redis from "ioredis";
-import { AuthErrors } from "../config/jwt.config";
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import Redis from 'ioredis';
+import { AuthErrors } from '../config/jwt.config';
 
 /**
  * User validation data interface
@@ -48,12 +48,12 @@ export interface IUserRepository {
 @Injectable()
 export class UserValidationService {
   private readonly logger = new Logger(UserValidationService.name);
-  private readonly cacheKeyPrefix = "user_auth:";
+  private readonly cacheKeyPrefix = 'user_auth:';
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
-    private readonly redis: Redis | null,
-    private readonly userRepository?: IUserRepository,
+    private readonly redis: Redis,
+    private readonly userRepository?: IUserRepository
   ) {}
 
   /**
@@ -73,13 +73,11 @@ export class UserValidationService {
 
     // Cache miss - get from database
     if (!this.userRepository) {
-      this.logger.warn(
-        "No user repository configured - skipping database validation",
-      );
+      this.logger.warn('No user repository configured - skipping database validation');
       // Return minimal validation data
       return {
         userId,
-        email: "",
+        email: '',
         isActive: true,
         isVerified: true,
         roles: [],
@@ -139,10 +137,7 @@ export class UserValidationService {
    * @param userId - User identifier
    * @returns Cached user data or null
    */
-  private async getCachedUser(
-    userId: string,
-  ): Promise<UserValidationData | null> {
-    if (!this.redis) return null;
+  private async getCachedUser(userId: string): Promise<UserValidationData | null> {
     try {
       const key = `${this.cacheKeyPrefix}${userId}`;
       const cached = await this.redis.get(key);
@@ -153,7 +148,9 @@ export class UserValidationService {
 
       return null;
     } catch (error) {
-      this.logger.warn(`Cache get error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Cache get error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`
+      );
       return null;
     }
   }
@@ -164,14 +161,13 @@ export class UserValidationService {
    * @param userData - User validation data
    */
   private async cacheUser(userData: UserValidationData): Promise<void> {
-    if (!this.redis) return;
     try {
       const key = `${this.cacheKeyPrefix}${userData.userId}`;
       await this.redis.setex(key, this.cacheTTL, JSON.stringify(userData));
       this.logger.debug(`Cached user ${userData.userId}`);
     } catch (error) {
       this.logger.warn(
-        `Cache set error for user ${userData.userId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Cache set error for user ${userData.userId}: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
@@ -182,14 +178,13 @@ export class UserValidationService {
    * @param userId - User identifier
    */
   async invalidateUser(userId: string): Promise<void> {
-    if (!this.redis) return;
     try {
       const key = `${this.cacheKeyPrefix}${userId}`;
       await this.redis.del(key);
       this.logger.debug(`Invalidated cache for user ${userId}`);
     } catch (error) {
       this.logger.warn(
-        `Cache invalidate error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`,
+        `Cache invalidate error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
@@ -200,7 +195,6 @@ export class UserValidationService {
    * @returns Number of keys deleted
    */
   async clearAll(): Promise<number> {
-    if (!this.redis) return 0;
     try {
       const pattern = `${this.cacheKeyPrefix}*`;
       const keys = await this.redis.keys(pattern);
@@ -213,7 +207,9 @@ export class UserValidationService {
 
       return 0;
     } catch (error) {
-      this.logger.error(`Cache clear error: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Cache clear error: ${error instanceof Error ? error.message : String(error)}`
+      );
       return 0;
     }
   }

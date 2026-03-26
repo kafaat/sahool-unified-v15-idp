@@ -167,8 +167,15 @@ class BoundarySharingManager:
     between field boundaries and their neighbors.
     """
 
-    def __init__(self):
-        """Initialize the sharing manager."""
+    def __init__(self, tenant_id: str):
+        """Initialize the sharing manager.
+
+        Args:
+            tenant_id: Tenant ID for isolation (required). All operations are scoped to this tenant.
+        """
+        if not tenant_id:
+            raise ValueError("tenant_id is required for BoundarySharingManager")
+        self.tenant_id = tenant_id
         # In-memory storage for demo; replace with database in production
         self._permissions: dict[str, list[SharePermission]] = {}
         self._share_requests: dict[str, BoundaryShareRequest] = {}
@@ -204,6 +211,14 @@ class BoundarySharingManager:
         Returns:
             Created share request
         """
+        # Strict tenant isolation: fail closed if tenant_id is missing or mismatched
+        if not isinstance(boundary, FieldBoundary):
+            raise TypeError("boundary must be a FieldBoundary instance")
+        if not getattr(boundary, "tenant_id", None):
+            raise ValueError("Boundary is missing tenant_id — cannot verify isolation")
+        if boundary.tenant_id != self.tenant_id:
+            raise ValueError("Boundary does not belong to this tenant")
+
         request = BoundaryShareRequest(
             boundary_id=boundary.id,
             requester_id=boundary.owner_id,

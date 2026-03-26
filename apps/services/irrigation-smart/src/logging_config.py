@@ -18,11 +18,12 @@ import logging
 import os
 import sys
 import time
+from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 # Context variables for request tracking
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)

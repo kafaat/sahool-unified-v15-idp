@@ -4,9 +4,10 @@ Tests for FixLearningSystem - Learning from successful fixes.
 Tests the fix learning functionality for pattern extraction and success tracking.
 """
 
-import pytest
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 
 class TestFixPattern:

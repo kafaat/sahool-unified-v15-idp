@@ -7,6 +7,7 @@
 /// - Area calculation (hectares)
 /// - Bounding box
 /// - Polygon simplification
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
@@ -705,7 +706,7 @@ void main() {
         boundary: originalBoundary,
         properties: {'name': 'Test'},
       );
-      final parsedPolygon = GeoJson.parsePolygon(feature['geometry']);
+      final parsedPolygon = GeoJson.parsePolygon(feature['geometry'] as Map<String, dynamic>);
 
       // Assert - Note: parsed polygon will have closing point added
       for (var i = 0; i < originalBoundary.length; i++) {

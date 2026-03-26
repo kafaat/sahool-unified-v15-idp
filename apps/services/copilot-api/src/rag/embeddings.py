@@ -14,8 +14,8 @@ from __future__ import annotations
 import hashlib
 import os
 import time
-from dataclasses import dataclass, field
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
@@ -141,7 +141,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get(f"{self.config.ollama_base_url}/api/tags", timeout=5.0)
                 if response.status_code == 200:
                     self._initialized = True
@@ -224,10 +224,7 @@ class EmbeddingService:
             # Purge expired entries before size-based eviction so that stale
             # items don't count toward cache_max_size and cause unnecessary churn.
             now = time.time()
-            expired_keys = [
-                k for k, (_, ts) in self._cache.items()
-                if now - ts >= self.config.cache_ttl_seconds
-            ]
+            expired_keys = [k for k, (_, ts) in self._cache.items() if now - ts >= self.config.cache_ttl_seconds]
             for k in expired_keys:
                 del self._cache[k]
             # Evict oldest live entries if cache still exceeds max size
@@ -272,7 +269,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.config.ollama_base_url}/api/embeddings",
                     json={
@@ -294,7 +291,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     "https://api.openai.com/v1/embeddings",
                     headers={

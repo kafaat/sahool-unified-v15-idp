@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Crop Health Management Page
 // صفحة إدارة صحة المحاصيل
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Leaf,
   Search,
@@ -19,16 +19,16 @@ import {
   TrendingDown,
   Activity,
   MapPin,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_RECORDS } from "./crop-health.mock";
-import type { CropHealthRecord } from "./crop-health.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { MOCK_RECORDS } from './crop-health.mock';
+import type { CropHealthRecord } from './crop-health.mock';
 
 export default function CropHealthPage() {
   const [records, setRecords] = useState<CropHealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadRecords();
@@ -40,7 +40,7 @@ export default function CropHealthPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setRecords(MOCK_RECORDS);
     } catch (error) {
-      logger.error("Failed to load crop health records:", error);
+      logger.error('Failed to load crop health records:', error);
     } finally {
       setIsLoading(false);
     }
@@ -63,48 +63,55 @@ export default function CropHealthPage() {
     });
   }, [records, searchQuery, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: records.length,
-    excellent: records.filter((r) => r.healthStatus === "excellent").length,
-    issues: records.filter((r) => r.issues.length > 0).length,
-    critical: records.filter((r) => r.healthStatus === "critical" || r.healthStatus === "poor").length,
-    avgNdvi: records.length > 0 ? (records.reduce((acc, r) => acc + r.ndvi, 0) / records.length).toFixed(2) : "0.00",
-  }), [records]);
+  const stats = useMemo(
+    () => ({
+      total: records.length,
+      excellent: records.filter((r) => r.healthStatus === 'excellent').length,
+      issues: records.filter((r) => r.issues.length > 0).length,
+      critical: records.filter((r) => r.healthStatus === 'critical' || r.healthStatus === 'poor')
+        .length,
+      avgNdvi:
+        records.length > 0
+          ? (records.reduce((acc, r) => acc + r.ndvi, 0) / records.length).toFixed(2)
+          : '0.00',
+    }),
+    [records]
+  );
 
-  const getStatusLabel = (status: CropHealthRecord["healthStatus"]) => {
-    const labels: Record<CropHealthRecord["healthStatus"], string> = {
-      excellent: "ممتاز",
-      good: "جيد",
-      moderate: "متوسط",
-      poor: "ضعيف",
-      critical: "حرج",
+  const getStatusLabel = (status: CropHealthRecord['healthStatus']) => {
+    const labels: Record<CropHealthRecord['healthStatus'], string> = {
+      excellent: 'ممتاز',
+      good: 'جيد',
+      moderate: 'متوسط',
+      poor: 'ضعيف',
+      critical: 'حرج',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: CropHealthRecord["healthStatus"]) => {
-    const colors: Record<CropHealthRecord["healthStatus"], string> = {
-      excellent: "bg-green-100 text-green-800",
-      good: "bg-green-50 text-green-700",
-      moderate: "bg-yellow-100 text-yellow-800",
-      poor: "bg-orange-100 text-orange-800",
-      critical: "bg-red-100 text-red-800",
+  const getStatusColor = (status: CropHealthRecord['healthStatus']) => {
+    const colors: Record<CropHealthRecord['healthStatus'], string> = {
+      excellent: 'bg-green-100 text-green-800',
+      good: 'bg-green-50 text-green-700',
+      moderate: 'bg-yellow-100 text-yellow-800',
+      poor: 'bg-orange-100 text-orange-800',
+      critical: 'bg-red-100 text-red-800',
     };
     return colors[status];
   };
 
   const getNdviColor = (ndvi: number) => {
-    if (ndvi >= 0.7) return "text-green-700";
-    if (ndvi >= 0.5) return "text-green-600";
-    if (ndvi >= 0.3) return "text-yellow-600";
-    if (ndvi >= 0.15) return "text-orange-600";
-    return "text-red-600";
+    if (ndvi >= 0.7) return 'text-green-700';
+    if (ndvi >= 0.5) return 'text-green-600';
+    if (ndvi >= 0.3) return 'text-yellow-600';
+    if (ndvi >= 0.15) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   const columns = [
     {
-      key: "location",
-      header: "الموقع",
+      key: 'location',
+      header: 'الموقع',
       render: (record: CropHealthRecord) => (
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">{record.farmNameAr}</p>
@@ -116,8 +123,8 @@ export default function CropHealthPage() {
       ),
     },
     {
-      key: "crop",
-      header: "المحصول",
+      key: 'crop',
+      header: 'المحصول',
       render: (record: CropHealthRecord) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-sahool-100 rounded-lg flex items-center justify-center">
@@ -128,30 +135,33 @@ export default function CropHealthPage() {
       ),
     },
     {
-      key: "ndvi",
-      header: "NDVI",
+      key: 'ndvi',
+      header: 'NDVI',
       render: (record: CropHealthRecord) => (
         <div className="flex items-center gap-2">
-          <span className={cn("text-lg font-bold", getNdviColor(record.ndvi))}>
+          <span className={cn('text-lg font-bold', getNdviColor(record.ndvi))}>
             {record.ndvi.toFixed(2)}
           </span>
-          <span className={cn(
-            "flex items-center text-xs",
-            record.ndviChange >= 0 ? "text-green-600" : "text-red-600"
-          )}>
+          <span
+            className={cn(
+              'flex items-center text-xs',
+              record.ndviChange >= 0 ? 'text-green-600' : 'text-red-600'
+            )}
+          >
             {record.ndviChange >= 0 ? (
               <TrendingUp className="w-3 h-3" />
             ) : (
               <TrendingDown className="w-3 h-3" />
             )}
-            {record.ndviChange >= 0 ? "+" : ""}{record.ndviChange.toFixed(2)}
+            {record.ndviChange >= 0 ? '+' : ''}
+            {record.ndviChange.toFixed(2)}
           </span>
         </div>
       ),
     },
     {
-      key: "issues",
-      header: "المشاكل",
+      key: 'issues',
+      header: 'المشاكل',
       render: (record: CropHealthRecord) => (
         <div>
           {record.issuesAr.length > 0 ? (
@@ -162,7 +172,9 @@ export default function CropHealthPage() {
                 </span>
               ))}
               {record.issuesAr.length > 2 && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">+{record.issuesAr.length - 2}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  +{record.issuesAr.length - 2}
+                </span>
               )}
             </div>
           ) : (
@@ -175,27 +187,34 @@ export default function CropHealthPage() {
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (record: CropHealthRecord) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(record.healthStatus))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(record.healthStatus)
+          )}
+        >
           {getStatusLabel(record.healthStatus)}
         </span>
       ),
     },
     {
-      key: "inspection",
-      header: "الفحص",
+      key: 'inspection',
+      header: 'الفحص',
       render: (record: CropHealthRecord) => (
         <div className="text-sm">
-          <p className="text-gray-500 dark:text-gray-400">آخر: {formatDate(record.lastInspection)}</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            آخر: {formatDate(record.lastInspection)}
+          </p>
           <p className="text-sahool-600">التالي: {formatDate(record.nextInspection)}</p>
         </div>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (_record: CropHealthRecord) => (
         <button
           disabled
@@ -205,7 +224,7 @@ export default function CropHealthPage() {
           <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </button>
       ),
-      className: "w-16",
+      className: 'w-16',
     },
   ];
 
@@ -232,7 +251,9 @@ export default function CropHealthPage() {
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.excellent}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.excellent}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">ممتاز</p>
             </div>
           </div>
@@ -254,7 +275,9 @@ export default function CropHealthPage() {
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.critical}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.critical}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">حرج/ضعيف</p>
             </div>
           </div>
@@ -303,7 +326,12 @@ export default function CropHealthPage() {
             onClick={loadRecords}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             disabled

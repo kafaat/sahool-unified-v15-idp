@@ -1,27 +1,17 @@
-"use client";
+'use client';
 
 // Spray Management - Optimal Application Windows
 // إدارة الرش - نوافذ التطبيق المثلى
 
-import { useEffect, useState } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
+import { useEffect, useState } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
 // StatusBadge import removed - using inline status display
-import { fetchSprayWindows, fetchSprayHistory } from "@/lib/api/precision";
-import {
-  Droplet,
-  Wind,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Sun,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils";
-import { logger } from "../../../lib/logger";
-import {
-  DynamicProductUsageChart,
-  DynamicCostDistributionChart,
-} from "./SprayCharts.dynamic";
+import { fetchSprayWindows, fetchSprayHistory } from '@/lib/api/precision';
+import { Droplet, Wind, CheckCircle, Clock, TrendingUp, Sun } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+import { logger } from '../../../lib/logger';
+import { DynamicProductUsageChart, DynamicCostDistributionChart } from './SprayCharts.dynamic';
 
 interface SprayWindow {
   id: string;
@@ -29,12 +19,12 @@ interface SprayWindow {
   farmName: string;
   fieldName: string;
   cropType: string;
-  productType: "pesticide" | "herbicide" | "fungicide" | "fertilizer";
+  productType: 'pesticide' | 'herbicide' | 'fungicide' | 'fertilizer';
   productName: string;
   windowStart: string;
   windowEnd: string;
   optimalTime: string;
-  status: "upcoming" | "optimal" | "missed" | "completed";
+  status: 'upcoming' | 'optimal' | 'missed' | 'completed';
   conditions: {
     temperature: number;
     windSpeed: number;
@@ -62,7 +52,7 @@ export default function SprayPage() {
   const [windows, setWindows] = useState<SprayWindow[]>([]);
   const [history, setHistory] = useState<SprayHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"windows" | "history">("windows");
+  const [activeTab, setActiveTab] = useState<'windows' | 'history'>('windows');
 
   useEffect(() => {
     loadData();
@@ -78,16 +68,16 @@ export default function SprayPage() {
       setWindows(windowsData);
       setHistory(historyData);
     } catch (error) {
-      logger.error("Failed to load spray data:", error);
+      logger.error('Failed to load spray data:', error);
     } finally {
       setIsLoading(false);
     }
   }
 
   const stats = {
-    upcoming: windows.filter((w) => w.status === "upcoming").length,
-    optimal: windows.filter((w) => w.status === "optimal").length,
-    completed: windows.filter((w) => w.status === "completed").length,
+    upcoming: windows.filter((w) => w.status === 'upcoming').length,
+    optimal: windows.filter((w) => w.status === 'optimal').length,
+    completed: windows.filter((w) => w.status === 'completed').length,
     totalCost: history.reduce((sum, h) => sum + h.cost, 0),
   };
 
@@ -104,34 +94,34 @@ export default function SprayPage() {
       }
       return acc;
     },
-    {} as Record<string, { type: string; quantity: number; cost: number }>,
+    {} as Record<string, { type: string; quantity: number; cost: number }>
   );
 
   const productUsageData = Object.values(productUsage);
 
   const productTypeLabels: Record<string, string> = {
-    pesticide: "مبيدات حشرية",
-    herbicide: "مبيدات أعشاب",
-    fungicide: "مبيدات فطرية",
-    fertilizer: "أسمدة",
+    pesticide: 'مبيدات حشرية',
+    herbicide: 'مبيدات أعشاب',
+    fungicide: 'مبيدات فطرية',
+    fertilizer: 'أسمدة',
   };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      upcoming: "bg-blue-100 text-blue-700",
-      optimal: "bg-green-100 text-green-700",
-      missed: "bg-red-100 text-red-700",
-      completed: "bg-gray-100 text-gray-700",
+      upcoming: 'bg-blue-100 text-blue-700',
+      optimal: 'bg-green-100 text-green-700',
+      missed: 'bg-red-100 text-red-700',
+      completed: 'bg-gray-100 text-gray-700',
     };
-    return colors[status] || "bg-gray-100 text-gray-700";
+    return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      upcoming: "قادم",
-      optimal: "مثالي الآن",
-      missed: "فات الموعد",
-      completed: "مكتمل",
+      upcoming: 'قادم',
+      optimal: 'مثالي الآن',
+      missed: 'فات الموعد',
+      completed: 'مكتمل',
     };
     return labels[status] || status;
   };
@@ -176,21 +166,21 @@ export default function SprayPage() {
         <div className="border-b border-gray-100 dark:border-gray-700">
           <div className="flex">
             <button
-              onClick={() => setActiveTab("windows")}
+              onClick={() => setActiveTab('windows')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
-                activeTab === "windows"
-                  ? "text-sahool-600 border-b-2 border-sahool-600"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                activeTab === 'windows'
+                  ? 'text-sahool-600 border-b-2 border-sahool-600'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               نوافذ الرش القادمة
             </button>
             <button
-              onClick={() => setActiveTab("history")}
+              onClick={() => setActiveTab('history')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
-                activeTab === "history"
-                  ? "text-sahool-600 border-b-2 border-sahool-600"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                activeTab === 'history'
+                  ? 'text-sahool-600 border-b-2 border-sahool-600'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               سجل الرش
@@ -199,7 +189,7 @@ export default function SprayPage() {
         </div>
 
         {/* Windows Tab Content */}
-        {activeTab === "windows" && (
+        {activeTab === 'windows' && (
           <div className="p-6">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -272,9 +262,7 @@ export default function SprayPage() {
 
                     {window.recommendationsAr.length > 0 && (
                       <div className="bg-blue-50 rounded-lg p-3">
-                        <p className="text-xs font-medium text-blue-900 mb-2">
-                          توصيات:
-                        </p>
+                        <p className="text-xs font-medium text-blue-900 mb-2">توصيات:</p>
                         <ul className="text-xs text-blue-700 space-y-1">
                           {window.recommendationsAr.map((rec, index) => (
                             <li key={index} className="flex items-start gap-2">
@@ -293,7 +281,7 @@ export default function SprayPage() {
         )}
 
         {/* History Tab Content */}
-        {activeTab === "history" && (
+        {activeTab === 'history' && (
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               {/* Product Usage Chart */}

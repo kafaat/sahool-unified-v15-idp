@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   HelpCircle,
   MessageSquare,
@@ -12,7 +12,7 @@ import {
   Send,
   Clock,
   CheckCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface FAQ {
   id: string;
@@ -27,93 +27,103 @@ interface Ticket {
   id: string;
   subject: string;
   subjectAr: string;
-  status: "open" | "in_progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high";
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
   createdAt: string;
   updatedAt: string;
 }
 
 const faqs: FAQ[] = [
   {
-    id: "1",
-    question: "How do I add a new field?",
-    questionAr: "كيف أضيف حقلاً جديداً؟",
-    answer: "Go to Fields page, click 'Add Field' button, draw the field boundaries on the map, and fill in the field details.",
-    answerAr: "اذهب إلى صفحة الحقول، انقر على زر 'إضافة حقل'، ارسم حدود الحقل على الخريطة، واملأ تفاصيل الحقل.",
-    category: "fields",
+    id: '1',
+    question: 'How do I add a new field?',
+    questionAr: 'كيف أضيف حقلاً جديداً؟',
+    answer:
+      "Go to Fields page, click 'Add Field' button, draw the field boundaries on the map, and fill in the field details.",
+    answerAr:
+      "اذهب إلى صفحة الحقول، انقر على زر 'إضافة حقل'، ارسم حدود الحقل على الخريطة، واملأ تفاصيل الحقل.",
+    category: 'fields',
   },
   {
-    id: "2",
-    question: "How does the irrigation scheduling work?",
-    questionAr: "كيف تعمل جدولة الري؟",
-    answer: "The system uses soil moisture sensors, weather data, and crop requirements to automatically suggest optimal irrigation schedules.",
-    answerAr: "يستخدم النظام حساسات رطوبة التربة وبيانات الطقس ومتطلبات المحصول لاقتراح جداول الري المثلى تلقائياً.",
-    category: "irrigation",
+    id: '2',
+    question: 'How does the irrigation scheduling work?',
+    questionAr: 'كيف تعمل جدولة الري؟',
+    answer:
+      'The system uses soil moisture sensors, weather data, and crop requirements to automatically suggest optimal irrigation schedules.',
+    answerAr:
+      'يستخدم النظام حساسات رطوبة التربة وبيانات الطقس ومتطلبات المحصول لاقتراح جداول الري المثلى تلقائياً.',
+    category: 'irrigation',
   },
   {
-    id: "3",
-    question: "What do the NDVI colors mean?",
-    questionAr: "ماذا تعني ألوان مؤشر NDVI؟",
-    answer: "Green indicates healthy vegetation, yellow shows moderate health, and red indicates stressed or unhealthy plants.",
-    answerAr: "اللون الأخضر يشير إلى نباتات صحية، الأصفر يظهر صحة متوسطة، والأحمر يشير إلى نباتات مجهدة أو غير صحية.",
-    category: "satellite",
+    id: '3',
+    question: 'What do the NDVI colors mean?',
+    questionAr: 'ماذا تعني ألوان مؤشر NDVI؟',
+    answer:
+      'Green indicates healthy vegetation, yellow shows moderate health, and red indicates stressed or unhealthy plants.',
+    answerAr:
+      'اللون الأخضر يشير إلى نباتات صحية، الأصفر يظهر صحة متوسطة، والأحمر يشير إلى نباتات مجهدة أو غير صحية.',
+    category: 'satellite',
   },
   {
-    id: "4",
-    question: "How do I connect IoT sensors?",
-    questionAr: "كيف أربط حساسات إنترنت الأشياء؟",
-    answer: "Go to Settings > Devices, click 'Add Sensor', scan the QR code on your sensor, and assign it to a field.",
-    answerAr: "اذهب إلى الإعدادات > الأجهزة، انقر 'إضافة حساس'، امسح رمز QR على الحساس، وقم بتعيينه لحقل.",
-    category: "iot",
+    id: '4',
+    question: 'How do I connect IoT sensors?',
+    questionAr: 'كيف أربط حساسات إنترنت الأشياء؟',
+    answer:
+      "Go to Settings > Devices, click 'Add Sensor', scan the QR code on your sensor, and assign it to a field.",
+    answerAr:
+      "اذهب إلى الإعدادات > الأجهزة، انقر 'إضافة حساس'، امسح رمز QR على الحساس، وقم بتعيينه لحقل.",
+    category: 'iot',
   },
   {
-    id: "5",
-    question: "How can I get crop disease diagnosis?",
-    questionAr: "كيف أحصل على تشخيص أمراض المحاصيل؟",
-    answer: "Take a photo of the affected plant using the mobile app. Our AI will analyze it and provide diagnosis and treatment recommendations.",
-    answerAr: "التقط صورة للنبات المصاب باستخدام تطبيق الجوال. سيقوم الذكاء الاصطناعي بتحليلها وتقديم التشخيص وتوصيات العلاج.",
-    category: "diseases",
+    id: '5',
+    question: 'How can I get crop disease diagnosis?',
+    questionAr: 'كيف أحصل على تشخيص أمراض المحاصيل؟',
+    answer:
+      'Take a photo of the affected plant using the mobile app. Our AI will analyze it and provide diagnosis and treatment recommendations.',
+    answerAr:
+      'التقط صورة للنبات المصاب باستخدام تطبيق الجوال. سيقوم الذكاء الاصطناعي بتحليلها وتقديم التشخيص وتوصيات العلاج.',
+    category: 'diseases',
   },
 ];
 
 const mockTickets: Ticket[] = [
   {
-    id: "TKT-001",
-    subject: "Sensor not connecting",
-    subjectAr: "الحساس لا يتصل",
-    status: "in_progress",
-    priority: "high",
-    createdAt: "2025-01-24T10:00:00Z",
-    updatedAt: "2025-01-25T08:00:00Z",
+    id: 'TKT-001',
+    subject: 'Sensor not connecting',
+    subjectAr: 'الحساس لا يتصل',
+    status: 'in_progress',
+    priority: 'high',
+    createdAt: '2025-01-24T10:00:00Z',
+    updatedAt: '2025-01-25T08:00:00Z',
   },
   {
-    id: "TKT-002",
-    subject: "Need help with VRA map",
-    subjectAr: "أحتاج مساعدة في خريطة التطبيق المتغير",
-    status: "open",
-    priority: "medium",
-    createdAt: "2025-01-25T06:00:00Z",
-    updatedAt: "2025-01-25T06:00:00Z",
+    id: 'TKT-002',
+    subject: 'Need help with VRA map',
+    subjectAr: 'أحتاج مساعدة في خريطة التطبيق المتغير',
+    status: 'open',
+    priority: 'medium',
+    createdAt: '2025-01-25T06:00:00Z',
+    updatedAt: '2025-01-25T06:00:00Z',
   },
 ];
 
 export default function SupportClient() {
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
-  const [newTicketSubject, setNewTicketSubject] = useState("");
-  const [newTicketMessage, setNewTicketMessage] = useState("");
+  const [newTicketSubject, setNewTicketSubject] = useState('');
+  const [newTicketMessage, setNewTicketMessage] = useState('');
 
-  const getStatusBadge = (status: Ticket["status"]) => {
+  const getStatusBadge = (status: Ticket['status']) => {
     const styles = {
-      open: "bg-blue-100 text-blue-800",
-      in_progress: "bg-yellow-100 text-yellow-800",
-      resolved: "bg-green-100 text-green-800",
-      closed: "bg-gray-100 text-gray-800",
+      open: 'bg-blue-100 text-blue-800',
+      in_progress: 'bg-yellow-100 text-yellow-800',
+      resolved: 'bg-green-100 text-green-800',
+      closed: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      open: "مفتوح",
-      in_progress: "قيد المعالجة",
-      resolved: "تم الحل",
-      closed: "مغلق",
+      open: 'مفتوح',
+      in_progress: 'قيد المعالجة',
+      resolved: 'تم الحل',
+      closed: 'مغلق',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -122,16 +132,16 @@ export default function SupportClient() {
     );
   };
 
-  const getPriorityBadge = (priority: Ticket["priority"]) => {
+  const getPriorityBadge = (priority: Ticket['priority']) => {
     const styles = {
-      low: "bg-gray-100 text-gray-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      high: "bg-red-100 text-red-800",
+      low: 'bg-gray-100 text-gray-800',
+      medium: 'bg-yellow-100 text-yellow-800',
+      high: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: "منخفض",
-      medium: "متوسط",
-      high: "عالي",
+      low: 'منخفض',
+      medium: 'متوسط',
+      high: 'عالي',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[priority]}`}>
@@ -277,11 +287,11 @@ export default function SupportClient() {
                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    أُنشئت: {new Date(ticket.createdAt).toLocaleDateString("ar-SA")}
+                    أُنشئت: {new Date(ticket.createdAt).toLocaleDateString('ar-SA')}
                   </span>
                   <span className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
-                    آخر تحديث: {new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}
+                    آخر تحديث: {new Date(ticket.updatedAt).toLocaleDateString('ar-SA')}
                   </span>
                 </div>
               </div>

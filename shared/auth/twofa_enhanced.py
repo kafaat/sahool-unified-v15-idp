@@ -443,6 +443,37 @@ class EnhancedTwoFactorAuth:
 
         return False, "Invalid code"
 
+    def _verify_single_backup_hash(self, code: str, stored_hash: str) -> bool:
+        """Verify a backup code against a single stored hash.
+
+        Supports bcrypt, salted SHA-256, and legacy unsalted SHA-256 formats.
+        """
+        import hmac as _hmac
+
+        clean_code = code.replace("-", "").strip().upper()
+
+        if stored_hash.startswith("$2"):
+            # bcrypt hash
+            try:
+                import bcrypt
+
+                return bcrypt.checkpw(clean_code.encode(), stored_hash.encode())
+            except ImportError:
+                return False
+        elif stored_hash.startswith("sha256:"):
+            # Salted SHA-256 fallback
+            parts = stored_hash.split(":", 2)
+            if len(parts) == 3:
+                salt = parts[1]
+                expected = parts[2]
+                computed = hashlib.sha256((salt + clean_code).encode()).hexdigest()
+                return _hmac.compare_digest(computed, expected)
+            return False
+        else:
+            # Legacy unsalted SHA-256 (backward compat)
+            computed = hashlib.sha256(clean_code.encode()).hexdigest()
+            return _hmac.compare_digest(computed, stored_hash)
+
     async def _verify_backup_code(
         self,
         user_id: str,
@@ -450,18 +481,20 @@ class EnhancedTwoFactorAuth:
         twofa_config: TwoFAConfig,
     ) -> tuple[bool, str]:
         """Verify backup code (one-time use)"""
-        code_hash = self._hash_backup_code(code)
+        # Find matching hash by verifying against each stored hash
+        matched_hash = None
+        for stored_hash in twofa_config.backup_codes_hash:
+            if stored_hash in twofa_config.backup_codes_used:
+                continue
+            if self._verify_single_backup_hash(code, stored_hash):
+                matched_hash = stored_hash
+                break
 
-        # Check if code exists
-        if code_hash not in twofa_config.backup_codes_hash:
+        if matched_hash is None:
             return False, "Invalid backup code"
 
-        # Check if already used
-        if code_hash in twofa_config.backup_codes_used:
-            return False, "Backup code already used"
-
         # Mark as used
-        twofa_config.backup_codes_used.append(code_hash)
+        twofa_config.backup_codes_used.append(matched_hash)
         twofa_config.updated_at = time.time()
         await self._save_config(twofa_config)
 
@@ -862,9 +895,20 @@ class EnhancedTwoFactorAuth:
             return self._memory_configs.get(user_id)
 
     def _hash_backup_code(self, code: str) -> str:
-        """Hash backup code for storage"""
+        """Hash backup code for secure storage.
+
+        Uses bcrypt (preferred) with salted SHA-256 fallback.
+        SECURITY: Never use unsalted hashes for backup codes.
+        """
         clean_code = code.replace("-", "").strip().upper()
-        return hashlib.sha256(clean_code.encode()).hexdigest()
+        try:
+            import bcrypt
+
+            return bcrypt.hashpw(clean_code.encode(), bcrypt.gensalt(rounds=12)).decode()
+        except ImportError:
+            # Fallback to SHA-256 with salt if bcrypt not available
+            salt = secrets.token_hex(16)
+            return f"sha256:{salt}:{hashlib.sha256((salt + clean_code).encode()).hexdigest()}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

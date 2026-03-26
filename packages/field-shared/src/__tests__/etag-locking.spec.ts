@@ -28,7 +28,7 @@ class ETagManager {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return `"${Math.abs(hash).toString(16)}"`;
@@ -146,17 +146,11 @@ class FieldRepository {
 }
 
 class ConflictResolver {
-  resolveServerWins(
-    serverVersion: Field,
-    _clientVersion: Partial<Field>
-  ): Field {
+  resolveServerWins(serverVersion: Field, _clientVersion: Partial<Field>): Field {
     return serverVersion;
   }
 
-  resolveClientWins(
-    serverVersion: Field,
-    clientVersion: Partial<Field>
-  ): Field {
+  resolveClientWins(serverVersion: Field, clientVersion: Partial<Field>): Field {
     return {
       ...serverVersion,
       ...clientVersion,
@@ -458,11 +452,7 @@ describe('ConflictResolver', () => {
 
   describe('Merge Strategy', () => {
     it('should merge non-conflicting fields', () => {
-      const { merged, conflicts } = resolver.resolveMerge(
-        serverVersion,
-        { areaHa: 20 },
-        ['name']
-      );
+      const { merged, conflicts } = resolver.resolveMerge(serverVersion, { areaHa: 20 }, ['name']);
 
       expect(merged.areaHa).toBe(20);
       expect(merged.name).toBe('Server Name');

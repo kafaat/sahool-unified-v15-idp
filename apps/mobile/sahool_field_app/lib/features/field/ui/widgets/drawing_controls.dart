@@ -130,9 +130,9 @@ class DrawingControls extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -234,10 +234,10 @@ class _ControlButton extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(isPrimary ? 14 : 10),
               decoration: BoxDecoration(
-                color: isPrimary && isEnabled ? color : color.withOpacity(0.1),
+                color: isPrimary && isEnabled ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   width: isPrimary ? 2 : 1,
                 ),
               ),
@@ -280,11 +280,11 @@ class _FieldNameDialogState extends State<_FieldNameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
           Icon(Icons.grass, color: SahoolColors.primary),
-          const SizedBox(width: 8),
-          const Text('اسم الحقل'),
+          SizedBox(width: 8),
+          Text('اسم الحقل'),
         ],
       ),
       content: TextField(

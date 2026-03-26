@@ -16,7 +16,6 @@ from shared.ai.knowledge.agrovoc import (
     AgrovocLookup,
 )
 
-
 # ─── Enum Tests ──────────────────────────────────────────────────────────────
 
 

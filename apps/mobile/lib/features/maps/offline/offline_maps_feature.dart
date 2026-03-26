@@ -14,7 +14,7 @@
 ///   MaterialPageRoute(builder: (_) => const OfflineRegionsScreen()),
 /// );
 /// ```
-library offline_maps_feature;
+library;
 
 // Screens
 export 'screens/offline_regions_screen.dart';

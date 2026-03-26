@@ -177,7 +177,7 @@ void main() {
         ],
         analyzedAt: DateTime(2026, 2, 27, 10, 0),
         imageUrl: 'https://example.com/ndvi.png',
-        indices: {'NDVI': 0.72, 'NDWI': 0.35},
+        indices: const {'NDVI': 0.72, 'NDWI': 0.35},
       );
 
       // Act
@@ -358,7 +358,7 @@ void main() {
             affectedZone: 'zone_B',
           ),
         ],
-        recommendations: [
+        recommendations: const [
           Recommendation(
             id: 'rec_001',
             type: RecommendationType.irrigation,
@@ -372,7 +372,7 @@ void main() {
           ),
         ],
         assessedAt: DateTime(2026, 2, 27, 8, 0),
-        zoneScores: {'zone_A': 85.0, 'zone_B': 62.0},
+        zoneScores: const {'zone_A': 85.0, 'zone_B': 62.0},
       );
 
       // Act
@@ -697,12 +697,12 @@ void main() {
             endDate: DateTime(2025, 11, 29),
             isCompleted: true,
             isCurrent: false,
-            tasks: ['Ensure adequate moisture'],
-            tasksAr: ['\u0636\u0645\u0627\u0646 \u0631\u0637\u0648\u0628\u0629 \u0643\u0627\u0641\u064a\u0629'],
+            tasks: const ['Ensure adequate moisture'],
+            tasksAr: const ['\u0636\u0645\u0627\u0646 \u0631\u0637\u0648\u0628\u0629 \u0643\u0627\u0641\u064a\u0629'],
           ),
         ],
-        currentTasks: ['Monitor pollination'],
-        currentTasksAr: [
+        currentTasks: const ['Monitor pollination'],
+        currentTasksAr: const [
           '\u0645\u0631\u0627\u0642\u0628\u0629 \u0627\u0644\u062a\u0644\u0642\u064a\u062d',
         ],
         completionPercentage: 65.0,
@@ -833,8 +833,8 @@ void main() {
         description: 'Main growth phase',
         descriptionAr:
             '\u0645\u0631\u062d\u0644\u0629 \u0627\u0644\u0646\u0645\u0648 \u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629',
-        tasks: ['Apply nitrogen', 'Monitor pest'],
-        tasksAr: [
+        tasks: const ['Apply nitrogen', 'Monitor pest'],
+        tasksAr: const [
           '\u062a\u0637\u0628\u064a\u0642 \u0627\u0644\u0646\u064a\u062a\u0631\u0648\u062c\u064a\u0646',
           '\u0645\u0631\u0627\u0642\u0628\u0629 \u0627\u0644\u0622\u0641\u0627\u062a',
         ],

@@ -3,21 +3,21 @@
  * مكون خريطة المستشعرات
  */
 
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { useSensors } from "../hooks/useSensors";
-import { MapPin, Loader2 } from "lucide-react";
+import { useEffect, useRef } from 'react';
+import { useSensors } from '../hooks/useSensors';
+import { MapPin, Loader2 } from 'lucide-react';
 
 const typeLabels = {
-  soil_moisture: "رطوبة التربة",
-  temperature: "درجة الحرارة",
-  humidity: "الرطوبة",
-  ph: "الحموضة",
-  light: "الإضاءة",
-  pressure: "الضغط",
-  rain: "المطر",
-  wind: "الرياح",
+  soil_moisture: 'رطوبة التربة',
+  temperature: 'درجة الحرارة',
+  humidity: 'الرطوبة',
+  ph: 'الحموضة',
+  light: 'الإضاءة',
+  pressure: 'الضغط',
+  rain: 'المطر',
+  wind: 'الرياح',
 };
 
 export function SensorMap() {
@@ -27,7 +27,7 @@ export function SensorMap() {
   const { data: sensors, isLoading } = useSensors();
 
   useEffect(() => {
-    if (typeof window === "undefined" || !mapRef.current) return;
+    if (typeof window === 'undefined' || !mapRef.current) return;
 
     // Initialize map
     const initMap = async () => {
@@ -39,8 +39,8 @@ export function SensorMap() {
       if (!mapInstanceRef.current && mapRef.current) {
         const map = L.map(mapRef.current).setView([15.5527, 48.5164], 6); // Center of Yemen
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap contributors",
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
           maxZoom: 19,
         }).addTo(map);
 
@@ -59,15 +59,17 @@ export function SensorMap() {
           if (!sensor.location) return;
 
           const statusColors: Record<string, string> = {
-            active: "#16a34a",
-            inactive: "#6b7280",
-            error: "#dc2626",
-            maintenance: "#eab308",
+            active: '#16a34a',
+            online: '#16a34a',
+            inactive: '#6b7280',
+            offline: '#6b7280',
+            error: '#dc2626',
+            maintenance: '#eab308',
           };
 
           const iconHtml = `
             <div style="
-              background-color: ${statusColors[sensor.status] || "#6b7280"};
+              background-color: ${statusColors[sensor.status] || '#6b7280'};
               width: 32px;
               height: 32px;
               border-radius: 50%;
@@ -84,17 +86,14 @@ export function SensorMap() {
 
           const customIcon = L.divIcon({
             html: iconHtml,
-            className: "custom-sensor-marker",
+            className: 'custom-sensor-marker',
             iconSize: [32, 32],
             iconAnchor: [16, 16],
           });
 
-          const marker = L.marker(
-            [sensor.location.latitude, sensor.location.longitude],
-            {
-              icon: customIcon,
-            },
-          )
+          const marker = L.marker([sensor.location.latitude, sensor.location.longitude], {
+            icon: customIcon,
+          })
             .addTo(mapInstanceRef.current)
             .bindPopup(
               `
@@ -107,7 +106,7 @@ export function SensorMap() {
                 ${
                   sensor.location.fieldName
                     ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${sensor.location.fieldName}</p>`
-                    : ""
+                    : ''
                 }
                 ${
                   sensor.lastReading
@@ -117,19 +116,19 @@ export function SensorMap() {
                       ${sensor.lastReading.value.toFixed(1)} ${sensor.lastReading.unit}
                     </p>
                     <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: #666;">
-                      ${new Date(sensor.lastReading.timestamp).toLocaleString("ar-YE")}
+                      ${new Date(sensor.lastReading.timestamp).toLocaleString('ar-YE')}
                     </p>
                   </div>
                 `
-                    : ""
+                    : ''
                 }
                 ${
                   sensor.battery !== undefined
                     ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${sensor.battery}%</p>`
-                    : ""
+                    : ''
                 }
               </div>
-            `,
+            `
             );
 
           markersRef.current.push(marker);
@@ -138,10 +137,7 @@ export function SensorMap() {
         // Fit map to show all markers
         if (sensorsWithLocation.length > 0) {
           const bounds = L.latLngBounds(
-            sensorsWithLocation.map((s) => [
-              s.location!.latitude,
-              s.location!.longitude,
-            ]),
+            sensorsWithLocation.map((s) => [s.location!.latitude, s.location!.longitude])
           );
           mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
         }
@@ -154,6 +150,11 @@ export function SensorMap() {
       // Cleanup markers
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+      // Cleanup map instance to prevent "Map container is already initialized" on re-mount
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
   }, [sensors]);
 
@@ -161,7 +162,7 @@ export function SensorMap() {
     return (
       <div className="bg-white rounded-lg shadow p-6 h-96 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-        <span className="mr-3 text-gray-600">جاري تحميل الخريطة...</span>
+        <span className="ms-3 text-gray-600">جاري تحميل الخريطة...</span>
       </div>
     );
   }

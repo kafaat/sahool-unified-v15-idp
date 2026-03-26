@@ -1,5 +1,5 @@
-export { edgeApi, ERROR_MESSAGES } from "./api";
-export type { EdgeDevice, EdgeDeployment, EdgeSyncStatus, EdgeFilters } from "./types";
+export { edgeApi, ERROR_MESSAGES } from './api';
+export type { EdgeDevice, EdgeDeployment, EdgeSyncStatus, EdgeFilters } from './types';
 export {
   edgeKeys,
   useEdgeDevices,
@@ -10,4 +10,4 @@ export {
   useDeleteEdgeDevice,
   useDeployModel,
   useSyncDevice,
-} from "./hooks/useEdgeDevices";
+} from './hooks/useEdgeDevices';

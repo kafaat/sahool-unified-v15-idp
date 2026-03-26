@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import '../models/profitability_models.dart';
 import '../providers/profitability_provider.dart';
 import '../widgets/cost_breakdown_widget.dart';
-import '../widgets/profit_chart_widget.dart';
 
 class ProfitabilityDashboardScreen extends ConsumerStatefulWidget {
   final String farmId;
@@ -28,7 +27,7 @@ class ProfitabilityDashboardScreen extends ConsumerStatefulWidget {
 
 class _ProfitabilityDashboardScreenState
     extends ConsumerState<ProfitabilityDashboardScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
 
   @override
   void initState() {
@@ -137,7 +136,7 @@ class _ProfitabilityDashboardScreenState
         Expanded(
           child: _buildMetricCard(
             title: locale == 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue',
-            value: '${currencyFormat.format(summary.totalRevenue)}',
+            value: currencyFormat.format(summary.totalRevenue),
             subtitle: locale == 'ar' ? 'ريال يمني' : 'YER',
             icon: Icons.trending_up,
             color: Colors.green,
@@ -147,7 +146,7 @@ class _ProfitabilityDashboardScreenState
         Expanded(
           child: _buildMetricCard(
             title: locale == 'ar' ? 'إجمالي التكاليف' : 'Total Costs',
-            value: '${currencyFormat.format(summary.totalCosts)}',
+            value: currencyFormat.format(summary.totalCosts),
             subtitle: locale == 'ar' ? 'ريال يمني' : 'YER',
             icon: Icons.trending_down,
             color: Colors.red,
@@ -262,8 +261,8 @@ class _ProfitabilityDashboardScreenState
                   ),
                   decoration: BoxDecoration(
                     color: isProfitable
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -345,7 +344,7 @@ class _ProfitabilityDashboardScreenState
               final crop = topCrops[index];
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Colors.green.withOpacity(0.1),
+                  backgroundColor: Colors.green.withValues(alpha: 0.1),
                   child: Text(
                     '${index + 1}',
                     style: const TextStyle(

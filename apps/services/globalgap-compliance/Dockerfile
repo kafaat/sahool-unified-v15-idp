@@ -31,6 +31,14 @@ COPY apps/services/globalgap-compliance/requirements.txt .
 # Install Python dependencies | تثبيت تبعيات Python
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \

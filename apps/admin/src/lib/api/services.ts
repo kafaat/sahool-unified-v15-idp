@@ -8,7 +8,7 @@
  * Uses unified API contracts from @sahool/shared-types/contracts
  */
 
-import { logger } from "../logger";
+import { logger } from '../logger';
 import {
   USER_ENDPOINTS,
   IOT_ENDPOINTS,
@@ -16,11 +16,11 @@ import {
   ALERT_ENDPOINTS,
   EQUIPMENT_ENDPOINTS,
   buildUrl,
-} from "@sahool/shared-types/contracts";
+} from '@sahool/shared-types/contracts';
 
 // Default fetch options to ensure httpOnly cookies are sent with requests
 const fetchDefaults: RequestInit = {
-  credentials: "same-origin",
+  credentials: 'same-origin',
 };
 
 // =============================================================================
@@ -58,9 +58,9 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "manager" | "farmer" | "researcher" | "expert" | "viewer";
+  role: 'admin' | 'manager' | 'farmer' | 'researcher' | 'expert' | 'viewer';
   phone?: string;
-  status: "active" | "inactive" | "suspended" | "pending";
+  status: 'active' | 'inactive' | 'suspended' | 'pending';
   farmCount?: number;
   lastLogin?: string;
   createdAt: string;
@@ -72,15 +72,15 @@ export interface CreateUserData {
   password: string;
   name: string;
   phone?: string;
-  role?: User["role"];
+  role?: User['role'];
 }
 
 export interface UpdateUserData {
   name?: string;
   email?: string;
-  role?: User["role"];
+  role?: User['role'];
   phone?: string;
-  status?: User["status"];
+  status?: User['status'];
 }
 
 export const userService = {
@@ -91,29 +91,26 @@ export const userService = {
   async getAll(params?: PaginationParams & { role?: string; status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.search) queryParams.set("search", params.search);
-      if (params?.role) queryParams.set("role", params.role);
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.search) queryParams.set('search', params.search);
+      if (params?.role) queryParams.set('role', params.role);
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(
-        `${USER_ENDPOINTS.LIST}?${queryParams.toString()}`,
-        {
-          ...fetchDefaults,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${USER_ENDPOINTS.LIST}?${queryParams.toString()}`, {
+        ...fetchDefaults,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      return await response.json() as PaginatedResponse<User>;
+      return (await response.json()) as PaginatedResponse<User>;
     } catch (error) {
-      logger.error("Failed to fetch users", { error });
+      logger.error('Failed to fetch users', { error });
       throw error;
     }
   },
@@ -126,9 +123,9 @@ export const userService = {
     try {
       const response = await fetch(buildUrl(USER_ENDPOINTS.GET, { userId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as User;
+      return (await response.json()) as User;
     } catch (error) {
-      logger.error("Failed to fetch user", { id, error });
+      logger.error('Failed to fetch user', { id, error });
       throw error;
     }
   },
@@ -141,14 +138,14 @@ export const userService = {
     try {
       const response = await fetch(USER_ENDPOINTS.CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as User;
+      return (await response.json()) as User;
     } catch (error) {
-      logger.error("Failed to create user", { error });
+      logger.error('Failed to create user', { error });
       throw error;
     }
   },
@@ -161,14 +158,14 @@ export const userService = {
     try {
       const response = await fetch(buildUrl(USER_ENDPOINTS.UPDATE, { userId: id }), {
         ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as User;
+      return (await response.json()) as User;
     } catch (error) {
-      logger.error("Failed to update user", { id, error });
+      logger.error('Failed to update user', { id, error });
       throw error;
     }
   },
@@ -181,12 +178,12 @@ export const userService = {
     try {
       const response = await fetch(buildUrl(USER_ENDPOINTS.DELETE, { userId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete user", { id, error });
+      logger.error('Failed to delete user', { id, error });
       throw error;
     }
   },
@@ -199,11 +196,11 @@ export const userService = {
 export interface IoTDevice {
   id: string;
   name: string;
-  type: "soil_moisture" | "weather_station" | "camera" | "flow_meter" | "other";
+  type: 'soil_moisture' | 'weather_station' | 'camera' | 'flow_meter' | 'other';
   fieldId: string;
   fieldName?: string;
   serialNumber: string;
-  status: "online" | "offline" | "error" | "maintenance";
+  status: 'online' | 'offline' | 'error' | 'maintenance';
   batteryLevel?: number;
   lastReading?: string;
   lastReadingValue?: number;
@@ -225,7 +222,7 @@ export interface SensorReading {
 
 export interface CreateDeviceData {
   name: string;
-  type: IoTDevice["type"];
+  type: IoTDevice['type'];
   fieldId: string;
   serialNumber: string;
   config?: Record<string, unknown>;
@@ -239,17 +236,20 @@ export const iotService = {
   async getAll(params?: PaginationParams & { fieldId?: string; type?: string; status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.fieldId) queryParams.set("field_id", params.fieldId);
-      if (params?.type) queryParams.set("type", params.type);
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.fieldId) queryParams.set('field_id', params.fieldId);
+      if (params?.type) queryParams.set('type', params.type);
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(`${IOT_ENDPOINTS.DEVICES}?${queryParams.toString()}`, fetchDefaults);
+      const response = await fetch(
+        `${IOT_ENDPOINTS.DEVICES}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<IoTDevice>;
+      return (await response.json()) as PaginatedResponse<IoTDevice>;
     } catch (error) {
-      logger.error("Failed to fetch IoT devices", { error });
+      logger.error('Failed to fetch IoT devices', { error });
       throw error;
     }
   },
@@ -260,11 +260,14 @@ export const iotService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }), fetchDefaults);
+      const response = await fetch(
+        buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }),
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IoTDevice;
+      return (await response.json()) as IoTDevice;
     } catch (error) {
-      logger.error("Failed to fetch IoT device", { id, error });
+      logger.error('Failed to fetch IoT device', { id, error });
       throw error;
     }
   },
@@ -276,18 +279,18 @@ export const iotService = {
   async getReadings(deviceId: string, params?: { from?: string; to?: string; metric?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.from) queryParams.set("from", params.from);
-      if (params?.to) queryParams.set("to", params.to);
-      if (params?.metric) queryParams.set("metric", params.metric);
+      if (params?.from) queryParams.set('from', params.from);
+      if (params?.to) queryParams.set('to', params.to);
+      if (params?.metric) queryParams.set('metric', params.metric);
 
       const response = await fetch(
         `${buildUrl(IOT_ENDPOINTS.DEVICE_READINGS, { deviceId })}?${queryParams.toString()}`,
-        fetchDefaults,
+        fetchDefaults
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<SensorReading>;
+      return (await response.json()) as PaginatedResponse<SensorReading>;
     } catch (error) {
-      logger.error("Failed to fetch device readings", { deviceId, error });
+      logger.error('Failed to fetch device readings', { deviceId, error });
       throw error;
     }
   },
@@ -300,14 +303,14 @@ export const iotService = {
     try {
       const response = await fetch(IOT_ENDPOINTS.DEVICE_CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IoTDevice;
+      return (await response.json()) as IoTDevice;
     } catch (error) {
-      logger.error("Failed to register IoT device", { error });
+      logger.error('Failed to register IoT device', { error });
       throw error;
     }
   },
@@ -316,18 +319,18 @@ export const iotService = {
    * Update device
    * تحديث جهاز
    */
-  async update(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice["status"] }) {
+  async update(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice['status'] }) {
     try {
       const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_UPDATE, { deviceId: id }), {
         ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IoTDevice;
+      return (await response.json()) as IoTDevice;
     } catch (error) {
-      logger.error("Failed to update IoT device", { id, error });
+      logger.error('Failed to update IoT device', { id, error });
       throw error;
     }
   },
@@ -340,12 +343,12 @@ export const iotService = {
     try {
       const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_DELETE, { deviceId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete IoT device", { id, error });
+      logger.error('Failed to delete IoT device', { id, error });
       throw error;
     }
   },
@@ -360,11 +363,11 @@ export interface IrrigationSchedule {
   fieldId: string;
   fieldName?: string;
   name: string;
-  type: "manual" | "automatic" | "scheduled";
-  status: "active" | "paused" | "completed";
+  type: 'manual' | 'automatic' | 'scheduled';
+  status: 'active' | 'paused' | 'completed';
   startDate: string;
   endDate?: string;
-  frequency: "daily" | "weekly" | "custom";
+  frequency: 'daily' | 'weekly' | 'custom';
   duration: number; // minutes
   waterAmount: number; // liters or cubic meters
   schedule?: {
@@ -380,13 +383,13 @@ export interface IrrigationSchedule {
 export interface CreateIrrigationData {
   fieldId: string;
   name: string;
-  type: IrrigationSchedule["type"];
+  type: IrrigationSchedule['type'];
   startDate: string;
   endDate?: string;
-  frequency: IrrigationSchedule["frequency"];
+  frequency: IrrigationSchedule['frequency'];
   duration: number;
   waterAmount: number;
-  schedule?: IrrigationSchedule["schedule"];
+  schedule?: IrrigationSchedule['schedule'];
 }
 
 export const irrigationService = {
@@ -397,16 +400,19 @@ export const irrigationService = {
   async getAll(params?: PaginationParams & { fieldId?: string; status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.fieldId) queryParams.set("field_id", params.fieldId);
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.fieldId) queryParams.set('field_id', params.fieldId);
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(`${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?${queryParams.toString()}`, fetchDefaults);
+      const response = await fetch(
+        `${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<IrrigationSchedule>;
+      return (await response.json()) as PaginatedResponse<IrrigationSchedule>;
     } catch (error) {
-      logger.error("Failed to fetch irrigation schedules", { error });
+      logger.error('Failed to fetch irrigation schedules', { error });
       throw error;
     }
   },
@@ -417,11 +423,14 @@ export const irrigationService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), fetchDefaults);
+      const response = await fetch(
+        buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }),
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IrrigationSchedule;
+      return (await response.json()) as IrrigationSchedule;
     } catch (error) {
-      logger.error("Failed to fetch irrigation schedule", { id, error });
+      logger.error('Failed to fetch irrigation schedule', { id, error });
       throw error;
     }
   },
@@ -434,14 +443,14 @@ export const irrigationService = {
     try {
       const response = await fetch(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IrrigationSchedule;
+      return (await response.json()) as IrrigationSchedule;
     } catch (error) {
-      logger.error("Failed to create irrigation schedule", { error });
+      logger.error('Failed to create irrigation schedule', { error });
       throw error;
     }
   },
@@ -450,18 +459,24 @@ export const irrigationService = {
    * Update irrigation schedule
    * تحديث جدول ري
    */
-  async update(id: string, data: Partial<CreateIrrigationData> & { status?: IrrigationSchedule["status"] }) {
+  async update(
+    id: string,
+    data: Partial<CreateIrrigationData> & { status?: IrrigationSchedule['status'] }
+  ) {
     try {
-      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId: id }), {
-        ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId: id }),
+        {
+          ...fetchDefaults,
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as IrrigationSchedule;
+      return (await response.json()) as IrrigationSchedule;
     } catch (error) {
-      logger.error("Failed to update irrigation schedule", { id, error });
+      logger.error('Failed to update irrigation schedule', { id, error });
       throw error;
     }
   },
@@ -472,14 +487,17 @@ export const irrigationService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId: id }), {
-        ...fetchDefaults,
-        method: "DELETE",
-      });
+      const response = await fetch(
+        buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId: id }),
+        {
+          ...fetchDefaults,
+          method: 'DELETE',
+        }
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete irrigation schedule", { id, error });
+      logger.error('Failed to delete irrigation schedule', { id, error });
       throw error;
     }
   },
@@ -491,8 +509,8 @@ export const irrigationService = {
 
 export interface Alert {
   id: string;
-  type: "weather" | "disease" | "pest" | "irrigation" | "sensor" | "system";
-  severity: "info" | "warning" | "critical";
+  type: 'weather' | 'disease' | 'pest' | 'irrigation' | 'sensor' | 'system';
+  severity: 'info' | 'warning' | 'critical';
   title: string;
   titleAr: string;
   message: string;
@@ -500,7 +518,7 @@ export interface Alert {
   source: string;
   fieldId?: string;
   fieldName?: string;
-  status: "unread" | "read" | "acknowledged" | "resolved";
+  status: 'unread' | 'read' | 'acknowledged' | 'resolved';
   acknowledgedBy?: string;
   acknowledgedAt?: string;
   resolvedBy?: string;
@@ -511,8 +529,8 @@ export interface Alert {
 }
 
 export interface CreateAlertData {
-  type: Alert["type"];
-  severity: Alert["severity"];
+  type: Alert['type'];
+  severity: Alert['severity'];
   title: string;
   titleAr: string;
   message: string;
@@ -527,21 +545,31 @@ export const alertService = {
    * Get all alerts
    * جلب جميع التنبيهات
    */
-  async getAll(params?: PaginationParams & { type?: string; severity?: string; status?: string; fieldId?: string }) {
+  async getAll(
+    params?: PaginationParams & {
+      type?: string;
+      severity?: string;
+      status?: string;
+      fieldId?: string;
+    }
+  ) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.type) queryParams.set("type", params.type);
-      if (params?.severity) queryParams.set("severity", params.severity);
-      if (params?.status) queryParams.set("status", params.status);
-      if (params?.fieldId) queryParams.set("field_id", params.fieldId);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.type) queryParams.set('type', params.type);
+      if (params?.severity) queryParams.set('severity', params.severity);
+      if (params?.status) queryParams.set('status', params.status);
+      if (params?.fieldId) queryParams.set('field_id', params.fieldId);
 
-      const response = await fetch(`${ALERT_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
+      const response = await fetch(
+        `${ALERT_ENDPOINTS.LIST}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<Alert>;
+      return (await response.json()) as PaginatedResponse<Alert>;
     } catch (error) {
-      logger.error("Failed to fetch alerts", { error });
+      logger.error('Failed to fetch alerts', { error });
       throw error;
     }
   },
@@ -554,9 +582,9 @@ export const alertService = {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Alert;
+      return (await response.json()) as Alert;
     } catch (error) {
-      logger.error("Failed to fetch alert", { id, error });
+      logger.error('Failed to fetch alert', { id, error });
       throw error;
     }
   },
@@ -569,14 +597,14 @@ export const alertService = {
     try {
       const response = await fetch(ALERT_ENDPOINTS.CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Alert;
+      return (await response.json()) as Alert;
     } catch (error) {
-      logger.error("Failed to create alert", { error });
+      logger.error('Failed to create alert', { error });
       throw error;
     }
   },
@@ -589,12 +617,12 @@ export const alertService = {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }), {
         ...fetchDefaults,
-        method: "POST",
+        method: 'POST',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Alert;
+      return (await response.json()) as Alert;
     } catch (error) {
-      logger.error("Failed to acknowledge alert", { id, error });
+      logger.error('Failed to acknowledge alert', { id, error });
       throw error;
     }
   },
@@ -607,14 +635,14 @@ export const alertService = {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resolution }),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Alert;
+      return (await response.json()) as Alert;
     } catch (error) {
-      logger.error("Failed to resolve alert", { id, error });
+      logger.error('Failed to resolve alert', { id, error });
       throw error;
     }
   },
@@ -627,12 +655,12 @@ export const alertService = {
     try {
       const response = await fetch(buildUrl(ALERT_ENDPOINTS.DELETE, { alertId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete alert", { id, error });
+      logger.error('Failed to delete alert', { id, error });
       throw error;
     }
   },
@@ -646,10 +674,10 @@ export interface Equipment {
   id: string;
   name: string;
   nameAr: string;
-  type: "tractor" | "harvester" | "sprayer" | "pump" | "other";
+  type: 'tractor' | 'harvester' | 'sprayer' | 'pump' | 'other';
   model?: string;
   serialNumber?: string;
-  status: "available" | "in_use" | "maintenance" | "broken";
+  status: 'available' | 'in_use' | 'maintenance' | 'broken';
   ownerId?: string;
   ownerName?: string;
   purchaseDate?: string;
@@ -668,7 +696,7 @@ export interface Equipment {
 export interface CreateEquipmentData {
   name: string;
   nameAr: string;
-  type: Equipment["type"];
+  type: Equipment['type'];
   model?: string;
   serialNumber?: string;
   purchaseDate?: string;
@@ -686,17 +714,20 @@ export const equipmentService = {
   async getAll(params?: PaginationParams & { type?: string; status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.type) queryParams.set("type", params.type);
-      if (params?.status) queryParams.set("status", params.status);
-      if (params?.search) queryParams.set("search", params.search);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.type) queryParams.set('type', params.type);
+      if (params?.status) queryParams.set('status', params.status);
+      if (params?.search) queryParams.set('search', params.search);
 
-      const response = await fetch(`${EQUIPMENT_ENDPOINTS.LIST}?${queryParams.toString()}`, fetchDefaults);
+      const response = await fetch(
+        `${EQUIPMENT_ENDPOINTS.LIST}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<Equipment>;
+      return (await response.json()) as PaginatedResponse<Equipment>;
     } catch (error) {
-      logger.error("Failed to fetch equipment", { error });
+      logger.error('Failed to fetch equipment', { error });
       throw error;
     }
   },
@@ -707,11 +738,14 @@ export const equipmentService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), fetchDefaults);
+      const response = await fetch(
+        buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }),
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Equipment;
+      return (await response.json()) as Equipment;
     } catch (error) {
-      logger.error("Failed to fetch equipment", { id, error });
+      logger.error('Failed to fetch equipment', { id, error });
       throw error;
     }
   },
@@ -724,14 +758,14 @@ export const equipmentService = {
     try {
       const response = await fetch(EQUIPMENT_ENDPOINTS.CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Equipment;
+      return (await response.json()) as Equipment;
     } catch (error) {
-      logger.error("Failed to create equipment", { error });
+      logger.error('Failed to create equipment', { error });
       throw error;
     }
   },
@@ -740,18 +774,18 @@ export const equipmentService = {
    * Update equipment
    * تحديث معدة
    */
-  async update(id: string, data: Partial<CreateEquipmentData> & { status?: Equipment["status"] }) {
+  async update(id: string, data: Partial<CreateEquipmentData> & { status?: Equipment['status'] }) {
     try {
       const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.UPDATE, { equipmentId: id }), {
         ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Equipment;
+      return (await response.json()) as Equipment;
     } catch (error) {
-      logger.error("Failed to update equipment", { id, error });
+      logger.error('Failed to update equipment', { id, error });
       throw error;
     }
   },
@@ -764,12 +798,12 @@ export const equipmentService = {
     try {
       const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.DELETE, { equipmentId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete equipment", { id, error });
+      logger.error('Failed to delete equipment', { id, error });
       throw error;
     }
   },

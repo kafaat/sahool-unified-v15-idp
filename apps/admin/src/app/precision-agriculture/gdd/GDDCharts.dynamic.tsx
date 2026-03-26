@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 // Dynamic imports for GDD chart components (SSR disabled)
 // استيراد ديناميكي لمكونات الرسوم البيانية بدون عرض من جانب الخادم
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
 function ChartSkeleton() {
   return (
@@ -14,19 +14,17 @@ function ChartSkeleton() {
 }
 
 export const DynamicGDDStageDistributionChart = dynamic(
-  () =>
-    import("./GDDCharts").then((mod) => mod.GDDStageDistributionChart),
+  () => import('./GDDCharts').then((mod) => mod.GDDStageDistributionChart),
   {
     ssr: false,
     loading: () => <ChartSkeleton />,
-  },
+  }
 );
 
 export const DynamicGDDHistoryChart = dynamic(
-  () =>
-    import("./GDDCharts").then((mod) => mod.GDDHistoryChart),
+  () => import('./GDDCharts').then((mod) => mod.GDDHistoryChart),
   {
     ssr: false,
     loading: () => <ChartSkeleton />,
-  },
+  }
 );

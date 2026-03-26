@@ -12,8 +12,8 @@ export interface DroneFlight {
   fieldId: string;
   fieldName: string;
   fieldNameAr: string;
-  status: "planned" | "in_progress" | "completed" | "failed" | "cancelled";
-  missionType: "survey" | "spray" | "mapping" | "inspection";
+  status: 'planned' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
+  missionType: 'survey' | 'spray' | 'mapping' | 'inspection';
   altitude: number;
   speed: number;
   duration?: number;
@@ -30,7 +30,7 @@ export interface DroneDevice {
   nameAr: string;
   model: string;
   manufacturer: string;
-  status: "available" | "in_flight" | "charging" | "maintenance" | "offline";
+  status: 'available' | 'in_flight' | 'charging' | 'maintenance' | 'offline';
   battery: number;
   lastFlight?: string;
   totalFlightHours: number;
@@ -42,7 +42,7 @@ export interface FlightPlan {
   nameAr: string;
   droneId: string;
   fieldId: string;
-  missionType: "survey" | "spray" | "mapping" | "inspection";
+  missionType: 'survey' | 'spray' | 'mapping' | 'inspection';
   altitude: number;
   speed: number;
   overlap?: number;

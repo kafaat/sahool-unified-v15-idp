@@ -19,10 +19,10 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/notification-service/requirements.txt .
@@ -68,6 +68,10 @@ COPY --chown=sahool:sahool apps/services/shared/ ./services_shared/
 # Copy application code
 COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/
 
+# Copy migration files and config for Tortoise ORM built-in migrations
+COPY --chown=sahool:sahool apps/services/notification-service/migrations/ ./migrations/
+COPY --chown=sahool:sahool apps/services/notification-service/pyproject.toml ./pyproject.toml
+
 USER sahool
 
 # Default port (can be overridden via PORT env var)
@@ -79,4 +83,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')" || exit 1
 
 # Run the application (uses PORT environment variable)
+# NOTE: In production, run migrations before starting the app:
+#   python -m tortoise migrate
+# This can be done via an init container in Kubernetes or an entrypoint script.
 CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8110"]

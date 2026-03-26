@@ -3,10 +3,10 @@
  * خدمة الأحداث المباشرة - متوافق مع الـ kernel المسترجع
  */
 
-import { logger } from "../logger";
+import { logger } from '../logger';
 
 // Default WebSocket URL for CI/build environments
-const DEFAULT_WS_URL = "ws://localhost:8081";
+const DEFAULT_WS_URL = 'ws://localhost:8081';
 
 // Determine WebSocket URL from environment variable
 const getWebSocketUrl = (): string => {
@@ -15,19 +15,12 @@ const getWebSocketUrl = (): string => {
   if (!wsUrl) {
     // Use default URL in development or CI/build environments
     // In production with proper deployment, NEXT_PUBLIC_WS_URL should always be set
-    if (
-      process.env.NODE_ENV === "development" ||
-      typeof window === "undefined"
-    ) {
-      logger.warn(
-        `NEXT_PUBLIC_WS_URL not set, using default ${DEFAULT_WS_URL}`,
-      );
+    if (process.env.NODE_ENV === 'development' || typeof window === 'undefined') {
+      logger.warn(`NEXT_PUBLIC_WS_URL not set, using default ${DEFAULT_WS_URL}`);
       return DEFAULT_WS_URL;
     }
     // In browser production environment without WS_URL, use default but warn
-    logger.warn(
-      `NEXT_PUBLIC_WS_URL not configured, WebSocket features may not work`,
-    );
+    logger.warn(`NEXT_PUBLIC_WS_URL not configured, WebSocket features may not work`);
     return DEFAULT_WS_URL;
   }
 
@@ -46,7 +39,7 @@ export interface TimelineEvent {
 }
 
 export interface WSMessage {
-  type: "event" | "ping" | "subscribed" | "error";
+  type: 'event' | 'ping' | 'subscribed' | 'error';
   data?: TimelineEvent;
   message?: string;
 }
@@ -57,7 +50,6 @@ type ConnectionHandler = (connected: boolean) => void;
 class WebSocketClient {
   private ws: WebSocket | null = null;
   private url: string;
-  private token: string | null = null;
   private eventHandlers: Set<EventHandler> = new Set();
   private connectionHandlers: Set<ConnectionHandler> = new Set();
   private reconnectAttempts = 0;
@@ -65,25 +57,18 @@ class WebSocketClient {
   private reconnectDelay = 2000;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private subscriptions: string[] = [];
+  private authToken: string | null = null;
   private shouldReconnect = true;
 
   constructor(url: string) {
     this.url = url;
   }
 
-  /**
-   * Set JWT token for authenticated WebSocket connections.
-   * Token is passed via Sec-WebSocket-Protocol subprotocol header
-   * to avoid leaking credentials in URL query strings.
-   */
-  setToken(token: string | null) {
-    this.token = token;
-  }
-
   connect(
-    subscriptions: string[] = ["tasks.*", "diagnosis.*", "weather.*", "ndvi.*"],
+    subscriptions: string[] = ['tasks.*', 'diagnosis.*', 'weather.*', 'ndvi.*'],
+    token?: string
   ) {
-    if (typeof window === "undefined") return; // SSR check
+    if (typeof window === 'undefined') return; // SSR check
     if (this.ws?.readyState === WebSocket.OPEN) {
       return;
     }
@@ -91,16 +76,22 @@ class WebSocketClient {
     this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
+    // Use explicit token param if provided; otherwise rely on httpOnly cookies
+    // (WebSocket handshakes send cookies automatically when same-origin).
+    const authToken = token ?? null;
+    this.authToken = authToken;
+
     try {
-      // Pass JWT via query parameter — ws-gateway reads token from
-      // Authorization header or ?token= query param (not subprotocol).
-      const wsUrl = this.token
-        ? `${this.url}/events?token=${encodeURIComponent(this.token)}`
-        : `${this.url}/events`;
+      let wsUrl = `${this.url}/events`;
+      if (authToken) {
+        const separator = wsUrl.includes('?') ? '&' : '?';
+        wsUrl = `${wsUrl}${separator}token=${encodeURIComponent(authToken)}`;
+      }
+      // When no explicit token, cookies are sent automatically by the browser
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        logger.log("🔌 WebSocket connected");
+        logger.log('🔌 WebSocket connected');
         this.reconnectAttempts = 0;
         this.notifyConnectionHandlers(true);
         this.subscribe(subscriptions);
@@ -110,36 +101,27 @@ class WebSocketClient {
         try {
           const message: WSMessage = JSON.parse(event.data);
 
-          if (message.type === "event" && message.data) {
+          if (message.type === 'event' && message.data) {
             this.notifyEventHandlers(message.data);
-          } else if (message.type === "ping") {
-            this.ws?.send(JSON.stringify({ type: "pong" }));
+          } else if (message.type === 'ping') {
+            this.ws?.send(JSON.stringify({ type: 'pong' }));
           }
         } catch (error) {
-          logger.warn("Failed to parse WebSocket message:", error);
+          logger.error('Failed to parse WebSocket message:', error);
         }
       };
 
       this.ws.onclose = (event) => {
-        logger.log("🔌 WebSocket disconnected", event.code);
+        logger.log('🔌 WebSocket disconnected', event.code);
         this.notifyConnectionHandlers(false);
-
-        // Don't auto-reconnect on authentication failures (ws-gateway codes)
-        if (event.code === 4001 || event.code === 4003) {
-          logger.warn(`WebSocket auth failed (code ${event.code}) - token may be expired`);
-          return;
-        }
-
         this.attemptReconnect();
       };
 
-      this.ws.onerror = (event) => {
-        // WebSocket errors are expected when ws-gateway is unavailable.
-        // Use warn (not error) to avoid triggering Next.js error overlay.
-        logger.warn("WebSocket connection unavailable - using demo mode", event);
+      this.ws.onerror = (error) => {
+        logger.error('WebSocket error:', error);
       };
     } catch (error) {
-      logger.warn("WebSocket unavailable - using demo mode", error);
+      logger.error('Failed to create WebSocket:', error);
       this.attemptReconnect();
     }
   }
@@ -148,9 +130,9 @@ class WebSocketClient {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(
         JSON.stringify({
-          type: "subscribe",
+          type: 'subscribe',
           subjects,
-        }),
+        })
       );
     }
   }
@@ -162,16 +144,14 @@ class WebSocketClient {
     }
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      logger.log("Max reconnect attempts reached");
+      logger.log('Max reconnect attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
-    logger.log(
-      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`,
-    );
+    logger.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
 
     // Clear any existing reconnect timeout
     if (this.reconnectTimeout) {
@@ -180,7 +160,7 @@ class WebSocketClient {
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
-      this.connect(this.subscriptions);
+      this.connect(this.subscriptions, this.authToken ?? undefined);
     }, delay);
   }
 
@@ -231,35 +211,34 @@ export const wsClient = new WebSocketClient(WS_URL);
 
 // Event type helpers
 export function getEventIcon(eventType: string): string {
-  if (eventType.startsWith("task")) return "📋";
-  if (eventType.includes("weather")) return "🌤️";
-  if (eventType.includes("disease") || eventType.includes("diagnosis"))
-    return "🔬";
-  if (eventType.includes("ndvi")) return "🛰️";
-  if (eventType.includes("irrigation")) return "💧";
-  if (eventType.includes("fertilizer")) return "🧪";
-  return "📌";
+  if (eventType.startsWith('task')) return '📋';
+  if (eventType.includes('weather')) return '🌤️';
+  if (eventType.includes('disease') || eventType.includes('diagnosis')) return '🔬';
+  if (eventType.includes('ndvi')) return '🛰️';
+  if (eventType.includes('irrigation')) return '💧';
+  if (eventType.includes('fertilizer')) return '🧪';
+  return '📌';
 }
 
 export function getEventColor(eventType: string): string {
-  if (eventType.startsWith("task")) return "bg-blue-50 border-blue-200";
-  if (eventType.includes("weather")) return "bg-amber-50 border-amber-200";
-  if (eventType.includes("disease") || eventType.includes("diagnosis"))
-    return "bg-red-50 border-red-200";
-  if (eventType.includes("ndvi")) return "bg-emerald-50 border-emerald-200";
-  return "bg-gray-50 border-gray-200";
+  if (eventType.startsWith('task')) return 'bg-blue-50 border-blue-200';
+  if (eventType.includes('weather')) return 'bg-amber-50 border-amber-200';
+  if (eventType.includes('disease') || eventType.includes('diagnosis'))
+    return 'bg-red-50 border-red-200';
+  if (eventType.includes('ndvi')) return 'bg-emerald-50 border-emerald-200';
+  return 'bg-gray-50 border-gray-200';
 }
 
 export function formatEventType(eventType: string): string {
   const translations: Record<string, string> = {
-    task_created: "مهمة جديدة",
-    task_assigned: "تم تعيين مهمة",
-    task_completed: "اكتملت مهمة",
-    task_rescheduled: "تم إعادة جدولة",
-    image_diagnosed: "تشخيص صورة",
-    weather_alert_issued: "تنبيه طقس",
-    ndvi_processed: "تحليل NDVI",
-    disease_risk_calculated: "تقييم خطر المرض",
+    task_created: 'مهمة جديدة',
+    task_assigned: 'تم تعيين مهمة',
+    task_completed: 'اكتملت مهمة',
+    task_rescheduled: 'تم إعادة جدولة',
+    image_diagnosed: 'تشخيص صورة',
+    weather_alert_issued: 'تنبيه طقس',
+    ndvi_processed: 'تحليل NDVI',
+    disease_risk_calculated: 'تقييم خطر المرض',
   };
   return translations[eventType] || eventType;
 }

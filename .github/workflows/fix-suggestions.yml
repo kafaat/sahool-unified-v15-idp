@@ -1,0 +1,256 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Fix Suggestions - Comments on PRs with actionable fix suggestions
+# اقتراحات الإصلاح - يعلق على طلبات الدمج باقتراحات إصلاح قابلة للتنفيذ
+#
+# Runs diagnostics and posts a structured comment with:
+# - Fixable issues summary
+# - Commands to apply fixes locally
+# - Security warnings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Fix Suggestions
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, develop]
+
+concurrency:
+  group: fix-suggestions-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+jobs:
+  diagnose:
+    name: Diagnose & Suggest Fixes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install tools
+        run: |
+          pip install ruff bandit 2>/dev/null || pip install ruff
+          npm install --legacy-peer-deps 2>/dev/null || true
+
+      - name: Get changed files
+        id: changed
+        run: |
+          PYTHON_FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- '*.py' | head -100)
+          NODE_FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | head -100)
+
+          echo "python_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$PYTHON_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "node_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$NODE_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          if [ -n "$PYTHON_FILES" ]; then
+            PY_COUNT=$(echo "$PYTHON_FILES" | wc -l | tr -d ' ')
+          else
+            PY_COUNT=0
+          fi
+          if [ -n "$NODE_FILES" ]; then
+            NODE_COUNT=$(echo "$NODE_FILES" | wc -l | tr -d ' ')
+          else
+            NODE_COUNT=0
+          fi
+          echo "python_count=$PY_COUNT" >> $GITHUB_OUTPUT
+          echo "node_count=$NODE_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Run Python diagnostics
+        id: python-diag
+        if: steps.changed.outputs.python_count > 0
+        run: |
+          set +e
+          REPORT=""
+
+          # Ruff lint check
+          RUFF_OUTPUT=$(ruff check --output-format=json \
+            --select E,F,I,UP,B,SIM,N,W,C4,C90 \
+            --exclude archive/ \
+            ${{ steps.changed.outputs.python_files }} 2>/dev/null || echo "[]")
+
+          RUFF_COUNT=$(echo "$RUFF_OUTPUT" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+          RUFF_FIXABLE=$(echo "$RUFF_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(len([d for d in data if d.get('fix')]))
+          " 2>/dev/null || echo "0")
+
+          # Bandit security check
+          BANDIT_OUTPUT=$(bandit -r --format json \
+            ${{ steps.changed.outputs.python_files }} 2>/dev/null || echo '{"results":[]}')
+          BANDIT_COUNT=$(echo "$BANDIT_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(len(data.get('results', [])))
+          " 2>/dev/null || echo "0")
+
+          BANDIT_HIGH=$(echo "$BANDIT_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(len([r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']))
+          " 2>/dev/null || echo "0")
+
+          echo "ruff_count=$RUFF_COUNT" >> $GITHUB_OUTPUT
+          echo "ruff_fixable=$RUFF_FIXABLE" >> $GITHUB_OUTPUT
+          echo "bandit_count=$BANDIT_COUNT" >> $GITHUB_OUTPUT
+          echo "bandit_high=$BANDIT_HIGH" >> $GITHUB_OUTPUT
+
+      - name: Run Node.js diagnostics
+        id: node-diag
+        if: steps.changed.outputs.node_count > 0
+        continue-on-error: true
+        run: |
+          set +e
+
+          # ESLint check (may fail on files without config - fallback to empty)
+          ESLINT_OUTPUT=$(npx eslint --format json \
+            ${{ steps.changed.outputs.node_files }} 2>/dev/null) || ESLINT_OUTPUT="[]"
+          # Validate JSON, fallback if invalid
+          echo "$ESLINT_OUTPUT" | python3 -c "import sys,json; json.load(sys.stdin)" 2>/dev/null || ESLINT_OUTPUT="[]"
+
+          ESLINT_ERRORS=$(echo "$ESLINT_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(sum(f.get('errorCount', 0) for f in data))
+          " 2>/dev/null || echo "0")
+
+          ESLINT_WARNINGS=$(echo "$ESLINT_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(sum(f.get('warningCount', 0) for f in data))
+          " 2>/dev/null || echo "0")
+
+          ESLINT_FIXABLE=$(echo "$ESLINT_OUTPUT" | python3 -c "
+          import sys,json
+          data = json.load(sys.stdin)
+          print(sum(f.get('fixableErrorCount', 0) + f.get('fixableWarningCount', 0) for f in data))
+          " 2>/dev/null || echo "0")
+
+          echo "eslint_errors=$ESLINT_ERRORS" >> $GITHUB_OUTPUT
+          echo "eslint_warnings=$ESLINT_WARNINGS" >> $GITHUB_OUTPUT
+          echo "eslint_fixable=$ESLINT_FIXABLE" >> $GITHUB_OUTPUT
+
+      - name: Post fix suggestions comment
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pythonCount = parseInt('${{ steps.changed.outputs.python_count }}') || 0;
+            const nodeCount = parseInt('${{ steps.changed.outputs.node_count }}') || 0;
+
+            const ruffCount = parseInt('${{ steps.python-diag.outputs.ruff_count }}') || 0;
+            const ruffFixable = parseInt('${{ steps.python-diag.outputs.ruff_fixable }}') || 0;
+            const banditCount = parseInt('${{ steps.python-diag.outputs.bandit_count }}') || 0;
+            const banditHigh = parseInt('${{ steps.python-diag.outputs.bandit_high }}') || 0;
+
+            const eslintErrors = parseInt('${{ steps.node-diag.outputs.eslint_errors }}') || 0;
+            const eslintWarnings = parseInt('${{ steps.node-diag.outputs.eslint_warnings }}') || 0;
+            const eslintFixable = parseInt('${{ steps.node-diag.outputs.eslint_fixable }}') || 0;
+
+            const totalIssues = ruffCount + banditCount + eslintErrors + eslintWarnings;
+            const totalFixable = ruffFixable + eslintFixable;
+
+            // Skip if no issues
+            if (totalIssues === 0) {
+              console.log('No issues found - skipping comment');
+              return;
+            }
+
+            let body = `## 🔍 Code Quality Report | تقرير جودة الكود\n\n`;
+            body += `| Category | Issues | Auto-fixable | الفئة |\n`;
+            body += `|----------|--------|-------------|-------|\n`;
+
+            if (pythonCount > 0) {
+              body += `| Ruff (Python lint) | ${ruffCount} | ${ruffFixable} | تنسيق Python |\n`;
+              if (banditCount > 0) {
+                body += `| Bandit (Security) | ${banditCount} ${banditHigh > 0 ? '⚠️' : ''} | - | أمان Python |\n`;
+              }
+            }
+            if (nodeCount > 0) {
+              body += `| ESLint (errors) | ${eslintErrors} | ${eslintFixable} | أخطاء JS/TS |\n`;
+              body += `| ESLint (warnings) | ${eslintWarnings} | - | تحذيرات JS/TS |\n`;
+            }
+
+            body += `\n**Total**: ${totalIssues} issues, ${totalFixable} auto-fixable\n\n`;
+
+            if (totalFixable > 0) {
+              body += `### 🛠️ Quick Fix Commands | أوامر الإصلاح السريع\n\n`;
+              body += `\`\`\`bash\n`;
+              if (ruffFixable > 0) {
+                body += `# Fix Python lint + format issues\n`;
+                body += `ruff check --fix apps/ shared/ && ruff format apps/ shared/\n\n`;
+              }
+              if (eslintFixable > 0) {
+                body += `# Fix TypeScript/JavaScript issues\n`;
+                body += `npm run lint:fix\n\n`;
+              }
+              body += `# Or use FixOps for comprehensive auto-fix\n`;
+              body += `make fixops-run\n`;
+              body += `\`\`\`\n\n`;
+            }
+
+            if (banditHigh > 0) {
+              body += `### 🔒 Security Alert | تنبيه أمني\n\n`;
+              body += `Found **${banditHigh}** high-severity security issue(s). `;
+              body += `Please review before merging.\n\n`;
+              body += `\`\`\`bash\nbandit -r apps/ shared/ -ll\n\`\`\`\n\n`;
+            }
+
+            body += `---\n`;
+            body += `> 💡 The **Auto-Fix PR** workflow can fix ${totalFixable} issues automatically.\n`;
+            body += `> Add the label \`auto-fix\` to trigger it, or fixes will apply on next push.\n`;
+
+            // Check for existing comment to update instead of creating new
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 50
+            });
+
+            const existingComment = comments.data.find(
+              c => c.user.login === 'github-actions[bot]' &&
+                   c.body.includes('Code Quality Report')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

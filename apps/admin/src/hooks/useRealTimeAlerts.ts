@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Sahool Admin Dashboard - Real-Time Alerts Hook
  * خطاف التنبيهات في الوقت الفعلي
@@ -5,12 +7,10 @@
  * Manages real-time alert notifications via WebSocket
  */
 
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { useWebSocketEvent } from "./useWebSocket";
-import type { AlertMessage } from "./useWebSocket";
-import { logger } from "../lib/logger";
+import { useState, useEffect, useCallback } from 'react';
+import { useWebSocketEvent } from './useWebSocket';
+import type { AlertMessage } from './useWebSocket';
+import { logger } from '../lib/logger';
 
 export interface Alert extends AlertMessage {
   read: boolean;
@@ -21,7 +21,7 @@ interface UseRealTimeAlertsOptions {
   /** Maximum number of alerts to keep in memory */
   maxAlerts?: number;
   /** Filter alerts by severity */
-  minSeverity?: "low" | "medium" | "high" | "critical";
+  minSeverity?: 'low' | 'medium' | 'high' | 'critical';
   /** Filter alerts by type */
   alertTypes?: string[];
   /** Enable browser notifications */
@@ -90,9 +90,7 @@ const SEVERITY_LEVELS: Record<string, number> = {
   critical: 3,
 } as const;
 
-export function useRealTimeAlerts(
-  options: UseRealTimeAlertsOptions = {},
-): UseRealTimeAlertsReturn {
+export function useRealTimeAlerts(options: UseRealTimeAlertsOptions = {}): UseRealTimeAlertsReturn {
   const {
     maxAlerts = 100,
     minSeverity,
@@ -124,7 +122,7 @@ export function useRealTimeAlerts(
 
       return true;
     },
-    [minSeverity, alertTypes],
+    [minSeverity, alertTypes]
   );
 
   // Handle new alert from WebSocket
@@ -149,9 +147,7 @@ export function useRealTimeAlerts(
         // Add new alert and limit array size
         // If notifications are enabled, mark as notified in the same update
         // to avoid a race condition with sequential setAlerts calls
-        const newAlert = enableNotifications
-          ? { ...alert, notified: true }
-          : alert;
+        const newAlert = enableNotifications ? { ...alert, notified: true } : alert;
         const updated = [newAlert, ...prev].slice(0, maxAlerts);
         return updated;
       });
@@ -166,18 +162,16 @@ export function useRealTimeAlerts(
         onNewAlert(alert);
       }
     },
-    [shouldIncludeAlert, maxAlerts, enableNotifications, onNewAlert],
+    [shouldIncludeAlert, maxAlerts, enableNotifications, onNewAlert]
   );
 
   // Subscribe to alert events
-  useWebSocketEvent<AlertMessage>("alert", handleNewAlert);
+  useWebSocketEvent<AlertMessage>('alert', handleNewAlert);
 
   // Mark alert as read
   const markAsRead = useCallback((alertId: string) => {
     setAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === alertId ? { ...alert, read: true } : alert,
-      ),
+      prev.map((alert) => (alert.id === alertId ? { ...alert, read: true } : alert))
     );
   }, []);
 
@@ -198,12 +192,8 @@ export function useRealTimeAlerts(
 
   // Request notification permission on mount
   useEffect(() => {
-    if (
-      enableNotifications &&
-      typeof window !== "undefined" &&
-      "Notification" in window
-    ) {
-      if (Notification.permission === "default") {
+    if (enableNotifications && typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
         Notification.requestPermission();
       }
     }
@@ -212,9 +202,7 @@ export function useRealTimeAlerts(
   // Computed values
   const unreadAlerts = alerts.filter((alert) => !alert.read);
   const unreadCount = unreadAlerts.length;
-  const criticalAlerts = alerts.filter(
-    (alert) => alert.severity === "critical",
-  );
+  const criticalAlerts = alerts.filter((alert) => alert.severity === 'critical');
 
   return {
     alerts,
@@ -250,12 +238,12 @@ export function useCriticalAlerts(
   options: {
     playSound?: boolean;
     onCriticalAlert?: (alert: Alert) => void;
-  } = {},
+  } = {}
 ) {
   const { playSound = false, onCriticalAlert } = options;
 
   const { criticalAlerts } = useRealTimeAlerts({
-    minSeverity: "critical",
+    minSeverity: 'critical',
     enableNotifications: true,
   });
 
@@ -301,17 +289,17 @@ export function useAlertStats() {
     total: alerts.length,
     unread: alerts.filter((a) => !a.read).length,
     bySeverity: {
-      critical: alerts.filter((a) => a.severity === "critical").length,
-      high: alerts.filter((a) => a.severity === "high").length,
-      medium: alerts.filter((a) => a.severity === "medium").length,
-      low: alerts.filter((a) => a.severity === "low").length,
+      critical: alerts.filter((a) => a.severity === 'critical').length,
+      high: alerts.filter((a) => a.severity === 'high').length,
+      medium: alerts.filter((a) => a.severity === 'medium').length,
+      low: alerts.filter((a) => a.severity === 'low').length,
     },
     byType: alerts.reduce(
       (acc, alert) => {
         acc[alert.type] = (acc[alert.type] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     ),
   };
 
@@ -326,18 +314,18 @@ export function useAlertStats() {
  * Show browser notification
  */
 function showBrowserNotification(alert: Alert): void {
-  if (typeof window === "undefined" || !("Notification" in window)) {
+  if (typeof window === 'undefined' || !('Notification' in window)) {
     return;
   }
 
-  if (Notification.permission === "granted") {
+  if (Notification.permission === 'granted') {
     const notification = new Notification(alert.title, {
       body: alert.message,
-      icon: "/icons/alert.svg",
-      badge: "/icons/badge.svg",
+      icon: '/icons/alert.svg',
+      badge: '/icons/badge.svg',
       tag: alert.id,
-      requireInteraction: alert.severity === "critical",
-      silent: alert.severity === "low",
+      requireInteraction: alert.severity === 'critical',
+      silent: alert.severity === 'low',
     });
 
     notification.onclick = () => {
@@ -351,17 +339,17 @@ function showBrowserNotification(alert: Alert): void {
  * Play alert sound
  */
 function playAlertSound(): void {
-  if (typeof window === "undefined" || !("Audio" in window)) {
+  if (typeof window === 'undefined' || !('Audio' in window)) {
     return;
   }
 
   try {
-    const audio = new Audio("/sounds/alert.mp3");
+    const audio = new Audio('/sounds/alert.mp3');
     audio.volume = 0.5;
     audio.play().catch((error) => {
-      logger.warn("Failed to play alert sound:", error);
+      logger.warn('Failed to play alert sound:', error);
     });
   } catch (error) {
-    logger.warn("Audio not supported:", error);
+    logger.warn('Audio not supported:', error);
   }
 }

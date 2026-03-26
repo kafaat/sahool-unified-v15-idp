@@ -5,6 +5,7 @@
 /// - features/wallet/
 /// - features/market/
 /// - features/marketplace/
+library;
 
 import 'package:flutter/material.dart';
 

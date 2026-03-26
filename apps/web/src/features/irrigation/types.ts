@@ -1,10 +1,14 @@
 /**
  * Irrigation Feature - Types
  * أنواع ميزة الري
+ *
+ * These are feature-local types used by the irrigation feature module.
+ * The canonical API types are in @/lib/api/types.ts (IrrigationSchedule, etc.)
+ * and are used by the main dashboard at app/(dashboard)/irrigation/.
  */
 
-export type IrrigationStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "overdue";
-export type IrrigationType = "drip" | "sprinkler" | "pivot" | "flood" | "manual";
+export type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
+export type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
 
 export interface IrrigationSchedule {
   id: string;

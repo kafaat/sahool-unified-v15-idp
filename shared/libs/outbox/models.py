@@ -122,6 +122,18 @@ class OutboxEvent(Base):
             "tenant_id",
             "created_at",
         ),
+        # Index for tenant-scoped outbox polling
+        Index(
+            "ix_outbox_published_tenant",
+            "published",
+            "tenant_id",
+        ),
+        # Index for retry logic optimization
+        Index(
+            "ix_outbox_retry_published",
+            "retry_count",
+            "published",
+        ),
     )
 
     def __repr__(self) -> str:

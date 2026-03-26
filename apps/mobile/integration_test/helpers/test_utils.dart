@@ -7,15 +7,13 @@
 /// - Network simulation
 /// - State management helpers
 /// - Screenshot utilities
+library;
 
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import '../fixtures/test_data.dart';
 
 // =============================================================================
 // Performance Utilities
@@ -85,8 +83,8 @@ class PerformanceTester {
 
     // Run action multiple times
     Duration totalNavigationTime = Duration.zero;
-    Duration totalInteractionTime = Duration.zero;
-    int frameCount = 0;
+    const Duration totalInteractionTime = Duration.zero;
+    const int frameCount = 0;
 
     for (int i = 0; i < iterations; i++) {
       final navStart = DateTime.now();

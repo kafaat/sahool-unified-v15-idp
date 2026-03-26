@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
 import '../../../../core/logging/logging.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
+import '../../../weather/presentation/providers/weather_provider.dart';
+import '../../logic/home_providers.dart';
 import '../widgets/quick_stats_card.dart';
 import '../widgets/weather_widget.dart';
 import '../widgets/field_card.dart';
@@ -29,8 +32,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
 
   void _loadInitialData() {
     Logger.debug('Loading home dashboard data', tag: 'HOME');
-    Future.microtask(() {
-      ref.read(notificationsProvider.notifier).loadNotifications();
+    Future.microtask(() async {
+      await ref.read(notificationsProvider.notifier).loadNotifications();
+      // Load weather data
+      await ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
       Logger.info(
         'Home data loaded',
         messageAr: 'تم تحميل بيانات الرئيسية',
@@ -51,6 +56,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           onRefresh: () async {
             Logger.user('Pull to refresh', actionAr: 'سحب للتحديث', screen: 'home');
             _loadInitialData();
+            ref.invalidate(dashboardFieldsProvider);
           },
           color: SahoolTheme.primary,
           child: SingleChildScrollView(
@@ -105,7 +111,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.agriculture, color: Colors.white, size: 24),
@@ -129,7 +135,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           children: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined, size: 26),
-              onPressed: () => Navigator.pushNamed(context, '/notifications'),
+              onPressed: () => context.push('/notifications'),
             ),
             if (unreadCount > 0)
               Positioned(
@@ -195,30 +201,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   }
 
   Widget _buildFieldsSection() {
-    // Demo fields - في الإنتاج ستكون من API
-    final demoFields = [
-      {
-        'id': 'field_1',
-        'name': 'حقل القمح الشمالي',
-        'area': 45.5,
-        'crop': 'قمح',
-        'health': 0.78,
-      },
-      {
-        'id': 'field_2',
-        'name': 'حقل الشعير الغربي',
-        'area': 32.0,
-        'crop': 'شعير',
-        'health': 0.85,
-      },
-      {
-        'id': 'field_3',
-        'name': 'حقل البرسيم',
-        'area': 28.5,
-        'crop': 'برسيم',
-        'health': 0.65,
-      },
-    ];
+    final fieldsAsync = ref.watch(dashboardFieldsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +219,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                     ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.push('/fields'),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -249,18 +232,70 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             ],
           ),
         ),
-        ...demoFields.map(
-          (field) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: FieldCard(
-              fieldId: field['id'] as String,
-              name: field['name'] as String,
-              areaHectares: field['area'] as double,
-              cropType: field['crop'] as String,
-              healthScore: field['health'] as double,
-              onTap: () => _navigateToField(field['id'] as String),
+        fieldsAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(32),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (err, _) => const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      SizedBox(height: 12),
+                      Text('خطأ في تحميل الحقول'),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
+          data: (fields) {
+            if (fields.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.landscape_outlined, size: 48, color: Colors.grey),
+                          SizedBox(height: 12),
+                          Text('لا توجد حقول مسجلة'),
+                          SizedBox(height: 8),
+                          Text(
+                            'أضف حقلك الأول من الخريطة',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: fields.take(5).map(
+                (field) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: FieldCard(
+                    fieldId: field.id,
+                    name: field.name,
+                    areaHectares: field.areaHectares,
+                    cropType: field.cropType ?? '—',
+                    healthScore: field.ndviCurrent ?? 0.0,
+                    onTap: () => _navigateToField(field.id),
+                  ),
+                ),
+              ).toList(),
+            );
+          },
         ),
       ],
     );
@@ -280,10 +315,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       screen: 'home',
       targetId: fieldId,
     );
-    Navigator.pushNamed(
-      context,
-      '/crop-health',
-      arguments: {'fieldId': fieldId},
-    );
+    context.push('/field/$fieldId');
   }
 }

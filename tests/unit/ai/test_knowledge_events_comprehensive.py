@@ -25,7 +25,7 @@ class TestKnowledgeEventPublisherPayloads:
     """Verify every event method sends correct payload structure."""
 
     def test_document_ingested_payload_structure(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher, SUBJECT_DOCUMENT_INGESTED
+        from shared.ai.knowledge.events import SUBJECT_DOCUMENT_INGESTED, KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
@@ -58,7 +58,7 @@ class TestKnowledgeEventPublisherPayloads:
         assert payload["data"]["tenant_id"] == "tenant-abc"
 
     def test_document_verified_payload_structure(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher, SUBJECT_DOCUMENT_VERIFIED
+        from shared.ai.knowledge.events import SUBJECT_DOCUMENT_VERIFIED, KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
@@ -81,7 +81,7 @@ class TestKnowledgeEventPublisherPayloads:
         assert payload["data"]["tenant_id"] == "tenant-xyz"
 
     def test_document_expired_payload_structure(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher, SUBJECT_DOCUMENT_EXPIRED
+        from shared.ai.knowledge.events import SUBJECT_DOCUMENT_EXPIRED, KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
@@ -102,7 +102,7 @@ class TestKnowledgeEventPublisherPayloads:
         assert payload["data"]["days_past_expiry"] == 45
 
     def test_collection_populated_payload_structure(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher, SUBJECT_COLLECTION_POPULATED
+        from shared.ai.knowledge.events import SUBJECT_COLLECTION_POPULATED, KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
@@ -125,7 +125,7 @@ class TestKnowledgeEventPublisherPayloads:
         assert payload["data"]["failed"] == 2
 
     def test_ingestion_failed_payload_structure(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher, SUBJECT_INGESTION_FAILED
+        from shared.ai.knowledge.events import SUBJECT_INGESTION_FAILED, KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
@@ -214,8 +214,9 @@ class TestKnowledgeEventPublisherErrorHandling:
         _run(pub.collection_populated(collection="c1", total_files=10, succeeded=10, failed=0))
 
     def test_timestamp_is_iso_format(self):
-        from shared.ai.knowledge.events import KnowledgeEventPublisher
         from datetime import datetime
+
+        from shared.ai.knowledge.events import KnowledgeEventPublisher
 
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)

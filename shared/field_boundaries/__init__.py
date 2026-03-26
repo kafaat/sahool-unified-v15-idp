@@ -60,7 +60,7 @@ Example Usage:
         new_boundary = result.boundary
 
     # Sharing
-    sharing = BoundarySharingManager()
+    sharing = BoundarySharingManager(tenant_id="tenant-001")
     request = sharing.create_share_request(
         boundary=boundary,
         recipient_id="neighbor-user",

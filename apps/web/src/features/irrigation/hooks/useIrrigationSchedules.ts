@@ -3,17 +3,17 @@
  * خطاف جداول الري - يجلب البيانات من API مع fallback للبيانات المحلية
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { irrigationApi } from "../api";
-import type { IrrigationSchedule, CreateScheduleRequest } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { irrigationApi } from '../api';
+import type { IrrigationSchedule, CreateScheduleRequest } from '../types';
 
 export const irrigationKeys = {
-  all: ["irrigation"] as const,
-  schedules: () => [...irrigationKeys.all, "schedules"] as const,
-  methods: () => [...irrigationKeys.all, "methods"] as const,
-  stats: () => [...irrigationKeys.all, "stats"] as const,
+  all: ['irrigation'] as const,
+  schedules: () => [...irrigationKeys.all, 'schedules'] as const,
+  methods: () => [...irrigationKeys.all, 'methods'] as const,
+  stats: () => [...irrigationKeys.all, 'stats'] as const,
 };
 
 /**
@@ -52,9 +52,8 @@ export function useCreateSchedule() {
     mutationFn: (data: CreateScheduleRequest) => irrigationApi.createSchedule(data),
     onSuccess: (newSchedule: IrrigationSchedule) => {
       // Optimistically add to cache
-      queryClient.setQueryData<IrrigationSchedule[]>(
-        irrigationKeys.schedules(),
-        (old) => (old ? [...old, newSchedule] : [newSchedule]),
+      queryClient.setQueryData<IrrigationSchedule[]>(irrigationKeys.schedules(), (old) =>
+        old ? [...old, newSchedule] : [newSchedule]
       );
       queryClient.invalidateQueries({ queryKey: irrigationKeys.schedules() });
     },
@@ -75,7 +74,7 @@ export function useDeleteSchedule() {
       const previous = queryClient.getQueryData<IrrigationSchedule[]>(irrigationKeys.schedules());
       queryClient.setQueryData<IrrigationSchedule[]>(
         irrigationKeys.schedules(),
-        (old) => old?.filter((s) => s.id !== scheduleId) ?? [],
+        (old) => old?.filter((s) => s.id !== scheduleId) ?? []
       );
       return { previous };
     },
@@ -98,7 +97,15 @@ export function useUpdateScheduleStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ scheduleId, status, progress }: { scheduleId: string; status: IrrigationSchedule["status"]; progress?: number }) => {
+    mutationFn: async ({
+      scheduleId,
+      status,
+      progress,
+    }: {
+      scheduleId: string;
+      status: IrrigationSchedule['status'];
+      progress?: number;
+    }) => {
       try {
         return await irrigationApi.updateSchedule(scheduleId, {} as CreateScheduleRequest);
       } catch {
@@ -118,10 +125,10 @@ export function useUpdateScheduleStatus() {
                   ...s,
                   status,
                   progress: progress ?? s.progress,
-                  completedAt: status === "completed" ? new Date().toISOString() : s.completedAt,
+                  completedAt: status === 'completed' ? new Date().toISOString() : s.completedAt,
                 }
-              : s,
-          ) ?? [],
+              : s
+          ) ?? []
       );
       return { previous };
     },

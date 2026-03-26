@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL App Providers (Root)
@@ -9,9 +9,9 @@
  * auth pages (~react-query free) for a smaller initial bundle.
  */
 
-import { AuthProvider } from "@/stores/auth.store";
-import { ToastProvider } from "@/components/ui/toast";
-import { ThemeProvider } from "@/stores/theme.store";
+import { AuthProvider } from '@/stores/auth.store';
+import { ToastProvider } from '@/components/ui/toast';
+import { ThemeProvider } from '@/stores/theme.store';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

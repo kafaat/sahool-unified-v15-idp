@@ -1,5 +1,6 @@
 /// SAHOOL API Client Tests
 /// اختبارات عميل API
+library;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';

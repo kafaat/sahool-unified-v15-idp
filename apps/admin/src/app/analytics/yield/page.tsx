@@ -1,11 +1,11 @@
 // Sahool Admin Dashboard - Deep Yield Analysis
 // تحليل الغلة العميق
 
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { apiClient, API_URLS } from "@/lib/api";
-import { logger } from "@/lib/logger";
+import { useState, useEffect, useMemo } from 'react';
+import { apiClient, API_URLS } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import {
   BarChart3,
   TrendingUp,
@@ -16,7 +16,7 @@ import {
   Layers,
   ArrowLeftRight,
   Scale,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -68,43 +68,231 @@ interface SeasonTrend {
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 
 const MOCK_FIELDS: FieldYield[] = [
-  { field_id: "f1", field_name_ar: "حقل القمح الشمالي", farm_name_ar: "مزرعة الرشيد", governorate_ar: "صنعاء", crop_type: "wheat", crop_name_ar: "قمح", area_hectares: 12, yield_ton_per_ha: 3.8, total_yield_tons: 45.6, season: "2025-winter", soil_type_ar: "طينية", irrigation_type_ar: "ري بالتنقيط", seed_variety_ar: "سخا 95", planting_date: "2025-10-15", harvest_date: "2026-03-20", rainfall_mm: 180, avg_temperature: 17, ndvi_avg: 0.72, fertilizer_applied_kg_per_ha: 150 },
-  { field_id: "f2", field_name_ar: "حقل القمح الجنوبي", farm_name_ar: "مزرعة الرشيد", governorate_ar: "صنعاء", crop_type: "wheat", crop_name_ar: "قمح", area_hectares: 8, yield_ton_per_ha: 3.2, total_yield_tons: 25.6, season: "2025-winter", soil_type_ar: "رملية طينية", irrigation_type_ar: "ري غمر", seed_variety_ar: "مصر 3", planting_date: "2025-10-20", harvest_date: "2026-03-25", rainfall_mm: 180, avg_temperature: 17, ndvi_avg: 0.65, fertilizer_applied_kg_per_ha: 120 },
-  { field_id: "f3", field_name_ar: "حقل الشعير", farm_name_ar: "مزرعة النور", governorate_ar: "إب", crop_type: "barley", crop_name_ar: "شعير", area_hectares: 15, yield_ton_per_ha: 3.1, total_yield_tons: 46.5, season: "2025-winter", soil_type_ar: "طينية", irrigation_type_ar: "ري رشاش", seed_variety_ar: "جيزة 136", planting_date: "2025-10-10", harvest_date: "2026-03-15", rainfall_mm: 220, avg_temperature: 16, ndvi_avg: 0.68, fertilizer_applied_kg_per_ha: 110 },
-  { field_id: "f4", field_name_ar: "حقل الطماطم A", farm_name_ar: "مزرعة الخير", governorate_ar: "تعز", crop_type: "tomato", crop_name_ar: "طماطم", area_hectares: 5, yield_ton_per_ha: 28.0, total_yield_tons: 140, season: "2025-winter", soil_type_ar: "طينية ثقيلة", irrigation_type_ar: "ري بالتنقيط", seed_variety_ar: "هجين 1023", planting_date: "2025-11-01", harvest_date: "2026-02-28", rainfall_mm: 250, avg_temperature: 20, ndvi_avg: 0.78, fertilizer_applied_kg_per_ha: 200 },
-  { field_id: "f5", field_name_ar: "حقل الطماطم B", farm_name_ar: "مزرعة الخير", governorate_ar: "تعز", crop_type: "tomato", crop_name_ar: "طماطم", area_hectares: 4, yield_ton_per_ha: 22.5, total_yield_tons: 90, season: "2025-winter", soil_type_ar: "رملية", irrigation_type_ar: "ري غمر", seed_variety_ar: "محلي", planting_date: "2025-11-10", harvest_date: "2026-03-05", rainfall_mm: 250, avg_temperature: 20, ndvi_avg: 0.62, fertilizer_applied_kg_per_ha: 130 },
-  { field_id: "f6", field_name_ar: "حقل البطاطس", farm_name_ar: "مزرعة السلام", governorate_ar: "الحديدة", crop_type: "potato", crop_name_ar: "بطاطس", area_hectares: 10, yield_ton_per_ha: 19.0, total_yield_tons: 190, season: "2025-winter", soil_type_ar: "رملية طينية", irrigation_type_ar: "ري ذكي", seed_variety_ar: "سبونتا", planting_date: "2025-10-25", harvest_date: "2026-02-20", rainfall_mm: 80, avg_temperature: 24, ndvi_avg: 0.70, fertilizer_applied_kg_per_ha: 180 },
-  { field_id: "f7", field_name_ar: "حقل البن", farm_name_ar: "مزرعة الجبل", governorate_ar: "إب", crop_type: "coffee", crop_name_ar: "بن يمني", area_hectares: 20, yield_ton_per_ha: 0.85, total_yield_tons: 17, season: "2025-winter", soil_type_ar: "بركانية", irrigation_type_ar: "أمطار", seed_variety_ar: "بن مخا", planting_date: "2020-01-01", harvest_date: "2025-12-15", rainfall_mm: 350, avg_temperature: 18, ndvi_avg: 0.75, fertilizer_applied_kg_per_ha: 60 },
-  { field_id: "f8", field_name_ar: "حقل القمح المرتفعات", farm_name_ar: "مزرعة الجبل", governorate_ar: "إب", crop_type: "wheat", crop_name_ar: "قمح", area_hectares: 6, yield_ton_per_ha: 4.1, total_yield_tons: 24.6, season: "2025-winter", soil_type_ar: "بركانية", irrigation_type_ar: "أمطار + تكميلي", seed_variety_ar: "سخا 95", planting_date: "2025-10-05", harvest_date: "2026-03-10", rainfall_mm: 350, avg_temperature: 15, ndvi_avg: 0.76, fertilizer_applied_kg_per_ha: 140 },
+  {
+    field_id: 'f1',
+    field_name_ar: 'حقل القمح الشمالي',
+    farm_name_ar: 'مزرعة الرشيد',
+    governorate_ar: 'صنعاء',
+    crop_type: 'wheat',
+    crop_name_ar: 'قمح',
+    area_hectares: 12,
+    yield_ton_per_ha: 3.8,
+    total_yield_tons: 45.6,
+    season: '2025-winter',
+    soil_type_ar: 'طينية',
+    irrigation_type_ar: 'ري بالتنقيط',
+    seed_variety_ar: 'سخا 95',
+    planting_date: '2025-10-15',
+    harvest_date: '2026-03-20',
+    rainfall_mm: 180,
+    avg_temperature: 17,
+    ndvi_avg: 0.72,
+    fertilizer_applied_kg_per_ha: 150,
+  },
+  {
+    field_id: 'f2',
+    field_name_ar: 'حقل القمح الجنوبي',
+    farm_name_ar: 'مزرعة الرشيد',
+    governorate_ar: 'صنعاء',
+    crop_type: 'wheat',
+    crop_name_ar: 'قمح',
+    area_hectares: 8,
+    yield_ton_per_ha: 3.2,
+    total_yield_tons: 25.6,
+    season: '2025-winter',
+    soil_type_ar: 'رملية طينية',
+    irrigation_type_ar: 'ري غمر',
+    seed_variety_ar: 'مصر 3',
+    planting_date: '2025-10-20',
+    harvest_date: '2026-03-25',
+    rainfall_mm: 180,
+    avg_temperature: 17,
+    ndvi_avg: 0.65,
+    fertilizer_applied_kg_per_ha: 120,
+  },
+  {
+    field_id: 'f3',
+    field_name_ar: 'حقل الشعير',
+    farm_name_ar: 'مزرعة النور',
+    governorate_ar: 'إب',
+    crop_type: 'barley',
+    crop_name_ar: 'شعير',
+    area_hectares: 15,
+    yield_ton_per_ha: 3.1,
+    total_yield_tons: 46.5,
+    season: '2025-winter',
+    soil_type_ar: 'طينية',
+    irrigation_type_ar: 'ري رشاش',
+    seed_variety_ar: 'جيزة 136',
+    planting_date: '2025-10-10',
+    harvest_date: '2026-03-15',
+    rainfall_mm: 220,
+    avg_temperature: 16,
+    ndvi_avg: 0.68,
+    fertilizer_applied_kg_per_ha: 110,
+  },
+  {
+    field_id: 'f4',
+    field_name_ar: 'حقل الطماطم A',
+    farm_name_ar: 'مزرعة الخير',
+    governorate_ar: 'تعز',
+    crop_type: 'tomato',
+    crop_name_ar: 'طماطم',
+    area_hectares: 5,
+    yield_ton_per_ha: 28.0,
+    total_yield_tons: 140,
+    season: '2025-winter',
+    soil_type_ar: 'طينية ثقيلة',
+    irrigation_type_ar: 'ري بالتنقيط',
+    seed_variety_ar: 'هجين 1023',
+    planting_date: '2025-11-01',
+    harvest_date: '2026-02-28',
+    rainfall_mm: 250,
+    avg_temperature: 20,
+    ndvi_avg: 0.78,
+    fertilizer_applied_kg_per_ha: 200,
+  },
+  {
+    field_id: 'f5',
+    field_name_ar: 'حقل الطماطم B',
+    farm_name_ar: 'مزرعة الخير',
+    governorate_ar: 'تعز',
+    crop_type: 'tomato',
+    crop_name_ar: 'طماطم',
+    area_hectares: 4,
+    yield_ton_per_ha: 22.5,
+    total_yield_tons: 90,
+    season: '2025-winter',
+    soil_type_ar: 'رملية',
+    irrigation_type_ar: 'ري غمر',
+    seed_variety_ar: 'محلي',
+    planting_date: '2025-11-10',
+    harvest_date: '2026-03-05',
+    rainfall_mm: 250,
+    avg_temperature: 20,
+    ndvi_avg: 0.62,
+    fertilizer_applied_kg_per_ha: 130,
+  },
+  {
+    field_id: 'f6',
+    field_name_ar: 'حقل البطاطس',
+    farm_name_ar: 'مزرعة السلام',
+    governorate_ar: 'الحديدة',
+    crop_type: 'potato',
+    crop_name_ar: 'بطاطس',
+    area_hectares: 10,
+    yield_ton_per_ha: 19.0,
+    total_yield_tons: 190,
+    season: '2025-winter',
+    soil_type_ar: 'رملية طينية',
+    irrigation_type_ar: 'ري ذكي',
+    seed_variety_ar: 'سبونتا',
+    planting_date: '2025-10-25',
+    harvest_date: '2026-02-20',
+    rainfall_mm: 80,
+    avg_temperature: 24,
+    ndvi_avg: 0.7,
+    fertilizer_applied_kg_per_ha: 180,
+  },
+  {
+    field_id: 'f7',
+    field_name_ar: 'حقل البن',
+    farm_name_ar: 'مزرعة الجبل',
+    governorate_ar: 'إب',
+    crop_type: 'coffee',
+    crop_name_ar: 'بن يمني',
+    area_hectares: 20,
+    yield_ton_per_ha: 0.85,
+    total_yield_tons: 17,
+    season: '2025-winter',
+    soil_type_ar: 'بركانية',
+    irrigation_type_ar: 'أمطار',
+    seed_variety_ar: 'بن مخا',
+    planting_date: '2020-01-01',
+    harvest_date: '2025-12-15',
+    rainfall_mm: 350,
+    avg_temperature: 18,
+    ndvi_avg: 0.75,
+    fertilizer_applied_kg_per_ha: 60,
+  },
+  {
+    field_id: 'f8',
+    field_name_ar: 'حقل القمح المرتفعات',
+    farm_name_ar: 'مزرعة الجبل',
+    governorate_ar: 'إب',
+    crop_type: 'wheat',
+    crop_name_ar: 'قمح',
+    area_hectares: 6,
+    yield_ton_per_ha: 4.1,
+    total_yield_tons: 24.6,
+    season: '2025-winter',
+    soil_type_ar: 'بركانية',
+    irrigation_type_ar: 'أمطار + تكميلي',
+    seed_variety_ar: 'سخا 95',
+    planting_date: '2025-10-05',
+    harvest_date: '2026-03-10',
+    rainfall_mm: 350,
+    avg_temperature: 15,
+    ndvi_avg: 0.76,
+    fertilizer_applied_kg_per_ha: 140,
+  },
 ];
 
 const MOCK_TRENDS: SeasonTrend[] = [
-  { season: "2023-winter", season_ar: "شتاء 2023", crop_type: "wheat", avg_yield: 2.8, total_area: 100, total_yield: 280 },
-  { season: "2024-summer", season_ar: "صيف 2024", crop_type: "wheat", avg_yield: 2.5, total_area: 60, total_yield: 150 },
-  { season: "2024-winter", season_ar: "شتاء 2024", crop_type: "wheat", avg_yield: 3.0, total_area: 110, total_yield: 330 },
-  { season: "2025-winter", season_ar: "شتاء 2025", crop_type: "wheat", avg_yield: 3.5, total_area: 126, total_yield: 441 },
+  {
+    season: '2023-winter',
+    season_ar: 'شتاء 2023',
+    crop_type: 'wheat',
+    avg_yield: 2.8,
+    total_area: 100,
+    total_yield: 280,
+  },
+  {
+    season: '2024-summer',
+    season_ar: 'صيف 2024',
+    crop_type: 'wheat',
+    avg_yield: 2.5,
+    total_area: 60,
+    total_yield: 150,
+  },
+  {
+    season: '2024-winter',
+    season_ar: 'شتاء 2024',
+    crop_type: 'wheat',
+    avg_yield: 3.0,
+    total_area: 110,
+    total_yield: 330,
+  },
+  {
+    season: '2025-winter',
+    season_ar: 'شتاء 2025',
+    crop_type: 'wheat',
+    avg_yield: 3.5,
+    total_area: 126,
+    total_yield: 441,
+  },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-type ComparisonDimension = "crop" | "soil" | "irrigation" | "governorate" | "seed" | "farm";
+type ComparisonDimension = 'crop' | 'soil' | 'irrigation' | 'governorate' | 'seed' | 'farm';
 
 const DIMENSIONS: Array<{ id: ComparisonDimension; label: string }> = [
-  { id: "crop", label: "المحصول" },
-  { id: "soil", label: "نوع التربة" },
-  { id: "irrigation", label: "نوع الري" },
-  { id: "governorate", label: "المحافظة" },
-  { id: "seed", label: "الصنف" },
-  { id: "farm", label: "المزرعة" },
+  { id: 'crop', label: 'المحصول' },
+  { id: 'soil', label: 'نوع التربة' },
+  { id: 'irrigation', label: 'نوع الري' },
+  { id: 'governorate', label: 'المحافظة' },
+  { id: 'seed', label: 'الصنف' },
+  { id: 'farm', label: 'المزرعة' },
 ];
 
 export default function YieldAnalysisPage() {
   const [fields, setFields] = useState<FieldYield[]>([]);
   const [trends, setTrends] = useState<SeasonTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [dimension, setDimension] = useState<ComparisonDimension>("crop");
-  const [cropFilter, setCropFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"yield" | "area" | "total">("yield");
+  const [dimension, setDimension] = useState<ComparisonDimension>('crop');
+  const [cropFilter, setCropFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'yield' | 'area' | 'total'>('yield');
   const [sortDesc, setSortDesc] = useState(true);
 
   useEffect(() => {
@@ -115,13 +303,15 @@ export default function YieldAnalysisPage() {
     setIsLoading(true);
     try {
       const [fieldsRes, trendsRes] = await Promise.allSettled([
-        apiClient.get(`${API_URLS.yieldPrediction}/api/v1/yield/analysis`, { params: { season: "2025-winter" } }),
+        apiClient.get(`${API_URLS.yieldPrediction}/api/v1/yield/analysis`, {
+          params: { season: '2025-winter' },
+        }),
         apiClient.get(`${API_URLS.yieldPrediction}/api/v1/yield/trends`),
       ]);
-      setFields(fieldsRes.status === "fulfilled" ? fieldsRes.value.data : MOCK_FIELDS);
-      setTrends(trendsRes.status === "fulfilled" ? trendsRes.value.data : MOCK_TRENDS);
+      setFields(fieldsRes.status === 'fulfilled' ? fieldsRes.value.data : MOCK_FIELDS);
+      setTrends(trendsRes.status === 'fulfilled' ? trendsRes.value.data : MOCK_TRENDS);
     } catch (err) {
-      logger.warn("Yield API unavailable, using demo data", err);
+      logger.warn('Yield API unavailable, using demo data', err);
       setFields(MOCK_FIELDS);
       setTrends(MOCK_TRENDS);
     } finally {
@@ -140,10 +330,20 @@ export default function YieldAnalysisPage() {
 
   // Filtered fields
   const filteredFields = useMemo(() => {
-    let result = cropFilter === "all" ? fields : fields.filter((f) => f.crop_type === cropFilter);
+    let result = cropFilter === 'all' ? fields : fields.filter((f) => f.crop_type === cropFilter);
     result = [...result].sort((a, b) => {
-      const va = sortBy === "yield" ? a.yield_ton_per_ha : sortBy === "area" ? a.area_hectares : a.total_yield_tons;
-      const vb = sortBy === "yield" ? b.yield_ton_per_ha : sortBy === "area" ? b.area_hectares : b.total_yield_tons;
+      const va =
+        sortBy === 'yield'
+          ? a.yield_ton_per_ha
+          : sortBy === 'area'
+            ? a.area_hectares
+            : a.total_yield_tons;
+      const vb =
+        sortBy === 'yield'
+          ? b.yield_ton_per_ha
+          : sortBy === 'area'
+            ? b.area_hectares
+            : b.total_yield_tons;
       return sortDesc ? vb - va : va - vb;
     });
     return result;
@@ -153,12 +353,18 @@ export default function YieldAnalysisPage() {
   const comparison = useMemo((): YieldComparison => {
     const dimensionKey = (f: FieldYield) => {
       switch (dimension) {
-        case "crop": return f.crop_name_ar;
-        case "soil": return f.soil_type_ar;
-        case "irrigation": return f.irrigation_type_ar;
-        case "governorate": return f.governorate_ar;
-        case "seed": return f.seed_variety_ar;
-        case "farm": return f.farm_name_ar;
+        case 'crop':
+          return f.crop_name_ar;
+        case 'soil':
+          return f.soil_type_ar;
+        case 'irrigation':
+          return f.irrigation_type_ar;
+        case 'governorate':
+          return f.governorate_ar;
+        case 'seed':
+          return f.seed_variety_ar;
+        case 'farm':
+          return f.farm_name_ar;
       }
     };
 
@@ -169,19 +375,21 @@ export default function YieldAnalysisPage() {
       grouped.get(key)!.push(f);
     }
 
-    const groups = Array.from(grouped.entries()).map(([name, items]) => ({
-      name,
-      name_ar: name,
-      avg_yield: items.reduce((s, f) => s + f.yield_ton_per_ha, 0) / items.length,
-      total_area: items.reduce((s, f) => s + f.area_hectares, 0),
-      field_count: items.length,
-      min_yield: Math.min(...items.map((f) => f.yield_ton_per_ha)),
-      max_yield: Math.max(...items.map((f) => f.yield_ton_per_ha)),
-    })).sort((a, b) => b.avg_yield - a.avg_yield);
+    const groups = Array.from(grouped.entries())
+      .map(([name, items]) => ({
+        name,
+        name_ar: name,
+        avg_yield: items.reduce((s, f) => s + f.yield_ton_per_ha, 0) / items.length,
+        total_area: items.reduce((s, f) => s + f.area_hectares, 0),
+        field_count: items.length,
+        min_yield: Math.min(...items.map((f) => f.yield_ton_per_ha)),
+        max_yield: Math.max(...items.map((f) => f.yield_ton_per_ha)),
+      }))
+      .sort((a, b) => b.avg_yield - a.avg_yield);
 
     return {
       dimension,
-      dimension_ar: DIMENSIONS.find((d) => d.id === dimension)?.label || "",
+      dimension_ar: DIMENSIONS.find((d) => d.id === dimension)?.label || '',
       groups,
     };
   }, [filteredFields, dimension]);
@@ -191,11 +399,20 @@ export default function YieldAnalysisPage() {
     if (filteredFields.length === 0) return null;
     const totalArea = filteredFields.reduce((s, f) => s + f.area_hectares, 0);
     const totalYield = filteredFields.reduce((s, f) => s + f.total_yield_tons, 0);
-    const avgYield = filteredFields.reduce((s, f) => s + f.yield_ton_per_ha, 0) / filteredFields.length;
+    const avgYield =
+      filteredFields.reduce((s, f) => s + f.yield_ton_per_ha, 0) / filteredFields.length;
     const maxYield = Math.max(...filteredFields.map((f) => f.yield_ton_per_ha));
     const minYield = Math.min(...filteredFields.map((f) => f.yield_ton_per_ha));
     const bestField = filteredFields.find((f) => f.yield_ton_per_ha === maxYield);
-    return { totalArea, totalYield, avgYield, maxYield, minYield, bestField, fieldCount: filteredFields.length };
+    return {
+      totalArea,
+      totalYield,
+      avgYield,
+      maxYield,
+      minYield,
+      bestField,
+      fieldCount: filteredFields.length,
+    };
   }, [filteredFields]);
 
   if (isLoading) {
@@ -228,7 +445,9 @@ export default function YieldAnalysisPage() {
           >
             <option value="all">كل المحاصيل</option>
             {cropTypes.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
             ))}
           </select>
           <button
@@ -246,14 +465,47 @@ export default function YieldAnalysisPage() {
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { label: "عدد الحقول", value: stats.fieldCount, icon: Layers, color: "text-blue-600 dark:text-blue-400" },
-            { label: "المساحة الكلية", value: `${stats.totalArea.toFixed(0)} هكتار`, icon: MapPin, color: "text-green-600 dark:text-green-400" },
-            { label: "إجمالي الغلة", value: `${stats.totalYield.toFixed(0)} طن`, icon: Scale, color: "text-purple-600 dark:text-purple-400" },
-            { label: "متوسط الغلة", value: `${stats.avgYield.toFixed(1)} طن/هك`, icon: BarChart3, color: "text-sahool-600 dark:text-sahool-400" },
-            { label: "أعلى غلة", value: `${stats.maxYield.toFixed(1)} طن/هك`, icon: TrendingUp, color: "text-green-600 dark:text-green-400" },
-            { label: "أدنى غلة", value: `${stats.minYield.toFixed(1)} طن/هك`, icon: TrendingDown, color: "text-red-600 dark:text-red-400" },
+            {
+              label: 'عدد الحقول',
+              value: stats.fieldCount,
+              icon: Layers,
+              color: 'text-blue-600 dark:text-blue-400',
+            },
+            {
+              label: 'المساحة الكلية',
+              value: `${stats.totalArea.toFixed(0)} هكتار`,
+              icon: MapPin,
+              color: 'text-green-600 dark:text-green-400',
+            },
+            {
+              label: 'إجمالي الغلة',
+              value: `${stats.totalYield.toFixed(0)} طن`,
+              icon: Scale,
+              color: 'text-purple-600 dark:text-purple-400',
+            },
+            {
+              label: 'متوسط الغلة',
+              value: `${stats.avgYield.toFixed(1)} طن/هك`,
+              icon: BarChart3,
+              color: 'text-sahool-600 dark:text-sahool-400',
+            },
+            {
+              label: 'أعلى غلة',
+              value: `${stats.maxYield.toFixed(1)} طن/هك`,
+              icon: TrendingUp,
+              color: 'text-green-600 dark:text-green-400',
+            },
+            {
+              label: 'أدنى غلة',
+              value: `${stats.minYield.toFixed(1)} طن/هك`,
+              icon: TrendingDown,
+              color: 'text-red-600 dark:text-red-400',
+            },
           ].map((s) => (
-            <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+            <div
+              key={s.label}
+              className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <s.icon className={`w-4 h-4 ${s.color}`} />
                 <span className="text-xs text-gray-500 dark:text-gray-400">{s.label}</span>
@@ -276,9 +528,10 @@ export default function YieldAnalysisPage() {
               <button
                 key={d.id}
                 onClick={() => setDimension(d.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${dimension === d.id
-                  ? "bg-sahool-100 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border border-sahool-300 dark:border-sahool-700"
-                  : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  dimension === d.id
+                    ? 'bg-sahool-100 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border border-sahool-300 dark:border-sahool-700'
+                    : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 {d.label}
@@ -293,10 +546,17 @@ export default function YieldAnalysisPage() {
             const maxYield = Math.max(...comparison.groups.map((x) => x.max_yield), 1);
             const barWidth = (g.avg_yield / maxYield) * 100;
             return (
-              <div key={i} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <div
+                key={i}
+                className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
                 <div className="w-32 flex-shrink-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{g.name_ar}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{g.field_count} حقل — {g.total_area.toFixed(0)} هكتار</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {g.name_ar}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {g.field_count} حقل — {g.total_area.toFixed(0)} هكتار
+                  </p>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -306,12 +566,16 @@ export default function YieldAnalysisPage() {
                         style={{ width: `${Math.max(barWidth, 8)}%` }}
                       >
                         {barWidth > 20 && (
-                          <span className="text-xs font-bold text-white">{g.avg_yield.toFixed(1)}</span>
+                          <span className="text-xs font-bold text-white">
+                            {g.avg_yield.toFixed(1)}
+                          </span>
                         )}
                       </div>
                     </div>
                     {barWidth <= 20 && (
-                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{g.avg_yield.toFixed(1)}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {g.avg_yield.toFixed(1)}
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -341,10 +605,15 @@ export default function YieldAnalysisPage() {
             const change = prevYield !== 0 ? ((t.avg_yield - prevYield) / prevYield) * 100 : 0;
             return (
               <div key={t.season} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-sm font-bold text-sahool-600 dark:text-sahool-400">{t.avg_yield.toFixed(1)}</span>
+                <span className="text-sm font-bold text-sahool-600 dark:text-sahool-400">
+                  {t.avg_yield.toFixed(1)}
+                </span>
                 {i > 0 && (
-                  <span className={`text-xs font-medium ${change >= 0 ? "text-green-500" : "text-red-500"}`}>
-                    {change >= 0 ? "+" : ""}{change.toFixed(0)}%
+                  <span
+                    className={`text-xs font-medium ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    {change >= 0 ? '+' : ''}
+                    {change.toFixed(0)}%
                   </span>
                 )}
                 <div
@@ -368,19 +637,23 @@ export default function YieldAnalysisPage() {
           </h3>
           <div className="flex gap-2">
             {[
-              { id: "yield" as const, label: "الغلة" },
-              { id: "area" as const, label: "المساحة" },
-              { id: "total" as const, label: "الإنتاج الكلي" },
+              { id: 'yield' as const, label: 'الغلة' },
+              { id: 'area' as const, label: 'المساحة' },
+              { id: 'total' as const, label: 'الإنتاج الكلي' },
             ].map((s) => (
               <button
                 key={s.id}
-                onClick={() => { setSortBy(s.id); setSortDesc(sortBy === s.id ? !sortDesc : true); }}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${sortBy === s.id
-                  ? "bg-sahool-100 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300"
-                  : "bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                onClick={() => {
+                  setSortBy(s.id);
+                  setSortDesc(sortBy === s.id ? !sortDesc : true);
+                }}
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                  sortBy === s.id
+                    ? 'bg-sahool-100 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300'
+                    : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                 }`}
               >
-                {s.label} {sortBy === s.id && (sortDesc ? "↓" : "↑")}
+                {s.label} {sortBy === s.id && (sortDesc ? '↓' : '↑')}
               </button>
             ))}
           </div>
@@ -404,17 +677,32 @@ export default function YieldAnalysisPage() {
             </thead>
             <tbody>
               {filteredFields.map((f) => {
-                const avgForCrop = filteredFields.filter((x) => x.crop_type === f.crop_type).reduce((s, x) => s + x.yield_ton_per_ha, 0) / filteredFields.filter((x) => x.crop_type === f.crop_type).length;
+                const avgForCrop =
+                  filteredFields
+                    .filter((x) => x.crop_type === f.crop_type)
+                    .reduce((s, x) => s + x.yield_ton_per_ha, 0) /
+                  filteredFields.filter((x) => x.crop_type === f.crop_type).length;
                 const aboveAvg = f.yield_ton_per_ha >= avgForCrop;
                 return (
-                  <tr key={f.field_id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">{f.field_name_ar}</td>
+                  <tr
+                    key={f.field_id}
+                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
+                    <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">
+                      {f.field_name_ar}
+                    </td>
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{f.farm_name_ar}</td>
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{f.crop_name_ar}</td>
-                    <td className="py-3 px-2 text-gray-500 dark:text-gray-400 text-xs">{f.seed_variety_ar}</td>
-                    <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{f.area_hectares}</td>
+                    <td className="py-3 px-2 text-gray-500 dark:text-gray-400 text-xs">
+                      {f.seed_variety_ar}
+                    </td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-400">
+                      {f.area_hectares}
+                    </td>
                     <td className="py-3 px-2">
-                      <span className={`font-bold ${aboveAvg ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400"}`}>
+                      <span
+                        className={`font-bold ${aboveAvg ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}
+                      >
                         {f.yield_ton_per_ha.toFixed(1)}
                       </span>
                       {aboveAvg ? (
@@ -423,19 +711,31 @@ export default function YieldAnalysisPage() {
                         <TrendingDown className="inline w-3 h-3 mr-1 text-orange-500" />
                       )}
                     </td>
-                    <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">{f.total_yield_tons.toFixed(1)}</td>
-                    <td className="py-3 px-2 text-xs text-gray-500 dark:text-gray-400">{f.soil_type_ar}</td>
-                    <td className="py-3 px-2 text-xs text-gray-500 dark:text-gray-400">{f.irrigation_type_ar}</td>
+                    <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">
+                      {f.total_yield_tons.toFixed(1)}
+                    </td>
+                    <td className="py-3 px-2 text-xs text-gray-500 dark:text-gray-400">
+                      {f.soil_type_ar}
+                    </td>
+                    <td className="py-3 px-2 text-xs text-gray-500 dark:text-gray-400">
+                      {f.irrigation_type_ar}
+                    </td>
                     <td className="py-3 px-2">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        f.ndvi_avg >= 0.7 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" :
-                        f.ndvi_avg >= 0.5 ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" :
-                        "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                      }`}>
+                      <span
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                          f.ndvi_avg >= 0.7
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : f.ndvi_avg >= 0.5
+                              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                        }`}
+                      >
                         {f.ndvi_avg.toFixed(2)}
                       </span>
                     </td>
-                    <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{f.fertilizer_applied_kg_per_ha}</td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-400">
+                      {f.fertilizer_applied_kg_per_ha}
+                    </td>
                   </tr>
                 );
               })}

@@ -1,60 +1,69 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Admin Reset Password Page
  * صفحة إعادة تعيين كلمة المرور للوحة الإدارة
  */
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Loader2, Lock, Leaf, ArrowRight, CheckCircle, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Loader2,
+  Lock,
+  Leaf,
+  ArrowRight,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  AlertTriangle,
+} from 'lucide-react';
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = searchParams.get('token');
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Password validation
   const passwordErrors = [];
   if (newPassword.length > 0 && newPassword.length < 8) {
-    passwordErrors.push("يجب أن تكون كلمة المرور 8 أحرف على الأقل");
+    passwordErrors.push('يجب أن تكون كلمة المرور 8 أحرف على الأقل');
   }
   if (confirmPassword.length > 0 && newPassword !== confirmPassword) {
-    passwordErrors.push("كلمات المرور غير متطابقة");
+    passwordErrors.push('كلمات المرور غير متطابقة');
   }
 
   const isFormValid = newPassword.length >= 8 && newPassword === confirmPassword && token;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (!token) {
-      setError("رمز إعادة التعيين غير صالح أو مفقود");
+      setError('رمز إعادة التعيين غير صالح أو مفقود');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("كلمات المرور غير متطابقة");
+      setError('كلمات المرور غير متطابقة');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           token,
@@ -65,17 +74,17 @@ function ResetPasswordForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "فشل في إعادة تعيين كلمة المرور");
+        throw new Error(data.message || data.error || 'فشل في إعادة تعيين كلمة المرور');
       }
 
       setIsSuccess(true);
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        router.push("/login");
+        router.push('/login');
       }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
+      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {
       setIsLoading(false);
     }
@@ -101,8 +110,7 @@ function ResetPasswordForm() {
               رابط غير صالح
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.
-              يرجى طلب رابط جديد.
+              رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.
             </p>
             <Link
               href="/forgot-password"
@@ -140,8 +148,7 @@ function ResetPasswordForm() {
                 تم تغيير كلمة المرور بنجاح
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.
-                سيتم توجيهك تلقائيًا...
+                يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة. سيتم توجيهك تلقائيًا...
               </p>
               <Link
                 href="/login"
@@ -162,9 +169,7 @@ function ResetPasswordForm() {
               </p>
 
               {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">
-                  {error}
-                </div>
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">{error}</div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -180,7 +185,7 @@ function ResetPasswordForm() {
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       id="newPassword"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
@@ -194,11 +199,7 @@ function ResetPasswordForm() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
@@ -215,7 +216,7 @@ function ResetPasswordForm() {
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
+                      type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"

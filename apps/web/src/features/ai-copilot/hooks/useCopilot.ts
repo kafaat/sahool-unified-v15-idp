@@ -8,27 +8,22 @@
  * البحث في المعرفة، والاستشارات الزراعية.
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { copilotApi } from "../api";
-import type {
-  ChatMessage,
-  ChatHistory,
-  CopilotTool,
-  RagDocument,
-} from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { copilotApi } from '../api';
+import type { ChatMessage, ChatHistory, CopilotTool, RagDocument } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys - مفاتيح الاستعلام
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const copilotKeys = {
-  all: ["copilot"] as const,
-  chatHistory: (limit?: number) => [...copilotKeys.all, "chatHistory", limit] as const,
-  tools: () => [...copilotKeys.all, "tools"] as const,
-  advisorHistory: () => [...copilotKeys.all, "advisorHistory"] as const,
-  knowledge: () => [...copilotKeys.all, "knowledge"] as const,
+  all: ['copilot'] as const,
+  chatHistory: (limit?: number) => [...copilotKeys.all, 'chatHistory', limit] as const,
+  tools: () => [...copilotKeys.all, 'tools'] as const,
+  advisorHistory: () => [...copilotKeys.all, 'advisorHistory'] as const,
+  knowledge: () => [...copilotKeys.all, 'knowledge'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

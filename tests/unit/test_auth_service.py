@@ -17,8 +17,9 @@ Updated: March 2026
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Inline lightweight implementations used as stand-ins when service modules are

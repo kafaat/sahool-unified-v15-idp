@@ -1,5 +1,6 @@
 /// Equipment Card Widget - بطاقة المعدة
 /// Displays equipment info in a card format
+library;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -47,7 +48,7 @@ class EquipmentCard extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: SahoolColors.paleOlive.withOpacity(0.5),
+            color: SahoolColors.paleOlive.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16),
           ),
           child: equipment.imageUrl != null
@@ -118,7 +119,7 @@ class EquipmentCard extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: SahoolColors.paleOlive.withOpacity(0.5),
+            color: SahoolColors.paleOlive.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
@@ -185,7 +186,7 @@ class EquipmentCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            "${equipment.currentFuelPercent!.toInt()}%",
+            '${equipment.currentFuelPercent!.toInt()}%',
             style: TextStyle(
               fontSize: 12,
               color: equipment.isLowFuel ? Colors.orange : Colors.green,
@@ -333,7 +334,7 @@ class EquipmentLargeCard extends StatelessWidget {
                 ),
                 _buildStatItem(
                   Icons.timer,
-                  '${equipment.currentHours?.toStringAsFixed(0) ?? '-'}',
+                  equipment.currentHours?.toStringAsFixed(0) ?? '-',
                   'ساعات',
                   Colors.blue,
                 ),
@@ -395,7 +396,7 @@ class EquipmentLargeCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

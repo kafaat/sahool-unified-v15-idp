@@ -6,6 +6,7 @@
 /// - Show location on map for confirmation
 /// - Allow user to adjust pin position
 /// - Return selected location coordinates
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -446,7 +447,7 @@ class _LocationPin extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

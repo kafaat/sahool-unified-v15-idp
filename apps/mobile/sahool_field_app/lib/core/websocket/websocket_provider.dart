@@ -256,7 +256,7 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
   /// Call this when the auth token is refreshed to reconnect with new credentials
   Future<void> reconnect() async {
     await _service.disconnect();
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     await _service.connect();
   }
 
@@ -291,7 +291,7 @@ final webSocketConnectionProvider =
     if (lastToken != null &&
         newToken != null &&
         lastToken != newToken &&
-        notifier.state == ConnectionState.connected) {
+        service.state == ConnectionState.connected) {
       AppLogger.i('Token refreshed, reconnecting WebSocket', tag: 'WS');
       notifier.refreshConnection();
     }

@@ -8,7 +8,7 @@ import time
 
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from caching import (
     CacheEntry,

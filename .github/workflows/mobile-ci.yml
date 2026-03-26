@@ -54,6 +54,7 @@ jobs:
   analyze:
     name: Analyze Code
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
@@ -78,7 +79,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -136,7 +137,7 @@ jobs:
 
       - name: Upload analysis results
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: analysis-results
           path: apps/mobile/sahool_field_app/analyze_output.txt
@@ -148,6 +149,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: analyze
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     defaults:
@@ -174,7 +176,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -246,7 +248,7 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: |
@@ -273,6 +275,7 @@ jobs:
   build-debug:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: [analyze, test]
     if: always() && needs.analyze.result == 'success'
     defaults:
@@ -316,7 +319,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -327,7 +330,7 @@ jobs:
             pub-cache-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.gradle/caches
@@ -430,7 +433,7 @@ jobs:
           fi
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-debug-apk-${{ github.run_number }}
           path: |
@@ -441,7 +444,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: build-logs-debug-${{ github.run_number }}
           path: |
@@ -467,6 +470,7 @@ jobs:
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: build-debug
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     defaults:
@@ -526,7 +530,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: integration-test-results
           path: apps/mobile/sahool_field_app/integration_test_output/
@@ -539,6 +543,7 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [analyze, test, build-debug]
     if: always()
     steps:

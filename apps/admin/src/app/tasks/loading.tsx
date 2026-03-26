@@ -7,7 +7,11 @@
 
 export default function TasksLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل المهام - Loading tasks">
+    <div
+      className="p-6 space-y-6 animate-pulse"
+      role="status"
+      aria-label="جاري تحميل المهام - Loading tasks"
+    >
       <span className="sr-only">جاري تحميل المهام - Loading tasks</span>
       {/* Header skeleton */}
       <div>
@@ -49,10 +53,7 @@ export default function TasksLoading() {
       {/* Table skeleton */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
-          >
+          <div key={i} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
             <div className="h-14 bg-gray-100 dark:bg-gray-700 rounded" />
           </div>
         ))}

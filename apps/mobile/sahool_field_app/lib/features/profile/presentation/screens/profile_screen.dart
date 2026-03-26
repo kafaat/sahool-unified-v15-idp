@@ -88,10 +88,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           // صورة الملف الشخصي
           Stack(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
-                child: const Icon(
+                child: Icon(
                   Icons.person,
                   size: 50,
                   color: Color(0xFF367C2B),
@@ -132,7 +132,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(

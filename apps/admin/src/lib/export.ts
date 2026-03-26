@@ -3,7 +3,7 @@
  * أدوات التصدير - PDF, Excel, CSV
  */
 
-export type ExportFormat = "csv" | "excel" | "pdf";
+export type ExportFormat = 'csv' | 'excel' | 'pdf';
 
 export interface ExportColumn {
   key: string;
@@ -21,8 +21,8 @@ export interface ExportOptions {
   data: Record<string, unknown>[];
   format: ExportFormat;
   // PDF specific options
-  orientation?: "portrait" | "landscape";
-  pageSize?: "A4" | "A3" | "Letter";
+  orientation?: 'portrait' | 'landscape';
+  pageSize?: 'A4' | 'A3' | 'Letter';
   // Additional metadata
   createdBy?: string;
   createdAt?: Date;
@@ -35,7 +35,7 @@ export interface ExportOptions {
 /**
  * Export data to CSV format
  */
-export function exportToCSV(options: Omit<ExportOptions, "format">): void {
+export function exportToCSV(options: Omit<ExportOptions, 'format'>): void {
   const { filename, columns, data, includeHeader = true } = options;
 
   const rows: string[][] = [];
@@ -53,9 +53,9 @@ export function exportToCSV(options: Omit<ExportOptions, "format">): void {
         return col.format(value);
       }
       if (value === null || value === undefined) {
-        return "";
+        return '';
       }
-      if (typeof value === "object") {
+      if (typeof value === 'object') {
         return JSON.stringify(value);
       }
       return String(value);
@@ -69,18 +69,18 @@ export function exportToCSV(options: Omit<ExportOptions, "format">): void {
       row
         .map((cell) => {
           // Escape quotes and wrap in quotes if contains comma, newline, or quote
-          if (cell.includes(",") || cell.includes("\n") || cell.includes('"')) {
+          if (cell.includes(',') || cell.includes('\n') || cell.includes('"')) {
             return `"${cell.replace(/"/g, '""')}"`;
           }
           return cell;
         })
-        .join(",")
+        .join(',')
     )
-    .join("\n");
+    .join('\n');
 
   // Add BOM for proper Arabic character display
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8" });
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8' });
 
   downloadBlob(blob, `${filename}.csv`);
 }
@@ -89,15 +89,8 @@ export function exportToCSV(options: Omit<ExportOptions, "format">): void {
  * Export data to Excel format (simplified XLSX)
  * Uses simple XML-based format for compatibility
  */
-export function exportToExcel(options: Omit<ExportOptions, "format">): void {
-  const {
-    filename,
-    title,
-    titleAr,
-    columns,
-    data,
-    includeHeader = true,
-  } = options;
+export function exportToExcel(options: Omit<ExportOptions, 'format'>): void {
+  const { filename, title, titleAr, columns, data, includeHeader = true } = options;
 
   // Create Excel XML
   let excelContent = `<?xml version="1.0" encoding="UTF-8"?>
@@ -129,7 +122,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
       <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
     </Style>
   </Styles>
-  <Worksheet ss:Name="${escapeXml(titleAr || title || "Data")}">
+  <Worksheet ss:Name="${escapeXml(titleAr || title || 'Data')}">
     <Table>`;
 
   // Add column widths
@@ -141,7 +134,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
   if (title || titleAr) {
     excelContent += `\n      <Row ss:Height="30">
         <Cell ss:StyleID="Title" ss:MergeAcross="${columns.length - 1}">
-          <Data ss:Type="String">${escapeXml(titleAr || title || "")}</Data>
+          <Data ss:Type="String">${escapeXml(titleAr || title || '')}</Data>
         </Cell>
       </Row>`;
   }
@@ -159,16 +152,13 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
 
   // Add data rows
   data.forEach((item, index) => {
-    const styleId = index % 2 === 1 ? "Alt" : "Default";
+    const styleId = index % 2 === 1 ? 'Alt' : 'Default';
     excelContent += `\n      <Row>`;
 
     columns.forEach((col) => {
       const value = item[col.key];
-      const formattedValue = col.format
-        ? col.format(value)
-        : value?.toString() || "";
-      const dataType =
-        typeof value === "number" ? "Number" : "String";
+      const formattedValue = col.format ? col.format(value) : value?.toString() || '';
+      const dataType = typeof value === 'number' ? 'Number' : 'String';
 
       excelContent += `\n        <Cell ss:StyleID="${styleId}">
           <Data ss:Type="${dataType}">${escapeXml(formattedValue)}</Data>
@@ -183,7 +173,7 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
 </Workbook>`;
 
   const blob = new Blob([excelContent], {
-    type: "application/vnd.ms-excel;charset=utf-8",
+    type: 'application/vnd.ms-excel;charset=utf-8',
   });
 
   downloadBlob(blob, `${filename}.xls`);
@@ -193,13 +183,13 @@ export function exportToExcel(options: Omit<ExportOptions, "format">): void {
  * Export data to PDF format
  * Creates a simple HTML-based PDF using print
  */
-export function exportToPDF(options: Omit<ExportOptions, "format">): void {
+export function exportToPDF(options: Omit<ExportOptions, 'format'>): void {
   const {
     title,
     titleAr,
     columns,
     data,
-    orientation = "portrait",
+    orientation = 'portrait',
     footerText,
     footerTextAr,
   } = options;
@@ -210,7 +200,7 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>${escapeXml(titleAr || title || "Export")}</title>
+  <title>${escapeXml(titleAr || title || 'Export')}</title>
   <style>
     /* Tajawal font - self-hosted, no CDN dependency */
     @font-face {
@@ -341,14 +331,14 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
       <div class="logo-icon">س</div>
       <span style="font-size: 24px; font-weight: bold; color: #10b981;">سهول</span>
     </div>
-    <h1>${escapeXml(titleAr || title || "تقرير البيانات")}</h1>
-    <div class="date">تاريخ التصدير: ${new Date().toLocaleDateString("ar-YE", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+    <h1>${escapeXml(titleAr || title || 'تقرير البيانات')}</h1>
+    <div class="date">تاريخ التصدير: ${new Date().toLocaleDateString('ar-YE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
   </div>
 
   <table>
     <thead>
       <tr>
-        ${columns.map((col) => `<th>${col.headerAr || col.header}</th>`).join("")}
+        ${columns.map((col) => `<th>${col.headerAr || col.header}</th>`).join('')}
       </tr>
     </thead>
     <tbody>
@@ -359,21 +349,19 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
           ${columns
             .map((col) => {
               const value = item[col.key];
-              const formattedValue = col.format
-                ? col.format(value)
-                : value?.toString() || "-";
+              const formattedValue = col.format ? col.format(value) : value?.toString() || '-';
               return `<td>${escapeHtml(formattedValue)}</td>`;
             })
-            .join("")}
+            .join('')}
         </tr>
       `
         )
-        .join("")}
+        .join('')}
     </tbody>
   </table>
 
   <div class="footer">
-    <p>${footerTextAr || footerText || "تم إنشاء هذا التقرير بواسطة منصة سهول الزراعية"}</p>
+    <p>${footerTextAr || footerText || 'تم إنشاء هذا التقرير بواسطة منصة سهول الزراعية'}</p>
     <p>SAHOOL Agricultural Platform - ${new Date().getFullYear()}</p>
   </div>
 </body>
@@ -381,7 +369,7 @@ export function exportToPDF(options: Omit<ExportOptions, "format">): void {
   `;
 
   // Open print dialog
-  const printWindow = window.open("", "_blank");
+  const printWindow = window.open('', '_blank');
   if (printWindow) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
@@ -402,13 +390,13 @@ export function exportData(options: ExportOptions): void {
   const { format, ...rest } = options;
 
   switch (format) {
-    case "csv":
+    case 'csv':
       exportToCSV(rest);
       break;
-    case "excel":
+    case 'excel':
       exportToExcel(rest);
       break;
-    case "pdf":
+    case 'pdf':
       exportToPDF(rest);
       break;
     default:
@@ -419,7 +407,7 @@ export function exportData(options: ExportOptions): void {
 // Helper functions
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);
@@ -430,25 +418,25 @@ function downloadBlob(blob: Blob, filename: string): void {
 
 function escapeXml(text: string): string {
   return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 // Export format labels
 export const exportFormatLabels = {
-  csv: { en: "CSV", ar: "CSV" },
-  excel: { en: "Excel", ar: "Excel" },
-  pdf: { en: "PDF", ar: "PDF" },
+  csv: { en: 'CSV', ar: 'CSV' },
+  excel: { en: 'Excel', ar: 'Excel' },
+  pdf: { en: 'PDF', ar: 'PDF' },
 };

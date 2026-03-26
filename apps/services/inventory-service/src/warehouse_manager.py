@@ -141,17 +141,23 @@ class WarehouseManager:
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
 
-    async def get_warehouse(self, warehouse_id: str) -> Warehouse | None:
+    async def get_warehouse(self, warehouse_id: str, tenant_id: str | None = None) -> Warehouse | None:
         """
-        Get a specific warehouse by ID
+        Get a specific warehouse by ID with optional tenant isolation
 
         Args:
             warehouse_id: Warehouse ID
+            tenant_id: Tenant ID for isolation (recommended)
 
         Returns:
             Warehouse object or None
         """
-        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
+        if tenant_id is not None:
+            warehouse = await self.db.warehouse.find_first(
+                where={"id": warehouse_id, "tenantId": tenant_id}, include={"zones": True}
+            )
+        else:
+            warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
 
         if not warehouse:
             return None

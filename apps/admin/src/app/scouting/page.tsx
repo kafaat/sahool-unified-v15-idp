@@ -1,18 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Field Scouting Page
  * الاستكشاف الميداني
  */
 
-import Header from "@/components/layout/Header";
-import {
-  Users,
-  FileText,
-  AlertTriangle,
-  Map,
-  Search,
-} from "lucide-react";
+import Header from '@/components/layout/Header';
+import { Users, FileText, AlertTriangle, Map, Search } from 'lucide-react';
 
 export default function ScoutingPage() {
   return (
@@ -70,8 +64,12 @@ export default function ScoutingPage() {
       {/* Content placeholder */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
         <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">سيتم عرض تقارير الاستكشاف الميداني هنا</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">Field scouting reports and issue tracking will be displayed here</p>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          سيتم عرض تقارير الاستكشاف الميداني هنا
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
+          Field scouting reports and issue tracking will be displayed here
+        </p>
       </div>
     </div>
   );

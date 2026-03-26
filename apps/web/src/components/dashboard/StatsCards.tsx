@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { apiClient } from "@/lib/api";
-import { SkeletonCard } from "./ui/Skeleton";
-import { logger } from "@/lib/logger";
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { apiClient } from '@/lib/api';
+import { SkeletonCard } from './ui/Skeleton';
+import { logger } from '@/lib/logger';
 
 // Constants for health thresholds
 const HEALTH_THRESHOLDS = {
@@ -12,9 +12,9 @@ const HEALTH_THRESHOLDS = {
 } as const;
 
 const HEALTH_COLORS = {
-  GOOD: "#10b981",
-  MODERATE: "#f59e0b",
-  POOR: "#ef4444",
+  GOOD: '#10b981',
+  MODERATE: '#f59e0b',
+  POOR: '#ef4444',
 } as const;
 
 interface Stats {
@@ -45,7 +45,7 @@ const StatsCard = React.memo<StatsCardProps>(function StatsCard({
   value,
   icon,
   subtitle,
-  color = "text-gray-800",
+  color = 'text-gray-800',
   progress,
 }) {
   // Memoize the progress bar color calculation
@@ -58,24 +58,21 @@ const StatsCard = React.memo<StatsCardProps>(function StatsCard({
 
   // Create accessible progress description
   const progressDescription = useMemo(() => {
-    if (progress === undefined) return "";
-    if (progress >= HEALTH_THRESHOLDS.GOOD) return "ممتاز";
-    if (progress >= HEALTH_THRESHOLDS.MODERATE) return "جيد";
-    return "يحتاج تحسين";
+    if (progress === undefined) return '';
+    if (progress >= HEALTH_THRESHOLDS.GOOD) return 'ممتاز';
+    if (progress >= HEALTH_THRESHOLDS.MODERATE) return 'جيد';
+    return 'يحتاج تحسين';
   }, [progress]);
 
   return (
     <article
       className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none"
       role="article"
-      aria-label={`${title}: ${value}${progress !== undefined ? `, ${progressDescription}` : ""}`}
-         >
+      aria-label={`${title}: ${value}${progress !== undefined ? `, ${progressDescription}` : ''}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <h3
-            className="text-xs text-gray-500 font-medium"
-            id={`stat-title-${title}`}
-          >
+          <h3 className="text-xs text-gray-500 font-medium" id={`stat-title-${title}`}>
             {title}
           </h3>
           <p
@@ -123,9 +120,7 @@ interface StatsCardsProps {
   tenantId?: string;
 }
 
-export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
-  tenantId,
-}) {
+export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({ tenantId }) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,14 +143,12 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
           setStats({
             totalFields: ndviSummary.data?.totalFields || 0,
             totalArea: ndviSummary.data?.totalAreaHectares || 0,
-            healthScore: Math.round(
-              (ndviSummary.data?.averageHealth || 0) * 100,
-            ),
+            healthScore: Math.round((ndviSummary.data?.averageHealth || 0) * 100),
             pendingTasks: 8,
             completedTasks: 4,
             activeAlerts: 3,
             temperature: weatherData?.data?.current?.temperature || 32,
-            weatherCondition: weatherData?.data?.current?.description || "مشمس",
+            weatherCondition: weatherData?.data?.current?.description || 'مشمس',
             waterUsage: 85,
             waterSaving: 15,
           });
@@ -174,7 +167,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         completedTasks: 4,
         activeAlerts: 3,
         temperature: 32,
-        weatherCondition: "مشمس",
+        weatherCondition: 'مشمس',
         waterUsage: 85,
         waterSaving: 15,
       });
@@ -183,9 +176,9 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
       const errorMessage =
         err instanceof Error
           ? `خطأ في تحميل البيانات: ${err.message}`
-          : "فشل تحميل الإحصائيات. يرجى المحاولة مرة أخرى.";
+          : 'فشل تحميل الإحصائيات. يرجى المحاولة مرة أخرى.';
       setError(errorMessage);
-      logger.error("Error fetching stats:", err);
+      logger.error('Error fetching stats:', err);
     } finally {
       setLoading(false);
       setRetrying(false);
@@ -208,7 +201,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
         aria-busy="true"
         aria-label="جاري تحميل الإحصائيات"
-             >
+      >
         {[...Array(6)].map((_, i) => (
           <SkeletonCard key={i} />
         ))}
@@ -222,7 +215,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
         role="alert"
         aria-live="assertive"
-             >
+      >
         <div className="flex flex-col items-center gap-3">
           <span className="text-4xl" role="img" aria-label="خطأ">
             ⚠️
@@ -260,7 +253,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
                 جاري إعادة المحاولة...
               </span>
             ) : (
-              "🔄 إعادة المحاولة"
+              '🔄 إعادة المحاولة'
             )}
           </button>
         </div>
@@ -274,7 +267,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center"
         role="status"
         aria-live="polite"
-             >
+      >
         <p className="text-gray-500 text-sm">لا توجد بيانات متاحة</p>
       </section>
     );
@@ -286,7 +279,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
       role="region"
       aria-label="إحصائيات لوحة التحكم"
       aria-live="polite"
-         >
+    >
       <StatsCard
         title="إجمالي الحقول"
         value={stats.totalFields}
@@ -301,10 +294,10 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         progress={stats.healthScore}
         color={
           stats.healthScore >= 70
-            ? "text-emerald-600"
+            ? 'text-emerald-600'
             : stats.healthScore >= 50
-              ? "text-amber-600"
-              : "text-red-600"
+              ? 'text-amber-600'
+              : 'text-red-600'
         }
       />
 
@@ -319,11 +312,9 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
       <StatsCard
         title="التنبيهات النشطة"
         value={stats.activeAlerts}
-        icon={stats.activeAlerts > 0 ? "🔔" : "✅"}
-        subtitle={
-          stats.activeAlerts > 0 ? "تحتاج إلى مراجعة" : "لا توجد تنبيهات"
-        }
-        color={stats.activeAlerts > 0 ? "text-red-600" : "text-emerald-600"}
+        icon={stats.activeAlerts > 0 ? '🔔' : '✅'}
+        subtitle={stats.activeAlerts > 0 ? 'تحتاج إلى مراجعة' : 'لا توجد تنبيهات'}
+        color={stats.activeAlerts > 0 ? 'text-red-600' : 'text-emerald-600'}
       />
 
       <StatsCard

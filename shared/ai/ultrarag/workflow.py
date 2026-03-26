@@ -4,22 +4,23 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import structlog
 import yaml
 
-from .models import (
-    RAGRequest,
-    WorkflowConfig,
-    WorkflowStep,
-)
 from ..knowledge.corrective_retrieval import (
     CorrectiveRetrievalEngine,
     CRAGResult,
     RetrievalAction,
+)
+from .models import (
+    RAGRequest,
+    WorkflowConfig,
+    WorkflowStep,
 )
 
 logger = structlog.get_logger(__name__)

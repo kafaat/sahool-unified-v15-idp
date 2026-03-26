@@ -150,13 +150,14 @@ class MockBiometricService extends Mock implements BiometricService {
   }
 
   @override
-  Future<bool> authenticate({required String reason}) async {
+  Future<bool> authenticate({required String reason, bool biometricOnly = false}) async {
     return _willAuthenticate;
   }
 
   @override
-  Future<void> enable() async {
+  Future<bool> enable() async {
     _isEnabled = true;
+    return true;
   }
 
   @override

@@ -141,57 +141,7 @@ class SyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Cached User Table for offline-first user data access
-/// جدول المستخدم المخزن مؤقتاً للوصول بدون اتصال
-@TableIndex(name: 'cached_users_tenant_idx', columns: {#tenantId})
-@TableIndex(name: 'cached_users_email_idx', columns: {#email})
-class CachedUsers extends Table {
-  TextColumn get id => text()();
-  TextColumn get email => text()();
-  TextColumn get firstName => text().nullable()();
-  TextColumn get lastName => text().nullable()();
-  TextColumn get firstNameAr => text().nullable()();
-  TextColumn get lastNameAr => text().nullable()();
-  TextColumn get phone => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('FARMER'))();
-  TextColumn get status =>
-      text().withDefault(const Constant('ACTIVE'))(); // ACTIVE/INACTIVE/SUSPENDED/PENDING
-  BoolColumn get emailVerified =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get phoneVerified =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get tenantId => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  IntColumn get failedLoginAttempts =>
-      integer().withDefault(const Constant(0))();
-  DateTimeColumn get lockoutUntil => dateTime().nullable()();
-  DateTimeColumn get lastLoginAt => dateTime().nullable()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
-  BoolColumn get synced => boolean().withDefault(const Constant(false))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-/// Cached User Profile Table for extended user data
-/// جدول الملف الشخصي المخزن مؤقتاً
-class CachedUserProfiles extends Table {
-  TextColumn get userId => text()();
-  TextColumn get nationalId => text().nullable()();
-  DateTimeColumn get dateOfBirth => dateTime().nullable()();
-  TextColumn get address => text().nullable()();
-  TextColumn get city => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get country =>
-      text().withDefault(const Constant('SA')).nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {userId};
-}
-
-@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents, CachedUsers, CachedUserProfiles])
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
   /// Callback for migration completion events
   void Function(MigrationResult)? onMigrationComplete;
@@ -282,38 +232,51 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bulk insert tasks from server
   Future<void> upsertTasksFromServer(List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        batch.insert(
-          tasks,
-          TasksCompanion.insert(
-            id: item['id'],
-            tenantId: item['tenant_id'],
-            fieldId: item['field_id'],
-            farmId: Value(item['farm_id']),
-            title: item['title'],
-            description: Value(item['description']),
-            status: Value(item['status'] ?? 'open'),
-            priority: Value(item['priority'] ?? 'medium'),
-            dueDate: Value(item['due_date'] != null
-                ? DateTime.tryParse(item['due_date'].toString())
-                : null),
-            assignedTo: Value(item['assigned_to']),
-            evidenceNotes: Value(item['evidence_notes']),
-            evidencePhotos: Value(item['evidence_photos'] != null
-                ? (item['evidence_photos'] as List).join(',')
-                : null),
-            createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
-            updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => TasksCompanion(
-                status: Value(item['status'] ?? 'open'),
-                updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
-                synced: const Value(true),
-              )),
-        );
-      }
+    await transaction(() async {
+      await batch((batch) {
+        for (final item in items) {
+          // Validate required fields before insert
+          final id = item['id'];
+          final tenantId = item['tenant_id'];
+          final fieldId = item['field_id'];
+          final title = item['title'];
+          if (id == null || tenantId == null || fieldId == null || title == null) {
+            continue; // Skip items with missing required fields
+          }
+
+          batch.insert(
+            tasks,
+            TasksCompanion.insert(
+              id: id.toString(),
+              tenantId: tenantId.toString(),
+              fieldId: fieldId.toString(),
+              farmId: Value(item['farm_id'] as String?),
+              title: title.toString(),
+              description: Value(item['description'] as String?),
+              status: Value((item['status'] as String?) ?? 'open'),
+              priority: Value((item['priority'] as String?) ?? 'medium'),
+              dueDate: Value(item['due_date'] != null
+                  ? DateTime.tryParse(item['due_date'].toString())
+                  : null),
+              assignedTo: Value(item['assigned_to'] as String?),
+              evidenceNotes: Value(item['evidence_notes'] as String?),
+              evidencePhotos: Value(item['evidence_photos'] != null
+                  ? (item['evidence_photos'] is List
+                      ? (item['evidence_photos'] as List).join(',')
+                      : item['evidence_photos'].toString())
+                  : null),
+              createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
+              updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
+              synced: const Value(true),
+            ),
+            onConflict: DoUpdate((old) => TasksCompanion(
+                  status: Value((item['status'] as String?) ?? 'open'),
+                  updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
+                  synced: const Value(true),
+                )),
+          );
+        }
+      });
     });
   }
 
@@ -540,68 +503,79 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bulk insert fields from server
   Future<void> upsertFieldsFromServer(List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        // Parse GeoJSON geometry to List<LatLng>
-        List<LatLng> boundary = [];
-        LatLng? centroid;
-
-        final geometry = item['geometry'];
-        if (geometry != null && geometry['type'] == 'Polygon') {
-          final coords = geometry['coordinates'][0] as List;
-          boundary = coords.map((c) {
-            final coord = c as List;
-            return LatLng(
-              (coord[1] as num).toDouble(),
-              (coord[0] as num).toDouble(),
-            );
-          }).toList();
-
-          // Calculate centroid
-          if (boundary.isNotEmpty) {
-            double sumLat = 0, sumLng = 0;
-            for (final p in boundary) {
-              sumLat += p.latitude;
-              sumLng += p.longitude;
-            }
-            centroid =
-                LatLng(sumLat / boundary.length, sumLng / boundary.length);
+    await transaction(() async {
+      await batch((batch) {
+        for (final item in items) {
+          // Validate required fields before insert
+          final id = item['id'];
+          final tenantId = item['tenant_id'];
+          final name = item['name'];
+          if (id == null || tenantId == null || name == null) {
+            continue; // Skip items with missing required fields
           }
-        }
 
-        batch.insert(
-          fields,
-          FieldsCompanion.insert(
-            id: item['id'],
-            remoteId: Value(item['remote_id'] ?? item['id']),
-            tenantId: item['tenant_id'],
-            farmId: Value(item['farm_id']),
-            name: item['name'],
-            cropType: Value(item['crop_type']),
-            boundary: boundary,
-            centroid: Value(centroid),
-            areaHectares: (item['area_hectares'] as num?)?.toDouble() ?? 0,
-            status: Value(item['status']),
-            ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
-            ndviUpdatedAt: Value(item['ndvi_updated_at'] != null
-                ? DateTime.tryParse(item['ndvi_updated_at'].toString())
-                : null),
-            createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
-            updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => FieldsCompanion(
-                name: Value(item['name']),
-                boundary: Value(boundary),
-                centroid: Value(centroid),
-                areaHectares:
-                    Value((item['area_hectares'] as num?)?.toDouble() ?? 0),
-                ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
-                updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
-                synced: const Value(true),
-              )),
-        );
-      }
+          // Parse GeoJSON geometry to List<LatLng>
+          List<LatLng> boundary = [];
+          LatLng? centroid;
+
+          final geometry = item['geometry'] as Map<String, dynamic>?;
+          if (geometry != null && geometry['type'] == 'Polygon') {
+            final coordinates = geometry['coordinates'] as List;
+            final coords = coordinates[0] as List;
+            boundary = coords.map((c) {
+              final coord = c as List;
+              return LatLng(
+                (coord[1] as num).toDouble(),
+                (coord[0] as num).toDouble(),
+              );
+            }).toList();
+
+            // Calculate centroid
+            if (boundary.isNotEmpty) {
+              double sumLat = 0, sumLng = 0;
+              for (final p in boundary) {
+                sumLat += p.latitude;
+                sumLng += p.longitude;
+              }
+              centroid =
+                  LatLng(sumLat / boundary.length, sumLng / boundary.length);
+            }
+          }
+
+          batch.insert(
+            fields,
+            FieldsCompanion.insert(
+              id: id.toString(),
+              remoteId: Value(item['remote_id']?.toString() ?? id.toString()),
+              tenantId: tenantId.toString(),
+              farmId: Value(item['farm_id'] as String?),
+              name: name.toString(),
+              cropType: Value(item['crop_type'] as String?),
+              boundary: boundary,
+              centroid: Value(centroid),
+              areaHectares: (item['area_hectares'] as num?)?.toDouble() ?? 0,
+              status: Value(item['status'] as String?),
+              ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
+              ndviUpdatedAt: Value(item['ndvi_updated_at'] != null
+                  ? DateTime.tryParse(item['ndvi_updated_at'].toString())
+                  : null),
+              createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
+              updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
+              synced: const Value(true),
+            ),
+            onConflict: DoUpdate((old) => FieldsCompanion(
+                  name: Value(name.toString()),
+                  boundary: Value(boundary),
+                  centroid: Value(centroid),
+                  areaHectares:
+                      Value((item['area_hectares'] as num?)?.toDouble() ?? 0),
+                  ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
+                  updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
+                  synced: const Value(true),
+                )),
+          );
+        }
+      });
     });
   }
 
@@ -784,8 +758,16 @@ Future<void> _migrateToEncryptedDatabase(
 
     try {
       // Attach new encrypted database
+      // Sanitize path and key to prevent SQL injection via ATTACH DATABASE
+      final sanitizedPath = tempNewPath.replaceAll("'", "''");
       final pragma = encryption.getSqlCipherPragma(encryptionKey);
-      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"${pragma.split('\"')[1]}\";");
+      final rawKey = pragma.split('"')[1];
+      // Validate key contains only expected hex/alphanumeric characters
+      if (!RegExp(r'^[a-fA-F0-9x]+$').hasMatch(rawKey)) {
+        throw StateError('Invalid encryption key format - potential injection');
+      }
+      final sanitizedKey = rawKey.replaceAll('"', '""');
+      oldDb.execute("ATTACH DATABASE '$sanitizedPath' AS encrypted KEY \"$sanitizedKey\";");
 
       // Configure SQLCipher settings for the attached database
       oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');
@@ -816,7 +798,7 @@ Future<void> _migrateToEncryptedDatabase(
 
           if (schema.isNotEmpty) {
             final createSql = schema.first['sql'] as String;
-            oldDb.execute('$createSql'.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
+            oldDb.execute(createSql.replaceFirst('CREATE TABLE', 'CREATE TABLE encrypted.'));
           }
 
           // Copy data

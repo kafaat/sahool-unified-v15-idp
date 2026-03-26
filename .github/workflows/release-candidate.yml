@@ -6,6 +6,10 @@ on:
       - "release/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+
 env:
   PYTHON_VERSION: "3.11"
   NODE_VERSION: "20"
@@ -18,6 +22,7 @@ jobs:
   backend:
     name: Backend - Tests & Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     services:
       postgres:
@@ -74,6 +79,7 @@ jobs:
   security:
     name: Security - Secrets & Dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v6
@@ -109,6 +115,7 @@ jobs:
   web:
     name: Web - Build & Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v6
@@ -135,6 +142,7 @@ jobs:
   mobile:
     name: Mobile - Flutter Build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v6
@@ -172,6 +180,7 @@ jobs:
     name: Create RC Release
     needs: [backend, security, web, mobile]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: success()
 
     permissions:

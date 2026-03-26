@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/app_logger.dart';
@@ -174,7 +172,7 @@ class OfflineSyncEngine {
   /// تنفيذ المزامنة
   Future<SyncResult> sync() async {
     if (_isSyncing) {
-      return SyncResult(
+      return const SyncResult(
         success: false,
         message: 'Sync already in progress',
       );
@@ -267,7 +265,7 @@ class OfflineSyncEngine {
     // );
 
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed CREATE: ${entry.entityType}', tag: 'SYNC');
   }
 
@@ -300,7 +298,7 @@ class OfflineSyncEngine {
     }
 
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed UPDATE: ${entry.entityType}/${entry.entityId}',
         tag: 'SYNC');
   }
@@ -308,7 +306,7 @@ class OfflineSyncEngine {
   /// معالجة عملية حذف
   Future<void> _processDelete(OutboxEntry entry) async {
     // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     AppLogger.d('Processed DELETE: ${entry.entityType}/${entry.entityId}',
         tag: 'SYNC');
   }
@@ -335,7 +333,7 @@ class OfflineSyncEngine {
         Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
     final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
-    Timer(delay, _checkAndSync);
+    Timer(delay, () => _checkAndSync());
     AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)',
         tag: 'SYNC');
   }

@@ -3,23 +3,22 @@
  * خطافات React لميزة تحليل التربة
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { soilApi } from "../api";
-import type { SoilTest, SoilFilters } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { soilApi } from '../api';
+import type { SoilTest, SoilFilters } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const soilKeys = {
-  all: ["soil-analysis"] as const,
-  lists: () => [...soilKeys.all, "list"] as const,
+  all: ['soil-analysis'] as const,
+  lists: () => [...soilKeys.all, 'list'] as const,
   list: (filters?: SoilFilters) => [...soilKeys.lists(), filters] as const,
-  detail: (id: string) => [...soilKeys.all, "detail", id] as const,
-  recommendations: (fieldId?: string) =>
-    [...soilKeys.all, "recommendations", fieldId] as const,
+  detail: (id: string) => [...soilKeys.all, 'detail', id] as const,
+  recommendations: (fieldId?: string) => [...soilKeys.all, 'recommendations', fieldId] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -74,11 +73,11 @@ export function useCreateSoilTest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<SoilTest, "id">) => soilApi.createTest(data),
+    mutationFn: (data: Omit<SoilTest, 'id'>) => soilApi.createTest(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: soilKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: [...soilKeys.all, "recommendations"],
+        queryKey: [...soilKeys.all, 'recommendations'],
       });
     },
   });

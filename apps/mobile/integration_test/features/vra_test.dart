@@ -7,7 +7,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sahool_field_app/main.dart' as app;
 
 import '../helpers/test_helpers.dart';
-import '../fixtures/test_data.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();

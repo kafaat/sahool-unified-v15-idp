@@ -3,15 +3,15 @@
  * Uses Zod-like validation patterns for request validation
  */
 
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 // Validation error class
 export class ValidationError extends Error {
   public errors: ValidationIssue[];
 
   constructor(errors: ValidationIssue[]) {
-    super("Validation failed");
-    this.name = "ValidationError";
+    super('Validation failed');
+    this.name = 'ValidationError';
     this.errors = errors;
   }
 }
@@ -25,7 +25,7 @@ interface ValidationIssue {
 }
 
 // Type definitions for schema
-type SchemaType = "string" | "number" | "boolean" | "array" | "object" | "date";
+type SchemaType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'date';
 
 interface SchemaDefinition {
   type: SchemaType;
@@ -50,19 +50,19 @@ export class Schema {
   }
 
   static string() {
-    return new Schema("string");
+    return new Schema('string');
   }
 
   static number() {
-    return new Schema("number");
+    return new Schema('number');
   }
 
   static boolean() {
-    return new Schema("boolean");
+    return new Schema('boolean');
   }
 
   static array(items?: Schema) {
-    const schema = new Schema("array");
+    const schema = new Schema('array');
     if (items) {
       schema.definition.items = items.definition;
     }
@@ -70,7 +70,7 @@ export class Schema {
   }
 
   static object(properties: Record<string, Schema>) {
-    const schema = new Schema("object");
+    const schema = new Schema('object');
     schema.definition.properties = {};
     for (const [key, value] of Object.entries(properties)) {
       schema.definition.properties[key] = value.definition;
@@ -121,7 +121,7 @@ export class Schema {
   // UUID validation helper
   uuid() {
     return this.pattern(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     );
   }
 
@@ -140,37 +140,34 @@ export class Schema {
       if (def.required) {
         errors.push({
           path,
-          message: "Required field is missing",
-          code: "required",
+          message: 'Required field is missing',
+          code: 'required',
           expected: def.type,
-          received: "undefined",
+          received: 'undefined',
         });
       }
       return errors;
     }
 
     // Type checking
-    const actualType = Array.isArray(value) ? "array" : typeof value;
-    if (def.type === "number" && actualType === "string") {
+    const actualType = Array.isArray(value) ? 'array' : typeof value;
+    if (def.type === 'number' && actualType === 'string') {
       // Allow string numbers
       if (isNaN(Number(value))) {
         errors.push({
           path,
           message: `Expected ${def.type}, received ${actualType}`,
-          code: "invalid_type",
+          code: 'invalid_type',
           expected: def.type,
           received: actualType,
         });
         return errors;
       }
-    } else if (
-      def.type !== actualType &&
-      !(def.type === "date" && value instanceof Date)
-    ) {
+    } else if (def.type !== actualType && !(def.type === 'date' && value instanceof Date)) {
       errors.push({
         path,
         message: `Expected ${def.type}, received ${actualType}`,
-        code: "invalid_type",
+        code: 'invalid_type',
         expected: def.type,
         received: actualType,
       });
@@ -178,45 +175,45 @@ export class Schema {
     }
 
     // String validations
-    if (def.type === "string" && typeof value === "string") {
+    if (def.type === 'string' && typeof value === 'string') {
       if (def.minLength !== undefined && value.length < def.minLength) {
         errors.push({
           path,
           message: `String must be at least ${def.minLength} characters`,
-          code: "too_small",
+          code: 'too_small',
         });
       }
       if (def.maxLength !== undefined && value.length > def.maxLength) {
         errors.push({
           path,
           message: `String must be at most ${def.maxLength} characters`,
-          code: "too_big",
+          code: 'too_big',
         });
       }
       if (def.pattern && !def.pattern.test(value)) {
         errors.push({
           path,
-          message: "String does not match required pattern",
-          code: "invalid_pattern",
+          message: 'String does not match required pattern',
+          code: 'invalid_pattern',
         });
       }
     }
 
     // Number validations
-    if (def.type === "number") {
+    if (def.type === 'number') {
       const num = Number(value);
       if (def.min !== undefined && num < def.min) {
         errors.push({
           path,
           message: `Number must be at least ${def.min}`,
-          code: "too_small",
+          code: 'too_small',
         });
       }
       if (def.max !== undefined && num > def.max) {
         errors.push({
           path,
           message: `Number must be at most ${def.max}`,
-          code: "too_big",
+          code: 'too_big',
         });
       }
     }
@@ -225,27 +222,27 @@ export class Schema {
     if (def.enum && !def.enum.includes(value)) {
       errors.push({
         path,
-        message: `Value must be one of: ${def.enum.join(", ")}`,
-        code: "invalid_enum",
-        expected: def.enum.join(" | "),
+        message: `Value must be one of: ${def.enum.join(', ')}`,
+        code: 'invalid_enum',
+        expected: def.enum.join(' | '),
         received: String(value),
       });
     }
 
     // Array validations
-    if (def.type === "array" && Array.isArray(value)) {
+    if (def.type === 'array' && Array.isArray(value)) {
       if (def.min !== undefined && value.length < def.min) {
         errors.push({
           path,
           message: `Array must have at least ${def.min} items`,
-          code: "too_small",
+          code: 'too_small',
         });
       }
       if (def.max !== undefined && value.length > def.max) {
         errors.push({
           path,
           message: `Array must have at most ${def.max} items`,
-          code: "too_big",
+          code: 'too_big',
         });
       }
       if (def.items) {
@@ -258,7 +255,7 @@ export class Schema {
     }
 
     // Object validations
-    if (def.type === "object" && def.properties && typeof value === "object") {
+    if (def.type === 'object' && def.properties && typeof value === 'object') {
       for (const [key, propDef] of Object.entries(def.properties)) {
         const propSchema = new Schema(propDef.type);
         Object.assign(propSchema.definition, propDef);
@@ -272,9 +269,8 @@ export class Schema {
       if (result !== true) {
         errors.push({
           path,
-          message:
-            typeof result === "string" ? result : "Custom validation failed",
-          code: "custom",
+          message: typeof result === 'string' ? result : 'Custom validation failed',
+          code: 'custom',
         });
       }
     }
@@ -291,10 +287,8 @@ export class Schema {
   }
 
   safeParse(
-    value: any,
-  ):
-    | { success: true; data: any }
-    | { success: false; errors: ValidationIssue[] } {
+    value: any
+  ): { success: true; data: any } | { success: false; errors: ValidationIssue[] } {
     const errors = this.validate(value);
     if (errors.length > 0) {
       return { success: false, errors };
@@ -311,9 +305,7 @@ export const FieldCreateSchema = Schema.object({
   cropType: Schema.string().minLength(1).maxLength(50),
   coordinates: Schema.array(Schema.array(Schema.number())).min(3).optional(),
   ownerId: Schema.string().uuid().optional(),
-  irrigationType: Schema.string()
-    .enum(["drip", "sprinkler", "flood", "none"])
-    .optional(),
+  irrigationType: Schema.string().enum(['drip', 'sprinkler', 'flood', 'none']).optional(),
   soilType: Schema.string().maxLength(50).optional(),
   plantingDate: Schema.string().optional(),
   expectedHarvest: Schema.string().optional(),
@@ -323,12 +315,8 @@ export const FieldCreateSchema = Schema.object({
 export const FieldUpdateSchema = Schema.object({
   name: Schema.string().minLength(1).maxLength(100).optional(),
   cropType: Schema.string().minLength(1).maxLength(50).optional(),
-  status: Schema.string()
-    .enum(["active", "fallow", "preparing", "harvested"])
-    .optional(),
-  irrigationType: Schema.string()
-    .enum(["drip", "sprinkler", "flood", "none"])
-    .optional(),
+  status: Schema.string().enum(['active', 'fallow', 'preparing', 'harvested']).optional(),
+  irrigationType: Schema.string().enum(['drip', 'sprinkler', 'flood', 'none']).optional(),
   soilType: Schema.string().maxLength(50).optional(),
   plantingDate: Schema.string().optional(),
   expectedHarvest: Schema.string().optional(),
@@ -353,10 +341,10 @@ export function validateBody(schema: Schema) {
     if (!result.success) {
       return res.status(400).json({
         success: false,
-        error: "Validation failed",
-        error_ar: "فشل التحقق من البيانات",
+        error: 'Validation failed',
+        error_ar: 'فشل التحقق من البيانات',
         details: result.errors.map((e) => ({
-          field: e.path.join("."),
+          field: e.path.join('.'),
           message: e.message,
           code: e.code,
         })),
@@ -375,10 +363,10 @@ export function validateQuery(schema: Schema) {
     if (!result.success) {
       return res.status(400).json({
         success: false,
-        error: "Invalid query parameters",
-        error_ar: "معاملات استعلام غير صالحة",
+        error: 'Invalid query parameters',
+        error_ar: 'معاملات استعلام غير صالحة',
         details: result.errors.map((e) => ({
-          field: e.path.join("."),
+          field: e.path.join('.'),
           message: e.message,
           code: e.code,
         })),
@@ -396,10 +384,10 @@ export function validateParams(schema: Schema) {
     if (!result.success) {
       return res.status(400).json({
         success: false,
-        error: "Invalid path parameters",
-        error_ar: "معاملات مسار غير صالحة",
+        error: 'Invalid path parameters',
+        error_ar: 'معاملات مسار غير صالحة',
         details: result.errors.map((e) => ({
-          field: e.path.join("."),
+          field: e.path.join('.'),
           message: e.message,
           code: e.code,
         })),
@@ -433,12 +421,12 @@ export function validateLatitude(lat: number): GeoValidationResult {
   const errors: string[] = [];
   const errors_ar: string[] = [];
 
-  if (typeof lat !== "number" || isNaN(lat)) {
-    errors.push("Latitude must be a valid number");
-    errors_ar.push("خط العرض يجب أن يكون رقماً صالحاً");
+  if (typeof lat !== 'number' || isNaN(lat)) {
+    errors.push('Latitude must be a valid number');
+    errors_ar.push('خط العرض يجب أن يكون رقماً صالحاً');
   } else if (lat < -90 || lat > 90) {
-    errors.push("Latitude must be between -90 and 90");
-    errors_ar.push("خط العرض يجب أن يكون بين -90 و 90");
+    errors.push('Latitude must be between -90 and 90');
+    errors_ar.push('خط العرض يجب أن يكون بين -90 و 90');
   }
 
   return { valid: errors.length === 0, errors, errors_ar };
@@ -451,12 +439,12 @@ export function validateLongitude(lng: number): GeoValidationResult {
   const errors: string[] = [];
   const errors_ar: string[] = [];
 
-  if (typeof lng !== "number" || isNaN(lng)) {
-    errors.push("Longitude must be a valid number");
-    errors_ar.push("خط الطول يجب أن يكون رقماً صالحاً");
+  if (typeof lng !== 'number' || isNaN(lng)) {
+    errors.push('Longitude must be a valid number');
+    errors_ar.push('خط الطول يجب أن يكون رقماً صالحاً');
   } else if (lng < -180 || lng > 180) {
-    errors.push("Longitude must be between -180 and 180");
-    errors_ar.push("خط الطول يجب أن يكون بين -180 و 180");
+    errors.push('Longitude must be between -180 and 180');
+    errors_ar.push('خط الطول يجب أن يكون بين -180 و 180');
   }
 
   return { valid: errors.length === 0, errors, errors_ar };
@@ -465,15 +453,13 @@ export function validateLongitude(lng: number): GeoValidationResult {
 /**
  * Validate a coordinate pair [lng, lat] (GeoJSON format)
  */
-export function validateCoordinatePair(
-  coord: [number, number],
-): GeoValidationResult {
+export function validateCoordinatePair(coord: [number, number]): GeoValidationResult {
   const errors: string[] = [];
   const errors_ar: string[] = [];
 
   if (!Array.isArray(coord) || coord.length !== 2) {
-    errors.push("Coordinate must be an array of [longitude, latitude]");
-    errors_ar.push("الإحداثي يجب أن يكون مصفوفة [خط الطول، خط العرض]");
+    errors.push('Coordinate must be an array of [longitude, latitude]');
+    errors_ar.push('الإحداثي يجب أن يكون مصفوفة [خط الطول، خط العرض]');
     return { valid: false, errors, errors_ar };
   }
 
@@ -495,24 +481,22 @@ export function validateCoordinatePair(
  * - First and last point must be the same (closed polygon)
  * - All coordinates must be valid
  */
-export function validatePolygonCoordinates(
-  coordinates: number[][][],
-): GeoValidationResult {
+export function validatePolygonCoordinates(coordinates: number[][][]): GeoValidationResult {
   const errors: string[] = [];
   const errors_ar: string[] = [];
   const warnings: string[] = [];
 
   // Check if coordinates is an array
   if (!Array.isArray(coordinates)) {
-    errors.push("Polygon coordinates must be an array");
-    errors_ar.push("إحداثيات المضلع يجب أن تكون مصفوفة");
+    errors.push('Polygon coordinates must be an array');
+    errors_ar.push('إحداثيات المضلع يجب أن تكون مصفوفة');
     return { valid: false, errors, errors_ar };
   }
 
   // GeoJSON Polygon has an outer ring at index 0
   if (coordinates.length === 0) {
-    errors.push("Polygon must have at least one ring (outer boundary)");
-    errors_ar.push("المضلع يجب أن يحتوي على حلقة خارجية واحدة على الأقل");
+    errors.push('Polygon must have at least one ring (outer boundary)');
+    errors_ar.push('المضلع يجب أن يحتوي على حلقة خارجية واحدة على الأقل');
     return { valid: false, errors, errors_ar };
   }
 
@@ -520,12 +504,8 @@ export function validatePolygonCoordinates(
 
   // Check minimum points (4 = 3 unique + 1 closing)
   if (!Array.isArray(outerRing) || outerRing.length < 4) {
-    errors.push(
-      "Polygon must have at least 4 points (3 unique vertices + closing point)",
-    );
-    errors_ar.push(
-      "المضلع يجب أن يحتوي على 4 نقاط على الأقل (3 رؤوس فريدة + نقطة إغلاق)",
-    );
+    errors.push('Polygon must have at least 4 points (3 unique vertices + closing point)');
+    errors_ar.push('المضلع يجب أن يحتوي على 4 نقاط على الأقل (3 رؤوس فريدة + نقطة إغلاق)');
     return { valid: false, errors, errors_ar };
   }
 
@@ -534,12 +514,8 @@ export function validatePolygonCoordinates(
     const coord = outerRing[i];
     const result = validateCoordinatePair(coord as [number, number]);
     if (!result.valid) {
-      errors.push(
-        `Invalid coordinate at index ${i}: ${result.errors.join(", ")}`,
-      );
-      errors_ar.push(
-        `إحداثي غير صالح في الموقع ${i}: ${result.errors_ar.join("، ")}`,
-      );
+      errors.push(`Invalid coordinate at index ${i}: ${result.errors.join(', ')}`);
+      errors_ar.push(`إحداثي غير صالح في الموقع ${i}: ${result.errors_ar.join('، ')}`);
     }
   }
 
@@ -548,23 +524,19 @@ export function validatePolygonCoordinates(
   const lastPoint = outerRing[outerRing.length - 1];
 
   if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
-    errors.push(
-      "Polygon must be closed (first and last coordinates must be identical)",
-    );
-    errors_ar.push(
-      "المضلع يجب أن يكون مغلقاً (الإحداثي الأول والأخير يجب أن يكونا متطابقين)",
-    );
+    errors.push('Polygon must be closed (first and last coordinates must be identical)');
+    errors_ar.push('المضلع يجب أن يكون مغلقاً (الإحداثي الأول والأخير يجب أن يكونا متطابقين)');
   }
 
   // Check for self-intersection (simplified check)
   if (outerRing.length > 4 && hasSelfIntersection(outerRing)) {
-    errors.push("Polygon has self-intersection (invalid geometry)");
-    errors_ar.push("المضلع يحتوي على تقاطع ذاتي (شكل هندسي غير صالح)");
+    errors.push('Polygon has self-intersection (invalid geometry)');
+    errors_ar.push('المضلع يحتوي على تقاطع ذاتي (شكل هندسي غير صالح)');
   }
 
   // Warning for very large polygons
   if (outerRing.length > 1000) {
-    warnings.push("Polygon has many vertices, consider simplifying");
+    warnings.push('Polygon has many vertices, consider simplifying');
   }
 
   return { valid: errors.length === 0, errors, errors_ar, warnings };
@@ -577,9 +549,9 @@ export function validateGeoJSON(geojson: any): GeoValidationResult {
   const errors: string[] = [];
   const errors_ar: string[] = [];
 
-  if (!geojson || typeof geojson !== "object") {
-    errors.push("GeoJSON must be an object");
-    errors_ar.push("GeoJSON يجب أن يكون كائناً");
+  if (!geojson || typeof geojson !== 'object') {
+    errors.push('GeoJSON must be an object');
+    errors_ar.push('GeoJSON يجب أن يكون كائناً');
     return { valid: false, errors, errors_ar };
   }
 
@@ -591,26 +563,24 @@ export function validateGeoJSON(geojson: any): GeoValidationResult {
   }
 
   const validTypes = [
-    "Point",
-    "LineString",
-    "Polygon",
-    "MultiPoint",
-    "MultiLineString",
-    "MultiPolygon",
-    "GeometryCollection",
-    "Feature",
-    "FeatureCollection",
+    'Point',
+    'LineString',
+    'Polygon',
+    'MultiPoint',
+    'MultiLineString',
+    'MultiPolygon',
+    'GeometryCollection',
+    'Feature',
+    'FeatureCollection',
   ];
   if (!validTypes.includes(geojson.type)) {
-    errors.push(
-      `Invalid GeoJSON type: ${geojson.type}. Must be one of: ${validTypes.join(", ")}`,
-    );
+    errors.push(`Invalid GeoJSON type: ${geojson.type}. Must be one of: ${validTypes.join(', ')}`);
     errors_ar.push(`نوع GeoJSON غير صالح: ${geojson.type}`);
     return { valid: false, errors, errors_ar };
   }
 
   // Validate coordinates based on type
-  if (geojson.type === "Polygon") {
+  if (geojson.type === 'Polygon') {
     if (!geojson.coordinates) {
       errors.push("Polygon must have 'coordinates' property");
       errors_ar.push("المضلع يجب أن يحتوي على خاصية 'coordinates'");
@@ -619,7 +589,7 @@ export function validateGeoJSON(geojson: any): GeoValidationResult {
     return validatePolygonCoordinates(geojson.coordinates);
   }
 
-  if (geojson.type === "Point") {
+  if (geojson.type === 'Point') {
     if (!geojson.coordinates) {
       errors.push("Point must have 'coordinates' property");
       errors_ar.push("النقطة يجب أن تحتوي على خاصية 'coordinates'");
@@ -628,7 +598,7 @@ export function validateGeoJSON(geojson: any): GeoValidationResult {
     return validateCoordinatePair(geojson.coordinates);
   }
 
-  if (geojson.type === "Feature") {
+  if (geojson.type === 'Feature') {
     if (!geojson.geometry) {
       errors.push("Feature must have 'geometry' property");
       errors_ar.push("Feature يجب أن يحتوي على خاصية 'geometry'");
@@ -696,21 +666,13 @@ function hasSelfIntersection(ring: number[][]): boolean {
 /**
  * Check if two line segments intersect
  */
-function segmentsIntersect(
-  p1: number[],
-  p2: number[],
-  p3: number[],
-  p4: number[],
-): boolean {
+function segmentsIntersect(p1: number[], p2: number[], p3: number[], p4: number[]): boolean {
   const d1 = direction(p3, p4, p1);
   const d2 = direction(p3, p4, p2);
   const d3 = direction(p1, p2, p3);
   const d4 = direction(p1, p2, p4);
 
-  if (
-    ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
-    ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
-  ) {
+  if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) {
     return true;
   }
   return false;
@@ -733,8 +695,8 @@ export function validateBoundary() {
       if (!result.valid) {
         return res.status(400).json({
           success: false,
-          error: "Invalid boundary geometry",
-          error_ar: "شكل الحدود غير صالح",
+          error: 'Invalid boundary geometry',
+          error_ar: 'شكل الحدود غير صالح',
           details: result.errors.map((e, i) => ({
             message: e,
             message_ar: result.errors_ar[i],
@@ -746,9 +708,7 @@ export function validateBoundary() {
     // If coordinates are provided as array
     if (coordinates && Array.isArray(coordinates)) {
       // Convert to GeoJSON format if needed
-      const geoJsonCoords = [
-        coordinates.map((c: any) => [c[0] || c.lng, c[1] || c.lat]),
-      ];
+      const geoJsonCoords = [coordinates.map((c: any) => [c[0] || c.lng, c[1] || c.lat])];
 
       // Ensure closed polygon
       const first = geoJsonCoords[0][0];
@@ -761,8 +721,8 @@ export function validateBoundary() {
       if (!result.valid) {
         return res.status(400).json({
           success: false,
-          error: "Invalid polygon coordinates",
-          error_ar: "إحداثيات المضلع غير صالحة",
+          error: 'Invalid polygon coordinates',
+          error_ar: 'إحداثيات المضلع غير صالحة',
           details: result.errors.map((e, i) => ({
             message: e,
             message_ar: result.errors_ar[i],
@@ -772,7 +732,7 @@ export function validateBoundary() {
 
       // Store validated GeoJSON in body
       req.body.validatedBoundary = {
-        type: "Polygon",
+        type: 'Polygon',
         coordinates: geoJsonCoords,
       };
     }
@@ -792,7 +752,7 @@ export const FieldCreateSchemaWithGeo = Schema.object({
   coordinates: Schema.array(Schema.array(Schema.number())).min(3).optional(),
   boundary: Schema.object({}).optional(), // Will be validated by validateBoundary middleware
   irrigationType: Schema.string()
-    .enum(["drip", "sprinkler", "flood", "pivot", "furrow", "none"])
+    .enum(['drip', 'sprinkler', 'flood', 'pivot', 'furrow', 'none'])
     .optional(),
   soilType: Schema.string().maxLength(100).optional(),
   plantingDate: Schema.string().optional(),

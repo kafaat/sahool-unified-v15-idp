@@ -300,9 +300,10 @@ describe('Sidebar Navigation (Client/Farmer)', () => {
       const onClose = vi.fn();
       render(<Sidebar isOpen={true} onClose={onClose} />);
 
+      const initialCalls = onClose.mock.calls.length;
       const backdrop = screen.getByTestId('mobile-drawer-backdrop');
       fireEvent.click(backdrop);
-      expect(onClose).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalledTimes(initialCalls + 1);
     });
 
     it('should render without drawer props (backward compatible)', () => {

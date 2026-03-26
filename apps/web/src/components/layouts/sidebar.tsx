@@ -17,7 +17,7 @@
  *   the hamburger button in Header. Parent layout passes `isOpen`
  *   and `onClose` props.
  */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -165,7 +165,14 @@ export const Sidebar = React.memo(function Sidebar({ isOpen = false, onClose }: 
   const tCommon = useTranslations('common');
 
   // Close drawer when route changes (user navigated)
+  // Skip the initial mount so we only close the drawer on *subsequent* navigation,
+  // not when the component first renders with isOpen=true.
+  const isFirstRenderRef = useRef(true);
   useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
     if (isOpen && onClose) {
       onClose();
     }

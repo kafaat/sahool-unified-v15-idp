@@ -159,6 +159,15 @@ class Settings(BaseSettings):
         default="llava:7b",
         description="Ollama vision model name (llava:7b, bakllava, llava:13b, etc.)",
     )
+    # vLLM — platform-internal OpenAI-compat multimodal service (sahool-vllm:8270)
+    vllm_vlm_url: str = Field(
+        default="http://sahool-vllm:8270/v1",
+        description="vLLM server base URL for vision inference (platform-internal)",
+    )
+    vllm_vlm_model: str = Field(
+        default="deepseek-ai/deepseek-vl2",
+        description="Model name served by the vLLM server (must support vision/multimodal input)",
+    )
     vlm_confirm_threshold: float = Field(
         default=0.8,
         ge=0.0,

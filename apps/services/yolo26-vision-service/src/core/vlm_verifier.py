@@ -47,9 +47,18 @@ _MIN_CROP_PX = 10
 
 
 class VLMProvider(StrEnum):
-    """Supported VLM providers for secondary verification."""
+    """Supported VLM providers for secondary verification.
+
+    - ``qwen_vl``:  Alibaba Qwen-VL via DashScope REST API (cloud, highest accuracy).
+    - ``vllm``:     Platform-internal vLLM server (OpenAI-compat multimodal at
+                    ``http://sahool-vllm:8270/v1``).  Reuses the existing SAHOOL
+                    vLLM service — no external GPU or cloud cost required.
+    - ``ollama``:   Local Ollama Vision model (llava/bakllava, offline-first edge).
+    - ``disabled``: VLM verification disabled (YOLO-only mode, default).
+    """
 
     QWEN_VL = "qwen_vl"
+    VLLM = "vllm"
     OLLAMA = "ollama"
     DISABLED = "disabled"
 
@@ -103,17 +112,18 @@ class VLMVerifier:
     """
     VLM secondary verifier for YOLO26 agricultural detections.
 
-    Calls Qwen-VL (DashScope) or Ollama Vision to validate each YOLO
-    detection region and return a structured verdict with confidence.
+    Calls Qwen-VL (DashScope), the platform's internal vLLM server, or Ollama
+    Vision to validate each YOLO detection region and return a structured verdict.
+
+    Provider selection (Pain Points addressed):
+        - ``vllm``    → uses ``sahool-vllm:8270`` already on the platform.
+                        No external API key, no cloud cost. (Pain Point 2 ✓)
+        - ``qwen_vl`` → DashScope cloud, best multimodal accuracy. (Pain Point 3 ✓)
+        - ``ollama``  → local Jetson/edge box via llava. (Pain Point 1 + 2 ✓)
 
     Usage::
 
-        verifier = VLMVerifier(
-            provider="qwen_vl",
-            qwen_api_key="sk-...",
-            confirm_threshold=0.8,
-            suspect_threshold=0.5,
-        )
+        verifier = VLMVerifier(provider="vllm")
         result = await verifier.verify(image_bytes, [x1, y1, x2, y2], "Red Palm Weevil")
     """
 
@@ -122,7 +132,7 @@ class VLMVerifier:
         "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
     )
 
-    # Structured verification prompt (English + Arabic bilingual output requested)
+    # Structured verification prompt — requests bilingual JSON output
     _PROMPT = (
         "You are an expert agricultural inspector. "
         "Examine the crop image carefully for pest infestation or plant disease symptoms.\n\n"
@@ -138,16 +148,21 @@ class VLMVerifier:
     def __init__(
         self,
         provider: str = VLMProvider.DISABLED,
+        # Qwen-VL (DashScope)
         qwen_api_key: str = "",
         qwen_model: str = "qwen-vl-plus",
         qwen_api_url: str = "",
+        # vLLM (platform-internal OpenAI-compat)
+        vllm_url: str = "http://sahool-vllm:8270/v1",
+        vllm_model: str = "deepseek-ai/deepseek-vl2",
+        # Ollama Vision (local edge)
         ollama_url: str = "http://localhost:11434",
         ollama_model: str = "llava:7b",
+        # Thresholds
         confirm_threshold: float = 0.8,
         suspect_threshold: float = 0.5,
         timeout: float = 30.0,
     ) -> None:
-        # Normalise provider string to enum, fall back to DISABLED on unknown value
         try:
             self.provider = VLMProvider(provider)
         except ValueError:
@@ -157,6 +172,8 @@ class VLMVerifier:
         self.qwen_api_key = qwen_api_key
         self.qwen_model = qwen_model
         self.qwen_api_url = qwen_api_url or self._QWEN_VL_DEFAULT_URL
+        self.vllm_url = vllm_url.rstrip("/")
+        self.vllm_model = vllm_model
         self.ollama_url = ollama_url.rstrip("/")
         self.ollama_model = ollama_model
 
@@ -221,6 +238,8 @@ class VLMVerifier:
 
             if self.provider == VLMProvider.QWEN_VL:
                 raw = await self._call_qwen_vl(crop_bytes)
+            elif self.provider == VLMProvider.VLLM:
+                raw = await self._call_vllm_vision(crop_bytes)
             else:  # OLLAMA
                 raw = await self._call_ollama_vision(crop_bytes)
 
@@ -470,6 +489,54 @@ class VLMVerifier:
 
         return self._extract_json(str(content))
 
+    async def _call_vllm_vision(self, crop_bytes: bytes) -> dict[str, Any]:
+        """
+        Call the platform's internal vLLM server using the OpenAI-compatible
+        multimodal chat/completions endpoint.
+
+        The SAHOOL vLLM service runs at ``http://sahool-vllm:8270/v1`` and
+        serves any model loaded via the ``VLLM_MODEL`` environment variable.
+        When a vision-capable model is loaded (e.g. ``deepseek-ai/deepseek-vl2``,
+        ``llava-hf/llava-1.5-7b-hf``), images can be sent as OpenAI-format
+        ``image_url`` content blocks.
+
+        No external API key needed — reuses the existing internal service.
+        """
+        img_b64 = self._encode_image(crop_bytes)
+        payload: dict[str, Any] = {
+            "model": self.vllm_model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"},
+                        },
+                        {"type": "text", "text": self._PROMPT},
+                    ],
+                }
+            ],
+            "temperature": 0.1,
+            "max_tokens": 256,
+        }
+
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                f"{self.vllm_url}/chat/completions",
+                json=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            response.raise_for_status()
+
+        result = response.json()
+        content = (
+            result.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+        )
+        return self._extract_json(str(content))
+
     async def _call_ollama_vision(self, crop_bytes: bytes) -> dict[str, Any]:
         """
         Call Ollama Vision model (llava, bakllava) via local Ollama API.
@@ -507,14 +574,22 @@ def build_vlm_verifier_from_settings(settings: Any) -> VLMVerifier:
     Instantiate a :class:`VLMVerifier` from the service :class:`Settings`.
 
     All VLM settings are optional and default to safe values (disabled).
+    Set ``VLM_PROVIDER=vllm`` to use the platform's existing internal vLLM
+    service at ``http://sahool-vllm:8270/v1`` without any external API key.
     """
     return VLMVerifier(
         provider=getattr(settings, "vlm_provider", VLMProvider.DISABLED),
+        # Qwen-VL
         qwen_api_key=getattr(settings, "qwen_vl_api_key", ""),
         qwen_model=getattr(settings, "qwen_vl_model", "qwen-vl-plus"),
         qwen_api_url=getattr(settings, "qwen_vl_api_url", ""),
+        # vLLM (internal platform service)
+        vllm_url=getattr(settings, "vllm_vlm_url", "http://sahool-vllm:8270/v1"),
+        vllm_model=getattr(settings, "vllm_vlm_model", "deepseek-ai/deepseek-vl2"),
+        # Ollama
         ollama_url=getattr(settings, "ollama_vlm_url", "http://localhost:11434"),
         ollama_model=getattr(settings, "ollama_vlm_model", "llava:7b"),
+        # Thresholds
         confirm_threshold=getattr(settings, "vlm_confirm_threshold", 0.8),
         suspect_threshold=getattr(settings, "vlm_suspect_threshold", 0.5),
         timeout=getattr(settings, "vlm_timeout_seconds", 30.0),

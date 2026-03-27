@@ -18,11 +18,9 @@ import {
   BarChart3,
   ArrowUpRight,
   ArrowDownRight,
-  Minus,
   MapPin,
   Target,
   Wheat,
-  FileText,
 } from 'lucide-react';
 import {
   useSatelliteMonitorField,
@@ -86,7 +84,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
 
   const TABS: Array<{ key: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
     { key: 'overview', label: 'نظرة عامة', icon: BarChart3 },
-    { key: 'soil', label: 'تحليل التربة (JEEVN)', icon: FlaskConical },
+    { key: 'soil', label: 'تحليل التربة الذكي', icon: FlaskConical },
     { key: 'irrigation', label: 'إدارة الري', icon: Droplets },
     { key: 'pests', label: 'الآفات والأمراض', icon: Bug },
     { key: 'yield', label: 'توقع الإنتاجية', icon: Wheat },
@@ -243,12 +241,12 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
             </div>
           )}
 
-          {/* ========= SOIL ANALYSIS TAB (JEEVN AI) ========= */}
+          {/* ========= SOIL ANALYSIS TAB (AI) ========= */}
           {activeTab === 'soil' && soilAnalysis && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-5 h-5 text-amber-600" />
-                <h3 className="font-semibold text-gray-900">تحليل التربة الذكي - JEEVN AI</h3>
+                <h3 className="font-semibold text-gray-900">تحليل التربة الذكي - AI</h3>
                 <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">AI</span>
               </div>
 
@@ -347,7 +345,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
                 <Droplets className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">إدارة الري الذكية - JEEVN AI</h3>
+                <h3 className="font-semibold text-gray-900">إدارة الري الذكية - AI</h3>
               </div>
 
               {/* Next Irrigation */}
@@ -459,7 +457,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
                 <Bug className="w-5 h-5 text-red-600" />
-                <h3 className="font-semibold text-gray-900">التنبؤ بالآفات والأمراض - JEEVN AI</h3>
+                <h3 className="font-semibold text-gray-900">التنبؤ بالآفات والأمراض - AI</h3>
               </div>
 
               {pestPredictions.length === 0 ? (
@@ -512,7 +510,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
                 <Wheat className="w-5 h-5 text-amber-600" />
-                <h3 className="font-semibold text-gray-900">توقع الإنتاجية والحصاد - JEEVN AI</h3>
+                <h3 className="font-semibold text-gray-900">توقع الإنتاجية والحصاد - AI</h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

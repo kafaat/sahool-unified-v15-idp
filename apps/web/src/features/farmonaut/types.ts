@@ -62,7 +62,7 @@ export interface DirectionGridAnalysis {
 }
 
 // ---------------------------------------------------------------------------
-// JEEVN AI Advisory Types
+// AI Advisory Types (Soil, Pest, Irrigation, Yield)
 // ---------------------------------------------------------------------------
 export type NutrientLevel = 'optimal' | 'adequate' | 'low' | 'deficient' | 'excess';
 

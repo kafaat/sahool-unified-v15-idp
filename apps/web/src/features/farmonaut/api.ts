@@ -38,7 +38,6 @@ import type {
   ReportFormat,
   TimePeriod,
   DirectionGridAnalysis,
-  DirectionZoneData,
   SoilAnalysis,
   PestPrediction,
   IrrigationSchedule,
@@ -355,7 +354,7 @@ export const satelliteMonitorApi = {
       if (filters?.sortBy) params.set('sort_by', filters.sortBy);
       if (filters?.sortOrder) params.set('sort_order', filters.sortOrder);
 
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
 
@@ -369,7 +368,7 @@ export const satelliteMonitorApi = {
 
   getFieldById: async (id: string): Promise<SatelliteField> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${id}`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch satellite monitoring field ${id}, using mock data:`, error);
@@ -381,7 +380,7 @@ export const satelliteMonitorApi = {
 
   getStats: async (): Promise<SatelliteDashboardStats> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/stats`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn('Failed to fetch satellite monitoring stats, using mock data:', error);
@@ -392,7 +391,7 @@ export const satelliteMonitorApi = {
   getAlerts: async (fieldId?: string): Promise<SatelliteAlert[]> => {
     try {
       const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${API_PREFIX}/farmonaut/alerts${params}`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/alerts${params}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn('Failed to fetch alerts, using mock data:', error);
@@ -407,7 +406,7 @@ export const satelliteMonitorApi = {
   ): Promise<NDVITimeSeriesPoint[]> => {
     try {
       const response = await api.get(
-        `${API_PREFIX}/farmonaut/fields/${fieldId}/timeseries?period=${period}`
+        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/timeseries?period=${period}`
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -418,7 +417,7 @@ export const satelliteMonitorApi = {
 
   getWeatherForecast: async (fieldId: string): Promise<WeatherForecast[]> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/weather`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/weather`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch weather for ${fieldId}, using mock data:`, error);
@@ -428,7 +427,7 @@ export const satelliteMonitorApi = {
 
   getFieldZones: async (fieldId: string): Promise<FieldZone[]> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/zones`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/zones`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch zones for ${fieldId}, using mock data:`, error);
@@ -442,7 +441,7 @@ export const satelliteMonitorApi = {
     format: ReportFormat
   ): Promise<FieldReport> => {
     try {
-      const response = await api.post(`${API_PREFIX}/farmonaut/fields/${fieldId}/report`, {
+      const response = await api.post(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/report`, {
         period,
         format,
       });
@@ -455,7 +454,7 @@ export const satelliteMonitorApi = {
 
   resolveAlert: async (alertId: string): Promise<void> => {
     try {
-      await api.patch(`${API_PREFIX}/farmonaut/alerts/${alertId}/resolve`);
+      await api.patch(`${API_PREFIX}/satellite-monitor/alerts/${alertId}/resolve`);
     } catch (error) {
       logger.error(`Failed to resolve alert ${alertId}:`, error);
       throw error;
@@ -465,7 +464,7 @@ export const satelliteMonitorApi = {
   getDirectionGrid: async (fieldId: string, layerType: MapLayerType): Promise<DirectionGridAnalysis> => {
     try {
       const response = await api.get(
-        `${API_PREFIX}/farmonaut/fields/${fieldId}/direction-grid?layer=${layerType}`
+        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/direction-grid?layer=${layerType}`
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -476,7 +475,7 @@ export const satelliteMonitorApi = {
 
   getSoilAnalysis: async (fieldId: string): Promise<SoilAnalysis> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/soil`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/soil`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch soil analysis for ${fieldId}, using mock data:`, error);
@@ -486,7 +485,7 @@ export const satelliteMonitorApi = {
 
   getPestPredictions: async (fieldId: string): Promise<PestPrediction[]> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/pest-predictions`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/pest-predictions`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch pest predictions for ${fieldId}, using mock data:`, error);
@@ -496,7 +495,7 @@ export const satelliteMonitorApi = {
 
   getIrrigationSchedule: async (fieldId: string): Promise<IrrigationSchedule> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/irrigation-schedule`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/irrigation-schedule`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch irrigation schedule for ${fieldId}, using mock data:`, error);
@@ -506,7 +505,7 @@ export const satelliteMonitorApi = {
 
   getYieldPrediction: async (fieldId: string): Promise<YieldPrediction> => {
     try {
-      const response = await api.get(`${API_PREFIX}/farmonaut/fields/${fieldId}/yield-prediction`);
+      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/yield-prediction`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch yield prediction for ${fieldId}, using mock data:`, error);
@@ -523,7 +522,7 @@ export const satelliteMonitorApi = {
     try {
       const params = new URLSearchParams({ start: startDate, end: endDate, layer: layerType });
       const response = await api.get(
-        `${API_PREFIX}/farmonaut/fields/${fieldId}/historical?${params.toString()}`
+        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/historical?${params.toString()}`
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -533,12 +532,12 @@ export const satelliteMonitorApi = {
   },
 
   createField: async (data: FieldSetupData): Promise<SatelliteField> => {
-    const response = await api.post(`${API_PREFIX}/farmonaut/fields`, data);
+    const response = await api.post(`${API_PREFIX}/satellite-monitor/fields`, data);
     return response.data.data || response.data;
   },
 
   updateField: async (fieldId: string, data: Partial<FieldSetupData>): Promise<SatelliteField> => {
-    const response = await api.patch(`${API_PREFIX}/farmonaut/fields/${fieldId}`, data);
+    const response = await api.patch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}`, data);
     return response.data.data || response.data;
   },
 };

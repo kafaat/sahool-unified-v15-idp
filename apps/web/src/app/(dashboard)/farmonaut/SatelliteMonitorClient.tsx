@@ -226,7 +226,7 @@ export default function SatelliteMonitorClient() {
       </div>
 
       {/* ================================================================= */}
-      {/* B2. Health Distribution + JEEVN AI Quick Insights */}
+      {/* B2. Health Distribution + AI Quick Insights */}
       {/* ================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Health Distribution */}
@@ -258,11 +258,11 @@ export default function SatelliteMonitorClient() {
           </div>
         </div>
 
-        {/* JEEVN AI Quick Insights */}
+        {/* AI Quick Insights */}
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 p-4">
           <div className="flex items-center gap-2 mb-3">
             <Bot className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-sm font-semibold text-indigo-900">JEEVN AI - رؤى سريعة</h3>
+            <h3 className="text-sm font-semibold text-indigo-900">رؤى ذكية — AI Insights</h3>
           </div>
           <div className="space-y-2 text-sm">
             {healthDistribution.critical > 0 && (

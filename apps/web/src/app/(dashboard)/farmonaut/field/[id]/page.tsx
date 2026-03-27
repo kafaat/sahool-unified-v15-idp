@@ -8,7 +8,7 @@ import FieldDetailClient from './FieldDetailClient';
 
 export const metadata: Metadata = {
   title: 'Field Detail | Satellite Monitoring | SAHOOL',
-  description: 'Detailed satellite analysis, JEEVN AI advisory, and field intelligence',
+  description: 'Detailed satellite analysis, AI advisory, and field intelligence',
 };
 
 export default function FieldDetailPage({ params }: { params: { id: string } }) {

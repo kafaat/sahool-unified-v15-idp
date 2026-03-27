@@ -33,9 +33,9 @@ import {
   useSatelliteMonitorIrrigationSchedule,
   useSatelliteMonitorYieldPrediction,
   useSatelliteMonitorHistorical,
-} from '@/features/farmonaut';
-import { MAP_LAYERS } from '@/features/farmonaut/api';
-import type { MapLayerType, TimePeriod, CropHealthStatus, NutrientLevel } from '@/features/farmonaut';
+} from '@/features/satellite-monitor';
+import { MAP_LAYERS } from '@/features/satellite-monitor/api';
+import type { MapLayerType, TimePeriod, CropHealthStatus, NutrientLevel } from '@/features/satellite-monitor';
 
 const HEALTH_CONFIG: Record<CropHealthStatus, { color: string; bg: string; labelAr: string }> = {
   healthy: { color: 'text-green-700', bg: 'bg-green-100', labelAr: 'صحي' },
@@ -95,7 +95,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/farmonaut" className="hover:text-green-600">مراقبة الأقمار الصناعية</Link>
+        <Link href="/satellite-monitor" className="hover:text-green-600">مراقبة الأقمار الصناعية</Link>
         <ArrowRight className="w-3 h-3" />
         <span className="text-gray-900 font-medium">{field.nameAr}</span>
       </div>

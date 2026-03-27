@@ -17,8 +17,8 @@ import {
   CheckCircle,
   Trash2,
 } from 'lucide-react';
-import { useCreateField } from '@/features/farmonaut';
-import type { BoundaryInputMethod, FieldBoundary } from '@/features/farmonaut';
+import { useCreateField } from '@/features/satellite-monitor';
+import type { BoundaryInputMethod, FieldBoundary } from '@/features/satellite-monitor';
 
 const CROP_TYPES = [
   { value: 'wheat', label: 'Wheat', labelAr: 'قمح' },
@@ -159,7 +159,7 @@ export default function AddFieldClient() {
         <h2 className="text-2xl font-bold text-gray-900">تم إرسال الحقل للمعالجة</h2>
         <p className="text-gray-500">ستصل أول صورة قمر صناعي خلال 3-5 أيام</p>
         <p className="text-sm text-gray-400">Field submitted for pre-processing. First image in 3-5 days.</p>
-        <Link href="/farmonaut" className="inline-block px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm mt-4">
+        <Link href="/satellite-monitor" className="inline-block px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm mt-4">
           العودة للوحة التحكم
         </Link>
       </div>
@@ -170,7 +170,7 @@ export default function AddFieldClient() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/farmonaut" className="hover:text-green-600">مراقبة الأقمار الصناعية</Link>
+        <Link href="/satellite-monitor" className="hover:text-green-600">مراقبة الأقمار الصناعية</Link>
         <ArrowRight className="w-3 h-3" />
         <span className="text-gray-900 font-medium">إضافة حقل جديد</span>
       </div>

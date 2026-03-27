@@ -34,9 +34,9 @@ import {
   useSatelliteMonitorTimeSeries,
   useSatelliteMonitorWeather,
   useSatelliteMonitorDirectionGrid,
-} from '@/features/farmonaut';
-import { MAP_LAYERS, HYBRID_COLORS } from '@/features/farmonaut/api';
-import type { SatelliteField, SatelliteAlert, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
+} from '@/features/satellite-monitor';
+import { MAP_LAYERS, HYBRID_COLORS } from '@/features/satellite-monitor/api';
+import type { SatelliteField, SatelliteAlert, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/satellite-monitor';
 
 // ---------------------------------------------------------------------------
 // Health status helpers
@@ -166,7 +166,7 @@ export default function SatelliteMonitorClient() {
             ))}
           </select>
           <Link
-            href="/farmonaut/add-field"
+            href="/satellite-monitor/add-field"
             className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
           >
             <Plus className="w-4 h-4" />
@@ -694,7 +694,7 @@ export default function SatelliteMonitorClient() {
                     <td className="px-4 py-3 text-xs text-gray-500">{field.lastImageDate}</td>
                     <td className="px-4 py-3 text-center">
                       <Link
-                        href={`/farmonaut/field/${field.id}`}
+                        href={`/satellite-monitor/field/${field.id}`}
                         className="inline-flex items-center gap-1 px-2 py-1 text-xs text-green-700 bg-green-50 rounded hover:bg-green-100"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -723,7 +723,7 @@ export default function SatelliteMonitorClient() {
             </div>
           </div>
           <Link
-            href={selectedField ? `/farmonaut/field/${selectedField}` : '#'}
+            href={selectedField ? `/satellite-monitor/field/${selectedField}` : '#'}
             className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 text-sm font-medium"
           >
             عرض

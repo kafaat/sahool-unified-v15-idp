@@ -62,19 +62,28 @@ export default function AddFieldClient() {
   const validateStep = (currentStep: number): boolean => {
     const errors: string[] = [];
     if (currentStep === 1) {
-      if (!formData.lat && !formData.lng && !formData.address) {
+      const hasAddress = !!formData.address?.trim();
+      const hasLat = !!formData.lat?.trim();
+      const hasLng = !!formData.lng?.trim();
+      if (!hasAddress && !(hasLat && hasLng)) {
         errors.push('يرجى تحديد الموقع بالعنوان أو الإحداثيات');
       }
-      if (formData.lat && (parseFloat(formData.lat) < -90 || parseFloat(formData.lat) > 90)) {
+      if ((hasLat || hasLng) && !(hasLat && hasLng)) {
+        errors.push('يرجى إدخال كل من خط العرض وخط الطول');
+      }
+      if (hasLat && (Number.isNaN(parseFloat(formData.lat)) || parseFloat(formData.lat) < -90 || parseFloat(formData.lat) > 90)) {
         errors.push('خط العرض يجب أن يكون بين -90 و 90');
       }
-      if (formData.lng && (parseFloat(formData.lng) < -180 || parseFloat(formData.lng) > 180)) {
+      if (hasLng && (Number.isNaN(parseFloat(formData.lng)) || parseFloat(formData.lng) < -180 || parseFloat(formData.lng) > 180)) {
         errors.push('خط الطول يجب أن يكون بين -180 و 180');
       }
     }
     if (currentStep === 2) {
       if (boundaryMethod === 'coordinates' && boundaryPoints.length < 3) {
         errors.push('يجب إدخال 3 نقاط على الأقل لتحديد الحدود');
+      }
+      if (boundaryMethod === 'draw' && boundaryPoints.length < 3) {
+        errors.push('يرجى رسم حدود الحقل على الخريطة (3 نقاط على الأقل)');
       }
       if ((boundaryMethod === 'kml' || boundaryMethod === 'shapefile') && !uploadedFile) {
         errors.push('يرجى رفع ملف الحدود');
@@ -115,6 +124,10 @@ export default function AddFieldClient() {
     if (!validateStep(3)) return;
     if (!formData.nameAr || !formData.cropType) {
       setValidationErrors(['يرجى ملء اسم الحقل ونوع المحصول']);
+      return;
+    }
+    if ((boundaryMethod === 'kml' || boundaryMethod === 'shapefile') && boundaryPoints.length === 0 && !uploadedFile) {
+      setValidationErrors(['يرجى تحميل ملف حدود الحقل أو تحديد الحدود يدوياً']);
       return;
     }
     try {

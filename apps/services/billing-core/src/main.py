@@ -78,7 +78,8 @@ logging.basicConfig(
 logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
 
-# Free tier limits (Phase 3 of Component Unification Plan PR #1344)
+# Python mirror of DEFAULT_FREE_TIER from packages/shared-types/src/contracts/api-responses.ts
+# IMPORTANT: Keep in sync with TypeScript contract. Any changes must update both files.
 FREE_TIER_LIMITS = {
     "daily_queries": 20,
     "image_detection": 3,

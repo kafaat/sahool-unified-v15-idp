@@ -52,7 +52,14 @@ router = APIRouter(tags=["Chat"])
 
 # Intent classification and routing (module-level singletons)
 _intent_classifier = AgriIntentClassifier()
-_intent_router = IntentRouter()
+_intent_router: IntentRouter | None = None
+
+
+def _get_intent_router() -> IntentRouter:
+    global _intent_router
+    if _intent_router is None:
+        _intent_router = IntentRouter()
+    return _intent_router
 
 
 def _get_http_client(req: Request) -> httpx.AsyncClient:
@@ -171,7 +178,7 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
                 request_context = getattr(request, "context", None)
                 if isinstance(request_context, dict):
                     field_id = request_context.get("field_id")
-            intent_router_result = await _intent_router.route(
+            intent_router_result = await _get_intent_router().route(
                 intent_result,
                 user_query,
                 {

@@ -96,17 +96,13 @@ CROP_KNOWLEDGE = {
 }
 
 
-@router.get("/{crop_type}")
-async def get_crop_encyclopedia(crop_type: str):
-    crop = CROP_KNOWLEDGE.get(crop_type.lower())
-    if not crop:
-        available = list(CROP_KNOWLEDGE.keys())
-        return {
-            "error": f"Crop '{crop_type}' not found",
-            "error_ar": f"المحصول '{crop_type}' غير موجود",
-            "available_crops": available,
-        }
-    return {"crop": crop_type, "data": crop}
+@router.get("/")
+async def list_crops():
+    crops = [
+        {"crop_type": k, "name": v["name"], "name_ar": v["name_ar"], "family_ar": v["family_ar"]}
+        for k, v in CROP_KNOWLEDGE.items()
+    ]
+    return {"crops": crops, "count": len(crops)}
 
 
 @router.get("/search")
@@ -137,10 +133,14 @@ async def search_encyclopedia(q: str = Query(..., min_length=2), lang: str = Que
     return {"query": q, "language": lang, "results": results, "count": len(results)}
 
 
-@router.get("/")
-async def list_crops():
-    crops = [
-        {"crop_type": k, "name": v["name"], "name_ar": v["name_ar"], "family_ar": v["family_ar"]}
-        for k, v in CROP_KNOWLEDGE.items()
-    ]
-    return {"crops": crops, "count": len(crops)}
+@router.get("/{crop_type}")
+async def get_crop_encyclopedia(crop_type: str):
+    crop = CROP_KNOWLEDGE.get(crop_type.lower())
+    if not crop:
+        available = list(CROP_KNOWLEDGE.keys())
+        return {
+            "error": f"Crop '{crop_type}' not found",
+            "error_ar": f"المحصول '{crop_type}' غير موجود",
+            "available_crops": available,
+        }
+    return {"crop": crop_type, "data": crop}

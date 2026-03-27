@@ -25,7 +25,8 @@ class AgriIntent(StrEnum):
     HELP = "help"
 
 
-# Intent -> Service routing map
+# Service ports mirror from packages/shared-types/src/contracts/service-ports.ts
+# IMPORTANT: Keep in sync with TypeScript contract SERVICE_PORTS.
 INTENT_SERVICE_MAP = {
     AgriIntent.CROP_DISEASE: {
         "service": "pest-detection-service",

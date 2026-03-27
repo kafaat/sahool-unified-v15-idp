@@ -30,6 +30,12 @@ class IntentRouter:
         self.timeout = timeout
         self.client = httpx.AsyncClient(timeout=timeout)
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.close()
+
     async def route(self, intent_result: IntentResult, query: str, context: dict | None = None) -> RouterResult:
         service_info = INTENT_SERVICE_MAP.get(intent_result.intent)
         if not service_info:
@@ -59,7 +65,10 @@ class IntentRouter:
     ) -> dict:
         # Route to appropriate endpoint based on intent
         url, payload = self._build_request(service, port, query, intent, context)
-        resp = await self.client.post(url, json=payload, timeout=self.timeout)
+        if "/indices/" in url or url.endswith("/healthz"):
+            resp = await self.client.get(url, params=payload or None, timeout=self.timeout)
+        else:
+            resp = await self.client.post(url, json=payload, timeout=self.timeout)
         resp.raise_for_status()
         return resp.json()
 

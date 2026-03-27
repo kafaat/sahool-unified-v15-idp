@@ -1,7 +1,7 @@
 ---
 title: "Coffee & Qat Q&A: Yemen & Southern Saudi Arabia"
 title_ar: "أسئلة وأجوبة البن والقات: اليمن وجنوب السعودية"
-description: Q&A guide for coffee and qat cultivation in Yemen and Saudi Jazan highlands
+description: Comprehensive Q&A guide for coffee and qat cultivation in Yemen and Saudi Jazan highlands
 category: crops
 tags:
   - coffee
@@ -10,15 +10,19 @@ tags:
   - saudi_arabia
   - jazan
   - khawlani
+  - mocha
+  - terraced_agriculture
   - qa_guide
 regions:
   - yemen
   - saudi_arabia
-version: "1.0.0"
+version: "1.1.0"
 last_updated: "2026-03-27"
 ---
 
 # Coffee & Qat Q&A: Yemen & Southern Saudi Arabia | أسئلة وأجوبة البن والقات: اليمن وجنوب السعودية
+
+---
 
 ### Q1: What are the main coffee-growing regions in Yemen and southern Saudi Arabia, and what makes each region distinctive?
 
@@ -459,6 +463,7 @@ The preservation of these terrace systems is not merely agricultural — it is t
 - **الحافز الاقتصادي**: أسعار البُن التخصصي العالية تخلق دافعاً اقتصادياً مباشراً لصيانة المدرَّجات — مزارع يكسب ٥٠+ دولار/كجم من بُن هَرَاز لديه سبب أقوى بكثير لصيانة مدرَّجاته.
 
 حفظ أنظمة المدرَّجات ليس زراعياً فحسب — إنه صون علاقة حضارة بمنظر طبيعي قاسٍ، وتقليد هندسي أقدم من معظم المباني القائمة على الأرض، والبنية التحتية الحيّة التي يعتمد عليها أحد أكثر أنواع البُن تميّزاً في العالم.
+
 
 
 ### Q1: What are the major coffee-growing regions in Yemen and southern Saudi Arabia, and what makes each region distinctive?
